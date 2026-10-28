@@ -28,9 +28,10 @@ public sealed class RagnarokSampleTests(ITestOutputHelper output)
             maximum = timer.Elapsed > maximum ? timer.Elapsed : maximum;
             Assert.True(timer.Elapsed < TimeSpan.FromSeconds(2), $"Opening {file.RelativePath} took {timer.Elapsed}.");
             Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
-            Assert.False(document.CanEdit);
+            Assert.Equal(file.FileName != "userpreferences", document.CanEdit);
             var root = document.BuildView();
-            Assert.All(RagnarokFormatTests.Flatten(root).OfType<FieldNode>(), f => Assert.True(f.Spec.ReadOnly));
+            Assert.All(RagnarokFormatTests.Flatten(root).OfType<FieldNode>(), f =>
+                Assert.Equal(file.FileName == "userpreferences" || f.ValueId != "metadata/play-seconds", f.Spec.ReadOnly));
             if (file.FileName != "userpreferences")
             {
                 var stats = Assert.Single(RagnarokFormatTests.Flatten(root).OfType<StatsNode>());
@@ -90,7 +91,7 @@ public sealed class RagnarokSampleTests(ITestOutputHelper output)
                 Assert.InRange(table.Rows.Count, 1, 256);
                 foreach (var field in RagnarokFormatTests.Flatten(table).OfType<FieldNode>())
                 {
-                    Assert.True(field.Spec.ReadOnly);
+                    Assert.Equal(!field.ValueId.EndsWith("/quantity", StringComparison.Ordinal), field.Spec.ReadOnly);
                     Assert.Equal(field.Value, document.GetValue(field.ValueId));
                 }
 

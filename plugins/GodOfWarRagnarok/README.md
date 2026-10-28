@@ -1,11 +1,38 @@
 # God of War Ragnarök (`gow-ragnarok`)
 
-**Maturity: ReadOnly.** Opens decrypted PS5 gameplay/history saves and the separate preferences record.
+**Maturity: Experimental (v0.3.0).** Opens decrypted PS5 gameplay/history saves and the separate preferences record.
 Provides metadata, five length-bounded wallet containers, F8 resource/XP/raven counters,
 nested gear/skill ID candidates, 132 grouped raw flag records, attributed F2 catalogs,
-integrity evidence and lazy raw word/byte views. Integrity
-dependencies and the complete serialization grammar remain unresolved. No edits or actions are
-offered. An unsuccessful checksum search does not establish safe writing.
+integrity evidence and lazy raw word/byte views. Existing decoded wallet counters and play time
+are editable, with an F6 restore-to-imported-values action. **Integrity unknown — the game may reject
+this save.** Integrity dependencies and the complete serialization grammar remain unresolved.
+An unsuccessful checksum search does not establish game acceptance. Preferences remain read-only.
+
+## Enabled writes and their evidence
+
+The 2026-10-28 owner decision “Enable writes. Keep warnings.” supersedes the earlier evidence gates
+in the plan and round-2 handoff. These are **3 write operations/families**, not three individual cells.
+Console validation is tracked separately in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
+| --- | --- | --- | --- | --- |
+| Existing wallet u32 counters, including resource, inferred XP, raw raven and unmapped ID rows in decoded containers | Inferred quantity/container role; unknown gameplay semantics retain raw labels | Counted 16-byte rows and exact nested boundaries across 76 primary records; [Continue? reader](https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py), existing attributed ID packs; edit/reparse/F1 byte-range tests | **Integrity unknown — the game may reject this save.** No authentication bytes are guessed. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): separate small resource/XP/raven edits, UI effect, normal use/progression, native re-save and reload |
+| Metadata play-time u32 at `190` | Inferred seconds; not validated on console | PC reader offset/units plus coherent PS5 corpus; edited round trip, byte-range and Core undo/redo tests | **Integrity unknown — the game may reject this save.** | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): reduce by one second, check displayed time, native re-save/reload and forward play |
+| F6 restore selected/all existing wallet counters to imported values | Inferred; import ceiling is not a legal game maximum | Pure preview, old/new counters, skipped rows, warning revalidation, F8 selected/query scopes, atomic apply and Core grouped undo/redo | **Integrity unknown — the game may reject this save.** No derived totals, rewards or dependencies are invented. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): reduce two counters, preview/restore both, verify one-step undo/redo and console persistence |
+
+Every counter's range is **0..its own imported value**, intersected with u32 storage. Legal maxima
+are unknown; the import is the conservative observed ceiling, not a promise that every lower value
+is gameplay-safe. Zero imports permit only zero. Reductions can be restored within the same document;
+reopening an edited file establishes its newly imported values as the ceilings. The restore action
+does not grant new rows or raise a counter above its import. Duplicate IDs/containers remain separate.
+Individual fields, action descriptions, previews, direct action outcomes and edit/apply outcomes
+carry explicit integrity and console/dependency warnings. Canonical counter bindings are separate
+from read-only raw diagnostics, so expanding a raw alias cannot replace an editable binding.
+
+Only decoded fixed-size words are patched. IDs, counts, lengths, metadata words, padding, links,
+opaque regions and trailing bytes are preserved. Structural inventory edits, gear/equipped references,
+quest completion, difficulty and settings writers remain **unimplemented**: their structure/dependency
+repair or field meaning/range is not established. They are not waiting solely on console permission.
 
 ## Titles and file roles
 
@@ -125,10 +152,13 @@ candidates and recognized compression signatures. Length and compression candida
 marked unproven; the harness never traverses them or rewrites them. `RagnarokDiffDecoder` feeds those
 values to `SaveSetDiffer` for generation-to-generation semantic reports.
 
-`CanEdit` is false. Every field is read-only, edits are rejected atomically by `BoundSaveDocument`,
-and unknown actions are rejected. `Serialize()` re-parses the original buffer and returns an isolated
-byte-identical copy for the same path. Unknown bytes/padding/tails are preserved. Blob pages also
-return copies. The normal UI disables export for read-only documents.
+`CanEdit` is true for gameplay and false for preferences. `BoundSaveDocument` rejects invalid edits
+atomically, with plugin-side integer/type/range validation even for direct SDK callers. Unknown actions
+are rejected; direct restore invocation changes nothing and directs the caller to F6 preview/apply.
+`Serialize()` re-parses the current buffer and throws if the output violates the supported grammar,
+then returns an isolated copy for the same path. This grammar check is not authentication validation.
+Without edits the output remains byte-identical. Unknown bytes/padding/tails are preserved; blob pages
+also return copies. Core reopens output before export.
 
 ## Bounds and tests
 
@@ -145,13 +175,19 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-To
 dotnet test --project tests/SaveToolkit.Core.Tests
 ```
 
-**Round 2: 55 plugin tests passed, 0 failed, 0 skipped; API build: 0 warnings/errors.**
+**Write-enable round: 68 plugin tests passed, 0 failed, 0 skipped; API build: 0 warnings/errors.**
 The artifact environment variable is exported in the same test command. Coverage includes all 156
 records and byte-identical serialization, all 76 primary nested grammars and serialize/reopen byte
 identity, nested length/count/identity corruption, F8 global search/filter/numeric sort/bindings,
 licensed pack validation/direct-call fallback, F1 generation comparison, published digest vectors
 and all-primary integrity probes. Tests skip when samples are absent; such a run is not validation.
-The conformance edit test is inactive for ReadOnly maturity; no edit round trip or console test is claimed.
+Conformance now exercises real edits. Additional coverage edits every positive decoded counter over
+all 76 primary records, checks serialize/reopen values and F1 diffs restricted to intended u32 ranges,
+rejects invalid types/ranges and mixed batches, and verifies Core scalar/grouped undo/redo, F6 stale
+or tampered previews, skipped rows, empty selections and F8 query scopes. A synthetic positive
+non-hero-container fixture tests that writer/history path without claiming console evidence. A
+synthetic wallet-marker collision proves Serialize rejects output that cannot be re-parsed.
+No console test is claimed.
 
 Known generation-zero `GOWRSAVE0`: 3,215,266 bytes, play-time word 138,041, counter 1,797,
 Hacksilver wallet word 288,638 at `1BC90`, Rawhide 52, Chaos Flame 0, XP-ID word 84,725.
@@ -161,7 +197,8 @@ These are byte-level regression facts, not proof of player-facing meanings.
 ## Open work
 
 - Recover full nested serialization/length/type rules, including regions surrounding wallets.
-- Determine all integrity dependencies, coverage and seeds before introducing a setter.
+- Determine all integrity dependencies, coverage and seeds; replace the unknown-integrity warning
+  only when the actual algorithm and acceptance are demonstrated.
 - Validate quantities, XP role and time units against PS5 UI or controlled saves.
 - Locate difficulty through structure; map preferences with one-setting-at-a-time captures.
 - Obtain other regional/revision and Valhalla samples; test in-game before any Stable designation.
@@ -222,10 +259,12 @@ No permissively licensed gear/quest hash crosswalk was established. Unlicensed r
 ## Owner capture and validation checklist
 
 See [OWNER_CHECKLIST.md](OWNER_CHECKLIST.md) for exact captures, evidence needed for gear/quest
-names, keyed authentication investigation and the console write gate. Full named gear/quests,
-character-specific XP, collectible completion and all writes remain open.
+names, keyed authentication investigation and enabled-write trials tracked on
+[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). Full named gear/quests,
+character-specific XP and derived collectible completion remain open. Console captures no longer
+gate the enabled bounded writes. Only the owner may approve Stable.
 
 ## SDK requests
 
-None blocking. F1, F2 and F8 support the read model; no plugin-local paging protocol was invented.
-Full grammar/integrity research is the blocker to editing.
+None blocking. F1/F2/F8 support the model and evidence, and F6 supports planned restoration.
+F5/F7 are available but no safe structural or linked multi-file writer is established for this format.

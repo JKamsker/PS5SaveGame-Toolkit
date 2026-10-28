@@ -5,7 +5,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
-internal sealed class RagnarokDocument(string path, string name, byte[] bytes, RagnarokRecordIndex index, RagnarokReferences references) : BoundSaveDocument, IQueryableDocument
+internal sealed class RagnarokDocument(string path, string name, byte[] bytes, RagnarokRecordIndex index, RagnarokReferences references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private const string BlobId = "save";
     internal const int RowsPerPage = 256;
@@ -13,18 +13,20 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
     internal const int RawGroupSize = 64 * 1024;
     private int PageSize => index.Preferences ? RowsPerPage : RawPageSize;
     private RagnarokCollections? _collections;
+    private readonly RagnarokWrites _writes = new(bytes, index, references);
     private RagnarokCollections CollectionViews => _collections ??= new(this, index, references);
     public IReadOnlyList<QueryableCollection> Collections => CollectionViews.Metadata;
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => CollectionViews.Query(this, collectionId, query);
 
     public override string Title => index.Preferences ? "Ragnarök · User preferences" : $"Ragnarök · {name}";
-    public override bool CanEdit => false;
+    public override bool CanEdit => !index.Preferences;
 
     public override ViewNode BuildView()
     {
         var overview = new List<ViewNode>
         {
-            new TextNode("Read-only research view. Integrity and the full record grammar are unresolved; editing is disabled.") { Tone = Tone.Warning },
+            new TextNode(index.Preferences ? "Read-only settings research view; no settings writer is implemented." :
+                "Experimental decoded counter edits. " + RagnarokWrites.IntegrityWarning + " " + RagnarokWrites.EvidenceWarning) { Tone = Tone.Warning },
             new StatsNode([
                 new("File", name), new("Bytes", bytes.Length.ToString()),
                 new("Indexed IDs", index.DirectoryCount.ToString()), new("Wallet rows", index.WalletCount.ToString()),
@@ -42,15 +44,11 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
 
         overview.Add(Field("metadata/location", "Location / quest description", new TextSpec(), () => FieldValue.Of(index.Description))
             with { Confidence = Confidence.Verified, Description = "NUL-terminated UTF-8 text present in the save metadata." });
-        overview.Add(Field("metadata/play-seconds", "Play time (inferred)",
-            IntegerSpec.UInt32 with { Format = IntegerFormat.Duration, UnitsPerSecond = 1 },
-            () => FieldValue.Of((long)ReadWord(RagnarokFormat.PlaySecondsOffset)))
-            with { Confidence = Confidence.Inferred,
-                Description = "PC reader identifies seconds here; PS5 values are consistent, but not compared with the game UI." });
+        overview.Add(CounterField(RagnarokFormat.PlaySecondsOffset));
         overview.Add(Number(RagnarokFormat.SaveCounterOffset, "Save counter (inferred)", Confidence.Inferred));
         return new TabsNode([
             new("Overview", overview),
-            new("Resources & XP", [CollectionViews.View("resources"), CollectionViews.View("xp")]),
+            new("Resources & XP", [RagnarokWrites.RestoreAction(), CollectionViews.View("resources"), CollectionViews.View("xp")]),
             new("Gear candidates", [CollectionViews.View("nested-ids"), CollectionViews.View("index-words")]),
             new("Quests & collectibles", [CollectionViews.View("collectibles"), CollectionViews.View("flags"),
                 new TextNode("Named quest IDs, equipped gear and completion flags remain unknown. No completion or ownership is inferred from raw matches.") { Tone = Tone.Warning }]),
@@ -61,7 +59,7 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
                 SectionNode.Lazy("Secondary ID list", "secondary", index.SecondaryCount.ToString())]),
             new("Resource anchors", [new TextNode("All occurrences of catalogued resource IDs, including duplicates outside the wallet. Adjacent words outside wallet rows are unknown."),
                 SectionNode.Lazy("Resource occurrences", "anchors", index.Occurrences.Count.ToString())]),
-            new("Integrity", [new TextNode("Authentication remains unresolved. This read-only diagnostic tests finite unkeyed digest hypotheses; no MAC key is available.") { Tone = Tone.Warning },
+            new("Integrity", [new TextNode(RagnarokWrites.IntegrityWarning + " This diagnostic tests finite unkeyed digest hypotheses; no authentication algorithm is known.") { Tone = Tone.Warning },
                 SectionNode.Lazy("Digest coverage evidence", "integrity")]),
             new("Raw", RawRoot()),
         ]);
@@ -132,6 +130,44 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
         return [new(path, bytes.ToArray())];
     }
 
+    public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) => base.ApplyEdits(edits) with
+    { Warnings = [RagnarokWrites.IntegrityWarning, RagnarokWrites.EvidenceWarning] };
+
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        actionId == RagnarokWrites.RestoreActionId
+            ? new() { Message = "Preview and apply this action through F6 planning.", Warnings = [RagnarokWrites.IntegrityWarning, RagnarokWrites.EvidenceWarning] }
+            : base.InvokeAction(actionId, parameters);
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        _writes.Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+    {
+        var current = PlanAction(actionId, parameters, scope);
+        if (current.Errors.Count > 0) return new() { Errors = current.Errors, Warnings = current.Warnings };
+        if (plan.Errors.Count > 0 || !current.Changes.SequenceEqual(plan.Changes) ||
+            !current.SkippedRows.SequenceEqual(plan.SkippedRows) || !current.Warnings.SequenceEqual(plan.Warnings))
+            return EditOutcome.Rejected(actionId, "The preview changed; preview the action again.") with { Warnings = current.Warnings };
+        foreach (var counter in _writes.Counters.Where(counter => counter.Resource)) _ = CounterField(counter.Offset);
+        return ApplyEdits(current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray());
+    }
+
+    internal FieldNode CounterField(int offset)
+    {
+        var counter = _writes.Counter(offset);
+        var spec = IntegerSpec.UInt32 with { Max = counter.Imported };
+        if (!counter.Resource) spec = spec with { Format = IntegerFormat.Duration, UnitsPerSecond = 1 };
+        return Field(counter.ValueId, counter.Label, spec,
+            () => FieldValue.Of((long)_writes.Read(counter)), value => _writes.Write(counter, value),
+            value => _writes.Validate(counter, value)) with
+        {
+            Confidence = Confidence.Inferred,
+            Description = $"Decoded LE u32 at 0x{offset:X}. Based on: {counter.Source} " +
+                RagnarokWrites.EvidenceWarning + " " + RagnarokWrites.IntegrityWarning,
+            Warning = RagnarokWrites.IntegrityWarning,
+        };
+    }
+
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
     {
         if (blobId != BlobId)
@@ -161,7 +197,7 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
 
     private IReadOnlyList<ViewNode> RawRoot() =>
     [
-        new HexNode(BlobId, bytes.Length) { Title = "Original bytes" },
+        new HexNode(BlobId, bytes.Length) { Title = "Current save bytes" },
         SectionNode.Lazy(index.Preferences ? "Raw setting bytes" : "Raw word interpretations", "raw"),
     ];
 
