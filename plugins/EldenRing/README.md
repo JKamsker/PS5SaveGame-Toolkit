@@ -1,162 +1,191 @@
 # Elden Ring (`eldenring`)
 
-**Experimental**, with bounded held-rune editing for the sampled character/profile versions **150/90**.
-No console reload has been tested. Other versions that pass structural and mirror checks open
-read-only. Unrecognised layouts and inconsistent profiles fail with `SaveFormatException`.
+**Experimental**, v0.2.0. The only gameplay write is the existing bounded held-rune edit
+for character/profile formats **150/90**. There is no console reload evidence. New inventory,
+storage, equipment, class, vitals and regulation views are read-only and **Inferred/Unknown**.
 
-## Titles and files
+## Titles and file roles
 
 | PS5 retail title | Region | Sample coverage |
 | --- | --- | --- |
-| PPSA03169 | Japan | One primary allocation and its identical console backup |
-| PPSA04608 | Asia | Title identity verified; no sample |
-| PPSA04609 | Europe | Title identity verified; no sample |
-| PPSA04610 | United States | Title identity verified; no sample |
+| PPSA03169 | JP | One snapshot: primary plus identical console backup |
+| PPSA04608 | Asia | Registered title; layout compatibility inferred, no sample |
+| PPSA04609 | EU | Registered title; layout compatibility inferred, no sample |
+| PPSA04610 | US | Registered title; layout compatibility inferred, no sample |
 
-IDs were checked in PROSPEROPatches; JP identity also appears in the supplied format notes.
-Regional layout compatibility is **inferred**, not console-tested. Network Test IDs, including
-PPSA04616, PPSA04646 and PPSA05603, are deliberately excluded.
+IDs were checked in PROSPEROPatches. Network Test titles are excluded. The plugin opens
+`sce_sdmemory/memory.dat` (imported directory `sdimg_sce_sdmemory`, file `memory.dat`), or the
+nested path `sce_sdmemory/memory.dat`. Backups open independently; export backup mirroring is
+framework-owned. System files, account identifiers and multiplayer passwords are not decoded
+by the semantic reader or evidence decoder. No sample bytes are shipped.
 
-The game file is `sce_sdmemory/memory.dat`: the importer represents it as directory
-`sdimg_sce_sdmemory` and file `memory.dat`. A nested `sce_sdmemory/memory.dat` path is also accepted.
-Console backups open independently. System files and account identifiers are not interpreted.
-Export returns only the opened file; backup mirroring is framework-owned.
+## Layout and preservation
 
-## Verified layout
+Little-endian unless stated otherwise. Every unknown byte, inactive character, padding region,
+encrypted regulation allocation and appended tail is preserved in the original allocation.
+Serialization patches only held runes, reparses character/profile invariants and returns a copy.
 
-Offsets are hexadecimal; integers are little-endian. Supplied size: **28,967,040 bytes**
-(`0x1BA0080`). No PC BND4 header exists at offset zero.
-
-| Offset / size | Role |
+| Offset / size (hex) | Role |
 | --- | --- |
-| `0 / 70` | PS header: magic `2C9C01CB`, sentinel `7F7F7F7F` at `08`. Other words are opaque. |
-| `70 + index * 280000 / 280000` | Ten character blocks, indices 0–9; no MD5 prefix. |
-| `1900070 / 60000` | User data 10: version, opaque account/settings, menu, active flags and summaries. |
-| `1960070 / 240010` | User data 11 / regulation allocation, completely preserved. |
-| `1BA0080..EOF` | Any appended bytes, preserved without interpretation. |
+| `0 / 70` | PS header: magic `2C9C01CB`, sentinel `7F7F7F7F` at `08`; remaining words opaque |
+| `70 + index * 280000 / 280000` | Ten character slots, no PC per-slot MD5 prefix |
+| `1900070 / 60000` | User data 10: version, opaque settings, menu, active flags, summaries |
+| `1960070 / 240010` | Preserved regulation allocation (opaque 16 bytes, IV, AES payload) |
+| `1BA0080..EOF` | Preserved uninterpreted trailing data |
 
-Character prefix: version at `+0`, map bytes at `+4`, elapsed milliseconds (`u64`) at `+8`, then
-item-handle map at `+20`. Walk 5,120 variable-size entries (5,118 for versions <=81): eight-byte
-header; nonzero weapon IDs with top nibble 0 add 13 bytes; armour IDs with top nibble 1 add eight.
-Other entries add none. This locates PlayerGameData without scanning names or guessing a fixed
-stat offset. The legacy item count is sourced but has only synthetic coverage.
+Character prefix: version `+0`, opaque map `+4`, elapsed milliseconds `u64 +8`, GaItem map
+`+20`. Walk 5,120 variable entries (5,118 for <=81): eight-byte handle/ID header, plus 13 bytes
+for nonzero weapon IDs (top nibble zero), eight for armour (`0x1…`), none otherwise. This locates
+PlayerGameData without name scanning. Legacy layouts have synthetic prefix coverage only.
 
-Relative to PlayerGameData: eight `u32` attributes at `+34` (Vigor, Mind, Endurance, Strength,
-Dexterity, Intelligence, Faith, Arcane), level `+60`, held runes `+64`, lifetime rune total `+68`,
-UTF-16LE name `+94` (16 code units plus terminator).
+PlayerGameData: attributes `u32 +34` (Vigor/Mind/Endurance/Strength/Dexterity/Intelligence/Faith/Arcane),
+level `+60`, held runes `+64`, lifetime rune total `+68`, UTF-16LE name `+94` (16 code units plus
+terminator). Active profile summaries cross-check name, level, elapsed whole seconds and history.
+Level must equal `sum(attributes)-79`, attributes must be 1–99, and held runes must not exceed
+999,999,999 or lifetime history. These are supported parser invariants, not universal repair rules.
 
-The menu header is at `19001BC` (`user+14C`); its second `u32` gives the bounded data length.
-Ten active bytes follow its eight-byte header and payload. In the sample: flags at `19019C4`,
-summaries at `19019CE`. Summaries are `24C` bytes each: name `+0`, level `+22`, whole seconds `+26`,
-lifetime rune total `+2A`. Inactive summaries may contain stale/invalid text and are not decoded.
-Active flags, rather than residual slot bytes, determine character presence.
+The menu header at `19001BC` has a bounded payload-length word. Ten active bytes follow its
+eight-byte header and payload; summaries are `24C` bytes each. Sample flags are at `19019C4`,
+summaries at `19019CE`; summary level/time/history offsets are `22/26/2A`. Inactive residue is not
+interpreted. Other structurally accepted character versions retain prefix views but no deeper reading.
 
-Active slots must match summaries on name, level, elapsed whole seconds and rune history.
-Attributes must be 1–99 and satisfy **level = sum(attributes) − 79**. Held runes must not exceed
-999,999,999 or the lifetime total. Saves outside these supported invariants are rejected;
-this plugin does not repair corrupt/stale profiles.
+## Bounded semantic reader (Phase 1)
 
-## Sample evidence and confidence
+Deeper reads are gated to character format **150**. `ItemMapReader`, `SlotCursor`,
+`InventoryReader` and `SemanticReader` compose bounded ranges; no full save reserializer exists.
 
-Research date: 2026-10-28. One primary and one identical backup exist; there are **no independent
-changed snapshots**. Backup consistency is verified, temporal consistency is not.
+- PlayerGameData is `1B0` bytes. A `D0` gap precedes EquipData (`58`), ChrAsm (`74`) and ChrAsm2 (`58`).
+- Held inventory has fixed common/key capacities 2,688/384; storage has 1,920/128. A row is
+  `(u32 handle, u32 quantity, u32 inventoryIndex)`. These are technical array capacities, **not legal
+  item quantity caps**. Counts larger than capacity and variable counts extending beyond the slot fail.
+- Only all-zero rows are omitted from browsing. Every nonzero row, including zero quantities,
+  sentinel/unknown handles and count mismatches, remains represented. Count mismatches warn without repair.
+- Goods `0xB…` and talismans `0xA…` normalize to category-qualified IDs `0x4…` and `0x2…`.
+  Weapon/armour/AoW handles resolve through a unique GaItem entry; missing, duplicated or
+  category-inconsistent map references stay raw. Upgrade/affinity IDs are never silently rounded down.
+- Document row keys contain character/container/array/physical-record/handle/inventory-index identity.
+  Duplicate item names or duplicate handles do not collapse rows. F1 uses handle/index/occurrence
+  identities to align moved physical rows; it does not claim persistence across container transfers.
+- HP/FP/stamina current/effective-max/base-max are read separately (`+08/+14/+24` for their triples).
+  The archetype byte is `+B7`, independently tested against the nearby gift byte `+BB`.
+- Equipment representations remain independent raw references with Inferred labels; the plugin does
+  not claim which candidate is equipped or writable. Acquisition/event ranges are bounded candidates,
+  with no boss, quest, grace, completion or NG+ semantics.
 
-* **Verified against sources and bytes:** ten boundaries, one active character, slot 0 `Ploxi`,
-  character/profile versions 150/90, PlayerGameData at slot-relative `A28F` (absolute `A2FF`),
-  level 12, held runes 1,147, lifetime total 4,427, elapsed 4,597,996 ms / 4,597 profile seconds.
-* **Verified attributes:** 13 / 13 / 11 / 11 / 16 / 10 / 8 / 9; sum minus 79 equals 12.
-  Curated fields use `Confidence.Verified` because cited meanings and sample checks agree.
-* **Inferred:** regional compatibility and prefix layouts on other versions that pass validation.
-  Unsampled format versions remain read-only.
-* **Unknown:** remaining header words, inactive residue, most inventory/flags/regulation data.
-  Raw version fields use `Confidence.Unknown`; no game patch number is invented.
+Sample assertions reproduce PlayerGameData `A2FF`, held inventory `A6A3` (63 common / 2 key rows),
+empty storage `13A5E`, two Scimitars and the shield, Rowa Fruit ×12, Smithing Stone [1] ×3,
+Cracked Pot ×1 and the west Limgrave map. Names come from the attributed factual crosswalk, not
+in-game screenshots. Sample HP is **504/504/476**, FP **88/88/88**, stamina **97/97/97**; no base-stat
+reset is inferred from those observations. See [Evidence/README.md](Evidence/README.md).
 
-## Integrity, crypto and writes
+## Reference data and rich browsing (Phase 2, partial)
 
-The outer decrypted allocation and curated fields are plaintext. No additional decryption or
-compression is applied. Embedded regulation is opaque and untouched; its own crypto/integrity
-properties are not established here.
+F2 embeds the versioned `eldenring.sample-identities.en` pack, dataset/catalog **`eldenring-items`**,
+with six independently assembled short factual ID/name associations. Original crosswalk annotations
+are CC0; this is not a licence grant for game content or inherited upstream databases. No third-party
+prose, game art, scraped descriptions, TGA-derived bulk lists, quantity limits or DLC catalogue ships.
+Every record has coverage/evidence/schema attributes, per-dataset attribution, a source sidecar and a
+normalized content hash. Names remain Inferred. Empty contexts and unknown IDs always fall back to raw IDs.
 
-Evidence for **no per-character or profile MD5 on PlayStation**:
+`Open(file, IReferenceContext)` pins the catalog using the **64 lowercase hex SHA-256 of the complete
+preserved regulation allocation** as its compatibility key. This is a content fingerprint, not a guessed
+app patch or regulation version. An audited exact pack uses that key in `gameBuilds`; an unrelated
+build-specific pack is skipped. A changed IV/padding also changes this conservative key. Build-agnostic
+packs may supply identity labels only; the bundled six-item pack is JP-only. The Sources panel records
+resolved data; field descriptions, row details and the picker carry provenance. Optional imported icons
+use the SDK asset service and show their separate asset attribution; none are bundled.
 
-1. ClayAmore's `PSSave::write` directly joins the preserved 70-byte header, ten common `SaveSlot`
-   outputs, PS `UserData10` and `UserData11`. Its PC wrapper computes/prefixes MD5; PS omits it.
-   The PS profile writer also writes directly without a hash.
-2. Hapfel1's independent `recalculate_checksums()` explicitly returns immediately for PS saves,
-   with a comment confirming no per-slot or user-data-10 checksums.
-3. The sample follows those checksum-free boundaries exactly: slot 0 starts with version 150,
-   a timer and valid item map; all active character/profile mirrors agree.
+F8 publishes server-backed held/storage tables per active sampled character and a reference-catalog
+table. Search, exact column filters and deterministic sorts run over the complete collection before
+paging (maximum 200 rows, stable keys, numeric quantity/index/handle sorts). The catalog lazily indexes
+bounded record metadata, at most the framework's 250,000-record ceiling; it never eagerly creates view
+nodes for the entire pack. Whole-filtered selection remains owned by F8; no plugin bulk action exists.
 
-This supports experimental writes, not in-game validation. Held runes are the **only writable
-field**, limited to `min(existing lifetime rune total, 999999999)`. Rune-history editing is not
-implemented; both history copies stay unchanged. The field warns about this restriction.
-Level/attributes remain read-only pending class minima and dependent HP/FP/stamina validation;
-there are no derived edits. Rune edits patch exactly four bytes. `BoundSaveDocument` provides
-atomic batches. `Serialize()` re-parses, validates and returns an isolated copy. Unknown data,
-inactive slots, header, regulation and appended bytes remain byte-identical.
+F4 `ReferenceSpec` fields show exact canonical IDs and attributed names. Inventory references are
+read-only. **Inspect an item reference** uses the shared searchable picker and returns provenance
+without changes, dirty state or clearing rune undo history. On read-only document versions, the F8
+catalog remains available; Core currently blocks all actions when `CanEdit=false`.
 
-## Views and validation
+## Read-only regulation directory
 
-Tabs contain a ten-row profile table, headline facts, lazy curated character sections and lazy
-paged hex for each slot/header/profile/regulation/tail. Hex reads return copies, cap requests at
-64 KiB and stop at block boundaries. Opening visits at most 51,200 item headers rather than
-building a full inventory tree or scanning the allocation for strings.
+Lazy inspection decodes the sampled public game-format AES-256-CBC/IV framing, validates the exact
+DCX/DFLT header and declared sizes, and caps zlib output at **64 MiB**. The sample decompresses
+1,859,344 bytes to **37,745,424** bytes. Other codecs/headers are refused with a warning; raw inspection
+and save export remain available. Encrypted bytes are never rewritten.
 
-Validation on 2026-10-28:
+The reader validates the sampled BND4 format's byte order, directory/name/payload bounds and overlaps,
+then PARAM long-offset row directories, type-tag termination and schema flags. It finds **186 tables**;
+BND version `11001000` is **not** an application patch. The actual entry encoding is bit-reversed `0x2E`
+(stored `0x74`), with **32-bit data offset plus ID**, established from bytes rather than assuming all
+upstream flag code transfers. Duplicate PARAM row IDs occur in the sample and are retained. The `0x80`
+type-pointer flag makes its long type offset authoritative; three Cutscene tables have stale legacy
+string words beyond file length. Synthetic tests cover these cases.
 
-* API build: successful, zero warnings/errors.
-* Plugin: **64 passed**, including all six SDK conformance checks, known names/stats, every primary
-  and backup record, meaningful rune edit → serialize → reopen, exact four-byte write scope,
-  session undo/redo, version gates, UTF-16, corrupt inputs, bounded blobs and a <2-second sample
-  open/initial-view check.
-* Core framework: **43 passed**.
-* Empty sample directory: **56 passed, 8 skipped**, zero failures. Sample-dependent tests use
-  `SampleSaves`; no sample fixtures or extracted files are included.
+This validates directory structure, **not PARAM field layouts, parameter-derived legal caps, FMG text,
+DLC schema compatibility or writer safety**. Those parts of Phase 2 remain open. There is no native code,
+SoulsFormats/Paramdex dependency, unsafe cast, network access or plugin filesystem I/O.
 
-Commands: `dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj`,
-`dotnet test --project plugins/EldenRing/SaveToolkit.Plugins.EldenRing.Tests`,
-`dotnet test --project tests/SaveToolkit.Core.Tests`.
+## Writes and integrity
 
-## Sources and licences
+The PS wrapper has no PC per-slot/profile MD5: ClayAmore's PS writer concatenates preserved header,
+common slots and user-data blocks directly, while its PC wrapper adds MD5. This agrees with sampled
+boundaries; independent restricted-source research corroborates the format but contributed no code.
 
-Downloaded code was inspected, never executed.
+Held runes alone may change, capped at `min(existing lifetime total, 999999999)`, patching exactly four
+bytes. Both history copies remain unchanged. Unknown versions are read-only. All other new fields are
+read-only until controlled captures establish identity, mirrors, limits and side effects, followed by
+owner console reload/resave validation. Only the owner may promote maturity to Stable.
 
-* [ClayAmore/ER-Save-Editor](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df),
-  inspected commit `014107f0ca1cff867b5f7565cb79d6684f9b35df`, dual MIT/Apache-2.0. Format facts and
-  traversal algorithms were adapted; the MIT option and notice are retained in
-  [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
-  [PS header](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/playstation/save_header.rs),
-  [PS reader/writer](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/playstation/ps_save.rs),
-  [item map and PlayerGameData](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs),
-  [PS user data](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/playstation/user_data_10.rs),
-  [summaries](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/user_data_10.rs),
-  [PC MD5](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/pc/save_slot.rs),
-  [level/dependent stats](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/vm.rs).
-* [Hapfel1/er-save-manager](https://github.com/Hapfel1/er-save-manager/blob/5974934537feeace982721f82f0fbe69c20c208d/src/er_save_manager/parser/save.py),
-  inspected commit `5974934537feeace982721f82f0fbe69c20c208d`: PS layout/checksum corroboration.
-  [Character prefix](https://github.com/Hapfel1/er-save-manager/blob/5974934537feeace982721f82f0fbe69c20c208d/src/er_save_manager/parser/user_data_x.py)
-  names timer units/legacy item count;
-  [profile fields](https://github.com/Hapfel1/er-save-manager/blob/5974934537feeace982721f82f0fbe69c20c208d/src/er_save_manager/parser/user_data_10.py)
-  name seconds/rune history. Its current licence is **restrictive/source-available**; no code
-  from it is copied, translated or included. Layout facts are independently implemented and
-  verified against bytes and ClayAmore's permissive reference.
-* [ClayAmore/EldenRingSaveTemplate](https://github.com/ClayAmore/EldenRingSaveTemplate): additional
-  structure reference found during research; no implementation copied from it.
-* [Souls Modding Wiki, SL2](https://soulsmodding.com/doku.php?id=format:sl2): its documented
-  DSR/BND4 AES wrapper does not describe this Elden Ring PS allocation and was not reused.
-* Title metadata: [JP](https://prosperopatches.com/PPSA03169),
-  [Asia](https://prosperopatches.com/PPSA04608), [EU](https://prosperopatches.com/PPSA04609),
-  [US](https://prosperopatches.com/PPSA04610). Excluded Network Tests:
-  [PPSA04616](https://prosperopatches.com/PPSA04616), [PPSA05603](https://prosperopatches.com/PPSA05603).
-* Starting evidence: [PPSA03169 reconnaissance](../../docs/formats/PPSA03169.md) and
-  [method and limits](../../docs/formats/README.md).
+## Validation
 
-## Open questions
+Verified on 2026-10-28: **105 plugin tests passed** with private samples; **93 passed / 12 skipped**
+with an empty sample root; **171 Core tests passed**. API build succeeded with zero warnings/errors.
 
-Console reload of edited PS5 output; independent changed snapshots; regional/later-version samples;
-class-aware attribute edits and derived state; inventory editing; opaque regulation format.
-Strict profile mirror checks may reject recoverable saves with stale summaries; repair is out of scope.
+Run with `SAVETOOLKIT_ARTIFACTS` pointing to the private artifacts folder:
+
+```powershell
+dotnet test --project plugins/EldenRing/SaveToolkit.Plugins.EldenRing.Tests
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+```
+
+The suite covers conformance, byte-identical sample/backup export, four-byte rune scope and undo,
+semantic offsets/identities, malformed counts, duplicate/unknown handles, privacy-filtered F1 fixtures,
+F2 pack validity and exact compatibility selection, F4 session routing/undo preservation, F8 complete-set
+paging/search/filter/sort, bounded DCX/BND/PARAM rejection and real regulation directories.
+Sample-dependent cases skip when samples are absent. Current results are recorded in the issue #14
+final implementation comment; no binary sample or extracted regulation is included.
+
+## Sources and attribution
+
+Retrieved/inspected **2026-10-28**. Downloaded code was read as untrusted text, never executed.
+
+| Dataset / code port | Author / source | Licence / modifications / coverage |
+| --- | --- | --- |
+| PS prefix/profile, bounded GaItem/inventory/equipment reader | [ClayAmore/ER-Save-Editor, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save) | Dual MIT/Apache-2.0; MIT option retained in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Adapted only read algorithms, bounded ranges and ID-space facts; sample v150 only for deeper reads. |
+| AES/DCX/BND/PARAM directory format | [ClayAmore util, same revision](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/util) | MIT option, same notice. Narrow managed read-only port, sample-verified flag corrections, bounded decompression, no unsafe field/schema port. Public format key is not a user credential. |
+| Six sampled factual identities, v1.0.0 | [Toolkit contributors / evidence issue #14](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/14); research cross-checks [weapon names](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/weapon_name.rs), [goods names](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/item_name.rs) | Independently assembled factual subset and original annotations, [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/), not an imported third-party database. Category-qualified IDs; six JP observations only. No claimed relicensing of game names/art or upstream TGA lists. [Dataset sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.sample-identities.en/items.source.md). |
+| PS checksum / legacy-count research only | [Hapfel1/er-save-manager, 5974934](https://github.com/Hapfel1/er-save-manager/tree/5974934537feeace982721f82f0fbe69c20c208d) | Restricted/source-available current licence: no code translated, copied, executed or distributed. Facts independently checked against permissive code and sample bytes. |
+| Schema / data research only | [ERDB, e2028a6](https://github.com/EldenRingDatabase/erdb/tree/e2028a6e044b920a471388fb4e1c468b31b64350), [Paramdex](https://github.com/soulsmods/Paramdex), [TGA](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA) | ERDB generator MIT does not license game assets. Paramdex/TGA reuse rights unresolved: no code, schema files, bulk lists, descriptions or artwork imported. |
+| Title identity research | [JP](https://prosperopatches.com/PPSA03169), [Asia](https://prosperopatches.com/PPSA04608), [EU](https://prosperopatches.com/PPSA04609), [US](https://prosperopatches.com/PPSA04610) | Title/region facts only. No assets copied. |
+
+The [plan](../../docs/plans/EldenRing.md) records broader research and provenance exclusions.
+No approval to redistribute a larger database or artwork is inferred from the six factual labels.
+
+## Remaining gates and owner captures
+
+Phase 1 reader/evidence infrastructure is implemented; its temporal/console validation gate remains
+open. Phase 2 provides reference-pack plumbing, a small factual subset, rich browsing and regulation
+**directory** validation. PARAM field schemas, validated caps, full localized catalogues/icons/classes/
+graces/AoW and DLC/version coverage are unfinished. Phases 3–6 introduce no new writes this round.
+
+The exact before/after capture and console-validation checklist is in
+[Evidence/OWNER_CAPTURES.md](Evidence/OWNER_CAPTURES.md). Independent control pairs, nonempty storage,
+owned-instance equip/upgrade pairs, stat-modifier pairs and build/region/DLC observations are required.
 
 ## SDK requests
 
-None blocking this scope. Bound fields, lazy sections and paged blobs are sufficient.
+No shared-code change is needed for the shipped reader, F2 packs, F4 inspection or F8 tables.
+For later work: keep ELDENRING-R22 open for explicitly nonmutating actions on read-only documents;
+currently Core blocks them. F6 review/preview integration is deferred to the shared implementation.
+Catalogue metadata currently exposes search/paging only; an optional native filter/sort query would
+avoid a plugin-side metadata index for very large F8 catalogues. No plugin substitute for F6 was added.

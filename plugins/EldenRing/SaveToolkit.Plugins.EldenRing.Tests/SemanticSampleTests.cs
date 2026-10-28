@@ -1,0 +1,93 @@
+using SaveToolkit.Core.References;
+using SaveToolkit.Core.Sessions;
+using SaveToolkit.Core.Storage;
+using System.Text.Json;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
+
+namespace SaveToolkit.Plugins.EldenRing.Tests;
+
+public sealed class SemanticSampleTests
+{
+    [Fact]
+    public void Session_PagesRegisterReferencesAndPickerInspectionPreservesRuneUndo()
+    {
+        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup);
+        var plugin = new EldenRingPlugin();
+        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA03169");
+        using var session = new DocumentSession("eldenring-semantic", file, plugin, plugin.Open(file, references), references: references);
+        _ = session.BuildView();
+        var page = session.QueryCollection("slots/0/inventory/held", new() { Text = "Rowa Fruit" });
+        var field = Assert.IsType<FieldNode>(Assert.Single(page.Rows).Cells["item"]);
+        Assert.Equal("Rowa Fruit", session.FindReference(field.ValueId, field.Value.AsString(), page.Revision).Label);
+        var candidates = session.SearchReferences("item", new() { Text = "Scimitar" }, actionId: "references/inspect");
+        Assert.Equal("0x006CF2A0", Assert.Single(candidates.Items).RawId);
+        _ = session.Expand("characters/0");
+        Assert.True(session.ApplyEdits([new IncomingEdit("slots/0/runes", JsonSerializer.SerializeToElement(1148))]).Ok);
+        var lookup = session.InvokeAction("references/inspect", new Dictionary<string, JsonElement> { ["item"] = JsonSerializer.SerializeToElement("0x400050F0") });
+        Assert.True(lookup.Ok);
+        Assert.Empty(lookup.Changes);
+        Assert.True(session.Undo().Ok);
+        Assert.False(session.State.IsDirty);
+        Assert.Empty(session.Serialize());
+    }
+
+    [Fact]
+    public void JapaneseSnapshot_ReproducesRangesCountsAndRepresentativeIdentities()
+    {
+        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup);
+        var bytes = file.ReadAllBytes();
+        var slot = EldenRingParser.Parse(bytes).Slots[0];
+        var semantic = SemanticReader.Read(bytes, slot);
+        var held = semantic.Containers.Single(container => container.Id == "held");
+        var storage = semantic.Containers.Single(container => container.Id == "storage");
+        Assert.Equal(0xA6A3, held.Range.Offset);
+        Assert.Equal(63U, held.CommonCount);
+        Assert.Equal(2U, held.KeyCount);
+        Assert.Equal(65, held.Entries.Count);
+        Assert.Empty(held.Warnings);
+        Assert.Equal(0x13A5E, storage.Range.Offset);
+        Assert.Empty(storage.Entries);
+        Assert.Empty(storage.Warnings);
+        Assert.Equal(2, held.Entries.Count(entry => entry.ItemId == 0x006CF2A0));
+        Assert.Contains(held.Entries, entry => entry.ItemId == 0x01CB2310);
+        Assert.Equal(12U, Assert.Single(held.Entries, entry => entry.ItemId == 0x400050F0).Quantity);
+        Assert.Equal(3U, Assert.Single(held.Entries, entry => entry.ItemId == 0x40002774).Quantity);
+        Assert.Equal(1U, Assert.Single(held.Entries, entry => entry.ItemId == 0x4000251C).Quantity);
+        Assert.Equal("key", Assert.Single(held.Entries, entry => entry.ItemId == 0x40002198).Group);
+        Assert.All(semantic.Ranges, range => Assert.InRange(range.Offset + range.Length, slot.Offset, slot.Offset + SyntheticSave.SlotSize));
+
+        var plugin = new EldenRingPlugin();
+        var packs = new ReferencePackStore([plugin]);
+        using var document = plugin.Open(file, packs.Pin(plugin, "PPSA03169"));
+        _ = document.ExpandNode("characters/0");
+        Assert.Equal(504U, document.GetValue("slots/0/vitals/hp/current").AsUInt32());
+        Assert.Equal(504U, document.GetValue("slots/0/vitals/hp/effective-max").AsUInt32());
+        Assert.Equal(476U, document.GetValue("slots/0/vitals/hp/base-max").AsUInt32());
+        Assert.Equal(1U, document.GetValue("slots/0/class-id").AsUInt32());
+        var page = ((IQueryableDocument)document).Query("slots/0/inventory/held", new() { Text = "Rowa Fruit" });
+        var named = Assert.IsType<FieldNode>(Assert.Single(page.Rows).Cells["item"]);
+        Assert.Equal("Rowa Fruit", named.Label);
+        Assert.Contains("Source:", named.Description);
+        Assert.Equal(Confidence.Inferred, named.Confidence);
+        Assert.True(bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
+    }
+
+    [Fact]
+    public void SampleRegulation_DecodesAndValidatesEveryParamDirectoryWithoutChangingAllocation()
+    {
+        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat");
+        var bytes = file.ReadAllBytes();
+        var decoded = RegulationDecoder.Decode(bytes.AsSpan(0x1960070, 0x240010));
+        var archive = RegulationArchiveReader.Read(decoded);
+        Assert.Equal(37_745_424, decoded.Length);
+        Assert.Equal("11001000", archive.BinderVersion);
+        Assert.Equal(186, archive.Tables.Count);
+        Assert.Contains(archive.Tables, table => table.Name == "EquipParamGoods.param" && table.Rows == 1808 && table.DataVersion == 3);
+        Assert.Contains(archive.Tables, table => table.Name == "EquipParamWeapon.param" && table.Rows == 2973 && table.DataVersion == 6);
+        using var document = new EldenRingPlugin().Open(file);
+        Assert.Contains(document.ExpandNode("regulation/metadata"), node => node is TableNode table && table.Rows.Count == 186);
+        Assert.True(bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
+    }
+}

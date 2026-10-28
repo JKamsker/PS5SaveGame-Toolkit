@@ -92,7 +92,7 @@ public sealed class SampleTests(ITestOutputHelper output)
         var fields = document.ExpandNode("characters/0");
         watch.Stop();
         output.WriteLine($"Open + initial view + curated slot: {watch.Elapsed.TotalMilliseconds:F2} ms.");
-        Assert.Equal(3, view.Tabs.Count);
+        Assert.Equal(5, view.Tabs.Count);
         Assert.Equal(SyntheticSave.SlotCount, view.Tabs[1].Children.Count);
         Assert.All(view.Tabs[1].Children, child => Assert.NotNull(Assert.IsType<SectionNode>(child).LazyId));
         Assert.InRange(fields.Count, 1, 32);

@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "id": "eldenring.sample-identities.en",
+  "version": "1.0.0",
+  "title": "Elden Ring: six sampled factual identities (English)",
+  "description": "Independent minimal factual crosswalk. No third-party prose, artwork, bulk name tables, legal limits or DLC coverage.",
+  "plugins": [
+    "eldenring"
+  ],
+  "titleIds": [
+    "PPSA03169"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "eldenring-items",
+      "kind": "records",
+      "title": "Six sampled identity facts",
+      "files": [
+        {
+          "path": "items.json",
+          "sha256": "ac91cb785f7d6c2765cbf8548d79c4177d12dc0c354dd9f21f6af42eb5c51d4d"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/14",
+        "author": "PS5 Save Game Toolkit contributors (independent factual crosswalk; format research: ClayAmore/ER-Save-Editor 014107f0)",
+        "license": "CC0-1.0 (original crosswalk only; game names identify their respective items)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Independently assembled six short factual ID/name associations; normalized full category-qualified hexadecimal IDs; added sample coverage and evidence annotations. No source prose, game artwork, bulk TGA-derived lists or asserted legal quantity limits."
+      }
+    }
+  ]
+}
