@@ -319,13 +319,15 @@ UTF-8/UUID/scalar vectors, malformed/truncated data, entity rejection, meaningfu
 leader-name edits in conformance, thumbnails/blob ranges, and 20,000-entry/child
 paging. Synthetic tests run without samples.
 
-Version 0.6.0: **191 passed, 0 failed, 0 skipped** with the real artifacts path;
+Version 0.6.0: **200 passed, 0 failed, 0 skipped** with the real artifacts path,
+after rebasing onto main with F12/F13.
 API build passed with zero warnings/errors. With an empty artifacts path,
-**161 passed, 30 skipped, 0 failed**. F1 fixture verification passed: one baseline,
+**170 passed, 30 skipped, 0 failed**. F1 fixture verification passed: one baseline,
 two unchanged files, an identical backup pair and zero changed bytes. New live
 tests cover all six effective abilities, HP bounds, explicit stack contributions,
 container-key preservation, typed Creator IDs, malformed references, scoped F6
-selection/exclusions, intended byte changes and scalar/structural Core history.
+selection/exclusions, intended byte changes, scalar/structural Core history,
+F12 paging/truncation, F13 catalogue sorting and exact unsigned class-level sorting.
 
 Version 0.5.0: **168 passed, 0 failed, 0 skipped** with the real artifacts path;
 API build passed with zero warnings/errors. With an empty artifacts path,
@@ -347,23 +349,24 @@ hooks, scripts, build targets or repository tooling are installed.
 
 ## SDK requests
 
-F12/F13 are pending #32/#33 on the starting checkout. The existing F1 decoder
-does not traverse F8 rows, and semantic review likewise cannot fully enumerate
-unloaded live rows. Reproduction: change one Live NewAge quantity through its F8
-page; byte diffs show the intended storage change, but the current generic view
-decoder exposes only the original NewAge fingerprint/legacy views. No duplicate
-plugin-local F8 walker or picker substitute is introduced. All live write tests
-therefore assert byte differences directly as well as reopening values. F5/F6/F8/F9
-use their SDK contracts; no additional SDK changes are required for these actions.
+No SDK request blocks this subset. After rebasing onto main, F12's generic plugin
+view decoder traverses live F8 fields; regression tests compare an edited quantity
+across one-row pages and verify explicit incomplete evidence on budget exhaustion.
+There is no separate test-only/native decoder to migrate to the optional hook.
+Select this decoder with `savediff compare before.zip after.zip --decoder bg3`.
+Direct intended-byte assertions remain additional preservation evidence. F13
+provides browse-only pickers for the existing read-only references and standard
+catalog filtering/sorting, replacing the plugin's full-catalog sorting workaround.
+No message-only inspection action or proven float duration exists to opt in.
 
 ## Framework feature adoption
 
 | Feature | Status | Where / concrete limit |
 | --- | --- | --- |
-| F1 SaveDiff | Used | Pinned baseline `fixtures.json`, original whole/component fingerprints, intended-byte diffs for live writes. No fake event/control or churn mask. F8 traversal pending F12. |
+| F1 SaveDiff | Used | Pinned baseline `fixtures.json`, original whole/component fingerprints, intended-byte diffs and F12 live-value semantic checks. No fake event/control or churn mask. |
 | F2 reference packs | Used | Embedded attributed catalogs, per-dataset/record notices and Sources panel. |
 | F3 rich cells | Added this round | Live value evidence details, slot action cells, confidence/warning badges. No unlicensed icons. |
-| F4 ReferenceSpec | Used / expanded | Catalog raw IDs, saved CurrentTemplate, origin IDs and saved spell IDs; read-only where replacement needs an unimplemented dependency writer. Browse-only UX pending F13. |
+| F4 ReferenceSpec | Used / expanded | Catalog raw IDs, saved CurrentTemplate, origin IDs and saved spell IDs; F13 browse-only where replacement needs an unimplemented dependency writer. |
 | F5 structural undo | Added this round | Two-existing-container-key reorder with scoped inverse memento, stable row IDs, exact bytes on undo. Allocation/removal/transfers remain unsupported. |
 | F6 preview/apply | Added this round | Quantity restoration and structural reorder, skipped rows/warnings, query scopes/exclusions and one-step undo. |
 | F7 document groups | N/A | Gameplay/summary resources are already members of one atomically rewritten LSPK. Backup twins are identical archival copies, not a demonstrated coupled gameplay invariant. |
@@ -371,8 +374,8 @@ use their SDK contracts; no additional SDK changes are required for these action
 | F9 graph/map | Added this round | Saved spell presence graphs, text alternatives and field targets, Unknown states, no guessed prerequisite edges. Map N/A: no proven saved discovery/coordinate transform or licensed coordinate dataset. |
 | F10 exact values | Used | IntegerSpec/Int128 transports exact stored u32/i32/u64 values (including class levels). Nullable/union/exact-JSON specs N/A: supported mutable fields have fixed binary types or existing bounded integer JSON tokens. |
 | F11 shared codecs | N/A | No Kraken or SQLite payload exists in this supported Larian path. LZ4/zstd/zlib use the existing attributed managed codecs. |
-| F12 | Pending #32 | SaveDiff F8 traversal / decoder hooks absent at start. |
-| F13 | Pending #33 | Non-mutating inspect, browse-only picker, catalog filter/sort and float-duration additions absent at start. |
+| F12 | Added this round | Generic `bg3` decoder traverses live F8 rows with host budgets; one-row-page changed-quantity and truncation tests. No private decoder needs a separate hook. |
+| F13 | Added this round | Browse-only read-only reference fields; host category filtering and declared Key/Name/Category sorting. Inspection actions N/A: both actions mutate storage. Float duration N/A: no proven mutable float timer semantics. |
 
 ## Sources and attribution
 

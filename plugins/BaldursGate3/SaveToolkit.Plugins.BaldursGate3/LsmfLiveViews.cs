@@ -60,7 +60,9 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
         IEnumerable<QueryRow> ordered = filtered;
         if (query.SortColumn is { } column)
         {
-            string Key(QueryRow row) => long.TryParse(row.Value(column), out var number) ? number.ToString("D20", System.Globalization.CultureInfo.InvariantCulture) : row.Value(column);
+            string Key(QueryRow row) => UInt128.TryParse(row.Value(column), System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture, out var number)
+                ? number.ToString("D40", System.Globalization.CultureInfo.InvariantCulture) : row.Value(column);
             ordered = (query.Descending ? filtered.OrderByDescending(Key, StringComparer.OrdinalIgnoreCase) : filtered.OrderBy(Key, StringComparer.OrdinalIgnoreCase))
                 .ThenBy(row => row.Key, StringComparer.Ordinal);
         }

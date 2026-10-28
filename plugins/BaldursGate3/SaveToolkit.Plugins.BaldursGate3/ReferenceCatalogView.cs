@@ -49,12 +49,19 @@ internal sealed class ReferenceCatalogView(Bg3References references)
         {
             Text = query.Text,
             Category = query.Filters.GetValueOrDefault("category"),
+            SortBy = query.SortColumn switch
+            {
+                null => null,
+                "id" => ReferenceSortKey.Key,
+                "name" => ReferenceSortKey.Name,
+                "category" => ReferenceSortKey.Category,
+                _ => throw new ArgumentException($"Unknown BG3 catalog sort column '{query.SortColumn}'.", nameof(query)),
+            },
+            Descending = query.Descending,
             Offset = query.Offset,
             Limit = query.Limit,
         };
-        var page = query.SortColumn is null
-            ? catalog.Search(referenceQuery)
-            : SortedPage(catalog, referenceQuery, query.SortColumn, query.Descending);
+        var page = catalog.Search(referenceQuery);
         var rows = page.Items.Select(record =>
         {
             var key = $"catalog/{collectionId}/{Uri.EscapeDataString(record.Key)}";
@@ -75,25 +82,4 @@ internal sealed class ReferenceCatalogView(Bg3References references)
         return new QueryableCollectionPage(collectionId, columns, rows, catalog.Count, page.Total, page.Offset, query.Limit);
     }
 
-    private static ReferencePage SortedPage(IReferenceCatalog catalog, ReferenceQuery query, string sortColumn, bool descending)
-    {
-        var all = new List<ReferenceRecord>();
-        for (var offset = 0; offset < catalog.Count; offset += ReferenceQuery.MaxLimit)
-        {
-            var page = catalog.Search(query with { Offset = offset, Limit = ReferenceQuery.MaxLimit });
-            all.AddRange(page.Items);
-            if (page.Items.Count == 0 || all.Count >= page.Total) break;
-        }
-
-        Func<ReferenceRecord, string> key = sortColumn switch
-        {
-            "id" => record => record.Key,
-            "category" => record => record.Category ?? string.Empty,
-            "name" => record => record.Name,
-            _ => throw new ArgumentException($"Unknown BG3 catalog sort column '{sortColumn}'.", nameof(sortColumn)),
-        };
-        var ordered = descending ? all.OrderByDescending(key, StringComparer.OrdinalIgnoreCase) : all.OrderBy(key, StringComparer.OrdinalIgnoreCase);
-        var records = ordered.ThenBy(record => record.Key, StringComparer.Ordinal).ToArray();
-        return new ReferencePage(records.Skip(query.Offset).Take(query.Limit).ToArray(), records.Length, query.Offset);
-    }
 }
