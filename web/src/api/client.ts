@@ -1,9 +1,13 @@
 import type {
+  DocumentSources,
   EditResult,
   ExportPlan,
   ExportScope,
   FieldValue,
   Plugin,
+  ReferencePackInfo,
+  ReferencePacks,
+  ReferencePage,
   SaveDocument,
   TitleInfo,
   ViewNode,
@@ -93,6 +97,29 @@ export const api = {
     return new Uint8Array(await response.arrayBuffer());
   },
   downloadUrl: (wsId: string, docId: string) => `/api${doc(wsId, docId)}/download`,
+
+  /** Reference datasets pinned to the document, with attribution (Sources panel). */
+  sources: (wsId: string, docId: string) => request<DocumentSources>(`${doc(wsId, docId)}/sources`),
+  /** Paged catalog search; F4's picker builds on this. */
+  searchReferences: (
+    wsId: string,
+    docId: string,
+    catalogId: string,
+    query: { q?: string; category?: string; offset?: number; limit?: number } = {},
+  ) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== "") params.set(key, String(value));
+    return request<ReferencePage>(`${doc(wsId, docId)}/references/${encodeURIComponent(catalogId)}?${params.toString()}`);
+  },
+  referenceAssetUrl: (wsId: string, docId: string, assetId: string) =>
+    `/api${doc(wsId, docId)}/reference-assets?id=${encodeURIComponent(assetId)}`,
+  referencePacks: () => request<ReferencePacks>("/reference-packs"),
+  importReferencePack: (file: File) => {
+    const form = new FormData();
+    form.append("file", file, file.name);
+    return request<ReferencePackInfo>("/reference-packs", { method: "POST", body: form });
+  },
+  deleteReferencePack: (packId: string) => request<void>(`/reference-packs/${encodeURIComponent(packId)}`, { method: "DELETE" }),
 
   exportPlan: (wsId: string, scope: ExportScope, mirrorBackups: boolean) =>
     request<ExportPlan>(`${ws(wsId)}/export/plan`, json({ scope, mirrorBackups })),
