@@ -10,7 +10,7 @@ internal static class AstroPlanning
     public const string CollectAllAction = "collectibles/collect-all";
 
     public static IReadOnlyList<ActionNode> Views(long? coins) => [
-        .. (coins is { } value ? new[] { CoinAction(value) } : Array.Empty<ActionNode>()),
+        .. (coins is { } value ? new[] { CoinAction(value), AstroGatchaPlanning.View() } : Array.Empty<ActionNode>()),
         CollectionAction()
     ];
 
@@ -35,27 +35,30 @@ internal static class AstroPlanning
 
     public static ActionPlan Plan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters,
         ActionScope scope, AstroSchema schema, IReadOnlyList<AstroField> fields,
-        Func<AstroField, FieldValue> current)
+        Func<AstroField, FieldValue> current, AstroLocations locations)
     {
-        if (scope.QueryScope is not null)
+        if (scope.QueryScope is { } query &&
+            (!AstroCollectionQuery.KnownCollection(query.CollectionId) || scope.RowKeys is null))
         {
-            return new ActionPlan { Errors = [new FieldError(actionId, "ASTRO uses eager collectible tables; query scopes are unsupported.")] };
+            return new ActionPlan { Errors = [new FieldError(actionId, "Collectible query scopes must be resolved to row keys by Core before planning.")] };
         }
 
         return actionId switch
         {
             SetCoinsAction => PlanCoins(parameters, scope, fields, current),
+            AstroGatchaPlanning.ActionId => AstroGatchaPlanning.Plan(parameters, scope, fields, current),
             CollectAllAction => parameters.Count == 0 ? PlanCollectAll(scope, schema, current)
                 : new ActionPlan { Errors = [new FieldError(actionId, "Collect existing records takes no parameters.")] },
+            AstroWorldPlanning.ActionId => AstroWorldPlanning.Plan(parameters, scope, schema, locations, current),
             _ => new ActionPlan { Errors = [new FieldError(actionId, "Unknown ASTRO planning action.")] }
         };
     }
 
     public static EditOutcome Apply(string actionId, IReadOnlyDictionary<string, FieldValue> parameters,
         ActionScope scope, ActionPlan plan, AstroSchema schema, IReadOnlyList<AstroField> fields,
-        Func<AstroField, FieldValue> current, Func<IReadOnlyList<ValueEdit>, EditOutcome> applyEdits)
+        Func<AstroField, FieldValue> current, AstroLocations locations, Func<IReadOnlyList<ValueEdit>, EditOutcome> applyEdits)
     {
-        var fresh = Plan(actionId, parameters, scope, schema, fields, current);
+        var fresh = Plan(actionId, parameters, scope, schema, fields, current, locations);
         if (fresh.Errors.Count > 0)
         {
             return new EditOutcome { Errors = fresh.Errors };
@@ -71,7 +74,7 @@ internal static class AstroPlanning
         return applyEdits(edits) with { Warnings = fresh.Warnings };
     }
 
-    private static ActionPlan PlanCoins(IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope,
+    public static ActionPlan PlanCoins(IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope,
         IReadOnlyList<AstroField> fields, Func<AstroField, FieldValue> current)
     {
         if (scope.RowKeys is not null)
@@ -85,7 +88,7 @@ internal static class AstroPlanning
             return new ActionPlan { Errors = [new FieldError("amount", "Target coins must be between 0 and 2,147,483,647.")] };
         }
 
-        var coins = fields.SingleOrDefault(f => f.Path == "PreInstall/Common/NumCoin");
+        var coins = AstroFields.Coins(fields);
         if (coins is null)
         {
             return new ActionPlan { Errors = [new FieldError(SetCoinsAction, "This schema has no verified Common/NumCoin field.")] };
@@ -102,7 +105,7 @@ internal static class AstroPlanning
         return new ActionPlan { Changes = oldValue == amount ? [] : [change], Warnings = warnings };
     }
 
-    private static ActionPlan PlanCollectAll(ActionScope scope, AstroSchema schema,
+    public static ActionPlan PlanCollectAll(ActionScope scope, AstroSchema schema,
         Func<AstroField, FieldValue> current)
     {
         IEnumerable<AstroCollectionRecord> records = schema.Records;

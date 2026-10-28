@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.AstroPlayroom;
 
 public sealed class AstroPlayroomPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("astro-playroom", "ASTRO's PLAYROOM", "0.3.0")
+    public PluginInfo Info { get; } = new("astro-playroom", "ASTRO's PLAYROOM", "0.4.0")
     {
         Description = "Preserving editor for the decrypted 1 MiB PreInstall save allocation.",
         Games = [new GameTitle("PPSA01325", "ASTRO's PLAYROOM")],
@@ -21,6 +21,8 @@ public sealed class AstroPlayroomPlugin : IGamePlugin
             "https://community.fandom.com/wiki/Help:Licensing",
             "https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/",
             "https://creativecommons.org/licenses/by-sa/3.0/",
+            "https://github.com/JKamsker/PS5SaveGame-Toolkit/tree/main/plugins/AstroPlayroom",
+            "https://www.gnu.org/licenses/gpl-3.0.html",
         ],
     };
 

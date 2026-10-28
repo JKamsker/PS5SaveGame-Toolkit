@@ -6,16 +6,21 @@ namespace SaveToolkit.Plugins.AstroPlayroom;
 
 internal sealed class AstroCollectionBrowser(
     AstroSchema schema,
-    AstroReferences references,
+    AstroLocations locations,
     Func<AstroField, FieldValue> current,
     Func<string, string, string, string, Confidence, FieldNode> label,
     Func<long?> coins)
 {
+    public AstroCollectionQuery Queryable { get; } = new(schema, locations, current,
+        record => Row(record, locations.Reference(record), current, label, locations));
+
     public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Catalogue labels are read-only. Ownership means the saved IsGot flag; names and locations are candidates, not console-validated mappings. Search/filter to find missing records, then preview the ownership action before applying."),
         BuildSummary(),
+        new SectionNode("All saved collectibles", [Queryable.View(), AstroPlanning.CollectionAction()]),
         Group("Artifact", "Artifacts"), Group("Puzzle", "Puzzle pieces"), Group("Prop", "Props"),
         .. AstroPlanning.Views(coins()),
+        .. AstroWorldPlanning.Views(schema, locations),
         new TextNode(AstroWriteWarnings.Experimental + " " + AstroWriteWarnings.Collection + " " + AstroWriteWarnings.Integrity) { Tone = Tone.Warning }
     ];
 
@@ -24,7 +29,7 @@ internal sealed class AstroCollectionBrowser(
         var records = schema.Records.Where(r => r.Group is "Artifact" or "Puzzle" or "Prop").ToArray();
         var owned = records.Count(r => r.Ownership is { } f && current(f).AsBool());
         var cinematic = records.Count(r => r.Cinematic is { } f && current(f).AsBool());
-        var areas = records.GroupBy(r => references.Collectible(r.Group, r.Element.Name)?.Category ?? "Unmapped area", StringComparer.Ordinal)
+        var areas = records.GroupBy(r => locations.Reference(r)?.Category ?? "Unmapped area", StringComparer.Ordinal)
             .Select(group => new TableRow(group.Key, new Dictionary<string, ViewNode>(StringComparer.Ordinal)
             {
                 ["area"] = new TextNode(group.Key),
@@ -37,7 +42,8 @@ internal sealed class AstroCollectionBrowser(
             new StatsNode([
                 new Stat("Saved collectibles owned", $"{owned}/{records.Length}"),
                 new Stat("Saved cinematic flags true", cinematic.ToString()),
-                new Stat("Missing ownership flags", (records.Length - owned).ToString())]),
+                new Stat("Missing ownership flags", records.Count(r => r.Ownership is { } f && !current(f).AsBool()).ToString()),
+                new Stat("Unknown ownership", records.Count(r => r.Ownership is null).ToString())]),
             new TextNode("Area totals use attributed candidate world aliases. Puzzle rows are named only to their inferred internal stage group; no physical piece location is claimed."),
             new TableNode([
                 new TableColumn("area", "Candidate area") { Width = ColumnWidth.Wide },
@@ -52,10 +58,7 @@ internal sealed class AstroCollectionBrowser(
     private SectionNode Group(string group, string title)
     {
         var records = schema.Records.Where(r => r.Group == group).ToArray();
-        var counts = records.GroupBy(r => r.Element.Name, StringComparer.Ordinal)
-            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
-        var resolved = records.Select(r => (Record: r, Reference: counts[r.Element.Name] == 1
-            ? references.Collectible(group, r.Element.Name) : null)).ToArray();
+        var resolved = records.Select(r => (Record: r, Reference: locations.Reference(r))).ToArray();
         var mapped = resolved.Count(r => IsMapped(r.Reference));
         var acquired = records.Count(r => r.Ownership is { } f && current(f).AsBool());
         var unknown = records.Count(r => r.Ownership is null);
@@ -63,15 +66,16 @@ internal sealed class AstroCollectionBrowser(
             new TextNode(group == "Puzzle"
                 ? "Names refer to inferred internal stage groups; physical piece locations are not proven. Internal prefix groups can split 5/3; they must not be relabeled as four pieces per stage."
                 : "Mapped counts refer to candidate identity aliases; Inferred labels still require an owner catalogue check."),
-            new TableNode([
+            records.Length > AstroCollectionQuery.EagerLimit ? Queryable.GroupView(group) : new TableNode([
                 new TableColumn("name", "Name / saved alias") { Width = ColumnWidth.Wide },
                 // F3 names row controls from the first text cell. Put the unique raw key before
                 // status/category so every details/selection control has an unambiguous label.
                 new TableColumn("key", "Exact saved key") { Width = ColumnWidth.Narrow },
                 new TableColumn("status", "Saved ownership") { Width = ColumnWidth.Narrow },
                 new TableColumn("category", "Category / candidate world"),
+                new TableColumn("world", "Candidate world"),
                 new TableColumn("details", "Evidence and provenance") { Width = ColumnWidth.Narrow }
-            ], resolved.Select(r => Row(r.Record, r.Reference)).ToArray())
+            ], resolved.Select(r => Row(r.Record, r.Reference, current, label, locations)).ToArray())
             { Title = title, Description = "Names include source attribution and confidence; expand a row for raw IDs and flag evidence." }
         ])
         {
@@ -79,7 +83,9 @@ internal sealed class AstroCollectionBrowser(
         };
     }
 
-    private TableRow Row(AstroCollectionRecord record, ReferenceRecord? reference)
+    private static TableRow Row(AstroCollectionRecord record, ReferenceRecord? reference,
+        Func<AstroField, FieldValue> current,
+        Func<string, string, string, string, Confidence, FieldNode> label, AstroLocations locations)
     {
         var key = $"{record.Group}/{record.Element.Name}";
         var mapped = IsMapped(reference);
@@ -94,6 +100,7 @@ internal sealed class AstroCollectionBrowser(
                 $"Exact key: {key}. {provenance} No physical location or linked gameplay effect is proven.", confidence),
             ["status"] = new TextNode(status),
             ["category"] = new TextNode(reference?.Category ?? "Unmapped"),
+            ["world"] = new TextNode(locations.World(record)?.Name ?? "Unmapped"),
             ["key"] = new TextNode(key) { Monospace = true },
             ["details"] = new SectionNode("Record details", [
                 new TextNode($"Stable saved record: {record.Element.Id}") { Monospace = true },

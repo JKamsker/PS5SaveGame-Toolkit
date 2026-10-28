@@ -19,3 +19,9 @@ Artifact aliases include Inferred candidate world keys where the observed catalo
 world path. Puzzle aliases include only Inferred internal-stage `stageKey` joins; physical locations and
 ordinals remain unresolved. Prop names are original raw-key aliases, explicitly unresolved. The licence
 of the data adaptation does not relicense the independently implemented plugin code.
+
+The F9 layout is original Toolkit work under GPL-3.0-or-later (2026-10-28), with provenance in
+`AstroSpatialViews.source.md` and MapNode. It uses eight-column list-order positions, not community
+coordinates or game artwork. Existing displayed catalogue names retain their CC BY-SA attribution.
+PowerPyx/Gage's collectible guide is linked externally only; no guide prose, media or positions
+are included. The guide was rechecked on 2026-10-28.

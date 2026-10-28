@@ -119,6 +119,18 @@ fetches were blocked; exact selected data is pinned by pack version/file hashes.
 
 ## Acceptance still requiring owner evidence
 
+Completion round adds F9 original list-order level positions and coordinate-free collectible maps.
+Positions have no physical/geographical meaning; candidate world joins remain Inferred, and markers
+report the exact saved flag only. The world ownership preset changes only existing mapped IsGot
+fields, without deriving cinematic/progression/reward state. Both primary/backup generations pass
+an independent literal-span byte oracle for the 25 Memory Meadow records; F8 query exclusions and
+one-step undo/redo are verified through Core. These are software guarantees, not new gameplay proof.
+The gatcha-budget preset independently uses the externally sourced factual 100-coin cost and
+restricts attempts to 0–17, preserving higher balances and remaining within observed target values.
+All four records pass exact coin-only byte/reopen tests; actual cost/cap/persistence remain unverified.
+F12/F13 are pending #32/#33. The F4/F6 browser parameter-binding reproduction and enum fallback are
+documented under README SDK requests.
+
 The README's exact capture checklist covers control/coin gain/spend pairs, named
 artifact/prop/puzzle pickups including all four ambiguous boundaries, stage/boss
 clears, catalogue screenshots, update/special-bot transitions and cross-title

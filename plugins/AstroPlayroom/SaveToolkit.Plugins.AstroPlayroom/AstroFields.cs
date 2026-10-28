@@ -17,6 +17,12 @@ internal sealed record AstroField(AstroElement Element, AstroValue Token, string
 
 internal static class AstroFields
 {
+    public static AstroField? Coins(IReadOnlyList<AstroField> fields)
+    {
+        var candidates = fields.Where(field => field.Path == "PreInstall/Common/NumCoin").Take(2).ToArray();
+        return candidates.Length == 1 && candidates[0].Editable && candidates[0].Spec is IntegerSpec ? candidates[0] : null;
+    }
+
     public static IReadOnlyList<AstroField> Create(AstroAllocation allocation)
     {
         var result = new List<AstroField>();
