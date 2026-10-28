@@ -42,7 +42,8 @@ their IDs. Empty elements remain visible as tree sections without inventing a te
   range 0…2,147,483,647 is a conservative signed-storage bound, not a verified gameplay limit.
 - **Inferred effects, literal saved names:** boolean fields in `Progress` and `World`, including boss,
   visited, clear and map-notification flags. `Artifact`, `Puzzle` and `Prop` expose `IsGot` and
-  `IsCinematicsPlayed` in tables. Their saved identifiers are displayed without guessing item names.
+  existing `IsCinematicsPlayed` fields in Raw (props have no cinematic field in these samples).
+  The catalogue adds 50 candidate artifact aliases without claiming verified saved-ID mappings.
   These names strongly suggest collection/progression semantics, but linked counters, notification
   behavior, cinematics and trophy effects have not been tested in-game.
 - **Unknown:** other primitives, mixed text and all attributes are read-only in Raw. Leaderboard
@@ -50,6 +51,33 @@ their IDs. Empty elements remain visible as tree sections without inventing a te
 - **Special bots:** no `Armadillo` or dedicated collected-bot fields occur in either supplied
   generation. The UI reports this absence. Newer community unlock flags are not inserted into an
   older save. Trophy-action names containing `BOT` are not treated as collected-bot flags.
+
+## Named catalogue and schema report (roadmap Phase 1)
+
+The Collectibles tab has separate Artifact, Puzzle and Prop sections. Each shows actual saved-record
+and ownership totals, mapped/unmapped counts, F3 confidence badges, searchable raw keys, candidate
+world/category and status filters, and expandable provenance/flag details. Names/statuses in this
+read-first catalogue cannot edit a save. Existing experimental flag controls remain in Raw.
+Mapped means an **Inferred candidate identity** for artifacts; puzzle mapped counts mean physical
+locations (currently **0/96**), and prop identities remain **0/18**. All 50 artifacts have candidate
+names; 96 puzzles and 18 props retain original raw-key aliases, with Unknown mapping confidence.
+`ds3` explicitly records the DualShock 3/SIXAXIS naming discrepancy between public sources.
+
+The English F2 pack supplies these 164 records and 22 candidate world/stage aliases, with per-record
+source links. It is selected through the host's pinned `IReferenceContext`; missing packs fall back
+to raw keys. No runtime network/filesystem access or embedded game artwork is introduced.
+Names require the exact schema fingerprint and a build-agnostic pack because the samples' patch
+version is unknown. A changed schema or duplicate saved key cannot silently inherit a mapping.
+
+The Schema tab reports structure/key SHA-256, element/value counts, all top-level groups (including
+unknown ones), suffix length and special-bot availability. The fingerprint excludes values,
+whitespace, offsets and opaque suffix; it includes empty elements, attributes and sibling occurrences.
+It is **not** a claimed patch/version detector. See [EVIDENCE.md](EVIDENCE.md).
+
+Several puzzle prefixes contain five/three entries rather than four/four. Those exact groups survive
+unchanged, with no guessed physical piece order, stage location or mural position. After a raw edit,
+undo or redo the plugin requests a view refresh so ownership filters, section totals and detail text
+reflect current values. No new writing capability, grant/revoke preset or collect-all action is added.
 
 Only existing supported integer/boolean text spans are writable. Every other byte, including
 indentation, quotes, comments, unknown values and the opaque suffix, is copied verbatim. If the
@@ -100,13 +128,30 @@ community reports of direct text editing supports Experimental writing for this 
 proof against an undocumented algorithm, a relationship among gameplay flags, or integrity changes
 in newer versions. Syntactically valid value corruption cannot be detected without a known checksum.
 
+F1 now reproduces all **94 primitive transitions**, 27,999 changed byte positions and the identical
+backup twins through [fixtures.json](fixtures.json). These are unlabeled, mixed-event generations:
+their order does not establish gameplay chronology or any dependency. Observed ownership changes
+cover three artifacts, nine puzzles and one prop. `ds2/IsGot` changes while its cinematic flag stays
+false; `hula_hoop` has no cinematic field at all. Automatically setting all cinematic flags would
+contradict this evidence. No control-pair churn masks or unsupported gameplay causes are invented.
+
 ## Validation
 
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
-dotnet test --project plugins/AstroPlayroom/SaveToolkit.Plugins.AstroPlayroom.Tests
-dotnet test --project tests/SaveToolkit.Core.Tests
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/AstroPlayroom/SaveToolkit.Plugins.AstroPlayroom.Tests
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project tests/SaveToolkit.Core.Tests -- --filter-class '*Export*'
 ```
+
+Roadmap round validation (2026-10-28): **44 plugin tests passed, 0 failed, 0 skipped**; **11 Core
+session/export tests passed, 0 failed, 0 skipped**; API build succeeded with **0 warnings/0 errors**.
+New tests cover pack validity/attribution and exact key coverage, both generations and both twins,
+schema/value separation, unknown-schema/build fallback, duplicate/ambiguous records, 5/3 puzzle
+groups, F1's complete observed changes, and actual Core session edit/undo/redo view refresh.
+The production web build also passed. A local browser check with generation 1 verified all three
+catalogue sections, unique saved-key control labels, the three-owned-artifact filter, combined
+search/missing filtering, read-only details with confidence/provenance, two attributed Sources
+datasets and the schema's 77-byte suffix report; no console/network errors occurred.
 
 The plugin suite covers all four sample records and both distinct generations, no-op identity,
 known values, meaningful coin edits, boolean and integer length changes, exact byte preservation,
@@ -116,7 +161,24 @@ missing terminators, unsupported padding, oversize files and parser limits. Samp
 `SampleSaves` and skip when the archive is absent. Open/main-view timings in the initial test run
 were 1.4–20.4 ms per sample; these are local observations, not a benchmark guarantee.
 
-## Sources
+## Sources and attribution
+
+| Dataset / research | Source and authors | Licence / use and changes |
+| --- | --- | --- |
+| Artifact candidate names/categories (`astro_collectibles`) | [Artifacts](https://astrosplayroom.fandom.com/wiki/Artifacts), Astro's Playroom Wiki contributors; selection/joins/annotations by Toolkit contributors; retrieved 2026-10-28 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); factual names/worlds only, inferred exact-key joins; no game flavor text or media. |
+| Puzzle raw-key aliases (`astro_collectibles`) | Original Toolkit aliases; [Puzzle Pieces](https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces), wiki contributors, provides context only; retrieved 2026-10-28 | Pack adaptation remains CC BY-SA 3.0; no physical piece names, locations or cross-game rules imported. |
+| Prop raw-key aliases (`astro_collectibles`) | Original Toolkit aliases; [PlayStation Labo](https://astrosplayroom.fandom.com/wiki/PlayStation_Labo), wiki contributors, provides context only; retrieved 2026-10-28 | Pack adaptation remains CC BY-SA 3.0; readable literal keys only, no prize identity claim. |
+| World/stage candidates (`astro_worlds`) | [Artefacts](https://astro-bot-series.fandom.com/wiki/Artefacts), Astro Bot Wiki contributors; [CPU Plaza](https://astrosplayroom.fandom.com/wiki/CPU_Plaza), Astro's Playroom Wiki contributors; retrieved 2026-10-28 | CC BY-SA 3.0; selected names/order, original inferred raw-path joins, no walkthrough prose or art. |
+| Licence provenance | [Fandom Help:Licensing](https://community.fandom.com/wiki/Help:Licensing), Fandom contributors; retrieved 2026-10-28 | Research only: default text licence is CC BY-SA 3.0; media rights are separate. |
+| Gameplay guide comparison | [PowerPyx collectible guide](https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/) | Research only, no reuse grant established; counts/naming discrepancy checked, no prose/images embedded. |
+
+Per-record source URLs, retrieval/access limitations, modification notices and share-alike terms are
+also in the pack's `data.source.md`/`pack.json` and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md),
+`Info.References`, catalogue descriptions and the Sources panel. Live wiki revision fetches were
+blocked (402/403/robots); search-indexed article text and licence footers were checked. No oldid is
+fabricated: pack version/file hashes pin the selected data and `sourceVersion` states that limitation.
+
+Additional format research (no implementation copied):
 
 - [Repository format reconnaissance](../../docs/formats/PPSA01325.md): initial layout, sample counts,
   numeric-tag warning and starting community reference; all byte claims rechecked against the archive.
@@ -141,6 +203,36 @@ Search hits for Astroneer parsers and other games' `memory.dat` formats were exc
 Console validation remains required, especially coin limits and consistency between collection,
 cinematic, notification and `UdsWorkaround` flags. Newer special-bot schemas need actual samples
 and a fresh integrity investigation before curated support. The opaque suffix's purpose is unknown.
+
+## Remaining phases and exact owner checklist
+
+Phase 1 is complete. Phase 2 has reproducible F1 observational evidence but still needs controlled
+captures and console testing. Phase 3's read-only F3 browser is implemented; selected-entry/per-world
+actions and F6 collect-all previews remain blocked by the dependency evidence below. Phase 4 exposes
+schema diagnostics/absence only; bot support needs newer saves. Phase 5's completion presets, diagram
+and console acceptance remain open. Maturity stays Experimental. No further SDK request is needed:
+F1/F2/F3/F6 already provide the required framework capabilities; the blocker is evidence.
+
+For each pair, record title, exact game build, region, slot, DLC, date, before/after displayed values
+and the one action taken. Export decrypted before/after archives (including primary and backup) to
+the private artifacts folder; never include account identifiers in manifests or screenshots.
+
+1. Capture a save/load/resave control pair without gameplay, once for each build, to isolate churn.
+2. Capture exactly one known coin gain, one 100-coin gatcha spend and boundary/clamping behavior;
+   photograph displayed coin values. Test a small independent coin edit on a spare save.
+3. Capture one named artifact pickup, one prop/gatcha prize, one normal stage clear and one boss
+   clear separately; include the catalogue before/after and any notification/cinematic behavior.
+4. Capture one puzzle at each ambiguous boundary: Renderforest/Teraflop Treetops,
+   Raytrace Ruins/Mt. Motherboard, Bot Beach/Springy Spa and Gusty Gateway/Fastlane Fields. Record
+   the exact physical piece/location and the UI's piece count. Do not use guide ordinal as save ID.
+5. Provide catalogue screenshots to verify all 50 artifact aliases, especially `ds3` (DualShock 3
+   versus SIXAXIS). Identify each of the 18 prop scenes/prizes independently if desired.
+6. Supply old/new update pairs from the same profile and newer-build pairs before/after event
+   eligibility, each of four bot discoveries/rescues and each added-artifact acquisition. For
+   transfer research, provide both games before/after the actual transfer with offline/online context.
+7. For each proposed new write: load the spare edited save on PS5, confirm the intended effect,
+   perform ordinary gameplay, resave, export again, reload a second time and record persistence
+   plus any unintended linked effects. Only the owner may approve Stable or safe bulk dependencies.
 
 ## SDK requests
 

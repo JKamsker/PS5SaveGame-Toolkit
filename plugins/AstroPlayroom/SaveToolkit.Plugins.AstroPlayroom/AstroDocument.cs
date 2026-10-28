@@ -1,5 +1,6 @@
 using System.Text;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -15,13 +16,20 @@ internal sealed class AstroDocument : BoundSaveDocument
     private readonly Dictionary<string, AstroField> _byId;
     private readonly Dictionary<string, string> _replacements = new(StringComparer.Ordinal);
     private readonly Dictionary<string, AstroElement> _elements = new(StringComparer.Ordinal);
+    private readonly AstroSchema _schema;
+    private readonly AstroCollectionBrowser _collections;
+    private readonly AstroReferences _references;
 
-    public AstroDocument(string path, AstroAllocation allocation)
+    public AstroDocument(string path, AstroAllocation allocation, IReferenceContext references)
     {
         _path = path;
         _allocation = allocation;
         _fields = AstroFields.Create(allocation);
         _byId = _fields.ToDictionary(f => f.Token.Id, StringComparer.Ordinal);
+        _schema = new AstroSchema(allocation);
+        _schema.Inventory(_fields);
+        _references = new AstroReferences(references, _schema.Fingerprint);
+        _collections = new AstroCollectionBrowser(_schema, _references, Current, CatalogueLabel);
         Register(allocation.Root);
         foreach (var field in _fields)
         {
@@ -42,7 +50,8 @@ internal sealed class AstroDocument : BoundSaveDocument
                 : "This save has no known special-bot unlock fields.")
         ]),
         new Tab("Progress", [Table("Progress", "World")]),
-        new Tab("Collectibles", [Table("Artifact"), Table("Puzzle"), Table("Prop")]),
+        new Tab("Collectibles", _collections.Build()),
+        new Tab("Schema", [_schema.Report()]),
         new Tab("Raw", [
             new TextNode($"Opaque bytes after the root: {_allocation.Terminator - _allocation.RootEnd}. Preserved on export."),
             SectionNode.Lazy("PreInstall tree", _allocation.Root.Id, $"{_fields.Count} values")])
@@ -101,7 +110,10 @@ internal sealed class AstroDocument : BoundSaveDocument
             return EditOutcome.Rejected(edits.Count > 0 ? edits[^1].ValueId : "", "Edited text and terminator exceed the fixed 1 MiB allocation.");
         }
 
-        return base.ApplyEdits(edits);
+        var outcome = base.ApplyEdits(edits);
+        // F3 status filters, section totals and details are view metadata. Rebuild on edits and
+        // value-history replay so none of these snapshots can disagree with the live raw flags.
+        return outcome with { StructureChanged = outcome.Succeeded && outcome.Changes.Any(c => c.OldValue != c.NewValue) };
     }
 
     public override IReadOnlyList<FileOutput> Serialize()
@@ -174,13 +186,28 @@ internal sealed class AstroDocument : BoundSaveDocument
         _ => false
     };
 
+    private FieldNode CatalogueLabel(string id, string label, string value, string description, Confidence confidence) =>
+        Field(id, label, new TextSpec(), () => FieldValue.Of(value)) with
+        { Description = description, Confidence = confidence };
+
     private TableNode Table(params string[] groups) => new([
-        new TableColumn("path", "Saved name / path") { Width = ColumnWidth.Wide }, new TableColumn("value", "Value")
+        new TableColumn("path", "Saved name / path") { Width = ColumnWidth.Wide }, new TableColumn("value", "Value"),
+        new TableColumn("alias", "Candidate location")
     ], _fields.Where(f => f.Editable && groups.Contains(f.Group, StringComparer.Ordinal))
         .Select(f => new TableRow(f.Token.Id, new Dictionary<string, ViewNode>(StringComparer.Ordinal)
         {
-            ["path"] = new TextNode(f.Path["PreInstall/".Length..]), ["value"] = ValueNode(f)
+            ["path"] = new TextNode(f.Path["PreInstall/".Length..]), ["value"] = ValueNode(f),
+            ["alias"] = WorldLabel(f)
         })).ToArray()) { Title = string.Join(" / ", groups) };
+
+    private ViewNode WorldLabel(AstroField field)
+    {
+        var path = field.Path["PreInstall/".Length..];
+        var parent = path[..path.LastIndexOf('/')];
+        var reference = _references.World(parent);
+        return reference is null ? new TextNode("Unmapped") : CatalogueLabel($"world-label:{field.Token.Id}",
+            "Candidate location", reference.Name, $"{parent}. {reference.Description} {reference.AttributionText}", Confidence.Inferred);
+    }
 
     private void Register(AstroElement element)
     {

@@ -1,0 +1,246 @@
+{
+  "records": [
+    {
+      "id": "World/CPU_PLAZA",
+      "name": "CPU Plaza",
+      "source": "https://astrosplayroom.fandom.com/wiki/CPU_Plaza",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/PS_LABO",
+      "name": "PlayStation Labo",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/COOLING_SYSTEM",
+      "name": "Cooling Springs",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/COOLING_SYSTEM/BEACH",
+      "name": "Bot Beach",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/COOLING_SYSTEM/SPRING_1",
+      "name": "Springy Spa",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/COOLING_SYSTEM/ICE_PLATFORMING",
+      "name": "Frigid Floes",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/COOLING_SYSTEM/SPRING_2",
+      "name": "Hotel Hopalot",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/SSD_SPEEDWAY",
+      "name": "SSD Speedway",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/SSD_SPEEDWAY/GLIDING",
+      "name": "Turbo Trail",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/SSD_SPEEDWAY/JETPACK_1",
+      "name": "Caching Caves",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/SSD_SPEEDWAY/SPACE_PLATFORMING",
+      "name": "Deep Dataspace",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/SSD_SPEEDWAY/JETPACK_2",
+      "name": "Orbital Obstacles",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/GPU_JUNGLE",
+      "name": "GPU Jungle",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/GPU_JUNGLE/FOREST",
+      "name": "Renderforest",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/GPU_JUNGLE/CLIMBING_1",
+      "name": "Teraflop Treetops",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/GPU_JUNGLE/HIGH_PLATFORMING",
+      "name": "Raytrace Ruins",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/GPU_JUNGLE/CLIMBING_2",
+      "name": "Mt. Motherboard",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/MEMORY_HEAVEN",
+      "name": "Memory Meadow",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/MEMORY_HEAVEN/WEATHER",
+      "name": "Gusty Gateway",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/MEMORY_HEAVEN/BALL_1",
+      "name": "Fastlane Fields",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/MEMORY_HEAVEN/CLOUD_PLATFORMING",
+      "name": "Electrocloud",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "World/MEMORY_HEAVEN/BALL_2",
+      "name": "Bumper Broadway",
+      "source": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+      "description": "Candidate alias from world ordering and readable internal keys. Not a physical puzzle-location join.",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    }
+  ]
+}

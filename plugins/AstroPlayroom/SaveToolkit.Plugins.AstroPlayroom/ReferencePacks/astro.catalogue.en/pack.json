@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "id": "astro.catalogue.en",
+  "version": "1.0.0",
+  "title": "ASTRO's PLAYROOM catalogue candidates (English)",
+  "plugins": [
+    "astro-playroom"
+  ],
+  "titleIds": [
+    "PPSA01325"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "astro_collectibles",
+      "kind": "records",
+      "title": "Saved collectibles: 50 candidate artifacts and 114 unresolved aliases",
+      "files": [
+        {
+          "path": "collectibles.json",
+          "sha256": "e857b6ac37e35cb0820f615ae7a0fe26915b833eeaf7b28d107193c587eb7562"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+        "author": "Astro's Playroom Wiki contributors; Astro Bot Wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected factual hardware/world names; independently joined exact saved keys as Inferred candidates; authored raw-key puzzle/prop aliases and uncertainty notes. No game flavor text, walkthrough prose or media copied. Adaptation remains CC BY-SA 3.0."
+      }
+    },
+    {
+      "id": "astro_worlds",
+      "kind": "records",
+      "title": "Candidate world and stage aliases",
+      "files": [
+        {
+          "path": "worlds.json",
+          "sha256": "c225bf3690c98bf2f297c1af8bb04693804da03818607ee1b14ca9d1be350032"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://astro-bot-series.fandom.com/wiki/Artefacts",
+        "author": "Astro's Playroom Wiki contributors; Astro Bot Wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected factual hardware/world names; independently joined exact saved keys as Inferred candidates; authored raw-key puzzle/prop aliases and uncertainty notes. No game flavor text, walkthrough prose or media copied. Adaptation remains CC BY-SA 3.0."
+      }
+    }
+  ]
+}
