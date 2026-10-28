@@ -12,12 +12,14 @@ import { ServerTableView } from "./table/ServerTableView";
 import { GraphView } from "./spatial/GraphView";
 import { MapView } from "./spatial/MapView";
 import { TabsView } from "./TabsView";
+import { viewKeys } from "./viewKeys";
 
 export function ViewList({ nodes }: { nodes: ViewNode[] }) {
+  const keys = viewKeys(nodes);
   return (
     <div className="view-stack">
       {nodes.map((node, i) => (
-        <ViewRenderer key={i} node={node} />
+        <ViewRenderer key={keys[i]} node={node} />
       ))}
     </div>
   );
