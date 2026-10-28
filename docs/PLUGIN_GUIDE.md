@@ -60,6 +60,95 @@ See `tests/SaveToolkit.Core.Tests/Fakes/CounterPlugin.cs` for the smallest compl
 | `ActionNode(id, label)` | Plugin command, optional `Parameters` form and `Confirm` prompt. |
 | `ImageNode(assetId, alt)` | Screenshots, thumbnails. |
 | `HexNode(blobId, length)` | Raw bytes, paged. |
+| `GraphNode(title, items, edges, textAlternative)` | Read-only, bounded prerequisite DAG with states, costs, branches and links to existing controls. |
+| `MapNode(title, bounds, markers, textAlternative)` | Read-only regional map or external-link-only location list. Embed only safely licensed local art/coordinates. |
+
+### Maps and prerequisite graphs (F9)
+
+These nodes are optional presentations of existing data, never new editing or gameplay contracts.
+Use stable item/marker IDs independent of labels, array indexes and filter order. Both constructors
+require a non-empty `TextAlternative` overview. The browser also **always offers a text list** with
+the same labels, states, categories/branches, costs, prerequisite names, descriptions and navigation.
+The list stays available when a background is absent or fails to load. It is paged at 50 items and
+uses the same filters as the diagram. Do not put essential facts only in coordinates or artwork.
+
+`GraphItem(id, label, state)` uses `Unlocked`, `Locked`, `Available` or `Unknown`. Optional `Cost`
+is display text, not a framework-enforced budget; `Branch` groups items. `GraphEdge(from, to)`
+means **from is a prerequisite of to**. The graph must be a DAG with unique edges and existing
+endpoints. The browser computes a deterministic layered layout, shows state/cost, and filters by
+status, branch and text. Graph cards and list links jump to controls; they never execute actions.
+
+`MapMarker(id, label, status, category)` uses `Found`, `Missing` or `Unknown`. Keep discovered,
+completed and unknown meanings honest in `Description` and optional `Confidence`; unknown is
+not missing. Omit **both** `X` and `Y` when the location is unconfirmed or external-only. Positions
+are native coordinates. Supply a descriptive `CoordinateSpace`, explicit `MapBounds`, and
+`MapTransform(scaleX, scaleY, offsetX, offsetY)`:
+
+```text
+displayX = X * scaleX + offsetX
+displayY = Y * scaleY + offsetY
+```
+
+Display X increases rightwards and display Y downwards. Negative scales can flip axes; no rotation
+or projection is inferred from an image's dimensions. Transformed markers must be inside the bounds.
+The renderer supports zoom, scroll/drag/keyboard pan, category/status/text filters, a legend and a
+selected-marker detail panel. All markers, including those without positions, appear in the list.
+
+**External links are the default for unclear licences.** Set `ExternalSource` on a map or
+`ExternalLink` on a marker to `new ExternalViewLink(httpsUrl, label, attribution)`. For example:
+
+```csharp
+new MapNode("Region", new MapBounds(0, 0, 1, 1),
+    [new MapMarker("cache", "Cache", MapMarkerStatus.Unknown, "Collectibles")],
+    "Consult the external regional guide; no art or coordinates have been imported.")
+{
+    ExternalSource = new ExternalViewLink("https://example.org/map", "Open regional map",
+        "Example community; licence unverified. Link only."),
+};
+```
+
+No artwork or community coordinates are imported in this example. Core and plugins never fetch
+anything. The browser never loads external map images, tiles, scripts or iframes, and never
+prefetches these links. External requests happen only when the user clicks a source link. Links
+must be absolute HTTPS URLs without credentials, whitespace or backslashes; the UI shows the
+parsed host and attribution, opens a new tab, and sets `rel="noopener noreferrer"`. This also
+applies to source/licence links in map attribution. Invalid links are rejected by Core; the web
+renderer additionally renders them as non-clickable text if given a malformed payload.
+
+**Import only when the licence clearly allows embedding**, following rule 9 in full. For an original
+or safely licensed schematic/background, resolve a local F2 asset with `references.GetAsset(id)`
+and `references.AssetProvenance(id)`. If unavailable, omit `Background`. Otherwise use
+`new MapBackground("pack.id:maps/region.png", alt, provenance.Attribution, EmbeddingPermitted: true)`.
+This is served through the existing local F2 reference-asset endpoint, with full attribution next
+to the diagram and in Sources. Remote URLs and ordinary plugin asset IDs are not backgrounds.
+`EmbeddingPermitted` defaults to false and is an explicit assertion by the plugin author; the
+framework cannot decide licence compatibility from a licence name. Do not set it for unclear terms.
+
+Embedding **any coordinates**, including save-derived positions and original schematics, similarly
+requires `CoordinateAttribution` (`ReferenceAttribution`) and `CoordinateEmbeddingPermitted = true`.
+Record original work as such rather than inventing an upstream source. Community coordinate
+licences need their own review; a permissive extractor's code licence does not license map art or
+coordinate datasets. Prefer the link-only form until reuse is clearly safe. Retain source sidecars,
+README attribution tables and `Info.References` as required by rule 9.
+
+`ViewTarget(kind, id)` links to an existing `Field` or `Action`; maps may also link to a table `Row`.
+`Path` opens enclosing containers in order using `section:<lazyId or title>`, `tab:<title>` and
+`row:<key>`. Include all ancestors from the root. Field/action targets use the existing value/action
+ID, not the graph item ID. For a Row target, `Id` is the row key and `Path` ends at its parent table;
+the browser adds the final row step. IDs are opaque strings, not selectors, URLs or commands.
+For example, `new ViewTarget(ViewTargetKind.Field, "skills/dash") { Path = ["section:Character",
+"tab:Skills"] }`. Targets in eager tables can clear filters, scroll and focus a virtualised row.
+F8 targets work only for already-loaded rows; F9 does not search an unloaded collection by ID.
+Keep the actual control/list available and lazy-expandable along that path. If an edit changes the
+published map/graph state, return `StructureChanged = true` so the browser rebuilds the presentation.
+
+Hard limits (`SpatialViewLimits`, enforced by Core on root, expanded and queried views): **512**
+items/markers per node, **2,048** graph edges, **4,096** UTF-16 units per text property, **256** per
+ID and **32** navigation path parts. Coordinates/transforms must be finite, have absolute values
+at most `1e12`, and use nonzero scales and nonempty bounds. Split larger worlds/trees into bounded
+regional/branch nodes or lazy sections. `SpatialViewValidation.Validate(node)` is also available
+to plugins/tests. No changes to existing `ViewNode` constructors or plugin/document interfaces
+are required. The complete synthetic example is `tests/SaveToolkit.Core.Tests/Fakes/SpatialPlugin.cs`.
 
 ## Field specs (src/SaveToolkit.Sdk/Values)
 

@@ -3,6 +3,7 @@ import type { ActionNode, FieldValue } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { PlannedActionButton } from "./review/PlannedActionButton";
 import { FieldControl } from "../fields/FieldControl";
+import { useViewJump } from "./review/navigation";
 
 interface ActionButtonProps {
   node: ActionNode;
@@ -13,7 +14,10 @@ interface ActionButtonProps {
 
 /** Plugin command. Opens a dialog when it has parameters or asks for confirmation. */
 export function ActionButton(props: ActionButtonProps) {
-  return props.node.supportsPlanning ? <PlannedActionButton {...props} /> : <LegacyActionButton {...props} />;
+  const ref = useViewJump(props.node.actionId, "Action");
+  return <div ref={ref} tabIndex={-1} className="action-target">
+    {props.node.supportsPlanning ? <PlannedActionButton {...props} /> : <LegacyActionButton {...props} />}
+  </div>;
 }
 
 function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {

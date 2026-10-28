@@ -1,5 +1,7 @@
 // Mirror of src/SaveToolkit.Sdk (views/values) and src/SaveToolkit.Api/Contracts.
 // Keep in sync with the C# records; JSON is camelCase, enums are strings, nulls are omitted.
+import type { GraphNode, MapNode } from "./spatial";
+export type { GraphNode, MapNode } from "./spatial";
 
 /** Exact lexemes and union choices are tagged; existing scalar wire representations are unchanged. */
 export interface ExactNumberValue { kind: "exactNumber"; text: string }
@@ -97,7 +99,7 @@ export interface QueryableTableNode {
   description?: string;
 }
 
-export type ViewNode = SectionNode | TabsNode | FieldNode | TableNode | TextNode | StatsNode | ImageNode | ActionNode | HexNode | QueryableTableNode;
+export type ViewNode = SectionNode | TabsNode | FieldNode | TableNode | TextNode | StatsNode | ImageNode | ActionNode | HexNode | QueryableTableNode | GraphNode | MapNode;
 
 // ---- API contracts ----
 

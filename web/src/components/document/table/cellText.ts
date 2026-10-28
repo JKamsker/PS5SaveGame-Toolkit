@@ -56,6 +56,8 @@ export function cellSearchText(node: ViewNode | undefined, valueOf: ValueOf): st
       return `${node.title} ${node.badge ?? ""}`;
     case "table":
     case "hex":
+    case "map":
+    case "graph":
       return node.title ?? "";
     default:
       return "";

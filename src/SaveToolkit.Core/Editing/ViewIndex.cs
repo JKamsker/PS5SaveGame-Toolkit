@@ -92,6 +92,12 @@ public sealed class ViewIndex
             case QueryableTableNode:
                 // Rows are indexed when a bounded page is queried.
                 break;
+            case GraphNode graph:
+                SpatialViewValidation.Validate(graph);
+                break;
+            case MapNode map:
+                SpatialViewValidation.Validate(map);
+                break;
             case ActionNode a:
                 _actions[a.ActionId] = a;
                 break;

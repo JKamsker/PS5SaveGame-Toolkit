@@ -40,7 +40,7 @@ describe("TableView cells", () => {
       stats: { type: "stats", items: [{ label: "Level", value: "12" }] },
       more: { type: "section", title: "Raw record", children: [], lazyId: "raw:1" },
       bytes: { type: "hex", blobId: "b1", length: 64 },
-      odd: { type: "map" } as unknown as ViewNode,
+      odd: { type: "futureNode" } as unknown as ViewNode,
     };
     renderTable(table([{ key: "r1", cells }], Object.keys(cells)));
 
@@ -50,7 +50,7 @@ describe("TableView cells", () => {
     expect(screen.getByText("Level 12")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Show Raw record for Potion" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Show 64 bytes for Potion" })).toBeTruthy();
-    expect(screen.getByText("Unsupported: map")).toBeTruthy();
+    expect(screen.getByText("Unsupported: futureNode")).toBeTruthy();
   });
 
   it("summarises flags in one line instead of a checkbox group", () => {
