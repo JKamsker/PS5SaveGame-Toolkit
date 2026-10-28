@@ -151,7 +151,36 @@ All-zero `dis.dat` placeholders remain opaque. Two non-empty samples have these 
 
 Round 2 found a promising additive integrity relationship and two counted name tables. The complete
 header and writable gameplay semantics have not yet been established; Yōtei remains read-only.
-See the research follow-up below for the tested relationship and its limits.
+
+### Round 2 integrity and structure follow-up
+
+Both non-empty files satisfy this **hypothesis**, independently recomputed in research tests:
+
+```text
+candidate checksum at 0x0C = sum(bytes[0x10:word_at_0x08]) + word_at_0x08 + 0x150
+```
+
+The apparent size at 0x08 equals the last non-zero byte's end offset in both files. The word at 0x04
+(13 / 16) is **not added** by this matching formula. Its meaning is unknown; it must not yet be called
+a confirmed version. Searches over start offsets 0, 4, 8, 12, 16, 20, both declared and fixed ends,
+with/without magic, size and word1 addends compared byte sums, aligned 16/32-bit word sums in both
+endiannesses, CRC32 and Adler32. Only the byte sum from 0x10 plus magic and size matched both files.
+
+However, **both range ends match**: every byte after the apparent content end is zero. A whole-file
+checksum and a content-only checksum therefore remain indistinguishable. This is not enough evidence
+to enable Yōtei writing or tighten its opaque parser's integrity requirements. A sample with non-zero
+padding, a proven implementation, or a controlled game round trip is needed to settle the range.
+
+Each non-empty payload also contains two `uint32 48` + length-prefixed `ArrowNormal` tables. Offsets:
+memory `0x62F17` / `0x640F5`; AutoE1 `0x62E39` / `0x64017`. Their 48 names match, including `Mon`
+and `Flowers`, but their layouts differ: the first table has 21 bytes after each name (17 zero bytes
+then four opaque bytes); the second has 16 zero bytes. All candidate quantity data are zero in both
+files. There is no `LegendsInvestment` anchor. This cannot establish which record is the authoritative
+inventory or where a currency count belongs. The Tsushima parser is deliberately not reused here.
+
+`YoteiResearchTests` records both header vectors, the ambiguous checksum ranges, both record layouts,
+and read-only byte-identical exports for all eight Yōtei files. No Yōtei field meaning or write support
+is claimed. This is the stopping point for the stretch goal.
 
 ## Research log and sources
 
@@ -190,6 +219,10 @@ vector runs without samples. Conformance explicitly chooses a supplies edit and 
 payloads. Additional tests cover exact byte differences across all 25 Tsushima files, ammo copies,
 checksum changes, byte-identical undo, atomic rejection, corrupt headers, malformed inventory with repaired
 checksums, non-zero padding, and isolated returned memory. No console load test has been performed.
+
+Round 2 validation on 2026-10-28: **46/46 plugin tests passed**, **42/42 Core tests passed**;
+API build passed with **zero warnings/errors**. With an empty sample directory the plugin suite
+passed four sample-independent tests and **skipped 42**, confirming absent samples do not fail the run.
 
 The plugin-local source-length script warns above 300 lines and rejects above 399, satisfying the task's
 strict `<400` limit. Its staged mode is wired to `plugins/SuckerPunch/.githooks/pre-commit`; use it with
