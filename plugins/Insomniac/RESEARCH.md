@@ -1,5 +1,11 @@
 # Round-two evidence (2026-10-28)
 
+Historical round-two report. Its ReadOnly decision is superseded by the owner's
+write-enable decision on the same date: 0.5.0 enables bounded scalar writes as
+Experimental with explicit unknown-integrity / game-may-reject warnings. The
+technical observations below still hold; see README and issue #31 for current
+scope and console validation. No checksum or acceptance evidence was invented.
+
 These are observations of the supplied decrypted PPSA01474 archive, not an in-game
 validation. Source URLs and licensing are collected in [README.md](README.md).
 

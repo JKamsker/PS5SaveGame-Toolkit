@@ -53,14 +53,20 @@ internal sealed class RiftReadOnlyViews(
             .Select(f => (ViewNode)Scalar("campaign", f)).ToArray();
     }
 
-    private FieldNode Scalar(string path, DdlField field) =>
-        bind($"{path}/{field.Name}", Regex.Replace(field.Name, "(?<=[a-z])(?=[A-Z])", " "), field.Spec, field.Values[0]) with
+    private FieldNode Scalar(string path, DdlField field)
+    {
+        var node = bind($"{path}/{field.Name}", Regex.Replace(field.Name, "(?<=[a-z])(?=[A-Z])", " "), field.Spec, field.Values[0]);
+        return node with
         {
-            Confidence = Confidence.Verified,
+            Confidence = node.Spec.ReadOnly ? Confidence.Verified : Confidence.Inferred,
             Description = $"Stored field {field.Name} ({field.Kind}); name/hash verified. " +
-                (schema?.Find(field.Name)?.AttributionText ?? DdlSections.Attribution),
-            Warning = "Verified storage identity only; menu labels, units, location and gameplay effects are not established.",
+                (schema?.Find(field.Name)?.AttributionText ?? DdlSections.Attribution) +
+                (node.Spec.ReadOnly ? "" : " " + RiftScalarWrites.Warning),
+            Warning = node.Spec.ReadOnly
+                ? "Verified storage identity only; menu labels, units, location and gameplay effects are not established."
+                : RiftScalarWrites.Warning,
         };
+    }
 
     private static string PreferenceGroup(string name)
     {

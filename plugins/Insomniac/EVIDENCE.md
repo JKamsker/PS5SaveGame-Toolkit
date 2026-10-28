@@ -222,9 +222,32 @@ the BC60B495 mirror, and the file **still reparses**. This demonstrates a concre
 limit of using the parser as a write-integrity oracle. The historical negative
 digest scan is not an integrity specification and was not rerun/rebranded as new
 evidence. Complete integrity, console load/effect/re-save/reimport and independent
-preference acceptance remain unproven. Maturity stays ReadOnly; no setters/actions.
+preference acceptance remain unproven. At the end of round 2, maturity stayed
+ReadOnly with no setters/actions; the write-enable decision below supersedes that gate.
 
 Required exact captures, positive Omega evidence, separate armour collect/equip/color
 pairs and baseline/bolt/RPG/prefs acceptance protocols are numbered in
 [OWNER-CAPTURES.md](OWNER-CAPTURES.md). Round-2 read-only view delivery does not mark
 the plan's owner-dependent semantic/write acceptance requirements complete.
+
+## Write-enable round (supersedes the historical write gate)
+
+Owner decision: “Enable writes. Keep warnings.” Console evidence is now tracked
+separately in issue #31. Version 0.5.0 is Experimental after edit conformance passed.
+The round-2 integrity observations above still apply; no body-integrity algorithm
+or console acceptance has been established.
+
+Production writes cover CareerBolts, SpentBolts, seven gold-bolt booleans and 61
+existing scalar boolean preference keys. Corpus upper bounds are 1,297,735 career
+and 260,875 spent bolts; actual stored unsigned widths further constrain them.
+The final atomic balance must be nonnegative. All writable controls keep Inferred
+confidence and an explicit game-may-reject warning.
+
+The sample-backed suite passes 94 tests with zero skipped. New checks independently
+edit every exposed scalar in both representative gameplay widths and both primary
+preference records, then serialize/reopen, compare every byte and F1 semantic atom,
+reject wrong types/ranges and undo/redo through Core. Nine-control atomic batches
+also persist and undo byte-identically across all 36 primary gameplay generations.
+All 76 supplied records still pass byte-identical no-op output. These are toolkit
+validation results, not PS5 acceptance evidence. See README for remaining unsafe
+dependencies and OWNER-CAPTURES.md for the exact console checklist.

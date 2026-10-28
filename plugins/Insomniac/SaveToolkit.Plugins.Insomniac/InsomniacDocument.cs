@@ -15,6 +15,8 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument
     private readonly string _fileName;
     private readonly Dat1Container _container;
     private readonly RiftPlayerView _player;
+    private readonly RiftScalarWrites _writes;
+    private readonly Dictionary<string, Func<FieldValue>> _liveReadOnly = new(StringComparer.Ordinal);
     private readonly DdlSections _sections;
     private readonly DdlTreeView _tree;
     private readonly RiftReadOnlyViews _readOnly;
@@ -27,16 +29,17 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument
     private readonly IReadOnlyList<ViewNode> _collectibles;
     private readonly Dictionary<string, Func<IReadOnlyList<ViewNode>>> _lazy = new(StringComparer.Ordinal);
 
-    internal InsomniacDocument(string path, Dat1Container container, string fileName, IReferenceContext references)
+    internal InsomniacDocument(string path, Dat1Container container, string fileName, IReferenceContext references, bool supportedTitle)
     {
         _path = path;
         _fileName = fileName;
         _container = container;
         _sections = new DdlSections(container);
         _player = new RiftPlayerView(container, _sections);
+        _writes = new RiftScalarWrites(container, _sections, supportedTitle);
         var schema = references.Catalog("rift-schema");
         _tree = new DdlTreeView(BindReadOnly, _lazy, schema);
-        _readOnly = new RiftReadOnlyViews(_sections, references.Catalog("rift-weapons"), schema, BindReadOnly);
+        _readOnly = new RiftReadOnlyViews(_sections, references.Catalog("rift-weapons"), schema, BindScalar);
         _world = new RiftWorldView(_sections, BindReadOnly);
         var blocks = InventoryReader.Read(container);
         _inventory = new InventoryView(blocks,
@@ -51,7 +54,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument
         ? "Rift Apart · User preferences"
         : "Rift Apart · Gameplay save";
 
-    public override bool CanEdit => false;
+    public override bool CanEdit => _writes.CanEdit;
 
     public IReadOnlyList<QueryableCollection> Collections => _collections.Metadata;
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => _collections.Query(collectionId, query);
@@ -60,7 +63,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument
     {
         _lazy.Clear();
         var tabs = new List<Tab>();
-        if (_player.HasCampaign) tabs.Add(new Tab("Player", _player.Build(BindReadOnly)));
+        if (_player.HasCampaign) tabs.Add(new Tab("Player", _player.Build(BindScalar)));
         if (_player.HasCampaign)
         {
             tabs.Add(new Tab("Loadout", _readOnly.Loadout()));
@@ -94,7 +97,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument
                     new Stat("DAT1 word", $"0x{_container.Word:X8}"),
                 ]),
                 new SectionNode("Container header", HeaderFields()),
-                new TextNode("This document is read-only. Selected gameplay fields are named and validated; complete integrity coverage remains unproven. All bytes are preserved verbatim.")
+                new TextNode(RiftScalarWrites.Warning)
                 {
                     Tone = Tone.Warning,
                 },
@@ -137,8 +140,35 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument
         return [new FileOutput(_path, _container.Bytes.ToArray())];
     }
 
-    private FieldNode BindReadOnly(string id, string label, FieldSpec spec, FieldValue value) =>
-        Field(id, label, spec, () => value);
+    private FieldNode BindReadOnly(string id, string label, FieldSpec spec, FieldValue value)
+    {
+        if (_writes.TryDiagnostic(id, out var write)) return BindLiveReadOnly(id, label, spec, () => write.Value);
+        if (id == RiftScalarWrites.BalanceId && _writes.HasBalance)
+            return BindLiveReadOnly(id, label, spec, () => _writes.Balance);
+        return Field(id, label, spec, () => value);
+    }
+
+    private FieldNode BindScalar(string id, string label, FieldSpec spec, FieldValue value) =>
+        _writes.TryWrite(id, out var write)
+            ? Field(id, label, write.Spec, () => write.Value, next => _writes.Set(write, next), write.Validate)
+            : BindReadOnly(id, label, spec, value);
+
+    private FieldNode BindLiveReadOnly(string id, string label, FieldSpec spec, Func<FieldValue> get)
+    {
+        _liveReadOnly[id] = get;
+        return Field(id, label, spec, get);
+    }
+
+    public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
+    {
+        if (_writes.ValidateBatch(edits) is { } error) return new EditOutcome { Errors = [error] };
+        var before = _liveReadOnly.ToDictionary(pair => pair.Key, pair => pair.Value(), StringComparer.Ordinal);
+        var outcome = base.ApplyEdits(edits);
+        if (!outcome.Succeeded) return outcome;
+        var derived = before.Select(pair => new ValueChange(pair.Key, pair.Value, _liveReadOnly[pair.Key]()))
+            .Where(change => change.OldValue != change.NewValue);
+        return outcome with { Changes = [.. outcome.Changes, .. derived] };
+    }
 
     private IReadOnlyList<ViewNode> HeaderFields() =>
     [

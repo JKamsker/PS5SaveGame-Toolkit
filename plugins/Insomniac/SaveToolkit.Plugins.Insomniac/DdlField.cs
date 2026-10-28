@@ -5,6 +5,14 @@ namespace SaveToolkit.Plugins.Insomniac;
 internal sealed record DdlField(string Name, DdlValueKind Kind, int Count, int Offset,
     IReadOnlyList<FieldValue> Values)
 {
+    public IReadOnlyList<FieldValue> Values { get; private set; } = Values;
+
+    internal void SetScalar(FieldValue value)
+    {
+        if (Count != 1 || Values.Count != 1) throw new InvalidOperationException("Not a scalar field.");
+        Values = [value];
+    }
+
     internal IReadOnlyList<DdlObject> Objects { get; init; } = [];
 
     internal FieldSpec Spec => Kind switch

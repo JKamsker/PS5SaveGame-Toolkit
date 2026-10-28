@@ -32,7 +32,7 @@ public sealed class Dat1FormatTests
         foreach (var file in files)
         {
             using var document = plugin.Open(file);
-            Assert.False(document.CanEdit);
+            Assert.True(document.CanEdit);
             var output = Assert.Single(document.Serialize());
             Assert.Equal(file.RelativePath, output.RelativePath);
             Assert.Equal(file.ReadAllBytes(), output.Content.ToArray());
