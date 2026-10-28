@@ -60,7 +60,11 @@ as identity evidence.
 
 Phase 1 indexing/harness and Phase 2 reference integration/read-only navigation
 are implemented. Causal semantics, actual item dictionaries, mapped locations and
-verified completion totals remain open. Phases 3/4 need controlled captures.
+verified completion totals remain open. The write-enable decision supersedes the
+old Phase 3 evidence gate: the six prepared existing-value surfaces now write with
+warnings and conservative editor bounds. Captures validate those effects separately
+in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31); Phase 4 still
+requires a lossless structural writer. See the README's enabled-writes table.
 Round 2 adds F8 evidence/quest panels, six attributed MIT mission-item links and
 F6 review for the existing quantity operation. [Round-2 findings](round2.md)
 separate synthetic storage-preservation evidence from missing causal captures.
@@ -80,7 +84,10 @@ available, but no structural operation is exposed and maturity stays Experimenta
   PC runtime observations need matching PS5 deltas; PC format equivalence is unconfirmed.
 - On a spare console slot: restore/export unchanged, load, re-save, reload; then test
   one small existing-quantity edit through the same cycle and confirm the displayed
-  effect. Progression/structural tests follow after their mappings/writers exist.
+  effect. Next test one existing value through each newly enabled Gadgets, Loadout,
+  Progress, Quests and World tab, plus one F4 item-ID replacement. Record exact
+  paths and displayed old/new values, inspect dependencies and sibling files,
+  and re-export after re-save/reload. Structural tests follow only after a lossless writer exists.
   Only a human may mark a tested subset Stable.
 - For the six mission-opening-condition IDs `558265447`, `1887847758`, `1942031930`,
   `3036423139`, `3090659029`, `3746788365`, record the displayed item and the three

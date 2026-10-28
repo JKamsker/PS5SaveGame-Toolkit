@@ -4,7 +4,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Pragmata.Views;
 
-/// <summary>Bounded, read-only navigation by hash-confirmed section families.</summary>
+/// <summary>Bounded navigation and existing-value edits by hash-confirmed section families.</summary>
 internal sealed class EvidenceView(PragmataDocument document, LazyPages pages)
 {
     public IReadOnlyList<ViewNode> Gadgets() => [Notice(), .. document.Layout.Inventory!.Children
@@ -26,7 +26,7 @@ internal sealed class EvidenceView(PragmataDocument document, LazyPages pages)
         return [Notice(), new StatsNode(counts), .. sections.Select(Section)];
     }
 
-    private static TextNode Notice() => new("Read-only evidence view. Names identify stored types; gameplay meanings, completion totals and legal values are unconfirmed. Counts are stored records, not game completion.") { Tone = Tone.Info };
+    private static TextNode Notice() => new("Existing primitive values are editable; strings, structs and record counts remain read-only. Names identify stored types; gameplay meanings, dependencies and legal values are unconfirmed. Editor bounds use matching typed fields in this save, including 0 and 1. Counts are stored records, not game completion.") { Tone = Tone.Warning };
 
     private ViewNode Section(SaveNode node)
     {

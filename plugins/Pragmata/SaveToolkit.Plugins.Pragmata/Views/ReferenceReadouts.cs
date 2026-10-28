@@ -7,7 +7,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Pragmata.Views;
 
-/// <summary>Read-only reference aliases stay isolated from the existing primitive editing bindings.</summary>
+/// <summary>Attributed aliases over existing fixed-size primitives; references use exact decimal text.</summary>
 internal sealed class ReferenceReadouts
 {
     internal const string ItemsCatalog = "pragmata-items";
@@ -38,7 +38,18 @@ internal sealed class ReferenceReadouts
         var record = _identifiers?.Find($"{hash:x8}");
         return record is not null && record.Name == HashNames.All.GetValueOrDefault(hash) ? record.AttributionText : HashNames.Provenance(hash);
     }
-    public bool IsReadOnly(string id) => _bindings.ContainsKey(id);
+    public ResolvedEdit? Resolve(string id, FieldValue value)
+    {
+        if (!_bindings.TryGetValue(id, out var binding)) return null;
+        if (binding.Reference)
+        {
+            if (value.Kind != FieldValueKind.Text || !uint.TryParse(value.AsString(), NumberStyles.None,
+                    CultureInfo.InvariantCulture, out var raw))
+                return new ResolvedEdit(binding.Node, value, "Item ID must be exact unsigned decimal uint32 text.");
+            value = FieldValue.Of((ulong)raw);
+        }
+        return new ResolvedEdit(binding.Node, value);
+    }
     public FieldValue? GetValue(string id) => _bindings.TryGetValue(id, out var binding) ? Value(binding, _document.Read(binding.Node)) : null;
     public AssetContent? GetAsset(string id) => _context.GetAsset(id);
 
@@ -49,12 +60,14 @@ internal sealed class ReferenceReadouts
         var id = $"inspect/item/{node.Path}";
         _bindings[id] = (node, true);
         return new FieldNode(id, record?.Name ?? $"Unmapped item 0x{raw:x8}",
-            new ReferenceSpec(ItemsCatalog) { ReadOnly = true, AllowCustom = false }, FieldValue.Of(raw.ToString(CultureInfo.InvariantCulture)))
+            new ReferenceSpec(ItemsCatalog) { AllowCustom = true, Assess = candidate => AssessItem(node, candidate.Key) },
+            FieldValue.Of(raw.ToString(CultureInfo.InvariantCulture)))
         {
             Confidence = record is null || record.Attributes.GetValueOrDefault("confidence") == "Unknown" ? Confidence.Unknown : Confidence.Inferred,
             Description = $"Raw ID 0x{raw:x8} / {raw}. {record?.Description ?? "No ID mapping available."} " +
                 $"{record?.AttributionText ?? "Observed save value; no external name source."} Gameplay effects and legal limits are unverified. " +
-                EvidenceText(raw),
+                $"{EvidenceText(raw)} {_document.Bounds.Description(node)} Replacement changes only this stored ID; dependent references and unlock flags are not repaired. " +
+                PragmataDocument.EditWarning,
         };
     }
 
@@ -62,10 +75,11 @@ internal sealed class ReferenceReadouts
     {
         var id = $"inspect/value/{node.Path}";
         _bindings[id] = (node, false);
-        return new FieldNode(id, HashNames.Label(node.Hash), PrimitiveCodec.Spec(node) with { ReadOnly = true }, _document.Read(node))
+        return new FieldNode(id, HashNames.Label(node.Hash), _document.Bounds.Spec(node), _document.Read(node))
         {
             Confidence = Confidence.Unknown,
-            Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x}. Identifier: {IdentifierSource(node.Hash)} Gameplay meaning unverified.",
+            Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x}. Identifier: {IdentifierSource(node.Hash)} " +
+                $"{_document.Bounds.Description(node)} Bounds use matching typed fields in this save, including 0 and 1; game limits and dependencies remain unknown. {PragmataDocument.EditWarning}",
         };
     }
 
@@ -74,7 +88,7 @@ internal sealed class ReferenceReadouts
         var record = Item(id);
         var result = new List<ViewNode> { new TextNode($"Raw item ID: 0x{id:x8} / {id}"),
             new TextNode(record?.Description ?? "Player-facing mapping unavailable."),
-            new TextNode($"Category: {record?.Category ?? "unknown"}; legal limit: {record?.Limit?.ToString(CultureInfo.InvariantCulture) ?? "unknown"}. Reference data does not authorize writes."),
+            new TextNode($"Category: {record?.Category ?? "unknown"}; reference limit: {record?.Limit?.ToString(CultureInfo.InvariantCulture) ?? "unknown"}. Reference limits are not proven game limits."),
             new TextNode(record?.AttributionText ?? "Source: observed save ID; no name dictionary.") };
         if (ItemEvidence(id) is { } evidence)
             result.Add(new TextNode($"Inferred source role: {evidence.Category}. {EvidenceText(id)}"));
@@ -90,10 +104,19 @@ internal sealed class ReferenceReadouts
         ? $"{evidence.Description} Mission IDs: {evidence.Attributes.GetValueOrDefault("missionIds") ?? "Unknown"}. {evidence.AttributionText}"
         : "";
 
+    private ReferenceEligibility AssessItem(SaveNode node, string key)
+    {
+        var error = uint.TryParse(key, NumberStyles.None, CultureInfo.InvariantCulture, out var raw)
+            ? _document.Bounds.Validate(node, FieldValue.Of((ulong)raw)) : "Expected an unsigned decimal uint32 item ID.";
+        return error is null ? new ReferenceEligibility() : new ReferenceEligibility { Eligible = false, Reasons = [error] };
+    }
+
     public IEnumerable<ValueChange> Changes(IReadOnlyDictionary<SaveNode, FieldValue> proposed) =>
         _bindings.Where(b => proposed.TryGetValue(b.Value.Node, out var next) && _document.Read(b.Value.Node) != next)
             .Select(b => new ValueChange(b.Key, Value(b.Value, _document.Read(b.Value.Node)), Value(b.Value, proposed[b.Value.Node])));
 
     private static FieldValue Value((SaveNode Node, bool Reference) binding, FieldValue value) =>
         binding.Reference ? FieldValue.Of(value.AsUInt32().ToString(CultureInfo.InvariantCulture)) : value;
+
+    internal sealed record ResolvedEdit(SaveNode Node, FieldValue Value, string? Error = null);
 }

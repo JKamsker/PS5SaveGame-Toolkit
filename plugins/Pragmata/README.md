@@ -10,12 +10,13 @@ test has been performed; only a human should promote this plugin to Stable.
   difficulty hash and editable fixed-size header fields.
 - Inventory: existing item IDs in hex and decimal, int32 quantities, equipped
   marker, and an F6 preview/apply quantity action for selected or all existing rows. F2 reference packs
-  supply attributed names/descriptions/icons through read-only F4 reference fields
+  supply attributed names/descriptions/icons through writable F4 reference fields
   and F3 detail cells. The embedded item catalog labels all 90 IDs unmapped.
-- Bounded read-only Gadgets, Loadout, Progress, Quests and World tabs, grouped by
+- Bounded Gadgets, Loadout, Progress, Quests and World existing-value editors, grouped by
   hash-confirmed section classes. F8 queries search/filter/sort evidence arrays
   before paging; the largest sampled world list has 6,988–6,989 records. Stored
-  record counts are not completion totals. Details retain read-only fields and attribution.
+  record counts are not completion totals. Details retain confidence, source attribution
+  and console/integrity warnings. Strings, structs and collection structure remain read-only.
 - Six observed inventory IDs cross-reference an MIT PC mission dataset's
   `OpenConditionItemID` fields. This **Inferred** role is shown separately from
   the still-Unknown player-facing names and limits; no PS5 unlock behavior is claimed.
@@ -39,15 +40,69 @@ DSSS header and never decrypts. Backup twins use the same normalized names.
 After opening, gameplay titles include the parsed slot and inferred playtime in
 hours, e.g. “Pragmata · Slot 0 · 25.7 h”.
 
-Each tab starts with one experimental notice. Field descriptions retain compact
-provenance (`path · u32 @0x50`, with plaintext offsets) and source attribution; confidence conveys name
-verification separately. Inventory-specific risks and clock guidance remain in
+Each tab starts with one experimental notice. Field descriptions retain
+provenance (`path · u32 @0x50`, with plaintext offsets), source attribution,
+editor bounds and console/integrity warnings; confidence describes unverified
+gameplay meaning. Inventory-specific risks and clock guidance remain in
 their tabs. The overview integrity stat reads “Verified”, with hash block counts
 and embedded key/IV verification details in its hint.
 
 No new NuGet dependencies. Production code depends only on `SaveToolkit.Sdk`
 and .NET libraries, and does no filesystem/network I/O. Embedded identifier data
 is immutable and shared; mutable state is isolated per document.
+
+## Enabled writes and their evidence
+
+The 2026-10-28 owner decision **"Enable writes. Keep warnings."** supersedes the
+earlier console-evidence gate. Version 0.4.0 enables six prepared write surfaces:
+item-ID references and the five family tabs below. This edits existing primitive
+storage only, using the same fixed-size patcher as Raw. Names identify stored
+fields, not verified gameplay effects. Every writable field describes its source,
+console status and integrity limitation; F6 preview/apply outcomes retain warnings.
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
+| --- | --- | --- | --- | --- |
+| Inventory item-ID replacement through F4 | Unknown; imported names at most Inferred | Exact uint32 storage; 90 observed IDs; edit/reopen and plaintext-byte isolation in all 11 gameplay files | CityHash64/Murmur3 repaired; RSA trailer unverified | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): replace one existing ID; inspect equipped state, quantities, unlocks and sibling files after reload |
+| Gadgets / shortcut existing primitives | Unknown | Hash-confirmed identifiers/types; all-sample F1 preservation and undo/redo | Same fixed-size repair; RSA unverified | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one gadget/shortcut change; verify equip/use behavior |
+| Loadout existing primitives (weapons, enhancements, presets, character) | Unknown | Same; no invented enum meanings or dependency repairs | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one weapon/perk/preset value; verify ownership, effects and dependent state |
+| Progress existing primitives | Unknown | Same; record counts are not completion percentages | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one chapter/event/campaign/difficulty value with an exact field path and visible result |
+| Quests existing primitives | Unknown | Same; objective identifiers do not prove quest semantics | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one objective state; verify prerequisites and downstream quest behavior |
+| World existing primitives | Unknown | Same; fixed physical row identities and bounded F8 details | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one checkpoint/gimmick/prop/environment value; verify travel, interactions and dependent state |
+| Existing quantity controls and F6 selected/all quantity action (retained) | Inferred | Independent golden hashes; all-sample F1 quantity-only deltas; atomic planned apply and group undo | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small quantity change; preview, apply, undo/redo, export/re-import and console load |
+| Existing header/clock/raw primitive edits (retained) | Inferred for named fields; Unknown otherwise | 12 no-op identities; primitive/clock edit/reopen/reverse and derived-clock undo tests | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged control first, then one small edit per family |
+
+**The game may reject edited saves.** RSA trailer verification/regeneration is
+not implemented. Serialization preserves that trailer and every unknown byte,
+repairs the two known hash layers, decrypts its own result and fully re-parses it.
+Successful parsing cannot establish console acceptance or repair unknown gameplay
+dependencies. Item-ID replacement changes only the selected stored ID; it does
+not create a record or update equipment, ownership, unlocks or other references.
+
+New numeric family controls and their Raw aliases use immutable editor bounds
+computed when the document opens: match containing class/array, field hash,
+primitive type and width; take the observed minimum/maximum in that save, include
+0 and 1, and retain the native type bounds. The added 0/1 endpoints are an explicit
+editor policy, not observations or claimed legal enum states. Boolean fields
+accept booleans only; floats must be finite and fit their stored precision.
+Reference IDs use exact decimal uint32 text, with the same observed bounds;
+custom IDs are permitted within those bounds even without a reference pack.
+Imported names or limits never override this policy. Invalid batches and alias
+conflicts reject atomically. Existing quantity, header, clock and system/raw
+metadata controls retain their documented storage bounds and clock invariants.
+
+Structural add/remove/reorder, string/struct edits and resizing remain disabled.
+There is no typed structural writer: byte-identical fixed-size no-ops do not
+prove that unknown alignment, padding, counts and metadata survive rebuilding a
+different layout. No prepared cross-file transaction or proven sibling dependency
+exists to enable through F7. Existing operations emit only their owned file;
+no legal-max or progression preset is fabricated. Maturity stays Experimental.
+
+For each enabled surface, use a spare slot: record build/region/DLC, path and
+displayed old/new values; capture an unchanged load/save/reload control; make
+one small change; export/re-import; load, inspect side effects, re-save, reload,
+re-export and diff. Keep system/gameplay siblings in the capture. The detailed
+[capture checklist](evidence/README.md) and [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31)
+track evidence separately; writes no longer wait for those captures.
 
 ## Files and sample coverage
 
@@ -165,9 +220,10 @@ Upstream dumps resolve additional names beyond the earlier map, including
 `_Gadgets` and `_ShortcutSlot`. These are verified **identifier matches**, not
 proof of legal values or game behavior. `_MainSlot` is not labelled money,
 `_LapCount` is not equated to NG+, and difficulty/inheritance IDs have no invented
-friendly labels. Other field controls use Verified for confirmed names and
-Unknown for unnamed hashes; the experimental game-effects warning appears once
-at the top of each tab, rather than on every field.
+friendly labels. Writable controls use Inferred for named raw fields and Unknown
+for unmapped fields/family semantics. Identifier provenance remains hash-verified;
+it does not confer Verified gameplay confidence. Experimental console/integrity
+warnings appear in every field description and at the top of each tab.
 
 Item names, ID meanings, legal stack limits, unlock dependencies, many field
 semantics, unknown metadata and console compatibility remain unverified. The
@@ -201,7 +257,7 @@ The embedded `pragmata.evidence.en` v1.1.0 pack contains `pragmata-identifiers`
 names/descriptions/icons under another pack ID; item keys are invariant decimal
 uint32 strings. Identifier and section keys are eight-digit lower-case hex.
 See [pack provenance and import contract](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/data.source.md).
-F4 reference fields remain read-only, imported labels are at most Inferred, and
+F4 item references allow experimental existing-ID replacements, imported labels are at most Inferred, and
 reference limits do not become edit caps. No artwork or copyrighted game descriptions
 are embedded. Counts in the new family tabs denote records, not completion totals.
 Evidence row keys use fixed plaintext offsets, which remain stable under this
@@ -268,6 +324,17 @@ F1 verifies the bulk operation in all eleven gameplay saves: only inventory quan
 semantic paths and plaintext storage change; reopening and reversal preserve exact
 original bytes. These are synthetic preservation experiments, not causal in-game
 captures. Detailed remaining requirements: [round-2 research and evidence](evidence/round2.md).
+
+Write-enable validation: **108 passed, 0 failed, 0 skipped**, using all 12 distinct
+files with the artifact environment in the same test command. New coverage applies
+one existing primitive per family in all 11 gameplay saves, verifies complete F1
+deltas (including deliberate identity-key changes), confines plaintext-byte deltas
+to requested fields, reopens values and exercises framework group undo/redo.
+F4 item replacements receive the same all-sample byte/reopen/undo coverage;
+malformed IDs, invalid types/ranges and conflicting aliases reject atomically.
+Field/action descriptions and F6 plan/apply warnings explicitly cover console and
+RSA limitations. API build passes with zero warnings/errors. No new dataset,
+algorithm port or dependency was added; the original attribution remains intact.
 
 Builds run the plugin-local code-size check: warn above 300 C# lines and fail
 above 500 unless a reviewed justification exists in `code-size-exemptions.json`.

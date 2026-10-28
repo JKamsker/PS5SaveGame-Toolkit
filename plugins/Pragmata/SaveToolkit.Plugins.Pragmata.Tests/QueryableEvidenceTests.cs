@@ -9,7 +9,7 @@ namespace SaveToolkit.Plugins.Pragmata.Tests;
 public sealed class QueryableEvidenceTests
 {
     [Fact]
-    public void AllSampleProgressAndWorldListsAreQueryableReadOnlyAndLossless()
+    public void AllSampleProgressAndWorldListsAreQueryableEditableAndLossless()
     {
         foreach (var file in SampleEvidenceTests.Files().Where(file => file.FileName != "data00-1.bin"))
         {
@@ -37,8 +37,8 @@ public sealed class QueryableEvidenceTests
                                 : new[] { detail }.OfType<FieldNode>();
                             Assert.All(fields, field =>
                             {
-                                Assert.True(field.Spec.ReadOnly);
-                                Assert.False(document.ApplyEdits([new(field.ValueId, field.Value)]).Succeeded);
+                                Assert.False(field.Spec.ReadOnly);
+                                Assert.True(document.ApplyEdits([new(field.ValueId, field.Value)]).Succeeded);
                             });
                         }
                     }

@@ -9,7 +9,7 @@ namespace SaveToolkit.Plugins.Pragmata.Editing;
 internal sealed class QuantityActions(PragmataDocument document)
 {
     private const string Risk = "Stored int32 quantities only. Item meanings, legal stack limits, unlock dependencies and console effects are Unknown. " +
-        "Controlled in-game before/after captures are still required. Legal maxima and progression effects have not been established.";
+        "Controlled in-game before/after captures are still required. Legal maxima and progression effects have not been established. " + PragmataDocument.EditWarning;
 
     // The fixed-size writer never moves a record. Physical identity also survives raw item-ID edits.
     public static string RowKey(SaveNode item) => $"inventory/record-at-{item.Offset:x}";
@@ -18,7 +18,7 @@ internal sealed class QuantityActions(PragmataDocument document)
     {
         ActionPlan Reject(string message) => new() { Errors = [new FieldError(actionId, message)], Warnings = [Risk] };
         if (actionId != PragmataViews.QuantityAction || document.Layout.Inventory is null) return Reject("Unknown inventory action.");
-        if (scope.QueryScope is not null) return Reject("This action accepts explicit inventory rows or document scope; evidence queries are read-only.");
+        if (scope.QueryScope is not null) return Reject("This action accepts explicit inventory rows or document scope; evidence query scopes are not inventory selections.");
         if (parameters.Count != 1 || !parameters.TryGetValue("quantity", out var target) ||
             target.Kind != FieldValueKind.Integer || target.AsInteger() < 0 || target.AsInteger() > int.MaxValue)
             return Reject("Quantity must be an integer between 0 and 2147483647 (storage range, not a game limit).");

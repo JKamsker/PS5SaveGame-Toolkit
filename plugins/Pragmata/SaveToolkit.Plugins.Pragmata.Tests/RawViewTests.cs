@@ -25,7 +25,7 @@ public sealed class RawViewTests
             Assert.True(nodes.Count <= LazyPages.PageSize);
         }
         var raw = nodes.OfType<FieldNode>().Single(f => f.ValueId == $"raw/{target.Path}");
-        Assert.Equal(Confidence.Verified, raw.Confidence);
+        Assert.Equal(Confidence.Inferred, raw.Confidence);
         Assert.Equal(document.GetValue(target.Path), raw.Value);
         var outcome = document.ApplyEdits([new(raw.ValueId, FieldValue.Of(9999L))]);
         Assert.True(outcome.Succeeded);

@@ -44,8 +44,9 @@ public sealed class PresentationTests
         using var document = EditingTests.Gameplay();
         var difficulty = document.Layout.Header!.Find(KnownHashes.Difficulty)!;
         var field = document.Field(difficulty);
-        Assert.Equal($"{difficulty.Path} · u32 @0x{difficulty.Offset:x} · {HashNames.Provenance(difficulty.Hash)}", field.Description);
-        Assert.Equal(Confidence.Verified, field.Confidence);
+        Assert.StartsWith($"{difficulty.Path} · u32 @0x{difficulty.Offset:x} · {HashNames.Provenance(difficulty.Hash)}", field.Description!, StringComparison.Ordinal);
+        Assert.Contains(PragmataDocument.EditWarning, field.Description!, StringComparison.Ordinal);
+        Assert.Equal(Confidence.Inferred, field.Confidence);
         Assert.Null(field.Warning);
         Assert.Equal(Confidence.Inferred, document.Field(document.Layout.Header.Find(KnownHashes.Playtime)!).Confidence);
 

@@ -19,7 +19,7 @@ internal sealed class InventoryView(PragmataDocument document, LazyPages pages)
             SupportsPlanning = true,
             Tone = Tone.Warning,
             Parameters = [new FieldNode("quantity", "N", IntegerSpec.Int32 with { Min = 0 }, FieldValue.Of(1L))],
-            Description = "Preview selected rows from the table, or every existing row from document scope. Legal limits and game effects remain unverified. " +
+            Description = PragmataDocument.EditWarning + " Preview selected rows from the table, or every existing row from document scope. Legal limits and game effects remain unverified. " +
                 "Expand target quantity pages first; applying is one undo step. Does not add items or set unlock flags.",
         };
 
@@ -39,7 +39,7 @@ internal sealed class InventoryView(PragmataDocument document, LazyPages pages)
                 ["action"] = QuantityAction(),
             });
         }).ToArray();
-        return new TableNode([new("name", "Item (read-only reference)"), new("id", "Raw ID (hex / decimal)"),
+        return new TableNode([new("name", "Item ID (experimental replacement)"), new("id", "Raw ID (hex / decimal)"),
             new("quantity", "Quantity"), new("equipped", "Equipped"), new("details", "Details / sources"), new("action", "Selection action")], rows)
         {
             Title = "_InventoryItems",
