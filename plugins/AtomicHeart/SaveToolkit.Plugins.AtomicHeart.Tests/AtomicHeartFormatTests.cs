@@ -24,8 +24,9 @@ public sealed class AtomicHeartFormatTests
         Assert.True(field.Spec.ReadOnly);
         Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(3L))]).Succeeded);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.Equal(50, document.ReadBlob("data", 0, int.MaxValue).Length);
-        Assert.Empty(document.ReadBlob("data", 50, 2).ToArray());
+        var dataLength = SaveExtensionFile.Parse(bytes).DataLength;
+        Assert.Equal(dataLength, document.ReadBlob("data", 0, int.MaxValue).Length);
+        Assert.Empty(document.ReadBlob("data", dataLength, 2).ToArray());
         Assert.Throws<ArgumentOutOfRangeException>(() => document.ReadBlob("data", -1, 1));
         Assert.Throws<KeyNotFoundException>(() => document.ExpandNode("chunks/-1"));
     }
@@ -67,7 +68,7 @@ public sealed class AtomicHeartFormatTests
     public void InvalidLengthsAndChunkHeadersAreRejectedEvenWithValidHash()
     {
         var bytes = SlotFixture.Create();
-        var chunk = bytes.Length - 20 - 50;
+        var chunk = SaveExtensionFile.Parse(bytes).DataOffset;
         foreach (var offset in new[] { 0, 4, chunk, chunk + 8, chunk + 16, chunk + 24, chunk + 32, chunk + 40, chunk + 48 })
         {
             var corrupt = bytes.ToArray(); corrupt[offset] ^= 0xFF; SlotFixture.RefreshDigest(corrupt);

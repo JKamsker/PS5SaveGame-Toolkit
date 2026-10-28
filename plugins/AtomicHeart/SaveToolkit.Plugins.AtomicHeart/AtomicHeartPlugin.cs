@@ -1,17 +1,29 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.AtomicHeart;
 
 public sealed class AtomicHeartPlugin : IGamePlugin
 {
     private const int ProbeHeaderBytes = 4096;
-    public PluginInfo Info { get; } = new("atomic-heart", "Atomic Heart", "0.1.0")
+    public PluginInfo Info { get; } = new("atomic-heart", "Atomic Heart", "0.2.0")
     {
-        Description = "Read-only SaveExtension metadata and Oodle chunk inspector with SHA-1 validation.",
+        Description = "Read-only Kraken/SaveExtension record and inventory inspector with SHA-1 validation.",
         Games = [new GameTitle("PPSA10695", "Atomic Heart")],
         Maturity = PluginMaturity.ReadOnly,
-        References = ["https://github.com/PipeRift/SaveExtension/blob/1.4/Source/SaveExtension/Private/FileAdapter.cpp"],
+        References = [
+            "https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/FileAdapter.cpp",
+            "https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/Records.cpp",
+            "https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/SlotData.cpp",
+            "https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/LevelRecords.cpp",
+            "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+            "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/NOTICE",
+            "https://github.com/AaryanKh/TekkenMusicModManager/blob/8737709e840c74efc935e23ac0d33cdb6aaef8f5/src/Tmm.Core/Pak/Kraken.cs",
+            "https://github.com/powzix/ooz/blob/05038060aa68f9187ae9923b2388ca8db40e58d1/kraken.cpp",
+            "https://github.com/producedbytmsh/hl-savetools/blob/e568dedcda2611f54cc793e6d0237c749ae25094/hlsave.py",
+            "https://www.rfc-editor.org/rfc/rfc3174",
+        ],
     };
 
     public ProbeResult Probe(ISaveFile file)
@@ -28,10 +40,14 @@ public sealed class AtomicHeartPlugin : IGamePlugin
         catch (Exception ex) when (ex is IOException or ArgumentException) { return ProbeResult.None; }
     }
 
-    public ISaveDocument Open(ISaveFile file)
+    public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         if (file.Length > SaveExtensionFile.MaxBytes) throw new SaveFormatException("SaveExtension exceeds the 128 MiB limit.");
         var bytes = file.ReadAllBytes();
-        return new AtomicHeartDocument(file.RelativePath, bytes, SaveExtensionFile.Parse(bytes));
+        var parsed = SaveExtensionFile.Parse(bytes);
+        var index = SlotDataDecoder.Decode(bytes, parsed);
+        return new AtomicHeartDocument(file.RelativePath, bytes, parsed, index, references);
     }
 }

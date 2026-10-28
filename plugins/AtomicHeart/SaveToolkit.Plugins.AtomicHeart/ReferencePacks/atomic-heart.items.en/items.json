@@ -1,0 +1,224 @@
+{
+  "records": [
+    {
+      "id": "DA_Item_Shved",
+      "name": "Swede / Shved",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Shved.DA_Item_Shved"
+      }
+    },
+    {
+      "id": "DA_Item_Zvezdochka",
+      "name": "Zvezdochka",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Zvezdochka.DA_Item_Zvezdochka"
+      }
+    },
+    {
+      "id": "DA_Item_ShotgunKS23",
+      "name": "KS-23 Shotgun",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_ShotgunKS23.DA_Item_ShotgunKS23"
+      }
+    },
+    {
+      "id": "DA_Item_PM",
+      "name": "PM",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_PM.DA_Item_PM"
+      }
+    },
+    {
+      "id": "DA_Item_AK47",
+      "name": "Kalash Rifle / AK-47",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_AK47.DA_Item_AK47"
+      }
+    },
+    {
+      "id": "DA_Item_Electro",
+      "name": "Electro",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Electro.DA_Item_Electro"
+      }
+    },
+    {
+      "id": "DA_Item_Dominator",
+      "name": "Dominator",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Dominator.DA_Item_Dominator"
+      }
+    },
+    {
+      "id": "DA_Item_Railgun",
+      "name": "Railgun",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Railgun.DA_Item_Railgun"
+      }
+    },
+    {
+      "id": "DA_Item_Pashtet",
+      "name": "Pashtet",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Pashtet.DA_Item_Pashtet"
+      }
+    },
+    {
+      "id": "DA_Item_Snejok",
+      "name": "Snowball / Snejok",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Snejok.DA_Item_Snejok"
+      }
+    },
+    {
+      "id": "DA_Item_Lisa",
+      "name": "Fox / Lisa",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Lisa.DA_Item_Lisa"
+      }
+    },
+    {
+      "id": "DA_Item_Klusha",
+      "name": "Klusha",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Klusha.DA_Item_Klusha"
+      }
+    },
+    {
+      "id": "DA_Item_AK47Ammo",
+      "name": "AK47",
+      "category": "ammunition",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_AK47Ammo.DA_Item_AK47Ammo"
+      }
+    },
+    {
+      "id": "DA_Item_MachinegunAmmo",
+      "name": "Machinegun",
+      "category": "ammunition",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_MachinegunAmmo.DA_Item_MachinegunAmmo"
+      }
+    },
+    {
+      "id": "DA_Item_MediumAmmo",
+      "name": "Medium",
+      "category": "ammunition",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_MediumAmmo.DA_Item_MediumAmmo"
+      }
+    },
+    {
+      "id": "DA_Item_PistolAmmo",
+      "name": "Pistol",
+      "category": "ammunition",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_PistolAmmo.DA_Item_PistolAmmo"
+      }
+    },
+    {
+      "id": "DA_Item_ShotgunAmmo",
+      "name": "Shotgun",
+      "category": "ammunition",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_ShotgunAmmo.DA_Item_ShotgunAmmo"
+      }
+    },
+    {
+      "id": "DA_Item_StrongAmmo",
+      "name": "Strong",
+      "category": "ammunition",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_StrongAmmo.DA_Item_StrongAmmo"
+      }
+    },
+    {
+      "id": "DA_Item_WeakAmmo",
+      "name": "Weak",
+      "category": "ammunition",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_WeakAmmo.DA_Item_WeakAmmo"
+      }
+    },
+    {
+      "id": "DA_PlasmagunAmmo",
+      "name": "Plasmagun",
+      "category": "ammunition",
+      "description": "PC runtime catalog label. Exact asset-name join only; PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_PlasmagunAmmo.DA_PlasmagunAmmo"
+      }
+    }
+  ]
+}

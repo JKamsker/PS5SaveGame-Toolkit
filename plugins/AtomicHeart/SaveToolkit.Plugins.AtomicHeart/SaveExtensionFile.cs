@@ -111,8 +111,9 @@ internal sealed record SaveExtensionFile(int PackageVersion, string Engine, int 
                 reader.UInt64() != compressed || reader.UInt64() != plain)
                 throw new SaveFormatException("Invalid Unreal compressed chunk sizes.");
             var payload = reader.Take((int)compressed);
-            if (payload.Length < 2 || payload[0] != 0x8C || payload[1] != 0x06)
-                throw new SaveFormatException("Unsupported Atomic Heart Oodle stream signature.");
+            // The shared codec validates Kraken, including block-level stored frames (CC 06).
+            if (payload.Length < 2 || (payload[0] & 0x8F) != 0x8C || payload[1] != 0x06)
+                throw new SaveFormatException("Unsupported Atomic Heart Oodle variant; only Kraken (decoder 6) is supported.");
             total += (long)plain;
             if (total > MaxBytes) throw new SaveFormatException("Declared SlotData exceeds the 128 MiB safety limit.");
             chunks.Add(new CompressedChunk(offset, (int)compressed, (int)plain));
