@@ -27,10 +27,13 @@ public sealed class WitcherRichSampleTests
             var skills = Assert.Single(features.Abilities, a => a.Name == "skills");
             Assert.Equal(16, skills.Entries.Count(e => e.Record.Integer("level") == 1 &&
                 e.Record.Find("isCoreSkill")?.Value[0] == 1));
+            Assert.DoesNotContain(features.SkillEdits!.Ranks, r => r.Entry.Id.StartsWith("unnamed-slot-", StringComparison.Ordinal) ||
+                r.Entry.Record.Find("isCoreSkill")?.Value[0] == 1);
+            Assert.NotEmpty(features.SkillEdits.Ranks);
             Assert.Equal(27, features.Cards!.Count);
             Assert.Equal(35, features.Cards.Sum(c => c.Copies));
-            Assert.Contains(new GwentCard(108, 1), features.Cards);
-            Assert.Contains(new GwentCard(3, 2), features.Cards);
+            Assert.Contains(features.Cards, c => c.Index == 108 && c.Copies == 1);
+            Assert.Contains(features.Cards, c => c.Index == 3 && c.Copies == 2);
             var potion = Assert.Single(player.Inventory!.Items, i => i.Name == "Tawny Owl 1");
             Assert.Equal(2, potion.Attributes.Count);
             Assert.Equal(-1, potion.Durability);

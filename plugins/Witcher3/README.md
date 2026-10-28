@@ -1,7 +1,8 @@
 # The Witcher 3: Wild Hunt – Complete Edition (`witcher3`)
 
-Title: **PPSA04018**. Version: **0.4.0**. Maturity: **Experimental**.
-Supports player level, unspent XP, available ability points, Crowns and inventory quantity edits for the
+Title: **PPSA04018**. Version: **0.5.0**. Maturity: **Experimental**.
+Supports player level, unspent XP, available ability points, Crowns, inventory quantity/durability,
+non-core skill rank and existing Gwent collection-count edits for the
 supplied PS5 SAV3 schema **64 / 23 / 163**. The preserving writer passes edit conformance and sample
 round trips; **edited saves have not been loaded on a console**. When the outer parser recognizes the
 container/directory, other SAV3 versions and saves without an unambiguous player identity retain the
@@ -11,9 +12,38 @@ Round 2 replaces the 18-item starter pack with **4,011 item references, 107 abil
 225 Gwent indices**, with revision-pinned CC BY-SA attribution and retained MIT notices. It adds
 full-catalog browsing, named saved ability/card joins, community Gwent acquisition/copy advice, and
 read-only recipes, journal paths and facts. See [CATALOG.md](CATALOG.md) for coverage and licensing;
-[EVIDENCE.md](EVIDENCE.md) records sample evidence and remaining gates. The Phase 1 rich-read slice
+[EVIDENCE.md](EVIDENCE.md) records sample evidence and remaining implementation limits. The Phase 1 rich-read slice
 is implemented for supplied fixtures; broader compatibility metadata still needs owner captures.
-Phases 2–4 remain partial. No new gameplay write class or bulk action is enabled.
+Phases 2–4 remain partial. The write-enable round adds the bounded writes and F6 repair action below.
+
+## Enabled writes and their evidence
+
+Owner decision (2026-10-28): **Enable writes. Keep warnings.** Console validation and controlled
+captures are tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31); they do not
+gate these controls. Every new control remains **Inferred**, and the plugin stays Experimental.
+The game may reject the edited save or rebuild dependent state. Passing binary tests does not prove
+the gameplay effect, reward accounting, achievement behavior or persistence after a native re-save.
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed (see #31) |
+| --- | --- | --- | --- | --- |
+| Existing inventory durability | Inferred | Native float32 at item +19; converter layout and all eight bounded PS5 records. Editable only when original is in 0..100; -1 and other unsupported ranges stay read-only. | Exactly four body bytes; rebuild LZ4 descriptors; reparse and verify intended durability plus all inventory metadata. No known SNFH checksum. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): damaged weapon/armor, load, verify displayed durability and combat, re-save/reload, re-export. 100 is a conservative repair target, not a proven legal PS5 limit. |
+| Non-core existing skill rank | Inferred | Player-owned counted SSkill array, saved `level`/`maxLevel`; converter/native core identities. Bound 0..saved maxLevel. Omitted rank zero is inserted using existing dictionary names. | Original properties retained; changed array length and containing PORP/BLCK/SS/directory pointers repaired; reparse and verify every skill property's bytes. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): rank up/down, check free/spent/path points, slots, prerequisite UI, modifiers/stats and combat; native save/reload/re-export. No purchase/refund/respec logic runs. |
+| Existing Gwent ordinary/leader copies | Inferred | Typed cardIndex/numCopies pairs before the deck boundary; MIT tracker and 27 indices / 35 copies in all eight records. Ordinary 0..3, leaders 0..1, widened only to preserve an already larger original count. | Exactly four body bytes per pair; LZ4 framing rebuilt; reparse and compare every card identity/group/count. Deck bytes remain unchanged. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): duplicate count and leader removal/restoration, collection/deck/gameplay/quest/achievement checks, save/reload/re-export. Counts can invalidate a deck; tracker targets are not legal caps. |
+| Repair existing items (F6 bulk) | Inferred | Same durability encoding; preview lists each old/new value and skipped sentinel/unsupported/already-100 row. Document, explicit-row and resolved F8 query scopes. | One atomic edit/undo group; pure preview, apply-time revalidation, no direct invocation; only intended float ranges change. No money or repair rewards change. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): bulk repair two damaged items, check unrelated inventory/Crowns/achievements, native save/reload/re-export. |
+| Existing level / XP / free ability points / Crowns / quantities (retained) | Inferred | Existing preserving writer, player IdTag, saved level definitions and native inventory widths. | Existing edit conformance, relocation/reparse and exact no-op/undo checks remain. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): original spare-slot validation checklist in EVIDENCE.md. Level-up/stack dependencies remain warned. |
+
+The first four rows are **four newly enabled write capabilities**. Core skills and definition/sentinel
+records remain intact. A missing zero property inside an existing skill is a scalar edit with a stable
+identity; it does not add a skill or inventory record. Two rank pages can be edited together with
+progression dictionary growth, durability and Gwent counts, then undone together.
+
+Structural item creation/deletion/replacement, stash/Roach transfers and equipment swaps are not
+implemented: native identity allocation, references and ownership cleanup remain undecoded, so
+guessing would risk corrupting unknown structure. Mutation research, coherent respec/build presets,
+recipe grants and story/world transactions likewise lack a preserving transaction model for their
+related systems. Raw facts, journal state, generic stats and slots remain inspection data. These are
+implementation/structure limits, not a wait for console approval. No F5 or F7 action was prepared in
+the earlier handoffs; `.req` remains an unchanged content list, with no proven multi-file dependency.
 
 ## File roles
 
@@ -77,7 +107,7 @@ indices followed by typed bytes. `SS` has int32 archive length and a separate, n
 - `PORP` / `AVAL`: magic, uint16 name/type indices, int32 value length, value bytes.
 
 The writer splices changed values into the **original image**. Fixed-size inventory edits change only
-their quantity bytes. Progression edits preserve the manager handle header, property order, unknown
+their quantity or durability bytes. Progression edits preserve the manager handle header, property order, unknown
 properties, level definitions and unedited point fields. An absent `free` field is inserted before its
 structure terminator; if needed, `free` is appended to MANU without changing existing name indices.
 It then updates affected PORP/BLCK/SS lengths, containing variable spans, all shifted variable and RB
@@ -88,8 +118,9 @@ padding and trailers remain byte-identical; relocated blocks keep their exact co
 No-op serialization and undo back to the original values return a copy of the **entire original file**,
 without recompression or canonicalization. After any edit, `Serialize()` decompresses its own output,
 requires equality with the edited body, re-parses the directories/tree/player, and compares progression
-and every inventory ID/name/quantity against the current model. It also verifies flags, durability,
-slots, opaque prefixes, prefix names, attributes and tags are unchanged. Failure throws before returning output.
+and every inventory ID/name/quantity/durability against the current model. It also verifies flags,
+slots, opaque prefixes, prefix names, attributes and tags are unchanged, as well as intended skill
+ranks, unedited skill properties and Gwent identities/counts. Failure throws before returning output.
 
 ## Player identity and progression evidence
 
@@ -156,7 +187,7 @@ F3 detail cells show raw durability (including -1), saved flags/slot, unknown pr
 attribute values/type bytes and tags. Categories and labels do not establish safe write limits or
 ordinary equipment: internal appearance and scabbard records remain visible. F4's **Look up catalog
 item** picker browses the pinned `items` catalog and returns attributed descriptions without modifying
-the save. Replacement, equipping, add/remove and refill actions are deliberately absent.
+the save. Replacement, equipping, add/remove and refill actions are absent; reviewed repair is available.
 
 F2 embeds `witcher3.catalog.en` (CC BY-SA 3.0 items/abilities) and `witcher3.gwent.en` (MIT cards).
 The item catalog contains 3,670 explicit native keys and 341 additional wiki references with unpublished
@@ -180,14 +211,15 @@ and consumes each observed tagged array exactly: 102 skills, 16 skill slots, 4 m
 purchased skills. Entries without native keys retain explicitly unnamed slot labels, with no invented
 skill identity. Ninety-five named skills and 12 mutations join the reference catalog; core bookkeeping
 `S_Perk_08` and sentinels remain unmapped. Saved localization/icon keys remain identifiers. Unknown nested values retain hashes
-and lengths; no skill/stat/mutation edits are enabled.
+and lengths. Existing non-core ranks are editable; stat/mutation/slot definitions remain read-only.
 
 The Gwent reader validates declared ordinary/leader collection counts and each bounded pair, stops at
 the manager's `SBSelectedDeckIndex` boundary and excludes deck nodes. All samples contain 27 indices /
 35 copies, including 4 leaders. All observed indices join the catalog; valid empty collections work.
 The tracker distinguishes saved copies from community copy expectations and acquisition/missable
 advice. Aliases remain separate native indices. Not recorded means availability unknown; deck contents,
-actual quest cutoffs and achievement eligibility remain unresolved. No grant/deck/count edits exist.
+actual quest cutoffs and achievement eligibility remain unresolved. Existing counts are editable;
+absent-card creation and deck edits are not implemented.
 
 Recipes read two explicit counted `array:2,0,CName` player properties, validating exact length, unique
 names and indices: 54 crafting schematics and 14 alchemy recipes in every fixture. Missing arrays do
@@ -204,8 +236,9 @@ surrogates: their bytes are retained and displayed through explicit hash identit
 is Unknown. Later saves have 183 nonzero opaque words. No fact or journal write is enabled.
 Optional reader failures show independent warnings and preserve the existing explorer/writer.
 
-The raw explorer remains read-only and shows the **input image**, while Player/Inventory show pending
-edits. It decodes scalar bool/integer/finite float/double, CName, GUID and validated short ASCII strings.
+The raw explorer and encoded-property details remain read-only and show the **input image**, while
+curated Player/Inventory/rank/Gwent fields and Gwent catalog counts show pending edits.
+It decodes scalar bool/integer/finite float/double, CName, GUID and validated short ASCII strings.
 Other handles/arrays, ROTS, unsupported strings and unknown remainder blocks remain opaque. No
 SAVY signature is assumed. Unsupported inventory tails are retained without inventory controls.
 
@@ -220,7 +253,8 @@ No checksum algorithm is guessed or applied; named `magic_number` data remains o
 This establishes the observed framing, not a universal proof that every game version lacks additional
 internal integrity checks. Length checks cannot detect every payload mutation. Unknown future schemas,
 opaque pointer semantics and console-load behavior remain open questions. Experimental maturity reflects
-these limits and the passing preserving-write/conformance tests.
+these limits and the passing preserving-write/conformance tests. Every new field and repair preview
+warns that the game may reject the edited save; no unknown integrity word is overwritten or invented.
 
 ## Sample evidence and tests
 
@@ -253,6 +287,11 @@ Tests cover:
   lengths, point counts, inventory count/name/quantity/terminal; existing framing/directory corruption tests.
 
 Missing samples skip via `SampleSaves`; all synthetic tests remain runnable. No sample data is committed.
+
+Validation for the write-enable round: **88 passed, 0 failed, 0 skipped**, including all eight saves,
+edit/reopen/F1/byte-preservation checks, invalid inputs, session undo/redo, omitted-rank insertion,
+mixed writes/dictionary relocation, and bulk repair preview/apply/group undo. API build:
+**0 warnings / 0 errors**. No console validation is claimed.
 
 Validation for round 2: **79 plugin tests passed, 0 failed, 0 skipped**, with the artifacts variable
 exported in the same command. Full API build: **zero warnings/errors**. Round-2 coverage audits every

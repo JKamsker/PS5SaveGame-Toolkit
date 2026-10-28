@@ -7,7 +7,7 @@ using SaveToolkit.Sdk.Collections;
 namespace SaveToolkit.Plugins.Witcher3;
 
 internal sealed class WitcherDocument(string path, WitcherContainer container, Sav3Directory directory, Sav3Tree tree,
-    IReferenceContext references) : BoundSaveDocument, IQueryableDocument
+    IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private const int PageSize = 128;
     private readonly PlayerData? _player = PlayerData.Read(container, directory, tree);
@@ -15,11 +15,14 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
     private ObservedFeatures? _features;
     private CatalogViews? _catalogs;
     private SavedWorldViews? _world;
+    private WriteFields? _writeFields;
+    private WriteFields Writes => _writeFields ??= new WriteFields(Field);
+    private RepairPlanning Repair => new(_player?.Inventory?.Items ?? [], CanEdit);
     private InventoryViews Inventory => _inventory ??= new InventoryViews(_player?.Inventory?.Items ?? [],
-        references.Catalog(InventoryViews.CatalogId, ReferenceBuild), ItemField, references.AssetProvenance);
+        references.Catalog(InventoryViews.CatalogId, ReferenceBuild), ItemField, references.AssetProvenance, Writes.Durability);
     private string ReferenceBuild => $"sav3-{BinaryData.Int32(container.Payload, 4)}.{BinaryData.Int32(container.Payload, 8)}.{BinaryData.Int32(container.Payload, 12)}";
     private ObservedFeatures Features => _features ??= new ObservedFeatures(_player, tree, container.Payload, directory.Names,
-        references.Catalog("abilities", ReferenceBuild), references.Catalog("gwent", ReferenceBuild));
+        references.Catalog("abilities", ReferenceBuild), references.Catalog("gwent", ReferenceBuild), Writes);
     private CatalogViews Catalogs => _catalogs ??= new CatalogViews(references, ReferenceBuild, () => Features.Cards);
     private SavedWorldViews World => _world ??= new SavedWorldViews(new SavedWorldData(_player, tree, container.Payload, directory.Names),
         references.Catalog("items", ReferenceBuild));
@@ -33,6 +36,22 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
     public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) => actionId == InventoryViews.LookupActionId
         ? Inventory.Inspect(parameters) : Catalogs.HandlesAction(actionId) ? Catalogs.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        Repair.Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+    {
+        var expected = PlanAction(actionId, parameters, scope);
+        if (expected.Errors.Count > 0) { return new EditOutcome { Errors = expected.Errors, Warnings = expected.Warnings }; }
+        if (!RepairPlanning.Matches(expected, plan))
+        {
+            return EditOutcome.Rejected(actionId, "The repair preview is stale or has been modified. Review a new preview.");
+        }
+
+        foreach (var item in _player?.Inventory?.Items ?? []) { _ = Writes.Durability(item); }
+        return ApplyEdits(expected.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray()) with { Warnings = expected.Warnings };
+    }
 
     public override ViewNode BuildView()
     {
@@ -55,7 +74,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
             Field("header/1", "SAV3 version word 2", IntegerSpec.Int32, () => FieldValue.Of((long)BinaryData.Int32(container.Payload, 8))) with { Confidence = Confidence.Unknown },
             Field("header/2", "SAV3 version word 3", IntegerSpec.Int32, () => FieldValue.Of((long)BinaryData.Int32(container.Payload, 12))) with { Confidence = Confidence.Unknown },
             .. SummaryFields()]),
-        new Tab("Player", PlayerFields()),
+        new Tab("Player", new PlayerViews(_player, Field, ItemField).Build()),
         new Tab("Inventory", Inventory.Build()),
         new Tab("Abilities and Gwent", Features.Build()),
         new Tab("Reference catalogs", Catalogs.Build()),
@@ -110,7 +129,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
-        var patches = _player?.Patches(directory, container).ToArray() ?? [];
+        var patches = (_player?.Patches(directory, container) ?? []).Concat(Features.Patches()).ToArray();
         if (patches.Length == 0)
         {
             return [new FileOutput(path, container.Original.ToArray())];
@@ -121,45 +140,17 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         var check = WitcherContainer.Parse(bytes);
         var checkDirectory = Sav3Directory.Parse(check);
         var checkTree = Sav3Tree.Parse(check.Payload, checkDirectory);
-        _player!.Verify(PlayerData.Read(check, checkDirectory, checkTree));
+        var reopened = PlayerData.Read(check, checkDirectory, checkTree);
+        _player!.Verify(reopened);
+        Features.Verify(new ObservedFeatures(reopened, checkTree, check.Payload, checkDirectory.Names));
         return [new FileOutput(path, bytes)];
-    }
-
-    private IReadOnlyList<ViewNode> PlayerFields()
-    {
-        if (_player is null)
-        {
-            return [new TextNode("Player identity and level manager could not be established for this schema.")];
-        }
-
-        var progress = _player.Progress;
-        var crowns = _player.Inventory?.Items.Where(i => i.Name == "Crowns").ToArray() ?? [];
-        return [new StatsNode([new Stat("Level", progress.Level.ToString()),
-                new Stat("Total XP", ((long)progress.Experience + progress.UsedExperience).ToString()),
-                new Stat("Available ability points", progress.AbilityPoints.ToString())]),
-            Field("player/level", "Character level", new IntegerSpec(1, progress.MaximumDefinedLevel),
-                () => FieldValue.Of(progress.Level), v => progress.Level = v.AsInt32()) with {
-                Confidence = Confidence.Inferred, Description = "Player IdTag → Entity → levelManager → level.",
-                Warning = "Changes the stored level only. XP, level rewards, skill slots and scaled stats are not recalculated." },
-            Field("player/xp", "Unspent XP", new IntegerSpec(0, int.MaxValue - progress.UsedExperience),
-                () => FieldValue.Of(progress.Experience), v => progress.Experience = v.AsInt32()) with {
-                Confidence = Confidence.Inferred, Description = "levelManager.points[1].free; total XP includes used XP.",
-                Warning = "Does not run the game's level-up logic. Keep XP consistent with the character level." },
-            Field("player/abilityPoints", "Available ability points", new IntegerSpec(0, int.MaxValue - progress.UsedAbilityPoints),
-                () => FieldValue.Of(progress.AbilityPoints), v => progress.AbilityPoints = v.AsInt32()) with {
-                Confidence = Confidence.Inferred, Description = "levelManager.points[0].free; omitted defaults are decoded as zero." },
-            Field("player/usedXp", "Used XP", IntegerSpec.Int32, () => FieldValue.Of(progress.UsedExperience)) with { Confidence = Confidence.Inferred },
-            Field("player/usedAbilityPoints", "Spent ability points", IntegerSpec.Int32, () => FieldValue.Of(progress.UsedAbilityPoints)) with { Confidence = Confidence.Inferred },
-            .. (crowns.Length == 1 ? new ViewNode[] { ItemField(crowns[0]) } : [new TextNode("No unique Crowns stack was decoded.")]),
-            new TextNode("Crowns are money. Orens and Florens are separate inventory items if present. Values are inferred from stored names and published layouts."),
-            new TextNode("Raw views show the input image; pending edits appear in Player and Inventory.")];
     }
 
     private FieldNode ItemField(InventoryItem item) => Field(item.ValueId, item.Name, new IntegerSpec(1, ushort.MaxValue),
         () => FieldValue.Of(item.Quantity), v => item.Quantity = checked((ushort)v.AsInteger()),
         v => v.AsInteger() < 1 || v.AsInteger() > ushort.MaxValue ? "Stored quantity must be in 1..65,535." : null) with {
         Confidence = Confidence.Inferred,
-        Description = $"Native CInventoryComponent record {item.Id}; stored item name, uint16 quantity.",
+        Description = $"Native CInventoryComponent record {item.Id}; stored item name, uint16 quantity. " + WriteFields.ConsoleWarning,
         Warning = "Stack limits and quest/equipment dependencies are unknown. Changing quantities may affect gameplay." };
 
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)

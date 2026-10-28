@@ -10,7 +10,7 @@ namespace SaveToolkit.Plugins.Witcher3;
 /// <summary>Presentation and queries operate on the complete inventory, never on a previously loaded page.</summary>
 internal sealed class InventoryViews(
     IReadOnlyList<InventoryItem> items, IReferenceCatalog? catalog, Func<InventoryItem, FieldNode> quantity,
-    Func<string, ReferenceDatasetInfo?>? assetProvenance = null)
+    Func<string, ReferenceDatasetInfo?>? assetProvenance = null, Func<InventoryItem, FieldNode>? durability = null)
 {
     public const string CollectionId = "player-inventory";
     public const string LookupActionId = "catalog/inspect";
@@ -29,7 +29,9 @@ internal sealed class InventoryViews(
         new TextNode(catalog is null ? "No item pack is available. Native IDs remain visible; metadata stays unresolved." :
             $"Item labels are inferred cross-build joins. {catalog.Dataset.Attribution.ToShortText()}"),
         new TextNode($"{items.Count(i => catalog?.Find(i.Name) is null)} of {items.Count} records have no catalog match. " +
-            "Saved durability is read-only; -1 is retained as a sentinel. Legal stack caps are unknown."),
+            "Saved durability in 0..100 is editable; -1 and unsupported ranges remain read-only. Legal stack caps are unknown."),
+        new TextNode(WriteFields.DurabilityWarning) { Tone = Tone.Warning },
+        .. (durability is null ? Array.Empty<ViewNode>() : [RepairPlanning.Action]),
         new QueryableTableNode(CollectionId, Collection.Title, Columns, items.Count) { Description = Collection.Description },
         new ActionNode(LookupActionId, "Look up catalog item") {
             Description = "Browse attributed reference data. This lookup does not replace, create or equip an item.",
@@ -119,7 +121,7 @@ internal sealed class InventoryViews(
             ["category"] = new TextNode(Category(item)), ["quantity"] = quantity(item),
             ["equipped"] = new TextNode(item.Equipped ? "true" : "false"),
             ["slot"] = new TextNode(item.Slot.Length == 0 ? "No saved mounted slot" : item.Slot),
-            ["durability"] = new TextNode(item.Durability.ToString("R", CultureInfo.InvariantCulture)),
+            ["durability"] = durability is null ? new TextNode(item.Durability.ToString("R", CultureInfo.InvariantCulture)) : durability(item),
             ["details"] = new SectionNode($"Instance {item.Id}", details) { Collapsed = true },
         });
     }

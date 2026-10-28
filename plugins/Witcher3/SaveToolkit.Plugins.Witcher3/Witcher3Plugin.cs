@@ -6,9 +6,9 @@ namespace SaveToolkit.Plugins.Witcher3;
 
 public sealed class Witcher3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.4.0")
+    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.5.0")
     {
-        Description = "Attributed item/ability/Gwent catalogs, read-only recipes/journal/facts, and Experimental preserving progression/quantity edits.",
+        Description = "Attributed catalogs, preserving progression/quantity/durability/skill/Gwent edits and reviewed bulk repair. Experimental; not console-validated.",
         Games = [new GameTitle("PPSA04018", "The Witcher 3: Wild Hunt - Complete Edition")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/Atvaark/W3SavegameEditor", "https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md",

@@ -98,7 +98,7 @@ internal sealed record PlayerData(PlayerProgress Progress, PlayerInventory? Inve
         {
             foreach (var (before, after) in Inventory.Items.Zip(reopened.Inventory!.Items))
             {
-                if (before.Flags != after.Flags || before.Durability != after.Durability || before.Slot != after.Slot ||
+                if (before.Flags != after.Flags || BitConverter.SingleToInt32Bits(before.Durability) != BitConverter.SingleToInt32Bits(after.Durability) || before.Slot != after.Slot ||
                     before.OpaquePrefix != after.OpaquePrefix || !before.PrefixNames.SequenceEqual(after.PrefixNames) ||
                     !before.Tags.SequenceEqual(after.Tags) || !before.Attributes.SequenceEqual(after.Attributes))
                 {

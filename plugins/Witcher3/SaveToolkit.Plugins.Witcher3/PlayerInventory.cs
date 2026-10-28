@@ -13,7 +13,12 @@ internal sealed class InventoryItem(string name, int id, int quantityOffset, ush
     public ushort OriginalQuantity { get; } = quantity;
     public string ValueId => $"inventory/{Id}/quantity";
     public uint Flags { get; init; }
-    public float Durability { get; init; }
+    public float Durability { get; set; }
+    public float OriginalDurability { get; init; }
+    public int DurabilityOffset => QuantityOffset + sizeof(ushort);
+    public string DurabilityId => $"inventory/{Id}/durability";
+    public bool CanEditDurability => OriginalDurability is >= 0 and <= MaximumDurability;
+    public const float MaximumDurability = 100;
     public string Slot { get; init; } = "";
     public IReadOnlyList<string> Tags { get; init; } = [];
     public IReadOnlyList<InventoryAttribute> Attributes { get; init; } = [];
@@ -112,7 +117,7 @@ internal sealed record PlayerInventory(IReadOnlyList<InventoryItem> Items)
             }
 
             items.Add(new InventoryItem(name, id, tail.Offset + quantityOffset, quantity, equipped) {
-                Flags = flags, Durability = durability, Slot = slot, Tags = itemTags, Attributes = itemAttributes,
+                Flags = flags, Durability = durability, OriginalDurability = durability, Slot = slot, Tags = itemTags, Attributes = itemAttributes,
                 PrefixNames = prefixNames, OpaquePrefix = Convert.ToHexString(raw.AsSpan(start + 6, 7)),
                 Offset = tail.Offset + start, Size = position - start,
                 OpaqueHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(raw.AsSpan(start + 6, 7))),
@@ -145,6 +150,21 @@ internal sealed record PlayerInventory(IReadOnlyList<InventoryItem> Items)
         }
     }
 
-    public IEnumerable<Sav3Patch> Patches() => Items.Where(i => i.Quantity != i.OriginalQuantity)
-        .Select(i => new Sav3Patch(i.QuantityOffset, sizeof(ushort), BinaryData.EncodeUInt16(i.Quantity)));
+    public IEnumerable<Sav3Patch> Patches()
+    {
+        foreach (var item in Items)
+        {
+            if (item.Quantity != item.OriginalQuantity)
+            {
+                yield return new Sav3Patch(item.QuantityOffset, sizeof(ushort), BinaryData.EncodeUInt16(item.Quantity));
+            }
+
+            if (BitConverter.SingleToInt32Bits(item.Durability) != BitConverter.SingleToInt32Bits(item.OriginalDurability))
+            {
+                var bytes = new byte[sizeof(float)];
+                BinaryPrimitives.WriteSingleLittleEndian(bytes, item.Durability);
+                yield return new Sav3Patch(item.DurabilityOffset, bytes.Length, bytes);
+            }
+        }
+    }
 }

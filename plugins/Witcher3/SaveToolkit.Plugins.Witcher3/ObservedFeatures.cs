@@ -13,24 +13,43 @@ internal sealed class ObservedFeatures
     private readonly IReadOnlyList<string> _names;
     private readonly IReferenceCatalog? _abilities;
     private readonly IReferenceCatalog? _gwent;
+    private readonly WriteFields? _writeFields;
     public IReadOnlyList<AbilityArray> Abilities { get; } = [];
-    public IReadOnlyList<GwentCard>? Cards { get; }
+    private readonly IReadOnlyList<GwentCard>? _originalCards;
+    public IReadOnlyList<GwentCard>? Cards => _originalCards?.Select((c, index) => c with {
+        Copies = CopyEdits[index].Value,
+    }).ToArray();
+    public SkillRanks? SkillEdits { get; }
+    public IReadOnlyList<GwentCopies> CopyEdits { get; } = [];
     public IReadOnlyList<string> Warnings { get; }
 
     public ObservedFeatures(PlayerData? player, Sav3Tree tree, byte[] data, IReadOnlyList<string> names,
-        IReferenceCatalog? abilities = null, IReferenceCatalog? gwent = null)
+        IReferenceCatalog? abilities = null, IReferenceCatalog? gwent = null, WriteFields? writeFields = null)
     {
         _data = data;
         _names = names;
         _abilities = abilities;
         _gwent = gwent;
+        _writeFields = writeFields;
         var warnings = new List<string>();
         if (player is not null)
         {
             if (player.AbilityManager is null) { warnings.Add("No unique supported ability manager was found; use the raw explorer for saved ability data."); }
             try { if (player.AbilityManager is { } manager) { Abilities = AbilityReader.Read(manager, data, names); } }
             catch (SaveFormatException ex) { warnings.Add($"Ability reader unavailable: {ex.Message}"); }
-            try { Cards = GwentReader.Read(tree, data); }
+            try
+            {
+                if (player.AbilityManager is { } manager && Abilities.SingleOrDefault(a => a.Name == "skills") is { } skills)
+                {
+                    SkillEdits = new SkillRanks(manager, data, names, skills);
+                }
+            }
+            catch (SaveFormatException ex) { warnings.Add($"Skill editing unavailable: {ex.Message}"); }
+            try
+            {
+                _originalCards = GwentReader.Read(tree, data);
+                CopyEdits = _originalCards?.Select(c => new GwentCopies(c)).ToArray() ?? [];
+            }
             catch (SaveFormatException ex) { warnings.Add($"Gwent reader unavailable: {ex.Message}"); }
         }
 
@@ -38,8 +57,9 @@ internal sealed class ObservedFeatures
     }
 
     public IReadOnlyList<ViewNode> Build() => [
-        new TextNode("Read-only saved definitions and links. Core skills with level 1 are not purchased skills. " +
+        new TextNode("Experimental non-core skill ranks and existing Gwent counts are editable. Core skills with level 1 are not purchased skills. " +
             "Default/sentinel records are retained. Localization keys and icon paths are identifiers, not bundled game text or artwork."),
+        new TextNode(WriteFields.SkillWarning + " " + WriteFields.GwentWarning) { Tone = Tone.Warning },
         .. Warnings.Select(w => new TextNode(w) { Tone = Tone.Warning }),
         .. Abilities.Select(a => SectionNode.Lazy(a.Name, $"ability/{a.Name}/0", a.Entries.Count.ToString())),
         .. (Cards is null ? new ViewNode[] { new TextNode("No supported Gwent collection was decoded.") } : [
@@ -56,10 +76,12 @@ internal sealed class ObservedFeatures
         if (parts.Length == 3 && parts[0] == "ability" && int.TryParse(parts[2], out var start) &&
             Abilities.SingleOrDefault(a => a.Name == parts[1]) is { } array && start >= 0 && start <= array.Entries.Count)
         {
-            return [new TableNode([new("id", "Saved identity"), new("name", "Reference name"), new("properties", "Saved properties (read-only)")],
+            return [new TableNode([new("id", "Saved identity"), new("name", "Reference name"), new("rank", "Stored rank"), new("properties", "Input properties (read-only)")],
                 array.Entries.Skip(start).Take(PageSize).Select(entry => new TableRow(entry.Id, new Dictionary<string, ViewNode> {
                     ["id"] = new TextNode(entry.Id),
                     ["name"] = ReferenceCell(_abilities?.Find(entry.Id), entry.Id),
+                    ["rank"] = array.Name == "skills" && SkillEdits?.Ranks.SingleOrDefault(r => r.Entry.Id == entry.Id) is { } rank && _writeFields is not null
+                        ? _writeFields.Rank(rank) : new TextNode("Definition / read-only"),
                     ["properties"] = new SectionNode("Encoded properties", entry.Record.Properties.Select(p => (ViewNode)new TextNode($"{p.Name}: {Value(p)}")).ToArray()) { Collapsed = true },
                 })).ToArray()) { Title = array.Name }, .. Next($"ability/{array.Name}", start, array.Entries.Count)];
         }
@@ -68,13 +90,27 @@ internal sealed class ObservedFeatures
         {
             return [new TableNode([new("index", "Native card index"), new("name", "Reference name"), new("copies", "Saved copies"), new("kind", "Collection group")],
                 cards.Skip(start).Take(PageSize).Select(card => new TableRow(card.Index.ToString(), new Dictionary<string, ViewNode> {
-                    ["index"] = new TextNode(card.Index.ToString()), ["copies"] = new TextNode(card.Copies.ToString()),
+                    ["index"] = new TextNode(card.Index.ToString()), ["copies"] = _writeFields is null ? new TextNode(card.Copies.ToString()) :
+                        _writeFields.Copies(CopyEdits.Single(c => c.Card.Index == card.Index)),
                     ["name"] = ReferenceCell(_gwent?.Find(card.Index.ToString(System.Globalization.CultureInfo.InvariantCulture)), card.Index.ToString()),
                     ["kind"] = new TextNode(card.Leader ? "Leader collection" : "Ordinary collection"),
                 })).ToArray()), .. Next("gwent", start, cards.Count)];
         }
 
         throw new KeyNotFoundException($"Unknown feature page '{lazyId}'.");
+    }
+
+    public IEnumerable<Sav3Patch> Patches() => (SkillEdits?.Patches() ?? [])
+        .Concat(CopyEdits.Select(c => c.Patch()).OfType<Sav3Patch>());
+
+    public void Verify(ObservedFeatures reopened)
+    {
+        SkillEdits?.Verify(reopened.Abilities);
+        if (Cards is { } cards && (reopened.Cards is null || !cards.Select(c => (c.Index, c.Copies, c.Leader))
+            .SequenceEqual(reopened.Cards.Select(c => (c.Index, c.Copies, c.Leader)))))
+        {
+            throw new SaveFormatException("Edited Gwent counts or collection identities did not survive serialization.");
+        }
     }
 
     private static ViewNode ReferenceCell(ReferenceRecord? record, string raw) => record is null

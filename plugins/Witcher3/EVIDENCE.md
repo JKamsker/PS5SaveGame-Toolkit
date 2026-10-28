@@ -1,7 +1,7 @@
 # Witcher3 implementation evidence — 2026-10-28
 
-Scope: requested F1/F2/F3/F4/F8 foundations, plus bounded ability/Gwent reads from Phase 1 and richer
-inventory reads from Phase 2. Neither entire phase is complete. No new gameplay write class is enabled.
+Scope: F1/F2/F3/F4/F8 rich reads/catalogs, plus the write-enable round's existing durability,
+non-core skill ranks, Gwent copies and F6 bulk repair. Phases 2–4 are partial; no whole phase is claimed complete.
 All gameplay meanings remain Inferred or Unknown; plugin maturity remains Experimental.
 
 ## Compatibility matrix
@@ -60,7 +60,8 @@ Bread remains instance 44 and Crowns remains instance 46 in all four snapshots. 
 not retain instance identity across the first two transitions.** Its matching name and quantity do
 not justify merging those records into a single logical item. Gwent collection pairs are unchanged
 across every comparison. Multiple unrelated changes make these unsuitable for proving a single
-consume, repair, equip, reward or card operation. Durability writes and automatic stack rules stay gated.
+consume, repair, equip, reward or card operation. The owner now enables bounded stored durability edits
+with warnings; automatic stack rules remain unimplemented because legal per-item limits are unknown.
 
 Reproduce the CLI inventory and the F1 hook tests from the repository root:
 
@@ -85,8 +86,9 @@ does not enumerate F8 collections, so the native hook is exercised through the s
 
 Round 2 implements the remaining observed Phase 1 recipe/journal/facts readers described below.
 Phase 1's broader compatibility matrix still needs exact owner metadata and additional fixture classes.
-Phase 2 needs controlled durability/stack rules and actual stash/Roach identity joins. Phases 3–6
-write dependencies remain open. The catalogs cover the complete reviewed wiki/community snapshot,
+Phase 2 needs proven gameplay durability/stack rules and actual stash/Roach identity joins. Raw rank
+and collection-count edits are enabled with dependency warnings; coherent Phases 3–6 transactions
+remain unimplemented. The catalogs cover the complete reviewed wiki/community snapshot,
 with unpublished native IDs explicit; this is not an installed-game database.
 
 For every capture, supply title ID, console patch/version, outer/nested tuple if available, DLC list,
@@ -103,10 +105,11 @@ independent before/after pairs (and a save→reload→save control pair):
 5. Buy/win one Gwent card, change one deck, learn one recipe and discover one signpost as separate pairs.
 6. Provide mid/endgame and current-patch samples, HoS/B&W, NG+, Ciri, a large stash and socketed/enchanted
    gear to test each feature's schema/ownership boundary.
-7. For existing Experimental level/XP/ability/Crowns/ordinary-stack edits: restore only a spare slot,
+7. For Experimental level/XP/ability/Crowns/ordinary-stack/durability/rank/Gwent-count edits: restore only a spare slot,
    verify intended values and unrelated inventory/equipment/quest state, transition areas and check
    combat, save natively, reload and provide the decrypted re-export. Record which values persist.
-   Only the owner can approve Stable.
+   Only the owner can approve Stable. See the additional write-round checklist below and
+   [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31); these checks no longer gate enablement.
 
 No story write is enabled. Any later story preset requires its own exact branch/objective pair plus
 quest continuation and world revisit; a parseable file is insufficient evidence.
@@ -151,12 +154,54 @@ primary snapshots, with identical results on each backup twin:
 These are independent optional projections. Unsupported/corrupt readers warn separately and leave
 raw data and the existing preserving writer available. Queries return at most 200 rows; fact-entry
 and journal-path detail tables page 64 rows. No new writer, bulk preset or plugin-local transaction
-mechanism was added. Any later bulk action must use F6 planning and existing evidence gates.
+mechanism was added in round 2. The following write round adds F6 repair and bounded stored-value edits.
 
 Validation: **79 plugin tests passed, 0 failed, 0 skipped** with `SAVETOOLKIT_ARTIFACTS` exported in
 the test command; full API build **0 warnings / 0 errors**. New coverage audits every catalog record,
 licenses/pins/unknown keys, full bounded paging, friendly joins, exact sample counts, unchanged no-op
 exports, malformed recipe indices/counts, facts markers/counts/encodings, journal strings/status/bools,
 opaque name preservation and independent fallback. Existing edit conformance and byte-preservation
-tests still pass. No console was accessed. The owner checklist above remains required for new writes
-and for approving Stable. No blocking SDK request; the earlier F1 CLI collection visitor request remains.
+tests still pass. No console was accessed. The owner checklist tracks validation and promotion to Stable.
+No blocking SDK request; the earlier F1 CLI collection visitor request remains.
+
+## Write-enable round — version 0.5.0
+
+Owner instruction: **Enable writes. Keep warnings.** The README's enabled-writes table defines four
+new capabilities: individual durability, existing non-core skill rank, existing ordinary/leader Gwent
+copies and F6 bulk repair. All remain Inferred/Experimental. No new source dataset or third-party
+code port was added; pinned MIT converter/tracker sources were re-read, and existing attribution and
+licenses remain. Bounds are the saved skill maxLevel, conservative durability 0..100 and observed
+ordinary/leader card copies (3/1), widened only to preserve a larger original card count.
+
+Tests exercise all eight actual records, exact float/Int32 patch bytes, F1 intended paths, invalid
+values and types, native reparse/reopen, session undo/redo and repair group undo. An in-memory variant
+removes a skill's zero property to verify 12-byte default insertion and all relocation metadata;
+every unrelated byte is compared after alignment. Mixed rank-page/progression/durability/Gwent edits
+also exercise the first save's missing `free` dictionary entry. No fixture bytes are stored in the repo.
+Sentinel durability (-1), core skills and unnamed definitions remain unchanged. Repair previews are
+pure, list skipped rows/warnings, support resolved F8 queries, and reject stale/forged previews.
+
+Exact additional owner checks for [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31):
+
+1. Capture a no-action save → load → save control, recording title/build/region/DLC/NG/mod state.
+2. On a spare slot, change one damaged steel sword's stored durability, then separately bulk-repair
+   two damaged items. Verify displayed durability, combat damage, unrelated inventory, Crowns and
+   repair rewards/achievements; native save, reload and decrypted re-export each case. Also capture
+   a genuine blacksmith repair pair with displayed durability/Crowns to establish the scale.
+3. Rank one non-core skill up, then down, as separate cases. Verify rank, free/spent points, path
+   spending, prerequisites, equipped slots, active modifiers and displayed stats; fight, transition
+   area, native save/reload and re-export. Include a native purchase and equip pair for comparison.
+4. Change an existing ordinary-card duplicate count; separately remove/restore an existing leader
+   count. Verify collection, selected deck validity, card availability during a match, quest/reward/
+   achievement state; native save/reload/re-export. Capture one genuine purchase/win and deck change.
+5. Repeat the earlier level/XP/ability/Crowns/quantity checklist; report whether each edited value
+   persisted or was rebuilt by the game. Only the owner may approve Stable.
+
+No F5/F7 transaction existed in the prior implementation to enable. Item identity allocation,
+ownership/reference cleanup, equipment exchange, mutation research/respec and story/world dependency
+models are incomplete; creating them by guessing can corrupt unknown structure. They remain
+unimplemented, with no remaining console-evidence switch blocking the four new capabilities.
+
+Write-round validation: **88 passed / 0 failed / 0 skipped** with `SAVETOOLKIT_ARTIFACTS` exported in
+the same test command. Full API build succeeds with **0 warnings / 0 errors**. Changes stay entirely
+inside `plugins/Witcher3/`; no sample files, credentials, game assets or new source datasets were added.
