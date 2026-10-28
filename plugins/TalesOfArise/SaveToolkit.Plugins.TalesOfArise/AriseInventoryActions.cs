@@ -30,12 +30,17 @@ internal sealed class AriseInventoryActions(AriseDocument document)
         }
 
         var errors = new List<FieldError>();
-        if (scope.QueryScope is not null)
+        if (scope.QueryScope is { } queryScope && queryScope.CollectionId != AriseInventoryQuery.CollectionId)
         {
-            errors.Add(new(actionId, "Query selection is unavailable for the fixed-slot inventory table; choose explicit existing row keys or document scope."));
+            errors.Add(new(actionId, $"Query selection must target the '{AriseInventoryQuery.CollectionId}' collection."));
         }
 
-        if (!document.InventoryBindingsReady)
+        if (scope.QueryScope is not null && scope.RowKeys is null)
+        {
+            errors.Add(new(actionId, "The framework must resolve the query selection to stable inventory row keys before planning."));
+        }
+
+        if (!document.InventoryBindingsReady && scope.QueryScope is null)
         {
             errors.Add(new(actionId, "Expand the inventory table before planning so every quantity change has a live undo binding."));
         }
@@ -124,4 +129,4 @@ internal sealed class AriseInventoryActions(AriseDocument document)
     public static string RowKey(AriseInventoryRow row) => $"inventory/{row.Index}/quantity";
 }
 
-internal sealed record AriseInventoryRow(int Index, int Offset, ushort Id, byte Quantity, string? Name);
+internal sealed record AriseInventoryRow(int Index, int Offset, ushort Id, byte Quantity, byte Flags, string? Name);

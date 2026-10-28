@@ -17,6 +17,10 @@ public sealed class TalesOfArisePlugin : IGamePlugin
             AriseSchema.SectionSource,
             "https://web.save-editor.com/bbs/patchcode/ps4/bbs.cgi?list=pickup&num=30070",
             "https://github.com/Sora3100/Tales_of_Cheat_Tables/blob/master/Arise.CT",
+            "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+            "https://aselia.fandom.com/wiki/Tales_of_Arise",
+            "https://aselia.fandom.com/wiki/ToA_-_Owls",
+            "https://aselia.fandom.com/wiki/ToA_-_Camps",
             .. AriseSchema.CatalogSources,
         ],
     };
