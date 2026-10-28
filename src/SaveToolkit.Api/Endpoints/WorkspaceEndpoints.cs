@@ -1,9 +1,13 @@
+using System.Globalization;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using SaveToolkit.Api.Contracts;
+using SaveToolkit.Core;
 using SaveToolkit.Core.Catalog;
 using SaveToolkit.Core.Export;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Api.Endpoints;
 
@@ -63,6 +67,7 @@ internal static class WorkspaceEndpoints
         doc.MapGet("", (DocumentRef d) => d.Value.ToDto());
         doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound());
         doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id));
+        doc.MapGet("/collections/{collectionId}", QueryCollection);
         doc.MapPost("/edits", (DocumentRef d, EditRequest request) =>
             ToResult(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
         doc.MapPost("/actions", (DocumentRef d, ActionRequest request) =>
@@ -81,6 +86,129 @@ internal static class WorkspaceEndpoints
                 ? Results.Stream(session.File.OpenRead(), "application/octet-stream", session.File.FileName)
                 : Results.File(own.Content.ToArray(), "application/octet-stream", session.File.FileName);
         });
+    }
+
+    private static IResult QueryCollection(HttpRequest request, DocumentRef document, string collectionId)
+    {
+        if (!TryInt(request, "offset", 0, out var offset) || !TryInt(request, "limit", QueryableCollectionLimits.DefaultPageSize, out var limit))
+        {
+            return Results.BadRequest(new ErrorDto("Offset and limit must be integers."));
+        }
+
+        if (limit is < 1 or > QueryableCollectionLimits.MaxPageSize)
+        {
+            return Results.BadRequest(new ErrorDto($"Page size must be between 1 and {QueryableCollectionLimits.MaxPageSize}."));
+        }
+
+        if (offset < 0)
+        {
+            return Results.BadRequest(new ErrorDto("Offset cannot be negative."));
+        }
+
+        if (!TryBool(request, "descending", false, out var descending) || !TryLong(request, "revision", out var revision))
+        {
+            return Results.BadRequest(new ErrorDto("Descending and revision must be valid values."));
+        }
+
+        var filters = ParseFilters(request);
+        if (filters is null)
+        {
+            return Results.BadRequest(new ErrorDto("Filters must be a JSON object of string values."));
+        }
+
+        var query = new QueryableCollectionQuery
+        {
+            Text = request.Query["q"].FirstOrDefault() ?? request.Query["text"].FirstOrDefault(),
+            Filters = filters,
+            SortColumn = request.Query["sort"].FirstOrDefault(),
+            Descending = descending,
+            Offset = offset,
+            Limit = limit,
+            Cursor = request.Query["cursor"].FirstOrDefault(),
+        };
+        if (query.Text is { Length: > QueryableCollectionLimits.MaxQueryLength }
+            || query.Cursor is { Length: 0 or > QueryableCollectionLimits.MaxCursorLength }
+            || query.Cursor is not null && offset != 0
+            || query.Filters.Count > QueryableCollectionLimits.MaxFilterCount
+            || query.Filters.Any(f => f.Key.Length == 0 || f.Key.Length > 128 || f.Value.Length > QueryableCollectionLimits.MaxFilterLength))
+        {
+            return Results.BadRequest(new ErrorDto("Collection query exceeds the protocol limits."));
+        }
+
+        QueryableCollectionPage page;
+        try
+        {
+            page = document.Value.QueryCollection(collectionId, query, revision);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new ErrorDto(ex.Message));
+        }
+
+        var dto = QueryablePageDto.From(page);
+        var body = JsonSerializer.SerializeToUtf8Bytes(dto, ToolkitJson.Options);
+        const int maxResponseBytes = 2 * 1024 * 1024;
+        return body.Length > maxResponseBytes
+            ? Results.Json(new ErrorDto("The collection page exceeds the response size limit."), statusCode: StatusCodes.Status413PayloadTooLarge, options: ToolkitJson.Options)
+            : Results.Bytes(body, "application/json");
+    }
+
+    private static Dictionary<string, string>? ParseFilters(HttpRequest request)
+    {
+        var filters = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (request.Query["filters"].FirstOrDefault() is { Length: > 0 } json)
+        {
+            try
+            {
+                var parsed = JsonSerializer.Deserialize<Dictionary<string, string>>(json, ToolkitJson.Options);
+                if (parsed is null) return null;
+                foreach (var (key, value) in parsed) filters[key] = value;
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        foreach (var item in request.Query.Where(p => p.Key.StartsWith("filter.", StringComparison.OrdinalIgnoreCase)))
+        {
+            var key = item.Key["filter.".Length..];
+            if (key.Length == 0 || item.Value.Count == 0) return null;
+            filters[key] = item.Value[^1]!;
+        }
+
+        return filters;
+    }
+
+    private static bool TryInt(HttpRequest request, string name, int fallback, out int value)
+    {
+        if (!request.Query.TryGetValue(name, out var raw))
+        {
+            value = fallback;
+            return true;
+        }
+
+        return int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+    }
+
+    private static bool TryLong(HttpRequest request, string name, out long? value)
+    {
+        value = null;
+        if (!request.Query.TryGetValue(name, out var raw)) return true;
+        if (!long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)) return false;
+        value = parsed;
+        return true;
+    }
+
+    private static bool TryBool(HttpRequest request, string name, bool fallback, out bool value)
+    {
+        if (!request.Query.TryGetValue(name, out var raw))
+        {
+            value = fallback;
+            return true;
+        }
+
+        return bool.TryParse(raw, out value);
     }
 
     private static async Task<IResult> CreateWorkspace(HttpRequest request, WorkspaceStore store, CancellationToken ct)
