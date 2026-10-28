@@ -113,6 +113,71 @@ public abstract class BoundSaveDocument : ISaveDocument
         return applied;
     }
 
+    /// <summary>
+    /// Runs a structural change (add/remove/reorder/replace records) as one undoable, atomic step.
+    /// Requires <see cref="CaptureSnapshot"/> and <see cref="LoadSnapshot"/>. If <paramref name="mutate"/>
+    /// throws, the snapshot is loaded back and the exception propagates, so a failed precondition
+    /// changes nothing. Afterwards (also after a failure) all bindings are dropped; the framework
+    /// rebuilds the view, which registers the live ones again.
+    /// </summary>
+    protected ActionOutcome Structural(Action mutate, string? message = null)
+    {
+        var before = CaptureSnapshot()
+            ?? throw new InvalidOperationException("Override CaptureSnapshot and LoadSnapshot to use structural actions.");
+        try
+        {
+            mutate();
+        }
+        catch
+        {
+            LoadSnapshot(before);
+            throw;
+        }
+        finally
+        {
+            // Loading a snapshot may replace model objects, so every binding may point at dead state.
+            _bindings.Clear();
+        }
+
+        return new ActionOutcome { StructureChanged = true, Revert = before, Message = message };
+    }
+
+    /// <summary>
+    /// Snapshot of every piece of editable state, including record identities and id counters, so that
+    /// <see cref="LoadSnapshot"/> recreates the same bytes and ids. Return null (the default) when the
+    /// document has no structural actions.
+    /// </summary>
+    protected virtual DocumentMemento? CaptureSnapshot() => null;
+
+    /// <summary>Replaces the editable state with a snapshot from <see cref="CaptureSnapshot"/>.</summary>
+    protected virtual void LoadSnapshot(DocumentMemento snapshot) =>
+        throw new NotSupportedException("This document does not support structural undo.");
+
+    /// <summary>
+    /// Snapshot-based implementation: captures the current state (returned for redo), loads
+    /// <paramref name="memento"/> and drops bindings. Override for inverse-operation tokens.
+    /// </summary>
+    public virtual DocumentMemento RestoreMemento(DocumentMemento memento)
+    {
+        var current = CaptureSnapshot()
+            ?? throw new NotSupportedException("This document does not support structural undo.");
+        try
+        {
+            LoadSnapshot(memento);
+        }
+        catch
+        {
+            LoadSnapshot(current);
+            throw;
+        }
+        finally
+        {
+            _bindings.Clear();
+        }
+
+        return current;
+    }
+
     private void Rollback(List<ValueChange> applied)
     {
         for (var i = applied.Count - 1; i >= 0; i--)

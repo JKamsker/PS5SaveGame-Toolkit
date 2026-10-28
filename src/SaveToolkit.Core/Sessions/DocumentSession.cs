@@ -17,32 +17,41 @@ public sealed record SessionEditResult
     public IReadOnlyList<string> Warnings { get; init; } = [];
     public string? Message { get; init; }
     public bool StructureChanged { get; init; }
+
+    /// <summary>
+    /// The request referred to a view a structural change has replaced (old revision or retired id).
+    /// Nothing changed; the client should refetch the view.
+    /// </summary>
+    public bool Stale { get; init; }
+
     public required DocumentState State { get; init; }
 }
 
-public sealed record DocumentState(bool CanUndo, bool CanRedo, bool IsDirty);
+public sealed record DocumentState(bool CanUndo, bool CanRedo, bool IsDirty)
+{
+    /// <summary>View revision; increases on every structural change. Clients send it back with edits and actions.</summary>
+    public long Revision { get; init; }
+}
 
 /// <summary>
 /// One opened document. All plugin calls go through here, serialised by a lock, with incoming values
-/// validated against specs the plugin itself published and a value-level undo/redo history.
+/// validated against specs the plugin itself published, and one undo/redo history for value edits and
+/// structural changes (see <see cref="ISaveDocument.RestoreMemento"/>).
 /// </summary>
-public sealed class DocumentSession : IDisposable
+public sealed partial class DocumentSession : IDisposable
 {
-    private const int MaxHistory = 200;
-
     private readonly Lock _gate = new();
-    private readonly ViewIndex _index = new();
-    private readonly LinkedList<IReadOnlyList<ValueChange>> _undo = new();
-    private readonly Stack<IReadOnlyList<ValueChange>> _redo = new();
-    private bool _irreversiblyChanged;
+    private ViewIndex _index = new();
+    private readonly EditHistory _history;
     private bool _disposed;
 
-    public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document)
+    public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document, DocumentSessionOptions? options = null)
     {
         Id = id;
         File = file;
         Plugin = plugin;
         Document = document;
+        _history = new EditHistory(options ?? DocumentSessionOptions.Default);
     }
 
     public string Id { get; }
@@ -66,19 +75,27 @@ public sealed class DocumentSession : IDisposable
     {
         if (!_index.KnowsLazy(lazyId))
         {
-            throw new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
+            throw _retired.Contains(lazyId) ? new StaleViewException() : new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
         }
 
         var nodes = Document.ExpandNode(lazyId);
         _index.AddAll(nodes);
+        _expanded.Add(lazyId);
         return nodes;
     });
 
-    public SessionEditResult ApplyEdits(IReadOnlyList<IncomingEdit> incoming) => Locked(() =>
+    /// <param name="incoming">Edits as sent by the client.</param>
+    /// <param name="expectedRevision">The <see cref="DocumentState.Revision"/> the client's view was built at, if known.</param>
+    public SessionEditResult ApplyEdits(IReadOnlyList<IncomingEdit> incoming, long? expectedRevision = null) => Locked(() =>
     {
         if (!Document.CanEdit)
         {
             return Rejected(incoming.FirstOrDefault()?.ValueId ?? string.Empty, "This document is read-only.");
+        }
+
+        if (StaleCheck(expectedRevision, incoming.Select(e => e.ValueId)) is { } stale)
+        {
+            return stale;
         }
 
         var edits = new List<ValueEdit>(incoming.Count);
@@ -108,16 +125,27 @@ public sealed class DocumentSession : IDisposable
         }
 
         var outcome = CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);
-        if (outcome.Succeeded && outcome.Changes.Count > 0)
+        if (!outcome.Succeeded)
         {
-            Record(outcome.Changes);
+            return FromOutcome(outcome);
         }
 
-        return FromOutcome(outcome);
+        var warnings = outcome.Revert is { } revert
+            ? Record(new MementoStep(revert))
+            : outcome.Changes.Count > 0 ? Record(new ValueStep(outcome.Changes)) : [];
+        return AfterChange(FromOutcome(outcome), outcome.StructureChanged || outcome.Revert is not null, warnings);
     });
 
-    public SessionEditResult InvokeAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters) => Locked(() =>
+    /// <param name="actionId">Action id from an indexed <see cref="ActionNode"/>.</param>
+    /// <param name="parameters">Parameter values as sent by the client; missing ones use the published defaults.</param>
+    /// <param name="expectedRevision">The <see cref="DocumentState.Revision"/> the client's view was built at, if known.</param>
+    public SessionEditResult InvokeAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters, long? expectedRevision = null) => Locked(() =>
     {
+        if (StaleCheck(expectedRevision, [actionId]) is { } stale)
+        {
+            return stale;
+        }
+
         if (_index.Action(actionId) is not { } action)
         {
             return Rejected(actionId, "Unknown action.");
@@ -157,63 +185,52 @@ public sealed class DocumentSession : IDisposable
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            return Rejected(actionId, $"Action failed: {ex.Message}");
+            // A failed structural action rolls itself back, which may replace model objects and
+            // drop bindings; re-index quietly (the revision only moves if the ids changed).
+            var revision = _revision;
+            var rebuildWarnings = RebuildIndex(forceNewRevision: false);
+            return Rejected(actionId, $"Action failed: {ex.Message}") with
+            {
+                Warnings = rebuildWarnings,
+                StructureChanged = revision != _revision,
+                State = StateUnlocked(),
+            };
         }
 
-        if (outcome.Undoable && outcome.Changes.Count > 0)
+        IReadOnlyList<string> warnings = [];
+        if (!outcome.Undoable)
         {
-            Record(outcome.Changes);
+            ClearHistory();
         }
-        else if (!outcome.Undoable)
+        else if (outcome.Revert is { } revert)
         {
-            _undo.Clear();
-            _redo.Clear();
-            _irreversiblyChanged = true;
+            warnings = Record(new MementoStep(revert));
+        }
+        else if (outcome.Changes.Count > 0)
+        {
+            warnings = Record(new ValueStep(outcome.Changes));
         }
 
-        return new SessionEditResult
+        var result = new SessionEditResult
         {
             Changes = outcome.Changes,
             Warnings = outcome.Warnings,
             Message = outcome.Message,
-            StructureChanged = outcome.StructureChanged || !outcome.Undoable,
+            StructureChanged = outcome.StructureChanged || !outcome.Undoable || outcome.Revert is not null,
             State = StateUnlocked(),
         };
+        return AfterChange(result, result.StructureChanged, warnings);
     });
 
     public SessionEditResult Undo() => Locked(() =>
-    {
-        if (_undo.Last is not { } last)
-        {
-            return Rejected(string.Empty, "Nothing to undo.");
-        }
-
-        var outcome = Revert(last.Value, useOld: true);
-        if (outcome.Succeeded)
-        {
-            _undo.RemoveLast();
-            _redo.Push(last.Value);
-        }
-
-        return FromOutcome(outcome);
-    });
+        _group is not null ? Rejected(string.Empty, "Undo is not available inside a grouped operation.")
+        : _history.NextUndo is { } entry ? Step(entry, undo: true)
+        : Rejected(string.Empty, "Nothing to undo."));
 
     public SessionEditResult Redo() => Locked(() =>
-    {
-        if (!_redo.TryPeek(out var batch))
-        {
-            return Rejected(string.Empty, "Nothing to redo.");
-        }
-
-        var outcome = Revert(batch, useOld: false);
-        if (outcome.Succeeded)
-        {
-            _redo.Pop();
-            _undo.AddLast(batch);
-        }
-
-        return FromOutcome(outcome);
-    });
+        _group is not null ? Rejected(string.Empty, "Redo is not available inside a grouped operation.")
+        : _history.NextRedo is { } entry ? Step(entry, undo: false)
+        : Rejected(string.Empty, "Nothing to redo."));
 
     /// <summary>
     /// New file contents; empty when the document equals the original (never edited, or everything undone).
@@ -264,18 +281,6 @@ public sealed class DocumentSession : IDisposable
         }
     }
 
-    private void Record(IReadOnlyList<ValueChange> changes)
-    {
-        _undo.AddLast(changes);
-        if (_undo.Count > MaxHistory)
-        {
-            _undo.RemoveFirst();
-            _irreversiblyChanged = true;
-        }
-
-        _redo.Clear();
-    }
-
     private SessionEditResult FromOutcome(EditOutcome outcome) => new()
     {
         Errors = outcome.Errors,
@@ -288,7 +293,8 @@ public sealed class DocumentSession : IDisposable
     private SessionEditResult Rejected(string valueId, string message) =>
         new() { Errors = [new FieldError(valueId, message)], State = StateUnlocked() };
 
-    private DocumentState StateUnlocked() => new(_undo.Count > 0, _redo.Count > 0, _undo.Count > 0 || _irreversiblyChanged);
+    private DocumentState StateUnlocked() =>
+        new(_history.CanUndo, _history.CanRedo, _history.CanUndo || _history.IrreversiblyChanged) { Revision = _revision };
 
     private T Locked<T>(Func<T> func)
     {

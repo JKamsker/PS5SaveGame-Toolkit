@@ -64,9 +64,9 @@ internal static class WorkspaceEndpoints
         doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound());
         doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id));
         doc.MapPost("/edits", (DocumentRef d, EditRequest request) =>
-            ToResult(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))])));
+            ToResult(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
         doc.MapPost("/actions", (DocumentRef d, ActionRequest request) =>
-            ToResult(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [])));
+            ToResult(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)));
         doc.MapPost("/undo", (DocumentRef d) => ToResult(d.Value.Undo()));
         doc.MapPost("/redo", (DocumentRef d) => ToResult(d.Value.Redo()));
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
@@ -103,7 +103,9 @@ internal static class WorkspaceEndpoints
     }
 
     private static IResult ToResult(SessionEditResult result) =>
-        result.Ok ? Results.Ok(result) : Results.UnprocessableEntity(result);
+        result.Ok ? Results.Ok(result)
+        : result.Stale ? Results.Conflict(result)
+        : Results.UnprocessableEntity(result);
 
     private static ExportOptions ToOptions(ExportRequest r) => new() { Scope = r.Scope, MirrorBackups = r.MirrorBackups };
 

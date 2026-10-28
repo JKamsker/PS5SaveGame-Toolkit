@@ -6,7 +6,8 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Api.Contracts;
 
-public sealed record ErrorDto(string Error);
+/// <summary><paramref name="Code"/> is a machine-readable reason, e.g. <c>"stale"</c> when the client must refetch the view.</summary>
+public sealed record ErrorDto(string Error, string? Code = null);
 
 public sealed record PluginDto(
     string Id,
@@ -63,9 +64,10 @@ public sealed record OpenRequest(string? PluginId);
 
 public sealed record EditRequestItem(string ValueId, JsonElement Value);
 
-public sealed record EditRequest(IReadOnlyList<EditRequestItem> Edits);
+/// <summary><paramref name="Revision"/> is the view revision the client is bound to; a mismatch is rejected as stale.</summary>
+public sealed record EditRequest(IReadOnlyList<EditRequestItem> Edits, long? Revision = null);
 
-public sealed record ActionRequest(string ActionId, Dictionary<string, JsonElement>? Parameters);
+public sealed record ActionRequest(string ActionId, Dictionary<string, JsonElement>? Parameters, long? Revision = null);
 
 public sealed record ExportRequest(ExportScope Scope = ExportScope.ChangedDirectories, bool MirrorBackups = true);
 

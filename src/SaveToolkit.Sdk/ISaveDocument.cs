@@ -45,6 +45,17 @@ public interface ISaveDocument : IDisposable
     /// <summary>Bytes for a <see cref="HexNode"/>.</summary>
     ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) =>
         throw new KeyNotFoundException($"Unknown blob '{blobId}'.");
+
+    /// <summary>
+    /// Undoes or redoes a structural change. <paramref name="memento"/> is a <c>Revert</c> token this document
+    /// returned earlier (in <see cref="ActionOutcome.Revert"/> or <see cref="EditOutcome.Revert"/>) or a token
+    /// returned by a previous call to this method. Returns the token that reverses this restore.
+    /// The restored state must serialise to the same bytes and expose the same value, row, action and lazy
+    /// ids as when the token was taken. The framework rebuilds the view afterwards.
+    /// Throw (and leave the document unchanged) if the token cannot be applied.
+    /// </summary>
+    DocumentMemento RestoreMemento(DocumentMemento memento) =>
+        throw new NotSupportedException("This document does not support structural undo.");
 }
 
 public sealed record ValueEdit(string ValueId, FieldValue Value);
@@ -67,6 +78,13 @@ public sealed record EditOutcome
     /// <summary>Set when rows/sections appeared or vanished, so the view must be rebuilt.</summary>
     public bool StructureChanged { get; init; }
 
+    /// <summary>
+    /// Optional token that reverts this batch through <see cref="ISaveDocument.RestoreMemento"/>. When set,
+    /// undo restores it instead of replaying <see cref="Changes"/>. Use it when an edit changes structure
+    /// (e.g. a type change that replaces a subtree).
+    /// </summary>
+    public DocumentMemento? Revert { get; init; }
+
     public bool Succeeded => Errors.Count == 0;
 
     public static EditOutcome Rejected(string valueId, string message) =>
@@ -79,13 +97,21 @@ public sealed record ActionOutcome
 
     /// <summary>
     /// Changes made by the action. When <see cref="Undoable"/> is false (e.g. structural changes not
-    /// expressible as value changes) the framework clears the undo history.
+    /// expressible as value changes, without a <see cref="Revert"/> token) the framework clears the undo history.
     /// </summary>
     public IReadOnlyList<ValueChange> Changes { get; init; } = [];
 
     public bool Undoable { get; init; } = true;
 
     public bool StructureChanged { get; init; }
+
+    /// <summary>
+    /// Token that takes the document back to the state before this action, through
+    /// <see cref="ISaveDocument.RestoreMemento"/>. Set it for structural actions (add/remove/reorder/replace)
+    /// to make them undoable; undo then restores it instead of replaying <see cref="Changes"/>.
+    /// Ignored when <see cref="Undoable"/> is false.
+    /// </summary>
+    public DocumentMemento? Revert { get; init; }
 
     public IReadOnlyList<string> Warnings { get; init; } = [];
 }

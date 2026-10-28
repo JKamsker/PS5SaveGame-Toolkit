@@ -110,7 +110,8 @@ export interface Workspace { id: string; name: string; createdAt: string; titles
 
 export interface WorkspaceSummary { id: string; name: string; createdAt: string; directoryCount: number; fileCount: number; titleIds: string[] }
 
-export interface DocumentState { canUndo: boolean; canRedo: boolean; isDirty: boolean }
+/** `revision` increases on every structural change; send it back with edits and actions. */
+export interface DocumentState { canUndo: boolean; canRedo: boolean; isDirty: boolean; revision?: number }
 
 export interface SaveDocument {
   id: string;
@@ -133,6 +134,8 @@ export interface EditResult {
   warnings: string[];
   message?: string;
   structureChanged: boolean;
+  /** The request used a view that a structural change replaced; refetch the document and retry. */
+  stale?: boolean;
   state: DocumentState;
 }
 

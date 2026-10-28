@@ -19,6 +19,13 @@ export function ActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
   const parameters = node.parameters ?? [];
   const [values, setValues] = useState<Record<string, FieldValue>>(() => Object.fromEntries(parameters.map((p) => [p.valueId, p.value])));
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [boundTo, setBoundTo] = useState(node);
+  if (boundTo !== node) {
+    // A structural change rebuilt the view: defaults may reference records that no longer exist.
+    setBoundTo(node);
+    setValues(Object.fromEntries(parameters.map((p) => [p.valueId, p.value])));
+    setErrors({});
+  }
   const [busy, setBusy] = useState(false);
   const needsDialog = parameters.length > 0 || Boolean(node.confirm);
 

@@ -36,7 +36,8 @@ and `plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests/` with the conformance suit
 | `ExpandNode(lazyId)` | Children of a lazy `SectionNode`. Use for anything big (raw trees, long lists). |
 | `GetValue(valueId)` | Current value of every field you ever exposed. |
 | `ApplyEdits(edits)` | **Atomic.** Either all apply or none (return `Errors`). Values are already type- and range-checked against your spec. Report every changed value incl. derived ones in `Changes` with the old value. |
-| `InvokeAction(id, params)` | Optional bulk operations ("Max all items"). Return `Changes` for undo, or `Undoable = false`. |
+| `InvokeAction(id, params)` | Optional bulk operations ("Max all items"). Return `Changes` for undo; for structural actions return a `Revert` token (see [Structural edits](#structural-edits-add--remove--reorder)); `Undoable = false` only as a last resort (it clears history). |
+| `RestoreMemento(token)` | Only for structural actions: go back to the state a `Revert` token describes and return the token that reverses it. |
 | `Serialize()` | Complete new bytes for every file you rewrite. Without edits it **must** be byte-identical to the input. |
 | `GetAsset` / `ReadBlob` | Images (`ImageNode`) and hex pages (`HexNode`). |
 
@@ -73,6 +74,67 @@ See `tests/SaveToolkit.Core.Tests/Fakes/CounterPlugin.cs` for the smallest compl
 Value ids are opaque strings you choose. They must be **unique and stable for the lifetime of the
 document** (the browser caches values by id, undo replays by id). Path-like ids work well:
 `inventory/2227368435/quantity`, `tree/7c416083/7c018857[6]/d18b252d`.
+
+## Structural edits (add / remove / reorder)
+
+Actions that add, remove, reorder or replace records can't be undone by replaying `ValueChange`s.
+Make them undoable with a **revert token** instead:
+
+1. **Give records stable logical ids.** Derive `TableRow.Key`, value ids and lazy ids from the record's
+   identity (stored id, GUID, handle, or a counter you keep in the model), **never from its position**.
+   `inventory/7/quantity` must still mean record 7 after record 3 was removed. If the format has no
+   ids, assign them when parsing and keep the counter in the model, so the snapshot restores it too.
+2. **Capture state before mutating.** With `BoundSaveDocument`, override `CaptureSnapshot()` /
+   `LoadSnapshot()`. Then wrap the action in `Structural(...)`:
+
+   ```csharp
+   protected override DocumentMemento CaptureSnapshot()
+   {
+       var bytes = Encode();                          // or an immutable copy of your model
+       return DocumentMemento.Snapshot(bytes, bytes.Length);
+   }
+
+   protected override void LoadSnapshot(DocumentMemento s) => Parse(((SnapshotMemento<byte[]>)s).State);
+
+   public override ActionOutcome InvokeAction(string id, IReadOnlyDictionary<string, FieldValue> p) => id switch
+   {
+       "add" => Structural(() => AddItem(p["item"].AsString()), "Item added."),
+       _ => base.InvokeAction(id, p),
+   };
+   ```
+
+   `Structural` captures a snapshot, runs the mutation and returns
+   `ActionOutcome { StructureChanged = true, Revert = snapshot }`. If the mutation throws, it loads the
+   snapshot back first, so a failed precondition changes nothing. Still validate before mutating where
+   you can. Afterwards it drops all bindings, and the framework rebuilds the view, which registers the live ones.
+3. **Restore exactly.** `RestoreMemento` (implemented by `BoundSaveDocument` on top of the two hooks)
+   must bring back the same bytes **and** the same ids. Core replays later value edits by id after a
+   structural undo/redo. Undoing everything must serialise to the original bytes exactly; test it.
+   Tokens are reused (undo → redo → undo), so `LoadSnapshot` must **copy** from the token and never
+   adopt its state object as the live model.
+4. **Report an honest size.** `SizeBytes` counts against the session's history budget
+   (`DocumentSessionOptions.MaxSnapshotBytes`, 256 MiB by default). Core evicts the oldest history
+   first. A single change larger than the budget is applied without undo, and the user is told.
+5. **Optional optimisation: inverse operations.** For very large saves, return your own
+   `DocumentMemento` subclass describing the inverse ("remove record 7"). Override
+   `RestoreMemento` to apply it and return the opposite token ("re-insert record 7 with these bytes").
+   Core treats both kinds the same way.
+
+What the framework does for you:
+
+- One undo/redo history mixes value edits and structural steps. It can group several steps into one
+  undo unit (`DocumentSession.RunGroup`).
+- After every structural change, Core rebuilds its view index and re-expands lazy sections that were
+  open. It also retires ids that vanished and bumps `DocumentState.Revision`.
+- Requests that use a retired id or an old revision are rejected as **stale** (HTTP 409). The browser
+  then refetches the view.
+- Actions that return `Undoable = false` still work: they clear history explicitly, as before.
+
+**References between records:** until there is a dedicated node, expose a reference as an `EnumSpec`
+field whose option values are the target records' stable keys. Labels are human names. The options are
+rebuilt with the view after every structural change, so they never point at removed records.
+`tests/SaveToolkit.Core.Tests/Fakes/RosterPlugin.cs` is a complete example with add, remove and
+move actions.
 
 ## Hard rules
 

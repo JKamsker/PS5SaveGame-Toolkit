@@ -21,14 +21,21 @@ export class ApiError extends Error {
   }
 }
 
+/** True for the server's typed "view is out of date" rejection (HTTP 409, `code: "stale"`). */
+export function isStaleError(error: unknown): boolean {
+  if (!(error instanceof ApiError) || error.status !== 409) return false;
+  const body = error.body;
+  return typeof body === "object" && body !== null && "code" in body && (body as { code: unknown }).code === "stale";
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, init);
   if (response.status === 204) return undefined as T;
   const isJson = response.headers.get("content-type")?.includes("json") ?? false;
   const body: unknown = isJson ? await response.json() : undefined;
   if (!response.ok) {
-    // Edit endpoints return a full EditResult with field errors on 422; callers inspect it.
-    if (response.status === 422 && body && typeof body === "object" && "errors" in body) return body as T;
+    // Edit endpoints return a full EditResult with field errors on 422 (or 409 when stale); callers inspect it.
+    if ((response.status === 422 || response.status === 409) && body && typeof body === "object" && "errors" in body) return body as T;
     const message = body && typeof body === "object" && "error" in body ? String((body as { error: unknown }).error) : response.statusText;
     throw new ApiError(message || `Request failed (${response.status})`, response.status, body);
   }
@@ -80,10 +87,11 @@ export const api = {
   closeDocument: (wsId: string, docId: string) => request<void>(doc(wsId, docId), { method: "DELETE" }),
   expand: (wsId: string, docId: string, lazyId: string) =>
     request<ViewNode[]>(`${doc(wsId, docId)}/nodes?id=${encodeURIComponent(lazyId)}`),
-  edit: (wsId: string, docId: string, edits: { valueId: string; value: FieldValue }[]) =>
-    request<EditResult>(`${doc(wsId, docId)}/edits`, json({ edits })),
-  action: (wsId: string, docId: string, actionId: string, parameters: Record<string, FieldValue>) =>
-    request<EditResult>(`${doc(wsId, docId)}/actions`, json({ actionId, parameters })),
+  /** `revision` is the view revision the caller is bound to; the server rejects stale ones (`stale: true`). */
+  edit: (wsId: string, docId: string, edits: { valueId: string; value: FieldValue }[], revision?: number) =>
+    request<EditResult>(`${doc(wsId, docId)}/edits`, json({ edits, revision })),
+  action: (wsId: string, docId: string, actionId: string, parameters: Record<string, FieldValue>, revision?: number) =>
+    request<EditResult>(`${doc(wsId, docId)}/actions`, json({ actionId, parameters, revision })),
   undo: (wsId: string, docId: string) => request<EditResult>(`${doc(wsId, docId)}/undo`, { method: "POST" }),
   redo: (wsId: string, docId: string) => request<EditResult>(`${doc(wsId, docId)}/redo`, { method: "POST" }),
   assetUrl: (wsId: string, docId: string, assetId: string) => `/api${doc(wsId, docId)}/assets?id=${encodeURIComponent(assetId)}`,

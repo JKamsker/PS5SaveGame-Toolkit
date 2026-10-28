@@ -21,19 +21,29 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
   const store = useMemo(() => (query.data ? new DocumentStore(query.data.state) : null), [query.data]);
   const [structureVersion, setStructureVersion] = useState(0);
 
+  /** Refetches the view after a structural change; the new view data creates a fresh value cache. */
+  const { refetch } = query;
+  const refresh = useCallback(async () => {
+    // Only move lazy sections to the new view once it actually arrived (avoids refetch loops).
+    if ((await refetch()).isSuccess) setStructureVersion((v) => v + 1);
+  }, [refetch]);
+
   const handleResult = useCallback(
     async (result: EditResult) => {
       if (!store) return;
-      store.apply(result);
-      if (result.structureChanged) {
-        await query.refetch();
-        setStructureVersion((v) => v + 1);
+      if (result.stale) {
+        // Nothing changed on the server; the ids we sent belong to a replaced view.
+        await refresh();
+        onToast("The document structure changed, so the view was refreshed. Please try again.", true);
+        return;
       }
+      store.apply(result);
+      if (result.structureChanged) await refresh();
       if (result.message) onToast(result.message);
       for (const w of result.warnings) onToast(w);
       void queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
     },
-    [store, query, queryClient, workspaceId, onToast],
+    [store, refresh, queryClient, workspaceId, onToast],
   );
 
   const run = useCallback(
@@ -41,7 +51,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
       try {
         const result = await call();
         await handleResult(result);
-        if (!result.ok && result.errors.some((e) => e.valueId === "")) onToast(result.errors[0]?.message ?? "Rejected", true);
+        if (!result.ok && !result.stale && result.errors.some((e) => e.valueId === "")) onToast(result.errors[0]?.message ?? "Rejected", true);
         return result;
       } catch (error) {
         onToast(error instanceof ApiError ? error.message : "The server could not be reached.", true);
@@ -59,11 +69,20 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
       canEdit: query.data.canEdit,
       store,
       structureVersion,
-      commit: async (valueId: string, value: FieldValue) => (await run(() => api.edit(workspaceId, documentId, [{ valueId, value }])))?.ok ?? false,
+      refresh,
+      commit: async (valueId: string, value: FieldValue) =>
+        (await run(() => api.edit(workspaceId, documentId, [{ valueId, value }], store.state.revision)))?.ok ?? false,
       runAction: async (actionId: string, parameters: Record<string, FieldValue>) =>
-        (await run(() => api.action(workspaceId, documentId, actionId, parameters))) ?? { ok: false, errors: [], changes: [], warnings: [], structureChanged: false, state: store.state },
+        (await run(() => api.action(workspaceId, documentId, actionId, parameters, store.state.revision))) ?? {
+          ok: false,
+          errors: [],
+          changes: [],
+          warnings: [],
+          structureChanged: false,
+          state: store.state,
+        },
     };
-  }, [query.data, store, workspaceId, documentId, structureVersion, run]);
+  }, [query.data, store, workspaceId, documentId, structureVersion, refresh, run]);
 
   if (query.isPending) return <div className="empty">Opening…</div>;
   if (query.isError || !context || !query.data) {
