@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "id": "cyberpunk2077.identifiers",
+  "version": "1.0.0",
+  "title": "Cyberpunk 2077 community identifiers (not localization)",
+  "description": "Pinned community identifiers; build/DLC completeness and gameplay semantics unknown. No descriptions, icons or legal quantity limits.",
+  "plugins": [
+    "cyberpunk2077"
+  ],
+  "titleIds": [
+    "PPSA04027"
+  ],
+  "gameBuilds": [],
+  "datasets": [
+    {
+      "id": "items",
+      "kind": "records",
+      "title": "Cyberpunk items identifiers",
+      "files": [
+        {
+          "path": "items.json",
+          "sha256": "afdf05b8d429573319a8d9801a3377d4063bc88fdadbe61336e38f936bf1ac43"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/items.bin",
+        "author": "DeweySalt / Deweh and CyberCAT-SimpleGUI contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Joined exact CRC32/UTF-8-length identities to ItemClasses.json; retained 36 reviewed baseline identifiers; no localization or game rules."
+      }
+    },
+    {
+      "id": "facts",
+      "kind": "records",
+      "title": "Cyberpunk facts identifiers",
+      "files": [
+        {
+          "path": "facts.json",
+          "sha256": "0b6a0d7502801f5c49f4b36fc8475587c9358e7d21a99de56b870664544a632c"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/Facts.json",
+        "author": "DeweySalt / Deweh and CyberCAT-SimpleGUI contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Preserved exact canonical strings, including whitespace; verified FNV-1a/32; added raw-identifier category."
+      }
+    },
+    {
+      "id": "vehicles",
+      "kind": "records",
+      "title": "Cyberpunk vehicles identifiers",
+      "files": [
+        {
+          "path": "vehicles.json",
+          "sha256": "fa01811745ddae0160b57237f120e2f22d22974e750f7b43ead7a3b02f6fc78e"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/Vehicles.json",
+        "author": "DeweySalt / Deweh and CyberCAT-SimpleGUI contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Computed decimal-string CRC32/UTF-8-length identities; added identifier category; no ownership or availability claims."
+      }
+    },
+    {
+      "id": "travel",
+      "kind": "records",
+      "title": "Cyberpunk travel identifiers",
+      "files": [
+        {
+          "path": "travel.json",
+          "sha256": "69fd234a3b995ed26a584deba364c88568b92cb7def53655e3ecefdd47c69d63"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/FastTravel.json",
+        "author": "DeweySalt / Deweh and CyberCAT-SimpleGUI contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Computed PointRecord decimal-string identities; retained MarkerRef and IsEP1 as attributes; no coordinates or unlock claims."
+      }
+    }
+  ]
+}

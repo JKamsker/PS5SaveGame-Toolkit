@@ -1,10 +1,19 @@
 # Cyberpunk 2077 (`cyberpunk2077`)
 
-Title: **PPSA04027**. Maturity: **Experimental**. Round 2 adds five player attributes,
+Title: **PPSA04027**. Plugin **0.3.0**, maturity: **Experimental**. Round 2 added five player attributes,
 unspent attribute/perk/relic points, and named player ammo/consumable stack quantities. Edits are
 restricted to **save 265 / game 2210 / archive 195** (the supplied PS5 2.21 save). Scriptable progression
 also requires **RED package 4 / flags 0 / sections 6**. Unsupported versions show a reason and retain
 the applicable read-only explorers. No console load has been tested; only a human can set Stable.
+
+This roadmap round completes Phase 1's identifier/evidence work and the supported inventory
+inspection portion of Phase 2: an attributed versioned F2 pack, named read-only facts, F3 instance
+details, F4 catalog inspection pickers, and F8 collections for facts/large inventories. The embedded
+pack contains **5,248 item / 19,357 fact / 105 vehicle / 232 travel identifiers**, with source hashes.
+These are technical identifiers, not licensed localization or proof of gameplay availability.
+The inventory joins **22/22** current items; **1,129/2,750** saved fact entries resolve to names.
+Equipment/stat/cyberware joins and every new write category remain blocked on controlled evidence.
+See [REFERENCES.md](REFERENCES.md) and [EVIDENCE.md](EVIDENCE.md) for contracts and exact next steps.
 
 **Deliberately incomplete goal:** level, street cred and their current XP are decoded but read-only.
 The sample omits `expToLevel`, `maxLevel` and `currentExp`; no PS5 2.21 transition table has been
@@ -16,7 +25,9 @@ explains why these edits are refused. Quest facts remain read-only.
 - `sav.dat`: gameplay CSAV; claimed with matching title, filename and VASC/FZLC signatures.
 - `settings.json`, `metadata.9.json`: owned by GenericJson; never claimed or rewritten here.
 - `user.gls`: separate global/profile format; not claimed or modified.
-- `screenshot.png`, system files and backup siblings: never rewritten as a side effect.
+- `screenshot.png` and system files: never output by this plugin. It returns only its gameplay
+  `sav.dat`; the shared exporter may mirror changed gameplay files into console backup directories.
+  Do not infer that those backups remain unchanged from the plugin's single-file output contract.
 
 The plugin performs no filesystem/network I/O. All parsing and writing use the SDK's supplied bytes.
 
@@ -62,11 +73,14 @@ literally to this sample. Current WolvenKit's wire layout and the actual PS5 byt
 length 11 in the next byte. The sample's unique container-1 money item is node 39, quantity **300**.
 This meaning is **Verified** by the hash match, structure and upstream money editor.
 
-The editable inventory table now resolves names from a **36-entry trimmed dictionary**, embedded in
-`Resources/ItemNames.json`. These are upstream record identifiers, not invented/localized display
-names. Every embedded name is checked against its recorded CRC32 + byte-length hash at runtime.
-The source is CP2077SaveEditor's `items.bin` at the pinned commit below; the existing `ItemClasses.json`
-and inventory controls provide category/quantity evidence. Unknown names display their complete hash.
+The inventory resolves labels through the pinned `items` F2 catalog. The embedded identifier pack
+contains 5,248 CRC32/UTF-8-length-verified names joined to community class IDs, with no localized
+descriptions/icons/limits. Optional separately attributed local packs can supply richer labels.
+Without a matching pack, the **36-entry reviewed dictionary** in `Resources/ItemNames.json` remains
+the fallback. That original allowlist alone gates quantity writes; catalog categories and limits
+cannot widen them. Unknown names display their complete 64-bit hash. Each label/category/details
+cell carries provenance. Stable row keys remain original node IDs for this nonstructural document;
+the full 16-byte saved identity is shown separately, so identical base records remain distinct.
 
 | Sample node | Verified record | Quantity |
 | --- | --- | --- |
@@ -84,8 +98,10 @@ quantity-only layout; **the supplied save does not contain those records**. Cons
 are verified; the game's 2.x charge/replenishment behavior after loading is untested.
 
 `FactsTable` contains packed count, a uint32 hash plane, then a uint32 value plane. Count and node
-size must agree exactly. Hashes stay unresolved; fact meanings are **Unknown**, all read-only.
-No generic fact edits or quest-unlock actions are offered.
+size must agree exactly. The F2 fact catalog verifies exact FNV-1a/32 canonical names, including nine
+whitespace-sensitive strings. Hash mismatches retain raw IDs; duplicate catalog keys are rejected.
+Names have Inferred semantic confidence: a debug/absent/named fact does not establish completion.
+All values remain read-only; no generic fact edits or quest-unlock actions are offered.
 
 ## Player development and dependent stats
 
@@ -151,9 +167,13 @@ This is why maturity remains Experimental.
 
 ## Views and tests
 
-Overview, player development, inventory, facts, node tree and container tabs provide stats,
-128-entry item/fact pages, lazy named children and paged original/payload/node bytes. Chunk tables
-are bounded to 4096 rows. Value IDs stay stable across edits.
+Overview, player development, inventory, facts, reference catalogs, node tree and container tabs
+provide attributed labels, confidence/warnings, instance details and paged original/payload/node
+bytes. Inventories up to 128 rows use one lazy rich table; larger inventories and all facts use F8
+whole-model search, exact column filters, numeric sorting and bounded pages (at most 200 rows).
+Query cells are constructed only after filtering/paging. Chunk tables are bounded to 4096 rows.
+Value IDs and row keys stay stable across edits; no structural inventory edits are implemented.
+F4 pickers inspect all four catalogs without modifying saves. See REFERENCES.md for build/locale keys.
 
 Sample evidence: **one primary record and its identical backup**, 1,302,721 stored bytes, 22 chunks,
 5,607,178 expanded bytes, 159 nodes and 22 items. This is one distinct save, not a multi-session corpus.
@@ -172,9 +192,12 @@ codec-vector tests remain. Hash vectors cover CRC32/TweakDBID and FNV-1a/64.
 dotnet test --project plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests
 ```
 
-Validation: **62 passed**, no sample skips. With an empty sample directory: **18 passed / 44 skipped**,
-zero failures. API build: zero warnings/errors. Core: **43 passed**. No hooks, framework changes or
-additional NuGet dependencies were added.
+Validation for this roadmap round: **85 passed**, no sample skips. With an empty sample directory:
+**31 passed / 54 skipped**, zero failures. API build: zero warnings/errors. Added pack validity,
+all-record hash verification, exact canonical whitespace, conflicting-ID rejection, pinned local
+build/fallback tests, attributed sample joins, host F4 inspection/undo, live query edit/undo,
+1,000-row paging, F1 evidence decoder and final ZIP/backup preservation tests. No hooks,
+framework changes or additional NuGet dependencies were added.
 
 ## Open problems
 
@@ -185,7 +208,26 @@ additional NuGet dependencies were added.
   by loading on a console. Establish separate global/profile integrity before editing `user.gls`.
 - Modded/missing/nonconstant player stat buffers are intentionally unsupported for attribute writes.
 
-## Sources and licences
+## Sources and attribution
+
+All new dictionary data is factual technical identifiers/categories from the pinned community
+source, adapted under its MIT notice. This does not license CD PROJEKT RED localization/artwork.
+No icons, textures, localized prose, game-resource exports or GPL implementation are bundled.
+Full per-dataset attribution is also beside the data, in `Info.References`, F2 manifests/Sources,
+and every named field/details view. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+| Dataset / reference | Pinned source / author | Licence / retrieval / changes |
+| --- | --- | --- |
+| Baseline 36-name allowlist | [items.bin](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/items.bin), [ItemClasses.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/ItemClasses.json), DeweySalt / Deweh and contributors | [MIT](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/LICENSE), 2026-10-28; selected names/categories, verified hashes; preserved as write gate. Sidecar: `Resources/ItemNames.source.md`. |
+| F2 `items` (5,248) | Same pinned items.bin + ItemClasses.json, DeweySalt / Deweh and contributors | MIT, 2026-10-28; exact hash join, retained baseline, decimal-string keys and coverage annotations; no gameplay limits. |
+| F2 `facts` (19,357) | [Facts.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/Facts.json), same authors | MIT, 2026-10-28; exact canonical strings retained separately, FNV-1a/32 verified, raw identifier category. |
+| F2 `vehicles` (105) | [Vehicles.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/Vehicles.json), same authors | MIT, 2026-10-28; computed TweakDB keys, identifier category; no garage join. |
+| F2 `travel` (232) | [FastTravel.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/FastTravel.json), same authors | MIT, 2026-10-28; computed PointRecord IDs, retained MarkerRef/IsEP1; no coordinates/unlock claim. |
+| Localization research only | [CDPR Modding Documentation: translation](https://github.com/CDPR-Modding-Documentation/Cyberpunk-Modding-Docs/blob/main/modding-guides/everything-else/how-to-translate-a-mod.md) | Consulted 2026-10-28 for localization joins; no content/assets copied and no redistribution permission inferred. |
+
+All four F2 datasets have `data.source.md`, upstream input SHA-256 ledger and normalized-LF content
+hashes under `ReferencePacks/cyberpunk2077.identifiers/`. The original offline generator and schema
+contract are described in REFERENCES.md. Existing parser research references follow.
 
 Research/sample verification: 2026-10-28. Downloaded source was read as text in scratch storage;
 no upstream application/script was executed. This is independently written format code. No GPL source
@@ -238,4 +280,10 @@ is attributed to CP2077SaveEditor (MIT); its notice is retained in [CP2077SaveEd
 
 ## SDK requests
 
-None. Existing lazy sections, tables, bound fields and paged blobs cover this implementation.
+- The shared F1 `PluginViewDecoder` currently ignores `QueryableTableNode` rows. This round provides
+  a testing-only `CyberpunkEvidenceDecoder` hook that reads bounded inventory/fact model data, so F1
+  evidence does not depend on loaded UI pages. A shared bounded query traversal would help all plugins.
+- Core blocks every action on `CanEdit == false`, including read-only F4 catalog inspection actions.
+  Those actions are omitted on read-only documents; safe names/raw explorers remain available.
+  A read-only inspection capability would avoid conflating browsing with permission to change saves.
+- No local substitute was added for F6/F8 whole-query bulk planning (#27). No new bulk writes ship.

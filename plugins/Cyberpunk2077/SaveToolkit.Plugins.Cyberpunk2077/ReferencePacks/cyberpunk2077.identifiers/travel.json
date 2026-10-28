@@ -1,0 +1,2092 @@
+{
+  "records": [
+    {
+      "id": "155240653720",
+      "name": "FastTravelPoints.bls_nth_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157774590498",
+      "name": "FastTravelPoints.bls_nth_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158026564276",
+      "name": "FastTravelPoints.bls_nth_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_new_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156052920087",
+      "name": "FastTravelPoints.bls_nth_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155197482881",
+      "name": "FastTravelPoints.bls_nth_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157763827259",
+      "name": "FastTravelPoints.bls_nth_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_new_06",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158048962221",
+      "name": "FastTravelPoints.bls_nth_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156175751996",
+      "name": "FastTravelPoints.bls_nth_dataterm_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155353607082",
+      "name": "FastTravelPoints.bls_nth_dataterm_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_14",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155877925455",
+      "name": "FastTravelPoints.bls_nth_dataterm_10",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155626197721",
+      "name": "FastTravelPoints.bls_nth_dataterm_11",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_16",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157387195235",
+      "name": "FastTravelPoints.bls_nth_dataterm_12",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_17",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158142378997",
+      "name": "FastTravelPoints.bls_nth_dataterm_13",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_18",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155900290646",
+      "name": "FastTravelPoints.bls_nth_dataterm_14",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_19",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155615401664",
+      "name": "FastTravelPoints.bls_nth_dataterm_15",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_27",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157344057210",
+      "name": "FastTravelPoints.bls_nth_dataterm_16",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_28",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158199248876",
+      "name": "FastTravelPoints.bls_nth_dataterm_17",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_21",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157261008603",
+      "name": "FastTravelPoints.bls_sth_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_09",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154693656417",
+      "name": "FastTravelPoints.bls_sth_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_10",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156555735031",
+      "name": "FastTravelPoints.bls_sth_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_11",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158596495956",
+      "name": "FastTravelPoints.bls_sth_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_12",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157203647170",
+      "name": "FastTravelPoints.bls_sth_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_13",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154670734200",
+      "name": "FastTravelPoints.bls_sth_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_20",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158454527615",
+      "name": "FastTravelPoints.bls_sth_dataterm_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_22",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157096019689",
+      "name": "FastTravelPoints.bls_sth_dataterm_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_23",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158702014220",
+      "name": "FastTravelPoints.bls_sth_dataterm_10",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_24",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156840214426",
+      "name": "FastTravelPoints.bls_sth_dataterm_11",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_25",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155112631840",
+      "name": "FastTravelPoints.bls_sth_dataterm_12",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#bls_bls_dataterm_26",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154986272101",
+      "name": "FastTravelPoints.cct_cpz_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156983330015",
+      "name": "FastTravelPoints.cct_cpz_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158845154377",
+      "name": "FastTravelPoints.cct_cpz_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161004178233",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162765314691",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161373137429",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159130992566",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160993447712",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162721980058",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161430072844",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159002162077",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160830800651",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159224482542",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_10",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160616938104",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_11",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163150736322",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_12",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161255103316",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_13",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159281385207",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_14",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160573570657",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_15",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163140038619",
+      "name": "FastTravelPoints.cct_cpz_metro_ftp_16",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_cpz_metro_ftp_15",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158443346216",
+      "name": "FastTravelPoints.cct_dtn_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_dtn_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156682209426",
+      "name": "FastTravelPoints.cct_dtn_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_dtn_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154853439492",
+      "name": "FastTravelPoints.cct_dtn_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_dtn_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157095521703",
+      "name": "FastTravelPoints.cct_dtn_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_dtn_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158454013233",
+      "name": "FastTravelPoints.cct_dtn_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_dtn_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154796440605",
+      "name": "FastTravelPoints.cct_dtn_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_dtn_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162890691810",
+      "name": "FastTravelPoints.cct_dtn_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_dtn_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161498367092",
+      "name": "FastTravelPoints.cct_dtn_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#cct_dtn_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "240476292809",
+      "name": "FastTravelPoints.combat_zone_golden_pacific_dataterm_01",
+      "category": "Phantom Liberty",
+      "attributes": {
+        "markerRef": "#combat_zone_dataterm_04",
+        "requiresEp1": "true"
+      }
+    },
+    {
+      "id": "246995227757",
+      "name": "FastTravelPoints.combat_zone_longshore_stacks_dataterm_01",
+      "category": "Phantom Liberty",
+      "attributes": {
+        "markerRef": "#combat_zone_dataterm_02",
+        "requiresEp1": "true"
+      }
+    },
+    {
+      "id": "183699293437",
+      "name": "FastTravelPoints.combat_zone_luxor_high_01",
+      "category": "Phantom Liberty",
+      "attributes": {
+        "markerRef": "#combat_zone_dataterm_06",
+        "requiresEp1": "true"
+      }
+    },
+    {
+      "id": "199077695078",
+      "name": "FastTravelPoints.combat_zone_squat_dataterm_01",
+      "category": "Phantom Liberty",
+      "attributes": {
+        "markerRef": "#combat_zone_dataterm_05",
+        "requiresEp1": "true"
+      }
+    },
+    {
+      "id": "207080004339",
+      "name": "FastTravelPoints.combat_zone_stadium_dataterm_01",
+      "category": "Phantom Liberty",
+      "attributes": {
+        "markerRef": "#combat_zone_dataterm_01",
+        "requiresEp1": "true"
+      }
+    },
+    {
+      "id": "236049065619",
+      "name": "FastTravelPoints.combat_zone_terra_cognita_dataterm_01",
+      "category": "Phantom Liberty",
+      "attributes": {
+        "markerRef": "#combat_zone_dataterm_03",
+        "requiresEp1": "true"
+      }
+    },
+    {
+      "id": "193200956370",
+      "name": "FastTravelPoints.dlc6_apart_cct_dtn_dataterm",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#dlc6_apart_cct_dtn_dataterm",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "191918514255",
+      "name": "FastTravelPoints.dlc6_apart_hey_gle_dataterm",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#dlc6_apart_hey_gle_dataterm",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "193161040190",
+      "name": "FastTravelPoints.dlc6_apart_wat_nid_dataterm",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#dlc6_apart_wat_nid_dataterm_tp",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "192492069129",
+      "name": "FastTravelPoints.dlc6_apart_wbr_jpn_dataterm",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#dlc6_apart_wbr_jpn_dataterm",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158756497939",
+      "name": "FastTravelPoints.hey_gle_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156490972073",
+      "name": "FastTravelPoints.hey_gle_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155031014207",
+      "name": "FastTravelPoints.hey_gle_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156883033756",
+      "name": "FastTravelPoints.hey_gle_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158678003210",
+      "name": "FastTravelPoints.hey_gle_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156380135344",
+      "name": "FastTravelPoints.hey_gle_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_dataterm_06",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155155451686",
+      "name": "FastTravelPoints.hey_gle_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157022376631",
+      "name": "FastTravelPoints.hey_gle_dataterm_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_dataterm_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162220828175",
+      "name": "FastTravelPoints.hey_gle_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160458618805",
+      "name": "FastTravelPoints.hey_gle_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159636457251",
+      "name": "FastTravelPoints.hey_gle_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_metro_ftp_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161958302336",
+      "name": "FastTravelPoints.hey_gle_metro_ftp_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162175951382",
+      "name": "FastTravelPoints.hey_gle_metro_ftp_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160448508844",
+      "name": "FastTravelPoints.hey_gle_metro_ftp_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159660294970",
+      "name": "FastTravelPoints.hey_gle_metro_ftp_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_metro_ftp_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162080612011",
+      "name": "FastTravelPoints.hey_gle_metro_ftp_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_metro_ftp_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162332601917",
+      "name": "FastTravelPoints.hey_gle_metro_ftp_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_gle_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154645113782",
+      "name": "FastTravelPoints.hey_rey_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157178952204",
+      "name": "FastTravelPoints.hey_rey_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158639016602",
+      "name": "FastTravelPoints.hey_rey_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156531154745",
+      "name": "FastTravelPoints.hey_rey_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154736062383",
+      "name": "FastTravelPoints.hey_rey_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157302504981",
+      "name": "FastTravelPoints.hey_rey_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_dataterm_06",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158527032963",
+      "name": "FastTravelPoints.hey_rey_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160580386729",
+      "name": "FastTravelPoints.hey_rey_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163114348051",
+      "name": "FastTravelPoints.hey_rey_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161285168773",
+      "name": "FastTravelPoints.hey_rey_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159236541222",
+      "name": "FastTravelPoints.hey_rey_metro_ftp_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_rey_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157801389564",
+      "name": "FastTravelPoints.hey_spr_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155235077190",
+      "name": "FastTravelPoints.hey_spr_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156023684304",
+      "name": "FastTravelPoints.hey_spr_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158072367475",
+      "name": "FastTravelPoints.hey_spr_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157754055141",
+      "name": "FastTravelPoints.hey_spr_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155220084831",
+      "name": "FastTravelPoints.hey_spr_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_dataterm_06",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156041853129",
+      "name": "FastTravelPoints.hey_spr_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163039130641",
+      "name": "FastTravelPoints.hey_spr_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160741123499",
+      "name": "FastTravelPoints.hey_spr_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159382361405",
+      "name": "FastTravelPoints.hey_spr_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161154154654",
+      "name": "FastTravelPoints.hey_spr_metro_ftp_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#hey_spr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156345460689",
+      "name": "FastTravelPoints.pac_cvi_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#pac_cvi_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158911903339",
+      "name": "FastTravelPoints.pac_cvi_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#pac_cvi_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156915468029",
+      "name": "FastTravelPoints.pac_cvi_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#pac_cvi_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154996347742",
+      "name": "FastTravelPoints.pac_cvi_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#pac_cvi_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156255101896",
+      "name": "FastTravelPoints.pac_cvi_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#pac_cvi_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161881763870",
+      "name": "FastTravelPoints.pac_cvi_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#pac_cvi_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159617311140",
+      "name": "FastTravelPoints.pac_cvi_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#pac_cvi_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157250321881",
+      "name": "FastTravelPoints.pac_wwd_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#pac_wwd_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158067820351",
+      "name": "FastTravelPoints.std_arr_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156038256261",
+      "name": "FastTravelPoints.std_arr_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155216373267",
+      "name": "FastTravelPoints.std_arr_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157806064560",
+      "name": "FastTravelPoints.std_arr_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158024483622",
+      "name": "FastTravelPoints.std_arr_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156027523740",
+      "name": "FastTravelPoints.std_arr_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_dataterm_06",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155238539786",
+      "name": "FastTravelPoints.std_arr_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157643915163",
+      "name": "FastTravelPoints.std_arr_dataterm_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_dataterm_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157895102221",
+      "name": "FastTravelPoints.std_arr_dataterm_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_dataterm_09_tp",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163074410113",
+      "name": "FastTravelPoints.std_arr_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160775493435",
+      "name": "FastTravelPoints.std_arr_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159348975533",
+      "name": "FastTravelPoints.std_arr_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161188475406",
+      "name": "FastTravelPoints.std_arr_metro_ftp_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162950005400",
+      "name": "FastTravelPoints.std_arr_metro_ftp_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160685527842",
+      "name": "FastTravelPoints.std_arr_metro_ftp_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_arr_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156283023123",
+      "name": "FastTravelPoints.std_rcr_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158816861865",
+      "name": "FastTravelPoints.std_rcr_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156988591679",
+      "name": "FastTravelPoints.std_rcr_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156302600970",
+      "name": "FastTravelPoints.std_rcr_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158869043888",
+      "name": "FastTravelPoints.std_rcr_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_06",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156939455014",
+      "name": "FastTravelPoints.std_rcr_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155070568375",
+      "name": "FastTravelPoints.std_rcr_dataterm_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156462884641",
+      "name": "FastTravelPoints.std_rcr_dataterm_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_09",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154839920324",
+      "name": "FastTravelPoints.std_rcr_dataterm_10",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_10",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156668436050",
+      "name": "FastTravelPoints.std_rcr_dataterm_11",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_dataterm_11_tp",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162227865674",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160465787376",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159644035430",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161965292741",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162183580755",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160456007145",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159667416447",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162073440494",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162325020792",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161792444829",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_10",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162614475019",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_11",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160081553585",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_12",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159762978855",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_13",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161815793028",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_14",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162604662034",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_15",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160037301416",
+      "name": "FastTravelPoints.std_rcr_metro_ftp_16",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#std_rcr_metro_ftp_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154785451134",
+      "name": "FastTravelPoints.wat_awf_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_awf_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158509100370",
+      "name": "FastTravelPoints.wat_awf_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_awf_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155426810916",
+      "name": "FastTravelPoints.wat_kab_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157456383390",
+      "name": "FastTravelPoints.wat_kab_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158345891080",
+      "name": "FastTravelPoints.wat_kab_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155696896171",
+      "name": "FastTravelPoints.wat_kab_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155546101821",
+      "name": "FastTravelPoints.wat_kab_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157543070087",
+      "name": "FastTravelPoints.wat_kab_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_06",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158264412433",
+      "name": "FastTravelPoints.wat_kab_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155859571840",
+      "name": "FastTravelPoints.wat_kab_dataterm_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156199349747",
+      "name": "FastTravelPoints.wat_kab_dataterm_10",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_10",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155310087525",
+      "name": "FastTravelPoints.wat_kab_dataterm_11",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_11_tp",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157575449823",
+      "name": "FastTravelPoints.wat_kab_dataterm_12",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_kab_dataterm_12_tp",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156499460533",
+      "name": "FastTravelPoints.wat_lch_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158529032207",
+      "name": "FastTravelPoints.wat_lch_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157271072921",
+      "name": "FastTravelPoints.wat_lch_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154626340154",
+      "name": "FastTravelPoints.wat_lch_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156623013292",
+      "name": "FastTravelPoints.wat_lch_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157193856128",
+      "name": "FastTravelPoints.wat_lch_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156745582983",
+      "name": "FastTravelPoints.wat_lch_dataterm_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_dataterm_09",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155122417762",
+      "name": "FastTravelPoints.wat_lch_dataterm_10",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_dataterm_10",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156380655860",
+      "name": "FastTravelPoints.wat_lch_dataterm_11",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_dataterm_11",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163111167865",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160577337027",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159251465813",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161233507318",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_09",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163162825568",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160596390618",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159237620300",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161127489501",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163023515467",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_09",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161400153774",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_10",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_09",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162725746232",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_11",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160964577154",
+      "name": "FastTravelPoints.wat_lch_metro_ftp_12",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_lch_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157036024644",
+      "name": "FastTravelPoints.wat_nid_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154771571454",
+      "name": "FastTravelPoints.wat_nid_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156734714472",
+      "name": "FastTravelPoints.wat_nid_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158384875467",
+      "name": "FastTravelPoints.wat_nid_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157160462173",
+      "name": "FastTravelPoints.wat_nid_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154861504231",
+      "name": "FastTravelPoints.wat_nid_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_dataterm_06",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156656219761",
+      "name": "FastTravelPoints.wat_nid_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158541491168",
+      "name": "FastTravelPoints.wat_nid_dataterm_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_dataterm_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157282737014",
+      "name": "FastTravelPoints.wat_nid_dataterm_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_dataterm_09_tp",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159726710305",
+      "name": "FastTravelPoints.wat_nid_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161757364123",
+      "name": "FastTravelPoints.wat_nid_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wat_nid_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157392895665",
+      "name": "FastTravelPoints.wbr_hil_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155630808843",
+      "name": "FastTravelPoints.wbr_hil_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155882790813",
+      "name": "FastTravelPoints.wbr_hil_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158195649086",
+      "name": "FastTravelPoints.wbr_hil_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157340220072",
+      "name": "FastTravelPoints.wbr_hil_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163168281567",
+      "name": "FastTravelPoints.wbr_hil_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160601944677",
+      "name": "FastTravelPoints.wbr_hil_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159242519283",
+      "name": "FastTravelPoints.wbr_hil_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161295931216",
+      "name": "FastTravelPoints.wbr_hil_metro_ftp_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "163124586438",
+      "name": "FastTravelPoints.wbr_hil_metro_ftp_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160590657148",
+      "name": "FastTravelPoints.wbr_hil_metro_ftp_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_hil_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157393762631",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155632756989",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155883952235",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158193208776",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157337517406",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_05",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155608853732",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_06",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155894258802",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_07",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_07",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158322033123",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_08",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_08",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157500158325",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_09",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_09",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158032607376",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_10",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_10",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157781133318",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_11",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_11",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "155247204796",
+      "name": "FastTravelPoints.wbr_jpn_dataterm_12",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_dataterm_12_tp",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161753860657",
+      "name": "FastTravelPoints.wbr_jpn_metro_ftp_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159723379595",
+      "name": "FastTravelPoints.wbr_jpn_metro_ftp_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "160109587229",
+      "name": "FastTravelPoints.wbr_jpn_metro_ftp_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "162556739262",
+      "name": "FastTravelPoints.wbr_jpn_metro_ftp_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "161835503144",
+      "name": "FastTravelPoints.wbr_jpn_metro_ftp_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_metro_ftp_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "159839461266",
+      "name": "FastTravelPoints.wbr_jpn_metro_ftp_06",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_jpn_metro_ftp_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154653648813",
+      "name": "FastTravelPoints.wbr_nok_dataterm_01",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_nok_dataterm_01",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "157221008919",
+      "name": "FastTravelPoints.wbr_nok_dataterm_02",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_nok_dataterm_02",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "158580147841",
+      "name": "FastTravelPoints.wbr_nok_dataterm_03",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_nok_dataterm_03",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "156539392802",
+      "name": "FastTravelPoints.wbr_nok_dataterm_04",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_nok_dataterm_04",
+        "requiresEp1": "false"
+      }
+    },
+    {
+      "id": "154711008180",
+      "name": "FastTravelPoints.wbr_nok_dataterm_05",
+      "category": "Base game",
+      "attributes": {
+        "markerRef": "#wbr_nok_dataterm_05",
+        "requiresEp1": "false"
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources/ItemNames.json" />
+    <EmbeddedResource Include="ReferencePacks\**\*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" />
     <PackageReference Include="K4os.Compression.LZ4" />
     <!-- Plugins depend on the SDK only (never on Core/Api). -->
     <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
