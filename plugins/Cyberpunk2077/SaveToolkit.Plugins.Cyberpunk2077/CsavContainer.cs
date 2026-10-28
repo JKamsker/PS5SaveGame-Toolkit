@@ -102,79 +102,13 @@ internal sealed class CsavContainer
         return new CsavContainer(bytes, payload, chunks, directoryOffset);
     }
 
-    public byte[] Rebuild(ReadOnlySpan<byte> editedPayload)
+    public byte[] Rebuild(ReadOnlySpan<byte> editedPayload, KeyValuePair<int, byte[]>? replacement = null)
     {
         if (editedPayload.Length != Payload.Length)
         {
-            throw new SaveFormatException("CSAV editing cannot change the expanded payload size.");
+            throw new SaveFormatException("CSAV patches must retain the original expanded size; use a node replacement for resizing.");
         }
 
-        if (editedPayload.SequenceEqual(Payload))
-        {
-            return Original.ToArray();
-        }
-
-        using var output = new MemoryStream();
-        output.Write(Original.AsSpan(0, DataOffset));
-        var offsets = new int[Chunks.Count];
-        var sizes = new int[Chunks.Count];
-        Span<byte> size = stackalloc byte[sizeof(int)];
-        for (var index = 0; index < Chunks.Count; index++)
-        {
-            var chunk = Chunks[index];
-            offsets[index] = checked((int)output.Position);
-            var edited = editedPayload.Slice(chunk.PayloadOffset, chunk.ExpandedSize);
-            if (edited.SequenceEqual(Payload.AsSpan(chunk.PayloadOffset, chunk.ExpandedSize)))
-            {
-                output.Write(Original.AsSpan(chunk.Offset, chunk.StoredSize));
-            }
-            else if (!chunk.Compressed)
-            {
-                output.Write(edited);
-            }
-            else
-            {
-                var buffer = new byte[LZ4Codec.MaximumOutputSize(edited.Length)];
-                var length = LZ4Codec.Encode(edited, buffer);
-                if (length <= 0)
-                {
-                    throw new SaveFormatException("Could not encode the edited CSAV LZ4 block.");
-                }
-
-                output.Write("4ZLX"u8);
-                BinaryPrimitives.WriteInt32LittleEndian(size, chunk.ExpandedSize);
-                output.Write(size);
-                output.Write(buffer.AsSpan(0, length));
-            }
-
-            sizes[index] = checked((int)output.Position) - offsets[index];
-            var originalEnd = chunk.Offset + chunk.StoredSize;
-            var gapEnd = index + 1 < Chunks.Count ? Chunks[index + 1].Offset : DirectoryOffset;
-            output.Write(Original.AsSpan(originalEnd, gapEnd - originalEnd));
-        }
-
-        var directoryOffset = checked((int)output.Position);
-        output.Write(Original.AsSpan(DirectoryOffset));
-        var result = output.ToArray();
-        for (var index = 0; index < Chunks.Count; index++)
-        {
-            BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(TableOffset + index * EntrySize), offsets[index]);
-            BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(TableOffset + index * EntrySize + 4), sizes[index]);
-        }
-
-        BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(result.Length - 8), directoryOffset);
-        var reopened = Parse(result);
-        if (!reopened.Payload.AsSpan().SequenceEqual(editedPayload))
-        {
-            throw new SaveFormatException("Edited CSAV failed decompression verification.");
-        }
-
-        var tree = CsavTree.Parse(reopened);
-        _ = InventoryReader.Read(reopened, tree);
-        foreach (var node in tree.Nodes.Where(node => node.Name == "FactsTable"))
-        {
-            _ = FactsReader.Read(BinaryData.Slice(reopened.Payload, node.Offset, node.Size));
-        }
-        return result;
+        return CsavWriter.Rebuild(this, editedPayload.ToArray(), replacement);
     }
 }
