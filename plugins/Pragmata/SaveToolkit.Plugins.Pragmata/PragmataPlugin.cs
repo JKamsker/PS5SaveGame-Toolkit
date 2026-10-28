@@ -15,13 +15,15 @@ public sealed class PragmataPlugin : IGamePlugin, ISaveDecoderProvider
 
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = Array.AsReadOnly<ISaveDecoderHook>([new Diff.PragmataDecoder()]);
 
-    public PluginInfo Info { get; } = new("pragmata", "Pragmata", "0.5.0")
+    public PluginInfo Info { get; } = new("pragmata", "Pragmata", "0.5.1")
     {
         Description = "Experimental DSSS/Mandarin fixed-size editor with attributed item-ID replacement, queryable gameplay edits, planned quantities and synchronized clocks. Console acceptance and RSA trailer integrity are unverified.",
         Games = [new GameTitle("PPSA02530", "Pragmata")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/kvasszn/ree-save-editor", "https://github.com/google/cityhash",
-            Format.HashNames.Source, "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21",
+            Format.HashNames.Source, Format.HashNames.RestoredSource,
+            Format.HashNames.CommunityRoot + "rszpragmata.json", Format.HashNames.CommunityRoot + "enumspragmata.json",
+            "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31",
             "https://github.com/vaultic13/neuro-pragmata/tree/ae2ee572410e353ceae19bdc23f83f71687267dd",
             "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/tree/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b",

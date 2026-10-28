@@ -1,4 +1,8 @@
-# Pragmata reference pack 1.2.0
+# Pragmata reference pack 1.3.0
+
+The three newly imported community datasets have their own
+[source/hash/transformation sidecar](community.source.md). They do not change
+the MIT or CC0 provenance of the existing datasets below.
 
 `pragmata-identifiers.json` and `pragmata-sections.json` derive from
 [alphazolam RE_RSZ, revision 871a1d5c4c7b81c60c966d73ee63f4c4413ab56e](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json).

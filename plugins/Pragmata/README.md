@@ -43,6 +43,10 @@ test has been performed; only a human should promote this plugin to Stable.
 - A lazy explorer of the complete typed tree. Supported primitives are editable
   by exact hash/index path; strings, structs, array sizes and container metadata
   are read-only. Non-finite floats are displayed as text.
+- Five restored hash names and attributed community schema/enum metadata:
+  459 class/field declarations and 230 enum values across eight types. Raw and
+  family primitive descriptions show exact matching enum aliases as Inferred;
+  the original storage values, editor bounds and warnings remain intact.
 - Fixed-size patching preserves unknown fields, padding, unused encrypted
   capacity, ElGamal pairs, unknown metadata bytes and the RSA/key trailer.
 
@@ -221,11 +225,14 @@ explicitly. No UTC conversion is made.
 ## Verified versus inferred and unknown
 
 `Resources/HashNames.json` embeds **408 identifiers** selected from the pinned
-MIT RE_RSZ schema. Every entry reproduces its
+MIT RE_RSZ schema; `Resources/RestoredHashNames.json` restores **five identifiers**
+from the pinned community string dump under the owner decision of 2026-10-28.
+Every entry reproduces its
 MurmurHash3 over UTF-8 with seed `0xffffffff`, checked on resource load and in
-tests. Five names from the earlier unlicensed dump are no longer distributed:
+tests. The restored names are
 `Slot`, `Detail`, `_IsFirstGetWeapon`, `_IsFirstGetActiveSkill` and
-`_AcquireContentsHashes`. Their fields remain available by raw hash. Class hashes
+`_AcquireContentsHashes`; all five hashes occur in the supplied samples. Their
+own attribution appears beside labels, without relabelling MIT data. Class hashes
 `00000000` and `6cb10f10` remain unnamed; unmatched native root hashes remain numeric.
 
 Upstream dumps resolve additional names beyond the earlier map, including
@@ -241,7 +248,7 @@ warnings appear in every field description and at the top of each tab.
 
 Item names, ID meanings, legal stack limits, unlock dependencies, many field
 semantics, unknown metadata and console compatibility remain unverified. The
-reviewed enum dump did not yield a confirmed item dictionary. Quantities retain
+reviewed enum dump supplies type-specific symbols, not a confirmed item dictionary. Quantities retain
 the full signed int32 storage range with a warning; bulk N is nonnegative int32.
 The F6 action changes existing entries, including zero-count entries, without
 adding records or setting unlock flags. The preview lists raw-ID old/new values,
@@ -253,27 +260,39 @@ still reject unbound quantities; internal setters alone would not establish fram
 specs or complete semantic review. No new gameplay write family, legal-max preset
 or structural operation is introduced in the completion round.
 
-Regenerate the pack from a reviewed local copy of the pinned MIT schema:
+Regenerate the pack from reviewed local copies of all pinned inputs (downloads
+stay outside the repository):
 
 ```powershell
-python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz <MIT-rszpragmata.json> --missions <MIT-missionuserdata.user.3.json>
+python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz <MIT-rszpragmata.json> --missions <MIT-missionuserdata.user.3.json> --community-dir <directory-with-three-REE-dumps>
 ```
 
 The generator validates source SHA-256
 `67e5ed72e0e9efff0287214ad36737a8959d799aa1510b6b76591731a21f4df2`,
-also validates the pinned mission-data SHA-256 (see the pack sidecar), and reads
-only the reviewed JSON inputs, current known-hash subset and evidence manifest,
+also validates the pinned mission-data and three community-input SHA-256 values
+(see the pack sidecars), and reads
+only the reviewed JSON/string inputs, current known-hash subset and evidence manifest,
 and does not download/execute upstream code or read saves. HashNames is the
 reviewed observed-hash allowlist; adding new hashes requires reviewing that subset.
 
-The embedded `pragmata.evidence.en` v1.2.0 pack contains `pragmata-identifiers`
+The embedded `pragmata.evidence.en` v1.3.0 pack contains `pragmata-identifiers`
 (408 MIT names), `pragmata-sections` (27 MIT-derived group labels) and
 `pragmata-items` (90 CC0 original unmapped-ID descriptions) and `pragmata-item-evidence`
 (six MIT mission-opening-condition cross-references) and `pragmata-missions`
-(43 MIT PC reference records; raw hashes/GUIDs, no localized names). User packs can supply
+(43 MIT PC reference records; raw hashes/GUIDs, no localized names), plus
+`pragmata-restored-identifiers` (five names), `pragmata-field-schema` (459 declarations)
+and `pragmata-enum-members` (230 values, eight types, aliases retained). The latter
+three carry **No licence published; reused with attribution per owner decision 2026-10-28**.
+Schema records require known class/field hashes; individual declarations need not
+all occur in a PS5 build. Enum descriptions require matching class, field, storage
+type and exact value, including parent array declarations. Unknown values and flag
+combinations remain raw; declared sizes/alignment never replace typed-stream parsing.
+These Inferred hints do not establish legal limits, completion or unlock rules.
+User packs can supply
 names/descriptions/icons under another pack ID; item keys are invariant decimal
 uint32 strings. Identifier and section keys are eight-digit lower-case hex.
 See [pack provenance and import contract](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/data.source.md).
+See also the [community-input hashes, transformations and confidence rules](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/community.source.md).
 F4 item references allow experimental existing-ID replacements, imported labels are at most Inferred, and
 reference limits do not become edit caps. No artwork or copyrighted game descriptions
 are embedded. Counts in the new family tabs denote records, not completion totals.
@@ -319,8 +338,9 @@ titles under a locale that normally uses a decimal comma.
 Historical Round 2 validation: API build succeeded with zero warnings/errors;
 **74 plugin tests passed**, **43 Core tests passed**. An independent run with an
 empty sample directory passed 44 pure tests and skipped all 30 sample-based tests.
-The previous identifier-generation script reproduced 413 entries; this round
-replaces that data route with the pinned MIT-only subset.
+The previous identifier-generation script reproduced 413 entries; the roadmap
+round replaced that data route with the pinned MIT-only subset. The current
+unblock round restores the remaining five with separate community attribution.
 
 Roadmap validation: **89 plugin tests passed, 0 failed, 0 skipped** with the sample
 environment exported in the test command. API and research builds passed with zero
@@ -420,20 +440,31 @@ and marks unproven positional identities incomplete even when every node was
 emitted. Missing canonical paths in those reports cannot establish removal.
 Sections and uniquely keyed records retain their existing canonical paths.
 
+Unlicensed-source unblock validation: **135 passed, 0 failed, 0 skipped**, with
+the external artifact directory exported in the same test command. All five
+restored hashes occur in the supplied files; schema/enum cross-indexing, aliases,
+exact class/field/type/value matching, raw fallback and unchanged editor bounds
+are covered. All 12 files retain byte-identical no-op serialization. API build:
+**0 warnings, 0 errors**. Every reference/resource JSON regenerates identically
+after LF normalization. See the [unblock evidence and remaining owner checks](evidence/unlicensed.md).
+
 ## Sources and attribution
 
 | Dataset / code | Source, author, license | Retrieved / transformations |
 | --- | --- | --- |
 | HashNames; `pragmata-identifiers`; section names / declared types | [Pinned RE_RSZ schema](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json), alphazolam / praydog, [MIT](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/LICENSE) | 2026-10-28; observed hash subset; name hashing, group labels, type cross-index. Full notice in THIRD_PARTY_NOTICES.txt. |
+| `RestoredHashNames`; `pragmata-restored-identifiers` (5 names) | [Pinned REE string dump](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt), kvasszn / REE Save Editor; praydog (dump tooling). No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-28; only the five removed technical identifiers; Murmur3 and all-sample occurrence checks. No localized game text. Input hash and transformations in `community.source.md`. |
+| `pragmata-field-schema` (459 declarations) | [Pinned REE RSZ dump](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/rszpragmata.json), same authors. No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-28; known class/field hash crosswalk, original/storage types, array flag and declared size/alignment. Inferred metadata; no parser or edit-bound changes. SHA-256 in sidecar. |
+| `pragmata-enum-members` (230 numeric values, eight types) | [Pinned REE enum dump](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json), same authors. No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-28; only types referenced by selected schema declarations; aliases retained. Exact class/field/storage/value matching in primitive descriptions, Inferred semantics. SHA-256 in sidecar. |
 | Item ID placeholders / sample observation statistics | [Issue #21](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21), Save Toolkit contributors, [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) for original descriptions / computed facts | 2026-10-28; no gameplay name mapping; GUIDs fingerprinted; no sample payloads. |
 | `pragmata-item-evidence`: six inventory/mission opening-condition links | [Pinned mission JSON](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json), Egg Targaryen / dzxrly; [MIT](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/LICENSE) | 2026-10-28; exact numeric `OpenConditionItemID`/mission-ID pairs cross-indexed with observed PS5 item IDs. Inferred role; names/limits Unknown. Full notice embedded beside the dataset. |
 | `pragmata-missions`: 43 mission references / graph | Same pinned mission JSON and MIT source above, Egg Targaryen / dzxrly | 2026-10-28; ID/category/difficulty/order/condition/message metadata only. Original raw-ID labels; six item-to-18-mission edges are PC references, not verified PS5 unlock rules. Full notice/attribution in pack, UI, Sources and Info.References. |
-| External community map | [itemaps Pragmata map](https://itemaps.com/maps/pragmata), itemaps contributors; licence unverified | 2026-10-28; link only. No artwork, coordinates, marker labels/descriptions or totals imported. Checkpoint hashes/Unknown statuses are original save observations. |
+| External community map | [itemaps Pragmata map](https://itemaps.com/maps/pragmata), itemaps contributors; licence unverified | 2026-10-28; link only because no exact checkpoint-hash/marker mapping or reproducible pinned dataset is available. Proprietary imagery is excluded. Checkpoint hashes/Unknown statuses are original save observations. |
 | CityHash64 algorithm adaptation | [Google CityHash](https://github.com/google/cityhash), Google, MIT | Existing port; full notice in THIRD_PARTY_NOTICES.txt. |
 | AES-OFB vectors | [NIST SP 800-38A](https://csrc.nist.gov/pubs/sp/800/38/a/final), NIST, US government publication | Existing F.4.1 test vectors. |
 | DSSS / Mandarin / typed-stream observations | [Supplied verified research](../../docs/research/pragmata/README.txt), owner-supplied format evidence | Existing independently implemented crypto/format; no upstream editor code embedded. |
 
-Research-only sources (no unlicensed datasets embedded):
+Research history and remaining leads:
 
 - [neuro-pragmata runtime inventory/object-name resolvers](https://github.com/vaultic13/neuro-pragmata/tree/ae2ee572410e353ceae19bdc23f83f71687267dd/autorun/pragmata/bindings), Vaultic,
   [MIT](https://github.com/vaultic13/neuro-pragmata/blob/ae2ee572410e353ceae19bdc23f83f71687267dd/LICENSE), retrieved 2026-10-28:
@@ -461,8 +492,9 @@ Research-only sources (no unlicensed datasets embedded):
 - [rszpragmata.json](https://github.com/kvasszn/ree-save-editor/blob/main/assets/pragmata/rszpragmata.json),
   [strings_pragmata.txt](https://github.com/kvasszn/ree-save-editor/blob/main/assets/pragmata/strings_pragmata.txt),
   [enumspragmata.json](https://github.com/kvasszn/ree-save-editor/blob/main/assets/pragmata/enumspragmata.json):
-  earlier identifier candidates and enum research. Replaced by the MIT RE_RSZ subset;
-  no data from these unlicensed dumps is newly redistributed.
+  now imported as pinned factual subsets in the three attributed datasets above.
+  The large string dump is filtered to technical identifiers; proprietary localized
+  text is excluded. These are no longer refused for lack of a licence.
 - [Google CityHash](https://github.com/google/cityhash/blob/master/src/city.cc):
   CityHash64 algorithm, adapted under MIT; see [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
 - [NIST SP 800-38A](https://csrc.nist.gov/pubs/sp/800/38/a/final), Appendix F.4.1:
@@ -471,3 +503,15 @@ Research-only sources (no unlicensed datasets embedded):
   [REFramework nightly](https://github.com/praydog/REFramework-nightly/releases):
   further Pragmata dump/modding research leads. No code/data from these projects
   is embedded and no verified item dictionary was obtained from them.
+
+## Licence exclusions
+
+| Source (pinned revision where available) | Licence found | Reason / status | Alternative | What would unblock it |
+| --- | --- | --- | --- | --- |
+| REE [strings](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt), [RSZ](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/rszpragmata.json), [enums](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json), revision `4125e497f1ae84cc746bb4a99da612c48bea161e` | None found | **Resolved: imported (owner decision 2026-10-28)**: five names, 459 declarations, 230 enum values. Existing crypto/typed-stream code was already independently implemented, not copied. | Attributed factual subsets with exact hashes, raw-value fallback and Inferred semantics | Resolved; no further permission gate |
+| Proprietary localized text in the same REE string dump; Capcom art/icons/screenshots, including map imagery where applicable | No redistribution grant for game assets found | Still excluded: proprietary game assets/text, beyond factual technical identifiers | Original raw-ID labels; attributed user-pack route; external map link | Explicit redistribution permission for the particular asset/text, or original/permissively licensed replacement |
+
+No NC/no-redistribution dataset or GPL-2.0-only code is imported. Wiki/runtime
+leads remain research-only for missing exact save-ID linkage, not for lacking a
+licence. The community map likewise needs a stable dataset and a confirmed hash
+crosswalk before coordinate/marker facts can be associated with saved checkpoints.
