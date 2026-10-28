@@ -66,7 +66,7 @@ public sealed class GvasSampleTests
     }
 
     [Fact]
-    public void JediSettings_HaveKnownValuesAndGameplayIntegrityBlocksEdits()
+    public void JediSettings_HaveKnownValuesAndGameplayWritesWarnWhileIntegrityStaysReadOnly()
     {
         var files = SampleSaves.Load("PPSA02199").AllDiskFiles.Where(f => f.FileName == "ue4savegame.dpx.sav").ToArray();
         var settings = files.First(f => f.Directory.Name == "GameUserSettings");
@@ -79,11 +79,11 @@ public sealed class GvasSampleTests
         foreach (var file in files.Where(f => f.Directory.Name is "SaveGame00" or "Backup00"))
         {
             using var document = new UnrealGvasPlugin().Open(file);
-            Assert.False(document.CanEdit);
+            Assert.True(document.CanEdit);
             var fields = GvasFormatTests.Expand(document);
             Assert.NotEmpty(fields);
-            Assert.All(fields, f => Assert.True(f.Spec.ReadOnly));
-            Assert.False(document.ApplyEdits([new ValueEdit(fields[0].ValueId, fields[0].Value)]).Succeeded);
+            Assert.Contains(fields, f => f.Label.Contains("Crc32", StringComparison.Ordinal) && f.Spec.ReadOnly);
+            Assert.Contains(fields, f => !f.Spec.ReadOnly);
         }
     }
 }

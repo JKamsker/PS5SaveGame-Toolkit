@@ -8,8 +8,19 @@ bundled native in-memory SQLite dependency.
 
 Round-2 non-Hogwarts work adds F8 named/nested property views, attributed storage
 catalogs, corrected Jedi actor decoding and extended checksum evidence. See
-[round-2 evidence and exact owner checklist](ROUND2.md). Jedi/Sackboy gameplay
-writes remain disabled; no new bulk action is eligible for F6 preview/apply yet.
+[round-2 evidence and exact owner checklist](ROUND2.md). Existing-value writes are
+enabled in this round with explicit rejection warnings; no bulk action is exposed.
+
+## Enabled writes and their evidence
+
+| write | confidence | evidence | integrity status | owner validation needed |
+| --- | --- | --- | --- | --- |
+| Jedi gameplay and Sackboy General existing scalar fields (checksum fields remain read-only) | Inferred | Field names/types and bounded scalar spans match the supplied PS5 captures; edits reopen byte-exactly | CRC/checksum coverage is unproven; the game may reject or overwrite the save | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): controlled before/after captures and console load/save/reload for each title |
+| Hogwarts existing integer, real and text cells in either decoded database image | Inferred | Shared `SaveToolkit.Codecs` SQLite image, integrity check, stored Kraken frame rebuild, fresh GVAS parse and independent SQLite reopen | SQLite `PRAGMA integrity_check` is required; stored-block game acceptance is unproven and output is capped at 16 MiB | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged reconstruction, per-event image/row mapping, slot allocation and console reload |
+
+All enabled writes are Experimental. Warnings are shown beside each field and returned
+in the edit outcome. Hogwarts does not edit identity columns, blobs, catalog reference
+cells, metadata-only files or malformed/partial database pairs.
 
 ## Sample coverage and file roles
 
@@ -19,9 +30,9 @@ GVAS magic obtained by decompressing a supported envelope.
 
 | Title | Observed format and roles | Result |
 | --- | --- | --- |
-| PPSA01603, Hogwarts Legacy | `ue4savegame.ps5.sav`: plain GVAS, UE 4.27.2, package 524, 72 custom versions. `SaveGameList` contains slot metadata; `SavedUserOptions` an opaque settings array; `HL0000`–`HL0014` contain metadata and two Kraken/SQLite arrays. 34 files, 17 distinct payloads. | All round-trip exactly. All Hogwarts writes disabled. Both database images expose independent named F8 tables and attributed F4 labels. |
-| PPSA02199, STAR WARS Jedi: Fallen Order | `ue4savegame.dpx.sav`: plain GVAS, UE 4.25.0, package 518, 56 custom versions. `GameUserSettings` has settings/structs. `SaveGame00`/`Backup00` have zlib actor records and `Crc32`. 6 files, 3 distinct payloads. | All round-trip exactly. Settings editable. Gameplay/backup documents read-only: checksum coverage unknown. |
-| PPSA01288, Sackboy: A Big Adventure | `General`: UE 4.25.1 tagged progression, including `CollectabellsStored` and `Checksum`. `LevelImages_*` / `CostumeThumbnails_*`: GVAS image sets. 20 files, 6 distinct payloads. | All round-trip exactly. General remains read-only because its checksum coverage is unknown. Image sets contain opaque compressed textures. |
+| PPSA01603, Hogwarts Legacy | `ue4savegame.ps5.sav`: plain GVAS, UE 4.27.2, package 524, 72 custom versions. `SaveGameList` contains slot metadata; `SavedUserOptions` an opaque settings array; `HL0000`–`HL0014` contain metadata and two Kraken/SQLite arrays. 34 files, 17 distinct payloads. | All round-trip exactly. Existing database cells can be edited through the bounded codec path; metadata and malformed pairs remain read-only. |
+| PPSA02199, STAR WARS Jedi: Fallen Order | `ue4savegame.dpx.sav`: plain GVAS, UE 4.25.0, package 518, 56 custom versions. `GameUserSettings` has settings/structs. `SaveGame00`/`Backup00` have zlib actor records and `Crc32`. 6 files, 3 distinct payloads. | All round-trip exactly. Existing gameplay scalar fields are editable with an unproven-checksum warning; `Crc32` and compressed actor payloads remain read-only. |
+| PPSA01288, Sackboy: A Big Adventure | `General`: UE 4.25.1 tagged progression, including `CollectabellsStored` and `Checksum`. `LevelImages_*` / `CostumeThumbnails_*`: GVAS image sets. 20 files, 6 distinct payloads. | All round-trip exactly. Existing General scalar fields are editable with an unproven-checksum warning; `Checksum` and opaque image payloads remain read-only. |
 | PPSA10695, Atomic Heart | Starts `01 00 00 00`, then a UE-style header and `/Script/SaveExtension.SlotInfo`, followed by custom framing. No GVAS magic anywhere. | Unclaimed here; see the separate [AtomicHeart plugin](../AtomicHeart/README.md), which validates framing and SHA-1. |
 | PPSA01802 | Versioned binary with region names including `W0_Ruins_Region`. No GVAS magic. | Unclaimed; unknown format, no established compression wrapper. |
 | PPSA02343 | UTF-8 JSON with a `Profile` object. | Unclaimed; not GVAS. |
@@ -61,9 +72,11 @@ tests ensure that the other four titles' filenames never cause false matches.
   Unrecognized tag extensions/version layouts throw SaveFormatException when safe
   payload boundaries cannot be established.
 * Edits replace scalar spans in the original bytes. Every enclosing property size
-  and struct-array inner size is adjusted by the length delta. Serialize reparses
-  the result and compares the entire decoded tree and values before returning.
-  Undo restores byte-identical output. No decrypted sample data is embedded.
+  and struct-array inner size is adjusted by the length delta. Hogwarts database
+  writes replace only the two modeled array payloads and preserve surrounding GVAS
+  bytes. Serialize reparses the result and compares the decoded tree and values
+  before returning. Undo restores byte-identical output. No decrypted sample data
+  is embedded.
 
 ## Compression, SQLite and checksums
 
@@ -79,20 +92,25 @@ UE chunk magic `C1 83 2A 9E 00 00 00 00`; the first compressed stream in each be
 `8C 06`, verified in HL0010. The shared managed Kraken decoder now exposes both
 SQLite images through the shared in-memory helper, with separate integrity checks.
 All 30 images across 15 distinct gameplay snapshots decode and serialize without
-changes byte-identically. Original compressed arrays remain untouched by runtime
-serialization. `RawMiniMapImage` and settings arrays are likewise read-only.
-See [Hogwarts evidence and owner checklist](HOGWARTS.md) for framing, row identities,
-F1 diffs, write-probe results and remaining console/slot-budget gates.
+changes byte-identically. On an edit, the write path is SQLite `Serialize()` (which
+also runs `PRAGMA integrity_check`), then stored Kraken blocks, then a size-adjusted
+GVAS replacement. The result is parsed again, both arrays are independently walked,
+and both images pass a fresh SQLite integrity check before export. Stored-block
+acceptance is unproven; a conservative 16 MiB slot budget rejects larger output.
+`RawMiniMapImage` and settings arrays are likewise read-only. See [Hogwarts evidence
+and owner checklist](HOGWARTS.md) for framing, row identities, F1 diffs, write-probe
+results and remaining console gates.
 
 Jedi actor data has zlib framing, alongside explicit `UncompressedActorRecordsSize`
 and `Crc32` properties. Standard IEEE CRC32, CRC32C, FNV-1a, Adler32 and byte-sum
 candidate vectors over the known whole-file/zeroed-field range do not match the
 supplied gameplay records; independent check vectors are in the plugin tests.
-Coverage/algorithm is unknown, so the entire gameplay document is read-only. More
-generally, visible property names containing CRC/checksum/signature disable writes.
-This conservative guard cannot detect integrity metadata hidden in opaque game
-payloads. GVAS has no standard container checksum. No embedded encryption was
-found in the claimed containers.
+Coverage/algorithm is unknown, so the known `Crc32`/`Checksum` fields remain read-only
+while other existing scalar fields are enabled with an explicit game-rejection
+warning. More generally, unknown documents with visible CRC/checksum/signature fields
+remain read-only. This conservative guard cannot detect integrity metadata hidden in
+opaque game payloads. GVAS has no standard container checksum. No embedded encryption
+was found in the claimed containers.
 
 Outer Oodle/unknown envelopes remain unsupported. Without verified inner GVAS,
 Probe declines them instead of inferring format from a filename.
@@ -113,9 +131,11 @@ Hogwarts adds independent
 Character, Inventory, Progression and Collections F8 tables for each image; every
 other table is available lazily. The pinned MIT Legilimens F2 catalog supplies 699
 collectible location records, with exact table/column-qualified F4 reference fields.
-All Hogwarts metadata and database fields remain read-only. Top-level fields appear only
-in Search to satisfy global value-ID uniqueness; nested fields appear in the
-explorer. IDs use ordinal paths, stable across length changes.
+Hogwarts metadata and malformed/partial database pairs remain read-only. Existing
+integer, real and text cells in a complete pair are editable with Inferred confidence;
+identity columns, blobs and catalog reference cells stay read-only. Top-level fields
+appear only in Search to satisfy global value-ID uniqueness; nested fields appear in
+the explorer. IDs use ordinal paths, stable across length changes.
 Opaque values expose paged read-only hex.
 
 `Verified` means the serialized name/storage type or sourced struct component
@@ -145,8 +165,9 @@ The Hogwarts round adds all-image integrity/no-op checks, F1 row diff evidence,
 F8 host registration/query bounds, F2/F4 attribution and candidate resolution,
 corruption isolation, and test-only stored-frame GVAS reconstruction. Sample
 tests require the artifacts environment variable in the same command as the run.
-Validated for the non-Hogwarts round 2: **79 passed, 0 failed, 0 skipped**, including
-all Hogwarts regressions, conformance, query bounds/identities and corruption tests;
+Validated for the write-enable round: **81 passed, 0 failed, 0 skipped**, including
+Jedi/Sackboy warned scalar edits, Hogwarts SQLite/stored-block edit/reopen, all
+Hogwarts regressions, conformance, query bounds/identities and corruption tests;
 API build: **0 warnings, 0 errors**.
 
 ```powershell
@@ -160,9 +181,9 @@ added in this round remain below 300 lines; repository policy is enforced in rev
 
 ## Open problems
 
-1. Resolve Jedi gameplay checksum coverage before enabling gameplay writes.
+1. Resolve Jedi/Sackboy checksum coverage and validate their gameplay effects on console.
 2. Validate Hogwarts database roles, effective gameplay limits, stored-output slot
-   budgets and console load/save/reload behavior before offering database edits.
+   allocation and console load/save/reload behavior before relying on database edits.
 3. Verify compression rewriting against actual wrapped PS5 samples.
 4. Add game schemas for opaque map/set structs, native values, complex FText and
    version extensions when samples become available.
@@ -201,8 +222,8 @@ The older observations below remain valid but are not checksum-repair proof.
 
 Sackboy General has two distinct supplied snapshots: both `CollectabellsStored`
 and `TotalCollectabellsCollected` read 445 in one and 322 in the other. These are verified
-serialized names and values, not in-game validated edit targets. `Checksum`
-is present, so the existing integrity guard keeps General read-only.
+serialized names and values, not in-game validated edit targets. `Checksum` remains
+read-only; other existing General scalars are enabled with the write-round warning.
 
 All companion files use `/Script/GingerBread.GingerbreadSaveImageSet`, including
 an empty `LevelImages_05`. Nonempty image sets have a tagged `Data` struct with
@@ -230,7 +251,8 @@ sample, using external zlib seeds 0 / FFFFFFFF and both result complements.
 No match was found. Committed tests reproduce the principal ranges and also
 reject CRC32C variants, with independent standard check vectors. This does not
 rule out other seeds, coverage, serialization order, or a non-CRC algorithm.
-Gameplay writes remain blocked; no checksum-repair claim is made.
+Gameplay scalar writes are enabled with warnings; no checksum-repair claim is made
+and the explicit integrity fields remain read-only.
 
 ## Sources
 

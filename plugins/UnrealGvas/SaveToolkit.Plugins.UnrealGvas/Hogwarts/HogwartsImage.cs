@@ -52,7 +52,7 @@ public static class HogwartsImage
         return decoded[PrefixBytes..];
     }
 
-    /// <summary>Research emission only. Not connected to document writes; original frames serve no-op export.</summary>
+    /// <summary>Emit bounded stored Kraken blocks for the validated Hogwarts write path.</summary>
     public static byte[] EncodeStored(ReadOnlySpan<byte> database)
     {
         if (database.Length < 100 || database.Length > MaxDecodedBytes - PrefixBytes ||

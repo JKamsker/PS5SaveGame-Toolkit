@@ -33,7 +33,7 @@ public sealed class NonHogwartsSampleViewTests
             Assert.Equal(first.Rows.Count, first.Rows.Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());
             Assert.All(first.Rows.SelectMany(row => row.Cells.Values), cell => Assert.IsType<TextNode>(cell));
         }
-        if (directory != "GameUserSettings") Assert.False(session.CanEdit);
+        Assert.True(session.CanEdit);
         if (tab == "Actors")
         {
             var query = Assert.IsAssignableFrom<IQueryableDocument>(document);
@@ -64,8 +64,8 @@ public sealed class NonHogwartsSampleViewTests
         Assert.Contains("Unknown", ((TextNode)row.Cells["evidence"]).Text);
         Assert.Null(references.Catalog("unrealgvas_sackboy_fields")!.Find("invented-id"));
         var fields = GvasFormatTests.Expand(document);
-        Assert.All(fields, field => Assert.True(field.Spec.ReadOnly));
-        Assert.False(document.ApplyEdits([new(fields[0].ValueId, fields[0].Value)]).Succeeded);
+        Assert.Contains(fields, field => field.Label.Contains("Checksum", StringComparison.Ordinal) && field.Spec.ReadOnly);
+        Assert.Contains(fields, field => !field.Spec.ReadOnly);
     }
 
     [Theory]

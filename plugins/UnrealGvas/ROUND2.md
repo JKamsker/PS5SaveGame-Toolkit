@@ -102,9 +102,11 @@ byte-table inversion. No downloaded implementation was executed. Reference
 definitions: [CRC RevEng](https://reveng.sourceforge.io/crc-catalogue/17plus.htm),
 [RFC 1950](https://www.rfc-editor.org/rfc/rfc1950).
 
-Both gameplay writers remain disabled. Corruption tests reject actor decoding
-after trailer/count/declared-size damage; they do **not** claim to validate the
-unresolved gameplay checksum. Original-file passthrough still works for inspection.
+Existing Jedi gameplay and Sackboy scalar writers are enabled with a warning;
+explicit `Crc32`/`Checksum` fields and opaque actor/image payloads remain read-only.
+Corruption tests reject actor decoding after trailer/count/declared-size damage;
+they do **not** claim to validate the unresolved gameplay checksum. Original-file
+passthrough still works for inspection.
 
 ## Catalogs and rights
 
@@ -128,11 +130,11 @@ See the README attribution table and adjacent resource source files.
 
 ## Writes and F6 gate
 
-No new gameplay writes, structural operations, presets or bulk actions are
-enabled. Byte-identical no-op and undo/reopen tests retain the existing generic
-scalar editor; they do not prove game effects or checksum repair. Once a future
-action has verified targets, bounds, dependencies, integrity coverage and console
-evidence, it must implement `IActionPlanningDocument` with
+No new structural operations, presets or bulk actions are enabled. Existing scalar
+writes retain byte-identical no-op and undo/reopen behavior but do not prove game
+effects or checksum repair. Once a future bulk action has verified targets, bounds,
+dependencies, integrity coverage and console evidence, it must implement
+`IActionPlanningDocument` with
 `ActionNode.SupportsPlanning`, use F6 preview/apply and F8 query scopes for
 select-all, expose all derived changes, and undo as one atomic step. There is no
 plugin-local preview/apply substitute or direct bulk-action bypass.
