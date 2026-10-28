@@ -3,7 +3,6 @@ using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Plugins.Pragmata.Crypto;
 using SaveToolkit.Plugins.Pragmata.Format;
-using SaveToolkit.Plugins.Pragmata.Research;
 using SaveToolkit.Plugins.Pragmata.Views;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
@@ -41,18 +40,18 @@ public sealed class EnabledWriteTests
             var targets = fields.Select(field => Find(document.Layout.Roots, field.ValueId["inspect/value/".Length..])).ToArray();
             for (var index = 0; index < targets.Length; index++) Assert.Equal(fields[index].Spec, document.Bounds.Spec(targets[index]));
             AssertOnlyRanges(before, after, targets);
-            var decoder = new PragmataDecoder();
+            var decoder = new CanonicalTestDecoder();
             var baseline = decoder.Decode(before, new SaveLayout(before).Roots, Full);
             var semantic = SemanticDiffer.Compare(baseline,
                 decoder.Decode(after, new SaveLayout(after).Roots, Full));
-            Assert.False(semantic.InputTruncated);
+            Assert.Equal(baseline.Truncated, semantic.InputTruncated);
             Assert.False(semantic.Truncated);
             // Changing a stored identity can legitimately appear as removed/added F1 paths.
             // Compare the complete expected delta from only the requested primitive patches.
             var expected = before.ToArray();
             for (var index = 0; index < targets.Length; index++) PrimitiveCodec.Write(targets[index], expected, Other(fields[index]));
             var intended = SemanticDiffer.Compare(baseline, decoder.Decode(expected, new SaveLayout(expected).Roots, Full));
-            Assert.False(intended.InputTruncated);
+            Assert.Equal(baseline.Truncated, intended.InputTruncated);
             Assert.False(intended.Truncated);
             Assert.NotEmpty(semantic.Changes);
             Assert.Equal(intended.Changes, semantic.Changes);

@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using SaveToolkit.Plugins.Pragmata.Format;
 using SaveToolkit.Sdk.Values;
 
-namespace SaveToolkit.Plugins.Pragmata.Research;
+namespace SaveToolkit.Plugins.Pragmata.Diff;
 
 internal static class RecordIdentities
 {

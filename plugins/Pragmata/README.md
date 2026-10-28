@@ -32,8 +32,10 @@ test has been performed; only a human should promote this plugin to Stable.
   sorting and stable physical row keys. F6 all-matching selection includes unloaded
   pages and exclusions through Core's resolver; querying publishes bindings before
   planning. The supplied 90-row inventories retain their compact table.
-- A developer-only F1 decoder and differential harness, plus a versioned section/ID
-  manifest. Canonical paths align reordered sections and uniquely keyed records.
+- An F12 SDK decoder hook, `pragmata-canonical-v1`, selectable by the stock
+  `savediff` CLI, plus a versioned section/ID manifest. Canonical paths align
+  reordered sections and uniquely keyed records; shared bounded F8 traversal
+  covers the inventory through `--decoder pragmata`.
   See [evidence and exact owner capture checklist](evidence/README.md).
 - Synchronized playtime and elapsed/demo/pause editing, with every derived value
   reported in `EditOutcome.Changes` for framework undo/redo.
@@ -358,6 +360,17 @@ float-bound regressions and malformed-input rejection. API build: **0 warnings,
 0 errors**. Pack regeneration is byte-identical. No GUI/browser run is claimed.
 See the [updated requirement audit](evidence/completion.md).
 
+F12 follow-up validation: **132 passed, 0 failed, 0 skipped**, with the external
+artifact directory exported in the test command. The canonical SDK hook emits one
+value per parsed node across all 12 samples, preserves existing identity paths,
+rejects corruption, honors sink bounds and flags positional identity uncertainty.
+Shared F8 traversal reads all 251 synthetic inventory rows across different page
+sizes, detects a last-page quantity edit and reports row/page/byte caps. The stock
+CLI lists/selects `pragmata-canonical-v1`; a cross-slot smoke comparison decoded
+178,525 / 176,874 values and 74,523 semantic changes with zero decoder errors.
+These are uncontrolled slot differences, not causal game evidence. API build:
+**0 warnings, 0 errors**. All changes stay inside this plugin folder.
+
 All current C# files are below 300 lines. Completion-round housekeeping removes
 legacy plugin-local hooks, build targets and lint tooling to follow the current
 project rule prohibiting repository tooling inside plugin folders.
@@ -366,7 +379,7 @@ project rule prohibiting repository tooling inside plugin folders.
 
 | Feature | Status | Where / concrete limitation |
 | --- | --- | --- |
-| F1 SaveDiff | Used | Research `PragmataDecoder`, shared diff engine and versioned evidence manifest; all-sample synthetic quantity/write isolation. |
+| F1 SaveDiff | Used | Production `pragmata-canonical-v1` SDK hook, shared diff engine and versioned evidence manifest; all-sample synthetic quantity/write isolation. |
 | F2 reference packs | Added this round | Existing 408 identifier/27 section/90 placeholder/six mission-link records plus 43 attributed PC mission references in pack 1.2.0; pinned sources/assets. |
 | F3 rich cells | Used | Inventory reference/quantity confidence, item details with image/provenance when supplied, selection action cells; F8 detail cells. |
 | F4 pickers | Added this round | Writable inventory item IDs; browse-only mission/item-evidence references. Other ID fields have no ID-matched catalogue and remain exact raw values. |
@@ -377,7 +390,7 @@ project rule prohibiting repository tooling inside plugin folders.
 | F9 graphs/maps | Added this round | Unknown-state item-to-mission opening-condition DAG and bounded checkpoint map/list with field targets and external map link. No invented skill edges or locations. |
 | F10 exact/nullable/union | Used / N/A variants | UInt64/Int64 use exact Int128 wire strings; this binary schema has no numeric lexemes, null primitive or discriminated-union storage to expose. |
 | F11 shared codecs | N/A | Supported DSSS flags 0x10 contain uncompressed Mandarin AES-OFB, neither Kraken nor SQLite. Unsupported flags reject. |
-| F12 decoder/traversal | Pending #32 | Keep the canonical research decoder; do not duplicate pending shared discovery/traversal. |
+| F12 decoder/traversal | Added | SDK-only `ISaveDecoderProvider`/`ISaveDecoderHook` registers `pragmata-canonical-v1` with the stock CLI. `--decoder pragmata` uses shared bounded F8 traversal, tested across 251 inventory rows and row/page/byte caps. Research executable removed. |
 | F13 inspection/browse/sort/durations | Added this round / N/A float duration | `Mutates=false` mission inspection, browse-only references, catalogue category/sort. Known timers are integer microseconds already using Duration; unidentified floats have no proven time unit. |
 
 ## SDK requests
@@ -391,11 +404,21 @@ query resolution safely publishes ordinary fields/specs for every selected row
 before F6 planning; 251-row tests cover apply/reopen, semantic review, byte-only
 quantity deltas and one-step undo/redo. No shared change is needed for that path.
 
-F1's stock CLI resolves plugin IDs through `PluginViewDecoder`; it has no external
-decoder-assembly registration option. The plugin-local research executable consumes
-`ISaveDecoder` directly through the shared F1 engine, so there is no production plugin
-dependency on Testing and no duplicate diff engine. External decoder discovery and
-F8 traversal are **pending #32**; retain the research decoder until it lands.
+F12 request resolved by [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32):
+`PragmataPlugin` implements the SDK's optional `ISaveDecoderProvider` and publishes
+`pragmata-canonical-v1`. The stock CLI selects this hook explicitly; `auto` retains
+the framework view behavior. The production plugin still depends only on the SDK.
+The research executable and its index/compare workaround are removed; tests use
+only a thin adapter around the production hook. The versioned evidence manifest
+and its attribution are retained.
+
+`--decoder pragmata` uses F12's shared `PluginViewDecoder`, including bounded F8
+inventory traversal above 200 rows. Query budgets and incomplete-input warnings
+come from the framework; no plugin-local traversal is needed. The canonical hook
+honors sink depth/output/file bounds, fingerprints strings and opaque values,
+and marks unproven positional identities incomplete even when every node was
+emitted. Missing canonical paths in those reports cannot establish removal.
+Sections and uniquely keyed records retain their existing canonical paths.
 
 ## Sources and attribution
 

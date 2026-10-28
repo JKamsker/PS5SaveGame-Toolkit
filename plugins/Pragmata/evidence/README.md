@@ -32,36 +32,42 @@ These are uncontrolled slots, **not three causal operation captures**. No churn
 is masked because no controlled no-op capture proves a safe mask. A second index
 run reproduced `manifest.v1.json` byte-identically.
 
-The research project supplies `ISaveDecoder` directly to the F1 engine. Sections
+The production plugin publishes the SDK hook `pragmata-canonical-v1`. Sections
 align by unique class hash, records by unique scalar IDs/fingerprinted GUIDs, and
-unkeyed/duplicate records by positions with explicit warnings. Unique primitive
-arrays align as value sets; physical reorder is still visible in the byte diff.
-Strings and opaque values are fingerprinted in semantic reports. Limits and
-truncation are reported; capped/missing paths never prove a removal. Detailed
-plaintext reports include bounded hex windows and must be reviewed before sharing.
-Keep them under `%TEMP%`, outside the repository and artifacts.
+unkeyed/duplicate records by positions with explicit incomplete-input warnings.
+Unique primitive arrays align as value sets; physical reorder remains visible
+in the byte diff. Strings and opaque values are fingerprinted. Unproven positional
+identities set `inputTruncated` even if every node was emitted; capped/missing
+paths never prove removal. Native-hook byte reports describe the encrypted DSSS
+container; the historical exploratory counts above came from plaintext research
+comparisons. Keep detailed reports under `%TEMP%`, outside the repository and
+artifacts, and review them before sharing.
 
 ```powershell
 $archive = Join-Path $env:SAVETOOLKIT_ARTIFACTS 'PPSA02530_saves_dec(1).zip'
-$harness = 'plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Research/Pragmata.Research.csproj'
-dotnet run --project tools/SaveToolkit.SaveDiff -- list $archive --format json --out (Join-Path $env:TEMP 'pragmata-generations.json')
-dotnet run --project tools/SaveToolkit.SaveDiff -- compare $archive $archive --before-gen 0 --after-gen latest --format json --out (Join-Path $env:TEMP 'pragmata-f1.json')
-dotnet run --project $harness -- index $archive <MIT-rszpragmata.json> plugins/Pragmata/evidence/manifest.v1.json
-dotnet run --project $harness -- compare $archive data000.bin 0 $archive data001Slot.bin 0 (Join-Path $env:TEMP 'pragmata-comparison.json')
+$diff = 'tools/SaveToolkit.SaveDiff'
+
+dotnet run --project $diff -- list $archive --format json --out (Join-Path $env:TEMP 'pragmata-generations.json')
+dotnet run --project $diff -- list-decoders
+
+dotnet run --project $diff -- compare $archive $archive --before-gen 0 --after-gen latest --decoder pragmata-canonical-v1 --format json --out (Join-Path $env:TEMP 'pragmata-f12-native.json')
+
+# View decoder: F12 pages F8 inventory/evidence collections within shared budgets.
+dotnet run --project $diff -- compare $archive $archive --decoder pragmata --max-query-rows 100000 --max-query-pages 1000 --max-query-bytes 33554432 --format json --out (Join-Path $env:TEMP 'pragmata-f12-view.json')
 ```
 
-`compare` exits 0 for equal, 1 for different, 2 for error. The research project
-depends on Testing; its project filename avoids the API's plugin-project glob.
-Production still depends only on the SDK. The stock F1 CLI exposes view decoders;
-use this harness for the canonical decoder rather than treating view-index paths
-as identity evidence.
+`compare` exits 0 for equal, 1 for different, 2 for error. No research executable
+or production Testing dependency remains. The historical manifest is preserved;
+its schema/index provenance remains above. Test-only plaintext fixtures exercise
+the production hook without duplicating decoding or identity logic.
 
 ## Scope and owner checklist
 
 The [completion audit](completion.md) supersedes earlier round-2 read-only/query
 limitations and classifies every requirement. F9 graphs/maps, F13 browse/inspection
-and F8 inventories above 200 now integrate with the fixed-size writer; F12 remains
-pending #32. No structural or new gameplay-family write is added this round.
+and F8 inventories above 200 integrate with the fixed-size writer. F12 is now
+adopted through the SDK hook and shared bounded traversal. No structural or new
+gameplay-family write is added in this follow-up.
 
 Phase 1 indexing/harness and Phase 2 reference integration/read-only navigation
 are implemented. Causal semantics, actual item dictionaries, mapped locations and
