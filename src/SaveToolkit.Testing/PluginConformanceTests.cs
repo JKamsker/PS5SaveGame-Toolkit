@@ -221,7 +221,7 @@ public abstract partial class PluginConformanceTests<TPlugin>
     {
         var index = new ViewIndex();
         var fields = new List<FieldNode>();
-        var seenIds = new HashSet<string>(StringComparer.Ordinal);
+        var seenSpecs = new Dictionary<string, FieldSpec>(StringComparer.Ordinal);
         var lazy = new Queue<string>();
         var root = document.BuildView();
         Accept(root);
@@ -246,8 +246,20 @@ public abstract partial class PluginConformanceTests<TPlugin>
                 switch (n)
                 {
                     case FieldNode f:
-                        Assert.True(seenIds.Add(f.ValueId), $"{file.RelativePath}: value id '{f.ValueId}' appears twice in the view.");
-                        fields.Add(f);
+                        // The same value may be shown in several places (e.g. a search table and a tree),
+                        // but every occurrence must describe it identically.
+                        if (seenSpecs.TryGetValue(f.ValueId, out var earlier))
+                        {
+                            Assert.True(
+                                JsonSerializer.Serialize(earlier, ToolkitJson.Options) == JsonSerializer.Serialize(f.Spec, ToolkitJson.Options),
+                                $"{file.RelativePath}: value id '{f.ValueId}' appears with different specs.");
+                        }
+                        else
+                        {
+                            seenSpecs[f.ValueId] = f.Spec;
+                            fields.Add(f);
+                        }
+
                         break;
                     case SectionNode { LazyId: { } id }:
                         lazy.Enqueue(id);

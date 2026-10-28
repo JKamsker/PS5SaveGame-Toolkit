@@ -13,3 +13,4 @@ TestResults/
 node_modules/
 web/dist/
 src/SaveToolkit.Api/wwwroot/
+.vitest/

@@ -1,0 +1,142 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { api, ApiError } from "../../api/client";
+import type { EditResult, FieldValue, SaveFileInfo } from "../../api/protocol";
+import { DocumentContext, DocumentStore, useDocumentState, type DocumentContextValue } from "../../state/documentStore";
+import { ViewRenderer } from "./ViewRenderer";
+
+interface DocumentEditorProps {
+  workspaceId: string;
+  documentId: string;
+  file: SaveFileInfo | undefined;
+  onSwitchPlugin: (pluginId: string) => void;
+  onToast: (message: string, isError?: boolean) => void;
+}
+
+const maturityText = { ReadOnly: "read-only", Experimental: "experimental", Stable: "tested in-game" } as const;
+
+export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, onToast }: DocumentEditorProps) {
+  const queryClient = useQueryClient();
+  const query = useQuery({ queryKey: ["document", workspaceId, documentId], queryFn: () => api.document(workspaceId, documentId) });
+  const store = useMemo(() => (query.data ? new DocumentStore(query.data.state) : null), [query.data]);
+  const [structureVersion, setStructureVersion] = useState(0);
+
+  const handleResult = useCallback(
+    async (result: EditResult) => {
+      if (!store) return;
+      store.apply(result);
+      if (result.structureChanged) {
+        await query.refetch();
+        setStructureVersion((v) => v + 1);
+      }
+      if (result.message) onToast(result.message);
+      for (const w of result.warnings) onToast(w);
+      void queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
+    },
+    [store, query, queryClient, workspaceId, onToast],
+  );
+
+  const run = useCallback(
+    async (call: () => Promise<EditResult>): Promise<EditResult | null> => {
+      try {
+        const result = await call();
+        await handleResult(result);
+        if (!result.ok && result.errors.some((e) => e.valueId === "")) onToast(result.errors[0]?.message ?? "Rejected", true);
+        return result;
+      } catch (error) {
+        onToast(error instanceof ApiError ? error.message : "The server could not be reached.", true);
+        return null;
+      }
+    },
+    [handleResult, onToast],
+  );
+
+  const context = useMemo<DocumentContextValue | null>(() => {
+    if (!query.data || !store) return null;
+    return {
+      workspaceId,
+      documentId,
+      canEdit: query.data.canEdit,
+      store,
+      structureVersion,
+      commit: async (valueId: string, value: FieldValue) => (await run(() => api.edit(workspaceId, documentId, [{ valueId, value }])))?.ok ?? false,
+      runAction: async (actionId: string, parameters: Record<string, FieldValue>) =>
+        (await run(() => api.action(workspaceId, documentId, actionId, parameters))) ?? { ok: false, errors: [], changes: [], warnings: [], structureChanged: false, state: store.state },
+    };
+  }, [query.data, store, workspaceId, documentId, structureVersion, run]);
+
+  if (query.isPending) return <div className="empty">Opening…</div>;
+  if (query.isError || !context || !query.data) {
+    return (
+      <div className="empty">
+        <h2>This file could not be opened</h2>
+        <p>{query.error?.message ?? "Unknown error."}</p>
+      </div>
+    );
+  }
+
+  const doc = query.data;
+  return (
+    <DocumentContext.Provider value={context}>
+      <article className="editor">
+        <header className="editor__head">
+          <div>
+            <h1 className="editor__title">{doc.title}</h1>
+            <span className="editor__file mono">{doc.filePath}</span>
+          </div>
+          <HistoryButtons store={context.store} onUndo={() => run(() => api.undo(workspaceId, documentId))} onRedo={() => run(() => api.redo(workspaceId, documentId))} />
+          <a className="btn btn--small btn--quiet" href={api.downloadUrl(workspaceId, documentId)} download>
+            Download file
+          </a>
+          <div className="editor__plugin">
+            <span>
+              {doc.plugin.name} <span className={`tag tag--${doc.plugin.maturity.toLowerCase()}`}>{maturityText[doc.plugin.maturity]}</span>
+            </span>
+            {file && file.matches.length > 1 && (
+              <label>
+                <span className="visually-hidden">Open with</span>
+                <select value={doc.plugin.id} onChange={(e) => onSwitchPlugin(e.target.value)}>
+                  {file.matches.map((m) => (
+                    <option key={m.pluginId} value={m.pluginId}>
+                      Open with {m.pluginName}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </div>
+        </header>
+        {!doc.canEdit && <p className="notice notice--Muted">This plugin shows the data but cannot write it.</p>}
+        <ViewRenderer node={doc.view} />
+      </article>
+    </DocumentContext.Provider>
+  );
+}
+
+function HistoryButtons({ store, onUndo, onRedo }: { store: DocumentStore; onUndo: () => void; onRedo: () => void }) {
+  const { state } = useDocumentState(store);
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z") return;
+      e.preventDefault();
+      if (e.shiftKey) {
+        if (store.state.canRedo) onRedo();
+      } else if (store.state.canUndo) onUndo();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [store, onUndo, onRedo]);
+
+  return (
+    <div className="bar__actions">
+      <button type="button" className="btn btn--small" disabled={!state.canUndo} onClick={onUndo} title="Undo (Ctrl+Z)">
+        Undo
+      </button>
+      <button type="button" className="btn btn--small" disabled={!state.canRedo} onClick={onRedo} title="Redo (Ctrl+Shift+Z)">
+        Redo
+      </button>
+    </div>
+  );
+}

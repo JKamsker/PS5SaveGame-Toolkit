@@ -1,0 +1,113 @@
+import { useState } from "react";
+import { api } from "../../api/client";
+import type { SaveDirectory, SaveFileInfo, Workspace } from "../../api/protocol";
+import { formatBytes } from "../../lib/values";
+
+interface SlotRailProps {
+  workspace: Workspace;
+  activeFileId: string | undefined;
+  onOpen: (file: SaveFileInfo) => void;
+}
+
+/** Save directories as slots with their console key art; files of the selected slot unfold below. */
+export function SlotRail({ workspace, activeFileId, onOpen }: SlotRailProps) {
+  const [showBackups, setShowBackups] = useState(false);
+  const dirtyFiles = new Set(workspace.documents.filter((d) => d.isDirty).map((d) => d.fileId));
+  const activeDir = workspace.titles.flatMap((t) => t.directories).find((d) => d.files.some((f) => f.id === activeFileId));
+  const [expanded, setExpanded] = useState<string | undefined>(activeDir?.id);
+  const hiddenBackups = workspace.titles.flatMap((t) => t.directories).filter((d) => d.isBackup && d.twinIdentical).length;
+
+  return (
+    <nav className="rail" aria-label="Save directories">
+      {hiddenBackups > 0 && (
+        <label className="rail__toggle">
+          <input type="checkbox" checked={showBackups} onChange={(e) => setShowBackups(e.target.checked)} />
+          Show {hiddenBackups} identical console backups
+        </label>
+      )}
+      {workspace.titles.map((title) => (
+        <section key={title.titleId}>
+          <header className="rail__title">
+            <h2 className="rail__game">{title.gameName ?? title.titleId}</h2>
+            {title.gameName && <span className="rail__titleid mono">{title.titleId}</span>}
+          </header>
+          {title.directories
+            .filter((d) => showBackups || !(d.isBackup && d.twinIdentical))
+            .map((dir) => (
+              <Slot
+                key={dir.id}
+                workspaceId={workspace.id}
+                dir={dir}
+                expanded={expanded === dir.id}
+                dirty={dir.files.some((f) => dirtyFiles.has(f.id))}
+                activeFileId={activeFileId}
+                onToggle={() => setExpanded(expanded === dir.id ? undefined : dir.id)}
+                onOpen={onOpen}
+              />
+            ))}
+        </section>
+      ))}
+    </nav>
+  );
+}
+
+interface SlotProps {
+  workspaceId: string;
+  dir: SaveDirectory;
+  expanded: boolean;
+  dirty: boolean;
+  activeFileId: string | undefined;
+  onToggle: () => void;
+  onOpen: (file: SaveFileInfo) => void;
+}
+
+function Slot({ workspaceId, dir, expanded, dirty, activeFileId, onToggle, onOpen }: SlotProps) {
+  const subtitle = dir.sfo?.subTitle || dir.sfo?.detail;
+  const classes = ["slot", expanded ? "slot--active" : "", dirty ? "slot--modified" : ""].filter(Boolean).join(" ");
+  return (
+    <div className={classes}>
+      <button type="button" className="slot__head" aria-expanded={expanded} onClick={onToggle}>
+        {dir.hasIcon ? (
+          <img className="slot__art" src={api.iconUrl(workspaceId, dir.id)} alt="" loading="lazy" width={52} height={52} />
+        ) : (
+          <span className="slot__art slot__art--empty">{dir.files.length}</span>
+        )}
+        <span style={{ minWidth: 0 }}>
+          <span className="slot__name" style={{ display: "block" }}>
+            {dir.name}
+          </span>
+          {subtitle && <span className="slot__subtitle" style={{ display: "block" }}>{subtitle}</span>}
+          <span className="slot__meta">
+            <span>{dir.files.length === 1 ? "1 file" : `${dir.files.length} files`}</span>
+            {dir.isBackup && <span>console backup{dir.twinIdentical ? ", identical" : ", differs"}</span>}
+            {!dir.isBackup && dir.twinId && <span>{dir.twinIdentical ? "backup identical" : "backup differs"}</span>}
+            {dir.generation > 0 && <span>snapshot {dir.generation + 1}</span>}
+          </span>
+        </span>
+      </button>
+      {expanded && (
+        <ul className="slot__files">
+          {dir.files.map((f) => {
+            const best = f.matches[0];
+            const isGame = best !== undefined && best.score > 1;
+            return (
+              <li key={f.id}>
+                <button type="button" className={`file${f.id === activeFileId ? " file--open" : ""}`} onClick={() => onOpen(f)}>
+                  <span style={{ minWidth: 0 }}>
+                    <span className="file__name mono" style={{ display: "block" }}>
+                      {f.path}
+                    </span>
+                    <span className={`file__plugin${isGame ? " file__plugin--game" : ""}`}>
+                      {best ? (best.label ? `${best.label}` : best.pluginName) : "No plugin"}
+                    </span>
+                  </span>
+                  <span className="file__size">{formatBytes(f.length)}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
