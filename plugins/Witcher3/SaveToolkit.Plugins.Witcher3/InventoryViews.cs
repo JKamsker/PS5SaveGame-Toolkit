@@ -34,6 +34,7 @@ internal sealed class InventoryViews(
         .. (durability is null ? Array.Empty<ViewNode>() : [RepairPlanning.Action, RefillPlanning.Action]),
         new QueryableTableNode(CollectionId, Collection.Title, Columns, items.Count) { Description = Collection.Description },
         new ActionNode(LookupActionId, "Look up catalog item") {
+            Mutates = false,
             Description = "Browse attributed reference data. This lookup does not replace, create or equip an item.",
             Parameters = [new FieldNode("item", "Item", new ReferenceSpec(CatalogId),
                 FieldValue.Of(items.FirstOrDefault(item => catalog?.Find(item.Name) is not null)?.Name ?? ""))],

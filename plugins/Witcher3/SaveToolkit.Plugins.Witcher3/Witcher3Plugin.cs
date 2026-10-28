@@ -1,10 +1,11 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.Witcher3;
 
-public sealed class Witcher3Plugin : IGamePlugin
+public sealed class Witcher3Plugin : IGamePlugin, ISaveDecoderProvider
 {
     public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.6.0")
     {
@@ -25,6 +26,8 @@ public sealed class Witcher3Plugin : IGamePlugin
             "https://github.com/aschleg/witcher-3-enemy-scaling-and-other-changes/blob/66684cbe57eb20286f9ce65e551a4a0313543592/mod/gameplay/abilities/geralt_skills.xml",
             MapViews.SourceUrl],
     };
+
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new WitcherSemanticDecoder()];
 
     public ProbeResult Probe(ISaveFile file) => file.Directory.TitleId == "PPSA04018" &&
         file.FileName.EndsWith(".sav", StringComparison.OrdinalIgnoreCase) && file.ReadHeader(8).AsSpan().SequenceEqual("SNFHFZLC"u8)

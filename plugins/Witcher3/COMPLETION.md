@@ -12,11 +12,11 @@ plugin. Writes remain Experimental; no PS5 load/acceptance is claimed.
 | R2 | Owner-blocked #31 | Spare-slot console load, intended/unrelated gameplay, native save/reload/re-export; human approves Stable. |
 | R3 | Done for available distributable references; owner-blocked #31 for exact installed build | Existing 4,011 item/107 ability/225 card packs, names/categories/descriptions/provenance. Matching legal caps, localization/art and initialization definitions need legitimate matching resources. No inferred legal-cap table. |
 | R4 | Done for shipped scope | F2 reference packs, validation and pinned context supplied by framework. Private installed-build packs require owner data, not new plugin I/O. |
-| R5 | Done for plugin hook | Existing F1 native decoder plus sample semantic/byte tests cover new refill. CLI registration/enumeration is pending F12 #32. |
+| R5 | Done for plugin hook | Existing F1 native decoder plus sample semantic/byte tests cover new refill. F12 follow-up registers the production SDK hook for CLI discovery/selection; positional identity limitations are explicit. |
 | R6 | Done | `Open(file, references)` and immutable pinned catalogs/assets. |
 | R7 | Done | F3 rich details, badges/confidence and provenance. Icons omitted because no safely redistributable game art was supplied. |
 | R8 | Done | F4 catalog references and F8 complete catalog queries. |
-| R9 | Done for shipped IDs | Item/ability/Gwent inspect references and new read-only native ability identity references. Identity replacement lacks a safe native transaction. Browse-only picker awaits F13 #33. |
+| R9 | Done for shipped IDs | Item/ability/Gwent inspect references and new read-only native ability identity references. Identity replacement lacks a safe native transaction. F13 follow-up enables browse-only pickers and read-only attributed lookup actions. |
 | R10 | Owner-blocked #31 | F5 framework exists, but safe native item creation/removal/identity and reference cleanup needs add/remove/split/merge/equip captures. |
 | R11 | Owner-blocked #31 for native structural operation | Scalar group undo/redo is tested; no structural writer exists to safely checkpoint. No substitute history model added. |
 | R12 | Done | F6 repair/refill old/new previews, skipped rows, warnings, explicit/document/resolved-query scopes and grouped undo. |
@@ -82,7 +82,7 @@ and action logs; first capture a no-action save/load/save control. Keep decrypte
   conversion: cannot preserve unknown related systems.
 - Import NC/unlicensed map art, coordinate datasets, game scripts/icons or copyrighted resource
   dumps. Attribution alone cannot authorize redistribution; external links are provided instead.
-- Plugin-local F12/F13 substitutes: those framework features are pending #32/#33 centrally.
+- Plugin-local F12/F13 substitutes: the merged framework hooks, inspection and catalogue contracts are used directly.
 
-Agent work complete; remaining items are owner-blocked (#31). F12/F13 framework work is separately
-pending #32/#33; neither blocks the shipped scope.
+Agent work complete; remaining items are owner-blocked (#31). F12/F13 follow-up is implemented
+on `plugin/witcher3-f12f13`; see README for adoption, CLI selection and the explicit identity caveat.

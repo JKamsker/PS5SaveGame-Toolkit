@@ -17,7 +17,7 @@ public sealed class WitcherDifferentialTests(ITestOutputHelper output)
         var decoder = new WitcherSemanticDecoder();
         var limits = new DecodeLimits();
         var snapshots = files.Select(f => decoder.Decode(f, limits)).ToArray();
-        Assert.All(snapshots, s => { Assert.False(s.Truncated); Assert.Empty(s.Warnings); });
+        Assert.All(snapshots, EnabledWriteFixture.AssertOnlyPositionalIdentityLimit);
         foreach (var file in files)
         {
             var twin = Assert.Single(SampleSaves.Load("PPSA04018").AllDiskFiles,
@@ -29,8 +29,8 @@ public sealed class WitcherDifferentialTests(ITestOutputHelper output)
         {
             var diff = SemanticDiffer.Compare(snapshots[i - 1], snapshots[i], maxChanges: 10_000);
             Assert.False(diff.Truncated);
-            Assert.False(diff.InputTruncated);
-            Assert.Empty(diff.Warnings);
+            Assert.True(diff.InputTruncated);
+            Assert.All(diff.Warnings, w => Assert.Contains("positional identity", w, StringComparison.Ordinal));
             output.WriteLine($"{files[i - 1].FileName} -> {files[i].FileName}\n{DiffJson.Serialize(diff)}");
             Assert.DoesNotContain(diff.Changes, c => c.Path.StartsWith("gwent/", StringComparison.Ordinal));
             var oldBread = FindInventory(snapshots[i - 1], "Bread");

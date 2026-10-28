@@ -22,19 +22,50 @@ acceptance audit is in [COMPLETION.md](COMPLETION.md); remaining evidence is tra
 
 | Feature | Status | Adoption / concrete scope |
 | --- | --- | --- |
-| F1 SaveDiff | Used | `WitcherSemanticDecoder` implements the shared `ISaveDecoder`; native F1 tests audit intended semantic paths and unrelated bytes on every sample. CLI discovery awaits F12. |
+| F1 SaveDiff | Used | Native F1 tests use a thin `HookSaveDecoder` adapter over the production F12 hook; intended semantic paths and independent byte audits cover every sample. Positional ability identities are explicitly flagged as incomplete alignment evidence. |
 | F2 reference packs | Used | Two pinned packs: 4,011 item references, 107 abilities/mutations and 225 Gwent indices; per-record attribution and Sources panel. |
 | F3 rich cells | Used | Inventory/ability/catalog detail sections, inferred-mapping badges, field confidence/warnings and provenance. No unlicensed icons embedded. |
-| F4 reference pickers | Added this round | Ability identity fields now use read-only `ReferenceSpec("abilities")` with raw fallback; existing item/ability/Gwent catalog inspection parameters use reference pickers. All writable rank/count fields are numbers, not identities. Item/card replacement has no safe writer. Browse-only presentation awaits F13. |
+| F4 reference pickers | Used | Saved skill/mutation identities use read-only `ReferenceSpec("abilities")` with raw fallback and F13 browse-only category/search/sort/details. Lookup action parameters remain selectable references. Rank/count writes stay numeric; identity replacement has no safe writer. |
 | F5 structural history | N/A | No safe item/skill creation, deletion, reordering or identity/reference/ownership cleanup writer exists. Scalar omitted-zero property insertion is replayable by value ID; it does not create a gameplay record. Controlled ownership captures are in #31. |
-| F6 planned actions | Added this round | Repair plus imported-quantity refill; document, explicit row and Core-resolved #27 F8 query scopes, exclusions/warnings, stale/forged revalidation and one undo step. |
+| F6 planned actions | Added | Repair plus imported-quantity refill; document, explicit row and Core-resolved #27 F8 query scopes, exclusions/warnings, stale/forged revalidation and one undo step. |
 | F7 document groups | N/A | Only selected `.sav` changes. Same-stem `.req` is an invariant content list, not a coupled gameplay/checksum file; no demonstrated cross-file edit invariant. Core handles identical backup mirroring. |
-| F8 queryable lists | Added this round | Existing full inventory/catalog/recipe/fact/journal queries plus every ability array and native map tags, with full-list search/filter/sort and bounded pages. Lazy details remain for reliable F9 navigation to unloaded data. |
-| F9 graph/map nodes | Added this round | 102 saved skill definitions, 13 mutation definitions/11 native prerequisite edges, and counted known/discovered/disabled map tags. Text alternatives, attributed raw fallbacks, stable linked fields, bounded nodes and external map links. |
+| F8 queryable lists | Added | Existing full inventory/catalog/recipe/fact/journal queries plus every ability array and native map tags, with full-list search/filter/sort and bounded pages. Lazy details remain for reliable F9 navigation to unloaded data. |
+| F9 graph/map nodes | Added | 102 saved skill definitions, 13 mutation definitions/11 native prerequisite edges, and counted known/discovered/disabled map tags. Text alternatives, attributed raw fallbacks, stable linked fields, bounded nodes and external map links. |
 | F10 exact/nullable/union | N/A | This binary schema stores fixed integer/float32/float64 values, not exact JSON number lexemes or polymorphic scalars. Omitted default zero is neither explicit null nor a union; using those specs would invent storage states. Existing integer specs retain exact widths. |
 | F11 shared codecs | N/A | SNFH uses raw LZ4, already handled by K4os.Compression.LZ4. SaveToolkit.Codecs' Kraken/SQLite wrappers cannot decode this format; no local Kraken/SQLite implementation exists. |
-| F12 | Pending #32 | SaveDiff F8 traversal and plugin decoder-hook discovery were absent from the starting main; retain the shared-engine test hook, do not build a substitute. |
-| F13 | Pending #33 | Non-mutating inspection actions, browse-only picker, catalog filter/sort and float duration were absent from starting main; existing inspection actions remain documented limitations. |
+| F12 | Added | `Witcher3Plugin` implements SDK `ISaveDecoderProvider`, exposing `witcher3-native-identities` for `savediff compare --decoder`. Production has no Testing dependency; the existing research decoder is a thin adapter. Sink refusal, depth/input/value bounds and positional identity limitations are tested. F8 views remain available via `--decoder witcher3`. |
+| F13 | Added | All four message-only lookups publish `Mutates = false` and work on read-only saves with unchanged bytes/history/revision. Ability identities browse without writes. Catalogue category filtering and declared key/name/category sorting use F2/F13 queries; the duplicate metadata index is removed. Float duration is N/A: no float timer has proven units. |
+
+## F12/F13 follow-up
+
+The native decoder is selectable without loading the test assembly:
+
+```powershell
+dotnet run --project tools/SaveToolkit.SaveDiff -- list-decoders
+dotnet run --project tools/SaveToolkit.SaveDiff -- compare before.zip after.zip --decoder witcher3-native-identities
+```
+
+The hook retains the existing entity/item/card/native-ability paths, resolves name indices, and
+fingerprints opaque properties. It stops as soon as the sink declines output, enforces input and
+semantic-path depth bounds, and uses the host's value-length/value-count caps. Ability records lacking
+native keys retain `unnamed-slot-N` evidence paths. If those records contain properties, their
+positional alignment is unproven: the hook calls `MarkTruncated`, so sample comparisons explicitly
+report incomplete input even when all values fit. This is separate from output-budget truncation;
+missing paths alone cannot prove removal. Independent exact-byte audits remain required for writes.
+
+Item, ability and Gwent lookup actions return attributed messages through F13's isolated inspection
+path, including on unsupported-player read-only saves. Saved skill/mutation identity fields open
+browse-only reference pickers; unknown current raw IDs remain visible and cannot be replaced.
+Catalogue tables use exact category filters and declared Key/Name/Category
+sorts with stable raw-key ties and pages of at most 200. Custom catalogs without declared sort keys
+retain their own file order. Full metadata text search, additional exact presentation-column filters
+and saved-state/description sorts read bounded catalog pages on demand without retaining a second
+metadata index. Text search still covers names, raw IDs, categories, descriptions, attributes and saved state.
+
+The `63580dc` F6 reference-parameter fix is N/A here: repair/refill have no parameters, and no enum
+fallback exists. A float duration hint would invent units for currently opaque fact time/expiry bits,
+so those stay raw. No new format or gameplay claims are introduced; existing attributed format
+sources below remain the basis of the decoder.
 
 ## Enabled writes and their evidence
 
@@ -326,6 +357,13 @@ Tests cover:
 
 Missing samples skip via `SampleSaves`; all synthetic tests remain runnable. No sample data is committed.
 
+F12/F13 follow-up validation: **108 passed, 0 failed, 0 skipped**, with the external artifacts
+variable exported in the test/build commands. API build: **0 warnings / 0 errors**. Added production
+hook registration/bounds/adapter tests, real-sample browse-only ability references, read-only Core
+inspection/state/byte checks, and bounded framework category/sort delegation including custom-catalog
+fallbacks. Existing F1 assertions now require the explicit positional-identity warning rather than
+claiming complete record alignment. CLI `list-decoders` and native `compare` were checked directly.
+
 Completion-round validation: **99 passed, 0 failed, 0 skipped**, with artifacts exported in the
 same command and all eight save records exercised. API build: **0 warnings / 0 errors**. Includes
 F9 validation/navigation/refresh, mutation prerequisite corruption, 4,096-skill and 1,650-tag bounds,
@@ -405,14 +443,10 @@ redistributed. Their repositories' tool licenses do not grant rights to CD PROJE
 
 ## SDK requests
 
-No blocking SDK request for the shipped scope: F2/F3/F4/F6/F8/F9 are used directly. R6–R9 and
-R20/R21 from the older plan no longer block supported presentations. F5 needs a safe native
-structural writer, and F7 has no proven coupled-file invariant. No plugin-local framework substitute
-was added. F12 is pending [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32) and F13
-is pending [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33).
-
-Nonblocking F1 tooling request: the CLI's `PluginViewDecoder` visits eager fields/lazy sections but
-does not enumerate F8 queryable collections or register plugin-specific decoder hooks. This round's
-test-side `WitcherSemanticDecoder` uses F1's actual `ISaveDecoder`/`SemanticDiffer` contracts to compare
-native identities without raw-offset explorer noise. A CLI hook registry or bounded F8 visitor would
-make that route directly selectable in `savediff compare`. No framework files were changed.
+No blocking SDK request for the shipped scope. F12 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)
+resolves the earlier request for bounded F8 traversal and native CLI decoder registration: the
+SDK-only production hook is registered explicitly, and F1 tests use its shared host adapter.
+F13 [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33) resolves read-only inspections,
+browse-only ability pickers and declared catalogue filtering/sorting. No plugin-local framework
+substitute remains. F5 still needs a safe native structural writer; F7 has no proven coupled-file
+invariant. Neither is an SDK blocker.
