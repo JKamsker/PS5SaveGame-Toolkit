@@ -1,5 +1,6 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -50,6 +51,8 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
             new("Overview", overview),
             new("Resources & XP", [RagnarokWrites.RestoreAction(), CollectionViews.View("resources"), CollectionViews.View("xp")]),
             new("Gear candidates", [CollectionViews.View("nested-ids"), CollectionViews.View("index-words")]),
+            new("Skills", RagnarokSpatialViews.SkillRoots()),
+            new("Realm map", [RagnarokSpatialViews.RealmMap(), SectionNode.Lazy("Realm reference details", "realm-details")]),
             new("Quests & collectibles", [CollectionViews.View("collectibles"), CollectionViews.View("flags"),
                 new TextNode("Named quest IDs, equipped gear and completion flags remain unknown. No completion or ownership is inferred from raw matches.") { Tone = Tone.Warning }]),
             new("Nested containers", [RagnarokNestedView.Build(index, references)]),
@@ -67,6 +70,13 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        foreach (var weapon in RagnarokSpatialViews.Weapons)
+        {
+            if (lazyId == $"skill-tree/{weapon.Id}") return RagnarokSpatialViews.SkillTree(weapon.Id, references.Skills);
+            if (lazyId == $"skill-details/{weapon.Id}") return [RagnarokSpatialViews.SkillDetails(this, weapon.Id, references.Skills)];
+        }
+        if (lazyId == "realm-details") return [RagnarokSpatialViews.RealmDetails(this)];
+
         if (lazyId == "header")
         {
             return [RagnarokTables.Words(this, 0, RagnarokFormat.HeaderSize, false)];
@@ -134,7 +144,9 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
     { Warnings = [RagnarokWrites.IntegrityWarning, RagnarokWrites.EvidenceWarning] };
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
-        actionId == RagnarokWrites.RestoreActionId
+        actionId.StartsWith(RagnarokInspection.Prefix, StringComparison.Ordinal)
+            ? RagnarokInspection.Inspect(this, index, references, actionId, parameters)
+        : actionId == RagnarokWrites.RestoreActionId
             ? new() { Message = "Preview and apply this action through F6 planning.", Warnings = [RagnarokWrites.IntegrityWarning, RagnarokWrites.EvidenceWarning] }
             : base.InvokeAction(actionId, parameters);
 
@@ -186,6 +198,23 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
 
     internal uint ReadWord(int offset) => RagnarokFormat.UInt32(bytes, offset);
     internal ulong ReadId(int offset) => RagnarokFormat.UInt64(bytes, offset);
+
+    internal FieldNode SkillReference(ReferenceRecord record) =>
+        Field(RagnarokSpatialViews.SkillValueId(record.Key), record.Name, new ReferenceSpec(RagnarokSkillReferences.CatalogId),
+            () => FieldValue.Of(record.Key)) with
+        {
+            Confidence = Confidence.Unknown,
+            Description = $"{RagnarokSpatialViews.SkillWarning} {record.AttributionText}",
+        };
+
+    internal FieldNode RealmReference(string realm) =>
+        Field($"realm-reference/{realm}", realm, new TextSpec(), () => FieldValue.Of(realm)) with
+        { Confidence = Confidence.Unknown, Description = "Reference destination only; saved realm access and completion are unknown. God of War Wiki external guide." };
+
+    internal FieldNode ResourceReference(int offset, string catalogId, string name) =>
+        Field($"resource-reference/{offset:X}", name, new ReferenceSpec(catalogId),
+            () => FieldValue.Of(RagnarokReferences.Key(ReadId(offset)))) with
+        { Confidence = Confidence.Inferred, Description = references.Attribution(ReadId(offset)) + " Identity is read-only; replacement dependencies are unknown." };
 
     internal FieldNode Number(int offset, string label, Confidence confidence, bool hex = false, int width = sizeof(uint))
     {

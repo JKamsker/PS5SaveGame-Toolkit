@@ -1,12 +1,35 @@
 # God of War Ragnarök (`gow-ragnarok`)
 
-**Maturity: Experimental (v0.3.0).** Opens decrypted PS5 gameplay/history saves and the separate preferences record.
+**Maturity: Experimental (v0.4.0).** Opens decrypted PS5 gameplay/history saves and the separate preferences record.
 Provides metadata, five length-bounded wallet containers, F8 resource/XP/raven counters,
 nested gear/skill ID candidates, 132 grouped raw flag records, attributed F2 catalogs,
 integrity evidence and lazy raw word/byte views. Existing decoded wallet counters and play time
 are editable, with an F6 restore-to-imported-values action. **Integrity unknown — the game may reject
 this save.** Integrity dependencies and the complete serialization grammar remain unresolved.
 An unsuccessful checksum search does not establish game acceptance. Preferences remain read-only.
+
+## Framework feature adoption
+
+| Feature | Status and evidence |
+| --- | --- |
+| F1 SaveDiff | **Used**: `RagnarokEvidenceDecoder` is the bounded decoder hook; grammar spans expose stable wallet, flag and integrity paths. |
+| F2 reference packs | **Used**: PS5/community packs plus attributed `gow-ragnarok.skills.en`; direct fallback and Sources-panel attribution are tested. |
+| F3 rich table cells | **Used**: confidence badges/warnings, detail fields, attribution cells and per-row inspect/restore actions. |
+| F4 `ReferenceSpec` pickers | **Used**: catalogue-backed resource IDs in F8 pages and read-only skill-reference fields; unknown IDs remain raw. |
+| F5 structural edits | **N/A**: no safe add/remove/reorder grammar or free-slot/ownership invariant is proven. |
+| F6 action planning | **Used**: import-bounded restore supports selected/document/query scopes, skipped rows, preview revalidation and grouped undo/redo. |
+| F7 document groups | **N/A**: no proven coupled gameplay/preferences write contract; editing both would guess dependencies. |
+| F8 queryable tables | **Used**: seven server-backed collections page resources, IDs, words, flags and directory records. |
+| F9 graphs/maps | **Added this round**: three attributed weapon skill DAGs and a link-first nine-realm map with text alternatives and stable targets. |
+| F10 exact/nullable/union values | **N/A**: the proven grammar contains bounded integer words and UTF-8 text only. |
+| F11 shared codecs | **N/A**: no Kraken/SQLite payload was detected; opaque bytes are preserved. |
+| F12 SaveDiff F8 traversal | **Used**: the production decoder hook is independently bounded by host sink limits. |
+| F13 non-mutating inspect/browse | **Used**: resource inspections are `Mutates=false`; reference fields are browse-only and preserve history/bytes. |
+
+The skill dataset is a presentation catalogue, not a saved-state crosswalk. Graph states, saved hashes,
+XP ownership and eligibility are `Unknown`; source links and attribution appear in records, details and
+graph descriptions. Realm markers are external links only. See
+`ReferencePacks/gow-ragnarok.skills.en/skills.source.md` for the transcription and licence.
 
 ## Enabled writes and their evidence
 
@@ -139,6 +162,16 @@ byte alignment**, including the last possible target. Across 76 primary records 
 zeroed/omitted embedded fields, custom seeds, compressed coverage or a keyed MAC/signature.
 No key or authentication routine was found; arbitrary guessed-key HMAC tests are not evidence.
 The lazy Integrity tab and F1 hook expose reproducible digests/ranges without making acceptance claims.
+
+Completion-round research added reflected CRC32-IEEE and CRC32C range algebra over every primary and
+backup record, testing whole/no-footer/after-time/after-header/after-metadata coverage, embedded
+header/footer words, both byte orders, zeroed and omitted fields, standard XOR-outs and custom-seed
+recovery. It also tested MD5/SHA-1/SHA-256/SHA-512 at 4/8/full digest widths for unchanged, zeroed,
+omitted, reversed and prefix/suffix encodings at candidate header/footer fields. The sample-backed
+results are **15,616 CRC field/range comparisons and 81,216 embedded digest comparisons with zero
+matches**, and no custom seed shared by three independent primary generations. This expands the earlier
+4,956 whole-digest comparisons; it still cannot rule out keyed MACs/signatures, truncated fields outside
+the tested locations, custom coverage, compression or external authentication. No checksum is recomputed.
 Coverage/seed searches were finite. See the
 [research log](RESEARCH.md) for methods and negative results.
 
@@ -175,12 +208,13 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-To
 dotnet test --project tests/SaveToolkit.Core.Tests
 ```
 
-**Write-enable round: 68 plugin tests passed, 0 failed, 0 skipped; API build: 0 warnings/errors.**
+**Completion round: 81 plugin tests passed, 0 failed, 0 skipped; API build: 0 warnings/errors.**
 The artifact environment variable is exported in the same test command. Coverage includes all 156
 records and byte-identical serialization, all 76 primary nested grammars and serialize/reopen byte
 identity, nested length/count/identity corruption, F8 global search/filter/numeric sort/bindings,
-licensed pack validation/direct-call fallback, F1 generation comparison, published digest vectors
-and all-primary integrity probes. Tests skip when samples are absent; such a run is not validation.
+licensed pack validation/direct-call fallback, F1 generation comparison, published digest vectors,
+F9 graph/map validation, F12 decoder bounds and F13 non-mutating inspection. Tests skip when samples
+are absent; such a run is not validation.
 Conformance now exercises real edits. Additional coverage edits every positive decoded counter over
 all 76 primary records, checks serialize/reopen values and F1 diffs restricted to intended u32 ranges,
 rejects invalid types/ranges and mixed batches, and verifies Core scalar/grouped undo/redo, F6 stale
@@ -220,6 +254,8 @@ licensing, notices and pinned source revisions; see the attribution table and pl
 | [Codes Prince console editor](https://codesprince.com/2022/12/06/ps4-ps5-save-editor-for-gow-ragnarok/), [PC editor](https://codesprince.com/2024/09/24/pc-editor-for-gow-ragnarok/) | Separate platform/version support; no public parser/integrity algorithm obtained. |
 | [GOWTool](https://github.com/kainotoa/GOWTool), [smpack](https://github.com/iArtorias/smpack) | Asset/WAD leads; no proof that asset hashing or WTOC/LZ4 applies to saves. |
 | [Regional catalogue](https://sharpemu.app/game/PPSA08329/), [PPSA08329](https://prosperopatches.com/PPSA08329), [PPSA08330](https://prosperopatches.com/PPSA08330), [PPSA08331](https://prosperopatches.com/PPSA08331), [PPSA08332](https://prosperopatches.com/PPSA08332), [PPSA08334](https://prosperopatches.com/PPSA08334) | Title identity/IDs; not save compatibility. |
+| [Leviathan Axe](https://godofwar.fandom.com/wiki/Leviathan_Axe), [Blades of Chaos](https://godofwar.fandom.com/wiki/Blades_of_Chaos), [Draupnir Spear](https://godofwar.fandom.com/wiki/Draupnir_Spear), [Skill Labors](https://godofwar.fandom.com/wiki/Skill_Labors_%28Ragnar%C3%B6k%29) | CC-BY-SA skill names, branches, explicitly listed costs/levels and prerequisite facts; transcribed into the separately attributed skill pack, with unknown saved state and no artwork. |
+| [MapGenie community maps](https://mapgenie.io/god-of-war-ragnarok) | Link-first realm navigation only; licence/coordinates/art are not imported. |
 
 ## Sources and attribution
 
@@ -246,6 +282,7 @@ completion formula or legal maximum is displayed. Missing records remain raw IDs
 | Two raven-related counters | [Alexsander720 / Continue? contributors, 51e19b2a](https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); factual IDs/roles converted to LE byte keys, added PS5 occurrence evidence; no code/formula ported. |
 | Hero / blacksmith-chest research labels | Continue? revision above and [SaveWizard-Resources contributors, 4c32596e](https://github.com/sterben-Dev10/SaveWizard-Resources/blob/4c32596efde54af7bec390b298265f09c929d94d/SaveWizard-Codes/GOW%20Ragnarok%20%5BSaveWizard%5D.txt) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); factual labels only, both inferred; source displayed in container table description. |
 | Nested framing and generic XP candidate | Toolkit contributors, [issue #19](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/19) | Project GPL-3.0-or-later; original byte observations, no third-party implementation copied. |
+| Weapon skill references | [Skill pack sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.skills.en/skills.source.md) and pinned wiki pages above | CC BY-SA 3.0/share-alike; names and listed requirements transcribed/normalized; presentation keys are not save hashes; no game assets or copied prose. |
 
 The new pack has a [data sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.community.en/community.source.md)
 and [GPL text](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.community.en/GPL-3.0.txt).

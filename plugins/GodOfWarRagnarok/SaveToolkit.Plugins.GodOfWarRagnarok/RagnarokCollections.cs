@@ -10,10 +10,12 @@ internal sealed record RagnarokCollectionRow(string Key, int Offset, IReadOnlyDi
 /// <summary>Query stable row identities with live counter values; bind only the requested page.</summary>
 internal sealed class RagnarokCollections
 {
+    private readonly RagnarokReferences _references;
     private readonly Dictionary<string, (QueryableCollection Info, IReadOnlyList<RagnarokCollectionRow> Rows)> _collections = new(StringComparer.Ordinal);
 
     public RagnarokCollections(RagnarokDocument document, RagnarokRecordIndex index, RagnarokReferences references)
     {
+        _references = references;
         if (index.Preferences)
         {
             return;
@@ -141,7 +143,7 @@ internal sealed class RagnarokCollections
             "directory" => ["id", "name", "source", "word", "offset"],
             _ => ["container", "name", "id", "category", "quantity", "metadata", "source", "offset"],
         };
-        if (id is "resources" or "xp" or "collectibles") columns = [.. columns, "restore"];
+        if (id is "resources" or "xp" or "collectibles") columns = [.. columns, "inspect", "restore"];
         var info = new QueryableCollection(id, title, columns.Select(key => new QueryableColumn(key, Label(key))).ToArray(), rows.Count)
         { Description = columns.Contains("container", StringComparer.Ordinal) ? description + " " + RagnarokReferences.ContainerSources : description };
         _collections.Add(id, (info, rows));
@@ -164,13 +166,17 @@ internal sealed class RagnarokCollections
         }
     }
 
-    private static TableRow Render(RagnarokDocument document, RagnarokCollectionRow row)
+    private TableRow Render(RagnarokDocument document, RagnarokCollectionRow row)
     {
         var cells = row.Cells.ToDictionary(pair => pair.Key, pair => (ViewNode)new TextNode(pair.Value), StringComparer.Ordinal);
         if (row.NumberColumn is { } column)
         {
             cells[column] = document.CounterField(row.NumberOffset);
+            cells["inspect"] = RagnarokInspection.Action(row.Offset);
             cells["restore"] = RagnarokWrites.RestoreAction();
+            var id = document.ReadId(row.Offset);
+            if (_references.Catalog(id) is { } catalog)
+                cells["id"] = document.ResourceReference(row.Offset, catalog, _references.Name(id));
         }
 
         return new(row.Key, cells);

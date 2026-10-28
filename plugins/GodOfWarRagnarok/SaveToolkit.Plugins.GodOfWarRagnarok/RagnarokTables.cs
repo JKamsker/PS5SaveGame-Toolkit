@@ -89,6 +89,7 @@ internal static class RagnarokTables
     private static FieldNode Id(RagnarokDocument document, int offset) =>
         document.Number(offset, "ID", Confidence.Unknown, hex: true, width: sizeof(ulong));
 
+
     private static TextNode Text(string text) => new(text);
     private static TextNode Offset(int offset) => new($"0x{offset:X}") { Monospace = true };
     private static TableRow Row(string key, params (string Key, ViewNode Value)[] cells) =>

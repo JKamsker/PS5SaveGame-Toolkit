@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "gow-ragnarok.skills.en",
+  "version": "1.0.0",
+  "title": "Ragnar\u00f6k weapon skill references (not saved-state mappings)",
+  "plugins": [
+    "gow-ragnarok"
+  ],
+  "titleIds": [
+    "PPSA08330"
+  ],
+  "gameBuilds": [
+    "PS5 revision 0x00513040"
+  ],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "gow-ragnarok-skills",
+      "kind": "records",
+      "title": "Base-game Axe, Blades and Spear skill references",
+      "files": [
+        {
+          "path": "skills.json",
+          "sha256": "90c4c40bf741cdfb0c5822f33535c7581a3ae857338bd2f577a11ea872a849e9"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://godofwar.fandom.com/wiki/Skill_Labors_%28Ragnar%C3%B6k%29",
+        "author": "God of War Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Transcribed factual Ragnar\u00f6k-only skill names, branches, listed costs/levels and explicit prerequisites from the three weapon pages and Skill Labors. Normalized Roman numerals and Maelstrom spelling; omitted artwork and gameplay prose. Presentation keys are original and are not game hashes. Unknown requirements stay explicit."
+      }
+    }
+  ]
+}
