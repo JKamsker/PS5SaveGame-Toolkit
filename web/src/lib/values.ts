@@ -1,4 +1,5 @@
 import type { FieldSpec, FieldValue, IntegerSpec } from "../api/protocol";
+import { exactNumberError } from "./exactNumbers";
 
 /** Result of turning what the user typed into a wire value. The server re-validates authoritatively. */
 export type Parsed = { ok: true; value: FieldValue } | { ok: false; error: string };
@@ -15,6 +16,15 @@ export function parseInteger(text: string): bigint | null {
 /** Converts an editor draft (always a string for text inputs) into a value valid for `spec`. */
 export function parseDraft(spec: FieldSpec, draft: string | boolean): Parsed {
   switch (spec.kind) {
+    case "exactNumber": {
+      const text = String(draft);
+      const error = exactNumberError(text, spec);
+      return error ? fail(error) : { ok: true, value: { kind: "exactNumber", text } };
+    }
+    case "nullable":
+      return parseDraft(spec.inner, draft);
+    case "union":
+      return fail("Select a union type.");
     case "bool":
       return typeof draft === "boolean" ? { ok: true, value: draft } : fail("Expected on or off.");
     case "integer":
@@ -55,12 +65,18 @@ export function parseDraft(spec: FieldSpec, draft: string | boolean): Parsed {
 export function toDraft(spec: FieldSpec, value: FieldValue): string | boolean {
   if (spec.kind === "bool") return value === true;
   if (value === null) return "";
+  if (typeof value === "object") return value.kind === "exactNumber" ? value.text : displayValue(spec, value);
   if (spec.kind === "integer" && spec.format === "Hex") return `0x${BigInt(String(value)).toString(16).toUpperCase()}`;
   if (spec.kind === "datetime") return String(value).slice(0, 19);
   return String(value);
 }
 
 export function sameValue(a: FieldValue, b: FieldValue): boolean {
+  if (a !== null && b !== null && typeof a === "object" && typeof b === "object") {
+    if (a.kind === "exactNumber" && b.kind === "exactNumber") return a.text === b.text;
+    if (a.kind === "union" && b.kind === "union") return a.type === b.type && sameValue(a.value, b.value);
+    return false;
+  }
   return a === b || (typeof a === "number" && typeof b === "number" && Number.isNaN(a) && Number.isNaN(b));
 }
 
@@ -95,7 +111,13 @@ export function formatBytes(length: number): string {
 
 /** Plain-text rendering of any value for search and read-only display. */
 export function displayValue(spec: FieldSpec, value: FieldValue): string {
-  if (value === null) return "—";
+  if (value === null) return "null";
+  if (spec.kind === "nullable") return displayValue(spec.inner, value);
+  if (typeof value === "object") {
+    if (value.kind === "exactNumber") return value.text;
+    const option = spec.kind === "union" ? spec.options.find((o) => o.id === value.type) : undefined;
+    return option ? displayValue(option.spec, value.value) : value.type;
+  }
   switch (spec.kind) {
     case "bool":
       return value ? "Yes" : "No";
