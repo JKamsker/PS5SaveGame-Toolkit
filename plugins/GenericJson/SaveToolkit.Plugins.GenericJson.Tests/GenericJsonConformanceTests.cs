@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.GenericJson.Tests;
 
 public sealed class GenericJsonConformanceTests : PluginConformanceTests<GenericJsonPlugin>
 {
-    protected override IReadOnlyList<string> SampleTitleIds => ["PPSA04027", "PPSA07696"];
+    protected override IReadOnlyList<string> SampleTitleIds => ["PPSA04027", "PPSA07696", "PPSA02343"];
 
     protected override int MaxFilesPerTitle => 100;
 

@@ -3,10 +3,11 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.GenericJson;
 
-internal sealed class JsonSaveDocument(string name, string path, byte[] original, JsonTokenTree tree) : BoundSaveDocument
+internal sealed class JsonSaveDocument(string name, string path, byte[] original, JsonTokenTree tree, JsonOverlay? overlay) : BoundSaveDocument
 {
     private const int PageSize = 128;
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, JsonValueToken> _overlayNodes = new(StringComparer.Ordinal);
 
     public override string Title => name;
 
@@ -16,10 +17,21 @@ internal sealed class JsonSaveDocument(string name, string path, byte[] original
             new TextNode("Generic JSON editor. Field names come from the file; game semantics and allowed values are unknown.") { Tone = Tone.Warning },
         ]),
         new Tab("JSON", [NodeView(tree.Nodes[0])]),
+        .. overlay is null ? Array.Empty<Tab>() : [new Tab(overlay.Title, [
+            new TextNode(overlay.Evidence) { Tone = Tone.Warning },
+            new TextNode(JsonOverlay.Provenance),
+            .. overlay.Groups.Select(OverlayNode),
+        ])],
     ]);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        if (_overlayNodes.TryGetValue(lazyId, out var summary))
+        {
+            if (summary.Children.Count > PageSize)
+                return [new TextNode("Large group: inspect every entry in the bounded JSON tree.")];
+            return summary.Children.Select(OverlayNode).ToArray();
+        }
         if (!_ranges.TryGetValue(lazyId, out var range))
         {
             throw new KeyNotFoundException($"Unknown JSON section '{lazyId}'.");
@@ -103,4 +115,16 @@ internal sealed class JsonSaveDocument(string name, string path, byte[] original
     }
 
     private sealed record ChildRange(JsonValueToken Parent, int Start, int Count);
+
+    private ViewNode OverlayNode(JsonValueToken node)
+    {
+        if (!node.IsContainer) return new TextNode($"{node.Label}: {node.Current}");
+        var id = $"overlay/{node.Index}";
+        _overlayNodes[id] = node;
+        var groupName = node.Children.FirstOrDefault(n => n.Label == "group_name")?.Current.ToString();
+        return SectionNode.Lazy(groupName ?? node.Label, id, $"{node.Children.Count} entries; read-only") with
+        {
+            Description = JsonOverlay.Provenance,
+        };
+    }
 }

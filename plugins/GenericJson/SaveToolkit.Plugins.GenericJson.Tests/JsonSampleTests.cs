@@ -8,10 +8,11 @@ public sealed class JsonSampleTests
     [Theory]
     [InlineData("PPSA04027")]
     [InlineData("PPSA07696")]
+    [InlineData("PPSA02343")]
     public void EveryJsonSnapshotAndBackupRoundTrips(string title)
     {
         var plugin = new GenericJsonPlugin();
-        var files = SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName.EndsWith(".json", StringComparison.Ordinal)).ToArray();
+        var files = SampleSaves.Load(title).AllDiskFiles.Where(f => plugin.Probe(f).IsMatch).ToArray();
         Assert.NotEmpty(files);
         foreach (var file in files)
         {

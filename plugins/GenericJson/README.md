@@ -6,6 +6,7 @@ Content-detected UTF-8 JSON primitive editor. **Experimental**: real-sample conf
 
 - PPSA04027 / Cyberpunk 2077: `settings.json` (configuration, 45,415 bytes, version 136) and `metadata.9.json` (slot metadata, 2610 bytes). Binary sav.dat/user.gls are separate formats.
 - PPSA07696 / Ridge Racer 2 PSP classic: `imgui_emu_option.json` (emulator configuration, 1320 bytes; cubic_A = -0.5). DATA.BIN is a separate legacy gameplay file.
+- PPSA02343 / It Takes Two (EU): `ue4savegame.dpx.sav` is plain JSON with nested string-valued Profile, CloudSettings and LocalSettings. Three primary generations (3,993 / 3,522 / 1,312 bytes) have identical backup twins.
 - Other valid UTF-8 JSON files, regardless of filename/title. `Info.Games` is intentionally empty for a format-generic plugin.
 
 Probe returns Format (20) only after full grammar/UTF-8 validation. A 64-byte prefix rejects obvious binary cheaply; plausible text is fully parsed, capped at 16 MiB, 250,000 value nodes and depth 64. UTF-8 BOM is optional and preserved. Comments, trailing commas, trailing non-whitespace, invalid UTF-8 and malformed Unicode strings are rejected with SaveFormatException. Root scalars and null are supported; UTF-16 JSON is rejected.
@@ -42,3 +43,17 @@ The line-count script warns above 300 and rejects above 500 physical C# lines; `
 ## SDK requests
 
 No framework changes are required. Optional future specs for editable null/nullable primitives and arbitrary-precision JSON numbers would avoid read-only fallbacks. The current SDK's Int128/double range cannot represent every valid JSON number without loss. A game-specific schema plugin remains the appropriate place for coupled-file edits and integrity rules.
+
+## Sources and attribution
+
+| Dataset / implementation | Source and attribution | Use |
+| --- | --- | --- |
+| JSON grammar / token reader | [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259), IETF; [Utf8JsonReader](https://learn.microsoft.com/dotnet/api/system.text.json.utf8jsonreader), Microsoft | Standards/API references; no third-party parser code copied. |
+| Title and wrapper research | [PROSPEROPatches PPSA02343](https://prosperopatches.com/PPSA02343); [andshrew/PlayStation-PS1HD](https://github.com/andshrew/PlayStation-PS1HD) (MIT) | Research only; no unlicensed catalogue content or PS1 presets embedded. |
+| Overlay labels / schemas | Owner's imported samples; [provenance sidecar](SaveToolkit.Plugins.GenericJson/JsonOverlay.source.md) | Names are rendered directly from each file. Original matcher/prose; no distributed game dictionary or save payload. UI shows this provenance. |
+
+### Roadmap evidence baseline
+
+Phase 1 adds read-only Cyberpunk settings v136, It Takes Two gameplay-key summaries and Ridge Racer wrapper groups beside the generic JSON tree. Unknown titles/roles/versions retain generic fallback. These interpretations are inferred, not console-verified. Generic detection still claims no titles in `Info.Games`.
+
+The sample-backed suite currently passes **30 tests, 0 failed, 0 skipped** with `SAVETOOLKIT_ARTIFACTS` set. It uses F1 `JsonSaveDecoder` / `SemanticDiffer` on the three It Takes Two primary generations, restricts comparison to minigame/chapter/checkpoint paths and logs only aggregate counts. All six primary/backup occurrences round-trip byte identically. Archive order is not chronology and cannot establish causal progression or write dependencies.
