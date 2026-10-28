@@ -165,6 +165,18 @@ describe("action preview", () => {
     expect((screen.getByRole("button", { name: "Apply" }) as HTMLButtonElement).disabled).toBe(true);
   });
 
+  it("binds reference parameters of planned actions so the picker is usable", async () => {
+    const candidate = vi.spyOn(api, "referenceCandidate").mockResolvedValue({ id: "World/COOLING", label: "Cooling Springs" } as never);
+    renderDocument(<ActionButton node={{ type: "action", actionId: "set-world", label: "Set world", supportsPlanning: true,
+      parameters: [{ type: "field", valueId: "world", label: "World", spec: { kind: "reference", catalogId: "astro_worlds" } as never, value: "World/COOLING" }] }} />);
+    fireEvent.click(screen.getByRole("button", { name: "Set world" }));
+    const trigger = screen.getByLabelText("World") as HTMLButtonElement;
+    expect(trigger.textContent).toContain("World/COOLING");
+    expect(trigger.disabled).toBe(false);
+    await waitFor(() => expect(candidate).toHaveBeenCalledWith("w1", "d1",
+      expect.objectContaining({ valueId: "world", actionId: "set-world", rawId: "World/COOLING" })));
+  });
+
   it("requires another preview when the table selection changes", async () => {
     vi.spyOn(actionReview, "plan").mockResolvedValue(preview);
     renderDocument(<SelectedAction />);

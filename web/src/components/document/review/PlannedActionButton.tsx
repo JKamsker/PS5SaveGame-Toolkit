@@ -94,6 +94,8 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
                 <label className="field__label" htmlFor={`${id}-${p.valueId}`}>{p.label}</label>
                 <FieldControl
                   id={`${id}-${p.valueId}`}
+                  valueId={p.valueId}
+                  actionId={node.actionId}
                   spec={{ ...p.spec, readOnly: false }}
                   value={value === undefined ? p.value : value}
                   disabled={busy}
