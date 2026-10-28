@@ -75,7 +75,7 @@ public sealed class AtomicHeartEvidenceTests
     }
 
     [Fact]
-    public void AttributedCatalogJoinsExactIdsAndF4ReferencesRemainReadOnly()
+    public void AttributedCatalogJoinsExactIdsAndF4KeepsUnknownReferencesReadOnly()
     {
         var plugin = new AtomicHeartPlugin();
         var packs = new ReferencePackStore([plugin]);
@@ -102,12 +102,13 @@ public sealed class AtomicHeartEvidenceTests
             Assert.Contains(fields, f => f.Value.AsString() == "DA_Item_ShotgunKS23" && f.Label == "KS-23 Shotgun");
             Assert.Contains(fields, f => f.Confidence == Confidence.Unknown);
             Assert.All(fields, f => {
-                Assert.True(Assert.IsType<ReferenceSpec>(f.Spec).ReadOnly);
+                Assert.IsType<ReferenceSpec>(f.Spec);
                 Assert.Equal(f.Value, named.GetValue(f.ValueId));
             });
             Assert.Contains(fields, f => f.Description!.Contains("Skorchekd", StringComparison.Ordinal));
             var target = fields.First(f => f.Value.AsString() == "DA_Item_Shved");
-            Assert.False(named.ApplyEdits([new(target.ValueId, FieldValue.Of("DA_Item_Electro"))]).Succeeded);
+            Assert.False(target.Spec.ReadOnly);
+            Assert.False(named.ApplyEdits([new(target.ValueId, FieldValue.Of("DA_Unknown_Item"))]).Succeeded);
             Assert.Equal(file.ReadAllBytes(), Assert.Single(named.Serialize()).Content.ToArray());
             using var raw = plugin.Open(file);
             var rawTable = Assert.IsType<TableNode>(Assert.Single(raw.ExpandNode("inventory/0")));

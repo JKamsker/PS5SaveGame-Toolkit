@@ -11,15 +11,15 @@ internal sealed record SaveExtensionFile(int PackageVersion, string Engine, int 
     IReadOnlyList<SlotProperty> Properties, int DataOffset, int DataLength, IReadOnlyList<CompressedChunk> Chunks)
 {
     internal const int MaxBytes = 128 * 1024 * 1024;
-    private const int DigestBytes = 20;
+    internal const int DigestBytes = 20;
     private const int FileTypeTag = 1;
     private const int SaveVersion = 2;
     private const int GuidCustomVersionFormat = 3;
     private const int MaxCustomVersions = 4096;
     private const int MaxProperties = 1024;
-    private const int ChunkSize = 128 * 1024;
+    internal const int ChunkSize = 128 * 1024;
     private const int MaxChunks = MaxBytes / ChunkSize;
-    private const ulong ChunkMagic = 0x9E2A83C1;
+    internal const ulong ChunkMagic = 0x9E2A83C1;
 
     internal static SaveExtensionFile Parse(byte[] bytes)
     {
