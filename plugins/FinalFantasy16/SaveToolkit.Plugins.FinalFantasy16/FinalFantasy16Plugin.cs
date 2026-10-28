@@ -7,12 +7,16 @@ namespace SaveToolkit.Plugins.FinalFantasy16;
 
 public sealed class FinalFantasy16Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.4.0")
+    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.5.0")
     {
-        Description = "Named PS5 inventories and experimental fixed-width inventory, equipment, ability and player-context writes with F6 quantity previews. Not console-validated.",
+        Description = "Paged PS5 inventories, filtered quantity previews, Eikon ability reference trees and a location guide; experimental fixed-width writes. Not console-validated.",
         Games = [new GameTitle("PPSA10665", "Final Fantasy XVI"), new GameTitle("PPSA13803", "Final Fantasy XVI Demo")],
         Maturity = PluginMaturity.Experimental,
         References = [
+            "https://finalfantasy.fandom.com/wiki/Template:Navbox_abilities_FFXVI?oldid=3770527",
+            "https://finalfantasy.fandom.com/wiki/Leviathan_(Final_Fantasy_XVI)?oldid=4005603",
+            "https://finalfantasy.fandom.com/wiki/Ultima_(Final_Fantasy_XVI)?oldid=4045298",
+            FaithLocationView.GuideUrl,
             "https://nenkai.github.io/ffxvi-modding/resources/other/save_files/",
             "https://github.com/Nenkai/010GameTemplates/blob/f31430e32f099d66cc22d609a7926988e041c409/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt",
             "https://github.com/Nenkai/010GameTemplates/blob/4a3685f9b63f72ca49e24ac2f18420aaad2762b8/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt",

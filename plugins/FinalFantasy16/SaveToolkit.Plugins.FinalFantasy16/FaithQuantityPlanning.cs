@@ -28,7 +28,8 @@ internal sealed class FaithQuantityPlanning(byte[] bytes, FaithInventory invento
             target.Kind != FieldValueKind.Integer || target.AsInteger() < 0 || target.AsInteger() > MaximumTarget)
             return Error(QuantityParameter, $"Target quantity must be an integer in 0..{MaximumTarget}; this is not a proven gameplay cap.");
         if (!inventory.IsSupported) return Error(actionId, "Main inventory schema/allocation is unsupported or ambiguous.");
-        if (scope.QueryScope is not null) return Error(actionId, "This bounded eager table does not expose a query collection.");
+        if (scope.QueryScope is { } query && (query.CollectionId != FaithInventoryView.CollectionId || scope.RowKeys is null))
+            return Error(actionId, "Main-inventory query scopes must be resolved to explicit rows by Core before planning.");
         var rows = inventory.Items.ToDictionary(item => $"inventory/{item.Slot}", StringComparer.Ordinal);
         var selected = scope.RowKeys ?? rows.Keys.ToArray();
         if (selected.Distinct(StringComparer.Ordinal).Count() != selected.Count || selected.Any(key => !rows.ContainsKey(key)))

@@ -4,6 +4,7 @@ using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
@@ -27,12 +28,16 @@ public sealed class FaithWriteTests
         var references = new ReferencePackStore([_plugin]).Pin(_plugin, title);
         using var document = _plugin.Open(file, references);
         using var session = new DocumentSession("ff16-write", file, _plugin, document, references: references);
-        var fields = FaithViewFields.All(session.BuildView()).DistinctBy(field => field.ValueId)
+        var fields = FaithViewFields.All(session).DistinctBy(field => field.ValueId)
             .Where(field => !field.Spec.ReadOnly && map.Find(field.ValueId) is not null).ToArray();
         Assert.True(fields.Length > 150);
         var exercised = new HashSet<string>(StringComparer.Ordinal);
         foreach (var field in fields)
         {
+            // Edits rebuild the view and retire queried pages; emulate the client reloading this row.
+            if (field.ValueId.StartsWith("inventory/", StringComparison.Ordinal))
+                _ = session.QueryCollection(FaithInventoryView.CollectionId, new QueryableCollectionQuery
+                    { Filters = new Dictionary<string, string> { ["slot"] = field.ValueId.Split('/')[1] } });
             Assert.Contains("Not validated on console", field.Description);
             Assert.Contains("Not validated on console", field.Warning);
             Assert.NotEqual(Confidence.Verified, field.Confidence);
@@ -121,7 +126,8 @@ public sealed class FaithWriteTests
 
     internal static void AssertOnlyRanges(byte[] before, byte[] after, IReadOnlyList<(int Offset, int Width)> allowed)
     {
-        var diff = ByteDiffer.Compare(before, after, options: new ByteDiffOptions { MergeGap = 0 });
+        var diff = ByteDiffer.Compare(before, after, options: new ByteDiffOptions
+            { MergeGap = 0, MaxRanges = allowed.Sum(range => range.Width) + sizeof(uint) });
         Assert.Equal(before.Length, after.Length);
         Assert.False(diff.Truncated);
         Assert.True(diff.HasChanges);

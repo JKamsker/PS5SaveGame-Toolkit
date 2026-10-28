@@ -85,6 +85,20 @@ UseItem.layout are included with their original notice above and per-record
 origin. Skill.layout's three explicit skill-ID annotations remain in the MIT Nex
 pack, separate from the save-rank bytes. All joined labels remain Inferred.
 
+## Eikon ability reference progression (completion round)
+
+`ReferencePacks/ffxvi.abilities.en/abilities.source.tsv` and `abilities.json`
+adapt 48 names, Eikon relationships and selected individual AP facts from Final
+Fantasy Wiki contributors, retrieved 2026-10-28. Every source revision is pinned
+in the TSV and records; the base-game cross-check is
+[navbox revision 3770527](https://finalfantasy.fandom.com/wiki/Template:Navbox_abilities_FFXVI?oldid=3770527).
+Leviathan and Ultima additions use pinned character articles. Original slug keys,
+reference stage chains and warnings are added. The adaptation remains
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); retain attribution,
+revision/history links, modification notices and share-alike terms. No art,
+icons, prose, game saves, save skill-index joins or completion state is included.
+Missing AP annotations remain Unknown. See the pack sidecar and README source table.
+
 ## Vanilla Eikonic feat references — Logos-Unleashed
 
 `ReferencePacks/ffxvi.feats.en` adapts seven vanilla command-name pairs and eight

@@ -18,6 +18,7 @@ public sealed class FaithEvidenceTests
     [InlineData("ffxvi_skills", 3)]
     [InlineData("ffxvi_commands", 7)]
     [InlineData("ffxvi_feats", 8)]
+    [InlineData("ffxvi_abilities", 48)]
     public void EmbeddedFallbackMatchesEveryPinnedRecordIncludingEvidence(string id, int count)
     {
         var store = new ReferencePackStore([_plugin]);

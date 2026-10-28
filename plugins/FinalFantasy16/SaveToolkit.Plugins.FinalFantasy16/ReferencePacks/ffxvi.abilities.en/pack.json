@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "ffxvi.abilities.en",
+  "version": "1.0.0",
+  "title": "FFXVI Eikon ability references (CC BY-SA 3.0)",
+  "plugins": [
+    "ffxvi"
+  ],
+  "titleIds": [
+    "PPSA10665",
+    "PPSA13803"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "description": "Base-game and Rising Tide reference names/stages/AP annotations. No save-index joins or art.",
+  "datasets": [
+    {
+      "id": "ffxvi_abilities",
+      "kind": "records",
+      "title": "Eikon ability progression references",
+      "files": [
+        {
+          "path": "abilities.json",
+          "sha256": "c3e1ba530a01da3e6610f291f885592f780aebcb2e90ab8d75e63021d38c0ef5"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://finalfantasy.fandom.com/wiki/Template:Navbox_abilities_FFXVI?oldid=3770527",
+        "author": "Final Fantasy Wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Curated names, Eikon groups, progression stages and individual AP facts from pinned articles; original slug keys and warnings. No images/prose or save-index mapping. Missing AP annotations stay Unknown. Adaptation remains CC BY-SA 3.0."
+      }
+    }
+  ]
+}
