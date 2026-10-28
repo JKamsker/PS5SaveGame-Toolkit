@@ -6,7 +6,7 @@ using SaveToolkit.Sdk.Values;
 namespace SaveToolkit.Plugins.Insomniac;
 
 /// <summary>Reads bounded DDL trees without rewriting any stored bytes or metadata.</summary>
-internal sealed class DdlReader(Dat1Container container, Dat1Section section, int prefixLength = 0)
+internal sealed class DdlReader(Dat1Container container, Dat1Section section, int prefixLength = 0, int? maxDepth = null)
 {
     private const uint Magic = 0x0315_0044;
     private const uint CrcPolynomial = 0xEDB8_8320;
@@ -38,6 +38,8 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
 
     private DdlObject ReadObject(int depth)
     {
+        if (maxDepth is { } budget && depth > budget && budget < MaxDepth)
+            throw new DdlDepthLimitException();
         if (depth > MaxDepth || ++_totalObjects > MaxObjects)
             throw Invalid("Object depth or node budget exceeded.");
         var start = _position;

@@ -73,8 +73,13 @@ cardinality/negative-value errors are addressed. All C# files remain below 300 l
 
 Framework adoption: F1/F2/F3/F4/F8/F10 used, F4/F8 expanded, F6/F9 added; F5 lacks a
 safe structural writer, F7 has no identified cross-file invariant, F11 has no
-compressed/SQLite payload. F12/F13 are **pending #32/#33**, not plugin substitutes.
+compressed/SQLite payload. The F12/F13 follow-up adopts the production evidence hook,
+browse-only references, shared filter/sort across all five catalogs and float Playtime
+duration hints. Inspection actions and planned reference parameters are N/A here.
 See README's full adoption table. No SDK bug/request blocks the delivered work.
+F12/F13 follow-up validation: **124 passed, 0 failed, 0 skipped**; API build:
+**0 warnings/errors**. CLI hook discovery and sample comparisons pass. All changes
+remain under `plugins/Insomniac/`.
 
 Owner queue [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): existing
 scalar acceptance plus F6 balance target and F9 join experiments, exact numbered

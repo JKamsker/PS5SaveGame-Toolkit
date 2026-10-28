@@ -1,11 +1,14 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.Insomniac;
 
-public sealed class InsomniacPlugin : IGamePlugin
+public sealed class InsomniacPlugin : IGamePlugin, ISaveDecoderProvider
 {
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new RiftEvidenceDecoder()];
+
     public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.6.0")
     {
         Description = "Experimental bolt, gold-bolt option and boolean preference edits, with read-only arsenal/world inspection. Not console-validated; the game may reject edited saves.",
