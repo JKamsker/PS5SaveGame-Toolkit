@@ -15,7 +15,7 @@ internal sealed class EvidenceCollections(PragmataDocument document)
         new("identity", "Stored identity", new TextSpec()),
         new("type", "Stored type", new TextSpec()),
         new("values", "Stored values (meaning unknown)", new TextSpec()),
-        new("details", "Read-only details / sources"),
+        new("details", "Existing values / sources"),
     ];
     private readonly Dictionary<string, Collection> _collections = new(StringComparer.Ordinal);
     public IReadOnlyList<QueryableCollection> Metadata => _collections.Values.Select(c => c.Metadata).ToArray();

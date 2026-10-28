@@ -14,7 +14,8 @@ namespace SaveToolkit.Plugins.Pragmata;
 
 internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IActionPlanningDocument
 {
-    internal const string EditWarning = "Experimental: valid game ranges and console loading have not been tested.";
+    internal const string EditWarning = "Experimental: not validated on console. Game limits and side effects are unverified. " +
+        "CityHash64 and Murmur3 are repaired; the RSA trailer is preserved but cannot be validated or regenerated. The game may reject edited saves.";
     private const int MaximumStringPreviewBytes = 2048;
     private const int MaximumStructPreviewBytes = 64;
     private const long MicrosecondsPerSecond = 1_000_000;
@@ -28,6 +29,7 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
     public SaveLayout Layout { get; }
     internal ReferenceReadouts References { get; }
     internal EvidenceCollections Evidence { get; }
+    internal ObservedEditBounds Bounds { get; }
     public IReadOnlyList<QueryableCollection> Collections => Evidence.Metadata;
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => Evidence.Query(collectionId, query);
     public bool CanEdit => true;
@@ -41,6 +43,7 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
         _container = new DsssContainer(original);
         _plaintext = _container.Plaintext.ToArray();
         Layout = new SaveLayout(_plaintext);
+        Bounds = new ObservedEditBounds(Layout, _plaintext);
         References = new ReferenceReadouts(this, references ?? IReferenceContext.Empty);
         Evidence = new EvidenceCollections(this);
         _quantityActions = new QuantityActions(this);
@@ -74,15 +77,16 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
     {
         var id = raw ? $"raw/{node.Path}" : node.Path;
         _bindings[id] = node;
-        var spec = PrimitiveCodec.Spec(node);
+        var spec = Bounds.Spec(node);
         if (IsTimer(node) && spec is IntegerSpec timer)
             spec = timer with { Format = IntegerFormat.Duration, UnitsPerSecond = MicrosecondsPerSecond, Unit = "µs" };
         else if (spec is IntegerSpec integer && HashNames.All.TryGetValue(node.Hash, out var name) && name.EndsWith("Hash", StringComparison.Ordinal))
             spec = integer with { Format = IntegerFormat.Hex };
         return new FieldNode(id, HashNames.Label(node.Hash), spec, Read(node))
         {
-            Confidence = IsTimer(node) ? Confidence.Inferred : HashNames.All.ContainsKey(node.Hash) ? Confidence.Verified : Confidence.Unknown,
-            Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x} · {References.IdentifierSource(node.Hash)}",
+            Confidence = HashNames.All.ContainsKey(node.Hash) ? Confidence.Inferred : Confidence.Unknown,
+            Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x} · {References.IdentifierSource(node.Hash)} " +
+                $"{Bounds.Description(node)} These are editor/storage bounds, not proven game limits. {EditWarning}",
         };
     }
 
@@ -91,14 +95,16 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
         var proposed = new Dictionary<SaveNode, FieldValue>();
         foreach (var edit in edits)
         {
-            if (References.IsReadOnly(edit.ValueId))
-                return EditOutcome.Rejected(edit.ValueId, "Evidence views are read-only; gameplay effects and structural changes are unverified.");
-            if (!_bindings.TryGetValue(edit.ValueId, out var node))
+            var resolved = References.Resolve(edit.ValueId, edit.Value);
+            if (resolved?.Error is { } referenceError) return EditOutcome.Rejected(edit.ValueId, referenceError);
+            var value = resolved?.Value ?? edit.Value;
+            var node = resolved?.Node ?? _bindings.GetValueOrDefault(edit.ValueId);
+            if (node is null)
                 return EditOutcome.Rejected(edit.ValueId, "Unknown field; expand its section first.");
             if (!node.IsPrimitive) return EditOutcome.Rejected(edit.ValueId, "Field is read-only.");
-            if (PrimitiveCodec.Validate(node, edit.Value) is { } error)
+            if (Bounds.Validate(node, value) is { } error)
                 return EditOutcome.Rejected(edit.ValueId, error);
-            var value = node.Type == FieldTags.Float32 ? FieldValue.Of((double)(float)edit.Value.AsDouble()) : edit.Value;
+            value = node.Type == FieldTags.Float32 ? FieldValue.Of((double)(float)value.AsDouble()) : value;
             if (proposed.TryGetValue(node, out var previous) && previous != value)
                 return EditOutcome.Rejected(edit.ValueId, "Conflicting edits address the same primitive.");
             proposed[node] = value;

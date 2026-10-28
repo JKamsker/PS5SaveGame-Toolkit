@@ -69,7 +69,7 @@ public sealed class ReferenceViewTests
     }
 
     [Fact]
-    public void EmptyContextPreservesExactIdsAndRejectsReferenceWritesAtomically()
+    public void EmptyContextPreservesExactIdsAndRejectsMalformedReferenceWritesAtomically()
     {
         using var document = EditingTests.Gameplay();
         var original = document.Serialize().Single().Content.ToArray();
@@ -77,16 +77,16 @@ public sealed class ReferenceViewTests
         var field = table.Rows.Select(r => r.Cells["name"]).OfType<FieldNode>().Single(f => f.Value.AsString() == ItemId);
         Assert.Equal(Confidence.Unknown, field.Confidence);
         var spec = Assert.IsType<ReferenceSpec>(field.Spec);
-        Assert.True(spec.ReadOnly);
-        Assert.False(spec.AllowCustom);
+        Assert.False(spec.ReadOnly);
+        Assert.True(spec.AllowCustom);
         Assert.Equal(field.Value, document.GetValue(field.ValueId));
         Assert.False(document.ApplyEdits([new(EditingTests.Quantity(document).Path, FieldValue.Of(1L)),
-            new(field.ValueId, FieldValue.Of("1"))]).Succeeded);
+            new(field.ValueId, FieldValue.Of("4294967296"))]).Succeeded);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
     }
 
     [Fact]
-    public void UserPackOverridesNamesWithAttributionButCannotAuthorizeLimitsOrEdits()
+    public void UserPackOverridesNamesWithAttributionButCannotAuthorizeGameLimits()
     {
         var plugin = new PragmataPlugin();
         var store = new ReferencePackStore([plugin]);
@@ -105,12 +105,17 @@ public sealed class ReferenceViewTests
         var quantity = Assert.IsType<FieldNode>(row.Cells["quantity"]);
         Assert.Equal(int.MaxValue, Assert.IsType<IntegerSpec>(quantity.Spec).Max);
         Assert.Contains(context.Datasets(), d => d.Used && d.Pack.Id == "pragmata.test.en");
-        Assert.True(name.Spec.ReadOnly);
+        Assert.False(name.Spec.ReadOnly);
+        var spec = Assert.IsType<ReferenceSpec>(name.Spec);
+        var record = context.Catalog(ReferenceReadouts.ItemsCatalog)!.Find(ItemId)!;
+        Assert.True(spec.Assess!(record).Eligible);
+        Assert.False(spec.Assess(record with { Key = "4294967296" }).Eligible);
+        Assert.False(spec.Assess(record with { Key = "not-an-id" }).Eligible);
         Assert.NotNull(JsonSerializer.Serialize<ViewNode>(document.BuildView()));
     }
 
     [Fact]
-    public void ReadOnlyReferenceAliasesRefreshAndFrameworkUndoRestoresOriginalBytes()
+    public void WritableReferenceAliasesRefreshAndFrameworkUndoRestoresOriginalBytes()
     {
         var plugin = new PragmataPlugin();
         var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02530");
@@ -129,19 +134,19 @@ public sealed class ReferenceViewTests
             nodes = session.Expand(section.LazyId!);
         }
         var raw = nodes.OfType<FieldNode>().Single(f => f.ValueId == $"raw/{target.Path}");
-        var result = session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement("4294967295"))]);
+        var result = session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement("1"))]);
         Assert.True(result.Ok);
-        Assert.Equal("4294967295", document.GetValue(reference.ValueId).AsString());
+        Assert.Equal("1", document.GetValue(reference.ValueId).AsString());
         Assert.Contains(result.Changes, change => change.ValueId == reference.ValueId);
         Assert.True(session.Undo().Ok);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         Assert.Equal(reference.Value, document.GetValue(reference.ValueId));
         Assert.True(session.Redo().Ok);
-        Assert.Equal("4294967295", document.GetValue(reference.ValueId).AsString());
+        Assert.Equal("1", document.GetValue(reference.ValueId).AsString());
     }
 
     [Fact]
-    public void NewTabsAreReadOnlyAndExpansionsRemainBounded()
+    public void NewTabsPermitExistingValueEditsAndExpansionsRemainBounded()
     {
         using var document = EditingTests.Gameplay();
         var tabs = ((TabsNode)document.BuildView()).Tabs;
@@ -156,9 +161,10 @@ public sealed class ReferenceViewTests
                 Assert.InRange(nodes.Count, 0, LazyPages.PageSize);
                 Assert.All(nodes.OfType<FieldNode>(), field =>
                 {
-                    Assert.True(field.Spec.ReadOnly);
+                    Assert.False(field.Spec.ReadOnly);
                     Assert.Equal(Confidence.Unknown, field.Confidence);
-                    Assert.False(document.ApplyEdits([new(field.ValueId, field.Value)]).Succeeded);
+                    Assert.True(document.ApplyEdits([new(field.ValueId, field.Value)]).Succeeded);
+                    Assert.Contains("not validated on console", field.Description!, StringComparison.Ordinal);
                 });
             }
         }
