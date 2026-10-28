@@ -54,6 +54,7 @@ the same repository. This request log also covers sources not listed as exclusio
 | `kainotoa/GOWTool` | MIT or GPL-3.0 | [#14](https://github.com/kainotoa/GOWTool/issues/14) |
 | `kvasszn/ree-save-editor` | MIT or GPL-3.0 | [#52](https://github.com/kvasszn/ree-save-editor/issues/52) |
 | `soulsmods/Paramdex` | MIT or GPL-3.0 | [#10](https://github.com/soulsmods/Paramdex/issues/10) |
+| `ClayAmore/ER-Save-Lib` | MIT or GPL-3.0 | [#6](https://github.com/ClayAmore/ER-Save-Lib/issues/6); requested 2026-10-29 after the EldenRing unblock round imported its sparse mappings |
 | `xcier/GoW-2018-PS4-editor` | MIT or GPL-3.0 | [#2](https://github.com/xcier/GoW-2018-PS4-editor/issues/2) |
 | `mooofin/God-of-War-Ragnarok` | MIT or GPL-3.0 | [#2](https://github.com/mooofin/God-of-War-Ragnarok/issues/2); requested 2026-10-29 after the GodOfWarRagnarok unblock round imported its runtime IDs |
 | `The-Grand-Archives/Elden-Ring-CT-TGA` | MIT or GPL-3.0 | [#158](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA/issues/158); existing request, owner added a +1 |
