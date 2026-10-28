@@ -114,6 +114,11 @@ internal sealed class ProtoMessage(GearboxSchema schema, string type, List<Proto
     public void SetInteger(string name, long value) => Set(name, unchecked((ulong)value));
     public void SetText(string name, string value) => Set(name, value);
     public void SetFloat(string name, float value) => Set(name, BitConverter.SingleToUInt32Bits(value));
+    public void Add(ProtoField field) => fields.Add(field);
+    public void Remove(ProtoField field)
+    {
+        if (!fields.Remove(field)) throw new InvalidOperationException("Item is no longer present.");
+    }
 
     private void Set(string name, object value)
     {

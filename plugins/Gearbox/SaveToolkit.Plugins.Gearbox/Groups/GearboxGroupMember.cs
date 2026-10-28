@@ -3,7 +3,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
-/// <summary>Namespace every member identity and project all member fields as read-only.</summary>
+/// <summary>Namespace member identities while retaining the underlying writable contracts.</summary>
 internal sealed class GearboxGroupMember(string role, GearboxDocument document)
 {
     public string Role { get; } = role;
@@ -13,8 +13,7 @@ internal sealed class GearboxGroupMember(string role, GearboxDocument document)
         ? id[(Role.Length + 1)..] : throw new KeyNotFoundException("Unknown Gearbox group identity.");
 
     public QueryableCollection Collection(QueryableCollection collection) => collection with
-    { Id = Prefix(collection.Id), Title = Role + ": " + collection.Title,
-        Columns = collection.Columns.Select(c => c with { Spec = c.Spec is { } spec ? spec with { ReadOnly = true } : null }).ToArray() };
+    { Id = Prefix(collection.Id), Title = Role + ": " + collection.Title };
 
     public QueryableCollectionPage Page(QueryableCollectionPage page) => page with
     { CollectionId = Prefix(page.CollectionId), Rows = page.Rows.Select(r => Row(r, page.CollectionId)).ToArray() };
@@ -24,15 +23,14 @@ internal sealed class GearboxGroupMember(string role, GearboxDocument document)
 
     public ViewNode Node(ViewNode node, string scope = "view") => node switch
     {
-        FieldNode field => field with { ValueId = Prefix(field.ValueId), Spec = field.Spec with { ReadOnly = true } },
+        FieldNode field => field with { ValueId = Prefix(field.ValueId) },
         SectionNode section => section with { LazyId = section.LazyId is { } id ? Prefix(id) : null,
             Children = section.Children.Select((n, i) => Node(n, scope + "/" + i)).ToArray() },
         TabsNode tabs => tabs with { Tabs = tabs.Tabs.Select((t, i) => t with {
             Children = t.Children.Select((n, j) => Node(n, scope + "/" + i + "/" + j)).ToArray() }).ToArray() },
         TableNode table => table with { Rows = table.Rows.Select(r => Row(r, scope)).ToArray() },
         QueryableTableNode table => table with { CollectionId = Prefix(table.CollectionId) },
-        // Inspection actions are available in the independent editor; groups are analysis-only.
-        ActionNode action => new TextNode(action.Label + " is available in the single-file catalogue browser.") { Tone = Tone.Muted },
+        ActionNode action => action with { ActionId = Prefix(action.ActionId) },
         HexNode hex => hex with { BlobId = Prefix(hex.BlobId) },
         _ => node,
     };

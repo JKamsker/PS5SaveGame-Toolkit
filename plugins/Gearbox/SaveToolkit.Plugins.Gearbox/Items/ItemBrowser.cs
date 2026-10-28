@@ -28,15 +28,13 @@ internal sealed class ItemBrowser
         _lists = profile ? new() { ["bank_inventory_list"] = "Bank", ["lost_loot_inventory_list"] = "Lost loot" }
             : new() { ["inventory_items"] = "Backpack" };
         var reader = new SerialReader(root.Schema.Wonderlands);
-        var identity = 0;
         foreach (var list in _lists.Keys)
         {
-            var index = 0;
-            foreach (var field in root.All(list))
+            foreach (var entry in document.Inventory.Entries.Where(e => e.List == list))
             {
+                var field = entry.Field;
                 var serial = field.Message?.Last("item_serial_number")?.Value as byte[] ?? field.Value as byte[] ?? [];
-                // IDs are allocated once per document, including duplicates. No structural writes are enabled.
-                var item = new BrowserItem($"item-{identity++}", list, index++, serial,
+                var item = new BrowserItem(entry.Id, list, entry.Index, serial,
                     field.Message?.Integer("flags"), field.Message?.Integer("pickup_order_index"), new(() => reader.Read(serial)));
                 _items.Add(item);
             }
@@ -48,7 +46,9 @@ internal sealed class ItemBrowser
 
     public IReadOnlyList<ViewNode> Build()
     {
-        List<ViewNode> result = [new TextNode("Read-only serial browser. Family labels are not full generated item names. CRC/layout validation does not prove legal gear. Unknown serials and tails are preserved.") { Tone = Tone.Info }];
+        List<ViewNode> result = [new TextNode("Experimental serial editing. Family labels are not full generated item names. CRC/layout validation does not prove legal gear. Unknown serials and tails are preserved.") { Tone = Tone.Info }];
+        result.Add(new TextNode(SerialWrites.Warning) { Tone = Tone.Warning });
+        result.AddRange(GearboxItemActions.Build(rootWonderlands: _document.Root.Schema.Wonderlands));
         result.Add(new TextNode(_references.Database.Records(ItemCatalogs.Widths).First().AttributionText) { Tone = Tone.Muted });
         result.AddRange(Collections.Select(c => new QueryableTableNode(c.Id, c.Title, c.Columns, c.TotalCount)
         { Description = "Search/filter/sort covers the complete collection. " + _references.Database.Pack.Title }));
@@ -141,6 +141,23 @@ internal sealed class ItemBrowser
             new TextNode($"Rerolls: {info.Rerolls?.ToString(CultureInfo.InvariantCulture) ?? "unknown"}; Chaos raw tier: {info.Chaos?.ToString(CultureInfo.InvariantCulture) ?? "n/a"}; remaining padding bits: {(info.Complete ? info.RemainingBits : "unknown")}."),
             new TextNode("Original serial bytes (BL3 wrapper is shared by both games; it does not identify the game):"),
             new TextNode(item.Serial.Length <= SerialEnvelope.MaximumLength ? $"BL3({Convert.ToBase64String(item.Serial)})" : "Oversized serial preserved; code display suppressed.") { Monospace = true }];
+        foreach (var property in new[] { "level", "rerolls", "chaos" })
+        {
+            var located = property switch { "level" => info.LevelOffset, "rerolls" => info.RerollOffset, _ => info.ChaosOffset };
+            if (located is null || property == "chaos" && !_document.Root.Schema.Wonderlands ||
+                info.Balance?.Path is null || info.Inventory?.Path is null || info.Manufacturer?.Path is null) continue;
+            nodes.Add(_document.ItemNumber(item.Id + "/" + property, "Item " + property, property == "level" ? 1 : 0,
+                SerialWrites.Maximum(_document.Root.Schema.Wonderlands, property),
+                () => SerialWrites.Value(new SerialReader(_document.Root.Schema.Wonderlands).Read(_document.Inventory.Find(item.Id).Serial), property)!.Value,
+                value => _document.Inventory.SetSerial(item.Id, SerialWrites.Set(_document.Inventory.Find(item.Id).Serial, _document.Root.Schema.Wonderlands, property, value))));
+        }
+        if (_document.Inventory.Find(item.Id).Field.Message is { } itemMessage && (itemMessage.Integer("flags") & 6) != 6)
+            nodes.Add(_document.ItemNumber(item.Id + "/mark", "Mark (0 ordinary, 1 favourite, 2 junk)", 0, 2,
+                () => (int)(_document.Inventory.Find(item.Id).Field.Message!.Integer("flags") & 6) switch { 2 => 1, 4 => 2, _ => 0 },
+                value => {
+                    var message = _document.Inventory.Find(item.Id).Field.Message!;
+                    message.SetInteger("flags", (message.Integer("flags") & ~6L) | (value == 1 ? 2L : value == 2 ? 4L : 0L));
+                }));
         var parts = info.Parts.Concat(info.GenericParts).Select((p, i) => new TableRow(i.ToString(CultureInfo.InvariantCulture),
             new Dictionary<string, ViewNode> { ["category"] = new TextNode(p.Category), ["index"] = new TextNode(p.Index.ToString(CultureInfo.InvariantCulture)),
                 ["asset"] = ReadOnly(item.Id + "/part/" + i, "Raw part asset", p.Path ?? "Unmapped", p.Path is null ? Confidence.Unknown : Confidence.Verified,

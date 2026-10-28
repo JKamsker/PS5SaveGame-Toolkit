@@ -66,7 +66,7 @@ internal static class GearboxGroups
             }
             catch (SaveFormatException ex) { return [new(member.Role, ex.Message)]; }
         }
-        // No transfer, capacity or mirror-reconciliation rules are asserted by this read-only selection.
+        // Opening preserves existing states. Each planned transfer checks its destination capacity and metadata.
         return [];
     }
 

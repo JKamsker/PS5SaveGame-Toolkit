@@ -6,15 +6,18 @@ namespace SaveToolkit.Plugins.Gearbox;
 
 public sealed class GearboxPlugin : IGamePlugin, IDocumentGroupPlugin
 {
-    public PluginInfo Info { get; } = new("gearbox", "Borderlands 3 / Tiny Tina's Wonderlands", "0.3.0")
+    public PluginInfo Info { get; } = new("gearbox", "Borderlands 3 / Tiny Tina's Wonderlands", "0.4.0")
     {
-        Description = "PS5 GVAS/protobuf editor with coordinated read-only character/profile groups. Item serials are read-only.",
+        Description = "Experimental PS5 serial/progression editing, planned inventory actions and coordinated character/profile transactions. Console validation pending.",
         Games = [new GameTitle("PPSA01463", "Borderlands 3"), new GameTitle("PPSA01493", "Tiny Tina's Wonderlands")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/apocalyptech/bl3-cli-saveedit", "https://github.com/apocalyptech/ttwl-cli-saveedit",
             "https://github.com/FromDarkHell/BL3SaveEditor", "https://github.com/xcier/TTWLSaveEditor",
             "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/__init__.py",
             "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/__init__.py",
+            "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/datalib.py",
+            "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/datalib.py",
+            "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/bl3save.py",
             "https://github.com/iyre/bl4-save-tools/tree/c9be7baec6f1df0c348eaaebbed331d635a1f7a9",
             "https://github.com/Nicnl/borderlands4-serials/tree/285f9e1e03c2a46c5e0c45844a682063f655439b",
             "https://github.com/glacierpiece/borderlands-4-save-utility/tree/3668c8abcbe7a51175243e1b1d495518af514dcb",

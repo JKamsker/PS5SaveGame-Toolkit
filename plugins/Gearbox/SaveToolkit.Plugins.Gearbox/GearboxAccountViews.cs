@@ -10,7 +10,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
     private static readonly string[] RewardScalars = ["num_tokens", "is_enabled"];
     public IReadOnlyList<ViewNode> Build()
     {
-        List<ViewNode> nodes = [new TextNode("Stored account/character mirrors are read-only. Differences do not establish which file wins on load. Missing records are not treated as zero or created.") { Tone = Tone.Warning }];
+        List<ViewNode> nodes = [new TextNode("Account scalar/allocation edits are available only in an explicit character + profile group. Differences do not establish which file wins on load. Missing records are not created; edits never infer mirror precedence or point budgets. " + SerialWrites.Warning) { Tone = Tone.Warning }];
         if (document.Root.Schema.Wonderlands) Wonderlands(nodes);
         else Borderlands(nodes);
         return nodes;
@@ -36,7 +36,8 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
             ("is_rank_system_enabled", "Rank system enabled (raw)"), ("guardian_reward_random_seed", "Reward random seed (raw)") })
         {
             if (!Has(current, name)) continue;
-            fields.Add(document.Integer(id + "/" + name, label, () => get()!, name, long.MaxValue, false));
+            fields.Add(AccountNumber(id + "/" + name, label, () => get()!, name,
+                name == "is_rank_system_enabled" ? 1 : Math.Max(current.Integer(name), 1_000_000), name != "guardian_reward_random_seed"));
         }
         if (Has(current, "rank_rewards")) fields.Add(lazy.Register(id + "/rewards", "Guardian reward allocations (raw assets)",
             () => GuardianRows(get, id, "rank_rewards", "reward_data_path", 0)));
@@ -53,8 +54,8 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
             var position = offset + index;
             var cells = new Dictionary<string, ViewNode> { ["asset"] = document.InspectionField($"{id}/{list}/{position}/asset", "Raw asset", entry.Text(asset), Confidence.Unknown, null) };
             foreach (var field in RewardScalars)
-                cells[field] = Has(entry, field) ? document.Integer($"{id}/{list}/{position}/{field}", field,
-                    () => get()!.Children(list).ElementAt(position), field, long.MaxValue, false) : new TextNode("Absent");
+                cells[field] = Has(entry, field) ? AccountNumber($"{id}/{list}/{position}/{field}", field,
+                    () => get()!.Children(list).ElementAt(position), field, field == "is_enabled" ? 1 : Math.Max(entry.Integer(field), 1000)) : new TextNode("Absent");
             return new TableRow($"{id}/{list}/{position}", cells);
         }).ToArray();
         List<ViewNode> result = [new TableNode([new("asset", "Raw asset"), new("num_tokens", "Tokens invested"), new("is_enabled", "Enabled (raw)")], rows)];
@@ -72,9 +73,9 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
             {
                 if (!Has(hero, name)) continue;
                 var record = document.World.Find("hero:" + name);
-                fields.Add(document.Integer("account/hero/" + name, record?.Name ?? name,
-                    () => document.Root.Child("hero_points_save_data")!, name, uint.MaxValue, false) with
-                { Description = record?.AttributionText, Warning = "Stored raw stat; backstory and Myth bonuses are not added." });
+                fields.Add(AccountNumber("account/hero/" + name, record?.Name ?? name,
+                    () => document.Root.Child("hero_points_save_data")!, name, Math.Max(hero.Integer(name), 30)) with
+                { Description = record?.AttributionText + " " + SerialWrites.Warning, Warning = "Stored raw stat; backstory, budget and Myth bonuses are not recomputed. " + SerialWrites.Warning });
             }
             if (Has(hero, "player_aspect_data_path")) fields.Add(document.World.Label("account/hero/backstory", "Backstory", hero.Text("player_aspect_data_path")));
             nodes.Add(new SectionNode("Character Hero stats", fields));
@@ -86,7 +87,8 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         if (current is null) { nodes.Add(new TextNode("Myth record absent (preserved); no rank or point budget inferred.")); return; }
         var values = new List<ViewNode>();
         foreach (var (name, label) in new[] { ("prestige_experience", "Stored Myth XP"), ("last_upgrade_tree_index", "Last upgrade tree index (raw)") })
-            if (Has(current, name)) values.Add(document.Integer(id + "/" + name, label, () => get()!, name, long.MaxValue, false));
+            if (Has(current, name)) values.Add(AccountNumber(id + "/" + name, label, () => get()!, name,
+                name == "last_upgrade_tree_index" ? 3 : Math.Max(current.Integer(name), 1_000_000)));
         values.Add(lazy.Register(id + "/allocations", "Myth indexed allocations", () => MythRows(get, id, 0)));
         nodes.Add(new SectionNode(document.Profile ? "Profile Myth state" : "Character cloud Myth mirror", values));
     }
@@ -102,7 +104,8 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
             {
                 ["index"] = new TextNode(position.ToString(CultureInfo.InvariantCulture)),
                 ["name"] = document.InspectionField($"{id}/{position}/name", "Stat", record?.Name ?? "Unknown index", record is null ? Confidence.Unknown : Confidence.Inferred, record?.AttributionText),
-                ["points"] = document.InspectionField($"{id}/{position}/points", "Stored points", value.ToString(CultureInfo.InvariantCulture), Confidence.Inferred, record?.AttributionText),
+                ["points"] = MythPoints(get, id, position, value,
+                    SerialDatabase.For(true).Find(GearboxWorldCatalog.CatalogId, "myth:" + position.ToString(CultureInfo.InvariantCulture))?.Attributes.GetValueOrDefault("upstreamCap"), record?.AttributionText),
             });
         }).ToArray();
         List<ViewNode> nodes = [new TextNode("Upstream index labels; PS5 allocation rotation/caps unproven. No computed Myth rank."),
@@ -123,6 +126,21 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
                 while (!reader.IsAtEnd) yield return reader.ReadInt32();
             }
         }
+    }
+
+    private FieldNode AccountNumber(string id, string label, Func<ProtoMessage> get, string name, long maximum, bool writable = true) =>
+        document.Integer(id, label, get, name, maximum, document.Coordinated && writable, SerialWrites.Warning) with
+        { Confidence = Confidence.Inferred, Description = "Existing raw stored value; observed range plus conservative editor bound. Point budgets, mirror precedence and derived rewards are not inferred. " + SerialWrites.Warning };
+
+    private FieldNode MythPoints(Func<ProtoMessage?> get, string id, int position, int value, string? upstreamCap, string? attribution)
+    {
+        if (!document.Coordinated || !int.TryParse(upstreamCap, out var cap) || value < 0)
+            return document.InspectionField($"{id}/{position}/points", "Stored points", value.ToString(CultureInfo.InvariantCulture), Confidence.Inferred, attribution);
+        var maximum = cap == 0 ? Math.Max(value, 1000) : cap;
+        return document.ItemNumber($"{id}/{position}/points", "Stored points", 0, maximum,
+            () => Integers(get()!, "points_spent_by_index_order").ElementAt(position),
+            next => ProtoArrayEdits.Set(get()!, "points_spent_by_index_order", position, next)) with
+        { Description = attribution + " Raw allocation; upstream cap is an editor policy. XP/rank/rotation and point budgets are not automatically reconciled. " + SerialWrites.Warning };
     }
 
     private static bool Has(ProtoMessage message, string name) => message.Fields.Any(f => f.Spec?.Name == name);

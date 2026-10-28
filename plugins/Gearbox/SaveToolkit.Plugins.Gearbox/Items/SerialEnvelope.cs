@@ -74,4 +74,19 @@ internal sealed class SerialEnvelope
         for (var i = 0; i < rotated.Length; i++) rotated[i] = _plain[(i + steps) % _plain.Length];
         return [.. _header, .. Xor(rotated, Seed)];
     }
+
+    public byte[] Patch(int offset, int width, int value)
+    {
+        if (offset < 0 || width is < 1 or > 16 || offset + width > Payload.Length * 8 || value < 0 || value >= 1 << width)
+            throw new ArgumentOutOfRangeException(nameof(value));
+        var changed = new SerialEnvelope(_header.ToArray(), _plain.ToArray());
+        for (var bit = 0; bit < width; bit++)
+        {
+            var position = offset + bit;
+            var mask = 1 << (position % 8);
+            changed._plain[2 + position / 8] = (byte)((changed._plain[2 + position / 8] & ~mask) | (((value >> bit) & 1) * mask));
+        }
+        BinaryPrimitives.WriteUInt16BigEndian(changed._plain, changed.Checksum());
+        return changed.EncodeOriginalSeed();
+    }
 }

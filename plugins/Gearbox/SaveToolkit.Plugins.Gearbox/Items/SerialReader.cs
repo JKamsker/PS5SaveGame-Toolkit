@@ -18,6 +18,9 @@ internal sealed record SerialInfo
     public int? Chaos { get; init; }
     public int RemainingBits { get; init; }
     public bool Complete { get; init; }
+    public int? LevelOffset { get; init; }
+    public int? RerollOffset { get; init; }
+    public int? ChaosOffset { get; init; }
     public string Diagnostic { get; init; } = "Unknown serial.";
 }
 
@@ -51,7 +54,8 @@ internal sealed class SerialReader(bool wonderlands)
             var balance = ReadAsset(bits, "InventoryBalanceData", version);
             var inventory = ReadAsset(bits, "InventoryData", version);
             var manufacturer = ReadAsset(bits, "ManufacturerData", version);
-            info = info with { Balance = balance, Inventory = inventory, Manufacturer = manufacturer, Level = bits.Take(LevelBits) };
+            var levelOffset = bits.Position;
+            info = info with { Balance = balance, Inventory = inventory, Manufacturer = manufacturer, Level = bits.Take(LevelBits), LevelOffset = levelOffset };
             if (balance.Path is null || inventory.Path is null || manufacturer.Path is null)
                 throw new SaveFormatException("Unmapped item header index; raw indices preserved.");
             var family = _database.Find(ItemCatalogs.Families, balance.Path.ToLowerInvariant());
@@ -62,14 +66,17 @@ internal sealed class SerialReader(bool wonderlands)
             var additional = bits.Take(ByteBits);
             for (var i = 0; i < additional; i++) _ = bits.Take(ByteBits);
             if (bits.Take(CustomizationCountBits) != 0) throw new SaveFormatException("Unknown customization layout; remaining bits preserved.");
+            var rerollOffset = bits.Position;
             var rerolls = envelope.Version >= RerollSerialVersion ? bits.Take(ByteBits) : 0;
+            var chaosOffset = bits.Position;
             int? chaos = wonderlands ? bits.Take(ChaosTierBits) : null;
             info = info with { Rerolls = rerolls, Chaos = chaos, RemainingBits = bits.Remaining };
             if (bits.Remaining > MaximumPaddingBits || bits.Take(bits.Remaining) != 0)
                 throw new SaveFormatException("Unknown non-padding tail; original bytes preserved.");
             if (parts.Concat(generic).Any(p => p.Path is null))
                 throw new SaveFormatException("Unmapped part index; original bytes preserved.");
-            return info with { Complete = true, Diagnostic = "CRC/header/parts verified against pinned layout; game legality unknown." };
+            return info with { Complete = true, RerollOffset = envelope.Version >= RerollSerialVersion ? rerollOffset : null,
+                ChaosOffset = wonderlands ? chaosOffset : null, Diagnostic = "CRC/header/parts verified against pinned layout; game legality unknown." };
         }
         catch (SaveFormatException ex) { return info with { Rerolls = null, Chaos = null, Diagnostic = ex.Message }; }
     }
@@ -89,6 +96,7 @@ internal sealed class SerialReader(bool wonderlands)
 internal sealed class SerialBits(byte[] bytes)
 {
     private int _position;
+    public int Position => _position;
     public int Remaining => bytes.Length * 8 - _position;
     public int Take(int count)
     {
