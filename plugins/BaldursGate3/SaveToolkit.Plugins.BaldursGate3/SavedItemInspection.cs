@@ -115,7 +115,8 @@ internal sealed class SavedItemInspection
         return new TableRow(item.Key, new Dictionary<string, ViewNode>
         {
             ["name"] = Bg3References.Describe(name, record, item.Template),
-            ["template"] = _bind($"{item.Key}/template", "CurrentTemplate", FieldValue.Of(item.Template)),
+            ["template"] = Bg3References.Describe(_bind($"{item.Key}/template", "CurrentTemplate", FieldValue.Of(item.Template)), record, item.Template)
+                with { Spec = new ReferenceSpec(Bg3References.Templates) { ReadOnly = true, AllowCustom = true } },
             ["stats"] = _bind($"{item.Key}/stats", "Stats ID", FieldValue.Of(item.Stats)),
             ["provenance"] = new TextNode($"Globals entry {item.Entry}, node {item.Node}; template occurrence {item.Occurrence}"),
             ["ownership"] = new TextNode(Ownership(item)),

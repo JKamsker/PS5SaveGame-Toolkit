@@ -121,7 +121,7 @@ public sealed class SampleWritingTests(ITestOutputHelper output)
             Assert.Equal(i < 2 ? 30 : 0, total.Value.AsInt32());
         }
 
-        Assert.Contains(party.Children.OfType<TextNode>(), t => t.Text.Contains("Gold quantity is unavailable", StringComparison.Ordinal));
+        Assert.Contains(party.Children.OfType<TextNode>(), t => t.Text.Contains("player-owned gold total is unavailable", StringComparison.Ordinal));
         var leader = Assert.Single(party.Children.OfType<FieldNode>(), f => f.Label.StartsWith("LeaderName (", StringComparison.Ordinal) && !f.Spec.ReadOnly);
         output.WriteLine("Leader field: " + leader.Label);
     }

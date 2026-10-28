@@ -1,6 +1,6 @@
 # Baldur's Gate 3 (`bg3`)
 
-Title: **PPSA18463**. Maturity: **Experimental**, version 0.5.0.
+Title: **PPSA18463**. Maturity: **Experimental**, version 0.6.0.
 
 Opens decrypted BG3 save packages and profile resources, lists package entries with
 stored/expanded sizes and compression, and exposes every resource node and attribute
@@ -18,6 +18,14 @@ explicit LSF quantity candidates with warnings, following the owner's decision
 See [LSMF.md](LSMF.md) for the independent implementation record and
 [EVIDENCE.md](EVIDENCE.md) for phase status and the exact owner capture checklist.
 
+Version 0.6.0 adds bounded live NewAge storage decoding and editing: explicit stack
+member quantities, current/temporary HP candidates and effective ability-cache
+candidates. F5/F6 plan a two-key container reorder and imported-quantity restoration;
+F8 pages live values, container entries, class selections and spell books; F9 shows
+spell occurrences with Unknown states and no invented prerequisites. **Source rows
+are not party identities.** See [NEWAGE.md](NEWAGE.md) for the PS5-specific layouts,
+conservative limits, warnings, exclusions and owner checks.
+
 ## Supported scope and preservation
 
 - LSPK v18 reading/writing, independent entries in a single archive part, with a
@@ -34,10 +42,11 @@ See [LSMF.md](LSMF.md) for the independent implementation record and
   This is tested for all twelve claimed primary/backup files, and independently
   through the section rebuilder for all fourteen embedded/standalone LSF copies.
 - Integers, finite floats/doubles, booleans and ordinary UTF-8 string types can be
-  edited. GUIDs, vectors/matrices, translation structures, ScratchBuffers, LSX,
+  edited. GUIDs, vectors/matrices, translation structures, arbitrary ScratchBuffers, LSX,
   arbitrary JSON and story data stay read-only. Existing SaveInfo party level/XP
   number tokens are editable in v18 packages. The UUID-only analytics resource has no
-  editable primitive. No file/network I/O or external executable is used.
+  editable primitive. The internal typed NewAge writer patches only validated
+  fixed-width values/map keys. No file/network I/O or external executable is used.
 
 Solid packages, multipart packages, deletion entries and older versions are rejected
 with `SaveFormatException`. Solid LZ4 uses offsets into a shared frame rather than
@@ -81,8 +90,10 @@ raw `OriginalPlatform = 3`. Numeric enum meanings are deliberately not assigned.
 bytes beginning `LSMF`. The NewAge tab validates its 315-entry directory and
 displays nominal component fingerprints and paged EntityId occurrences. There
 are 9,453 occurrences but 1,984 distinct GUIDs; duplicates are not collapsed into
-an invented unique character. Owner lists, packed streams and gameplay values
-remain uninterpreted. Unknown/unsupported NewAge stays available raw.
+an invented unique character. The separate Live NewAge tab decodes supported PS5
+storage profiles, ownerlist candidates and bounded heap references. Unsupported
+families have explicit diagnostics and remain available raw; ownerlist position is
+not promoted into a proven current body/stats/spell/party identity.
 
 The Party tab reads `SaveInfo.json / Active Party / Characters`: the supplied sample
 contains three rows at level 1, with current/total XP `(30,30)`, `(30,30)`, `(0,0)`.
@@ -91,8 +102,8 @@ Origin strings retain their raw values alongside optional sourced origin labels.
 not rename a live character). Summary meanings use `Confidence.Inferred`, backed
 by the cited community parser/editor documentation and exact sample keys. Level
 and XP summaries are now editable as metadata, with console warnings. The starter pack names Laezel and DarkUrge as
-origins; these are not live character names or party/ECS identity joins. Gold
-quantities remain unavailable. The metadata has two
+origins; these are not live character names or party/ECS identity joins. A player
+gold total remains unavailable; explicit NewAge stack quantities include all owners. The metadata has two
 `CharacterMetaData` nodes, so those nodes are not assumed to map one-to-one to the
 three JSON rows. Editing primitive metadata does not synchronise live ECS state.
 
@@ -124,6 +135,11 @@ use these enabled paths. Metadata changes do not update live NewAge state.
 | Existing SaveInfo party current-level XP | Inferred | Three PS5 tokens (30,30,0). Nonnegative range bounded by the current summary's observed maximum (30 in supplied save); no gameplay limit claimed. | Same verified v18 digest and JSON checks; unknown game consistency checks may reject/overwrite edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): change one summary XP token, inspect metadata/live state, resave/reload/redump. |
 | Existing SaveInfo party total XP | Inferred | Three PS5 tokens (30,30,0); same conservative observed bounds; persistence, intended-token diff and undo/redo tests. | Same verified v18 digest and JSON checks; unknown game consistency checks may reject/overwrite edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): test total XP separately and compare both summary and live XP after resave. |
 | Explicit existing LSF Item quantity candidate (`Quantity`, `Amount`, `Count`, `StackAmount`, `StackCount`) | Unknown | Existing candidate-name inspection plus proven primitive writer. Synthetic standalone/package fixtures test bytes, persistence, invalid batches, raw/page binding consistency and session undo/redo. **No supplied item has a direct quantity attribute.** | LSF structure re-parsed; v18 digest repaired and verified when packaged. Cross-representation dependencies/integrity unknown; game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): supply a save with a direct positive integer quantity, identify owner/stack, reduce by one, load/use/trade/resave/reload/redump. |
+| NewAge existing positive member quantity | Unknown | All 38 sample groups / 39 members follow explicit group→member/entry references. Multiple contributions are summed; every contribution stays positive. Range: contribution count through imported member total. | Fixed u32 patches; surrounding bytes preserved, output NewAge/LSF/package re-parsed, v18 digest repaired. Inner integrity/dependencies unknown; game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): identify one non-quest stack/owner, reduce by one, use/trade/rest, native resave/reload/redump. |
+| NewAge current / temporary HP candidates (2 write kinds) | Unknown | Whole PS5 380-row profile validates. Current HP: 0..stored maximum; temporary HP: 0..max(imported temporary HP, stored temporary maximum). Owner/epoch joins remain unproven. | Same fixed-width preservation and outer digest repair; inner integrity/dependent health state unknown. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): separate damage/heal/temp-HP captures and spare-slot edit checks, including unrelated characters and later combat/rest. |
+| NewAge six effective ability-cache candidates | Unknown | Whole PS5 256-row profile validates six i32 values after an opaque 8-byte per-record prefix. Each range is 1..its imported value. These are effective/cache candidates, not base scores or respec. | Same preservation/checks; boosts, progression and cache authority unknown. Game may reject or regenerate values. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): reduce one supported value, inspect sheet/boosts/combat and resave/reload/redump; test each ability separately. |
+| F5/F6 swap two existing container map keys | Unknown | Two existing u16 keys in one validated container; membership, dense ordinals, generation words, item pointers and all other bytes are preserved. Scoped memento supports one-step undo/redo. | NewAge structure re-parsed and v18 digest repaired; map-key/grid semantics and external dependencies unconfirmed. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): two ordinary unequipped items in one inventory, observe order/ownership/equipment after swap, undo/redo, resave/reload/redump. |
+| F6 restore imported stack quantities | Unknown | Preview includes changed/skipped rows and integrity warnings; explicit, document and Core-resolved F8 query scopes with exclusions. Reuses bounded quantity setters; one history step. | Same quantity integrity limits. No missing stack, gold ownership, template identity or quantity of one is fabricated. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): reduce two existing quantities, restore selected/filtered rows, verify preview and grouped undo plus native resave/reload. |
 
 Summary edits patch existing UTF-8 number tokens only. Unknown members, string
 escapes, whitespace, number spellings and trailing whitespace are retained. Undo
@@ -138,18 +154,16 @@ observed positive quantity of that stored integer type in the document. Zero/rem
 semantics are unknown and rejected by the new control. The same canonical binding
 and bounds apply in the raw explorer and table. This is not a player-gold total.
 
-Live NewAge gold/HP/abilities/spells, inventory creation/removal/transfers/equipment
-and Osiris quest/approval writes still have **no safe structural writer**: packed
-streams, ownerlists, allocation/relocation and cross-references are unmodeled. A
-warning cannot make an unknown pointer write preserve data. No prepared bulk,
-structural or multi-file action was found to enable; no F5/F6/F7 substitute is
-introduced. Existing primitives and LeaderName remain enabled. These limitations
-are implementation/structure limits, not a wait for the owner validation in #31.
+Inventory creation/removal/transfers/equipment, base-score/respec/level changes,
+spell selection and Osiris quest/approval actions remain unavailable: entity
+allocation/relocation, dependency repair and authoritative subsystem joins are
+unmodeled. Existing-key reorder does not solve those structures. No generic
+pointer/blob edit is exposed. Existing primitives and LeaderName remain enabled.
 
 The Catalogs tab exposes the embedded pack as bounded queryable collections. Raw IDs use
 an F4-compatible `ReferenceSpec` with custom values allowed and read-only confidence;
 the pack's build, module and load-order are unspecified, so these records are candidate
-labels rather than live joins. The NewAge live-state section reports only component-family
+labels rather than live joins. The original NewAge inspection section reports only component-family
 presence (character, health, classes, spellbook, containers and stack candidates). The
 Story tab reports bounded byte markers for known Osiris database families, without claiming
 tuple values, approval totals, quest completion or romance state.
@@ -259,8 +273,9 @@ flag byte. Unchanged sections/entries are never passed through a compressor.
 
 The digest does not cover filenames, container metadata or padding and is not
 authentication. Standalone LSFs have structural checks but no discovered content
-checksum. NewAge's directory and EntityId are inspected read-only; its gameplay
-semantics/integrity and Osiris are not decoded or modified. Community load failures after ECS changes are not evidence about the
+checksum. Supported NewAge storage is decoded/patched as described in NEWAGE.md;
+its inner integrity and authoritative gameplay semantics remain unknown. Osiris
+remains read-only. Community load failures after ECS changes are not evidence about the
 primitive/summary writer; PS5 compatibility still needs human testing. Maturity stays
 Experimental until that test, even though the byte/checksum/conformance tests pass.
 
@@ -272,8 +287,8 @@ the supplied package digest and preservation of every unedited compressed payloa
 Raw fields carry `Confidence.Unknown` because their **gameplay meaning** is unvalidated.
 Curated Party metadata and exact-reference label candidates use `Confidence.Inferred`;
 unresolved names and raw fingerprints use `Unknown`. Live character names, level/XP,
-gold, abilities and inventory relationships inside LSMF need further validated
-decoding and controlled PS5 observations. No live stat or gold editor, guessed item names, tree insertion/deletion,
+gold ownership, authoritative abilities and party identity inside LSMF need
+controlled PS5 observations. No player-gold total, base-stat setter, guessed item name, tree insertion/deletion,
 multipart/solid writer, or console compatibility is claimed.
 
 Other limits: 256 MiB input, 256 MiB total expanded package payloads, 256 MiB expanded
@@ -304,6 +319,16 @@ UTF-8/UUID/scalar vectors, malformed/truncated data, entity rejection, meaningfu
 leader-name edits in conformance, thumbnails/blob ranges, and 20,000-entry/child
 paging. Synthetic tests run without samples.
 
+Version 0.6.0: **200 passed, 0 failed, 0 skipped** with the real artifacts path,
+after rebasing onto main with F12/F13.
+API build passed with zero warnings/errors. With an empty artifacts path,
+**170 passed, 30 skipped, 0 failed**. F1 fixture verification passed: one baseline,
+two unchanged files, an identical backup pair and zero changed bytes. New live
+tests cover all six effective abilities, HP bounds, explicit stack contributions,
+container-key preservation, typed Creator IDs, malformed references, scoped F6
+selection/exclusions, intended byte changes, scalar/structural Core history,
+F12 paging/truncation, F13 catalogue sorting and exact unsigned class-level sorting.
+
 Version 0.5.0: **168 passed, 0 failed, 0 skipped** with the real artifacts path;
 API build passed with zero warnings/errors. With an empty artifacts path,
 **144 passed, 24 skipped, 0 failed**, confirming absent samples skip cleanly.
@@ -324,12 +349,33 @@ hooks, scripts, build targets or repository tooling are installed.
 
 ## SDK requests
 
-None for this subset. F1 consumes the new bound read-only values through its
-existing `PluginViewDecoder`; F2 supplies immutable catalog context/attribution.
-Existing bindings support atomic primitive edits, rollback, lazy views and undo.
-F4 reference fields and F8 queryable inventory pages use the SDK directly. No bulk,
-structural or multi-file operation is implemented/prepared, so F5/F6/F7 need no
-plugin changes for these single-package scalar edits. No local substitutes were added.
+No SDK request blocks this subset. After rebasing onto main, F12's generic plugin
+view decoder traverses live F8 fields; regression tests compare an edited quantity
+across one-row pages and verify explicit incomplete evidence on budget exhaustion.
+There is no separate test-only/native decoder to migrate to the optional hook.
+Select this decoder with `savediff compare before.zip after.zip --decoder bg3`.
+Direct intended-byte assertions remain additional preservation evidence. F13
+provides browse-only pickers for the existing read-only references and standard
+catalog filtering/sorting, replacing the plugin's full-catalog sorting workaround.
+No message-only inspection action or proven float duration exists to opt in.
+
+## Framework feature adoption
+
+| Feature | Status | Where / concrete limit |
+| --- | --- | --- |
+| F1 SaveDiff | Used | Pinned baseline `fixtures.json`, original whole/component fingerprints, intended-byte diffs and F12 live-value semantic checks. No fake event/control or churn mask. |
+| F2 reference packs | Used | Embedded attributed catalogs, per-dataset/record notices and Sources panel. |
+| F3 rich cells | Added this round | Live value evidence details, slot action cells, confidence/warning badges. No unlicensed icons. |
+| F4 ReferenceSpec | Used / expanded | Catalog raw IDs, saved CurrentTemplate, origin IDs and saved spell IDs; F13 browse-only where replacement needs an unimplemented dependency writer. |
+| F5 structural undo | Added this round | Two-existing-container-key reorder with scoped inverse memento, stable row IDs, exact bytes on undo. Allocation/removal/transfers remain unsupported. |
+| F6 preview/apply | Added this round | Quantity restoration and structural reorder, skipped rows/warnings, query scopes/exclusions and one-step undo. |
+| F7 document groups | N/A | Gameplay/summary resources are already members of one atomically rewritten LSPK. Backup twins are identical archival copies, not a demonstrated coupled gameplay invariant. |
+| F8 collections | Used / expanded | Catalogs, saved items, live values, slots, classes and spell books; bounded text/filter/sort pages. |
+| F9 graph/map | Added this round | Saved spell presence graphs, text alternatives and field targets, Unknown states, no guessed prerequisite edges. Map N/A: no proven saved discovery/coordinate transform or licensed coordinate dataset. |
+| F10 exact values | Used | IntegerSpec/Int128 transports exact stored u32/i32/u64 values (including class levels). Nullable/union/exact-JSON specs N/A: supported mutable fields have fixed binary types or existing bounded integer JSON tokens. |
+| F11 shared codecs | N/A | No Kraken or SQLite payload exists in this supported Larian path. LZ4/zstd/zlib use the existing attributed managed codecs. |
+| F12 | Added this round | Generic `bg3` decoder traverses live F8 rows with host budgets; one-row-page changed-quantity and truncation tests. No private decoder needs a separate hook. |
+| F13 | Added this round | Browse-only read-only reference fields; host category filtering and declared Key/Name/Category sorting. Inspection actions N/A: both actions mutate storage. Float duration N/A: no proven mutable float timer semantics. |
 
 ## Sources and attribution
 
@@ -343,7 +389,7 @@ plugin changes for these single-package scalar edits. No local substitutes were 
 | `bg3_equipment` (6 records) | [Equipment](https://bg3.wiki/w/index.php?title=Equipment&oldid=405329), pinned weapon/container and companion pages | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Equipment/category candidates; sets are not item identities. |
 | `bg3_spells` (5 records) and `bg3_passives` (5 records) | Pinned [Spells](https://bg3.wiki/w/index.php?title=Spells&oldid=433193), [Cantrips](https://bg3.wiki/w/index.php?title=Cantrips&oldid=420539), [Guidance](https://bg3.wiki/w/index.php?title=Guidance&oldid=413520), [Fire Bolt](https://bg3.wiki/w/index.php?title=Fire_Bolt&oldid=373237), [Passive feature](https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | UID/display-key candidates only; spellbook/source and passive joins remain unknown. |
 | `bg3_companions` (7 records) and `bg3_camp_supplies` (8 records) | Pinned [Companions](https://bg3.wiki/w/index.php?title=Companions&oldid=439368), origin pages and [Camp Supplies](https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Character UUID/UID and supply-value candidates; no party ownership, approval or inventory totals. |
-| Independent LSMF directory/EntityId reader | [DanFinchUK format documentation, pinned revision](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md), independently measured PS5 bytes | Upstream code licence unresolved; research inspected 2026-10-28 | No implementation copied or run. Independent code and handwritten vectors; measured PS5 arena offset corrects upstream prose. See [LSMF.md](LSMF.md). |
+| Independent LSMF directory/EntityId and PS5 live-storage reader/writer | [DanFinchUK format documentation, pinned revision](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md), independently measured PS5 bytes | Upstream code licence unresolved; research inspected 2026-10-28 | No implementation copied or run. Independent code and handwritten vectors; PS5 directory, stacks, containers, Health/Stats/classes/spells measured against bytes. See [LSMF.md](LSMF.md) and [NEWAGE.md](NEWAGE.md). |
 | Existing LSPK/LSF/LSX and UUID format ports | [Norbyte/LSLib](https://github.com/Norbyte/lslib/tree/6f5f6987d10d8485876b8368431c948e4dea4f83) | MIT; [licence notice](THIRD-PARTY-NOTICES.md) | Managed preservation-first implementations; format files listed below. |
 | Managed LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
 | Managed zstd codec | [ZstdSharp](https://github.com/oleg-st/ZstdSharp), Oleg Stepanischev and contributors | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |

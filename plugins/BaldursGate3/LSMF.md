@@ -1,11 +1,13 @@
-# Read-only LSMF foundation (0.3.0)
+# LSMF directory foundation and live-storage extension
 
-This is an independently implemented **directory and EntityId reader**, not a
+The original 0.3.0 foundation below is an independently implemented **directory and EntityId reader**, not a
 complete live gameplay decoder. The plugin extracts only an attribute named
 `NewAge`, of typed `ScratchBuffer`, under a `NewAge` LSF node. It does not scan
 compressed package bytes for a coincidental magic string. Unsupported/corrupt
 optional NewAge inspection produces a warning and leaves the raw explorer and
 exact no-op export available.
+
+Version 0.6.0 extends this foundation with independently measured PS5 live storage, fixed-width writers, F5/F6 inventory actions and F9 spell presence graphs. [NEWAGE.md](NEWAGE.md) supersedes the historical exclusions below and records current bounds, unsupported joins and exact owner checks.
 
 ## Implementation provenance
 
@@ -84,11 +86,11 @@ it is not evidence of an in-game integrity mechanism.
   directory padding and trailing bytes remain unchanged in the original buffer.
 - Views are lazy and hierarchically paged, with at most 128 rows or page links
   per expansion. Initial view creation does not decode EntityId or build item rows.
-- Ownerlist-region discovery, packed Stats/Health streams, archetype shifts,
+- In the original 0.3.0 subset, ownerlist-region discovery, packed Stats/Health streams, archetype shifts,
   heaps/strings/enums, Creator→Entity joins, stack groups, nested containment,
-  cycles and gameplay fields are **not interpreted**. Untrusted pointer graphs
+  cycles and gameplay fields were **not interpreted**. Untrusted pointer graphs
   are not traversed. No generic descriptor-row or ownerlist-position rule is used.
-- NewAge has no mutation path. Existing LSF/LSPK primitive writers are unchanged;
+- In 0.3.0 NewAge had no mutation path. The 0.6.0 internal path is documented in NEWAGE.md;
   exact no-op and primitive edit/undo preservation tests still pass.
 
 The F1 `PluginViewDecoder` can consume these bound read-only fields without a new
