@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>SaveToolkit.Plugins.Gearbox</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" />
+    <EmbeddedResource Include="Data/*.tsv" />
+    <InternalsVisibleTo Include="SaveToolkit.Plugins.Gearbox.Tests" />
+    <!-- Plugins depend on the SDK only (never on Core/Api). -->
+    <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
+  </ItemGroup>
+</Project>
