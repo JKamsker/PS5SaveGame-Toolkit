@@ -36,10 +36,10 @@ select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as 
 
 | Feature | Status | Adoption / concrete reason and verification |
 | --- | --- | --- |
-| F1 SaveDiff | Added this round | Existing `ByteDiffer` golden-byte tests; shared `FixtureManifest`/`FixtureVerifier` self-comparison fixtures for all three titles; `PluginViewDecoder` hook test for stable character paths. These are repeatability fixtures, not invented controlled events. Full F8 semantic traversal is pending F12. |
+| F1 SaveDiff | Added this round | Existing `ByteDiffer` golden-byte tests; shared `FixtureManifest`/`FixtureVerifier` self-comparison fixtures for all three titles; an SDK-native `ff7r-character-evidence` hook for stable character paths; and F8 traversal tests. These are repeatability fixtures, not invented controlled events. |
 | F2 reference packs | Used | Build-scoped embedded MIT item/weapon/materia packs, per-dataset attribution and Sources panel; optional imported text/images through pinned `IReferenceContext`. Pack validity/build/provenance tests. |
 | F3 rich table cells | Added this round | Inventory/catalog row-detail sections retain descriptions/attribution and optional imported `ImageNode` assets. Bound numeric cells carry confidence/warnings. Tested detail nodes, imported image identity and `GetAsset` routing; no game artwork bundled. |
-| F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Server checks exclude unknown/summon/mismatched rows. Writable weapon references are **instance IDs**, while the catalog keys are **type IDs**; substituting that catalog would select the wrong domain. Raw type IDs are read-only; browse-only pickers are pending F13. |
+| F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Read-only inventory/materia IDs and Rebirth owned weapon/materia type IDs publish browse-only `ReferenceSpec`s, retaining raw IDs and attribution. Writable weapon references remain **instance IDs**, while catalog keys are **type IDs**; substituting that catalog would select the wrong domain. |
 | F5 reversible structure | N/A | No safe allocation/removal/reorder writer exists: free-slot initialization, serial uniqueness, acquisition order and all inventory/detail/owner dependencies remain unknown. Current writers patch fixed-size existing values. Owner acquisition/discard/capacity pairs are required before a structural transaction can be implemented. |
 | F6 planning / #27 scopes | Added this round | Existing AP plan plus star-tier and consumable-restock presets; pure previews, warnings, skipped rows, derived AP/stars, stale rejection and one undo group, including Core-resolved F8 query scopes. `MateriaPlanningTests`, `PresetPlanningTests`. |
 | F7 document groups | N/A | No implemented operation changes more than the primary gameplay file; common and prior-state RESD dependencies are unmapped. Grouping them would claim a coupling that has not been established. Existing backup mirroring remains framework-owned. |
@@ -47,8 +47,8 @@ select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as 
 | F9 graphs / maps | Added this round | Six external-link-only regional maps with local field targets and distinct bit domains; seven read-only folio candidate graphs (238 bits) and seven Rebirth equipment-reference graphs. Accessible text alternatives, bounded/lazy groups, JSON/SDK validation and Core edit/undo refresh tests. No fabricated prerequisite edges, socket links, capacity, coordinates or weapon-upgrade grid. |
 | F10 exact / nullable / union | N/A | Mapped payload values are fixed-width u8/u32/i32 integers and bits, exactly represented by `IntegerSpec`/`FieldValue` and the framework's integer transport. There are no decimal text numbers, nullable scalar encodings or tagged unions to represent. Sentinels remain literal bytes rather than guessed nulls. |
 | F11 shared codecs | N/A | Supported inputs are already decrypted, uncompressed custom linked records. They contain neither a Kraken stream nor SQLite data. No local codec or native dependency is used. |
-| F12 | pending #32 | SaveDiff F8 traversal / additional decoder registration. Use the existing shared hook with explicit limited coverage; no private traversal substitute. |
-| F13 | pending #33 | Non-mutating inspect actions, browse-only picker, catalog filter/sort and float-duration extensions were absent from the starting main commit `1f0d1f1`. Existing F8 detail/search and integer duration remain in use. |
+| F12 | Used | `FinalFantasy7Plugin` exposes the SDK-only `ff7r-character-evidence` hook with bounded, stable character paths; `HookSaveDecoder` and F8 traversal tests cover deterministic reads, host caps, foreign-file rejection and byte preservation. |
+| F13 | Used / N/A | Browse-only reference fields cover read-only weapon, materia and item type IDs; existing F8 catalog queries cover bounded filter/sort; integer duration remains appropriate for whole-second play time. N/A for non-mutating inspection actions because this plugin has no message-only action to publish. |
 
 ## Completion-round spatial and research views
 
@@ -404,7 +404,7 @@ every measured sample Open call stayed below the two-second test bound.
 
 ## SDK requests
 
-No framework bug blocks the shipped subset. F12/F13 remain pending #32/#33 as listed above.
+No framework bug blocks the shipped subset. F12/F13 are adopted as recorded above. The plugin has no message-only inspection action to mark `Mutates = false`.
 
 R19 remains a framework-owned request: versioned toolkit preset storage outside save bytes with
 title/build compatibility and explicit missing/ambiguous owned-instance resolution. A later loadout

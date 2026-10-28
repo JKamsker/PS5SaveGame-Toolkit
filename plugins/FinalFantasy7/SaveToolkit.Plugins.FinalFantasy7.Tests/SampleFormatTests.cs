@@ -72,7 +72,7 @@ public sealed class SampleFormatTests
         var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == schema.Prefix + "000");
         using var document = new FinalFantasy7Plugin().Open(file);
         _ = document.ExpandNode("materia/0");
-        Assert.Equal(id, document.GetValue("materia/0/id").AsInt32());
+        Assert.Equal(id.ToString(), document.GetValue("materia/0/id").AsString());
         Assert.Equal(ap, document.GetValue("materia/0/ap").AsInt32());
         Assert.Equal(level, document.GetValue("materia/0/level").AsInt32());
     }

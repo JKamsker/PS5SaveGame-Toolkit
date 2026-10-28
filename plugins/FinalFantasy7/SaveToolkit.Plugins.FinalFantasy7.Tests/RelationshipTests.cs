@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
 using SaveToolkit.Testing.Diff;
@@ -30,8 +31,17 @@ public sealed class RelationshipTests
         Assert.Contains(weaponPage.Rows, row => Assert.IsType<TextNode>(row.Cells["name"]).Text == "Buster Sword");
         var materiaPage = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("owned/materia/0")));
         Assert.Contains(materiaPage.Rows, row => Assert.IsType<TextNode>(row.Cells["name"]).Text == ItemNames.Lookup(schema, true, 10020));
-        Assert.All(weaponPage.Rows.Concat(materiaPage.Rows).SelectMany(row => row.Cells.Values), cell =>
-            Assert.False(cell is FieldNode));
+        var typeFields = weaponPage.Rows.Concat(materiaPage.Rows)
+            .Select(row => Assert.IsType<FieldNode>(row.Cells["type"])).ToArray();
+        Assert.NotEmpty(typeFields);
+        Assert.All(typeFields, field =>
+        {
+            var spec = Assert.IsType<ReferenceSpec>(field.Spec);
+            Assert.True(spec.ReadOnly);
+            Assert.True(spec.CatalogId is "ff7r-weapons" or "ff7r-materia");
+        });
+        Assert.All(weaponPage.Rows.Concat(materiaPage.Rows).SelectMany(row => row.Cells.Values)
+            .Where(cell => cell is not FieldNode), cell => Assert.IsType<TextNode>(cell));
     }
 
     [Theory]

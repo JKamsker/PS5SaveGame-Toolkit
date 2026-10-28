@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Globalization;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
@@ -26,7 +27,7 @@ public sealed class StarTransitionTests
         var row = rows.First(row => row.Cells["quantity"] is FieldNode { Spec.ReadOnly: false });
         var apField = (FieldNode)row.Cells["quantity"];
         var levelField = (FieldNode)row.Cells["level"];
-        var id = ((FieldNode)row.Cells["id"]).Value.AsUInt32();
+        var id = uint.Parse(((FieldNode)row.Cells["id"]).Value.AsString(), CultureInfo.InvariantCulture);
         var curve = EmbeddedCatalogs.Records(schema, "ff7r-materia").Single(record => record.Key == id.ToString())
             .Attributes["apThresholds"].Split(',').Select(uint.Parse).ToArray();
         var slot = int.Parse(row.Key.Split('/')[1]);

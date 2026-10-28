@@ -6,7 +6,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.FinalFantasy7;
 
 /// <summary>Read-only joins for Rebirth's measured instance, detail and owner arrays.</summary>
-internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
+internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references, Func<ScalarField, FieldNode> bind)
 {
     private const int WeaponInventoryOffset = 0x5FA6C;
     private const int WeaponDetailOffset = 0xB3A68;
@@ -27,8 +27,8 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
              new("name", "Name"), new("quantity", "Count", IntegerSpec.UInt32), new("detail", "Detail type"),
              new("owner", "Referenced by"), new("source", "Source")], occupied)
         {
-            Description = "Read-only instance/detail joins; equipment legality remains unverified. " + EmbeddedCatalogs.Attribution,
-        }, () => Rows(kind, 0, count)
+            Description = "Read-only instance/detail joins; type IDs use browse-only attributed catalogues; equipment legality remains unverified. " + EmbeddedCatalogs.Attribution,
+        }, () => Rows(kind, 0, count, bindType: false)
             .Select(row =>
             {
                 var values = row.Cells.ToDictionary(pair => pair.Key, pair => ((TextNode)pair.Value).Text, StringComparer.Ordinal);
@@ -55,14 +55,14 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
         return new TableNode(
             [new("slot", "Slot"), new("instance", "Instance"), new("type", "Type"), new("name", "Name"),
              new("quantity", materia ? "Quantity" : "Count"), new("detail", "Detail type"), new("owner", materia ? "Equipped by" : "Referenced by"),
-             new("source", "Source")], Rows(kind, page * PageSize, PageSize))
+             new("source", "Source")], Rows(kind, page * PageSize, PageSize, bindType: true))
         {
             Title = materia ? "Owned materia relationships" : "Owned weapon relationships",
-            Description = "Instance/type domains are kept separate; unresolved and duplicate details are not repaired. Demo mappings remain Inferred. " + EmbeddedCatalogs.Attribution,
+            Description = "Instance/type domains are kept separate; unresolved and duplicate details are not repaired. Type IDs use browse-only attributed catalogues. Demo mappings remain Inferred. " + EmbeddedCatalogs.Attribution,
         };
     }
 
-    private IReadOnlyList<TableRow> Rows(string kind, int start, int length)
+    private IReadOnlyList<TableRow> Rows(string kind, int start, int length, bool bindType)
     {
         var materia = kind == "materia";
         var count = materia ? MateriaCount : WeaponCount;
@@ -99,7 +99,10 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
             {
                 ["slot"] = new TextNode(slot.ToString()),
                 ["instance"] = new TextNode($"0x{instance:X8}") { Monospace = true },
-                ["type"] = new TextNode($"0x{type:X8}") { Monospace = true },
+                ["type"] = bindType ? bind(new ScalarField($"owned/{kind}/{instance:X8}/{slot}/type", "Type ID", offset + 4,
+                    new ReferenceSpec(materia ? "ff7r-materia" : "ff7r-weapons") { ReadOnly = true }, Confidence.Inferred,
+                    Warning: "Read-only raw type ID; browse the attributed catalogue for known names. " + EmbeddedCatalogs.Attribution)) :
+                    new TextNode($"0x{type:X8}") { Monospace = true },
                 ["name"] = new TextNode(name),
                 ["quantity"] = new TextNode(U32(offset + 8).ToString()),
                 ["detail"] = new TextNode(detail is { } value ? $"0x{value:X8}" : offsets is { Length: > 1 } ? "ambiguous" : "unresolved") { Monospace = true },

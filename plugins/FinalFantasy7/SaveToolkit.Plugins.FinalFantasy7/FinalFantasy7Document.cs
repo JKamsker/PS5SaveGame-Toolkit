@@ -49,7 +49,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         _planning = new(schema, _gameplay, _references);
         _explorer = new(bytes, records, Bind);
         _characters = new(bytes, schema, _references, Bind, _progression);
-        _ownedRelations = !common && !schema.IsRemake ? new(bytes, _references) : null;
+        _ownedRelations = !common && !schema.IsRemake ? new(bytes, _references, Bind) : null;
         if (!common)
         {
             var progress = new ProgressData(bytes, schema, flag => Field($"progress/{flag.Id}/bit", "Stored bit",

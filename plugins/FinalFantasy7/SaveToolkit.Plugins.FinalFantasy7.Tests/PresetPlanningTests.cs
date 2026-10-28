@@ -76,7 +76,7 @@ public sealed class PresetPlanningTests
         _ = session.BuildView();
         var row = session.QueryCollection("materia", new() { Limit = 200 }).Rows
             .First(row => row.Cells["level"] is FieldNode { Spec.ReadOnly: false, Value: var value } && value.AsInt32() > 1);
-        var type = ((FieldNode)row.Cells["id"]).Value.AsUInt32().ToString(CultureInfo.InvariantCulture);
+        var type = ((FieldNode)row.Cells["id"]).Value.AsString();
         Assert.True(session.FindReference("type", type, actionId: MateriaPlanning.StarActionId).Eligibility.Selectable);
         var preview = session.PlanAction(MateriaPlanning.StarActionId, new Dictionary<string, JsonElement>
         {

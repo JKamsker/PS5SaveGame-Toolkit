@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -15,7 +16,9 @@ internal sealed class ScalarBindings(byte[] bytes, Func<string, string, FieldSpe
     public FieldNode Bind(ScalarField scalar)
     {
         _offsets[scalar.Id] = scalar.Offset;
-        FieldValue Read() => scalar.Byte ? FieldValue.Of((long)bytes[scalar.Offset]) :
+        FieldValue Read() => scalar.Spec is ReferenceSpec
+            ? FieldValue.Of(BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(scalar.Offset)).ToString(CultureInfo.InvariantCulture)) :
+            scalar.Byte ? FieldValue.Of((long)bytes[scalar.Offset]) :
             scalar.Signed ? FieldValue.Of((long)BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(scalar.Offset))) :
             FieldValue.Of((long)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(scalar.Offset)));
         var warning = scalar.Warning;
@@ -24,7 +27,7 @@ internal sealed class ScalarBindings(byte[] bytes, Func<string, string, FieldSpe
             warning = "Negative value retained as stored; it may be a sentinel or an unsupported mapping.";
         }
 
-        Action<FieldValue>? set = scalar.Editable ? value =>
+        Action<FieldValue>? set = scalar.Editable && scalar.Spec is IntegerSpec ? value =>
         {
             if (scalar.Byte)
             {
@@ -39,11 +42,11 @@ internal sealed class ScalarBindings(byte[] bytes, Func<string, string, FieldSpe
                 BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(scalar.Offset), checked(value.AsUInt32()));
             }
         } : null;
-        Func<FieldValue, string?>? validate = scalar.Editable ? value =>
+        Func<FieldValue, string?>? validate = scalar.Editable && scalar.Spec is IntegerSpec integerSpec ? value =>
         {
             var integer = value.AsInteger();
-            return scalar.Validate?.Invoke(integer) ?? (integer < scalar.Spec.Min || integer > scalar.Spec.Max
-                ? $"Value must be between {scalar.Spec.Min} and {scalar.Spec.Max}."
+            return scalar.Validate?.Invoke(integer) ?? (integer < integerSpec.Min || integer > integerSpec.Max
+                ? $"Value must be between {integerSpec.Min} and {integerSpec.Max}."
                 : null);
         } : null;
         return field(scalar.Id, scalar.Label, scalar.Spec, Read, set, validate) with
