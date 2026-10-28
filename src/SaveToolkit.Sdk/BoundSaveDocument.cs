@@ -75,24 +75,28 @@ public abstract class BoundSaveDocument : ISaveDocument
         }
 
         var applied = new List<ValueChange>(edits.Count);
+        var currentId = string.Empty;
         try
         {
             foreach (var edit in edits)
             {
+                currentId = edit.ValueId;
                 var binding = _bindings[edit.ValueId];
                 var old = binding.Get();
+                // Include the attempted setter: it or its readback can throw after mutating.
+                applied.Add(new ValueChange(edit.ValueId, old, old));
                 binding.Set!(edit.Value);
-                applied.Add(new ValueChange(edit.ValueId, old, binding.Get()));
+                applied[^1] = new ValueChange(edit.ValueId, old, binding.Get());
             }
+
+            // Materialize lazy derived changes inside the transaction as well.
+            return new EditOutcome { Changes = [.. applied, .. DerivedChanges(applied)] };
         }
-        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or OverflowException or SaveFormatException)
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             Rollback(applied);
-            return EditOutcome.Rejected(applied.Count < edits.Count ? edits[applied.Count].ValueId : edits[^1].ValueId, ex.Message);
+            return EditOutcome.Rejected(currentId, ex.Message);
         }
-
-        var derived = DerivedChanges(applied);
-        return new EditOutcome { Changes = [.. applied, .. derived] };
     }
 
     /// <summary>Override to report values that changed as a consequence of an edit (checksums, totals...).</summary>
