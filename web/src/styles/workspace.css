@@ -71,6 +71,14 @@
   color: var(--ink-faint);
   font-size: var(--text-xs);
 }
+.rail__copy {
+  margin: var(--space-5) var(--space-2) var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
 .rail__toggle {
   display: flex;
   align-items: center;

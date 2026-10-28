@@ -31,24 +31,37 @@ export function SlotRail({ workspace, activeFileId, onOpen }: SlotRailProps) {
             <h2 className="rail__game">{title.gameName ?? title.titleId}</h2>
             {title.gameName && <span className="rail__titleid mono">{title.titleId}</span>}
           </header>
-          {title.directories
-            .filter((d) => showBackups || !(d.isBackup && d.twinIdentical))
-            .map((dir) => (
-              <Slot
-                key={dir.id}
-                workspaceId={workspace.id}
-                dir={dir}
-                expanded={expanded === dir.id}
-                dirty={dir.files.some((f) => dirtyFiles.has(f.id))}
-                activeFileId={activeFileId}
-                onToggle={() => setExpanded(expanded === dir.id ? undefined : dir.id)}
-                onOpen={onOpen}
-              />
-            ))}
+          {groupByGeneration(title.directories.filter((d) => showBackups || !(d.isBackup && d.twinIdentical))).map(([generation, dirs]) => (
+            <div key={generation} className="rail__generation">
+              {generation > 0 && (
+                <h3 className="rail__copy" title="The archive contained these paths more than once. Copy order is not necessarily chronological.">
+                  Archive copy {generation + 1}
+                </h3>
+              )}
+              {dirs.map((dir) => (
+                <Slot
+                  key={dir.id}
+                  workspaceId={workspace.id}
+                  dir={dir}
+                  expanded={expanded === dir.id}
+                  dirty={dir.files.some((f) => dirtyFiles.has(f.id))}
+                  activeFileId={activeFileId}
+                  onToggle={() => setExpanded(expanded === dir.id ? undefined : dir.id)}
+                  onOpen={onOpen}
+                />
+              ))}
+            </div>
+          ))}
         </section>
       ))}
     </nav>
   );
+}
+
+function groupByGeneration(dirs: SaveDirectory[]): [number, SaveDirectory[]][] {
+  const groups = new Map<number, SaveDirectory[]>();
+  for (const d of dirs) groups.set(d.generation, [...(groups.get(d.generation) ?? []), d]);
+  return [...groups.entries()].sort(([a], [b]) => a - b);
 }
 
 interface SlotProps {
@@ -83,7 +96,6 @@ function Slot({ workspaceId, dir, expanded, dirty, activeFileId, onToggle, onOpe
             <span>{dir.files.length === 1 ? "1 file" : `${dir.files.length} files`}</span>
             {dir.isBackup && <span>console backup{dir.twinIdentical ? ", identical" : ", differs"}</span>}
             {!dir.isBackup && dir.twinId && <span>{dir.twinIdentical ? "backup identical" : "backup differs"}</span>}
-            {dir.generation > 0 && <span>snapshot {dir.generation + 1}</span>}
           </span>
         </span>
       </button>
