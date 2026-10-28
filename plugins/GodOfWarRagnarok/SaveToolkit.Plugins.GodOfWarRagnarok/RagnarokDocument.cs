@@ -4,7 +4,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
-internal sealed class RagnarokDocument(string path, string name, byte[] bytes, RagnarokRecordIndex index) : BoundSaveDocument
+internal sealed class RagnarokDocument(string path, string name, byte[] bytes, RagnarokRecordIndex index, RagnarokReferences references) : BoundSaveDocument
 {
     private const string BlobId = "save";
     internal const int RowsPerPage = 256;
@@ -45,13 +45,13 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
         overview.Add(Number(RagnarokFormat.SaveCounterOffset, "Save counter (inferred)", Confidence.Inferred));
         return new TabsNode([
             new("Overview", overview),
-            new("Wallet", [new TextNode("Hero-wallet role is inferred from the PC layout. Source-matched resource names are cited in the README; unnamed IDs stay raw."),
+            new("Wallet", [new TextNode("Hero-wallet role is inferred from the PC layout. Names come from the attributed F2 resource catalog when pinned; unnamed IDs stay raw."),
                 SectionNode.Lazy("Wallet records", "wallet", index.WalletCount.ToString())]),
-            new("Record index", [RagnarokTables.Regions(index),
+            new("Record index", [RagnarokTables.Regions(index), SectionNode.Lazy("Grammar evidence", "grammar-evidence"),
                 new TextNode("Partial index only. Gaps, nesting, lengths outside these arrays and integrity dependencies remain unknown.") { Tone = Tone.Warning },
                 SectionNode.Lazy("Sorted IDs and paired words", "directory", index.DirectoryCount.ToString()),
                 SectionNode.Lazy("Secondary ID list", "secondary", index.SecondaryCount.ToString())]),
-            new("Resource anchors", [new TextNode("All occurrences of cited resource IDs, including duplicates outside the wallet. Adjacent words outside wallet rows are unknown."),
+            new("Resource anchors", [new TextNode("All occurrences of catalogued resource IDs, including duplicates outside the wallet. Adjacent words outside wallet rows are unknown."),
                 SectionNode.Lazy("Resource occurrences", "anchors", index.Occurrences.Count.ToString())]),
             new("Raw", RawRoot()),
         ]);
@@ -62,6 +62,11 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
         if (lazyId == "header")
         {
             return [RagnarokTables.Words(this, 0, RagnarokFormat.HeaderSize, false)];
+        }
+
+        if (lazyId == "grammar-evidence")
+        {
+            return [RagnarokTables.Evidence(index)];
         }
 
         if (lazyId == "raw")
@@ -98,7 +103,7 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
 
                 if (TryPage(lazyId, kind, (count + RowsPerPage - 1) / RowsPerPage, out var page))
                 {
-                    return [RagnarokTables.Records(this, index, kind, page * RowsPerPage, Math.Min(RowsPerPage, count - page * RowsPerPage))];
+                    return [RagnarokTables.Records(this, index, references, kind, page * RowsPerPage, Math.Min(RowsPerPage, count - page * RowsPerPage))];
                 }
             }
         }

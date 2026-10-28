@@ -12,6 +12,8 @@ internal static class ResourceNames
 
     public static string Get(ulong id) => Names.GetValueOrDefault(id) ?? $"Unknown ID 0x{id:X16}";
 
+    public static bool TryGet(ulong id, out string name) => Names.TryGetValue(id, out name!);
+
     private static FrozenDictionary<ulong, string> Load()
     {
         using var stream = typeof(ResourceNames).Assembly.GetManifestResourceStream(

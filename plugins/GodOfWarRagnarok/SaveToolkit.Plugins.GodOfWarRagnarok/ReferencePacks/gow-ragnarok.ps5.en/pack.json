@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "id": "gow-ragnarok.ps5.en",
+  "version": "1.0.0",
+  "title": "God of War Ragnarök PS5 resource identities (English)",
+  "description": "Versioned factual hash/name/category crosswalk for resource IDs observed in PPSA08330 samples. Legal game limits are deliberately unknown; the storage-width note is informational only.",
+  "plugins": ["gow-ragnarok"],
+  "titleIds": ["PPSA08329", "PPSA08330", "PPSA08331", "PPSA08332", "PPSA08333", "PPSA08334", "PPSA25043", "PPSA25044"],
+  "gameBuilds": ["PS5 revision 0x00513040"],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "gow-ragnarok-resources",
+      "kind": "records",
+      "title": "PS5 resource hash dictionary",
+      "files": [{"path": "resources.json", "sha256": "ab4ec06e5b8a9b561292e8f9339a49d44499d29c4e5370c2c238f5a2e8995864"}],
+      "attribution": {
+        "sourceUrl": "https://godofwar.fandom.com/wiki/Resources/GOW_%28Ragnar%C3%B6k%29",
+        "author": "God of War Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://www.fandom.com/licensing",
+        "retrieved": "2026-10-28",
+        "modifications": "Normalized names and broad resource categories; paired names with byte-order-preserving hash IDs from the cited community resource table and PPSA08330 sample occurrences. No game artwork or copied prose is included. Legal quantity limits remain unknown."
+      }
+    }
+  ]
+}

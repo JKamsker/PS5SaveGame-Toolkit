@@ -10,14 +10,25 @@ internal static class RagnarokTables
             ("length", Text(r.Length.ToString())), ("count", Text(r.Count.ToString())), ("meaning", Text(r.Meaning)))).ToArray())
         { Title = "Established spans (partial index)" };
 
-    public static TableNode Records(RagnarokDocument document, RagnarokRecordIndex index, string kind, int start, int count)
+    public static TableNode Evidence(RagnarokRecordIndex index)
+    {
+        var rows = index.Evidence.Spans.Select(span => Row($"span/{span.Offset:X}",
+            ("kind", Text(span.Kind.ToString())), ("offset", Offset(span.Offset)),
+            ("length", Text(span.Length.ToString())), ("count", Text(span.Count.ToString())),
+            ("confidence", Text(span.Confidence))));
+        return new([new("kind", "Span"), new("offset", "Offset"), new("length", "Bytes"),
+            new("count", "Count"), new("confidence", "Evidence")], rows.ToArray())
+        { Title = $"Grammar spans ({index.Evidence.KnownBytes:N0} known, {index.Evidence.OpaqueBytes:N0} opaque bytes)" };
+    }
+
+    public static TableNode Records(RagnarokDocument document, RagnarokRecordIndex index, RagnarokReferences references, string kind, int start, int count)
     {
         var rows = Enumerable.Range(start, count).Select(row => kind switch
         {
             "directory" => DirectoryRow(document, index, row),
             "secondary" => IdRow(document, index.SecondaryOffset + row * sizeof(ulong)),
-            "wallet" => WalletRow(document, index.WalletOffset + RagnarokFormat.WalletHeaderSize + row * RagnarokFormat.WalletRowSize),
-            "anchors" => AnchorRow(document, index, index.Occurrences[row]),
+            "wallet" => WalletRow(document, references, index.WalletOffset + RagnarokFormat.WalletHeaderSize + row * RagnarokFormat.WalletRowSize),
+            "anchors" => AnchorRow(document, references, index, index.Occurrences[row]),
             _ => throw new KeyNotFoundException(kind),
         }).ToArray();
         IReadOnlyList<TableColumn> columns = kind switch
@@ -55,19 +66,19 @@ internal static class RagnarokTables
     private static TableRow IdRow(RagnarokDocument document, int offset) =>
         Row(offset.ToString(), ("offset", Offset(offset)), ("id", Id(document, offset)));
 
-    private static TableRow WalletRow(RagnarokDocument document, int offset) => Row(offset.ToString(),
-        ("offset", Offset(offset)), ("name", Text(ResourceNames.Get(document.ReadId(offset)))), ("id", Id(document, offset)),
+    private static TableRow WalletRow(RagnarokDocument document, RagnarokReferences references, int offset) => Row(offset.ToString(),
+        ("offset", Offset(offset)), ("name", Text(references.Name(document.ReadId(offset)))), ("id", Id(document, offset)),
         ("quantity", document.Number(offset + sizeof(ulong), "Quantity (wallet role inferred)", Confidence.Inferred)
             with { Warning = "Container role transferred from PC research; no PS5 game UI or integrity validation." }),
         ("word", document.Number(offset + RagnarokFormat.WalletRowMetadataOffset, "Metadata", Confidence.Unknown)));
 
-    private static TableRow AnchorRow(RagnarokDocument document, RagnarokRecordIndex index, ResourceOccurrence occurrence)
+    private static TableRow AnchorRow(RagnarokDocument document, RagnarokReferences references, RagnarokRecordIndex index, ResourceOccurrence occurrence)
     {
         var offset = occurrence.Offset;
         var start = index.WalletOffset + RagnarokFormat.WalletHeaderSize;
         var inWallet = offset >= start && offset < start + index.WalletCount * RagnarokFormat.WalletRowSize &&
             (offset - start) % RagnarokFormat.WalletRowSize == 0;
-        return Row(offset.ToString(), ("offset", Offset(offset)), ("name", Text(ResourceNames.Get(occurrence.Id))),
+        return Row(offset.ToString(), ("offset", Offset(offset)), ("name", Text(references.Name(occurrence.Id))),
             ("id", Id(document, offset)), ("context", Text(inWallet ? "Hero wallet (inferred)" : "Outside wallet; unknown")),
             ("quantity", document.Number(offset + sizeof(ulong), inWallet ? "Quantity (wallet role inferred)" : "Word at +8",
                 inWallet ? Confidence.Inferred : Confidence.Unknown)

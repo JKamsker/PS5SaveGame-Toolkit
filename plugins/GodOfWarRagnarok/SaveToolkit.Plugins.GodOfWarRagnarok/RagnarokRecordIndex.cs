@@ -19,6 +19,7 @@ internal sealed class RagnarokRecordIndex
     public int WalletCount { get; private init; }
     public IReadOnlyList<RecordRegion> Regions { get; private init; } = [];
     public IReadOnlyList<ResourceOccurrence> Occurrences { get; private init; } = [];
+    public RagnarokGrammarEvidence Evidence { get; private set; } = new([], [], [], []);
 
     public static RagnarokRecordIndex Parse(ReadOnlySpan<byte> bytes, bool preferences)
     {
@@ -29,11 +30,13 @@ internal sealed class RagnarokRecordIndex
 
         if (preferences)
         {
-            return new RagnarokRecordIndex
+            var preferenceIndex = new RagnarokRecordIndex
             {
                 Preferences = true,
                 Regions = [new("Preferences record", 0, bytes.Length, 1, "Settings meanings unknown; raw bytes only")],
             };
+            preferenceIndex.Evidence = RagnarokGrammar.Analyze(bytes, preferenceIndex);
+            return preferenceIndex;
         }
 
         if (bytes.Length < RagnarokFormat.DirectoryItemsOffset ||
@@ -84,7 +87,7 @@ internal sealed class RagnarokRecordIndex
 
         var walletCount = RagnarokFormat.UInt32(bytes, wallet + sizeof(ulong));
         RagnarokFormat.RequireRange(bytes, wallet + RagnarokFormat.WalletHeaderSize, walletCount, RagnarokFormat.WalletRowSize);
-        return new RagnarokRecordIndex
+        var index = new RagnarokRecordIndex
         {
             Description = RagnarokFormat.Description(bytes),
             DirectoryCount = count,
@@ -105,6 +108,8 @@ internal sealed class RagnarokRecordIndex
             ],
             Occurrences = FindResourceOccurrences(bytes),
         };
+        index.Evidence = RagnarokGrammar.Analyze(bytes, index);
+        return index;
     }
 
     private static IReadOnlyList<ResourceOccurrence> FindResourceOccurrences(ReadOnlySpan<byte> bytes)
