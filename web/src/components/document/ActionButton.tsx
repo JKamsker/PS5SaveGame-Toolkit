@@ -60,7 +60,7 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
         className={`btn${node.tone === "Danger" ? " btn--danger" : ""}${compact ? " btn--small" : ""}`}
         aria-label={ariaLabel}
         title={compact ? node.description : undefined}
-        disabled={!canEdit || busy}
+        disabled={(!canEdit && node.mutates !== false) || busy}
         onClick={() => (needsDialog ? dialog.current?.showModal() : void run())}
       >
         {node.label}

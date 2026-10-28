@@ -21,7 +21,10 @@ export interface IntegerSpec extends SpecBase {
   format?: "Decimal" | "Hex" | "Duration";
   unitsPerSecond?: number;
 }
-export interface FloatSpec extends SpecBase { kind: "float"; min?: number; max?: number; singlePrecision?: boolean }
+export interface FloatSpec extends SpecBase {
+  kind: "float"; min?: number; max?: number; singlePrecision?: boolean;
+  format?: "Decimal" | "Duration"; unitsPerSecond?: number;
+}
 export interface TextSpec extends SpecBase { kind: "text"; maxLength?: number; multiline?: boolean }
 export interface EnumOption { value: string; label: string; description?: string }
 export interface EnumSpec extends SpecBase { kind: "enum"; options: EnumOption[]; allowCustom?: boolean }
@@ -76,6 +79,7 @@ export interface ActionNode {
   type: "action";
   actionId: string;
   supportsPlanning?: boolean;
+  mutates?: boolean;
   label: string;
   description?: string;
   tone?: Tone;
@@ -279,6 +283,7 @@ export interface ReferencePage {
   offset: number;
   limit: number;
   categories: string[];
+  sortKeys?: ReferenceSortKey[];
 }
 
 export interface ReferenceEligibility { available: boolean; eligible: boolean; reasons: string[]; selectable: boolean }
@@ -301,4 +306,7 @@ export interface ReferenceCandidatePage {
   limit: number;
   categories: string[];
   revision: number;
+  sortKeys?: ReferenceSortKey[];
 }
+
+export type ReferenceSortKey = "Key" | "Name" | "Category";

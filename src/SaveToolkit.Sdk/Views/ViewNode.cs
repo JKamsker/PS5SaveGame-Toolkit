@@ -136,6 +136,9 @@ public sealed record ImageNode(string AssetId, string Alt) : ViewNode;
 /// </summary>
 public sealed record ActionNode(string ActionId, string Label) : ViewNode
 {
+    /// <summary>False opts into isolated, verified inspection. Results are messages, never save or view changes.</summary>
+    public bool Mutates { get; init; } = true;
+
     /// <summary>Requires IActionPlanningDocument; direct invocation is rejected. False preserves legacy behavior.</summary>
     public bool SupportsPlanning { get; init; }
 

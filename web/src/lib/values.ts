@@ -1,5 +1,12 @@
-import type { FieldSpec, FieldValue, IntegerSpec } from "../api/protocol";
+import type { FieldSpec, FieldValue, FloatSpec, IntegerSpec } from "../api/protocol";
 import { exactNumberError } from "./exactNumbers";
+
+const MILLISECONDS_PER_SECOND = 1000;
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 3600;
+const MILLISECONDS_PER_MINUTE = SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND;
+const MILLISECONDS_PER_HOUR = SECONDS_PER_HOUR * MILLISECONDS_PER_SECOND;
+const DURATION_DECIMAL_PLACES = 3;
 
 /** Result of turning what the user typed into a wire value. The server re-validates authoritatively. */
 export type Parsed = { ok: true; value: FieldValue } | { ok: false; error: string };
@@ -83,14 +90,32 @@ export function sameValue(a: FieldValue, b: FieldValue): boolean {
 }
 
 /** "25 h 41 min 52 s" for durations; returns null when the spec is not a duration. */
-export function describeDuration(spec: IntegerSpec, value: FieldValue): string | null {
-  if (spec.format !== "Duration" || !spec.unitsPerSecond || value === null) return null;
-  const units = BigInt(String(value));
-  const totalSeconds = Number(units / BigInt(spec.unitsPerSecond));
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
+export function describeDuration(spec: IntegerSpec | FloatSpec, value: FieldValue): string | null {
+  if (spec.format !== "Duration" || value === null) return null;
+  if (spec.kind === "float") return describeFloatDuration(spec, value);
+  // Keep the existing integer display in seconds, without scaling large integer timers to milliseconds.
+  if (!spec.unitsPerSecond || !Number.isSafeInteger(spec.unitsPerSecond) || spec.unitsPerSecond <= 0) return null;
+  const seconds = Number(BigInt(String(value)) / BigInt(spec.unitsPerSecond));
+  const h = Math.floor(seconds / SECONDS_PER_HOUR);
+  const m = Math.floor((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+  const s = seconds % SECONDS_PER_MINUTE;
   return [h ? `${h} h` : "", h || m ? `${m} min` : "", `${s} s`].filter(Boolean).join(" ");
+}
+
+function describeFloatDuration(spec: FloatSpec, value: FieldValue): string | null {
+  const rate = spec.unitsPerSecond ?? 1;
+  if (!Number.isFinite(rate) || rate <= 0) return null;
+  const seconds = Number(value) / rate;
+  if (!Number.isFinite(seconds)) return null;
+  const negative = seconds < 0;
+  // Millisecond display precision; editing always uses the original raw numeric value.
+  const milliseconds = Math.round(Math.abs(seconds) * MILLISECONDS_PER_SECOND);
+  if (!Number.isFinite(milliseconds)) return null;
+  const h = Math.floor(milliseconds / MILLISECONDS_PER_HOUR);
+  const m = Math.floor((milliseconds % MILLISECONDS_PER_HOUR) / MILLISECONDS_PER_MINUTE);
+  const s = Number(((milliseconds % MILLISECONDS_PER_MINUTE) / MILLISECONDS_PER_SECOND).toFixed(DURATION_DECIMAL_PLACES));
+  const text = [h ? `${h} h` : "", h || m ? `${m} min` : "", `${s} s`].filter(Boolean).join(" ");
+  return `${negative && milliseconds ? "−" : ""}${text}`;
 }
 
 /** Short human range like "0 – 4,294,967,295". */
@@ -126,6 +151,7 @@ export function displayValue(spec: FieldSpec, value: FieldValue): string {
     case "enum":
       return spec.options.find((o) => o.value === value)?.label ?? String(value);
     case "integer":
+    case "float":
       return describeDuration(spec, value) ?? String(toDraft(spec, value));
     default:
       return String(value);

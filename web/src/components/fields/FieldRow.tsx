@@ -14,7 +14,7 @@ export function FieldRow({ node }: { node: FieldNode }) {
   const id = useId();
   const labelId = `${id}-label`;
   const shownError = localError ?? error;
-  const duration = node.spec.kind === "integer" ? describeDuration(node.spec, value) : null;
+  const duration = node.spec.kind === "integer" || node.spec.kind === "float" ? describeDuration(node.spec, value) : null;
   const rangeHint = node.spec.kind === "integer" && !node.spec.readOnly && canEdit && node.spec.format !== "Duration" ? describeRange(node.spec) : null;
 
   return (

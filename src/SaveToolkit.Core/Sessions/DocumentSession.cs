@@ -47,6 +47,7 @@ public sealed partial class DocumentSession : IDisposable
     private ViewIndex _index = new();
     private readonly EditHistory _history;
     private readonly ReferenceFieldService _referenceFields;
+    private readonly ReferenceContext _references;
     private bool _disposed;
 
     public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document,
@@ -60,6 +61,7 @@ public sealed partial class DocumentSession : IDisposable
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limits.MaxQueryActionRows);
         _maxQueryActionRows = limits.MaxQueryActionRows;
         var referenceContext = references ?? ReferenceContext.None;
+        _references = referenceContext;
         _history = new EditHistory(limits);
         _referenceFields = new ReferenceFieldService(referenceContext);
         _semantic = new SemanticReview(limits.MaxOriginalBytes);

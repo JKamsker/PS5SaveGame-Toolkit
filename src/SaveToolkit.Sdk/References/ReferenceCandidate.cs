@@ -30,4 +30,7 @@ public sealed record ReferenceCandidatePage(
     int Offset,
     int Limit,
     IReadOnlyList<string> Categories,
-    long Revision);
+    long Revision)
+{
+    public IReadOnlyList<ReferenceSortKey> SortKeys { get; init; } = [];
+}

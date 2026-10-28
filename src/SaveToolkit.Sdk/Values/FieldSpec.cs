@@ -58,8 +58,20 @@ public sealed record IntegerSpec(
     public static IntegerSpec UInt64 => new(ulong.MinValue, ulong.MaxValue);
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter<FloatFormat>))]
+public enum FloatFormat
+{
+    Decimal,
+    Duration,
+}
+
 public sealed record FloatSpec : FieldSpec
 {
+    public FloatFormat Format { get; init; } = FloatFormat.Decimal;
+
+    /// <summary>Raw units per second for Duration; defaults to seconds. Must be finite and positive.</summary>
+    public double UnitsPerSecond { get; init; } = 1;
+
     public double? Min { get; init; }
     public double? Max { get; init; }
 

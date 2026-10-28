@@ -52,19 +52,27 @@ internal static class ReferenceEndpoints
         string catalogId,
         [FromQuery] string? q,
         [FromQuery] string? category,
+        [FromQuery] ReferenceSortKey? sortBy,
+        [FromQuery] bool? descending,
         [FromQuery] int? offset,
         [FromQuery] int? limit)
     {
         var catalog = Catalog(d, catalogId);
+        ReferenceSortBinding.Validate(sortBy);
         var query = new ReferenceQuery
         {
             Text = q,
             Category = string.IsNullOrEmpty(category) ? null : category,
+            SortBy = sortBy,
+            Descending = descending ?? false,
             Offset = Math.Max(0, offset ?? 0),
             Limit = Math.Clamp(limit ?? ReferenceQuery.DefaultLimit, 1, ReferenceQuery.MaxLimit),
         };
         var page = catalog.Search(query);
-        return new ReferencePageDto(catalogId, catalog.Pack.Id, [.. page.Items.Select(r => r.ToDto())], page.Total, page.Offset, query.Limit, catalog.Categories);
+        return new ReferencePageDto(catalogId, catalog.Pack.Id, [.. page.Items.Select(r => r.ToDto())], page.Total, page.Offset, query.Limit, catalog.Categories)
+        {
+            SortKeys = catalog.SortKeys,
+        };
     }
 
     private static IReferenceCatalog Catalog(DocumentRef d, string catalogId) =>

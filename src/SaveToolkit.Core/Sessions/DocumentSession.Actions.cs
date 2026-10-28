@@ -23,7 +23,7 @@ public sealed partial class DocumentSession
             return Rejected(actionId, "Unknown action.");
         }
 
-        if (!Document.CanEdit)
+        if (action.Mutates && !Document.CanEdit)
         {
             return Rejected(actionId, "This document is read-only.");
         }
@@ -37,6 +37,19 @@ public sealed partial class DocumentSession
         if (errors.Count > 0)
         {
             return new SessionEditResult { Errors = errors, State = StateUnlocked() };
+        }
+
+        if (!action.Mutates)
+        {
+            try
+            {
+                var inspection = InspectionActionRunner.Run(Plugin, File, Document, _references, _expanded, actionId, values);
+                return new SessionEditResult { Message = inspection.Message, Warnings = inspection.Warnings, State = StateUnlocked() };
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                return Rejected(actionId, $"Inspection failed: {ex.Message}");
+            }
         }
 
         EnsureOriginal();

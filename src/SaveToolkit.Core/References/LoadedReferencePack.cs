@@ -56,6 +56,10 @@ internal sealed class ReferenceCatalog : IReferenceCatalog
     public ReferenceDatasetInfo Dataset { get; }
     public int Count => _records.Count;
     public IReadOnlyList<string> Categories { get; }
+    public IReadOnlyList<ReferenceSortKey> SortKeys { get; } = Array.AsReadOnly(new[]
+    {
+        ReferenceSortKey.Key, ReferenceSortKey.Name, ReferenceSortKey.Category,
+    });
 
     public ReferenceRecord? Find(string key) => _byKey.GetValueOrDefault(key);
 
@@ -64,15 +68,25 @@ internal sealed class ReferenceCatalog : IReferenceCatalog
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, ReferenceQuery.MaxLimit);
         var text = string.IsNullOrWhiteSpace(query.Text) ? null : query.Text.Trim();
+        IEnumerable<ReferenceRecord> records = _records.Where(record => Matches(record, text, query.Category));
+        if (query.SortBy is { } sort)
+        {
+            Func<ReferenceRecord, string?> key = sort switch
+            {
+                ReferenceSortKey.Key => r => r.Key,
+                ReferenceSortKey.Name => r => r.Name,
+                ReferenceSortKey.Category => r => r.Category,
+                _ => throw new ArgumentException("Unknown reference sort key.", nameof(query)),
+            };
+            records = (query.Descending
+                ? records.OrderByDescending(key, StringComparer.OrdinalIgnoreCase)
+                : records.OrderBy(key, StringComparer.OrdinalIgnoreCase))
+                .ThenBy(r => r.Key, StringComparer.Ordinal);
+        }
         var page = new List<ReferenceRecord>(Math.Min(limit, _records.Count));
         var total = 0;
-        foreach (var record in _records)
+        foreach (var record in records)
         {
-            if (!Matches(record, text, query.Category))
-            {
-                continue;
-            }
-
             if (total >= offset && page.Count < limit)
             {
                 page.Add(record);
