@@ -1,8 +1,10 @@
 // Mirror of src/SaveToolkit.Sdk (views/values) and src/SaveToolkit.Api/Contracts.
 // Keep in sync with the C# records; JSON is camelCase, enums are strings, nulls are omitted.
 
-/** Integers travel as decimal strings (u64-safe); floats as numbers; enums/datetimes as strings. */
-export type FieldValue = null | boolean | number | string;
+/** Exact lexemes and union choices are tagged; existing scalar wire representations are unchanged. */
+export interface ExactNumberValue { kind: "exactNumber"; text: string }
+export interface UnionValue { kind: "union"; type: string; value: FieldValue }
+export type FieldValue = null | boolean | number | string | ExactNumberValue | UnionValue;
 
 interface SpecBase {
   readOnly?: boolean;
@@ -24,8 +26,18 @@ export interface EnumSpec extends SpecBase { kind: "enum"; options: EnumOption[]
 export interface FlagBit { bit: number; label: string; description?: string }
 export interface FlagsSpec extends SpecBase { kind: "flags"; bits: FlagBit[]; bitWidth: number }
 export interface DateTimeSpec extends SpecBase { kind: "datetime"; hasTimeZone?: boolean }
+export interface ExactNumberSpec extends SpecBase {
+  kind: "exactNumber";
+  maxLength?: number;
+  maxAbsoluteExponent?: number;
+  min?: string;
+  max?: string;
+}
+export interface NullableSpec extends SpecBase { kind: "nullable"; inner: FieldSpec }
+export interface UnionOption { id: string; label: string; spec: FieldSpec }
+export interface UnionSpec extends SpecBase { kind: "union"; options: UnionOption[] }
 
-export type FieldSpec = BoolSpec | IntegerSpec | FloatSpec | TextSpec | EnumSpec | FlagsSpec | DateTimeSpec;
+export type FieldSpec = BoolSpec | IntegerSpec | FloatSpec | TextSpec | EnumSpec | FlagsSpec | DateTimeSpec | ExactNumberSpec | NullableSpec | UnionSpec;
 
 export type Confidence = "Verified" | "Inferred" | "Unknown";
 export type Tone = "Normal" | "Muted" | "Info" | "Success" | "Warning" | "Danger";

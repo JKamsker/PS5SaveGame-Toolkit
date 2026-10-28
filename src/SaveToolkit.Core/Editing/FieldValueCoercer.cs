@@ -18,6 +18,27 @@ public static class FieldValueCoercer
 
     public static Result FromJson(JsonElement json, FieldSpec spec)
     {
+        if (spec.ReadOnly) return Fail("Field is read-only.");
+        if (spec is NullableSpec nullable && json.ValueKind != JsonValueKind.Null)
+            return FromJson(json, nullable.Inner);
+        if (spec is UnionSpec union) return UnionValueCoercer.FromJson(json, union);
+        if (json.ValueKind is JsonValueKind.Undefined) return Fail("An edit value is required; missing is not null.");
+        if (json.ValueKind is JsonValueKind.Array) return Fail("Expected a scalar field value.");
+        if (json.ValueKind is JsonValueKind.Object || spec is ExactNumberSpec && json.ValueKind == JsonValueKind.Number)
+        {
+            try
+            {
+                var value = json.ValueKind == JsonValueKind.Number
+                    ? FieldValue.ExactNumber(json.GetRawText())
+                    : json.Deserialize<FieldValue>();
+                return Normalize(value, spec);
+            }
+            catch (Exception ex) when (ex is JsonException or ArgumentException)
+            {
+                return Fail("Invalid tagged field value or exact JSON number.");
+            }
+        }
+
         FieldValue raw = json.ValueKind switch
         {
             JsonValueKind.True => FieldValue.Of(true),
@@ -46,8 +67,18 @@ public static class FieldValueCoercer
             EnumSpec s => Enum(raw, s),
             FlagsSpec s => Integer(raw, 0, s.BitWidth >= 127 ? Int128.MaxValue : (Int128.One << s.BitWidth) - 1),
             DateTimeSpec s => DateTimeValue(raw, s),
+            ExactNumberSpec s => ExactNumber(raw, s),
+            NullableSpec s => raw.IsNull ? Ok(raw) : Normalize(raw, s.Inner, allowReadOnly),
+            UnionSpec s => UnionValueCoercer.Normalize(raw, s, allowReadOnly),
             _ => Fail($"Unsupported field kind {spec.GetType().Name}."),
         };
+    }
+
+    private static Result ExactNumber(FieldValue raw, ExactNumberSpec spec)
+    {
+        if (raw.Kind != FieldValueKind.ExactNumber) return Fail("Expected an exact JSON number.");
+        var error = ExactJsonNumber.Validate(raw.AsExactNumber(), spec);
+        return error is null ? Ok(raw) : Fail(error);
     }
 
     private static Result Integer(FieldValue raw, Int128 min, Int128 max)

@@ -11,14 +11,16 @@ public enum FieldValueKind
     Integer,
     Float,
     Text,
+    ExactNumber,
+    Union,
 }
 
 /// <summary>
-/// A scalar value travelling between plugin, framework and browser.
+/// A typed value travelling between plugin, framework and browser.
 /// Integers are 128-bit so every int8..uint64 fits; on the wire they are decimal strings
 /// because JavaScript numbers lose precision above 2^53.
 /// Enum values are <see cref="FieldValueKind.Text"/> (the option value); timestamps are ISO-8601 text;
-/// flag sets are integers.
+/// flag sets are integers. Exact numbers and explicit union choices use tagged wire objects.
 /// </summary>
 [JsonConverter(typeof(FieldValueJsonConverter))]
 public readonly record struct FieldValue
@@ -26,13 +28,15 @@ public readonly record struct FieldValue
     private readonly Int128 _integer;
     private readonly double _float;
     private readonly string? _text;
+    private readonly UnionFieldValue? _union;
 
-    private FieldValue(FieldValueKind kind, Int128 integer = default, double @float = 0, string? text = null)
+    private FieldValue(FieldValueKind kind, Int128 integer = default, double @float = 0, string? text = null, UnionFieldValue? union = null)
     {
         Kind = kind;
         _integer = integer;
         _float = @float;
         _text = text;
+        _union = union;
     }
 
     public FieldValueKind Kind { get; }
@@ -47,6 +51,27 @@ public readonly record struct FieldValue
     public static FieldValue Of(Int128 value) => new(FieldValueKind.Integer, integer: value);
     public static FieldValue Of(double value) => new(FieldValueKind.Float, @float: value);
     public static FieldValue Of(string value) => new(FieldValueKind.Text, text: value ?? throw new ArgumentNullException(nameof(value)));
+
+    public static FieldValue ExactNumber(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        var error = ExactJsonNumber.Validate(text, new ExactNumberSpec
+        {
+            MaxLength = ExactJsonNumber.HardMaxLength,
+            MaxAbsoluteExponent = ExactJsonNumber.HardMaxAbsoluteExponent,
+        });
+        if (error is not null) throw new ArgumentException(error, nameof(text));
+        return new(FieldValueKind.ExactNumber, text: text);
+    }
+
+    public static FieldValue Union(string type, FieldValue value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(type);
+        return new(FieldValueKind.Union, union: new(type, value));
+    }
+
+    public string AsExactNumber() => Kind == FieldValueKind.ExactNumber ? _text! : throw Mismatch(FieldValueKind.ExactNumber);
+    public UnionFieldValue AsUnion() => Kind == FieldValueKind.Union ? _union! : throw Mismatch(FieldValueKind.Union);
 
     public bool AsBool() => Kind == FieldValueKind.Bool ? _integer != 0 : throw Mismatch(FieldValueKind.Bool);
 
@@ -72,6 +97,7 @@ public readonly record struct FieldValue
         FieldValueKind.Bool => AsBool() ? "true" : "false",
         FieldValueKind.Integer => _integer.ToString(CultureInfo.InvariantCulture),
         FieldValueKind.Float => _float.ToString("R", CultureInfo.InvariantCulture),
+        FieldValueKind.Union => _union!.Value.ToString(),
         _ => _text!,
     };
 
@@ -94,6 +120,7 @@ public sealed class FieldValueJsonConverter : JsonConverter<FieldValue>
             JsonTokenType.String => FieldValue.Of(reader.GetString()!),
             JsonTokenType.Number when reader.TryGetInt64(out var l) => FieldValue.Of(l),
             JsonTokenType.Number => FieldValue.Of(reader.GetDouble()),
+            JsonTokenType.StartObject => TaggedFieldValueJson.Read(ref reader, options),
             _ => throw new JsonException($"Unsupported token {reader.TokenType} for a field value."),
         };
 
@@ -121,6 +148,10 @@ public sealed class FieldValueJsonConverter : JsonConverter<FieldValue>
                     writer.WriteStringValue(value.ToString());
                 }
 
+                break;
+            case FieldValueKind.ExactNumber:
+            case FieldValueKind.Union:
+                TaggedFieldValueJson.Write(writer, value, options);
                 break;
             default:
                 writer.WriteStringValue(value.AsString());

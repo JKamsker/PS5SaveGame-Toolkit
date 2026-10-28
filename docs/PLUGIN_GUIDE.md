@@ -65,10 +65,56 @@ See `tests/SaveToolkit.Core.Tests/Fakes/CounterPlugin.cs` for the smallest compl
 | `BoolSpec` | bool | |
 | `IntegerSpec(min, max)` | Int128 (wire: decimal string) | Presets `IntegerSpec.UInt32` etc. Narrow the range with `with { Min =, Max = }` when the game has real limits. `Format = Hex` for ids/hashes, `Duration` + `UnitsPerSecond` for timers. |
 | `FloatSpec` | double | `FloatSpec.Single` for float32 (values are rounded to float32 for you). |
+| `ExactNumberSpec` | `FieldValue.ExactNumber(text)` | JSON numeric lexeme, with exact optional `Min`/`Max`, `MaxLength`, and `MaxAbsoluteExponent`. Wire: `{kind:"exactNumber",text:"1.2300e+20"}`; distinct from text. |
+| `NullableSpec(inner)` | null or the inner spec's value | Explicit null is `FieldValue.Null`; it never inserts/removes a property or means empty text. |
+| `UnionSpec(options)` | `FieldValue.Union(optionId, value)` | Each `UnionOption(id, label, spec)` retains its inner constraints. Wire: `{kind:"union",type:"number",value:{kind:"exactNumber",text:"1e20"}}`. |
 | `TextSpec` | string | `MaxLength` in UTF-16 units. Check encoded byte length yourself in `validate`. |
 | `EnumSpec(options)` | string (option value) | `AllowCustom` for partially-mapped ids (hashes). |
 | `FlagsSpec(bits, width)` | integer bitmask | Unnamed bits are preserved. |
 | `DateTimeSpec` | ISO-8601 string | `HasTimeZone = false` for console-local clocks. |
+
+Exact numbers follow the [RFC 8259 section 6 grammar](https://www.rfc-editor.org/rfc/rfc8259#section-6):
+no whitespace, leading `+`, leading zeros, NaN or Infinity. The original spelling (negative zero,
+trailing fractional zeros, exponent case/sign/zeros) survives edits, protocol serialization and undo.
+Use `AsExactNumber()` to retrieve it; `AsString()` and `AsDouble()` deliberately reject it. Plugins
+must write that lexeme directly with their format serializer, never convert it to `double` or
+`decimal`. The browser uses a text input and a tagged string value. Core also accepts a raw JSON
+number for an exact-number field and reads its raw text before any numeric conversion; browsers
+should always send the tagged form to avoid JavaScript parsing loss.
+
+Default limits are 4,096 UTF-16 characters and an absolute explicit exponent of 1,000,000. Specs
+may raise them up to 16,384 and 1,000,000,000 respectively, or narrow them. These limits apply to
+the lexeme and explicit exponent, including insignificant zeros; they do not expand the number
+into digits. Optional inclusive `Min`/`Max` are JSON numeric strings compared exactly, with no
+floating-point conversion. Bounds must fit the hard limits. Invalid limits/bounds reject edits.
+`FieldValue.ExactNumber` enforces grammar and hard limits; Core additionally enforces the spec's
+limits/range. Defaults/steps/reset remain plugin annotations, validation and actions; the framework
+does not silently insert defaults or infer gameplay-safe bounds.
+
+For example, nullable JSON scalars can use:
+
+```csharp
+new NullableSpec(new UnionSpec([
+    new UnionOption("number", "Number", new ExactNumberSpec()),
+    new UnionOption("string", "String", new TextSpec { Multiline = true }),
+    new UnionOption("boolean", "Boolean", new BoolSpec()),
+]))
+```
+
+Union option ids must be stable and unique; incoming edits explicitly name one and are validated
+against its inner spec. There is no implicit text-to-number type selection. Integer values inside
+a union still use the existing integer-string wire representation: consumers deserializing
+`FieldValue` directly must normalize against the known spec, just as for ordinary integer fields.
+Wrap a union in `NullableSpec` to allow null independently of its chosen option. Null, empty text
+and a missing member remain distinct: publish fields only for present members; missing edit values
+are rejected, and insertion/removal remains a structural plugin operation.
+
+The browser offers explicit null/type selectors and remembers each previous non-null/type value
+while the control stays mounted. Selecting a previously unused type initializes a scalar value
+(numeric bound or zero, empty text, false, first enum option, or an epoch timestamp) and submits
+it through normal server/plugin validation. Rejected selections retain the current value.
+Enum fields support free entry when `AllowCustom` is true; long fixed lists have a search field,
+keep unlisted current values visible, and show the selected option's description.
 
 Value ids are opaque strings you choose. They must be **unique and stable for the lifetime of the
 document** (the browser caches values by id, undo replays by id). Path-like ids work well:

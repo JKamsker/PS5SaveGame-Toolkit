@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import type { FieldSpec, FieldValue } from "../../api/protocol";
 import { displayValue, parseDraft, sameValue, toDraft } from "../../lib/values";
+import { EnumControl } from "./EnumControl";
+import { NullableControl, UnionControl } from "./VariantControl";
 
 export interface FieldControlProps {
   id: string;
@@ -22,6 +24,10 @@ export function FieldControl(props: FieldControlProps) {
     return <span className={spec.kind === "integer" && spec.format === "Hex" ? "readonly-value mono" : "readonly-value"}>{displayValue(spec, value)}</span>;
   }
   switch (spec.kind) {
+    case "nullable":
+      return <NullableControl {...props} spec={spec} renderInner={(inner) => <FieldControl {...inner} />} />;
+    case "union":
+      return <UnionControl {...props} spec={spec} renderInner={(inner) => <FieldControl key={inner.spec.kind} {...inner} />} />;
     case "bool":
       return <BoolControl {...props} />;
     case "enum":
@@ -45,27 +51,6 @@ function BoolControl({ id, value, onCommit, labelledBy }: FieldControlProps) {
       className="switch"
       onClick={() => void onCommit(!checked)}
     />
-  );
-}
-
-function EnumControl({ id, spec, value, onCommit, compact, labelledBy }: FieldControlProps & { spec: Extract<FieldSpec, { kind: "enum" }> }) {
-  const current = value === null ? "" : String(value);
-  const known = spec.options.some((o) => o.value === current);
-  return (
-    <select
-      id={id}
-      aria-labelledby={labelledBy}
-      className={compact ? "input input--compact" : "input"}
-      value={current}
-      onChange={(e) => void onCommit(e.target.value)}
-    >
-      {!known && <option value={current}>{current === "" ? "—" : `${current} (unlisted)`}</option>}
-      {spec.options.map((o) => (
-        <option key={o.value} value={o.value} title={o.description}>
-          {o.label}
-        </option>
-      ))}
-    </select>
   );
 }
 
@@ -121,7 +106,7 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
     void onCommit(next.toString());
   };
 
-  const className = ["input", spec.kind === "integer" || spec.kind === "float" ? "input--number" : "", compact ? "input--compact" : "", invalid ? "input--invalid" : ""]
+  const className = ["input", spec.kind === "integer" || spec.kind === "float" || spec.kind === "exactNumber" ? "input--number" : "", compact ? "input--compact" : "", invalid ? "input--invalid" : ""]
     .filter(Boolean)
     .join(" ");
   const common = {

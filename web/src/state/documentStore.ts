@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useSyncExternalStore } from "react";
 import type { DocumentState, EditResult, FieldValue, ValueChange } from "../api/protocol";
+import { sameValue } from "../lib/values";
 
 type Listener = () => void;
 
@@ -31,7 +32,7 @@ export class DocumentStore {
   }
 
   isModified(valueId: string): boolean {
-    return this.values.has(valueId) && this.original.has(valueId) && this.values.get(valueId) !== this.original.get(valueId);
+    return this.values.has(valueId) && this.original.has(valueId) && !sameValue(this.values.get(valueId)!, this.original.get(valueId)!);
   }
 
   error(valueId: string): string | undefined {
