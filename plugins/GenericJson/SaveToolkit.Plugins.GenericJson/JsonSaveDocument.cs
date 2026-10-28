@@ -13,12 +13,13 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
     private readonly object _snapshotOwner = new();
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
     private JsonTokenTree _tree = tree;
+    private readonly JsonSearch _search = new(tree);
 
     public override string Title => file.FileName;
     public IReadOnlyList<QueryableCollection> Collections => [JsonSearch.Metadata(_tree.Nodes.Count)];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
-        collectionId == JsonSearch.CollectionId ? JsonSearch.Query(_tree.Nodes[0], query, ScalarField)
+        collectionId == JsonSearch.CollectionId ? _search.Query(_tree.Nodes[0], query, ScalarField, NodeView)
             : throw new KeyNotFoundException("Unknown JSON collection.");
 
     public override ViewNode BuildView()
@@ -30,7 +31,6 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
                 new StatsNode([new Stat("Imported bytes", file.Length.ToString()), new Stat("Values", _tree.Nodes.Count.ToString())]),
                 new TextNode("Generic JSON workbench. Raw edits and explicit scalar type choices do not establish game compatibility.") { Tone = Tone.Warning },
                 new TextNode("The Changes panel compares all exposed fields with the original, including collapsed content. Child-order fields describe structure; use undo for additions, removals and reordering. Framework resource limits can make review incomplete."),
-                new TextNode("Current host limitation: the Changes panel may display typed scalar values as [object Object]. Inspect the JSON field or download for exact values; action preview labels include exact JSON transitions.") { Tone = Tone.Warning },
                 JsonResetActions.View(),
             ]),
             new("JSON", [NodeView(_tree.Nodes[0])]),
@@ -41,7 +41,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
         };
         if (overlay is not null)
             tabs.Add(new(overlay.Title, [new TextNode(overlay.Evidence) { Tone = Tone.Warning }, new TextNode(JsonOverlay.Provenance),
-                .. overlay.Groups.Select(OverlayNode)]));
+                .. JsonOverlayViews.Build(overlay, (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true))]));
         return new TabsNode(tabs);
     }
 
@@ -83,7 +83,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        actionId == JsonResetActions.ActionId ? JsonResetActions.Plan(_tree, scope) : JsonArrayActions.Plan(_tree, actionId, parameters, scope);
+        actionId == JsonResetActions.ActionId ? JsonResetActions.Plan(_tree, scope) : JsonStructureActions.Plan(_tree, actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
@@ -94,7 +94,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
             return ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray());
         var result = Structural(() =>
         {
-            JsonArrayActions.Mutate(_tree, actionId, parameters);
+            JsonStructureActions.Mutate(_tree, actionId, parameters);
             _ = JsonTreeWriter.Write(_tree);
             _ranges.Clear();
         });
@@ -118,13 +118,13 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
     {
         if (!node.IsContainer) return ScalarField(node, node.Label);
         return new SectionNode(node.Label, [
-            new SectionNode("Structure review", [Field(JsonArrayActions.StructureId(node), "Child sequence", new TextSpec(), () => JsonArrayActions.StructureValue(node)) with
+            new SectionNode("Structure review", [Field(JsonStructureActions.StructureId(node), "Child sequence / member names", new TextSpec(), () => JsonStructureActions.StructureValue(node)) with
             {
-                Description = "Tracks membership and order for Changes review, including entries beyond the displayed prefix. Use undo to restore structure.",
+                Description = "Tracks membership, order and exact member names for Changes review, including entries beyond the displayed prefix. Use undo to restore structure.",
                 Confidence = Confidence.Verified,
             }]) { Collapsed = true },
             LazyRange("Entries", node, 0, node.Children.Count),
-            .. node.Kind == JsonTokenType.StartArray ? JsonArrayActions.View(node) : Array.Empty<ActionNode>(),
+            .. node.Kind == JsonTokenType.StartArray ? JsonArrayActions.View(node) : JsonObjectActions.View(node),
         ]) { Description = JsonPaths.ForNode(node) };
     }
 
@@ -148,12 +148,8 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
         return SectionNode.Lazy(label, id, count.ToString());
     }
 
-    private ViewNode OverlayNode(JsonValueToken node)
-    {
-        if (!node.IsContainer) return new TextNode($"{node.Label}: {node.Current}");
-        var groupName = node.Children.FirstOrDefault(n => n.Label == "group_name")?.Current.ToString();
-        return LazyRange(groupName ?? node.Label, node, 0, node.Children.Count, overlay: true) with { Description = JsonOverlay.Provenance };
-    }
+    private ViewNode OverlayNode(JsonValueToken node) => JsonOverlayViews.Create(node,
+        (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true));
 
     private sealed record ChildRange(JsonValueToken Parent, int Start, int Count, bool Overlay);
     private sealed record Snapshot(object Owner, JsonTokenTree Tree);

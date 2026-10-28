@@ -45,12 +45,14 @@ internal sealed class JsonTokenTree
             var parents = new Stack<JsonValueToken>();
             string? property = null;
             var propertyOffset = 0;
+            var propertyLength = 0;
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
                     property = reader.GetString();
                     propertyOffset = checked((int)reader.TokenStartIndex + bom);
+                    propertyLength = reader.ValueSpan.Length + 2;
                     continue;
                 }
 
@@ -74,6 +76,7 @@ internal sealed class JsonTokenTree
                 {
                     Source = bytes, Parent = parent,
                     MemberOffset = parent?.Kind == JsonTokenType.StartObject ? propertyOffset : checked((int)reader.TokenStartIndex + bom),
+                    MemberNameLength = parent?.Kind == JsonTokenType.StartObject ? propertyLength : 0,
                 };
                 tree.Nodes.Add(node);
                 parent?.Children.Add(node);
@@ -175,7 +178,7 @@ internal sealed class JsonTokenTree
     {
         const int NodeOverhead = 320;
         return Nodes.Select(n => n.Source).Distinct().Sum(b => (long)b.Length)
-            + Nodes.Sum(n => NodeOverhead + 2L * (n.Label.Length + n.Original.ToString().Length + n.Current.ToString().Length));
+            + Nodes.Sum(n => NodeOverhead + 2L * (n.Label.Length + n.OriginalLabel.Length + n.Original.ToString().Length + n.Current.ToString().Length));
     }
 
     private static void ReadValue(JsonValueToken node, ref Utf8JsonReader reader)
