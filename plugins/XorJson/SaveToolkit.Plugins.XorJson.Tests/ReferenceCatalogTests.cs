@@ -20,7 +20,8 @@ public sealed class ReferenceCatalogTests
         var catalog = references.Catalog("xorjson-items")!;
         Assert.Equal(328, catalog.Count);
         Assert.Equal(60, references.Catalog("xorjson-effects")!.Count);
-        Assert.Equal(420, references.Catalog("xorjson-world")!.Count);
+        Assert.Equal(1346, references.Catalog("xorjson-world")!.Count);
+        Assert.Equal(30, references.Catalog("xorjson-enchantments")!.Count);
         var sword = catalog.Find("SW.Item.Sword")!;
         Assert.NotNull(sword);
         Assert.Equal("MIT", sword.Dataset.Attribution.License);
@@ -39,6 +40,31 @@ public sealed class ReferenceCatalogTests
         Assert.NotEmpty(catalog.Categories);
         var category = catalog.Search(new ReferenceQuery { Category = sword.Category });
         Assert.All(category.Items, item => Assert.Equal(sword.Category, item.Category));
+    }
+
+    [Fact]
+    public void ExpandedQuestTaskAndEnchantmentCatalogsCarryPinnedProvenanceWithoutGameplayLimits()
+    {
+        var plugin = new XorJsonPlugin();
+        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA16064");
+        var world = references.Catalog("xorjson-world")!;
+        var quest = world.Find("CA00")!;
+        Assert.Equal("Escape from Squid Coast", quest.Name);
+        var task = world.Find("CA00_E01")!;
+        Assert.Equal("Get back to camp", task.Name);
+        Assert.Equal("Task", task.Category);
+        Assert.Equal("CA00", task.Attributes["parentQuest"]);
+        var enchantment = references.Catalog("xorjson-enchantments")!.Find("SW.Enchantment.Arcane")!;
+        Assert.Equal("Artifact Amplifier", enchantment.Name);
+        foreach (var record in new[] { quest, task, enchantment })
+        {
+            Assert.Equal("MIT", record.Dataset.Attribution.License);
+            Assert.Contains("84ffee67b73e49d5b888e31257ce9767aa8ab826", record.Source!);
+            Assert.Contains("PS5 applicability unverified", record.Attributes["confidence"]);
+            Assert.Null(record.Limit);
+            Assert.Null(record.AssetId);
+            Assert.DoesNotContain("strength", record.Attributes.Keys);
+        }
     }
 
     [Fact]

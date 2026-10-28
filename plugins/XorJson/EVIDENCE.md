@@ -48,6 +48,48 @@ The decoder uses blob names for F1 alignment and preserves exact numeric text.
 Its generic array fallback is positional; it is not evidence for inventory
 identity across captures. Future nested seed alignment needs actual paired saves.
 
+The Core fix `4532481` is now relied on directly. Round 2 removes the all-files
+override workaround. The F1 test supplies only the settings output, asserts the
+untouched character is byte-identical, and still observes exactly one changed
+file/token. No Core file is modified.
+
+## Round-2 read projections and catalog coverage
+
+Read-only F8 tables were checked against the same PS5 bytes:
+
+| Collection | Stored rows | Interpretation boundary |
+| --- | ---: | --- |
+| Attributes | 9 | AttributeName and exact CurrentValue; no caps or dependency claims. |
+| Inventory | 5 | TypeTag, rarity, slots, stack, generated power; all Effects arrays empty. |
+| Quests | 49 | QuestName, raw State, TaskData count and FocusedQuestId equality. |
+| Tasks | 425 | TaskName, parent quest, raw State and exact PartialProgress. |
+| World | 2 | One cutscene tag, one fog record with 256 Data elements; no coordinate/map interpretation. |
+| Achievements | 32 | Stored completion/count/collected-tag data; no reward semantics. |
+| Collected records | 3 | Two item tags and one hint record; no inferred collection completeness. |
+
+The MIT source remains pinned to
+`84ffee67b73e49d5b888e31257ce9767aa8ab826`. Pack 1.1.0 adds 30 enchantment IDs
+and 926 task IDs to the existing data, with 42 short quest names and 502 short
+task labels. Every pinned base/unique item ID, quest name and task label was
+checked against the generated data. Only 2/49 PS5 quest IDs and 37/425 PS5 task
+IDs match this source. Unmatched IDs and unknown fields stay raw and lossless.
+This mismatch is further reason to keep progression and picker writes disabled
+for actual characters, even when labels look plausible.
+
+F8 tests query complete collections before expanding raw sections, check
+filter/search over 2,001 synthetic rows, stable disjoint pages, deterministic
+ties, duplicate IDs/ambiguous shapes, bounds and read-only Core session gates.
+F4 tests use Core with both byte transforms, known/unknown original IDs,
+escaped spelling, invalid replacements, exact output, reopen and undo/redo.
+Those generic-format tests establish no real-character gameplay write safety.
+
+Minecraft Wiki page/licence retrieval returned HTTP 403; no wiki text or assets
+were imported. F7 merged on main as `7ff21ad` during this round; its final SDK
+contract and plugin-guide requirements were reviewed from that commit. Plugin
+adoption remains deferred pending paired-file membership/dependency evidence.
+No gameplay bulk/preset action is exposed. Future bulk operations must use F6
+preview/apply and F8 query scopes.
+
 ## Outstanding evidence
 
 See the exact capture/reload checklist in [README.md](README.md). None of the

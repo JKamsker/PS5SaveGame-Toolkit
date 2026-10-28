@@ -1,12 +1,13 @@
 using System.Globalization;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.XorJson;
 
-internal sealed class JsonSaveDocument : BoundSaveDocument
+internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
 {
     private const int PageSize = 128;
     private readonly string _name;
@@ -16,6 +17,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument
     private readonly CharacterProfile? _character;
     private readonly JsonEditModel _model;
     private readonly bool _allowStructure;
+    private readonly IReadOnlyList<CharacterCollection> _collections;
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
 
     public JsonSaveDocument(string name, string path, JsonTokenTree tree, JsonEncoding encoding, IReferenceContext references)
@@ -27,10 +29,16 @@ internal sealed class JsonSaveDocument : BoundSaveDocument
         _character = CharacterProfile.Read(tree);
         _model = new(tree);
         _allowStructure = _character is null && !_model.Root.Children.Any(n => n.Label == "blobs");
+        _collections = _character is null ? [] : CharacterCollections.Build(_model.Root, references);
     }
 
     public override string Title => _name;
     public override bool CanEdit => _character is null;
+    public IReadOnlyList<QueryableCollection> Collections => _collections.Select(collection => collection.Metadata).ToArray();
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        (_collections.SingleOrDefault(collection => collection.Metadata.Id == collectionId)
+            ?? throw new KeyNotFoundException("Unknown character collection.")).Query(query, NodeView);
 
     public override ViewNode BuildView()
     {
@@ -44,7 +52,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument
             ]),
         };
         if (_character is null) tabs.Add(new("JSON", [NodeView(_model.Root)]));
-        else tabs.AddRange(CharacterViews.Build(_model.Root, NodeView));
+        else tabs.AddRange(CharacterViews.Build(_model.Root, NodeView, _collections));
         return new TabsNode(tabs);
     }
 
@@ -98,7 +106,11 @@ internal sealed class JsonSaveDocument : BoundSaveDocument
         try
         {
             _ = Serialize();
-            return outcome;
+            var changes = outcome.Changes.ToLookup(change => change.ValueId);
+            // Catalog replacements change displayed provenance/specs; Core must refresh them on edit and history replay.
+            return outcome with { StructureChanged = _model.Nodes.Any(node => changes[node.ValueId].Any(change =>
+                change.OldValue != change.NewValue && (CharacterViews.CatalogFor(node, change.OldValue) is not null ||
+                    CharacterViews.CatalogFor(node, change.NewValue) is not null))) };
         }
         catch (Exception ex) when (ex is SaveFormatException or ArgumentException)
         {

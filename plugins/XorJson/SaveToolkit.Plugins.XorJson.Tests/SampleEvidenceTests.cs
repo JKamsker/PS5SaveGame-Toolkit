@@ -42,9 +42,11 @@ public sealed class SampleEvidenceTests
         Assert.Equal("50", volume.Value.AsExactNumber());
         Assert.True(document.ApplyEdits([new(volume.ValueId, FieldValue.ExactNumber("49.000E+00"))]).Succeeded);
         var outputs = document.Serialize();
-        var replacements = sample.AllDiskFiles.ToDictionary(f => f.RelativePath, f => (ReadOnlyMemory<byte>)f.ReadAllBytes());
-        foreach (var output in outputs) replacements[output.RelativePath] = output.Content;
+        var replacements = outputs.ToDictionary(output => output.RelativePath, output => output.Content);
         var after = new OverlaySaveSet(sample, replacements);
+        var character = sample.AllDiskFiles.Single(f => !f.IsSystemFile && f.Directory.Name.StartsWith("Character", StringComparison.Ordinal));
+        Assert.Equal(character.ReadAllBytes(), after.Directories.SelectMany(directory => directory.Files)
+            .Single(f => f.RelativePath == character.RelativePath).ReadAllBytes());
         var report = SaveSetDiffer.Compare(sample, after, new SaveDiffOptions { Decoder = new XorJsonSampleDecoder() });
         var changed = Assert.Single(report.Files, f => f.Status == FileDiffStatus.Changed);
         Assert.NotNull(changed.Semantic);
@@ -53,6 +55,7 @@ public sealed class SampleEvidenceTests
         Assert.Equal("blobs[name=Audio]/masterVolume", delta.Path);
         Assert.Equal("50", delta.Before);
         Assert.Equal("49.000E+00", delta.After);
+        Assert.Contains(report.Files, f => f.Status == FileDiffStatus.Unchanged);
         Assert.True(document.ApplyEdits([new(volume.ValueId, volume.Value)]).Succeeded);
         Assert.Equal(file.ReadAllBytes(), document.Serialize()[0].Content.ToArray());
     }

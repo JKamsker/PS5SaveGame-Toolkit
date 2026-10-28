@@ -1,6 +1,6 @@
 # Obfuscated JSON / Dungeons II (`format.json-xor`)
 
-**Experimental, version 0.2.0.** Lossless token editing for byte-minus-one and
+**Experimental, version 0.3.0.** Lossless token editing for byte-minus-one and
 synthetic XOR-1 JSON, plus a **read-only** Minecraft Dungeons II character view.
 Only an owner can promote console-tested features to Stable.
 
@@ -59,6 +59,31 @@ addressable in the bounded lazy tree. Observed global blobs are named Audio,
 General, Gfx, Controls, KeyBindings, Interface and Accessibility. Settings still
 use conservative raw scalar specs: no game-safe ranges/enums have been proven.
 
+Seven F8 server-backed tables cover stored attributes, inventory entries,
+quests, quest tasks, world records, achievements and collection records. Search
+and exact column filters cover the complete collection, including rows beyond
+the current page. Offset pages contain at most 200 rows; sorts are ordinal
+lexical (including number columns), with stable session-token IDs as tie-breaks.
+No page offset or catalog ID is used as a row identity, so repeated IDs remain
+distinct. Only requested rows become view nodes. Raw details stay lazy.
+
+Inventory columns show the raw TypeTag, attributed name/category, RarityTag,
+EquippedSlot, TargetSlotOverride, StackCount, generated ItemPower and stored
+effect count. Target slots are shown verbatim, including merchant tags; they
+are not interpreted as proof of ownership or equip eligibility. Details retain
+progression, generator data, effects/enchantments and all unknown fields.
+Quest tables show stored state, focused-ID equality and task counts; task rows
+show their parent quest, raw state and exact PartialProgress. World rows show
+stored tags, door/actor IDs where present, raw state and fog data lengths.
+Fog bytes, positions and sizes remain available in details; no map coordinates
+or exploration percentage are invented. Achievement completion/counts and
+collection membership are read-only storage observations, not reward evidence.
+
+The supplied character yields 9 attribute, 5 inventory, 49 quest, 425 task,
+2 world, 32 achievement and 3 collected-record rows. Empty lists stay empty;
+missing/ambiguous members display no guessed value, with their original shape
+retained in raw views. Duplicate identifiers keep distinct session keys.
+
 Inventory entries show candidate `GenesisRandomSeed + occurrence` identity and
 a stable session reference. Missing seeds use the session reference. Seed
 persistence/uniqueness across real PS5 captures remains unverified; array index
@@ -80,12 +105,16 @@ slot acceptance. No caps, reward behavior or integrity repair is guessed.
 
 ## Reference catalogs and picker
 
-The embedded F2 pack `xorjson.community.en` contains **328 item**, **60 effect**
-and **420 world** records. The catalog IDs are `xorjson-items`,
-`xorjson-effects`, and `xorjson-world`. Labels/categories come from the pinned
-MIT community dataset; world display labels are mechanically expanded internal
-IDs, not official quest translations. All entries are **Inferred**, carry
-revision/source metadata, and explicitly disclaim PS5 compatibility.
+The embedded F2 pack `xorjson.community.en` version 1.1.0 contains **328 item**,
+**60 effect**, **30 enchantment** and **1,346 world/quest/task** records. Catalog
+IDs are `xorjson-items`, `xorjson-effects`, `xorjson-enchantments` and
+`xorjson-world`. This covers every base/unique item ID, effect/enchantment ID,
+quest ID/task ID, 42 short quest names and 502 short task labels in the pinned
+MIT source, plus the previous world identifiers. World labels without upstream
+names are mechanically expanded IDs, not official translations. All entries are **Inferred**, carry
+revision/source metadata, and explicitly disclaim PS5 compatibility. Only 2 of
+49 quest IDs and 37 of 425 task IDs in the PS5 sample match that PC catalog;
+unmatched values stay raw. Catalog size is not a PS5 coverage claim.
 
 `Open(file, references)` uses the host's pinned `IReferenceContext`. Item type
 tags publish F4 `ReferenceSpec` fields with `AllowCustom=false`: Core's native
@@ -96,11 +125,29 @@ preserved; the no-pack path falls back to raw IDs without inventing labels.
 Descriptions include per-record attribution; the Sources panel exposes each
 dataset's licence and provenance. No catalog reads trigger network I/O.
 
-No game artwork, tooltip prose, quest prose, PC caps, effect strengths or tiers
+Round-2 tests exercise the existing-value picker through Core with both byte
+transforms, known and unknown original IDs, an escaped original ID, rejected
+unknown replacements, exact token-only output, reopen, undo and redo. These
+prove the generic token editor's behavior. They do not establish that replacing
+a real PS5 inventory ID is safe. Character item replacement, quantities, power,
+rarity, effects, equip and creation remain disabled pending the owner checklist.
+No bulk gameplay action or preset is exposed. Future bulk operations must use
+F6 `IActionPlanningDocument` preview/apply with `SupportsPlanning`, including
+F8 query scopes, exclusions, skipped rows and one atomic undo step.
+Catalog-valued edits and their undo/redo request a view rebuild so labels,
+provenance and picker specs follow the current ID.
+
+No game artwork, tooltip prose, long quest prose, PC caps, effect strengths or tiers
 are embedded. The upstream sources mention MetaBot and player-read game text;
 only curated identifiers, short labels and categories are extracted under the
 community repository's MIT terms. Unlicensed source descriptions and icons are
-excluded. CC BY-SA sources remain an approved option for future attributed text.
+excluded. CC BY-SA text remains approved with attribution and share-alike;
+no wiki text was embedded this round. Direct retrieval of Minecraft Wiki's
+`Dungeons_II:Sword`, `Dungeons_II:Echo_Shard` and `Minecraft_Wiki:Copyrights`
+returned HTTP 403 on 2026-10-28, so page revisions, applicable licence and an
+exact PS5 ID/text mapping could not be verified. A future wiki dataset must
+retain its own CC BY-SA attribution, licence/version link, retrieval/revision
+and modifications next to the data, in this table, Info.References and the UI.
 
 ## Sources and attribution
 
@@ -112,9 +159,11 @@ notice is retained in the pack's `LICENSE.txt`; dataset modifications are in
 | Dataset / research | Author and source | Licence / use |
 | --- | --- | --- |
 | Item IDs, short names, categories | Ishiaki and mcd2-save-editor contributors, [items.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json) | [MIT](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE); base/unique ID-name pairs and optional slot; no descriptions, artwork or caps. |
-| Effect IDs, short names, categories | Same contributors, [effects.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json) | MIT; no tiers, numbers or tooltip prose. |
-| World IDs / generated labels | Same contributors, [world.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/world.json) | MIT; quest/station/door/area/region/achievement/cutscene identifiers only; labels generated from those IDs. |
+| Effect IDs, short names, categories | Same contributors, [effects.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json) | MIT; 60 effects, no tiers, numbers or tooltip prose. |
+| Enchantment IDs / short names | Same contributors, [effects.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json) | MIT; 30 `enchantments` ID/name pairs, no strengths, points or tiers. |
+| World/quest/task IDs and labels | Same contributors, [world.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/world.json) | MIT; 420 original identifiers plus 926 task IDs. Quest/task short labels from `names`/`labels`; other labels expanded from IDs. No reward rules or coordinates. |
 | Shifted settings / plain character codec | Same project, [codec.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/codec.py) | MIT research corroboration; inspected as text, not executed. No downloaded Python implementation is shipped or executed. |
+| Character/quest/world paths | Same project, [hero.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py), [story.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/story.py), [world.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/world.py) | MIT schema research, checked against PS5 bytes where populated. Empty PS5 lists do not prove PC door/actor/effect semantics. No implementation port. |
 | JSON grammar | IETF, [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) | Specification reference; local token writer, SDK exact-number grammar validation. |
 | PS5 title identity | [ProsperoPatches PPSA16064](https://prosperopatches.com/PPSA16064) | Title identification only; no data/code embedded. |
 
@@ -130,14 +179,17 @@ dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 Tests cover sample no-op, character/version/online gates, named settings,
 F1 exact settings deltas, F10 huge numbers/null/typed paths, malformed/corrupt
 input, atomic size rollback, bounded lazy views, catalog hashes/provenance,
-native reference validation, F5 detached snapshots, mixed Core undo/redo,
+native reference validation and picker history, F8 full-list search/filter/page
+keys and read-only session gates, F5 detached snapshots, mixed Core undo/redo,
 stale IDs/revisions, duplicate members, replacement trivia and ambiguous output.
 Sample tests skip only when samples are absent; skipped runs are not validation.
 
-This round delivers the engineering portions of phases 1–2 and the catalog/F5
-foundations from phases 3–5. **No full phase is declared complete:** controlled
-captures, legal gameplay ranges, advanced semantic tables/cards, reward/dependency
-validation and console acceptance remain open.
+Round 2 removes the overlay workaround, extends the read-only portions of
+phases 2–4, and strengthens the phase-3 catalog/picker foundation. **No full
+phase is declared complete:** controlled captures, legal gameplay ranges,
+populated effect/enchantment cards, reward/dependency validation and console
+acceptance remain open. F7 cross-file integration is deferred, with no local
+transaction substitute.
 
 ## Owner capture and console checklist
 
@@ -157,15 +209,44 @@ validation and console acceptance remain open.
 6. With disposable backed-up copies, record the game's response to one controlled
    malformed/altered token. Report rejection, clamping, repair or external-integrity
    behavior; do not infer checksum absence from valid JSON alone.
+7. For each proposed picker replacement, capture a natural item change and
+   record both exact TypeTags, raw rarity, power, stack, generator seed,
+   EquippedSlot, TargetSlotOverride, effects/templates and related changes.
+   Include the same base item in merchant stock, the bag and equipped slots.
+   Confirm catalog label/category against the PS5 UI. Validate one replacement
+   per spare-slot load/save/reload before enabling that ID/slot combination.
+8. Capture repeated identical-type items, a reorder and an equip/unequip pair
+   to establish seed persistence/duplicates. Provide non-empty effect and
+   enchantment records with visible tier/strength and separate quest partial
+   progress, completion and reward-claim pairs. Record which achievement,
+   collection, door, station, fog and actor values change as side effects.
+9. For any requested bulk action/preset, first provide individual proven edits,
+   valid limits/dependencies and the expected filtered scope/exclusions. Validate
+   its F6 preview, atomic apply and whole-action undo on a spare offline slot.
+10. For character/global coordination, capture both files before/after changing
+    the active character and a suspected shared progression action. Identify
+    membership by slot/title/generation and show which fields must agree.
 
 ## SDK requests
 
-- F1/F2/F4/F5/F10 are available and used; no plugin-local replacements are needed.
-- **Core overlay regression observed during F1 validation:** constructing
-  `OverlaySaveSet` with only the changed global file made the untouched character
-  appear zero-length. Its conditional `content : null` appears to select the
-  implicit byte-array → memory conversion before nullable wrapping. The plugin's
-  F1 test supplies explicit content for every file as a scoped workaround. Core
-  should test/fix absent overrides independently; no Core files were changed.
-- Future cross-file character/global transactions and game-specific dependency
-  validation remain outside this round. No invented checksum or caps are used.
+- F1/F2/F4/F5/F8/F10 are available and used directly. F6 is the required route for
+  future bulk actions; unsupported gameplay actions remain absent.
+- The Core overlay regression is fixed on main (`4532481`). The plugin-local
+  all-files workaround is removed: F1 supplies only the settings output and
+  verifies the untouched character bytes and unchanged-file report.
+- **F7 (#29) merged on main as `7ff21ad`; plugin adoption remains deferred.**
+  The final `IDocumentGroupPlugin.ProposeGroups` / `ValidateGroup` / `OpenGroup`
+  contract and `IGroupedSaveDocument.CaptureMemento` were reviewed from that
+  commit. Future opt-in groups must explicitly bind the
+  matching character and global files by title, slot and generation, establish
+  one owner per output, fingerprint immutable inputs, validate member schemas
+  and cross-file dependencies, stage every output before publishing anything,
+  and provide one revision/undo/redo unit and atomic verified export. Unrelated
+  settings stay independently editable. Group models must prefix all member
+  identities by role, capture complete immutable multi-member state restorable
+  into a fresh instance, and serialize every selected member exactly once.
+  Backups must be explicit members. The remaining blocker is controlled
+  paired-file evidence before proposing membership or shared edits, rather
+  than a missing framework API. No plugin-local coordinator is implemented.
+- No new SDK gap blocks these read views. Game-specific dependency validation,
+  integrity behavior and PS5 write acceptance still need owner evidence.
