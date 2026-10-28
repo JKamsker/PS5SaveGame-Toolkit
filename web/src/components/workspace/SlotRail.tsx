@@ -62,7 +62,9 @@ interface SlotProps {
 }
 
 function Slot({ workspaceId, dir, expanded, dirty, activeFileId, onToggle, onOpen }: SlotProps) {
-  const subtitle = dir.sfo?.subTitle || dir.sfo?.detail;
+  // Placeholder param.sfo files carry no text; the best game plugin's label is the next best description.
+  const pluginLabel = dir.files.map((f) => f.matches[0]).find((m) => m && m.score > 1)?.label;
+  const subtitle = dir.sfo?.subTitle || dir.sfo?.detail || pluginLabel;
   const classes = ["slot", expanded ? "slot--active" : "", dirty ? "slot--modified" : ""].filter(Boolean).join(" ");
   return (
     <div className={classes}>
