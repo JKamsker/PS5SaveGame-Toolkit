@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, isStaleError } from "../../api/client";
-import type { SectionNode, StatsNode, TabsNode, TextNode, ViewNode } from "../../api/protocol";
+import type { SectionNode, StatsNode, TextNode, ViewNode } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { FieldRow } from "../fields/FieldRow";
 import { ActionButton } from "./ActionButton";
@@ -11,6 +11,7 @@ import { TableView } from "./TableView";
 import { ServerTableView } from "./table/ServerTableView";
 import { GraphView } from "./spatial/GraphView";
 import { MapView } from "./spatial/MapView";
+import { TabsView } from "./TabsView";
 
 export function ViewList({ nodes }: { nodes: ViewNode[] }) {
   return (
@@ -28,7 +29,7 @@ export function ViewRenderer({ node }: { node: ViewNode }) {
     case "section":
       return <Section node={node} />;
     case "tabs":
-      return <Tabs node={node} />;
+      return <TabsView node={node} />;
     case "field":
       return <NavigableField node={node} />;
     case "table":
@@ -101,32 +102,6 @@ function LazyChildren({ lazyId }: { lazyId: string }) {
   if (query.isPending || stale) return <p className="section__loading">Loading…</p>;
   if (query.isError) return <p className="notice notice--Danger">{query.error.message}</p>;
   return <ViewList nodes={query.data} />;
-}
-
-function Tabs({ node }: { node: TabsNode }) {
-  const [active, setActive] = useState(0);
-  const next = useNextReviewPath();
-  useEffect(() => {
-    const index = node.tabs.findIndex(tab => next === `tab:${tab.title}`);
-    if (index >= 0) setActive(index);
-  }, [next, node.tabs]);
-  const tab = node.tabs[active] ?? node.tabs[0];
-  return (
-    <div className="tabs">
-      <div className="tabs__list" role="tablist">
-        {node.tabs.map((t, i) => (
-          <button key={t.title} type="button" role="tab" aria-selected={i === active} className="tabs__tab" onClick={() => setActive(i)}>
-            {t.title}
-          </button>
-        ))}
-      </div>
-      {tab && (
-        <div role="tabpanel">
-          <ReviewPath part={`tab:${tab.title}`}><ViewList nodes={tab.children} /></ReviewPath>
-        </div>
-      )}
-    </div>
-  );
 }
 
 function Text({ node }: { node: TextNode }) {
