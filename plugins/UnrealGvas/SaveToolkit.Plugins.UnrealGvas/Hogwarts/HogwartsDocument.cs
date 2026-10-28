@@ -25,6 +25,7 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
     private readonly Dictionary<string, HogwartsTable> _tables = new(StringComparer.Ordinal);
     private readonly IReferenceCatalog? _catalog;
     private readonly HogwartsSpatialViews _spatial;
+    private readonly CatalogueInspection _catalogues;
     private bool _dirty;
 
     public HogwartsDocument(string path, GvasEnvelope envelope, IReferenceContext references)
@@ -33,6 +34,7 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
         _envelope = envelope;
         _raw = new(path, envelope, references, ReadOnlyReason);
         _catalog = references.Catalog(CatalogId);
+        _catalogues = new(references, CatalogId);
         _spatial = new HogwartsSpatialViews(_catalog);
         try
         {
@@ -87,6 +89,8 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
         };
         foreach (string group in new[] { "Character", "Inventory", "Progression", "Collections" }) tabs.Add(new(group, Group(group)));
         tabs.Add(new("Spatial", _spatial.Build()));
+        tabs.Add(new("Collectible catalogue", _catalogues.Build((id, catalogue, record) =>
+            Field(id, catalogue.Dataset.Title ?? catalogue.Id, new ReferenceSpec(catalogue.Id), () => FieldValue.Of(record.Key)))));
         tabs.Add(new("Database tables", [
             new TextNode("All tables are queryable. Filters match raw column text; search covers every raw column. Rowid fallback identities are stable only within this unchanged document."),
             .. _databases.Select(database => (ViewNode)SectionNode.Lazy(database.Name, "hogwarts/tables/" + database.Name)),
@@ -98,6 +102,9 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
     private IReadOnlyList<ViewNode> Group(string group) =>
     [new TextNode("Read-only PS5 storage, grouped by table name (Inferred meaning). Both database images remain separate. Unknown IDs and relationships remain raw.") { Tone = Tone.Info },
         .. _tables.Values.Where(table => table.Group == group).Select(table => (ViewNode)TableNode(table))];
+
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        _catalogues.Invoke(actionId) ?? _raw.InvokeAction(actionId, parameters);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
