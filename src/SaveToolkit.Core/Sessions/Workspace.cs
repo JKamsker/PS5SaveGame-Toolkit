@@ -18,6 +18,7 @@ public sealed class Workspace : IDisposable
     private readonly Lock _openGate = new();
     private readonly DocumentGroupRegistry _groups;
     private int _documentCounter;
+    private bool _disposed;
 
     public Workspace(string id, string name, DiskSaveSet set, PluginCatalog catalog, ReferencePackStore? packs = null)
     {
@@ -41,14 +42,23 @@ public sealed class Workspace : IDisposable
 
     public IReadOnlyList<DocumentGroupSession> DocumentGroups => _groups.All;
 
-    internal T WithOwnershipLock<T>(Func<T> operation) { lock (_openGate) return operation(); }
+    internal T WithOwnershipLock<T>(Func<T> operation)
+    {
+        lock (_openGate)
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            return operation();
+        }
+    }
 
-    public IReadOnlyList<DocumentGroupOffer> ProposeGroups(string fileId, string pluginId) => _groups.Propose(fileId, pluginId);
+    public IReadOnlyList<DocumentGroupOffer> ProposeGroups(string fileId, string pluginId) =>
+        WithOwnershipLock(() => _groups.Propose(fileId, pluginId));
 
     public DocumentGroupSession OpenGroup(string proposalToken, string? releaseCleanDocumentId = null, DocumentSessionOptions? options = null)
     {
         lock (_openGate)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
             var group = _groups.Open(proposalToken, $"doc{Interlocked.Increment(ref _documentCounter)}", releaseCleanDocumentId, options);
             _documents[group.Session.Id] = group.Session;
             _references[group.Session.Id] = group.References;
@@ -86,6 +96,7 @@ public sealed class Workspace : IDisposable
 
         lock (_openGate)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
             _groups.ThrowIfOwned(file.RelativePath);
             var existing = _documents.Values.FirstOrDefault(d => d.File.Id == fileId);
             if (existing is not null)
@@ -127,9 +138,14 @@ public sealed class Workspace : IDisposable
 
     public void Dispose()
     {
-        foreach (var id in _documents.Keys)
+        lock (_openGate)
         {
-            Close(id);
+            if (_disposed) return;
+            _disposed = true;
+            foreach (var id in _documents.Keys)
+            {
+                Close(id);
+            }
         }
     }
 }
