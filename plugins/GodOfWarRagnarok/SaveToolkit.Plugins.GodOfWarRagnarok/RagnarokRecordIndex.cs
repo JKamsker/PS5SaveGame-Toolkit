@@ -1,0 +1,144 @@
+using System.Buffers.Binary;
+using SaveToolkit.Sdk;
+
+namespace SaveToolkit.Plugins.GodOfWarRagnarok;
+
+internal sealed record RecordRegion(string Name, int Offset, int Length, int Count, string Meaning);
+internal sealed record ResourceOccurrence(int Offset, ulong Id);
+
+/// <summary>Indexes only bounded structures established in the supplied revision; unknown gaps stay opaque.</summary>
+internal sealed class RagnarokRecordIndex
+{
+    public bool Preferences { get; private init; }
+    public string Description { get; private init; } = "";
+    public int DirectoryCount { get; private init; }
+    public int FlagsOffset { get; private init; }
+    public int SecondaryOffset { get; private init; }
+    public int SecondaryCount { get; private init; }
+    public int WalletOffset { get; private init; }
+    public int WalletCount { get; private init; }
+    public IReadOnlyList<RecordRegion> Regions { get; private init; } = [];
+    public IReadOnlyList<ResourceOccurrence> Occurrences { get; private init; } = [];
+
+    public static RagnarokRecordIndex Parse(ReadOnlySpan<byte> bytes, bool preferences)
+    {
+        if (!RagnarokFormat.MatchesHeader(bytes, bytes.Length, preferences))
+        {
+            throw new SaveFormatException("Unsupported or truncated Ragnarök PS5 header.");
+        }
+
+        if (preferences)
+        {
+            return new RagnarokRecordIndex
+            {
+                Preferences = true,
+                Regions = [new("Preferences record", 0, bytes.Length, 1, "Settings meanings unknown; raw bytes only")],
+            };
+        }
+
+        if (bytes.Length < RagnarokFormat.DirectoryItemsOffset ||
+            RagnarokFormat.UInt32(bytes, RagnarokFormat.MetadataKindOffset) != RagnarokFormat.MetadataKind ||
+            RagnarokFormat.UInt32(bytes, RagnarokFormat.MetadataRevisionOffset) != RagnarokFormat.Revision ||
+            BinaryPrimitives.ReadUInt16LittleEndian(bytes[RagnarokFormat.DirectoryMarkerOffset..]) != RagnarokFormat.DirectoryMarker ||
+            RagnarokFormat.UInt32(bytes, bytes.Length - sizeof(uint)) != uint.MaxValue)
+        {
+            throw new SaveFormatException("Invalid Ragnarök metadata, directory marker or observed trailing sentinel.");
+        }
+
+        var count = RagnarokFormat.CheckedCount(bytes, RagnarokFormat.DirectoryCountOffset, sizeof(ulong));
+        var flagsOffset = RagnarokFormat.DirectoryItemsOffset + count * sizeof(ulong);
+        RagnarokFormat.RequireRange(bytes, flagsOffset, (uint)count, sizeof(uint));
+        var ids = new HashSet<ulong>();
+        ulong previous = 0;
+        for (var row = 0; row < count; row++)
+        {
+            var id = RagnarokFormat.UInt64(bytes, RagnarokFormat.DirectoryItemsOffset + row * sizeof(ulong));
+            if (row > 0 && id <= previous)
+            {
+                throw new SaveFormatException("Ragnarök directory IDs are not strictly increasing.");
+            }
+
+            ids.Add(id);
+            previous = id;
+        }
+
+        var secondaryCountOffset = flagsOffset + count * sizeof(uint);
+        var secondaryCount = RagnarokFormat.CheckedCount(bytes, secondaryCountOffset, sizeof(ulong));
+        var secondaryOffset = secondaryCountOffset + sizeof(uint);
+        for (var row = 0; row < secondaryCount; row++)
+        {
+            if (!ids.Contains(RagnarokFormat.UInt64(bytes, secondaryOffset + row * sizeof(ulong))))
+            {
+                throw new SaveFormatException("A secondary Ragnarök ID is missing from the directory.");
+            }
+        }
+
+        Span<byte> walletPattern = stackalloc byte[sizeof(ulong)];
+        BinaryPrimitives.WriteUInt64LittleEndian(walletPattern, RagnarokFormat.HeroWalletId);
+        var wallet = bytes.IndexOf(walletPattern);
+        if (wallet < 0 || bytes[(wallet + walletPattern.Length)..].IndexOf(walletPattern) >= 0 ||
+            wallet > bytes.Length - RagnarokFormat.WalletHeaderSize)
+        {
+            throw new SaveFormatException("Expected exactly one bounded Ragnarök hero-wallet record.");
+        }
+
+        var walletCount = RagnarokFormat.UInt32(bytes, wallet + sizeof(ulong));
+        RagnarokFormat.RequireRange(bytes, wallet + RagnarokFormat.WalletHeaderSize, walletCount, RagnarokFormat.WalletRowSize);
+        return new RagnarokRecordIndex
+        {
+            Description = RagnarokFormat.Description(bytes),
+            DirectoryCount = count,
+            FlagsOffset = flagsOffset,
+            SecondaryCount = secondaryCount,
+            SecondaryOffset = secondaryOffset,
+            WalletOffset = wallet,
+            WalletCount = (int)walletCount,
+            Regions =
+            [
+                new("Outer header", 0, RagnarokFormat.HeaderSize, 1, "Observed constants; integrity unknown"),
+                new("Metadata", RagnarokFormat.MetadataOffset, RagnarokFormat.MetadataSize, 1, "Location and inferred time/counter"),
+                new("Sorted ID array", RagnarokFormat.DirectoryItemsOffset, count * sizeof(ulong), count, "Unknown ID semantics"),
+                new("Paired words", flagsOffset, count * sizeof(uint), count, "Inferred correspondence to sorted IDs"),
+                new("Secondary ID array", secondaryOffset, secondaryCount * sizeof(ulong), secondaryCount, "IDs also present in sorted array"),
+                new("Hero wallet rows", wallet + RagnarokFormat.WalletHeaderSize, (int)walletCount * RagnarokFormat.WalletRowSize,
+                    (int)walletCount, "PC layout matches PS5; container role inferred"),
+            ],
+            Occurrences = FindResourceOccurrences(bytes),
+        };
+    }
+
+    private static IReadOnlyList<ResourceOccurrence> FindResourceOccurrences(ReadOnlySpan<byte> bytes)
+    {
+        const int maximumOccurrences = 4096;
+        var result = new List<ResourceOccurrence>();
+        Span<byte> pattern = stackalloc byte[sizeof(ulong)];
+        foreach (var id in ResourceNames.Ids)
+        {
+            BinaryPrimitives.WriteUInt64LittleEndian(pattern, id);
+            var start = 0;
+            while (start <= bytes.Length - RagnarokFormat.WalletRowSize)
+            {
+                var relative = bytes[start..].IndexOf(pattern);
+                if (relative < 0)
+                {
+                    break;
+                }
+
+                var offset = start + relative;
+                if (offset <= bytes.Length - RagnarokFormat.WalletRowSize)
+                {
+                    if (result.Count == maximumOccurrences)
+                    {
+                        throw new SaveFormatException("Too many resource anchors for this Ragnarök revision.");
+                    }
+
+                    result.Add(new(offset, id));
+                }
+
+                start = offset + 1;
+            }
+        }
+
+        return result.OrderBy(r => r.Offset).ToArray();
+    }
+}
