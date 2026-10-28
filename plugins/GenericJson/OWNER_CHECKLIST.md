@@ -1,7 +1,31 @@
 # GenericJson owner evidence and validation
 
-Round 2 keeps title overlays read-only and all title-semantic adapters/presets disabled. Generic syntax
-editing is Experimental. Byte-identical round trips prove preservation, not console acceptance.
+Write-enable round, 2026-10-28: the owner decision **“Enable writes. Keep warnings”** enables the
+title adapters and existing-value presets described in README's **Enabled writes and their evidence**
+table. Validation now lives in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31);
+these unchecked items do not gate the enabled writes. Everything remains Experimental/Inferred or
+Unknown. Byte-identical round trips prove preservation, not console acceptance. External integrity and
+game dependencies are unknown, so the game may reject or overwrite edited saves.
+
+Validate these enabled operations independently on spare saves:
+
+- [ ] Cyberpunk scalar bool/number/text; paired choice + index; dynamic bounded raw text + explicit
+      index; individual recorded default; selected/all recorded-default preset. Confirm both tokens,
+      actual menu effect, native resets and restart/resave behavior. Float steps are advisory because
+      the recorded float32 metadata does not divide its own defaults exactly; check actual granularity.
+- [ ] It Takes Two individual stored flags (including field-specific casing), integer-string counters
+      within the conservative `0..max(imported,67)` range, individual chapter/checkpoint strings and
+      the explicit three-field tuple. Verify Continue, Chapter Select, replay and forward progression.
+- [ ] It Takes Two present-flag preset (true and false), selected/all counter-zero preset; inspect
+      skipped rows and missing minigames, story state, rewards/trophies and each Cody/May counter unit.
+      No missing flags, chapter graph, story dependencies or progression state are created.
+- [ ] Ridge Racer raw wrapper primitives within zero-to-imported numeric bounds; string booleans;
+      selected/all restore-imported preset. Zero-valued unknown enums have only one permitted value;
+      this is a conservative range, not a game limit or a named visual preset. Inspect DATA.BIN without
+      editing it and compare every companion after restart/native resave.
+- [ ] For each operation: keep original/full companion set privately; load, observe the precise effect,
+      restart, resave, reload, re-export, run F1 against unchanged controls and restore the original.
+      Report rejection, normalization/overwrite, unrelated changes and progression problems in #31.
 
 For every capture pair:
 
@@ -48,7 +72,7 @@ Ridge Racer 2 PSP wrapper (`PPSA07696`):
 - [ ] Retain `imgui_emu_option.json` and `DATA.BIN` together and determine whether an actual coordinated
       write is required. The binary gameplay file alone is not a GenericJson member.
 
-Before built-in title templates, semantic writes, presets or F7 adoption:
+For future built-in title insertion schemas, complete presets or F7 groups (not implemented here):
 
 - [ ] Derive each required/optional member, legal default and item-count limit from controlled pairs;
       validate any proposed insertion on a fresh/incomplete spare profile, not just a completed save.
@@ -62,5 +86,6 @@ Before built-in title templates, semantic writes, presets or F7 adoption:
       conversion from syntax validity or PC editor behavior.
 
 Current framework status: F10/F5/F6/F8 are used; tagged review formatting is fixed in `03b66b7`.
-F7 is available (`7ff21ad`) but no production group is justified by the present GenericJson evidence.
+F7 is available (`7ff21ad`), but no clearly coupled companion invariant is identified for the enabled
+GenericJson writes. Co-location and identical backup twins do not create such an invariant.
 There is no new blocking SDK request.

@@ -12,10 +12,10 @@ internal sealed class JsonSessionFixture : IDisposable
 {
     private readonly string _storage = Path.Combine(Path.GetTempPath(), "SaveToolkit.GenericJson.Tests", Guid.NewGuid().ToString("N"));
 
-    public JsonSessionFixture(string source, DocumentSessionOptions? options = null)
+    public JsonSessionFixture(string source, DocumentSessionOptions? options = null, string title = "PPSA00000", string fileName = "data.json")
     {
         var bytes = Encoding.UTF8.GetBytes(source);
-        var set = SaveSetImporter.Import([new ImportSource("PPSA00000/sdimg_fixture/data.json", () => new MemoryStream(bytes))], _storage);
+        var set = SaveSetImporter.Import([new ImportSource($"{title}/sdimg_fixture/{fileName}", () => new MemoryStream(bytes))], _storage);
         var file = set.AllDiskFiles.Single();
         var plugin = new GenericJsonPlugin();
         Document = plugin.Open(file);

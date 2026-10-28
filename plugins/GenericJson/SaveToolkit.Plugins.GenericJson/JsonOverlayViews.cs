@@ -4,28 +4,30 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.GenericJson;
 
-/// <summary>Read-only file-derived descriptions. Raw keys/paths and string encodings remain visible.</summary>
+/// <summary>File-derived descriptions and planned adapters. Raw keys/paths and encodings remain visible.</summary>
 internal static class JsonOverlayViews
 {
     private const int MaxDisplayValue = 4096;
 
-    public static IReadOnlyList<ViewNode> Build(JsonOverlay overlay, Func<string, JsonValueToken, SectionNode> lazy)
+    public static IReadOnlyList<ViewNode> Build(JsonOverlay overlay, Func<string, JsonValueToken, SectionNode> lazy,
+        Func<JsonValueToken, IReadOnlyList<ViewNode>> controls)
     {
-        if (!overlay.IsProfile) return overlay.Groups.Select(node => Create(node, lazy)).ToArray();
+        if (!overlay.IsProfile) return overlay.Groups.Select(node => Create(node, lazy, controls)).ToArray();
         var chapters = overlay.Groups.Where(node => !node.Label.StartsWith("Minigame", StringComparison.Ordinal)).ToArray();
         var games = overlay.Groups.Except(chapters).GroupBy(node => GameAndField(node.Label).Game, StringComparer.Ordinal);
-        return [new SectionNode("Chapter and checkpoint strings", chapters.Select(node => Create(node, lazy)).ToArray())
+        return [new SectionNode("Chapter and checkpoint strings", chapters.Select(node => Create(node, lazy, controls)).ToArray())
             { Description = JsonOverlay.Provenance },
             .. games.Select(group => new SectionNode(JsonLabels.Friendly(group.Key), group.Select(node =>
-                Scalar(node, JsonLabels.Friendly(GameAndField(node.Label).Field))).ToArray())
+                Scalar(node, JsonLabels.Friendly(GameAndField(node.Label).Field), controls)).ToArray())
             {
                 Description = "Only present fields are listed; missing discovery, play and counter keys remain unknown. " + JsonOverlay.Provenance,
             })];
     }
 
-    public static ViewNode Create(JsonValueToken node, Func<string, JsonValueToken, SectionNode> lazy)
+    public static ViewNode Create(JsonValueToken node, Func<string, JsonValueToken, SectionNode> lazy,
+        Func<JsonValueToken, IReadOnlyList<ViewNode>> controls)
     {
-        if (!node.IsContainer) return Scalar(node, JsonLabels.Friendly(node.Label));
+        if (!node.IsContainer) return Scalar(node, JsonLabels.Friendly(node.Label), controls);
         if (JsonOverlay.HasType(JsonOverlay.Unique(node, "group_name"), JsonScalar.Text)
             && JsonOverlay.Unique(node, "options") is { Kind: JsonTokenType.StartArray } options)
         {
@@ -34,17 +36,18 @@ internal static class JsonOverlayViews
             { Description = JsonOverlay.Provenance };
         }
         if (JsonOverlay.HasType(JsonOverlay.Unique(node, "name"), JsonScalar.Text) && JsonOverlay.Unique(node, "value") is { IsContainer: false } value)
-            return Option(node, value, lazy);
+            return Option(node, value, lazy, controls);
         return lazy(JsonLabels.Friendly(node.Label), node) with { Description = JsonOverlay.Provenance };
     }
 
-    private static ViewNode Option(JsonValueToken option, JsonValueToken value, Func<string, JsonValueToken, SectionNode> lazy)
+    private static ViewNode Option(JsonValueToken option, JsonValueToken value, Func<string, JsonValueToken, SectionNode> lazy,
+        Func<JsonValueToken, IReadOnlyList<ViewNode>> controls)
     {
         var name = JsonOverlay.Unique(option, "name")!.Current.ToString();
         var children = new List<ViewNode>
         {
             new TextNode($"Raw name: {name}; {JsonPaths.ForNode(option)}") { Monospace = true },
-            Scalar(value, "Current JSON value"),
+            Scalar(value, "Current JSON value", controls),
         };
         foreach (var key in new[] { "type", "default_value", "min_value", "max_value", "step_value", "index", "default_index", "is_dynamic" })
             if (JsonOverlay.Unique(option, key) is { IsContainer: false } metadata) children.Add(Scalar(metadata, "Recorded " + JsonLabels.Friendly(key)));
@@ -73,11 +76,11 @@ internal static class JsonOverlayViews
             : "Index consistency: current value does not exactly match the indexed choice. Do not infer a repair.";
     }
 
-    private static ViewNode Scalar(JsonValueToken node, string label)
+    private static ViewNode Scalar(JsonValueToken node, string label, Func<JsonValueToken, IReadOnlyList<ViewNode>>? controls = null)
     {
         var literal = JsonScalar.Literal(node.Current);
         if (literal.Length > MaxDisplayValue) literal = literal[..MaxDisplayValue] + "… (use raw JSON for the complete value)";
-        return new SectionNode(label, [new TextNode(literal) { Monospace = true }])
+        return new SectionNode(label, [new TextNode(literal) { Monospace = true }, .. controls?.Invoke(node) ?? []])
         {
             Description = $"{node.Label}; {JsonPaths.ForNode(node)}. {JsonOverlay.Provenance} Stored JSON strings are shown quoted without coercion.",
         };
