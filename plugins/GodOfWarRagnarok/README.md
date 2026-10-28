@@ -1,6 +1,6 @@
 # God of War Ragnarök (`gow-ragnarok`)
 
-**Maturity: Experimental (v0.4.0).** Opens decrypted PS5 gameplay/history saves and the separate preferences record.
+**Maturity: Experimental (v0.5.0).** Opens decrypted PS5 gameplay/history saves and the separate preferences record.
 Provides metadata, five length-bounded wallet containers, F8 resource/XP/raven counters,
 nested gear/skill ID candidates, 132 grouped raw flag records, attributed F2 catalogs,
 integrity evidence and lazy raw word/byte views. Existing decoded wallet counters and play time
@@ -13,7 +13,7 @@ An unsuccessful checksum search does not establish game acceptance. Preferences 
 | Feature | Status and evidence |
 | --- | --- |
 | F1 SaveDiff | **Used**: `RagnarokEvidenceDecoder` is the bounded decoder hook; grammar spans expose stable wallet, flag and integrity paths. |
-| F2 reference packs | **Used**: PS5/community packs plus attributed `gow-ragnarok.skills.en`; direct fallback and Sources-panel attribution are tested. |
+| F2 reference packs | **Used**: PS5/community/skill packs plus 961 runtime IDs, four tree groups and 1,682 explicitly cross-game 2018 candidates; direct fallback and Sources-panel attribution are tested. |
 | F3 rich table cells | **Used**: confidence badges/warnings, detail fields, attribution cells and per-row inspect/restore actions. |
 | F4 `ReferenceSpec` pickers | **Used**: catalogue-backed resource IDs in F8 pages and read-only skill-reference fields; unknown IDs remain raw. |
 | F5 structural edits | **N/A**: no safe add/remove/reorder grammar or free-slot/ownership invariant is proven. |
@@ -129,8 +129,20 @@ it does not claim nested structures or authentication.
 The embedded `ReferencePacks/gow-ragnarok.ps5.en` pack is version `1.0.0` and contains 31 factual
 hash/name/category records. It records `limit: null` deliberately: no source or controlled capture
 proves a legal game maximum. The old `Resources/ResourceNames.json` remains a direct-call fallback
-with the same 31 factual IDs when Core has not pinned the pack. XP is an additional **inferred Ragnarök role** transferred from the
-2018 editor's `EconomyXP` ID. No network or filesystem access is performed by the plugin.
+for legacy anchor scanning. Direct name lookups now load the original F2 pack as their fallback,
+so all 31 names/categories agree with pinned calls. XP candidates are named from the newly imported
+PC runtime table, with PS5 ownership still **Inferred**. No network or filesystem access is performed by the plugin.
+
+The unlicensed-source round adds **2,647 reference records** in two attributed packs:
+961 runtime IDs (233 specific names, 728 explicit Unknowns), four PC skill-tree group IDs and
+1,682 2018 ID/name/category/internal-name candidates. The latter always carry `2018 candidate:`
+and Unknown confidence; they are not proof of Ragnarök gear or quest identity. Across all 76 primary
+saves, 211 distinct runtime IDs match counted resource rows (78 specifically named); all 16 matching
+2018 IDs are already in the runtime table. Neither item table matches any parsed directory,
+nested-ID or individual flag ID. Four group IDs match every save: Axe/Blades/Spear/Atreus,
+with 28/26/27/28 rows; the fifth group and every individual skill/flag bit remain Unknown.
+Runtime names reach F8, browse-only F4, counter/inspection/F6 labels and attributed F12 labels;
+group names/provenance reach grouped flags and F12. Names do not alter enabled write ranges or warnings.
 
 Ragnarök name-to-ID correspondences are substantiated by the source and exact sample matches where
 present. Wallet ownership, quantities, time, counter and timestamp meaning stay **Inferred** because
@@ -208,11 +220,11 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-To
 dotnet test --project tests/SaveToolkit.Core.Tests
 ```
 
-**Completion round: 81 plugin tests passed, 0 failed, 0 skipped; API build: 0 warnings/errors.**
+**Unlicensed-source round: 86 plugin tests passed, 0 failed, 0 skipped; API build: 0 warnings/errors.**
 The artifact environment variable is exported in the same test command. Coverage includes all 156
 records and byte-identical serialization, all 76 primary nested grammars and serialize/reopen byte
 identity, nested length/count/identity corruption, F8 global search/filter/numeric sort/bindings,
-licensed pack validation/direct-call fallback, F1 generation comparison, published digest vectors,
+attributed pack validation/direct-call fallback, F1 generation comparison, published digest vectors,
 F9 graph/map validation, F12 decoder bounds and F13 non-mutating inspection. Tests skip when samples
 are absent; such a run is not validation.
 Conformance now exercises real edits. Additional coverage edits every positive decoded counter over
@@ -222,6 +234,11 @@ or tampered previews, skipped rows, empty selections and F8 query scopes. A synt
 non-hero-container fixture tests that writer/history path without claiming console evidence. A
 synthetic wallet-marker collision proves Serialize rejects output that cannot be re-parsed.
 No console test is claimed.
+
+The new tests verify all 2,647 imported records through the real F2 loader, pinned/direct name and
+catalog agreement, ID byte order, full-corpus resource/group joins and negative gear/quest joins,
+read-only/Unknown cross-game F4 behavior and attributed F12 labels. Hash-checked regeneration is
+byte-identical for all five new pack JSON files. All plugin C# files remain below 300 lines.
 
 Known generation-zero `GOWRSAVE0`: 3,215,266 bytes, play-time word 138,041, counter 1,797,
 Hacksilver wallet word 288,638 at `1BC90`, Rawhide 52, Chaos Flame 0, XP-ID word 84,725.
@@ -240,8 +257,9 @@ These are byte-level regression facts, not proof of player-facing meanings.
 ## Sources
 
 Research date: 2026-10-28. References were read as text; no downloaded editor/trainer was executed.
-No third-party implementation was copied. New community datasets retain their upstream GPL-3.0
-licensing, notices and pinned source revisions; see the attribution table and plugin-local notices.
+No third-party implementation was copied. Existing community datasets retain their upstream GPL-3.0
+licensing; newly unblocked factual tables carry the exact owner-decision licence statement,
+not an invented upstream grant. See pinned revisions, hashes, sidecars and plugin-local notices.
 
 | Source | Used for |
 | --- | --- |
@@ -283,6 +301,9 @@ completion formula or legal maximum is displayed. Missing records remain raw IDs
 | Hero / blacksmith-chest research labels | Continue? revision above and [SaveWizard-Resources contributors, 4c32596e](https://github.com/sterben-Dev10/SaveWizard-Resources/blob/4c32596efde54af7bec390b298265f09c929d94d/SaveWizard-Codes/GOW%20Ragnarok%20%5BSaveWizard%5D.txt) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); factual labels only, both inferred; source displayed in container table description. |
 | Nested framing and generic XP candidate | Toolkit contributors, [issue #19](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/19) | Project GPL-3.0-or-later; original byte observations, no third-party implementation copied. |
 | Weapon skill references | [Skill pack sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.skills.en/skills.source.md) and pinned wiki pages above | CC BY-SA 3.0/share-alike; names and listed requirements transcribed/normalized; presentation keys are not save hashes; no game assets or copied prose. |
+| 961 runtime identities | [mooofin / community spreadsheet contributors, 7b173021](https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/item%23.zip) | No licence published; reused with attribution per owner decision 2026-10-28. Factual names/categories/notes; numeric u64 converted to literal LE keys; one identical duplicate merged. [Sidecar and hashes](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.runtime.en/tables.source.md). |
+| Four skill-tree group IDs | [mooofin, 7b173021](https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT) | No licence published; reused with attribution per owner decision 2026-10-28. Extracted factual GetSkillTree arguments; no Lua/assembler port. Group roles inferred; individual saved skill IDs/bits unknown. |
+| 1,682 2018 crosswalk candidates | [ProtoBuffers / xcier / God of War IDs spreadsheet contributors, 9342d5f3](https://github.com/xcier/GoW-2018-PS4-editor/blob/9342d5f3967ef74bac1161581dc4eab8bb41760d/app/resources/database/gow2018_items.json) | No licence published; reused with attribution per owner decision 2026-10-28. IDs/names/categories/internal filenames only; explicit cross-game Unknown labels; safe-edit flags/offsets omitted. [Sidecar and hash](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.2018.en/tables.source.md). |
 
 The new pack has a [data sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.community.en/community.source.md)
 and [GPL text](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.community.en/GPL-3.0.txt).
@@ -290,8 +311,19 @@ and [GPL text](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.
 Attribution reaches `Info.References`, pinned F2 Sources, every F8 source cell, quantity descriptions,
 legacy wallet/anchor tables, container descriptions and direct callers. No additional wiki material
 was embedded: Fandom page/API access returned HTTP 403 and no new pinned revision was obtained.
-No permissively licensed gear/quest hash crosswalk was established. Unlicensed runtime tables,
-2018 editors and asset tools remain research-only sources.
+Runtime and 2018 factual tables are now imported under the owner decision. No build-matched named
+Ragnarök gear/quest join was found in the samples; this is an evidence limitation, not a licence gate.
+Asset tools remain format research because WAD/TEXPACK layouts do not establish a save grammar.
+Their LZ4 checksum does not establish save integrity; no newly inspected source supplies a save
+authentication routine or complete StdNameHash algorithm. See the latest [research log](RESEARCH.md).
+
+## Licence exclusions
+
+| Source (revision) | Licence found | Reason / disposition | What would unblock it |
+| --- | --- | --- | --- |
+| mooofin runtime table and spreadsheet, `7b1730217b92d27ab910d6d421efbd503cc109b2` (links above) | None published | **Resolved:** factual tables imported with attribution under owner decision 2026-10-28; no code copied | Already resolved |
+| ProtoBuffers / xcier 2018 crosswalk, `9342d5f3967ef74bac1161581dc4eab8bb41760d` (link above) | None published | **Resolved:** facts imported in a separate Unknown cross-game catalog; no code copied | Already resolved; PS5 gear/quest joins still need evidence |
+| Proprietary game art, textures, icons, screenshots and extracted dialogue/text; no game-asset revision imported | Proprietary game assets; no redistribution grant established | Excluded by the owner's current brief; community asset tools do not grant rights to game content. Existing external map/wiki links remain available; no art/coordinates imported | Redistributable original/community replacement with attribution, or separately supplied lawful user pack |
 
 ## Owner capture and validation checklist
 

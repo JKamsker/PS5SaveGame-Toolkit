@@ -214,7 +214,12 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
     internal FieldNode ResourceReference(int offset, string catalogId, string name) =>
         Field($"resource-reference/{offset:X}", name, new ReferenceSpec(catalogId),
             () => FieldValue.Of(RagnarokReferences.Key(ReadId(offset)))) with
-        { Confidence = Confidence.Inferred, Description = references.Attribution(ReadId(offset)) + " Identity is read-only; replacement dependencies are unknown." };
+        {
+            Confidence = catalogId == RagnarokCommunityTables.OlderCatalog || references.Find(ReadId(offset))?.Category == "Unknown"
+                ? Confidence.Unknown : Confidence.Inferred,
+            Description = references.Find(ReadId(offset))?.Description + " " + references.Attribution(ReadId(offset)) +
+                " Identity is read-only; replacement dependencies are unknown.",
+        };
 
     internal FieldNode Number(int offset, string label, Confidence confidence, bool hex = false, int width = sizeof(uint))
     {

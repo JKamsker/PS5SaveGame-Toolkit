@@ -48,14 +48,19 @@ untouched native re-save control; keep private identity fields out of shared rep
   amount. Repeat with Rawhide or another existing resource. Do not add/remove unknown records.
 - [ ] Capture Kratos XP, then Atreus XP, then Freya/companion XP in separate pairs. Record every
   character's displayed XP and any simultaneous skill unlocks; never combine character changes.
+  The imported PC table supplies four XP hashes (two Atreus contexts); verify each PS5 owner/context
+  rather than treating its community label as console evidence.
 - [ ] Capture one gear item before/after equipping it without upgrading, then a separate pair for
   upgrading that same item by one level. Record exact item/slot names, levels and visible stats.
-  Supply a legally redistributable hash/name crosswalk or a user-supplied F2 pack if available;
-  raw nested IDs cannot establish gear names or ownership by themselves.
+  Supply a build-matched Ragnarök hash/name crosswalk or a user-supplied F2 pack if available.
+  Community factual tables no longer need a licence unblock: the imported 2018 crosswalk has no
+  gear/quest joins in the current PS5 nested arrays, so exact identity/ownership evidence is needed.
 - [ ] Capture a quest immediately before/after one objective transition with no reward spending,
   recording exact quest/objective names and journal states. Repeat for quest completion. These
   must locate meanings within or outside the 132 raw grouped flag records; do not assume the
-  groups are quests merely because their values resemble flags.
+  groups are quests merely because their values resemble flags. Four groups now match PC skill-tree
+  IDs (Axe/Blades/Spear/Atreus); individual skill hashes, saved flag bits and the fifth group remain
+  Unknown. Capture one unlock at a time with exact skill name, weapon level, XP and pre/post state.
 - [ ] Capture one Odin's Raven collection with journal count, unclaimed Raven Tree rewards and
   chest states recorded. Separately capture opening exactly one Raven Tree reward chest with
   no new raven collected. These test the two PC-derived raw counters and their relation to the

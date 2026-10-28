@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 public sealed class GodOfWarRagnarokPlugin : IGamePlugin, ISaveDecoderProvider
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders => [new RagnarokEvidenceDecoder()];
-    public PluginInfo Info { get; } = new("gow-ragnarok", "God of War Ragnarök", "0.4.0")
+    public PluginInfo Info { get; } = new("gow-ragnarok", "God of War Ragnarök", "0.5.0")
     {
         Description = "Experimental PS5 existing wallet counter/play-time edits and planned restore, with paged research views. " + RagnarokWrites.IntegrityWarning,
         Games = [.. new[] { "PPSA08329", "PPSA08330", "PPSA08331", "PPSA08332", "PPSA08333", "PPSA08334", "PPSA25043", "PPSA25044" }
@@ -30,6 +30,9 @@ public sealed class GodOfWarRagnarokPlugin : IGamePlugin, ISaveDecoderProvider
             "https://godofwar.fandom.com/wiki/Skill_Labors_%28Ragnar%C3%B6k%29",
             "https://creativecommons.org/licenses/by-sa/3.0/",
             "https://mapgenie.io/god-of-war-ragnarok",
+            "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/item%23.zip",
+            "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT",
+            "https://github.com/xcier/GoW-2018-PS4-editor/blob/9342d5f3967ef74bac1161581dc4eab8bb41760d/app/resources/database/gow2018_items.json",
         ],
     };
 

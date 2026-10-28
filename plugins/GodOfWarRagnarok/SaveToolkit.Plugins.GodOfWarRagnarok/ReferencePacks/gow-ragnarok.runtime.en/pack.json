@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "id": "gow-ragnarok.runtime.en",
+  "version": "1.0.0",
+  "title": "PC runtime identities (PS5 transfer inferred)",
+  "plugins": [
+    "gow-ragnarok"
+  ],
+  "titleIds": [
+    "PPSA08330"
+  ],
+  "gameBuilds": [
+    "PS5 revision 0x00513040"
+  ],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "gow-ragnarok-runtime",
+      "kind": "records",
+      "title": "gow-ragnarok-runtime",
+      "files": [
+        {
+          "path": "gow-ragnarok-runtime.json",
+          "sha256": "34b20c4bfae1ecdd6cc19719c6e97fa7bd96e0f06b7399b2cdea1123fa8d5370"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/item%23.zip",
+        "author": "mooofin / community spreadsheet contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/item%23.zip",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted factual IDs/names/categories only; normalized literal LE keys, deduplicated identical rows; no code, game prose, assets or legal maxima imported. Cross-game and PC-to-PS5 meanings retain explicit uncertainty."
+      }
+    },
+    {
+      "id": "gow-ragnarok-trees",
+      "kind": "records",
+      "title": "gow-ragnarok-trees",
+      "files": [
+        {
+          "path": "gow-ragnarok-trees.json",
+          "sha256": "0e2effa2e03459b6f723f51c93d92d4780027e9775458578e878f8679bd793ec"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT",
+        "author": "mooofin",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted factual IDs/names/categories only; normalized literal LE keys, deduplicated identical rows; no code, game prose, assets or legal maxima imported. Cross-game and PC-to-PS5 meanings retain explicit uncertainty."
+      }
+    }
+  ]
+}

@@ -32,9 +32,9 @@ public sealed class RagnarokPlanningTests
             var query = kind switch
             {
                 "currency" => new QueryableCollectionQuery { Text = "Hacksilver" },
-                "xp" => new() { Text = "EconomyXP" },
+                "xp" => new() { Text = "Kratos XP" },
                 "raven" => new() { Text = "Raven" },
-                "unknown" => new() { Text = "Unknown ID", SortColumn = "quantity", Descending = true },
+                "unknown" => new() { Filters = new Dictionary<string, string> { ["category"] = "Unknown" }, SortColumn = "quantity", Descending = true },
                 _ => new() { SortColumn = "quantity", Descending = true },
             };
             var page = session.QueryCollection("resources", query with { Limit = 200 });

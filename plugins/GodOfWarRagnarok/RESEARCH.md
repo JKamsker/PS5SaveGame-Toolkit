@@ -210,3 +210,70 @@ invented. F6 previews restore counters after in-session reductions, with skipped
 unknown-integrity warnings. Structural, gear, quest, preference and opaque fields have no writer.
 Serialize re-parses every edited output; all unrelated bytes are preserved. See README for the
 enabled-write evidence table and OWNER_CHECKLIST.md for the exact console trials.
+
+## Unlicensed-source unblock (owner decision 2026-10-28)
+
+The previous research-only/no-licence conclusions above are historical. The owner now permits
+attributed factual imports and original reimplementation of community behavior. Audit covered
+README, this log, notices, data sidecars and the linked plan's sources; there was no existing
+licence-exclusion table. The new README table records resolved exclusions and the continued
+proprietary-game-asset exclusion explicitly.
+
+### Source audit and decoding result
+
+- **mooofin runtime table / bundled ID spreadsheet**, revision
+  `7b1730217b92d27ab910d6d421efbd503cc109b2`: imported 961 unique resource IDs
+  (233 specific source names, 728 explicit Unknowns) plus four skill-tree IDs. The spreadsheet's
+  numeric hashes are converted to LE byte keys; one identical duplicate is merged. Pin/hash/author
+  details are in [the runtime sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.runtime.en/tables.source.md).
+  No CE code, injection, Lua, runtime pointer traversal or unlock transaction was copied/run.
+- **ProtoBuffers / xcier 2018 database**, revision
+  `9342d5f3967ef74bac1161581dc4eab8bb41760d`: imported all 1,682 unique factual
+  name/category/internal-name records, including gear and quest/lore candidates, into a separate
+  catalog with `2018 candidate:` names and Unknown confidence. IDs are already literal bytes;
+  reversing them again would be incorrect. `safe_edit`, slot offsets and implicit game limits are
+  omitted. See [the crosswalk sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.2018.en/tables.source.md).
+- **MorseTheCode/GodOfWarTool**, pinned `d8fdda4993d593825b1a2206904ab85c86fd703a`,
+  and the earlier kainotoa/GOWTool/smpack leads: asset/WAD/TEXPACK formats do not describe the
+  observed save header. They are retained as format research for technical relevance, not refused
+  for lacking a licence. No applicable save decoder, reference crosswalk or integrity code was found.
+  No game media/text was imported. JeanxPereira/GoWToolkit's earlier educational/research terms
+  were not treated as a general redistribution grant; no asset-extractor dependency is required.
+
+All 76 primary saves were parsed through the existing bounded grammar. There are 211 distinct
+runtime ID matches in resource rows, 78 with specific source names; 66 primaries have matches,
+ten early records have no resources. All 211 late SAVE0 hero rows match the runtime dataset.
+The 2018 table matches 16 distinct resource IDs, all also in the runtime source. Both item tables
+have **zero** matches in parsed directory IDs, nested-ID arrays or individual grouped-flag IDs.
+Thus the imports improve resource/XP labels but do not establish named gear, ownership, equipped
+slots or quests. Runtime Valhalla armour rows cannot be treated as equipped armour records.
+
+Four exact group IDs match every primary save: Axe `0000001013865FC6` / 28 rows,
+Blades `38EA4A0828266819` / 26, Spear `014BAA9043ACBB11` / 27,
+Atreus `07A134D7DF345D66` / 28. The remaining `011CBBEE78698EC9` / 23 stays Unknown;
+it is not named Freya by elimination. PC code's runtime 0x101 skill-unlock mask is **not** proof
+of saved flag meanings. Wiki skill presentation keys are still separate from unidentified row IDs.
+
+The lookup gives original PS5/raven mappings precedence, then named runtime candidates, community
+unknowns, raw runtime entries and finally explicitly cross-game 2018 candidates. Pinned/direct
+calls resolve the same names and catalogs. F8 rows, browse-only F4 fields, counter/action labels,
+inspection and F12 labels carry provenance; all old fixed-size counter writers, bounds, warnings
+and no-op byte preservation remain. No new writer or game limit is inferred from imported facts.
+
+### Integrity re-check of newly available sources
+
+Inspected source text only, not executed:
+
+| File / pinned revision | SHA-256 | Result |
+| --- | --- | --- |
+| mooofin `gow.CT`, `7b173021` | `365a53fd4e47c70dc612f9583a5893d3f8d2d6deca2e128cdddf32d74294236d` | Locates `StdNameHash` by an AOB prefix, calls runtime wallet/skill APIs; no complete hash body, save serialization, checksum, authentication coverage or key derivation. |
+| xcier `app/core/save_file.py`, `9342d5f3` | `4bbd2e9e5acf2dece3e79e9ea659ec432a194606ca3d6d1ecbdab8812dfeb324` | Fixed-slot reads/writes and raw-buffer save, no applicable PS5 authentication repair. |
+| xcier `app/core/gow2018_data.py`, `9342d5f3` | `b0e31b50c8de4b39c0928d6520711b6383a3a9584a3a4ff9bd1642f72f3ffede` | Data/category normalization and 2018 constants, no save-integrity algorithm. |
+| MorseTheCode `gow_unified_backend.py`, `d8fdda49` | `89f22347111d0ced4b5769ef6f893ffdc6bbadf779ed09afcdf7f9b1007e46fc` | LZ4 frame content checksum flag is for asset compression, not evidence of GOWRSAVE integrity. Texture/file hash fields are identifiers, not save checksums. |
+
+The import supplies name/hash facts, not an implementable integrity algorithm. No new checksum
+candidate or arbitrary-key test is claimed; existing finite CRC/digest tests remain regression
+evidence only. **Integrity unknown — the game may reject this save.** Controlled PS5 captures,
+load/native-resave/reload trials and redacted serialization/integrity traces remain the concrete
+owner needs in OWNER_CHECKLIST.md / #31. Named Ragnarök gear/quest crosswalks still need exact
+saved-ID joins; author permission is no longer the blocker for community factual tables.
