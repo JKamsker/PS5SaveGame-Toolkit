@@ -46,6 +46,9 @@ roadmap live in [docs/formats/](formats/README.md). Entries marked `?` are still
 
 ## Capture protocol (controlled before/after pairs)
 
+The consolidated, prioritised owner queue is [Owner capture and console-validation guide](OWNER_CHECKLIST.md).
+Use it for the title-specific pairs and console checks below.
+
 A single snapshot can't show which bytes hold a quantity, an ownership flag or a limit. Evidence
 comes from **pairs**: the same save taken right before and right after **one** known in-game event.
 
