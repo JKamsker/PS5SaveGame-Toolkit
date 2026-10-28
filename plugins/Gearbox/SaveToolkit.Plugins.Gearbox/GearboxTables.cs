@@ -70,7 +70,7 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
     {
         var all = document.Root.Children("mission_playthroughs_data").SelectMany((p, i) => p.Children("mission_list").Select(m => (Index: i, Mission: m))).ToArray();
         var rows = all.Skip(offset).Take(GearboxLazyViews.PageSize).Select((v, i) => Row((offset + i).ToString(),
-            ("playthrough", new TextNode(v.Index.ToString())), ("mission", new TextNode(v.Mission.Text("mission_class_path"))),
+            ("playthrough", new TextNode(v.Index.ToString())), ("mission", document.World.Label($"missions/{offset + i}/label", "Mission", v.Mission.Text("mission_class_path"), mission: true)),
             ("status", new TextNode(v.Mission.Integer("status") switch { 0 => "Not started", 1 => "Active", 2 => "Complete", 3 => "Failed", _ => "Unknown" })))).ToArray();
         List<ViewNode> result = [new TableNode([new("playthrough", "Playthrough"), new("mission", "Mission asset"), new("status", "Status")], rows)];
         if (offset + GearboxLazyViews.PageSize < all.Length)

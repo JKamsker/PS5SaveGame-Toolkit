@@ -1,0 +1,4330 @@
+{
+  "records": [
+    {
+      "id": "/game/gamedata/fasttravel/fts_abyss_01.fts_abyss_01",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_abyss_01.fts_abyss_01",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_abyss_02.fts_abyss_02",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_abyss_02.fts_abyss_02",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_abyss_03.fts_abyss_03",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_abyss_03.fts_abyss_03",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_abyssboss_01.fts_abyssboss_01",
+      "name": "The Godswell",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_abyssboss_01.fts_abyssboss_01",
+        "mapId": "AbyssBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_abyssboss_02.fts_abyssboss_02",
+      "name": "The Godswell",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_abyssboss_02.fts_abyssboss_02",
+        "mapId": "AbyssBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_beanstalk-sendonly.fts_beanstalk-sendonly",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_beanstalk-sendonly.fts_beanstalk-sendonly",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_beanstalk_01.fts_beanstalk_01",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_beanstalk_01.fts_beanstalk_01",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_beanstalk_02.fts_beanstalk_02",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_beanstalk_02.fts_beanstalk_02",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_beanstalk_03.fts_beanstalk_03",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_beanstalk_03.fts_beanstalk_03",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_climb_01.fts_climb_01",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_climb_01.fts_climb_01",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_climb_02.fts_climb_02",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_climb_02.fts_climb_02",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_climb_03.fts_climb_03",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_climb_03.fts_climb_03",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_dungeon.fts_dungeon",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_dungeon.fts_dungeon",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_endlessdungeon.fts_endlessdungeon",
+      "name": "The Chaos Chamber",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_endlessdungeon.fts_endlessdungeon",
+        "mapId": "EndlessDungeon_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_goblin_01.fts_goblin_01",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_goblin_01.fts_goblin_01",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_goblin_02.fts_goblin_02",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_goblin_02.fts_goblin_02",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_goblin_03.fts_goblin_03",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_goblin_03.fts_goblin_03",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_graveyard_01.fts_graveyard_01",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_graveyard_01.fts_graveyard_01",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_graveyard_02.fts_graveyard_02",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_graveyard_02.fts_graveyard_02",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_hubtown_01.fts_hubtown_01",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_hubtown_01.fts_hubtown_01",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_hubtown_02.fts_hubtown_02",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_hubtown_02.fts_hubtown_02",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_hubtown_03.fts_hubtown_03",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_hubtown_03.fts_hubtown_03",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_hubtown_04.fts_hubtown_04",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_hubtown_04.fts_hubtown_04",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_hubtown_05.fts_hubtown_05",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_hubtown_05.fts_hubtown_05",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_intro_01.fts_intro_01",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_intro_01.fts_intro_01",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_intro_02.fts_intro_02",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_intro_02.fts_intro_02",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_intro_03.fts_intro_03",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_intro_03.fts_intro_03",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_mushroom_01.fts_mushroom_01",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_mushroom_01.fts_mushroom_01",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_mushroom_02.fts_mushroom_02",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_mushroom_02.fts_mushroom_02",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_mushroom_03.fts_mushroom_03",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_mushroom_03.fts_mushroom_03",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_oasis_01.fts_oasis_01",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_oasis_01.fts_oasis_01",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_oasis_02.fts_oasis_02",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_oasis_02.fts_oasis_02",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_oasis_03.fts_oasis_03",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_oasis_03.fts_oasis_03",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_overworld1.fts_overworld1",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_overworld1.fts_overworld1",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_overworld2.fts_overworld2",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_overworld2.fts_overworld2",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_overworld2a.fts_overworld2a",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_overworld2a.fts_overworld2a",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_overworld3.fts_overworld3",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_overworld3.fts_overworld3",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_pirate-sendonly.fts_pirate-sendonly",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_pirate-sendonly.fts_pirate-sendonly",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_pirate_01.fts_pirate_01",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_pirate_01.fts_pirate_01",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_pirate_02.fts_pirate_02",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_pirate_02.fts_pirate_02",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_pirate_03.fts_pirate_03",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_pirate_03.fts_pirate_03",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_pyramid_01.fts_pyramid_01",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_pyramid_01.fts_pyramid_01",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_pyramid_02.fts_pyramid_02",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_pyramid_02.fts_pyramid_02",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_pyramid_03.fts_pyramid_03",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_pyramid_03.fts_pyramid_03",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_pyramidboss-sendonly.fts_pyramidboss-sendonly",
+      "name": "Crest of Fate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_pyramidboss-sendonly.fts_pyramidboss-sendonly",
+        "mapId": "PyramidBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_pyramidboss.fts_pyramidboss",
+      "name": "Crest of Fate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_pyramidboss.fts_pyramidboss",
+        "mapId": "PyramidBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_sands_01.fts_sands_01",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_sands_01.fts_sands_01",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_sands_02.fts_sands_02",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_sands_02.fts_sands_02",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_sands_03.fts_sands_03",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_sands_03.fts_sands_03",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_seabed_01.fts_seabed_01",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_seabed_01.fts_seabed_01",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_seabed_02.fts_seabed_02",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_seabed_02.fts_seabed_02",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_seabed_03.fts_seabed_03",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_seabed_03.fts_seabed_03",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_tutorial_01.fts_tutorial_01",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_tutorial_01.fts_tutorial_01",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_tutorial_02.fts_tutorial_02",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_tutorial_02.fts_tutorial_02",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/fts_tutorial_03.fts_tutorial_03",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/fts_tutorial_03.fts_tutorial_03",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_abyss_abyssboss.lts_abyss_abyssboss",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_abyss_abyssboss.lts_abyss_abyssboss",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_abyss_overworld.lts_abyss_overworld",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_abyss_overworld.lts_abyss_overworld",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_abyssboss_abyss.lts_abyssboss_abyss",
+      "name": "The Godswell",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_abyssboss_abyss.lts_abyssboss_abyss",
+        "mapId": "AbyssBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_abyssboss_overworld.lts_abyssboss_overworld",
+      "name": "The Godswell",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_abyssboss_overworld.lts_abyssboss_overworld",
+        "mapId": "AbyssBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_beanstalk_overworld.lts_beanstalk_overworld",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_beanstalk_overworld.lts_beanstalk_overworld",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_climb_overworld.lts_climb_overworld",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_climb_overworld.lts_climb_overworld",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_climb_overworld2.lts_climb_overworld2",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_climb_overworld2.lts_climb_overworld2",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_endlessdungeon_hubtown.lts_endlessdungeon_hubtown",
+      "name": "The Chaos Chamber",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_endlessdungeon_hubtown.lts_endlessdungeon_hubtown",
+        "mapId": "EndlessDungeon_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_endlessdungeon_lootroom.lts_endlessdungeon_lootroom",
+      "name": "The Chaos Chamber",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_endlessdungeon_lootroom.lts_endlessdungeon_lootroom",
+        "mapId": "EndlessDungeon_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_goblin_overworld.lts_goblin_overworld",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_goblin_overworld.lts_goblin_overworld",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_graveyard_overworld.lts_graveyard_overworld",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_graveyard_overworld.lts_graveyard_overworld",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_endlessdungeon.lts_hubtown_endlessdungeon",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_endlessdungeon.lts_hubtown_endlessdungeon",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_intro.lts_hubtown_intro",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_intro.lts_hubtown_intro",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_overworld.lts_hubtown_overworld",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_overworld.lts_hubtown_overworld",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_overworld2.lts_hubtown_overworld2",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_overworld2.lts_hubtown_overworld2",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_pyrboss.lts_hubtown_pyrboss",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtown_pyrboss.lts_hubtown_pyrboss",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtownportal.lts_hubtownportal",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_hubtownportal.lts_hubtownportal",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_intro_hubtown.lts_intro_hubtown",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_intro_hubtown.lts_intro_hubtown",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_intro_overworld.lts_intro_overworld",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_intro_overworld.lts_intro_overworld",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_lootroom_endlessdungeon.lts_lootroom_endlessdungeon",
+      "name": "Loot of Chaos",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_lootroom_endlessdungeon.lts_lootroom_endlessdungeon",
+        "mapId": "D_LootRoom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_mushroom_overworld.lts_mushroom_overworld",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_mushroom_overworld.lts_mushroom_overworld",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_mushroom_seabed.lts_mushroom_seabed",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_mushroom_seabed.lts_mushroom_seabed",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_oasis_overworld.lts_oasis_overworld",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_oasis_overworld.lts_oasis_overworld",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld2_climb.lts_overworld2_climb",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld2_climb.lts_overworld2_climb",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_abyss.lts_overworld_abyss",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_abyss.lts_overworld_abyss",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_abyssboss.lts_overworld_abyssboss",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_abyssboss.lts_overworld_abyssboss",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_beanstalk.lts_overworld_beanstalk",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_beanstalk.lts_overworld_beanstalk",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_climb.lts_overworld_climb",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_climb.lts_overworld_climb",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_goblin.lts_overworld_goblin",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_goblin.lts_overworld_goblin",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_graveyard.lts_overworld_graveyard",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_graveyard.lts_overworld_graveyard",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_hubtown.lts_overworld_hubtown",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_hubtown.lts_overworld_hubtown",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_hubtown2.lts_overworld_hubtown2",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_hubtown2.lts_overworld_hubtown2",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_intro.lts_overworld_intro",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_intro.lts_overworld_intro",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_mushroom.lts_overworld_mushroom",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_mushroom.lts_overworld_mushroom",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_oasis.lts_overworld_oasis",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_oasis.lts_overworld_oasis",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_pirate.lts_overworld_pirate",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_pirate.lts_overworld_pirate",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_pyramid.lts_overworld_pyramid",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_pyramid.lts_overworld_pyramid",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_sands.lts_overworld_sands",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_sands.lts_overworld_sands",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_sands2.lts_overworld_sands2",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_sands2.lts_overworld_sands2",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_seabed.lts_overworld_seabed",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_seabed.lts_overworld_seabed",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_seabed2.lts_overworld_seabed2",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_seabed2.lts_overworld_seabed2",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_tutorial.lts_overworld_tutorial",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_overworld_tutorial.lts_overworld_tutorial",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_pirate_overworld.lts_pirate_overworld",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_pirate_overworld.lts_pirate_overworld",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_pyramid_overworld.lts_pyramid_overworld",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_pyramid_overworld.lts_pyramid_overworld",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_pyramid_pyramidboss.lts_pyramid_pyramidboss",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_pyramid_pyramidboss.lts_pyramid_pyramidboss",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_pyramidboss_pyramid.lts_pyramidboss_pyramid",
+      "name": "Crest of Fate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_pyramidboss_pyramid.lts_pyramidboss_pyramid",
+        "mapId": "PyramidBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_pyrboss_hubtown.lts_pyrboss_hubtown",
+      "name": "Crest of Fate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_pyrboss_hubtown.lts_pyrboss_hubtown",
+        "mapId": "PyramidBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_sands2_overworld.lts_sands2_overworld",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_sands2_overworld.lts_sands2_overworld",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_sands_overworld.lts_sands_overworld",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_sands_overworld.lts_sands_overworld",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_seabed2_overworld.lts_seabed2_overworld",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_seabed2_overworld.lts_seabed2_overworld",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_seabed_mushroom.lts_seabed_mushroom",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_seabed_mushroom.lts_seabed_mushroom",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_seabed_overworld.lts_seabed_overworld",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_seabed_overworld.lts_seabed_overworld",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/leveltravelstations/lts_tutorial_overworld.lts_tutorial_overworld",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/leveltravelstations/lts_tutorial_overworld.lts_tutorial_overworld",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_13.rts_abyss_p_resurrecttravelstation_daffodil_13",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_13.rts_abyss_p_resurrecttravelstation_daffodil_13",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_2.rts_abyss_p_resurrecttravelstation_daffodil_2",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_2.rts_abyss_p_resurrecttravelstation_daffodil_2",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_3.rts_abyss_p_resurrecttravelstation_daffodil_3",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_3.rts_abyss_p_resurrecttravelstation_daffodil_3",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_4.rts_abyss_p_resurrecttravelstation_daffodil_4",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_4.rts_abyss_p_resurrecttravelstation_daffodil_4",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_5.rts_abyss_p_resurrecttravelstation_daffodil_5",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_5.rts_abyss_p_resurrecttravelstation_daffodil_5",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_6.rts_abyss_p_resurrecttravelstation_daffodil_6",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_6.rts_abyss_p_resurrecttravelstation_daffodil_6",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_7.rts_abyss_p_resurrecttravelstation_daffodil_7",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_7.rts_abyss_p_resurrecttravelstation_daffodil_7",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_9.rts_abyss_p_resurrecttravelstation_daffodil_9",
+      "name": "Drowned Abyss",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyss/rts_abyss_p_resurrecttravelstation_daffodil_9.rts_abyss_p_resurrecttravelstation_daffodil_9",
+        "mapId": "Abyss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyssboss/rts_abyssboss_combat_7.rts_abyssboss_combat_7",
+      "name": "The Godswell",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/abyssboss/rts_abyssboss_combat_7.rts_abyssboss_combat_7",
+        "mapId": "AbyssBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_castle_resurrecttravelstation_daffodil_finalslide.rts_beanstalk_castle_resurrecttravelstation_daffodil_finalslide",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_castle_resurrecttravelstation_daffodil_finalslide.rts_beanstalk_castle_resurrecttravelstation_daffodil_finalslide",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_castlefinale.rts_beanstalk_combat_resurrecttravelstation_daffodil_castlefinale",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_castlefinale.rts_beanstalk_combat_resurrecttravelstation_daffodil_castlefinale",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_castlemid.rts_beanstalk_combat_resurrecttravelstation_daffodil_castlemid",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_castlemid.rts_beanstalk_combat_resurrecttravelstation_daffodil_castlemid",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_castlestart.rts_beanstalk_combat_resurrecttravelstation_daffodil_castlestart",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_castlestart.rts_beanstalk_combat_resurrecttravelstation_daffodil_castlestart",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_cathedral.rts_beanstalk_combat_resurrecttravelstation_daffodil_cathedral",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_cathedral.rts_beanstalk_combat_resurrecttravelstation_daffodil_cathedral",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_cathedralreveal.rts_beanstalk_combat_resurrecttravelstation_daffodil_cathedralreveal",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_cathedralreveal.rts_beanstalk_combat_resurrecttravelstation_daffodil_cathedralreveal",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_derattop.rts_beanstalk_combat_resurrecttravelstation_daffodil_derattop",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_derattop.rts_beanstalk_combat_resurrecttravelstation_daffodil_derattop",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_farm.rts_beanstalk_combat_resurrecttravelstation_daffodil_farm",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_farm.rts_beanstalk_combat_resurrecttravelstation_daffodil_farm",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_firstslideending.rts_beanstalk_combat_resurrecttravelstation_daffodil_firstslideending",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_firstslideending.rts_beanstalk_combat_resurrecttravelstation_daffodil_firstslideending",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthouse.rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthouse",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthouse.rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthouse",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthousereveal.rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthousereveal",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthousereveal.rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthousereveal",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthousereveal_0.rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthousereveal_0",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthousereveal_0.rts_beanstalk_combat_resurrecttravelstation_daffodil_lighthousereveal_0",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_obeliskstart.rts_beanstalk_combat_resurrecttravelstation_daffodil_obeliskstart",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_obeliskstart.rts_beanstalk_combat_resurrecttravelstation_daffodil_obeliskstart",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_ronrivote.rts_beanstalk_combat_resurrecttravelstation_daffodil_ronrivote",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_ronrivote.rts_beanstalk_combat_resurrecttravelstation_daffodil_ronrivote",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_townentrance.rts_beanstalk_combat_resurrecttravelstation_daffodil_townentrance",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_combat_resurrecttravelstation_daffodil_townentrance.rts_beanstalk_combat_resurrecttravelstation_daffodil_townentrance",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_geo_elderwyvern_resurrecttravelstation_daffodil_elderwyvernentrance.rts_beanstalk_geo_elderwyvern_resurrecttravelstation_daffodil_elderwyvernentrance",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_geo_elderwyvern_resurrecttravelstation_daffodil_elderwyvernentrance.rts_beanstalk_geo_elderwyvern_resurrecttravelstation_daffodil_elderwyvernentrance",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_geo_ronrivote_resurrecttravelstation_daffodil_ronrivote.rts_beanstalk_geo_ronrivote_resurrecttravelstation_daffodil_ronrivote",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_geo_ronrivote_resurrecttravelstation_daffodil_ronrivote.rts_beanstalk_geo_ronrivote_resurrecttravelstation_daffodil_ronrivote",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_geo_ronrivote_resurrecttravelstation_rr_insidecastle.rts_beanstalk_geo_ronrivote_resurrecttravelstation_rr_insidecastle",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_geo_ronrivote_resurrecttravelstation_rr_insidecastle.rts_beanstalk_geo_ronrivote_resurrecttravelstation_rr_insidecastle",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_m_derat_resurrecttravelstation_daffodil_ronrivote.rts_beanstalk_m_derat_resurrecttravelstation_daffodil_ronrivote",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_m_derat_resurrecttravelstation_daffodil_ronrivote.rts_beanstalk_m_derat_resurrecttravelstation_daffodil_ronrivote",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_m_elderwyvern_resurrecttravelstation_daffodil_3.rts_beanstalk_m_elderwyvern_resurrecttravelstation_daffodil_3",
+      "name": "Tangledrift",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/beanstalk/rts_beanstalk_m_elderwyvern_resurrecttravelstation_daffodil_3.rts_beanstalk_m_elderwyvern_resurrecttravelstation_daffodil_3",
+        "mapId": "Beanstalk_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_m_ancientpowers_resurrecttravelstation_daffodil_5.rts_climb_m_ancientpowers_resurrecttravelstation_daffodil_5",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_m_ancientpowers_resurrecttravelstation_daffodil_5.rts_climb_m_ancientpowers_resurrecttravelstation_daffodil_5",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil.rts_climb_p_resurrecttravelstation_daffodil",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil.rts_climb_p_resurrecttravelstation_daffodil",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_0.rts_climb_p_resurrecttravelstation_daffodil_0",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_0.rts_climb_p_resurrecttravelstation_daffodil_0",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_1.rts_climb_p_resurrecttravelstation_daffodil_1",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_1.rts_climb_p_resurrecttravelstation_daffodil_1",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_10.rts_climb_p_resurrecttravelstation_daffodil_10",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_10.rts_climb_p_resurrecttravelstation_daffodil_10",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_11.rts_climb_p_resurrecttravelstation_daffodil_11",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_11.rts_climb_p_resurrecttravelstation_daffodil_11",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_14.rts_climb_p_resurrecttravelstation_daffodil_14",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_14.rts_climb_p_resurrecttravelstation_daffodil_14",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_15.rts_climb_p_resurrecttravelstation_daffodil_15",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_15.rts_climb_p_resurrecttravelstation_daffodil_15",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_2.rts_climb_p_resurrecttravelstation_daffodil_2",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_2.rts_climb_p_resurrecttravelstation_daffodil_2",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_3.rts_climb_p_resurrecttravelstation_daffodil_3",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_3.rts_climb_p_resurrecttravelstation_daffodil_3",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_4.rts_climb_p_resurrecttravelstation_daffodil_4",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_4.rts_climb_p_resurrecttravelstation_daffodil_4",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_5.rts_climb_p_resurrecttravelstation_daffodil_5",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_5.rts_climb_p_resurrecttravelstation_daffodil_5",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_6.rts_climb_p_resurrecttravelstation_daffodil_6",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_6.rts_climb_p_resurrecttravelstation_daffodil_6",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_7.rts_climb_p_resurrecttravelstation_daffodil_7",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_7.rts_climb_p_resurrecttravelstation_daffodil_7",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_8.rts_climb_p_resurrecttravelstation_daffodil_8",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_8.rts_climb_p_resurrecttravelstation_daffodil_8",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_9.rts_climb_p_resurrecttravelstation_daffodil_9",
+      "name": "Karnok's Wall",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/climb/rts_climb_p_resurrecttravelstation_daffodil_9.rts_climb_p_resurrecttravelstation_daffodil_9",
+        "mapId": "Climb_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_10.rts_goblin_dynamic_10",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_10.rts_goblin_dynamic_10",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_11.rts_goblin_dynamic_11",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_11.rts_goblin_dynamic_11",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_12.rts_goblin_dynamic_12",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_12.rts_goblin_dynamic_12",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_13.rts_goblin_dynamic_13",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_13.rts_goblin_dynamic_13",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_14.rts_goblin_dynamic_14",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_14.rts_goblin_dynamic_14",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_15.rts_goblin_dynamic_15",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_15.rts_goblin_dynamic_15",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_16.rts_goblin_dynamic_16",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_16.rts_goblin_dynamic_16",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_17.rts_goblin_dynamic_17",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_17.rts_goblin_dynamic_17",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_18.rts_goblin_dynamic_18",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_18.rts_goblin_dynamic_18",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_19.rts_goblin_dynamic_19",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_19.rts_goblin_dynamic_19",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_20.rts_goblin_dynamic_20",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_20.rts_goblin_dynamic_20",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_3.rts_goblin_dynamic_3",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_dynamic_3.rts_goblin_dynamic_3",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_0.rts_goblin_p_0",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_0.rts_goblin_p_0",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_1.rts_goblin_p_1",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_1.rts_goblin_p_1",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_2.rts_goblin_p_2",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_2.rts_goblin_p_2",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_3.rts_goblin_p_3",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_3.rts_goblin_p_3",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_4.rts_goblin_p_4",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_4.rts_goblin_p_4",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_5.rts_goblin_p_5",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_5.rts_goblin_p_5",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_6.rts_goblin_p_6",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_6.rts_goblin_p_6",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_7.rts_goblin_p_7",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_7.rts_goblin_p_7",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_8.rts_goblin_p_8",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_8.rts_goblin_p_8",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_9.rts_goblin_p_9",
+      "name": "Mount Craw",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/goblin/rts_goblin_p_9.rts_goblin_p_9",
+        "mapId": "Goblin_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_blockout_crypt_resurrecttravelstation_daffodil_11.rts_graveyard_blockout_crypt_resurrecttravelstation_daffodil_11",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_blockout_crypt_resurrecttravelstation_daffodil_11.rts_graveyard_blockout_crypt_resurrecttravelstation_daffodil_11",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_blockout_resurrecttravelstation_daffodil_2.rts_graveyard_blockout_resurrecttravelstation_daffodil_2",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_blockout_resurrecttravelstation_daffodil_2.rts_graveyard_blockout_resurrecttravelstation_daffodil_2",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_blockout_resurrecttravelstation_daffodil_3.rts_graveyard_blockout_resurrecttravelstation_daffodil_3",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_blockout_resurrecttravelstation_daffodil_3.rts_graveyard_blockout_resurrecttravelstation_daffodil_3",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_bossarena_resurrecttravelstation_daffodil_5.rts_graveyard_bossarena_resurrecttravelstation_daffodil_5",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_bossarena_resurrecttravelstation_daffodil_5.rts_graveyard_bossarena_resurrecttravelstation_daffodil_5",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_dynamic_resurrecttravelstation_daffodil_11.rts_graveyard_dynamic_resurrecttravelstation_daffodil_11",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_dynamic_resurrecttravelstation_daffodil_11.rts_graveyard_dynamic_resurrecttravelstation_daffodil_11",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_dynamic_resurrecttravelstation_daffodil_2.rts_graveyard_dynamic_resurrecttravelstation_daffodil_2",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_dynamic_resurrecttravelstation_daffodil_2.rts_graveyard_dynamic_resurrecttravelstation_daffodil_2",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_dynamic_resurrecttravelstation_daffodil_3.rts_graveyard_dynamic_resurrecttravelstation_daffodil_3",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_dynamic_resurrecttravelstation_daffodil_3.rts_graveyard_dynamic_resurrecttravelstation_daffodil_3",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_dynamic_resurrecttravelstation_daffodil_4.rts_graveyard_dynamic_resurrecttravelstation_daffodil_4",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_dynamic_resurrecttravelstation_daffodil_4.rts_graveyard_dynamic_resurrecttravelstation_daffodil_4",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_p_resurrecttravelstation_daffodil_2.rts_graveyard_p_resurrecttravelstation_daffodil_2",
+      "name": "Shattergrave Barrow",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/graveyard/rts_graveyard_p_resurrecttravelstation_daffodil_2.rts_graveyard_p_resurrecttravelstation_daffodil_2",
+        "mapId": "Graveyard_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_combat_resurrecttravelstation_daffodil_2.rts_hubtown_combat_resurrecttravelstation_daffodil_2",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_combat_resurrecttravelstation_daffodil_2.rts_hubtown_combat_resurrecttravelstation_daffodil_2",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_dynamic_resurrecttravelstation_daffodil_0.rts_hubtown_dynamic_resurrecttravelstation_daffodil_0",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_dynamic_resurrecttravelstation_daffodil_0.rts_hubtown_dynamic_resurrecttravelstation_daffodil_0",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_dynamic_resurrecttravelstation_daffodil_2.rts_hubtown_dynamic_resurrecttravelstation_daffodil_2",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_dynamic_resurrecttravelstation_daffodil_2.rts_hubtown_dynamic_resurrecttravelstation_daffodil_2",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_dynamic_resurrecttravelstation_daffodil_3.rts_hubtown_dynamic_resurrecttravelstation_daffodil_3",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_dynamic_resurrecttravelstation_daffodil_3.rts_hubtown_dynamic_resurrecttravelstation_daffodil_3",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_dynamic_resurrecttravelstation_daffodil_4.rts_hubtown_dynamic_resurrecttravelstation_daffodil_4",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_dynamic_resurrecttravelstation_daffodil_4.rts_hubtown_dynamic_resurrecttravelstation_daffodil_4",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_m_dockblocked_resurrecttravelstation_daffodil_4.rts_hubtown_m_dockblocked_resurrecttravelstation_daffodil_4",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_m_dockblocked_resurrecttravelstation_daffodil_4.rts_hubtown_m_dockblocked_resurrecttravelstation_daffodil_4",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_m_plot04_resurrecttravelstation_daffodil_4.rts_hubtown_m_plot04_resurrecttravelstation_daffodil_4",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_m_plot04_resurrecttravelstation_daffodil_4.rts_hubtown_m_plot04_resurrecttravelstation_daffodil_4",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_p_resurrecttravelstation_daffodil_0.rts_hubtown_p_resurrecttravelstation_daffodil_0",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_p_resurrecttravelstation_daffodil_0.rts_hubtown_p_resurrecttravelstation_daffodil_0",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_p_resurrecttravelstation_daffodil_1.rts_hubtown_p_resurrecttravelstation_daffodil_1",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_p_resurrecttravelstation_daffodil_1.rts_hubtown_p_resurrecttravelstation_daffodil_1",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_p_resurrecttravelstation_daffodil_2.rts_hubtown_p_resurrecttravelstation_daffodil_2",
+      "name": "Brighthoof",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/hubtown/rts_hubtown_p_resurrecttravelstation_daffodil_2.rts_hubtown_p_resurrecttravelstation_daffodil_2",
+        "mapId": "Hubtown_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_0.rts_intro_dynamic_resurrecttravelstation_daffodil_0",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_0.rts_intro_dynamic_resurrecttravelstation_daffodil_0",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_1.rts_intro_dynamic_resurrecttravelstation_daffodil_1",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_1.rts_intro_dynamic_resurrecttravelstation_daffodil_1",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_2.rts_intro_dynamic_resurrecttravelstation_daffodil_2",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_2.rts_intro_dynamic_resurrecttravelstation_daffodil_2",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_3.rts_intro_dynamic_resurrecttravelstation_daffodil_3",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_3.rts_intro_dynamic_resurrecttravelstation_daffodil_3",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_4.rts_intro_dynamic_resurrecttravelstation_daffodil_4",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_4.rts_intro_dynamic_resurrecttravelstation_daffodil_4",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_5.rts_intro_dynamic_resurrecttravelstation_daffodil_5",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_5.rts_intro_dynamic_resurrecttravelstation_daffodil_5",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_6.rts_intro_dynamic_resurrecttravelstation_daffodil_6",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_6.rts_intro_dynamic_resurrecttravelstation_daffodil_6",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_7.rts_intro_dynamic_resurrecttravelstation_daffodil_7",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_7.rts_intro_dynamic_resurrecttravelstation_daffodil_7",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_8.rts_intro_dynamic_resurrecttravelstation_daffodil_8",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_8.rts_intro_dynamic_resurrecttravelstation_daffodil_8",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_9.rts_intro_dynamic_resurrecttravelstation_daffodil_9",
+      "name": "Queen's Gate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/intro/rts_intro_dynamic_resurrecttravelstation_daffodil_9.rts_intro_dynamic_resurrecttravelstation_daffodil_9",
+        "mapId": "Intro_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_0.rts_mushroom_dynamic_0",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_0.rts_mushroom_dynamic_0",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_1.rts_mushroom_dynamic_1",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_1.rts_mushroom_dynamic_1",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_2.rts_mushroom_dynamic_2",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_2.rts_mushroom_dynamic_2",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_4.rts_mushroom_dynamic_4",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_4.rts_mushroom_dynamic_4",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_6.rts_mushroom_dynamic_6",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_6.rts_mushroom_dynamic_6",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_7.rts_mushroom_dynamic_7",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_dynamic_7.rts_mushroom_dynamic_7",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_0.rts_mushroom_p_0",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_0.rts_mushroom_p_0",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_1.rts_mushroom_p_1",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_1.rts_mushroom_p_1",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_2.rts_mushroom_p_2",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_2.rts_mushroom_p_2",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_3.rts_mushroom_p_3",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_3.rts_mushroom_p_3",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_4.rts_mushroom_p_4",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_4.rts_mushroom_p_4",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_5.rts_mushroom_p_5",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_5.rts_mushroom_p_5",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_6.rts_mushroom_p_6",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_6.rts_mushroom_p_6",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_7.rts_mushroom_p_7",
+      "name": "Weepwild Dankness",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/mushroom/rts_mushroom_p_7.rts_mushroom_p_7",
+        "mapId": "Mushroom_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_0.rts_oasis_dynamic_resurrecttravelstation_daffodil_0",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_0.rts_oasis_dynamic_resurrecttravelstation_daffodil_0",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_1.rts_oasis_dynamic_resurrecttravelstation_daffodil_1",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_1.rts_oasis_dynamic_resurrecttravelstation_daffodil_1",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_10.rts_oasis_dynamic_resurrecttravelstation_daffodil_10",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_10.rts_oasis_dynamic_resurrecttravelstation_daffodil_10",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_2.rts_oasis_dynamic_resurrecttravelstation_daffodil_2",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_2.rts_oasis_dynamic_resurrecttravelstation_daffodil_2",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_3.rts_oasis_dynamic_resurrecttravelstation_daffodil_3",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_3.rts_oasis_dynamic_resurrecttravelstation_daffodil_3",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_4.rts_oasis_dynamic_resurrecttravelstation_daffodil_4",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_4.rts_oasis_dynamic_resurrecttravelstation_daffodil_4",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_5.rts_oasis_dynamic_resurrecttravelstation_daffodil_5",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_5.rts_oasis_dynamic_resurrecttravelstation_daffodil_5",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_6.rts_oasis_dynamic_resurrecttravelstation_daffodil_6",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_6.rts_oasis_dynamic_resurrecttravelstation_daffodil_6",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_7.rts_oasis_dynamic_resurrecttravelstation_daffodil_7",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_7.rts_oasis_dynamic_resurrecttravelstation_daffodil_7",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_8.rts_oasis_dynamic_resurrecttravelstation_daffodil_8",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_8.rts_oasis_dynamic_resurrecttravelstation_daffodil_8",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_9.rts_oasis_dynamic_resurrecttravelstation_daffodil_9",
+      "name": "Sunfang Oasis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/oasis/rts_oasis_dynamic_resurrecttravelstation_daffodil_9.rts_oasis_dynamic_resurrecttravelstation_daffodil_9",
+        "mapId": "Oasis_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_1.rts_pirate_dynamic_resurrecttravelstation_daffodil_1",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_1.rts_pirate_dynamic_resurrecttravelstation_daffodil_1",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_2.rts_pirate_dynamic_resurrecttravelstation_daffodil_2",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_2.rts_pirate_dynamic_resurrecttravelstation_daffodil_2",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_3.rts_pirate_dynamic_resurrecttravelstation_daffodil_3",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_3.rts_pirate_dynamic_resurrecttravelstation_daffodil_3",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_4.rts_pirate_dynamic_resurrecttravelstation_daffodil_4",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_4.rts_pirate_dynamic_resurrecttravelstation_daffodil_4",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_5.rts_pirate_dynamic_resurrecttravelstation_daffodil_5",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_5.rts_pirate_dynamic_resurrecttravelstation_daffodil_5",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_6.rts_pirate_dynamic_resurrecttravelstation_daffodil_6",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_6.rts_pirate_dynamic_resurrecttravelstation_daffodil_6",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_7.rts_pirate_dynamic_resurrecttravelstation_daffodil_7",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_dynamic_resurrecttravelstation_daffodil_7.rts_pirate_dynamic_resurrecttravelstation_daffodil_7",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_0.rts_pirate_p_resurrecttravelstation_daffodil_0",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_0.rts_pirate_p_resurrecttravelstation_daffodil_0",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_1.rts_pirate_p_resurrecttravelstation_daffodil_1",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_1.rts_pirate_p_resurrecttravelstation_daffodil_1",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_2.rts_pirate_p_resurrecttravelstation_daffodil_2",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_2.rts_pirate_p_resurrecttravelstation_daffodil_2",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_3.rts_pirate_p_resurrecttravelstation_daffodil_3",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_3.rts_pirate_p_resurrecttravelstation_daffodil_3",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_4.rts_pirate_p_resurrecttravelstation_daffodil_4",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_4.rts_pirate_p_resurrecttravelstation_daffodil_4",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_5.rts_pirate_p_resurrecttravelstation_daffodil_5",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_5.rts_pirate_p_resurrecttravelstation_daffodil_5",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_6.rts_pirate_p_resurrecttravelstation_daffodil_6",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_6.rts_pirate_p_resurrecttravelstation_daffodil_6",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_7.rts_pirate_p_resurrecttravelstation_daffodil_7",
+      "name": "Crackmast Cove",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pirate/rts_pirate_p_resurrecttravelstation_daffodil_7.rts_pirate_p_resurrecttravelstation_daffodil_7",
+        "mapId": "Pirate_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil.rts_pyramid_p_resurrecttravelstation_daffodil",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil.rts_pyramid_p_resurrecttravelstation_daffodil",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil_0.rts_pyramid_p_resurrecttravelstation_daffodil_0",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil_0.rts_pyramid_p_resurrecttravelstation_daffodil_0",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil_1.rts_pyramid_p_resurrecttravelstation_daffodil_1",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil_1.rts_pyramid_p_resurrecttravelstation_daffodil_1",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil_3.rts_pyramid_p_resurrecttravelstation_daffodil_3",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil_3.rts_pyramid_p_resurrecttravelstation_daffodil_3",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil_4.rts_pyramid_p_resurrecttravelstation_daffodil_4",
+      "name": "The Fearamid",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramid/rts_pyramid_p_resurrecttravelstation_daffodil_4.rts_pyramid_p_resurrecttravelstation_daffodil_4",
+        "mapId": "Pyramid_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramidboss/rts_pyramidboss_dynamic_p_resurrecttravelstation_daffodil_0.rts_pyramidboss_dynamic_p_resurrecttravelstation_daffodil_0",
+      "name": "Crest of Fate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramidboss/rts_pyramidboss_dynamic_p_resurrecttravelstation_daffodil_0.rts_pyramidboss_dynamic_p_resurrecttravelstation_daffodil_0",
+        "mapId": "PyramidBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramidboss/rts_pyramidboss_p_resurrecttravelstation_daffodil_0.rts_pyramidboss_p_resurrecttravelstation_daffodil_0",
+      "name": "Crest of Fate",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/pyramidboss/rts_pyramidboss_p_resurrecttravelstation_daffodil_0.rts_pyramidboss_p_resurrecttravelstation_daffodil_0",
+        "mapId": "PyramidBoss_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_outpost_approach.rts_sands_dynamic_resurrecttravelstation_outpost_approach",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_outpost_approach.rts_sands_dynamic_resurrecttravelstation_outpost_approach",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-basement.rts_sands_dynamic_resurrecttravelstation_slums-basement",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-basement.rts_sands_dynamic_resurrecttravelstation_slums-basement",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-blueh.rts_sands_dynamic_resurrecttravelstation_slums-blueh",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-blueh.rts_sands_dynamic_resurrecttravelstation_slums-blueh",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-blueh_0.rts_sands_dynamic_resurrecttravelstation_slums-blueh_0",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-blueh_0.rts_sands_dynamic_resurrecttravelstation_slums-blueh_0",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-fire.rts_sands_dynamic_resurrecttravelstation_slums-fire",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-fire.rts_sands_dynamic_resurrecttravelstation_slums-fire",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-gate.rts_sands_dynamic_resurrecttravelstation_slums-gate",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-gate.rts_sands_dynamic_resurrecttravelstation_slums-gate",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-ice.rts_sands_dynamic_resurrecttravelstation_slums-ice",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-ice.rts_sands_dynamic_resurrecttravelstation_slums-ice",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-ice_1.rts_sands_dynamic_resurrecttravelstation_slums-ice_1",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-ice_1.rts_sands_dynamic_resurrecttravelstation_slums-ice_1",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-tunnel.rts_sands_dynamic_resurrecttravelstation_slums-tunnel",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums-tunnel.rts_sands_dynamic_resurrecttravelstation_slums-tunnel",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums_bluehat.rts_sands_dynamic_resurrecttravelstation_slums_bluehat",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums_bluehat.rts_sands_dynamic_resurrecttravelstation_slums_bluehat",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums_wall.rts_sands_dynamic_resurrecttravelstation_slums_wall",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_slums_wall.rts_sands_dynamic_resurrecttravelstation_slums_wall",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_under-downbeat.rts_sands_dynamic_resurrecttravelstation_under-downbeat",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_under-downbeat.rts_sands_dynamic_resurrecttravelstation_under-downbeat",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_under-downbeat_2.rts_sands_dynamic_resurrecttravelstation_under-downbeat_2",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_under-downbeat_2.rts_sands_dynamic_resurrecttravelstation_under-downbeat_2",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_under-obelisk.rts_sands_dynamic_resurrecttravelstation_under-obelisk",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_under-obelisk.rts_sands_dynamic_resurrecttravelstation_under-obelisk",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_under-temple.rts_sands_dynamic_resurrecttravelstation_under-temple",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_dynamic_resurrecttravelstation_under-temple.rts_sands_dynamic_resurrecttravelstation_under-temple",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_m_plot09_travelstation_onetimeforcedteleport_2.rts_sands_m_plot09_travelstation_onetimeforcedteleport_2",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_m_plot09_travelstation_onetimeforcedteleport_2.rts_sands_m_plot09_travelstation_onetimeforcedteleport_2",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_m_plot09_travelstation_onetimeforcedteleport_5.rts_sands_m_plot09_travelstation_onetimeforcedteleport_5",
+      "name": "Ossu-Gol Necropolis",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/sands/rts_sands_m_plot09_travelstation_onetimeforcedteleport_5.rts_sands_m_plot09_travelstation_onetimeforcedteleport_5",
+        "mapId": "Sands_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_boss_resurrecttravelstation_daffodil_2.rts_seabed_boss_resurrecttravelstation_daffodil_2",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_boss_resurrecttravelstation_daffodil_2.rts_seabed_boss_resurrecttravelstation_daffodil_2",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_4.rts_seabed_combat_4",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_4.rts_seabed_combat_4",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_generouslyhighhalfheight.rts_seabed_combat_generouslyhighhalfheight",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_generouslyhighhalfheight.rts_seabed_combat_generouslyhighhalfheight",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_11.rts_seabed_combat_resurrecttravelstation_daffodil_11",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_11.rts_seabed_combat_resurrecttravelstation_daffodil_11",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_15.rts_seabed_combat_resurrecttravelstation_daffodil_15",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_15.rts_seabed_combat_resurrecttravelstation_daffodil_15",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_19.rts_seabed_combat_resurrecttravelstation_daffodil_19",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_19.rts_seabed_combat_resurrecttravelstation_daffodil_19",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_3.rts_seabed_combat_resurrecttravelstation_daffodil_3",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_3.rts_seabed_combat_resurrecttravelstation_daffodil_3",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_5.rts_seabed_combat_resurrecttravelstation_daffodil_5",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstation_daffodil_5.rts_seabed_combat_resurrecttravelstation_daffodil_5",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstationobjectdaff.rts_seabed_combat_resurrecttravelstationobjectdaff",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstationobjectdaff.rts_seabed_combat_resurrecttravelstationobjectdaff",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstationobjectdaff_0.rts_seabed_combat_resurrecttravelstationobjectdaff_0",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_combat_resurrecttravelstationobjectdaff_0.rts_seabed_combat_resurrecttravelstationobjectdaff_0",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_geo_intro_4.rts_seabed_geo_intro_4",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_geo_intro_4.rts_seabed_geo_intro_4",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_0.rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_0",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_0.rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_0",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_1.rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_1",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_1.rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_1",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_3.rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_3",
+      "name": "Wargtooth Shallows",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/seabed/rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_3.rts_seabed_geo_sharkpearls_resurrecttravelstation_daffodil_3",
+        "mapId": "SeaBed_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_geo_resurrecttravelstation_daffodil_0.rts_tutorial_geo_resurrecttravelstation_daffodil_0",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_geo_resurrecttravelstation_daffodil_0.rts_tutorial_geo_resurrecttravelstation_daffodil_0",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_geo_resurrecttravelstation_daffodil_1.rts_tutorial_geo_resurrecttravelstation_daffodil_1",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_geo_resurrecttravelstation_daffodil_1.rts_tutorial_geo_resurrecttravelstation_daffodil_1",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_geo_resurrecttravelstation_daffodil_2.rts_tutorial_geo_resurrecttravelstation_daffodil_2",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_geo_resurrecttravelstation_daffodil_2.rts_tutorial_geo_resurrecttravelstation_daffodil_2",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_geo_resurrecttravelstation_daffodil_3.rts_tutorial_geo_resurrecttravelstation_daffodil_3",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_geo_resurrecttravelstation_daffodil_3.rts_tutorial_geo_resurrecttravelstation_daffodil_3",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_0.rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_0",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_0.rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_0",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_2.rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_2",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_2.rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_2",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_3.rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_3",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_3.rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_3",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_4.rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_4",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_4.rts_tutorial_m_plot0tutorial_resurrecttravelstation_daffodil_4",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_0.rts_tutorial_p_resurrecttravelstation_daffodil_0",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_0.rts_tutorial_p_resurrecttravelstation_daffodil_0",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_1.rts_tutorial_p_resurrecttravelstation_daffodil_1",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_1.rts_tutorial_p_resurrecttravelstation_daffodil_1",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_2.rts_tutorial_p_resurrecttravelstation_daffodil_2",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_2.rts_tutorial_p_resurrecttravelstation_daffodil_2",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_3.rts_tutorial_p_resurrecttravelstation_daffodil_3",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_3.rts_tutorial_p_resurrecttravelstation_daffodil_3",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_4.rts_tutorial_p_resurrecttravelstation_daffodil_4",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_4.rts_tutorial_p_resurrecttravelstation_daffodil_4",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_5.rts_tutorial_p_resurrecttravelstation_daffodil_5",
+      "name": "Snoring Valley",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/gamedata/fasttravel/resurrecttravelstations/autogen/tutorial/rts_tutorial_p_resurrecttravelstation_daffodil_5.rts_tutorial_p_resurrecttravelstation_daffodil_5",
+        "mapId": "Tutorial_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/missions/major/beanstalk/mission_skybound",
+      "name": "Walk the Stalk",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Major/Beanstalk/Mission_Skybound"
+      }
+    },
+    {
+      "id": "/game/missions/major/goblin/mission_gtfo",
+      "name": "Goblins Tired of Forced Oppression",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Major/Goblin/Mission_GTFO"
+      }
+    },
+    {
+      "id": "/game/missions/major/goblin/mission_gtfop2",
+      "name": "The Slayer of Vorcanar",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Major/Goblin/Mission_GTFOP2"
+      }
+    },
+    {
+      "id": "/game/missions/major/oasis/mission_doomed",
+      "name": "The Ditcher",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Major/Oasis/Mission_Doomed"
+      }
+    },
+    {
+      "id": "/game/missions/major/pirate/mission_crookedeyephil",
+      "name": "The Trial of Crooked-Eye Phil",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Major/Pirate/Mission_CrookedEyePhil"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot00",
+      "name": "Bunkers & Badasses",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot00"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot01",
+      "name": "Hero of Brighthoof",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot01"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot02",
+      "name": "A Hard Day's Knight",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot02"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot04",
+      "name": "Thy Bard, with a Vengeance",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot04"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot05",
+      "name": "Emotion of the Ocean",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot05"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot06",
+      "name": "Ballad of Bones",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot06"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot07",
+      "name": "Mortal Coil",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot07"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot08",
+      "name": "The Son of a Witch",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot08"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot09",
+      "name": "Soul Purpose",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot09"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot10",
+      "name": "Fatebreaker",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot10"
+      }
+    },
+    {
+      "id": "/game/missions/plot/mission_plot11",
+      "name": "Epilogue",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Plot/Mission_Plot11"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/ab1_minersproblem/mission_ow_ab1_minersproblem",
+      "name": "Alchemy: Precious Metals",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/AB1_MinersProblem/Mission_OW_AB1_MinersProblem"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/ab2_miraclegrow/mission_ow_ab2_miraclegrow",
+      "name": "Alchemy: Miracle Growth",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/AB2_MiracleGrow/Mission_OW_AB2_MiracleGrow"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/ab3_solarcream/mission_ow_ab3_solarcream",
+      "name": "Alchemy: To Block the Sun",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/AB3_SolarCream/Mission_OW_AB3_SolarCream"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/aknifeattheirbacks/mission_ow_aknifeattheirbacks",
+      "name": "Knife to Meet You",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/AKnifeAtTheirBacks/Mission_OW_AKnifeAtTheirBacks"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/blessedbethysword/mission_ow_blessedbethysword",
+      "name": "A Realm in Peril",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/BlessedBeThySword/Mission_OW_BlessedBeThySword"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/clericallylost/mission_ow_clericallylost",
+      "name": "Clerical Error",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/ClericallyLost/Mission_OW_ClericallyLost"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/crabythepet/mission_ow_crabythepet",
+      "name": "A Pet's Rest",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/CrabyThePet/Mission_OW_CrabyThePet"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/destructionrainsfromtheheaven/mission_ow_destructionrainsfromtheheaven",
+      "name": "Destruction Rains from the Heavens",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/DestructionRainsFromTheHeaven/Mission_OW_DestructionRainsFromTheHeaven"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/eyelostit/mission_ow_eyelostit",
+      "name": "Eye Lost It",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/EyeLostIt/Mission_OW_EyeLostIt"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/fumblingaround/mission_ow_fumblingaround",
+      "name": "Working Blueprint",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/FumblingAround/Mission_OW_FumblingAround"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/ibelieveicantouchthesky/mission_ow_ibelieveicantouchthesky",
+      "name": "On Wings and Dreams",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/IBelieveIcanTouchTheSky/Mission_OW_IBelieveIcanTouchTheSky"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/inmyimage/mission_ow_inmyimage",
+      "name": "In My Image",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/InMyImage/Mission_OW_InMyImage"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/itfellfromtheskies/mission_ow_itfellfromtheskies",
+      "name": "Cheesy Pick-Up",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/ItFellFromTheSkies/Mission_OW_ItFellFromTheSkies"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/pocketsandstorm/mission_ow_pocketsandstorm",
+      "name": "Pocket Sandstorm",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/PocketSandstorm/Mission_OW_PocketSandstorm"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/thelegendarybow/mission_ow_thelegendarybow",
+      "name": "Legendary Bow",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/TheLegendaryBow/Mission_OW_TheLegendaryBow"
+      }
+    },
+    {
+      "id": "/game/missions/side/overworld/overworld/visionofdeception/mission_ow_visionofdeception",
+      "name": "Lens of the Deceiver",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Overworld/Overworld/VisionOfDeception/Mission_OW_VisionOfDeception"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/goblin/mission_murderhobos",
+      "name": "Non-Violent Offender",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Goblin/Mission_MurderHobos"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/goblin/mission_smithscharade",
+      "name": "Forgery",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Goblin/Mission_SmithsCharade"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/hubtown/mission_innerdemons",
+      "name": "Inner Daemons",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Hubtown/Mission_InnerDemons"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/intro/mission_ratquestpt1",
+      "name": "Goblins in the Garden",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Intro/Mission_RatQuestPt1"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/intro/mission_ratquestpt2",
+      "name": "A Farmer's Ardor",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Intro/Mission_RatQuestPt2"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/mushroom/mission_blueones",
+      "name": "Little Boys Blue",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Mushroom/Mission_BlueOnes"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/mushroom/mission_claptrapgrenade",
+      "name": "A Knight's Toil",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Mushroom/Mission_ClaptrapGrenade"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/mushroom/mission_minstrelmetal",
+      "name": "Lyre and Brimstone",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Mushroom/Mission_MinstrelMetal"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/mushroom/mission_toothfairy",
+      "name": "Cash 4 Teeth",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Mushroom/Mission_ToothFairy"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_1/sewers/mission_cloggageofthedammed",
+      "name": "On the Wink of Destruction",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_1/Sewers/Mission_CloggageOfTheDammed"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/abyss/mission_curseofthetwistedsisters",
+      "name": "Of Curse and Claw",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/Abyss/Mission_CurseOfTheTwistedSisters"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/abyss/mission_diplomacy",
+      "name": "Diplomatic Relations",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/Abyss/Mission_Diplomacy"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/beanstalk/mission_derat",
+      "name": "A Small Favor",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/Beanstalk/Mission_DeRat"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/beanstalk/mission_elderwyvern",
+      "name": "Burning Hunger",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/Beanstalk/Mission_ElderWyvern"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/beanstalk/mission_ronrivote",
+      "name": "Ron Rivote",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/Beanstalk/Mission_RonRivote"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/pirate/mission_jaggedtoothcrew",
+      "name": "All Swashed Up",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/Pirate/Mission_JaggedToothCrew"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/pirate/mission_littlepookie",
+      "name": "A Walk to Dismember",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/Pirate/Mission_LittlePookie"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/pirate/mission_piratelife",
+      "name": "A Wandering Aye",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/Pirate/MIssion_PirateLife"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/pirate/mission_whaletale",
+      "name": "In the Belly Is a Beast",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/Pirate/Mission_WhaleTale"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/seabed/mission_dyingwish",
+      "name": "Twenty Thousand Years Under the Sea",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/SeaBed/Mission_DyingWish"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_2/seabed/mission_sharkpearls",
+      "name": "Raiders of the Lost Shark",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_2/SeaBed/Mission_SharkPearls"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/climb/mission_ancientpowers",
+      "name": "Ancient Powers",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Climb/Mission_AncientPowers"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/climb/mission_ancientpowerscombat1",
+      "name": "Ancient Powers (Part 2)",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Climb/Mission_AncientPowersCombat1"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/climb/mission_ancientpowerscombat2",
+      "name": "Ancient Powers (Part 3)",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Climb/Mission_AncientPowersCombat2"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/climb/mission_ancientpowersdreadlord",
+      "name": "Ancient Powers (Part 4)",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Climb/Mission_AncientPowersDreadLord"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/climb/mission_ancientpowersdreadlordrepeatable",
+      "name": "Ancient Powers (Part 5)",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Climb/Mission_AncientPowersDreadLordRepeatable"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/climb/mission_lavagoodtime",
+      "name": "Spell to Pay",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Climb/Mission_LavaGoodTime"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/climb/mission_monsterlover",
+      "name": "Necromance Her",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Climb/Mission_MonsterLover"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/oasis/mission_lowtideboil",
+      "name": "Gumbo No. 5",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Oasis/Mission_LowTideBoil"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/sands/mission_bluehatcult",
+      "name": "Armageddon Distracted",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Sands/Mission_BlueHatCult"
+      }
+    },
+    {
+      "id": "/game/missions/side/zone_3/sands/mission_elementalbeer",
+      "name": "Hot Fizz",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/Missions/Side/Zone_3/Sands/Mission_ElementalBeer"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/common/missions/mission_indigo_epilogue",
+      "name": "Vesper's Epilogue",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo1/Common/Missions/Mission_Indigo_Epilogue"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/common/missions/mission_indigo_firstwheeluse",
+      "name": "Meet the Wheel of Fate",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo1/Common/Missions/Mission_Indigo_FirstWheelUse"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/common/missions/mission_plc_completion",
+      "name": "Nightmare in Dreamveil",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo1/Common/Missions/Mission_PLC_Completion"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/gamedata/fasttravel/fts_caravanhub.fts_caravanhub",
+      "name": "Dreamveil Overlook",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/patchdlc/indigo1/gamedata/fasttravel/fts_caravanhub.fts_caravanhub",
+        "mapId": "Ind_CaravanHub_01_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/gamedata/fasttravel/leveltravelstations/lts_caravanhub_overworld_overworld.lts_caravanhub_overworld_overworld",
+      "name": "Dreamveil Overlook",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/patchdlc/indigo1/gamedata/fasttravel/leveltravelstations/lts_caravanhub_overworld_overworld.lts_caravanhub_overworld_overworld",
+        "mapId": "Ind_CaravanHub_01_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/gamedata/fasttravel/leveltravelstations/lts_overworld_caravanhub.lts_overworld_caravanhub",
+      "name": "Overworld",
+      "category": "travel-map",
+      "attributes": {
+        "originalId": "/game/patchdlc/indigo1/gamedata/fasttravel/leveltravelstations/lts_overworld_caravanhub.lts_overworld_caravanhub",
+        "mapId": "Overworld_P",
+        "labelKind": "destination map; not station name"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/missions/completionmission/mission_plc1_completionv1",
+      "name": "Defeated Chums: Difficulty 1",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo1/Missions/CompletionMission/Mission_PLC1_CompletionV1"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/missions/completionmission/mission_plc1_completionv2",
+      "name": "Defeated Chums: Difficulty 2",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo1/Missions/CompletionMission/Mission_PLC1_CompletionV2"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/missions/completionmission/mission_plc1_completionv3",
+      "name": "Defeated Chums: Difficulty 3",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo1/Missions/CompletionMission/Mission_PLC1_CompletionV3"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/missions/completionmission/mission_plc1_completionv4",
+      "name": "Defeated Chums: Difficulty 4",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo1/Missions/CompletionMission/Mission_PLC1_CompletionV4"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo1/missions/mission_plc1",
+      "name": "Best Chums",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo1/Missions/Mission_PLC1"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo2/missions/mission_plc2",
+      "name": "Pesto Chango",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo2/Missions/Mission_PLC2"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo2/missions/nonrepeatablemissions/mission_plc2_completionv1",
+      "name": "Defeated Imelda: Difficulty 1",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo2/Missions/NonRepeatableMissions/Mission_PLC2_CompletionV1"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo2/missions/nonrepeatablemissions/mission_plc2_completionv2",
+      "name": "Defeated Imelda: Difficulty 2",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo2/Missions/NonRepeatableMissions/Mission_PLC2_CompletionV2"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo2/missions/nonrepeatablemissions/mission_plc2_completionv3",
+      "name": "Defeated Imelda: Difficulty 3",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo2/Missions/NonRepeatableMissions/Mission_PLC2_CompletionV3"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo2/missions/nonrepeatablemissions/mission_plc2_completionv4",
+      "name": "Defeated Imelda: Difficulty 4",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo2/Missions/NonRepeatableMissions/Mission_PLC2_CompletionV4"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo3/missions/completionmissions/mission_plc3_completionv1",
+      "name": "Defeated Fyodor: Difficulty 1",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo3/Missions/CompletionMissions/Mission_PLC3_CompletionV1"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo3/missions/completionmissions/mission_plc3_completionv2",
+      "name": "Defeated Fyodor: Difficulty 2",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo3/Missions/CompletionMissions/Mission_PLC3_CompletionV2"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo3/missions/completionmissions/mission_plc3_completionv3",
+      "name": "Defeated Fyodor: Difficulty 3",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo3/Missions/CompletionMissions/Mission_PLC3_CompletionV3"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo3/missions/completionmissions/mission_plc3_completionv4",
+      "name": "Defeated Fyodor: Difficulty 4",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo3/Missions/CompletionMissions/Mission_PLC3_CompletionV4"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo3/missions/mission_plc3",
+      "name": "Puns and Crimeishment",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo3/Missions/Mission_PLC3"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo3/missions/mission_plc3_3_1",
+      "name": "Puns and Crimeishment: Misery's Mine",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo3/Missions/Mission_PLC3_3_1"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo3/missions/mission_plc3_3_2",
+      "name": "Puns and Crimeishment: Crystal Chasm",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo3/Missions/Mission_PLC3_3_2"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo3/missions/mission_plc3_3_3",
+      "name": "Puns and Crimeishment: Slammer Central",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo3/Missions/Mission_PLC3_3_3"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo3/missions/mission_plc3_3_4",
+      "name": "Puns and Crimeishment: Firedeep Forge",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo3/Missions/Mission_PLC3_3_4"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/missions/completionmissions/mission_plc4_completionv1",
+      "name": "Defeated Redmourne: Difficulty 1",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/Missions/CompletionMissions/Mission_PLC4_CompletionV1"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/missions/completionmissions/mission_plc4_completionv2",
+      "name": "Defeated Redmourne: Difficulty 2",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/Missions/CompletionMissions/Mission_PLC4_CompletionV2"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/missions/completionmissions/mission_plc4_completionv3",
+      "name": "Defeated Redmourne: Difficulty 3",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/Missions/CompletionMissions/Mission_PLC4_CompletionV3"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/missions/completionmissions/mission_plc4_completionv4",
+      "name": "Defeated Redmourne: Difficulty 4",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/Missions/CompletionMissions/Mission_PLC4_CompletionV4"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/missions/mission_plc4",
+      "name": "Outer Daemons",
+      "category": "mission",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/Missions/Mission_PLC4"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/playercharacters/_shared/_design/aspects/aspect_plc_1.aspect_plc_1",
+      "name": "Nerfed By The Bunker Master: STR+2, DEX-8, INT+2, WIS+2, CON+2, ATT+2",
+      "category": "backstory",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/PlayerCharacters/_Shared/_Design/Aspects/Aspect_PLC_1.Aspect_PLC_1"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/playercharacters/_shared/_design/aspects/aspect_plc_2.aspect_plc_2",
+      "name": "Clownblood: STR+2, INT+8, WIS-3, ATT-4",
+      "category": "backstory",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/PlayerCharacters/_Shared/_Design/Aspects/Aspect_PLC_2.Aspect_PLC_2"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/playercharacters/_shared/_design/aspects/aspect_plc_3.aspect_plc_3",
+      "name": "Apprentice Barnacle Scraper: STR+3, INT-6, ATT+7",
+      "category": "backstory",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/PlayerCharacters/_Shared/_Design/Aspects/Aspect_PLC_3.Aspect_PLC_3"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/playercharacters/_shared/_design/aspects/aspect_plc_4.aspect_plc_4",
+      "name": "Street Urchin Success Story: STR+4, INT+5, CON-6",
+      "category": "backstory",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/PlayerCharacters/_Shared/_Design/Aspects/Aspect_PLC_4.Aspect_PLC_4"
+      }
+    },
+    {
+      "id": "/game/patchdlc/indigo4/playercharacters/shaman/_shared/_design/skilltree/abilitytree_branch_shaman.abilitytree_branch_shaman",
+      "name": "Blightcaller",
+      "category": "class",
+      "attributes": {
+        "originalId": "/Game/PatchDLC/Indigo4/PlayerCharacters/Shaman/_Shared/_Design/SkillTree/AbilityTree_Branch_Shaman.AbilityTree_Branch_Shaman"
+      }
+    },
+    {
+      "id": "/game/playercharacters/_shared/_design/aspects/aspect_01.aspect_01",
+      "name": "Village Idiot: STR+8, INT-3, WIS-3",
+      "category": "backstory",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/_Shared/_Design/Aspects/Aspect_01.Aspect_01"
+      }
+    },
+    {
+      "id": "/game/playercharacters/_shared/_design/aspects/aspect_02.aspect_02",
+      "name": "Raised By Elves: DEX+4, CON-4, ATT+2",
+      "category": "backstory",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/_Shared/_Design/Aspects/Aspect_02.Aspect_02"
+      }
+    },
+    {
+      "id": "/game/playercharacters/_shared/_design/aspects/aspect_03.aspect_03",
+      "name": "Failed Monk: STR-4, DEX-2, INT+3, WIS+6",
+      "category": "backstory",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/_Shared/_Design/Aspects/Aspect_03.Aspect_03"
+      }
+    },
+    {
+      "id": "/game/playercharacters/_shared/_design/aspects/aspect_04.aspect_04",
+      "name": "Recovering Inventory Hoarder: DEX-2, INT+2, CON-2, ATT+5",
+      "category": "backstory",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/_Shared/_Design/Aspects/Aspect_04.Aspect_04"
+      }
+    },
+    {
+      "id": "/game/playercharacters/_shared/_design/aspects/aspect_05.aspect_05",
+      "name": "Rogue Alchemist: DEX-2, WIS+8, CON-5, ATT+2",
+      "category": "backstory",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/_Shared/_Design/Aspects/Aspect_05.Aspect_05"
+      }
+    },
+    {
+      "id": "/game/playercharacters/barbarian/_shared/_design/skilltree/abilitytree_branch_barbarian.abilitytree_branch_barbarian",
+      "name": "Brr-Zerker",
+      "category": "class",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/Barbarian/_Shared/_Design/SkillTree/AbilityTree_Branch_Barbarian.AbilityTree_Branch_Barbarian"
+      }
+    },
+    {
+      "id": "/game/playercharacters/gunmage/_shared/_design/skilltree/abilitytree_branch_gunmage.abilitytree_branch_gunmage",
+      "name": "Spellshot",
+      "category": "class",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/GunMage/_Shared/_Design/SkillTree/AbilityTree_Branch_GunMage.AbilityTree_Branch_GunMage"
+      }
+    },
+    {
+      "id": "/game/playercharacters/knightoftheclaw/_shared/_design/skilltree/abilitytree_branch_dragoncleric.abilitytree_branch_dragoncleric",
+      "name": "Clawbringer",
+      "category": "class",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/KnightOfTheClaw/_Shared/_Design/SkillTree/AbilityTree_Branch_DragonCleric.AbilityTree_Branch_DragonCleric"
+      }
+    },
+    {
+      "id": "/game/playercharacters/necromancer/_shared/_design/skilltree/abilitytree_branch_necromancer.abilitytree_branch_necromancer",
+      "name": "Graveborn",
+      "category": "class",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/Necromancer/_Shared/_Design/SkillTree/AbilityTree_Branch_Necromancer.AbilityTree_Branch_Necromancer"
+      }
+    },
+    {
+      "id": "/game/playercharacters/ranger/_shared/_design/skilltree/abilitytree_branch_ranger.abilitytree_branch_ranger",
+      "name": "Spore Warden",
+      "category": "class",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/Ranger/_Shared/_Design/SkillTree/AbilityTree_Branch_Ranger.AbilityTree_Branch_Ranger"
+      }
+    },
+    {
+      "id": "/game/playercharacters/rogue/_shared/_design/skilltree/abilitytree_branch_rogue.abilitytree_branch_rogue",
+      "name": "Stabbomancer",
+      "category": "class",
+      "attributes": {
+        "originalId": "/Game/PlayerCharacters/Rogue/_Shared/_Design/SkillTree/AbilityTree_Branch_Rogue.AbilityTree_Branch_Rogue"
+      }
+    },
+    {
+      "id": "hero:constitution",
+      "name": "Constitution",
+      "category": "hero-stat",
+      "attributes": {
+        "field": "constitution"
+      }
+    },
+    {
+      "id": "hero:dexterity",
+      "name": "Dexterity",
+      "category": "hero-stat",
+      "attributes": {
+        "field": "dexterity"
+      }
+    },
+    {
+      "id": "hero:intelligence",
+      "name": "Intelligence",
+      "category": "hero-stat",
+      "attributes": {
+        "field": "intelligence"
+      }
+    },
+    {
+      "id": "hero:luck",
+      "name": "Attunement",
+      "category": "hero-stat",
+      "attributes": {
+        "field": "luck"
+      }
+    },
+    {
+      "id": "hero:strength",
+      "name": "Strength",
+      "category": "hero-stat",
+      "attributes": {
+        "field": "strength"
+      }
+    },
+    {
+      "id": "hero:wisdom",
+      "name": "Wisdom",
+      "category": "hero-stat",
+      "attributes": {
+        "field": "wisdom"
+      }
+    },
+    {
+      "id": "map:abyss_p",
+      "name": "Drowned Abyss",
+      "category": "map",
+      "attributes": {
+        "originalId": "Abyss_P"
+      }
+    },
+    {
+      "id": "map:abyssboss_p",
+      "name": "The Godswell",
+      "category": "map",
+      "attributes": {
+        "originalId": "AbyssBoss_P"
+      }
+    },
+    {
+      "id": "map:beanstalk_p",
+      "name": "Tangledrift",
+      "category": "map",
+      "attributes": {
+        "originalId": "Beanstalk_P"
+      }
+    },
+    {
+      "id": "map:climb_p",
+      "name": "Karnok's Wall",
+      "category": "map",
+      "attributes": {
+        "originalId": "Climb_P"
+      }
+    },
+    {
+      "id": "map:d_lootroom_p",
+      "name": "Loot of Chaos",
+      "category": "map",
+      "attributes": {
+        "originalId": "D_LootRoom_P"
+      }
+    },
+    {
+      "id": "map:endlessdungeon_p",
+      "name": "The Chaos Chamber",
+      "category": "map",
+      "attributes": {
+        "originalId": "EndlessDungeon_P"
+      }
+    },
+    {
+      "id": "map:goblin_p",
+      "name": "Mount Craw",
+      "category": "map",
+      "attributes": {
+        "originalId": "Goblin_P"
+      }
+    },
+    {
+      "id": "map:graveyard_p",
+      "name": "Shattergrave Barrow",
+      "category": "map",
+      "attributes": {
+        "originalId": "Graveyard_P"
+      }
+    },
+    {
+      "id": "map:hubtown_p",
+      "name": "Brighthoof",
+      "category": "map",
+      "attributes": {
+        "originalId": "Hubtown_P"
+      }
+    },
+    {
+      "id": "map:ind_caravanhub_01_p",
+      "name": "Dreamveil Overlook",
+      "category": "map",
+      "attributes": {
+        "originalId": "Ind_CaravanHub_01_P"
+      }
+    },
+    {
+      "id": "map:intro_p",
+      "name": "Queen's Gate",
+      "category": "map",
+      "attributes": {
+        "originalId": "Intro_P"
+      }
+    },
+    {
+      "id": "map:mushroom_p",
+      "name": "Weepwild Dankness",
+      "category": "map",
+      "attributes": {
+        "originalId": "Mushroom_P"
+      }
+    },
+    {
+      "id": "map:oasis_p",
+      "name": "Sunfang Oasis",
+      "category": "map",
+      "attributes": {
+        "originalId": "Oasis_P"
+      }
+    },
+    {
+      "id": "map:overworld_p",
+      "name": "Overworld",
+      "category": "map",
+      "attributes": {
+        "originalId": "Overworld_P"
+      }
+    },
+    {
+      "id": "map:pirate_p",
+      "name": "Crackmast Cove",
+      "category": "map",
+      "attributes": {
+        "originalId": "Pirate_P"
+      }
+    },
+    {
+      "id": "map:pyramid_p",
+      "name": "The Fearamid",
+      "category": "map",
+      "attributes": {
+        "originalId": "Pyramid_P"
+      }
+    },
+    {
+      "id": "map:pyramidboss_p",
+      "name": "Crest of Fate",
+      "category": "map",
+      "attributes": {
+        "originalId": "PyramidBoss_P"
+      }
+    },
+    {
+      "id": "map:sands_p",
+      "name": "Ossu-Gol Necropolis",
+      "category": "map",
+      "attributes": {
+        "originalId": "Sands_P"
+      }
+    },
+    {
+      "id": "map:seabed_p",
+      "name": "Wargtooth Shallows",
+      "category": "map",
+      "attributes": {
+        "originalId": "SeaBed_P"
+      }
+    },
+    {
+      "id": "map:tutorial_p",
+      "name": "Snoring Valley",
+      "category": "map",
+      "attributes": {
+        "originalId": "Tutorial_P"
+      }
+    },
+    {
+      "id": "myth:0",
+      "name": "Intelligence",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "0",
+        "upstreamCap": "10",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:1",
+      "name": "Spell Crit Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "1",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:10",
+      "name": "Melee Crit Chance",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "10",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:11",
+      "name": "Melee Swing Speed",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "11",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:12",
+      "name": "Melee Crit Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "12",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:13",
+      "name": "Melee Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "13",
+        "upstreamCap": "0",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:14",
+      "name": "Dexterity",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "14",
+        "upstreamCap": "10",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:15",
+      "name": "Gun Handling",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "15",
+        "upstreamCap": "10",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:16",
+      "name": "Move Speed",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "16",
+        "upstreamCap": "25",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:17",
+      "name": "Reload Speed",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "17",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:18",
+      "name": "Mag Size",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "18",
+        "upstreamCap": "15",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:19",
+      "name": "Fire Rate",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "19",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:2",
+      "name": "Spell Crit Chance",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "2",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:20",
+      "name": "Gun Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "20",
+        "upstreamCap": "0",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:21",
+      "name": "Wisdom",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "21",
+        "upstreamCap": "10",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:22",
+      "name": "Companion Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "22",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:23",
+      "name": "Attunement",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "23",
+        "upstreamCap": "10",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:24",
+      "name": "Lightning Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "24",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:25",
+      "name": "Loot Luck",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "25",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:26",
+      "name": "Poison Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "26",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:27",
+      "name": "Ability Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "27",
+        "upstreamCap": "0",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:3",
+      "name": "Fire Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "3",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:4",
+      "name": "Cryo Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "4",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:5",
+      "name": "Status Effect Chance",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "5",
+        "upstreamCap": "10",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:6",
+      "name": "Spell Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "6",
+        "upstreamCap": "0",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:7",
+      "name": "Strength",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "7",
+        "upstreamCap": "10",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:8",
+      "name": "Constitution",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "8",
+        "upstreamCap": "10",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    },
+    {
+      "id": "myth:9",
+      "name": "Dark Magic Damage",
+      "category": "myth-stat",
+      "attributes": {
+        "index": "9",
+        "upstreamCap": "20",
+        "capMeaning": "0 means uncapped upstream; not a validated PS5 edit limit"
+      }
+    }
+  ]
+}

@@ -13,7 +13,7 @@ internal static class IndependentSaveProbe
     private const string ProfilePrefix = "AD1E604E429EA933B2F501E1024D0875B1AD1A3DA1036B1A17E6EC0F608DB4F9";
     private const string ProfileXor = "BA0E861D58E1922130D6CBF0D082D5583612E1F6394488EA4EFB047407953AA2";
 
-    public static SaveEvidence Read(byte[] file, bool wonderlands, bool profile)
+    private static byte[] Decode(byte[] file, bool profile)
     {
         if (file.Length > MaximumBytes || file.Length < 26 || !file.AsSpan(0, 4).SequenceEqual("GVAS"u8))
             throw new InvalidDataException("Probe framing rejected.");
@@ -37,6 +37,26 @@ internal static class IndependentSaveProbe
             rebuilt[i] = (byte)(plain[i] ^ xor[i % 32] ^ (i < 32 ? prefix[i] : rebuilt[i - 32]));
         }
         if (!rebuilt.AsSpan().SequenceEqual(ciphertext.Span)) throw new InvalidDataException("Probe feedback inverse failed.");
+        return plain;
+    }
+
+    /// <summary>Only callers' selected gameplay messages escape this probe; never dump whole payloads.</summary>
+    internal static IReadOnlyList<WireRecord> SelectMessage(byte[] file, bool profile, params int[] tags)
+    {
+        ReadOnlyMemory<byte> selected = Decode(file, profile);
+        foreach (var tag in tags)
+        {
+            var matches = Records(selected).Where(r => r.Tag == tag).ToArray();
+            if (matches.Length == 0) return [];
+            if (matches.Length != 1) throw new InvalidDataException("Probe singular-message ambiguity.");
+            selected = matches[0].Data;
+        }
+        return Records(selected).ToArray();
+    }
+
+    public static SaveEvidence Read(byte[] file, bool wonderlands, bool profile)
+    {
+        var plain = Decode(file, profile);
         var serials = new List<byte[]>();
         ulong experience = 0, money = 0;
         foreach (var record in Records(plain))
@@ -100,7 +120,12 @@ internal static class IndependentSaveProbe
         }
     }
 
-    private static ulong Scalar(ReadOnlyMemory<byte> bytes) { var position = 0; return Varint(bytes.Span, ref position); }
+    internal static ulong Scalar(ReadOnlyMemory<byte> bytes) { var position = 0; return Varint(bytes.Span, ref position); }
+    internal static IEnumerable<ulong> Scalars(ReadOnlyMemory<byte> bytes)
+    {
+        var position = 0;
+        while (position < bytes.Length) yield return Varint(bytes.Span, ref position);
+    }
     private static ulong Varint(ReadOnlySpan<byte> bytes, ref int cursor)
     {
         ulong value = 0;

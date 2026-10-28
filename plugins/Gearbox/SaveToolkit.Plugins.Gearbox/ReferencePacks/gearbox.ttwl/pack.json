@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "gearbox.ttwl",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Tiny Tina's Wonderlands serial database 59",
   "description": "Pinned 1fde90dc43e7f7ee261413d85c366e0a7236dd9b; English family names; console build, DLC and hotfix coverage unknown.",
   "plugins": [
@@ -106,6 +106,25 @@
         "licenseUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt",
         "retrieved": "2026-10-28",
         "modifications": "Extracted only explicit slot/SDU/ammo asset-to-label pairs; no upstream capacity limits applied."
+      }
+    },
+    {
+      "id": "world-labels",
+      "kind": "records",
+      "title": "World, class and progression labels",
+      "files": [
+        {
+          "path": "world-labels.json",
+          "sha256": "74c6f38e51d5a1efdf1462b4197e31f0dd76c43254f664b1343617d7ebaf65d7"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/__init__.py",
+        "author": "CJ Kucera / apocalyptech; Abram Hindle",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted explicit English mission, map, travel destination and class labels; Myth array indices, Hero field labels and backstories. Lowercased asset lookup IDs; retained originalId. map: keys are namespaced. No artwork, gameplay-safe bounds or PS5 build compatibility inferred; source code not executed."
       }
     }
   ]

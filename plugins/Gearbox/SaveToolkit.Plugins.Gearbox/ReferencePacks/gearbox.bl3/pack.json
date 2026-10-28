@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "gearbox.bl3",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Borderlands 3 serial database 62",
   "description": "Pinned d459b28a7e88f1a5ae0f16118272d8a5383b8b04; English family names; console build, DLC and hotfix coverage unknown.",
   "plugins": [
@@ -106,6 +106,25 @@
         "licenseUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt",
         "retrieved": "2026-10-28",
         "modifications": "Extracted only explicit slot/SDU/ammo asset-to-label pairs; no upstream capacity limits applied."
+      }
+    },
+    {
+      "id": "world-labels",
+      "kind": "records",
+      "title": "World, class and progression labels",
+      "files": [
+        {
+          "path": "world-labels.json",
+          "sha256": "9639547fbe225abeb1cb26528799d623556e30b161812b753a2a434f8351e75b"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/__init__.py",
+        "author": "CJ Kucera / apocalyptech",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted explicit English mission, map, travel destination and class labels; named room decorations/weapon skins/trinkets. Lowercased asset lookup IDs; retained originalId. map: keys are namespaced. No artwork, gameplay-safe bounds or PS5 build compatibility inferred; source code not executed."
       }
     }
   ]
