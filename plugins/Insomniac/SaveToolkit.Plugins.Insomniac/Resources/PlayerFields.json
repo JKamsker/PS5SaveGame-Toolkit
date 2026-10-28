@@ -1,0 +1,23 @@
+[
+  { "Name": "CampaignSaveID", "Label": "Campaign ID", "Group": "Campaign", "Kind": "Integer" },
+  { "Name": "CareerBolts", "Label": "Career bolts", "Group": "Economy", "Kind": "Integer" },
+  { "Name": "SpentBolts", "Label": "Spent bolts", "Group": "Economy", "Kind": "Integer" },
+  { "Name": "CareerRaritanium", "Label": "Career raritanium", "Group": "Economy", "Kind": "Number" },
+  { "Name": "CareerRaritaniumSpend", "Label": "Career raritanium spent", "Group": "Economy", "Kind": "Number" },
+  { "Name": "CareerExp", "Label": "Career XP", "Group": "Progress", "Kind": "Integer" },
+  { "Name": "CareerWeaponExp", "Label": "Career weapon XP", "Group": "Progress", "Kind": "Integer" },
+  { "Name": "Playtime", "Label": "Play time", "Group": "Progress", "Kind": "Number" },
+  { "Name": "Difficulty", "Label": "Difficulty (stored code)", "Group": "Progress", "Kind": "Integer" },
+  { "Name": "CurrentLevel", "Label": "Current level (location code)", "Group": "Progress", "Kind": "Integer" },
+  { "Name": "RYNOPlansCollected", "Label": "Spybots / RYNO plans (bit mask)", "Group": "Progress", "Kind": "Integer" },
+  { "Name": "IsChallengeModeAvailable", "Label": "Challenge mode available", "Group": "Campaign", "Kind": "Bool" },
+  { "Name": "IsChallengeMode", "Label": "Challenge mode active", "Group": "Campaign", "Kind": "Bool" },
+  { "Name": "BoltMultiplier", "Label": "Bolt multiplier", "Group": "Economy", "Kind": "Integer" },
+  { "Name": "InfiniteHealthEnabled", "Label": "Infinite health enabled", "Group": "Gold bolt options", "Kind": "Bool" },
+  { "Name": "InfiniteAmmoEnabled", "Label": "Infinite ammunition enabled", "Group": "Gold bolt options", "Kind": "Bool" },
+  { "Name": "GoldWeaponsEnabled", "Label": "Golden weapons enabled", "Group": "Gold bolt options", "Kind": "Bool" },
+  { "Name": "MirrorModeEnabled", "Label": "Mirror mode enabled", "Group": "Gold bolt options", "Kind": "Bool" },
+  { "Name": "HomeRunHitterEnabled", "Label": "Home run hitter enabled", "Group": "Gold bolt options", "Kind": "Bool" },
+  { "Name": "RPGEnabled", "Label": "RPG damage numbers enabled", "Group": "Gold bolt options", "Kind": "Bool" },
+  { "Name": "ConfettiHeadshotEnabled", "Label": "Confetti headshots enabled", "Group": "Gold bolt options", "Kind": "Bool" }
+]

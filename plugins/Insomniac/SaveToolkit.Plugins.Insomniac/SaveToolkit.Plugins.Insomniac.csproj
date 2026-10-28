@@ -6,4 +6,8 @@
     <!-- Plugins depend on the SDK only (never on Core/Api). -->
     <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\PlayerFields.json" />
+    <InternalsVisibleTo Include="SaveToolkit.Plugins.Insomniac.Tests" />
+  </ItemGroup>
 </Project>
