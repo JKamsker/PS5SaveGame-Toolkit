@@ -47,7 +47,14 @@ public sealed class CounterPlugin : IGamePlugin
     {
         public override string Title => "Counter";
 
-        public override ViewNode BuildView() => new SectionNode("Counter",
+        public override ViewNode BuildView()
+        {
+            // Bound but never shown, like values on lazy pages the user has not expanded.
+            _ = Field("hidden.flag", "Hidden flag", new BoolSpec(), () => FieldValue.Of(bytes[8] != 0), v => bytes[8] = v.AsBool() ? (byte)1 : (byte)0);
+            return VisibleView();
+        }
+
+        private SectionNode VisibleView() => new("Counter",
         [
             Field("counter", "Counter", IntegerSpec.Int32 with { Min = 0, Max = 1000 },
                 () => FieldValue.Of(BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(4))),
@@ -59,12 +66,15 @@ public sealed class CounterPlugin : IGamePlugin
                 SetName),
             Field("checksum", "Checksum", IntegerSpec.UInt8, () => FieldValue.Of((long)Checksum())),
             new ActionNode("max", "Max counter") { Parameters = [new FieldNode("value", "Value", IntegerSpec.Int32 with { Min = 0, Max = 1000 }, FieldValue.Of(1000L))] },
+            new ActionNode("toggle-hidden", "Toggle hidden flag"),
         ]);
 
-        public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
-            actionId == "max"
-                ? new ActionOutcome { Changes = SetValues([new ValueEdit("counter", parameters["value"])]), Message = "Counter set." }
-                : base.InvokeAction(actionId, parameters);
+        public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) => actionId switch
+        {
+            "max" => new ActionOutcome { Changes = SetValues([new ValueEdit("counter", parameters["value"])]), Message = "Counter set." },
+            "toggle-hidden" => new ActionOutcome { Changes = SetValues([new ValueEdit("hidden.flag", FieldValue.Of(bytes[8] == 0))]) },
+            _ => base.InvokeAction(actionId, parameters),
+        };
 
         public override IReadOnlyList<FileOutput> Serialize() => [new FileOutput(file.RelativePath, bytes.ToArray())];
 

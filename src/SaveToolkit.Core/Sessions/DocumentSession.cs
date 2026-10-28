@@ -243,8 +243,10 @@ public sealed class DocumentSession : IDisposable
     private EditOutcome Revert(IReadOnlyList<ValueChange> batch, bool useOld)
     {
         // Derived values are usually read-only; re-applying the primary edits recomputes them.
+        // Values the plugin reported but never showed (e.g. bulk actions over unexpanded lazy pages)
+        // are replayed too: they came from the plugin itself, so no spec check is needed.
         var edits = (useOld ? batch.Reverse() : batch)
-            .Where(c => _index.Spec(c.ValueId) is { ReadOnly: false })
+            .Where(c => _index.Spec(c.ValueId) is not { ReadOnly: true })
             .Select(c => new ValueEdit(c.ValueId, useOld ? c.OldValue : c.NewValue))
             .ToList();
         return CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);

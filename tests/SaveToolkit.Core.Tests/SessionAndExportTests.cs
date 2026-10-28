@@ -97,6 +97,20 @@ public sealed class SessionAndExportTests : IDisposable
     }
 
     [Fact]
+    public void Undo_RevertsActionChangesToValuesNeverShownInTheView()
+    {
+        var (_, session) = OpenCounter();
+        Assert.True(session.InvokeAction("toggle-hidden", new Dictionary<string, JsonElement>()).Ok);
+        Assert.True(session.State.IsDirty);
+
+        var undo = session.Undo();
+
+        Assert.True(undo.Ok, string.Join("; ", undo.Errors.Select(e => e.Message)));
+        var reverted = Assert.Single(undo.Changes, c => c.ValueId == "hidden.flag");
+        Assert.False(reverted.NewValue.AsBool());
+    }
+
+    [Fact]
     public void Export_MirrorsIdenticalBackup_AndVerifiesOutput()
     {
         var (ws, session) = OpenCounter();
