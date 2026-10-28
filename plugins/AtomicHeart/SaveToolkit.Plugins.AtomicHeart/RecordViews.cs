@@ -9,16 +9,19 @@ internal sealed class RecordViews
     private sealed record PropertyGroup(IReadOnlyList<TaggedProperty> Members);
     private readonly RecordIndex index;
     private readonly Func<string, string, FieldSpec, Func<FieldValue>, FieldNode> bind;
+    private readonly Func<TaggedProperty, FieldValue> current;
     private readonly List<PropertyGroup> groups = [];
     private readonly Dictionary<TaggedProperty, int> childGroups = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<string, int> objectGroups = new(StringComparer.Ordinal);
     private readonly Dictionary<TaggedProperty, string> propertyPaths = new(ReferenceEqualityComparer.Instance);
     private int pathUnits;
 
-    internal RecordViews(RecordIndex index, Func<string, string, FieldSpec, Func<FieldValue>, FieldNode> bind)
+    internal RecordViews(RecordIndex index, Func<string, string, FieldSpec, Func<FieldValue>, FieldNode> bind,
+        Func<TaggedProperty, FieldValue> current)
     {
         this.index = index;
         this.bind = bind;
+        this.current = current;
         AddGroup("SlotData", index.Properties);
         foreach (var record in index.Objects) objectGroups.Add(record.Id, AddGroup(record.Id, record.Properties));
     }
@@ -82,7 +85,7 @@ internal sealed class RecordViews
                 return (ViewNode)SectionNode.Lazy($"{property.Name} · {property.Detail} · {Span(property.Payload)}", $"inspect/group/{childGroups[property]}/0");
             if (property.Value is not { } value)
                 return new SectionNode($"{property.Name} · {property.Type} {property.Detail}", [Hex(property.Payload, "Opaque property payload")]);
-            return bind(id, property.Name, Spec(value), () => value) with {
+            return bind(id, property.Name, Spec(value), () => current(property)) with {
                 Confidence = Confidence.Verified,
                 Description = $"{property.Type} {property.Detail}; tag {Span(property.Tag)}; payload {Span(property.Payload)}.",
                 Warning = "Serialized value only; gameplay meaning and edit limits are unverified.",

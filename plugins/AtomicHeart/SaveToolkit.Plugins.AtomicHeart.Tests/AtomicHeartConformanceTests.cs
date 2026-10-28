@@ -6,4 +6,5 @@ public sealed class AtomicHeartConformanceTests : PluginConformanceTests<AtomicH
 {
     protected override IReadOnlyList<string> SampleTitleIds => ["PPSA10695"];
     protected override int LazyExpansionBudget => 20000;
+    protected override bool IsWritable => true;
 }

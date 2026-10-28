@@ -7,11 +7,11 @@ namespace SaveToolkit.Plugins.AtomicHeart;
 public sealed class AtomicHeartPlugin : IGamePlugin
 {
     private const int ProbeHeaderBytes = 4096;
-    public PluginInfo Info { get; } = new("atomic-heart", "Atomic Heart", "0.2.0")
+    public PluginInfo Info { get; } = new("atomic-heart", "Atomic Heart", "0.3.0")
     {
-        Description = "Read-only Kraken/SaveExtension record and inventory inspector with SHA-1 validation.",
+        Description = "Experimental existing inventory edits with stored Kraken output, SHA-1 repair and explicit console-compatibility warnings.",
         Games = [new GameTitle("PPSA10695", "Atomic Heart")],
-        Maturity = PluginMaturity.ReadOnly,
+        Maturity = PluginMaturity.Experimental,
         References = [
             "https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/FileAdapter.cpp",
             "https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/Records.cpp",
