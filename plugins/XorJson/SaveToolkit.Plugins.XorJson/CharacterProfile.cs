@@ -8,6 +8,7 @@ internal sealed record CharacterProfile(bool TestedVersion, bool Offline)
     internal const string Format = "FCharacterSaveV1";
     internal const string TestedSoftVersion = "2";
     internal const string TestedFormatHash = "3777917472";
+    public bool CanWrite => TestedVersion && Offline;
 
     public static CharacterProfile? Read(JsonTokenTree tree)
     {
@@ -25,5 +26,5 @@ internal sealed record CharacterProfile(bool TestedVersion, bool Offline)
     public string Warning => !TestedVersion
         ? "Untested character SoftVersion/FormatHash: read-only. Only PS5 SoftVersion 2 / FormatHash 3777917472 has sample evidence."
         : !Offline ? "Online or unknown character mode: read-only. No online-save compatibility has been established."
-        : "PS5 character read view only. Gameplay and structural writes require controlled captures and console reload tests.";
+        : "Experimental PS5 character writes are enabled for existing tokens and raw structure. Field meaning, dependencies, integrity behavior and console reload acceptance remain unverified; keep a backup.";
 }

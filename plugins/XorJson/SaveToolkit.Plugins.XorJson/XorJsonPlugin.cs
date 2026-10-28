@@ -4,12 +4,12 @@ using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.XorJson;
 
-public sealed class XorJsonPlugin : IGamePlugin
+public sealed class XorJsonPlugin : IGamePlugin, IDocumentGroupPlugin
 {
     private const int ProbeHeaderBytes = 64;
     public PluginInfo Info { get; } = new("format.json-xor", "Obfuscated JSON / Dungeons II", "0.3.0")
     {
-        Description = "Lossless exact JSON editing and read-only FCharacterSaveV1 inspection with attributed catalogs.",
+        Description = "Lossless exact JSON editing with Experimental settings, FCharacterSaveV1 and character/global transaction writes; console acceptance remains unverified.",
         Games = [new GameTitle("PPSA16064", "Minecraft Dungeons II")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://prosperopatches.com/PPSA16064", "https://www.rfc-editor.org/rfc/rfc8259",
@@ -47,5 +47,17 @@ public sealed class XorJsonPlugin : IGamePlugin
             throw new SaveFormatException("Obfuscated JSON must be between 1 byte and 16 MiB.");
         var decoded = JsonEncoding.Decode(file.ReadAllBytes());
         return new JsonSaveDocument(file.FileName, file.RelativePath, decoded.Tree, decoded.Encoding, references);
+    }
+
+    public IReadOnlyList<DocumentGroupProposal> ProposeGroups(ISaveFile anchor) => XorJsonGroups.Propose(this, anchor);
+
+    public IReadOnlyList<FieldError> ValidateGroup(DocumentGroupInput input, IReferenceContext references) =>
+        XorJsonGroups.Validate(this, input, references);
+
+    public IGroupedSaveDocument OpenGroup(DocumentGroupInput input, IReferenceContext references)
+    {
+        var errors = ValidateGroup(input, references);
+        if (errors.Count > 0) throw new SaveFormatException(string.Join(" ", errors.Select(error => error.Message)));
+        return new XorJsonGroupDocument(this, input, references);
     }
 }

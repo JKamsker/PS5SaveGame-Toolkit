@@ -7,7 +7,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.XorJson;
 
-internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
+internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private const int PageSize = 128;
     private readonly string _name;
@@ -17,6 +17,8 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
     private readonly CharacterProfile? _character;
     private readonly JsonEditModel _model;
     private readonly bool _allowStructure;
+    private const string BulkActionId = "json/bulk-set";
+    internal const string WriteWarning = "Experimental write: no checksum or console reload has been verified. The game may reject, repair, or clamp this save; keep a backup and validate on a spare slot.";
     private readonly IReadOnlyList<CharacterCollection> _collections;
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
 
@@ -28,12 +30,15 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
         _references = references;
         _character = CharacterProfile.Read(tree);
         _model = new(tree);
-        _allowStructure = _character is null && !_model.Root.Children.Any(n => n.Label == "blobs");
+        _allowStructure = true;
         _collections = _character is null ? [] : CharacterCollections.Build(_model.Root, references);
     }
 
     public override string Title => _name;
-    public override bool CanEdit => _character is null;
+    public override bool CanEdit => _character is null || _character.CanWrite;
+    internal bool IsCharacter => _character is not null;
+    internal bool IsGlobalSettings => _model.Root.Member("blobs") is { Kind: System.Text.Json.JsonTokenType.StartArray };
+    internal DocumentMemento CaptureDocumentMemento() => CaptureSnapshot()!;
     public IReadOnlyList<QueryableCollection> Collections => _collections.Select(collection => collection.Metadata).ToArray();
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
@@ -43,13 +48,16 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
     public override ViewNode BuildView()
     {
         _ranges.Clear();
+        var overview = new List<ViewNode>
+        {
+            new StatsNode([new Stat("Values", _model.Nodes.Count.ToString(CultureInfo.InvariantCulture))]),
+            new TextNode(_encoding.Label),
+            new TextNode(_character?.Warning ?? "Experimental raw settings edits. Game-specific constraints and console acceptance are unknown.") { Tone = Tone.Warning },
+        };
+        if (CanEdit) overview.Add(BulkAction());
         var tabs = new List<Tab>
         {
-            new("Overview", [
-                new StatsNode([new Stat("Values", _model.Nodes.Count.ToString(CultureInfo.InvariantCulture))]),
-                new TextNode(_encoding.Label),
-                new TextNode(_character?.Warning ?? "Experimental raw settings edits. Game-specific constraints and console acceptance are unknown.") { Tone = Tone.Warning },
-            ]),
+            new("Overview", overview),
         };
         if (_character is null) tabs.Add(new("JSON", [NodeView(_model.Root)]));
         else tabs.AddRange(CharacterViews.Build(_model.Root, NodeView, _collections));
@@ -108,7 +116,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
             _ = Serialize();
             var changes = outcome.Changes.ToLookup(change => change.ValueId);
             // Catalog replacements change displayed provenance/specs; Core must refresh them on edit and history replay.
-            return outcome with { StructureChanged = _model.Nodes.Any(node => changes[node.ValueId].Any(change =>
+            return outcome with { Warnings = [WriteWarning], StructureChanged = _model.Nodes.Any(node => changes[node.ValueId].Any(change =>
                 change.OldValue != change.NewValue && (CharacterViews.CatalogFor(node, change.OldValue) is not null ||
                     CharacterViews.CatalogFor(node, change.NewValue) is not null))) };
         }
@@ -122,7 +130,10 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
-        if (!_allowStructure) throw new SaveFormatException("Structural writes are disabled for game settings and character saves pending PS5 evidence.");
+        if (actionId == BulkActionId)
+            throw new InvalidOperationException("Bulk writes require an F6 preview and apply.");
+        if (!CanEdit) throw new SaveFormatException("Writes are disabled for this character version or online mode.");
+        if (!_allowStructure) throw new SaveFormatException("Structural writes are disabled for this document.");
         var parts = actionId.Split('/');
         if (parts.Length != 3 || parts[0] != "json" || parts[1] is not ("add" or "remove" or "replace") ||
             !int.TryParse(parts[2], NumberStyles.None, CultureInfo.InvariantCulture, out var id))
@@ -132,7 +143,50 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
         {
             _model.Change(parts[1], id, Parameter("json"), Parameter("key"));
             _ = Serialize(); // A transaction must also retain an unambiguous encoding and round-trip values.
-        }, "JSON structure changed. Review the export before use.");
+        }, "JSON structure changed. Review the export before use.") with { Warnings = [WriteWarning] };
+    }
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
+    {
+        if (actionId != BulkActionId) return new ActionPlan { Errors = [new FieldError(actionId, "Unknown planned action.")] };
+        if (!CanEdit) return new ActionPlan { Errors = [new FieldError(actionId, "This document is read-only for its character version or online mode.")] };
+        var value = ParseScalar(parameters);
+        if (value.Error is not null) return new ActionPlan { Errors = [new FieldError("value", value.Error)] };
+        var scalar = value.Value!.Value;
+        var ids = scope.RowKeys ?? _model.Nodes.Where(n => !n.IsContainer).Select(n => n.ValueId).ToArray();
+        var changes = new List<PlannedChange>();
+        var skipped = new List<SkippedActionRow>();
+        foreach (var id in ids)
+        {
+            if (!TryFindValue(id, out var node))
+            {
+                skipped.Add(new(id, "Unknown or non-scalar value."));
+                continue;
+            }
+            var error = node.Validate(scalar);
+            if (error is not null)
+            {
+                skipped.Add(new(id, error));
+                continue;
+            }
+            changes.Add(new PlannedChange(id, node.TypedPath, node.Current, scalar));
+        }
+        return new ActionPlan
+        {
+            Changes = changes,
+            SkippedRows = skipped,
+            Warnings = [WriteWarning, "Bulk values are applied only to selected scalar tokens; cross-field game rules are unknown."],
+        };
+    }
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+    {
+        var fresh = PlanAction(actionId, parameters, scope);
+        if (fresh.Errors.Count > 0) return new EditOutcome { Errors = fresh.Errors };
+        if (fresh.Changes.Count != plan.Changes.Count || fresh.Changes.Select((change, index) => change != plan.Changes[index]).Any(mismatch => mismatch))
+            return EditOutcome.Rejected(actionId, "The planned values are stale; preview the action again.");
+        var result = ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray());
+        return result with { Warnings = [.. result.Warnings, .. fresh.Warnings] };
     }
 
     protected override DocumentMemento CaptureSnapshot()
@@ -161,18 +215,20 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
         var catalogId = CharacterViews.CatalogFor(node);
         if (catalogId is not null && node.Scalar.Kind == FieldValueKind.Text)
         {
-            spec = new ReferenceSpec(catalogId) { AllowCustom = false, ReadOnly = _character is not null };
+            spec = new ReferenceSpec(catalogId) { AllowCustom = false, ReadOnly = !CanEdit };
             record = _references.Catalog(catalogId)?.Find(node.Scalar.AsString());
         }
         var field = Field(node.ValueId, node.Label, spec, () => node.Current,
             CanEdit && !spec.ReadOnly ? value => node.Current = value : null, node.Validate) with
         {
             Confidence = record is null ? Confidence.Unknown : Confidence.Inferred,
-            Warning = node.Warning ?? (_character?.Warning ?? "Game-specific constraints and dependencies are unknown."),
+            Warning = node.Warning ?? (_character is not null ? CharacterWriteWarning : WriteWarning),
             Description = $"{node.TypedPath}; original UTF-8 token at 0x{node.Offset:X}." +
                 (record is null ? "" : $" {record.Name} ({record.Category}). {record.AttributionText}. PC catalog; PS5 semantics unverified."),
         };
-        return _allowStructure ? new SectionNode(node.Label, [field, .. StructureActions(node)]) : field;
+        // Character collection cells remain direct fields so F8 tables can edit them without
+        // expanding a per-cell wrapper. Raw container expansion still exposes F5 actions.
+        return _allowStructure && _character is null ? new SectionNode(node.Label, [field, .. StructureActions(node)]) : field;
     }
 
     private IEnumerable<ActionNode> StructureActions(JsonValueToken node)
@@ -197,6 +253,39 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument
             ? $"children/{parent.Index}" : $"children/{parent.Index}/page/{start}/{count}";
         _ranges[id] = new(parent, start, count);
         return SectionNode.Lazy(label, id, count.ToString(CultureInfo.InvariantCulture));
+    }
+
+    private ActionNode BulkAction() => new(BulkActionId, "Set selected scalar values")
+    {
+        SupportsPlanning = true,
+        Tone = Tone.Warning,
+        Confirm = WriteWarning,
+        Description = "F6 preview/apply is required. Select value IDs in the raw JSON view or apply to the whole document; incompatible and non-scalar rows are skipped.",
+        Parameters = [new FieldNode("value", "JSON scalar", new TextSpec { MaxLength = JsonTokenTree.MaxBytes }, FieldValue.Of("null"))],
+    };
+
+    private static string CharacterWriteWarning => "Experimental character write. Field meaning is inferred from the PS5 FCharacterSaveV1 sample and has not been validated on console; no checksum or dependency behavior is known.";
+
+    private (FieldValue? Value, string? Error) ParseScalar(IReadOnlyDictionary<string, FieldValue> parameters)
+    {
+        if (!parameters.TryGetValue("value", out var raw) || raw.Kind != FieldValueKind.Text)
+            return (null, "Provide one JSON scalar literal in the value parameter.");
+        try
+        {
+            var tree = JsonTokenTree.Parse(System.Text.Encoding.UTF8.GetBytes(raw.AsString()));
+            var node = tree.Nodes[0];
+            return node.IsContainer ? (null, "Bulk writes accept one scalar JSON literal, not an object or array.") : (node.Current, null);
+        }
+        catch (SaveFormatException) { return (null, "The value parameter is not a valid JSON scalar literal."); }
+    }
+
+    private bool TryFindValue(string id, out JsonValueToken node)
+    {
+        node = null!;
+        if (!id.StartsWith("value/", StringComparison.Ordinal) || !int.TryParse(id[6..], NumberStyles.None, CultureInfo.InvariantCulture, out var index))
+            return false;
+        try { node = _model.Find(index); return !node.IsContainer; }
+        catch (KeyNotFoundException) { return false; }
     }
 
     private sealed record ChildRange(JsonValueToken Parent, int Start, int Count);

@@ -33,7 +33,9 @@ No independent capture exists, so it proves no field's gameplay semantics.
 - Seed plus occurrence is a candidate inventory identity. Stable session IDs
   are independent of row position. Persistence between game captures is unknown.
 - No integrity field is apparent. External integrity and console acceptance are
-  unknown; game structural writes and all character writes stay disabled.
+  unknown. Existing scalar and bounded F5 structural writes are enabled for the
+  tested offline character and settings shape with explicit warnings; no write is
+  claimed as console-accepted.
 
 ## Automated differential over the sample
 
@@ -55,7 +57,8 @@ file/token. No Core file is modified.
 
 ## Round-2 read projections and catalog coverage
 
-Read-only F8 tables were checked against the same PS5 bytes:
+F8 tables were checked against the same PS5 bytes. Their values and labels remain
+inferred even though existing scalar cells are now writable:
 
 | Collection | Stored rows | Interpretation boundary |
 | --- | ---: | --- |
@@ -73,22 +76,22 @@ and 926 task IDs to the existing data, with 42 short quest names and 502 short
 task labels. Every pinned base/unique item ID, quest name and task label was
 checked against the generated data. Only 2/49 PS5 quest IDs and 37/425 PS5 task
 IDs match this source. Unmatched IDs and unknown fields stay raw and lossless.
-This mismatch is further reason to keep progression and picker writes disabled
-for actual characters, even when labels look plausible.
+This mismatch is why progression and picker writes remain Experimental and warn
+that labels, dependencies and ranges may be wrong even when a field can be edited.
 
 F8 tests query complete collections before expanding raw sections, check
 filter/search over 2,001 synthetic rows, stable disjoint pages, deterministic
-ties, duplicate IDs/ambiguous shapes, bounds and read-only Core session gates.
+ties, duplicate IDs/ambiguous shapes, bounds and Core session writes/undo.
 F4 tests use Core with both byte transforms, known/unknown original IDs,
 escaped spelling, invalid replacements, exact output, reopen and undo/redo.
 Those generic-format tests establish no real-character gameplay write safety.
 
 Minecraft Wiki page/licence retrieval returned HTTP 403; no wiki text or assets
-were imported. F7 merged on main as `7ff21ad` during this round; its final SDK
-contract and plugin-guide requirements were reviewed from that commit. Plugin
-adoption remains deferred pending paired-file membership/dependency evidence.
-No gameplay bulk/preset action is exposed. Future bulk operations must use F6
-preview/apply and F8 query scopes.
+were imported. F7 merged on main as `7ff21ad`; XorJson now proposes same-title,
+same-generation character/global groups, stages both outputs, prefixes identities
+and restores one complete memento. Paired-file membership, shared dependencies
+and console acceptance remain Unknown. The scalar bulk action uses F6
+preview/apply and retains warnings; no game-aware preset is synthesized.
 
 ## Outstanding evidence
 

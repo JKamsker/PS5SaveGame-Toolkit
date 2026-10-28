@@ -61,7 +61,7 @@ public sealed class SampleEvidenceTests
     }
 
     [Fact]
-    public void CharacterShowsObservedMetadataInventoryAndProgressionAsReadOnly()
+    public void CharacterShowsObservedMetadataInventoryAndProgressionWithExperimentalWrites()
     {
         var sample = SampleSaves.Load("PPSA16064");
         var file = sample.AllDiskFiles.Single(f => !f.IsSystemFile && f.Directory.Name.StartsWith("Character", StringComparison.Ordinal));
@@ -71,19 +71,19 @@ public sealed class SampleEvidenceTests
         var tabs = Assert.IsType<TabsNode>(document.BuildView());
         Assert.Equal(["Overview", "Hero", "Inventory", "Quests", "World", "Collections", "Raw / Unknown"], tabs.Tabs.Select(t => t.Title));
         var fields = XorJsonTests.Fields(document);
-        Assert.All(fields, field => Assert.True(field.Spec.ReadOnly));
+        Assert.All(fields, field => Assert.False(field.Spec.ReadOnly));
         Assert.Equal("2", fields.Single(f => f.Label == "SoftVersion").Value.AsExactNumber());
         Assert.Equal("3777917472", fields.Single(f => f.Label == "FormatHash").Value.AsExactNumber());
         Assert.Equal(5, fields.Count(f => f.Label == "TypeTag" && f.Description!.Contains("member(\"Inventory\",0)", StringComparison.Ordinal)));
         using var json = System.Text.Json.JsonDocument.Parse(file.ReadAllBytes());
         Assert.Equal(9, json.RootElement.GetProperty("CharacterSaveV1").GetProperty("Ability").GetProperty("Attributes").GetArrayLength());
-        Assert.False(document.ApplyEdits([new(fields[0].ValueId, FieldValue.Null)]).Succeeded);
+        Assert.True(document.ApplyEdits([new(fields[0].ValueId, fields[0].Value)]).Succeeded);
         Assert.Throws<SaveFormatException>(() => document.InvokeAction("json/add/0", new Dictionary<string, FieldValue>()));
         Assert.Equal(file.ReadAllBytes(), document.Serialize()[0].Content.ToArray());
     }
 
     [Fact]
-    public void SettingsExposeSevenNamedBlobsAndRejectStructuralWrites()
+    public void SettingsExposeSevenNamedBlobsAndExposeWarnedStructuralWrites()
     {
         var file = SampleSaves.Load("PPSA16064").AllDiskFiles.Single(f => !f.IsSystemFile && f.Directory.Name == "GlobalSaveDataDefault");
         using var document = new XorJsonPlugin().Open(file);
@@ -91,7 +91,8 @@ public sealed class SampleEvidenceTests
         var titles = nodes.OfType<SectionNode>().Select(s => s.Title).ToHashSet(StringComparer.Ordinal);
         foreach (var expected in new[] { "Audio", "General", "Gfx", "Controls", "KeyBindings", "Interface", "Accessibility" })
             Assert.Contains(expected, titles);
-        Assert.Empty(nodes.OfType<ActionNode>());
+        Assert.Contains(nodes.OfType<ActionNode>(), action => action.ActionId == "json/bulk-set");
+        Assert.Contains(nodes.OfType<ActionNode>(), action => action.Label == "Remove row/member");
         Assert.Throws<SaveFormatException>(() => document.InvokeAction("json/remove/0", new Dictionary<string, FieldValue>()));
         Assert.Equal(file.ReadAllBytes(), document.Serialize()[0].Content.ToArray());
     }
@@ -109,11 +110,16 @@ public sealed class SampleEvidenceTests
         var plugin = new XorJsonPlugin();
         Assert.True(plugin.Probe(file).IsMatch);
         using var document = plugin.Open(file);
-        Assert.False(document.CanEdit);
-        Assert.All(XorJsonTests.Fields(document), f => Assert.True(f.Spec.ReadOnly));
+        var writable = version == "2" && hash == "3777917472" && !online;
+        Assert.Equal(writable, document.CanEdit);
+        Assert.All(XorJsonTests.Fields(document), f => Assert.Equal(!writable, f.Spec.ReadOnly));
         Assert.Equal(file.ReadAllBytes(), document.Serialize()[0].Content.ToArray());
-        if (version != "2" || hash != "3777917472")
-            Assert.Contains(StructuralTests.Nodes(document).OfType<TextNode>(), n => n.Text.Contains("Untested", StringComparison.Ordinal));
+        if (!writable)
+        {
+            if (version != "2" || hash != "3777917472")
+                Assert.Contains(StructuralTests.Nodes(document).OfType<TextNode>(), n => n.Text.Contains("Untested", StringComparison.Ordinal));
+            Assert.Throws<SaveFormatException>(() => document.InvokeAction("json/remove/0", new Dictionary<string, FieldValue>()));
+        }
     }
 
     [Theory]

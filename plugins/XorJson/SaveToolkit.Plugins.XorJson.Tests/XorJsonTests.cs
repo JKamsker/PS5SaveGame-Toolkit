@@ -91,7 +91,7 @@ public sealed class XorJsonTests
     }
 
     [Fact]
-    public void EveryGlobalSnapshotUsesByteMinusOneAndCharacterIsReadOnly()
+    public void EveryGlobalSnapshotUsesByteMinusOneAndTestedOfflineCharacterIsWritable()
     {
         var files = SampleSaves.Load("PPSA16064").AllDiskFiles.Where(f => !f.IsSystemFile).ToArray();
         var global = files.Where(f => f.Directory.Name == "GlobalSaveDataDefault").ToArray();
@@ -115,8 +115,8 @@ public sealed class XorJsonTests
         {
             Assert.True(plugin.Probe(file).IsMatch);
             using var document = plugin.Open(file);
-            Assert.False(document.CanEdit);
-            Assert.All(Fields(document), f => Assert.True(f.Spec.ReadOnly));
+            Assert.True(document.CanEdit);
+            Assert.Contains(Fields(document), f => !f.Spec.ReadOnly);
             Assert.Equal(file.ReadAllBytes(), document.Serialize()[0].Content.ToArray());
             using var json = JsonDocument.Parse(file.ReadAllBytes());
             Assert.True(json.RootElement.TryGetProperty("SerializeMeta", out _));
