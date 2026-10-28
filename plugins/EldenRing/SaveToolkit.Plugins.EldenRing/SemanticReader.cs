@@ -19,7 +19,9 @@ internal static class SemanticReader
         Add(ref cursor, ranges, slot.Offset, "ChrAsm2", SemanticLayout.EquipmentSize);
         var held = InventoryReader.Read(ref cursor, slot.Offset, "held", SemanticLayout.HeldCommonCapacity,
             SemanticLayout.HeldKeyCapacity, instances);
-        cursor.Take(SemanticLayout.MagicSize + SemanticLayout.QuickItemsSize + SemanticLayout.EquippedGesturesSize);
+        Add(ref cursor, ranges, slot.Offset, "Magic", SemanticLayout.MagicSize);
+        Add(ref cursor, ranges, slot.Offset, "QuickItems", SemanticLayout.QuickItemsSize);
+        cursor.Take(SemanticLayout.EquippedGesturesSize);
         var projectileCount = cursor.UInt32();
         cursor.SkipRecords(projectileCount, SemanticLayout.ProjectileSize);
         Add(ref cursor, ranges, slot.Offset, "EquippedItems", SemanticLayout.EquippedItemsSize);

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "id": "eldenring.names.en",
+  "version": "2.0.0",
+  "title": "Elden Ring: complete ClayAmore name tables (English)",
+  "description": "All five pinned MIT item/weapon/armor/talisman/Ash of War name tables. Identity-only; includes unused/test/unnamed rows; no verified limits or DLC/build guarantee.",
+  "plugins": [
+    "eldenring"
+  ],
+  "titleIds": [],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "eldenring-items",
+      "kind": "records",
+      "title": "ClayAmore category-qualified name catalog",
+      "files": [
+        {
+          "path": "weapon-names.json",
+          "sha256": "f03ff36b0ddf907de594a87065b95b0986881d9f781f17a26c5a373e91e88ebe"
+        },
+        {
+          "path": "item-names.json",
+          "sha256": "cbe80057110164eec97b5988a5f013aa026030af211c799ece1a78ccd9d9d216"
+        },
+        {
+          "path": "armor-names.json",
+          "sha256": "8d01861c9e0599e98ec97e15dfc63846878d382587ad19ce444dc9f8c810a3f2"
+        },
+        {
+          "path": "accessory-names.json",
+          "sha256": "54895533d9515c8ebc545d381f354ca7c27b1c0f293f2e51b2e3ce5de13d9369"
+        },
+        {
+          "path": "aow-names.json",
+          "sha256": "e07957c24eb99bfe1245191f4c88550c58142142d5363f18723590ab84bd2cdc"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db",
+        "author": "ClayAmore / ER-Save-Editor contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/LICENSE-MIT",
+        "retrieved": "2026-10-28",
+        "modifications": "Converted all literal pairs from weapon_name.rs, item_name.rs, armor_name.rs, accessory_name.rs and aow_name.rs to category-qualified IDs. Names unchanged; empty names display raw IDs and retain upstreamName. Added source hashes, schema and uncertainty metadata; no gameplay limits, prose or artwork."
+      }
+    }
+  ]
+}

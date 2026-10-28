@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.EldenRing;
 
 public sealed class EldenRingPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.2.0")
+    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.3.0")
     {
         Description = "PlayStation profiles, inferred inventory/storage and equipment browsing, attributed references, and bounded rune editing.",
         Games =
@@ -23,6 +23,10 @@ public sealed class EldenRingPlugin : IGamePlugin
             "https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df",
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/weapon_name.rs",
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/item_name.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/armor_name.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/equipment.rs",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/14",
             "https://github.com/Hapfel1/er-save-manager",
             "https://soulsmodding.com/doku.php?id=format:sl2",

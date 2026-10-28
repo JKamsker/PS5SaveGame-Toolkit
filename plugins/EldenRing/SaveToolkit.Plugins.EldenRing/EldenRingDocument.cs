@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace SaveToolkit.Plugins.EldenRing;
 
-internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument
+internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private readonly string path;
     private readonly byte[] bytes;
@@ -19,12 +19,14 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument
     private readonly InventoryBrowser _inventory;
     private readonly SemanticViews _semantic;
     private readonly Lazy<IReadOnlyList<ViewNode>> _regulation;
+    private readonly RunePlanning _runes;
 
     public EldenRingDocument(string path, byte[] bytes, ParsedSave save, IReferenceContext references)
     {
         this.path = path;
         this.bytes = bytes;
         this.save = save;
+        _runes = new(bytes, save);
         _references = references;
         _hex = new(bytes, save);
         var characters = save.Slots.Where(slot => slot.Active && slot.Version == EldenRingLayout.WritableSlotVersion)
@@ -34,7 +36,7 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument
             bytes.AsSpan(EldenRingLayout.RegulationOffset, EldenRingLayout.RegulationSize)));
         _catalog = new(references.Catalog(ReferenceBrowser.CatalogId, fingerprint));
         _inventory = new(characters, _catalog, asset => references.AssetProvenance(asset)?.Attribution.ToShortText());
-        _semantic = new(bytes, characters);
+        _semantic = new(bytes, characters, _catalog);
         _regulation = new(() => RegulationViews.Read(bytes));
     }
 
@@ -147,6 +149,7 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument
         }
 
         fields.AddRange(_semantic.Character(slot, (id, label, spec, get) => Field(id, label, spec, get)));
+        fields.Add(_runes.Action(slot));
         return fields;
     }
 
@@ -180,11 +183,27 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
+        if (save.Slots.Any(slot => slot.Active && RunePlanning.ActionId(slot) == actionId))
+            throw new InvalidOperationException("Review and apply this action through F6 planning.");
         if (actionId != "references/inspect") return base.InvokeAction(actionId, parameters);
         if (parameters.Count != 1 || !parameters.TryGetValue("item", out var value) || value.Kind != FieldValueKind.Text
             || _catalog.Find(value.AsString()) is not { } record)
             throw new ArgumentException("Choose a known reference item; unknown ids are not lookup candidates.", nameof(parameters));
         return new ActionOutcome { Message = $"{record.Name} ({record.Key}) · {ReferenceBrowser.Details(record)}" };
+    }
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        _runes.Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+    {
+        var current = _runes.Plan(actionId, parameters, scope);
+        if (current.Errors.Count > 0) return new EditOutcome { Errors = current.Errors };
+        if (plan.Errors.Count > 0 || !current.Changes.SequenceEqual(plan.Changes)
+            || !current.Warnings.SequenceEqual(plan.Warnings) || plan.SkippedRows.Count > 0)
+            return EditOutcome.Rejected(actionId, "The preview no longer matches the requested rune change.");
+        _ = CharacterFields(_runes.Slot(actionId)); // Register scalar undo bindings even if opened through a direct API request.
+        return ApplyEdits(current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray());
     }
 
     private FieldNode Name(CharacterSlot slot) => Field($"slots/{slot.Index}/name", "Name",

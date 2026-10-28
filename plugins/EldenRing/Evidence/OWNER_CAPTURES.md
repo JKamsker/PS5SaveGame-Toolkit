@@ -12,6 +12,26 @@ the action under study. Quit/save normally, export, and record any unavoidable t
 Primary/backup twins do **not** replace an independent before/after pair. Controlled no-action pairs
 are needed before classifying timer/settings differences as churn.
 
+## Round-2 capability decisions
+
+The complete pinned MIT name catalog is now embedded under the owner's issue #14 policy. No new
+permission decision is needed for those lists or properly attributed CC BY-SA text. Catalog labels
+do not establish legal stack limits, equip eligibility, upgrade paths or temporal dependencies.
+
+| Family | Round-2 result | Missing proof before expanding writes |
+| --- | --- | --- |
+| Held runes | Existing four-byte edit plus shared F6 preview/review/undo | Console load/resave/reload; history guard unchanged |
+| Quantities/refill | Disabled | `buy-one-dagger`, `use-one-dagger`, storage pairs; matching carry/storage/container caps |
+| Live/menu name | Disabled | Unicode/max-length/shortening pairs proving both mirrors, terminator vs padding and trailing-byte behavior |
+| Attributes/respec | Disabled | Class minima and Vigor/Mind/Endurance pairs with modifier-aware current/effective/base vitals |
+| Linked rune history | Disabled | Earn/spend/death/recovery and unrecovered-loss pairs |
+| Owned equipment/loadout | Read-only four-representation/quick/pouch joins | Controlled equip/swap/selector/slot-unlock pairs and all side effects |
+| Upgrades/affinity/AoW | Disabled | Normal/somber transitions, compatibility and maximum-ever matchmaking-history behavior |
+
+F6 is implemented in the framework and used for the supported rune operation. Loadout/build/refill
+apply actions stay unpublished until the dependencies below are proven; there is no local preview
+substitute or hidden item creation. One snapshot's agreeing mirrors cannot prove a writer.
+
 ## First pairs (ELDENRING-R2/R12)
 
 - [ ] `control`: export A, load the same character, make no gameplay/menu changes, quit/save,
@@ -30,9 +50,27 @@ are needed before classifying timer/settings differences as churn.
   changing AoW or adding inventory. Record hand/active-slot UI; unequip as another pair.
 - [ ] `duplicate-weapons`: provide two same-base weapons with distinct upgrades/AoW, identifying
   each in menus. Capture swapping exactly those two owned instances, with no acquisition/removal.
+- [ ] `hand-selector`: change only the active left-hand slot, then separately only the active
+  right-hand slot. Record all six carried weapons and arm style before/after. Capture one-hand ↔
+  two-hand separately. This separates seven ChrAsm selectors from inventory/ID mirror updates.
+- [ ] `quick-item` / `pouch-item`: equip one already-held ordinary item into one empty slot, then
+  unequip it in a separate pair. Record quantity and active quick selector; changing the selector alone
+  needs its own pair. Do not consume/reorder the inventory during these captures.
+- [ ] `spell-slot`: memorize one known owned spell in one empty slot, then remove it separately;
+  record spell name, all memory slots and available memory capacity. The baseline has no equipped
+  spells and cannot prove spell-ID or unlock semantics.
+- [ ] `talisman-slot`: change one owned talisman in an already unlocked slot, recording all
+  current/max HP/FP/stamina and equipment. Supply before/after earning one talisman pouch or memory
+  stone as separate events; do not assume key-item quantity alone proves unlocked capacity.
 - [ ] `upgrade-one`: upgrade one identified normal weapon +0→+1; record ID-visible name, AoW,
   all duplicate instances and material/rune spending. Supply normal +25 and somber +10 snapshots
   when available; capture somber +0→+1 independently rather than inferring its rules.
+- [ ] `upgrade-history`: after one normal/somber upgrade, separately store or discard the highest
+  upgraded instance. Record the highest-ever upgrade and the remaining gear. Do not reset a history
+  byte simply because the current highest gear changed; report matching-version history observations.
+- [ ] `affinity-one` / `ash-one`: change only one identified owned weapon's affinity or Ash of War
+  per pair; record upgrade, exact ash, weapon identity, duplicate instances and inventories. Retain
+  the original ash/affinity and capture the reverse change separately.
 - [ ] `arrows-bolts`: one nonempty arrow stack, one bolt stack, and one equip-slot change per pair.
 - [ ] `containers`: provide nonempty cracked-pot/perfume-related stacks and one crafting/use pair
   each. These stay excluded from ordinary quantity-edit assumptions.
@@ -41,10 +79,18 @@ are needed before classifying timer/settings differences as churn.
 
 - [ ] `rename-unicode`: live/menu name before→`Ploxiテスト` (or another recorded non-ASCII name
   of at most 16 UTF-16 code units), with all other character values unchanged; capture both menus.
+- [ ] `rename-shorten` / `rename-max`: shorten a longer name to two code units, then separately
+  set exactly 16 UTF-16 code units. Where the game permits it, include a non-BMP character and record
+  the displayed result. Prove live/profile behavior for the two bytes following the 16-unit buffer;
+  upstream labels them padding, while the current parser requires a terminating zero. No guessing
+  about clearing trailing bytes or accepting unpaired surrogates is authorized by a no-op round trip.
 - [ ] `vigor-one`, `mind-one`, `endurance-one`: separately level only the named attribute by one;
   record all eight attributes, displayed level, HP/FP/stamina current/max, class, equipment and effects.
 - [ ] `respec`: respec a fixed total level, record all before/after attributes and HP/FP/stamina;
   keep equipment/effects constant and identify class minima observed in the respec screen.
+- [ ] `vital-modifier`: capture the same single-attribute change both with and without an identified
+  HP-affecting talisman/effect, including damaged current HP where feasible. Baseline HP is
+  **504 current / 504 effective max / 476 base max**: resetting all three to the base table is invalid.
 - [ ] `runes-earn`: earn a known amount; record exact held balance before/after, source and any
   automatically spent amounts. `runes-spend`: spend once with recorded price and balances.
 - [ ] `runes-death`, `runes-recover`: separate captures for death and recovery, each with exact
@@ -65,20 +111,23 @@ are needed before classifying timer/settings differences as churn.
 
 ## Data rights and version matching (ELDENRING-R3/R11/R21)
 
-- [ ] Decide the permitted distribution route for **larger** factual catalogues, CC BY-SA prose,
-  localized FMG text and icons; obtain permission for restricted/unlicensed upstream content before reuse.
-  The shipped original six-item factual crosswalk is not permission to copy those sources.
+- [x] Owner policy: embed the complete ClayAmore MIT name lists with their notice and per-dataset
+  attribution; attributed CC BY-SA text may also be embedded with share-alike. Implemented for all
+  five name tables. Restricted/unlicensed/NC content remains excluded, including er-save-manager;
+  Paramdex/TGA remain research-only until their licence is confirmed. No repeated approval needed.
 - [ ] Supply an audited normalized F2 pack with source/author/licence/date/modifications per dataset,
   locale, game/regulation versions, category-qualified IDs, and exact validated caps only where proven.
   Keep technical slot capacity, carry limit, storage limit and shared container capacity distinct.
 - [ ] Exact-build pack compatibility uses the 64-character lowercase SHA-256 shown in the regulation
   directory view (hash of allocation `0x1960070..0x1BA007F`). Put that key in `gameBuilds`.
-  Build-agnostic identity-only packs must not claim verified caps or DLC coverage.
+  The bundled build-agnostic identity-only pack claims complete pinned-source coverage, not verified
+  caps, DLC completeness or verified records on every region/version.
 - [ ] Approve spoiler scope before publishing named quest/boss/progress catalogues. No such catalogue ships.
 
 ## Console acceptance (ELDENRING-R1)
 
-This round adds no gameplay edit family. Validate the existing held-rune edit separately:
+This round adds no gameplay edit family; shared F6 now previews the existing held-rune edit.
+Validate the existing edit separately:
 
 - [ ] From a restorable duplicate, record held runes N and choose a small change within the existing
   lifetime-history cap; export with the toolkit and retain the original.
@@ -87,6 +136,8 @@ This round adds no gameplay edit family. Validate the existing held-rune edit se
 - [ ] Quit/save normally, re-export, reopen in the toolkit and confirm the intended value persists.
 - [ ] Load that re-saved output again; report title/region/app/regulation/DLC versions and outcome.
   Only the owner can use these observations to decide Stable maturity. Parser tests are insufficient.
+- [ ] Repeat the held-rune change through **Review held-rune change**; verify the preview's old/new
+  balance, one undo restoring the original export and redo restoring the same proposed output.
 
 Any future quantity/name/stat/equipment edit family needs the same load → inspect → resave → reopen
 → reload sequence, exact changed-range review and undo equality before it is enabled. Phases 3–6

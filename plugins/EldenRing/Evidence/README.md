@@ -32,6 +32,38 @@ assertions are retained. New source-guided measurements:
 Source revision: ClayAmore/ER-Save-Editor `014107f0ca1cff867b5f7565cb79d6684f9b35df`.
 See the plugin README attribution table and dataset sidecar for identity provenance.
 
+## Round-2 catalog and equipment evidence
+
+All five pinned MIT name maps are embedded: 2,974 weapon, 1,808 goods, 653 armor, 117 talisman
+and 218 Ash of War pairs (**5,770 total**), retaining 273 empty names and unused/test/sentinel
+rows. The exact source bytes are pinned by SHA-256 in `import-name-catalog.py` and each adjacent
+dataset sidecar. Tests independently verify normalized sorted ID/name digests from all source pairs;
+the goods digest uses explicit UTF-8 so `Kalé's Bell Bearing` keeps its accent. This is completeness
+at one revision, not DLC/current-build coverage, an eligibility list or legal-cap evidence.
+
+`EquipmentReader` compares source-guided gear/quick/pouch representations without writing them.
+The sample provides **34 candidate slots: 17 agreeing nonempty joins and 17 unassigned candidates**.
+Gear has four related representations, while quick/pouch uses three:
+
+| Representation | Observed role | Sample cross-check |
+| --- | --- | --- |
+| EquipData | Common-array position + `0x180` | First Scimitar `0x182` = record 2 + `0x180`, not its acquisition `inventoryIndex=0x24D` |
+| ChrAsm2 | GaItem/direct handle | Two Scimitars have distinct handles and held row keys despite sharing item ID |
+| ChrAsm | Category-stripped ID, after seven selector words | Armor `0x000A3930`, talisman `0x000003E8` |
+| EquippedItems | Category-qualified ID | Armor `0x100A3930`, talisman `0x200003E8`; armor name Blue Cloth Cowl |
+| QuickItems | Ten `(handle, position)` pairs, active selector, six pouch pairs | First quick ID `0x400003E9`; first pouch ID `0x40000073`; matching held rows/positions |
+
+The variable projectile list still has 23 entries, putting EquippedItems at `0x13887`; Magic and
+QuickItems now have explicit bounded ranges. No spell is equipped in this snapshot. Missing/ambiguous
+held handles, category conflicts, zero quantity and mirror disagreement stay visible without repair.
+Synthetic tests change each gear mirror independently and retain all bytes. Raw equipment fields
+stay read-only; the 17 unassigned candidates are not proof of general empty/unarmed encodings.
+
+F6 now previews/applies the **existing** held-rune operation. Sample-backed session tests prove pure
+preview, the existing four-byte delta, unchanged `504/504/476` HP and history, one-step exact undo/redo,
+semantic review and stale-plan rejection. It does not establish new history semantics or any other
+write family. See [OWNER_CAPTURES.md](OWNER_CAPTURES.md) for the Phase 3/4 decision matrix and pairs.
+
 ## F1 reproduction
 
 From repository root, set the private sample root:
@@ -93,7 +125,9 @@ budget, zlib corruption, directory counts/offsets/names and PARAM schema/body/na
 ## Gates
 
 - Phase 1 infrastructure: implemented. Temporal/console proof remains owner-dependent.
-- Phase 2: packs, F4 inspection, F8 browsing and directory-only regulation decode implemented.
-  Versioned field schemas, item caps, broad reference identities/classes/graces/upgrades/AoW,
-  localized descriptions/icons and DLC coverage remain open; unknown values remain read-only.
-- Phases 3–6: no new gameplay writes. See [OWNER_CAPTURES.md](OWNER_CAPTURES.md).
+- Phase 2: complete pinned MIT item/weapon/armor/talisman/AoW names, packs, F4 inspection, F8
+  browsing and directory-only regulation decode implemented. Versioned field schemas, item caps,
+  classes/graces, upgrade compatibility, localized descriptions/icons and DLC coverage remain open.
+- Phase 3: F6 review for the existing rune edit implemented. New quantities/name/stat/history writes
+  remain disabled. Phase 4: read-only equipment joins implemented; equip/upgrades/loadout apply disabled.
+- Phases 5–6: no new gameplay writes. See [OWNER_CAPTURES.md](OWNER_CAPTURES.md).
