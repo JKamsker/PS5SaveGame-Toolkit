@@ -24,19 +24,23 @@ internal sealed record EquipmentSlot(string Area, int Index, bool Active, ItemId
 
 internal sealed class EquipmentData
 {
-    private EquipmentData(IReadOnlyList<EquipmentSlot> slots) => Slots = slots;
-    public IReadOnlyList<EquipmentSlot> Slots { get; }
-    public string State(int nodeId)
+    private readonly IReadOnlyDictionary<int, string> _states;
+    private EquipmentData(IReadOnlyList<EquipmentSlot> slots)
     {
-        var slots = string.Join(", ", Slots.Where(s => s.Inventory?.NodeId == nodeId).Select(s => $"{s.Area}/{s.Index}"));
-        return slots.Length > 0 ? slots : "Not listed in decoded owner-1 loadout";
+        Slots = slots;
+        _states = slots.Where(slot => slot.Inventory is not null).GroupBy(slot => slot.Inventory!.NodeId)
+            .ToDictionary(group => group.Key, group => string.Join(", ", group.Select(slot => $"{slot.Area}/{slot.Index}")));
     }
+    public IReadOnlyList<EquipmentSlot> Slots { get; }
+    public string State(int nodeId) => _states.GetValueOrDefault(nodeId, "Not listed in decoded owner-1 loadout");
 
     public static EquipmentData Read(ScriptableReader reader, CsavContainer container, CsavTree tree, IReadOnlyList<InventoryItem> items)
     {
         var player = reader.Player("EquipmentSystem", "ownerData", "EquipmentSystemPlayerData");
         var loadout = reader.Nested(player, "equipment", "gameSLoadout");
         var areas = reader.Array(loadout, "equipAreas", "gameSEquipArea");
+        var inventory = items.Where(item => item.ContainerId == 1)
+            .ToLookup(item => ItemIdentity.FromInventory(item, container, tree));
         var result = new List<EquipmentSlot>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var area in areas)
@@ -56,8 +60,7 @@ internal sealed class EquipmentData
                     if (identity.TweakId == 0) identity = null;
                 }
                 // Structure belongs to the wire record, not gameItemID. All four gameplay identity members must match.
-                var matches = identity is null ? [] : items.Where(item => item.ContainerId == 1 &&
-                    ItemIdentity.FromInventory(item, container, tree) == identity).ToArray();
+                var matches = identity is null ? [] : inventory[identity].ToArray();
                 result.Add(new EquipmentSlot(name, index, area.Int("activeIndex") == index, identity,
                     matches.Length == 1 ? matches[0] : null,
                     identity is null ? "Empty stored slot" : matches.Length switch

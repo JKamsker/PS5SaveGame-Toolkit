@@ -29,6 +29,9 @@ internal sealed class ItemStatsInspection
             var keys = root.StructArray(root.Require("keys", "array:gameStatsObjectID"));
             var values = root.StructArray(root.Require("values", "array:gameSavedStatsData"));
             if (keys.Count != values.Count) throw new SaveFormatException("Stats key/value count mismatch.");
+            var itemKeys = keys.Select((key, index) => (key, index))
+                .Where(pair => pair.key.Enum("idType", "gameStatIDType", "Invalid") == "ItemID")
+                .ToLookup(pair => ScriptableReader.UInt64(pair.key, "entityHash", "Uint64"), pair => pair.index);
             foreach (var item in items)
             {
                 var identity = ItemIdentity.FromInventory(item, container, tree);
@@ -42,14 +45,13 @@ internal sealed class ItemStatsInspection
                 foreach (var (path, instance) in identities)
                 {
                     var hash = InstanceHash(instance);
-                    var matches = keys.Select((key, index) => (key, index)).Where(pair => pair.key.Enum("idType", "gameStatIDType", "Invalid") == "ItemID" &&
-                        ScriptableReader.UInt64(pair.key, "entityHash", "Uint64") == hash).ToArray();
+                    var matches = itemKeys[hash].ToArray();
                     if (matches.Length != 1)
                     {
                         rows.Add(Row(item.NodeId, "join", "", $"0x{hash:X16}", "", matches.Length == 0 ? "No saved stats entry" : "Ambiguous stats key; not joined", path: path));
                         continue;
                     }
-                    var data = values[matches[0].index];
+                    var data = values[matches[0]];
                     rows.Add(Row(item.NodeId, "join", "", $"0x{hash:X16}", "", "Unique saved ItemID stats-key match; final stats are not evaluated.", path: path));
                     foreach (var buffer in Buffers)
                     {

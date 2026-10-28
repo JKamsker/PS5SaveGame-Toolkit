@@ -8,10 +8,12 @@ internal static class FactCatalogInspection
 {
     public const string CollectionId = "fact-catalog";
     public static InspectionTable Build(IReadOnlyDictionary<int, IReadOnlyList<SaveFact>> tables, CyberpunkReferences references,
-        Func<int, int, uint>? currentValue = null)
+        Func<int, int, uint>? currentValue = null,
+        Func<string, string, FieldSpec, Func<FieldValue>, FieldNode>? bindRead = null)
     {
         var rows = new List<InspectionRow>();
         var saved = new HashSet<uint>();
+        var values = new Dictionary<string, Func<FieldValue>>(StringComparer.Ordinal);
         void Add(uint hash, string key, string table, string value)
         {
             var record = references.Fact(hash);
@@ -36,7 +38,10 @@ internal static class FactCatalogInspection
             {
                 var fact = table.Value[i];
                 saved.Add(fact.Hash);
-                Add(fact.Hash, $"fact-catalog/saved/{table.Key}/{i}", table.Key.ToString(CultureInfo.InvariantCulture), fact.Value.ToString(CultureInfo.InvariantCulture));
+                var index = i;
+                var key = $"fact-catalog/saved/{table.Key}/{i}";
+                values.Add(key, () => FieldValue.Of((ulong)(currentValue?.Invoke(table.Key, index) ?? fact.Value)));
+                Add(fact.Hash, key, table.Key.ToString(CultureInfo.InvariantCulture), fact.Value.ToString(CultureInfo.InvariantCulture));
             }
         }
         foreach (var record in CyberpunkReferences.All(references.Facts))
@@ -44,18 +49,25 @@ internal static class FactCatalogInspection
             if (!uint.TryParse(record.Key, NumberStyles.None, CultureInfo.InvariantCulture, out var hash) || references.Fact(hash) is null || saved.Contains(hash)) continue;
             Add(hash, $"fact-catalog/absent/{hash}", "", "");
         }
+        var nullableValue = new NullableSpec(IntegerSpec.UInt32) { ReadOnly = true };
+        string Current(InspectionRow row) => values.TryGetValue(row.Key, out var get) ? get().ToString() : "";
         return new InspectionTable(CollectionId, "Quest facts: merged catalog and save (read-only)", [new("hash", "FNV-1a/32"),
             new("name", "Exact canonical identifier"), new("group", "Identifier prefix (not a quest title)"),
-            new("presence", "Presence"), new("value", "Raw uint32", IntegerSpec.UInt32), new("table", "Table node", IntegerSpec.UInt32),
+            new("presence", "Presence"), new("value", "Raw uint32 / absent", nullableValue), new("table", "Table node", IntegerSpec.UInt32),
             new("evidence", "Interpretation")], rows,
             "F8 search/filter/sort covers the complete merged facts catalog plus every saved entry, including unknown hashes and repeated entries. " +
             "Use prefix, presence and raw-value filters to inspect progress evidence. Catalog-only rows have no stored value; no completion recipe. " +
             "Existing raw values can be edited in Saved facts with warnings.", (row, column) =>
             {
-                if (column != "value" || currentValue is null || row.Values["table"].Length == 0) return row.Values.GetValueOrDefault(column, "");
-                var parts = row.Key.Split('/');
-                return currentValue(int.Parse(parts[2], CultureInfo.InvariantCulture), int.Parse(parts[3], CultureInfo.InvariantCulture))
-                    .ToString(CultureInfo.InvariantCulture);
+                return column == "value" ? Current(row) : row.Values.GetValueOrDefault(column, "");
+            }, (row, column) =>
+            {
+                if (column != "value" || bindRead is null) return null;
+                var get = values.GetValueOrDefault(row.Key) ?? (() => FieldValue.Null);
+                var field = bindRead(row.Key + "/value", "Saved fact value (null = absent)", nullableValue, get) with
+                { Confidence = Confidence.Unknown, Description = row.Attribution + "\nAbsent catalog facts have no saved value; zero is a stored value. Edit existing values in Saved facts." };
+                return new SectionNode(Current(row), [field, new TextNode(row.Attribution)])
+                    { Description = field.Description, Badge = row.Confidence.ToString() };
             });
     }
 }

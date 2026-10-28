@@ -8,6 +8,7 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 internal sealed class DevelopmentInspection
 {
     public const string CollectionId = "development";
+    private readonly PerkGraphInspection _graph;
     public DevelopmentInspection(ScriptableReader? reader, string? warning, ProgressionData? progression = null)
     {
         var rows = new List<InspectionRow>();
@@ -17,6 +18,7 @@ internal sealed class DevelopmentInspection
         }
         catch (SaveToolkit.Sdk.SaveFormatException ex) { rows.Clear(); warning = ex.Message; }
         Warning = warning;
+        _graph = new PerkGraphInspection(rows, warning);
         Table = new InspectionTable(CollectionId, "Skills, perks and budgets (read-only)", [new("kind", "Record kind"),
             new("group", "Attribute / area"), new("name", "Stored identifier"), new("rank", "Level / rank", IntegerSpec.Int32),
             new("xp", "Current XP", IntegerSpec.Int32), new("spent", "Spent points", IntegerSpec.Int32), new("unspent", "Unspent points", IntegerSpec.Int32),
@@ -42,7 +44,9 @@ internal sealed class DevelopmentInspection
     public string? Warning { get; }
     public InspectionTable Table { get; }
     public IReadOnlyList<ViewNode> Build() => [new TextNode(Warning ?? Table.Metadata.Description!)
-        { Tone = Warning is null ? Tone.Info : Tone.Warning }, Table.View()];
+        { Tone = Warning is null ? Tone.Info : Tone.Warning }, .. _graph.Build(), Table.View()];
+
+    public IReadOnlyList<ViewNode> Expand(string id, Func<string, string, FieldSpec, string, FieldNode> readField) => _graph.Expand(id, readField);
 
     private static void Read(ScriptableReader reader, List<InspectionRow> rows)
     {

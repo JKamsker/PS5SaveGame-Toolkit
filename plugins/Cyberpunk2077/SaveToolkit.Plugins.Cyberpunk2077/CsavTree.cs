@@ -99,6 +99,12 @@ internal sealed record CsavTree(IReadOnlyList<CsavNode> Nodes, IReadOnlyList<int
             {
                 throw new SaveFormatException("CSAV sibling chain disagrees with its child links.");
             }
+
+            var node = nodes[siblings[index]];
+            if (expected >= 0 && node.Offset + node.Size > nodes[expected].Offset)
+            {
+                throw new SaveFormatException("CSAV sibling node ranges overlap.");
+            }
         }
     }
 }

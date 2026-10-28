@@ -3,6 +3,48 @@
 Observed **2026-10-28**. Machine: Windows x64, .NET SDK 10.0.400.
 No controlled console capture or load test was performed. The plugin remains Experimental.
 
+## Completion round
+
+Plugin 0.6.0 adopts F9 GraphNode/MapNode and F10 NullableSpec without adding a write category.
+The complete requirement/acceptance classification is in [COMPLETION.md](COMPLETION.md), and the
+README contains the required F1–F11 adoption table. F12/F13 remain pending [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)
+/ [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33), absent from the starting main baseline.
+
+- Six saved modern perk groups, no allocated perks: graph states Unknown; no edges, prerequisites,
+  costs, effects or entitlement inferred. Populated ranks use independent synthetic fixtures only.
+- 232 travel catalog/saved markers, exactly one saved registration. Found denotes registration,
+  every other marker is Unknown. No background/coordinates/geographic joins; the official Piggyback
+  map is an attributed external link only. Missing packs retain the raw saved ID.
+- Lazy pages publish at most 128 spatial entries with stable identities, text alternatives and
+  read-only field targets. Host publication tests expand every page before loading any F8 row,
+  verify each target/path/binding, reject edits and retain a clean session and byte-identical output.
+- Merged fact details distinguish typed null/absence from uint32 zero through F10, retain the existing
+  presence filters and exact values, sort numerically, and follow raw saved-fact edits/undo/redo.
+- Root/child sibling overlap is now rejected independently of containment and next-link validation.
+  Equipment/world/stat joins use indexes while preserving duplicate-identity/hash ambiguity.
+
+**Final sample validation:** 141 passed / 0 failed / 0 skipped; API build 0 warnings / 0 errors.
+Separate absent-artifacts run: 57 passed / 84 expected skips / 0 failed; all new sample tests skip
+correctly. This is an absence check, not sample validation.
+The baseline and final-ZIP/backup tests remain passing. Largest sample is still the sole distinct
+1,302,721-byte gameplay save; no new console evidence was created. A focused development-machine
+open/root measurement was approximately 0.21 seconds; parallel-suite measurements vary and no timing
+threshold is asserted. The test suite retains stopwatch output for open plus expanded spatial views.
+
+### Owner checks for the added presentations (#31)
+
+- [ ] On a mature PS5 2.21 save, capture one named ordinary perk rank and refund separately, then one
+  Relic rank and its access state; compare exact technical identifiers/ranks and spent/unspent points.
+  Provide lawful same-build prerequisite/rank/point/entitlement data to establish a full rules tree.
+- [ ] Discover one named travel point in a controlled pair, record map label/district/availability,
+  and capture use or quest-controlled locking separately. Verify that the same full record ID changes
+  registration; no coordinate or official-map location join is assumed.
+- [ ] Confirm the F9 map's registered list agrees with the captured FastTravelSystem state, while
+  catalog-only rows remain Unknown. No in-game edit is requested for these read-only presentations.
+
+Earlier exact capture and enabled-write validation checklists below remain open in #31. Only the
+owner may promote Stable. No private save data, game artwork or local resource exports are bundled.
+
 ## F1 baseline
 
 Run with `SAVETOOLKIT_ARTIFACTS` pointing to the owner's private artifacts directory:

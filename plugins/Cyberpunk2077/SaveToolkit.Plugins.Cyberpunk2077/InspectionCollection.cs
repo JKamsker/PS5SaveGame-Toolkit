@@ -61,7 +61,7 @@ internal sealed class InspectionCollection<T>(
         IOrderedEnumerable<T> ordered;
         if (sort is not null)
         {
-            var numeric = Metadata.Columns.Single(column => column.Key == sort).Spec is IntegerSpec;
+            var numeric = Metadata.Columns.Single(column => column.Key == sort).Spec is IntegerSpec or NullableSpec { Inner: IntegerSpec };
             IComparer<string> comparer = numeric ? NumericComparer.Instance : StringComparer.OrdinalIgnoreCase;
             ordered = query.Descending ? filtered.OrderByDescending(values[sort], comparer) : filtered.OrderBy(values[sort], comparer);
             ordered = ordered.ThenBy(key, StringComparer.Ordinal);
