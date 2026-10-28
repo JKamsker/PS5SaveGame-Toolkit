@@ -62,6 +62,7 @@ public sealed class AstroEditTests
             Assert.Equal(terminator - 1, output.AsSpan(AstroTestData.TextOffset).IndexOf((byte)0) + AstroTestData.TextOffset);
             Assert.True(output.AsSpan(rootEnd - 1, suffix.Length).SequenceEqual(suffix));
             using var reopened = AstroTestData.Open(output);
+            _ = reopened.BuildView();
             foreach (var field in fields)
             {
                 Assert.Equal(field.ValueId == boss.ValueId ? FieldValue.Of(true) : field.Value, reopened.GetValue(field.ValueId));

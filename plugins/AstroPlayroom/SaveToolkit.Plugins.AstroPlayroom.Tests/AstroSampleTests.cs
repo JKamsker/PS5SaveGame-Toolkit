@@ -19,7 +19,7 @@ public sealed class AstroSampleTests(ITestOutputHelper output)
             _ = document.BuildView();
             output.WriteLine($"Generation {file.Directory.Generation}, backup={file.Directory.IsBackup}: open + main view {watch.Elapsed.TotalMilliseconds:F1} ms");
             var fields = AstroTestData.Fields(document);
-            Assert.Equal(508, fields.Count);
+            Assert.Equal(508, fields.Count(f => f.ValueId.StartsWith('/')));
             var coins = Assert.Single(fields, f => f.Description == AstroTestData.CoinsPath);
             var playCount = Assert.Single(fields, f => f.Description == AstroTestData.CountPath);
             Assert.Equal(FieldValue.Of(file.Directory.Generation == 0 ? 0L : 1749L), coins.Value);

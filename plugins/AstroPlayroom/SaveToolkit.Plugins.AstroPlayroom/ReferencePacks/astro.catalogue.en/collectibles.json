@@ -1,0 +1,2251 @@
+{
+  "records": [
+    {
+      "id": "Artifact/ps1",
+      "name": "PlayStation",
+      "category": "Memory Meadow",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps1_controller",
+      "name": "PlayStation Controller",
+      "category": "Memory Meadow",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps1_blackdisc",
+      "name": "PlayStation Game Disc",
+      "category": "Memory Meadow",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps1_memory_card",
+      "name": "PlayStation Memory Card",
+      "category": "Memory Meadow",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps1_mouse",
+      "name": "PlayStation Mouse",
+      "category": "Memory Meadow",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps1_multitap",
+      "name": "PlayStation Multitap",
+      "category": "Memory Meadow",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ds",
+      "name": "DualShock Controller",
+      "category": "Memory Meadow",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/pocket_station",
+      "name": "PocketStation",
+      "category": "Memory Meadow",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psone",
+      "name": "PS One",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psone_screen",
+      "name": "PS One LCD Monitor",
+      "category": "Memory Meadow",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps2",
+      "name": "PlayStation 2",
+      "category": "SSD Speedway",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ds2",
+      "name": "DualShock 2",
+      "category": "SSD Speedway",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps2_bluedisc",
+      "name": "PlayStation 2 Game Disc",
+      "category": "SSD Speedway",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps2_memory_card",
+      "name": "PlayStation 2 Memory Card",
+      "category": "SSD Speedway",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps2_multitap",
+      "name": "PlayStation 2 Multitap",
+      "category": "SSD Speedway",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps2_broadband_adapter",
+      "name": "PlayStation 2 Network Adapter",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/eyetoy",
+      "name": "EyeToy Camera",
+      "category": "SSD Speedway",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/singstar_mic",
+      "name": "SingStar Microphone",
+      "category": "SSD Speedway",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps2_slim",
+      "name": "PlayStation 2 Slim",
+      "category": "SSD Speedway",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/buzz_controller",
+      "name": "Buzz! Controller",
+      "category": "SSD Speedway",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psp",
+      "name": "PlayStation Portable",
+      "category": "Cooling Springs",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psp_umd",
+      "name": "PlayStation Portable UMD",
+      "category": "Cooling Springs",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psp_camera",
+      "name": "PlayStation Portable Camera",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psp_microphone",
+      "name": "PSP Microphone",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psp_gps",
+      "name": "PlayStation Portable GPS Receiver",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psp_go",
+      "name": "PSP Go",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps3",
+      "name": "PlayStation 3",
+      "category": "Cooling Springs",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ds3",
+      "name": "DualShock 3 (SIXAXIS candidate)",
+      "category": "Cooling Springs",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified. Wiki calls this DualShock 3; other guides call the Bot Beach item SIXAXIS. Exact display label needs an owner screenshot.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable",
+        "comparisonSource": "https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/"
+      }
+    },
+    {
+      "id": "Artifact/ps3_bluray_disc",
+      "name": "PlayStation 3 Game Disc",
+      "category": "Cooling Springs",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/pseye",
+      "name": "PlayStation Eye",
+      "category": "Cooling Springs",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps3_slim",
+      "name": "PlayStation 3 Slim",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps3_super_slim",
+      "name": "PlayStation 3 Super Slim",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/move",
+      "name": "PlayStation Move Motion Controller",
+      "category": "GPU Jungle",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/move_navigation_controller",
+      "name": "PlayStation Move Navigation Controller",
+      "category": "Cooling Springs",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/move_shooting_attachment",
+      "name": "PlayStation Move Shooting Attachment",
+      "category": "Cooling Springs",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/move_sharp_shooter",
+      "name": "PlayStation Move Sharp Shooter",
+      "category": "Cooling Springs",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps_vita",
+      "name": "PlayStation Vita",
+      "category": "GPU Jungle",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps_vita_card",
+      "name": "PlayStation Vita Game Pack",
+      "category": "GPU Jungle",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps4",
+      "name": "PlayStation 4",
+      "category": "GPU Jungle",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ds4",
+      "name": "DualShock 4",
+      "category": "GPU Jungle",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps4_slim",
+      "name": "PlayStation 4 Slim",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps4_camera",
+      "name": "PlayStation Camera",
+      "category": "GPU Jungle",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psvr",
+      "name": "PS VR Headset",
+      "category": "GPU Jungle",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psvr_processing_unit",
+      "name": "PS VR Processor Unit",
+      "category": "GPU Jungle",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps4_pro",
+      "name": "PlayStation 4 Pro",
+      "category": "PlayStation Labo",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/psvr_aim_controller",
+      "name": "PS VR Aim Controller",
+      "category": "GPU Jungle",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps5",
+      "name": "PlayStation 5",
+      "category": "1994 Throwback",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps5_ds5",
+      "name": "DualSense",
+      "category": "1994 Throwback",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps5_camera",
+      "name": "HD Camera",
+      "category": "1994 Throwback",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Artifact/ps5_sparkv_headphones",
+      "name": "Pulse 3D Wireless Headset",
+      "category": "1994 Throwback",
+      "description": "Candidate name/world joined by readable saved ID; acquisition and console behavior are unverified.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Artifacts",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "candidate-identity",
+        "confidence": "Inferred",
+        "sourceVersion": "search-indexed page retrieved 2026-10-28; live revision unavailable"
+      }
+    },
+    {
+      "id": "Puzzle/cpuplaza_1",
+      "name": "Puzzle piece: cpuplaza_1",
+      "category": "CPU Plaza",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cpuplaza",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cpuplaza_2",
+      "name": "Puzzle piece: cpuplaza_2",
+      "category": "CPU Plaza",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cpuplaza",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cpuplaza_3",
+      "name": "Puzzle piece: cpuplaza_3",
+      "category": "CPU Plaza",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cpuplaza",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cpuplaza_4",
+      "name": "Puzzle piece: cpuplaza_4",
+      "category": "CPU Plaza",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cpuplaza",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_glider_1",
+      "name": "Puzzle piece: ssd_glider_1",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_glider",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_glider_2",
+      "name": "Puzzle piece: ssd_glider_2",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_glider",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_glider_3",
+      "name": "Puzzle piece: ssd_glider_3",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_glider",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_jetpack1_1",
+      "name": "Puzzle piece: ssd_jetpack1_1",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_jetpack1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_jetpack1_2",
+      "name": "Puzzle piece: ssd_jetpack1_2",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_jetpack1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_jetpack1_3",
+      "name": "Puzzle piece: ssd_jetpack1_3",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_jetpack1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_space_1",
+      "name": "Puzzle piece: ssd_space_1",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_space",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_space_2",
+      "name": "Puzzle piece: ssd_space_2",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_space",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_space_3",
+      "name": "Puzzle piece: ssd_space_3",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_space",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_jetpack2_1",
+      "name": "Puzzle piece: ssd_jetpack2_1",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_jetpack2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_jetpack2_2",
+      "name": "Puzzle piece: ssd_jetpack2_2",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_jetpack2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_jetpack2_3",
+      "name": "Puzzle piece: ssd_jetpack2_3",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_jetpack2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_forest_1",
+      "name": "Puzzle piece: gpu_forest_1",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_forest",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_forest_2",
+      "name": "Puzzle piece: gpu_forest_2",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_forest",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_forest_3",
+      "name": "Puzzle piece: gpu_forest_3",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_forest",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_climbing1_1",
+      "name": "Puzzle piece: gpu_climbing1_1",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_climbing1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_climbing1_2",
+      "name": "Puzzle piece: gpu_climbing1_2",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_climbing1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_climbing1_3",
+      "name": "Puzzle piece: gpu_climbing1_3",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_climbing1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_highplatforming_1",
+      "name": "Puzzle piece: gpu_highplatforming_1",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_highplatforming",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_highplatforming_2",
+      "name": "Puzzle piece: gpu_highplatforming_2",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_highplatforming",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_highplatforming_3",
+      "name": "Puzzle piece: gpu_highplatforming_3",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_highplatforming",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_climbing2_1",
+      "name": "Puzzle piece: gpu_climbing2_1",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_climbing2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_climbing2_2",
+      "name": "Puzzle piece: gpu_climbing2_2",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_climbing2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_climbing2_3",
+      "name": "Puzzle piece: gpu_climbing2_3",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_climbing2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_beach_1",
+      "name": "Puzzle piece: cooling_beach_1",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_beach",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_beach_2",
+      "name": "Puzzle piece: cooling_beach_2",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_beach",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_beach_3",
+      "name": "Puzzle piece: cooling_beach_3",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_beach",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_spring1_1",
+      "name": "Puzzle piece: cooling_spring1_1",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_spring1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_spring1_2",
+      "name": "Puzzle piece: cooling_spring1_2",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_spring1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_spring1_3",
+      "name": "Puzzle piece: cooling_spring1_3",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_spring1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_ice_1",
+      "name": "Puzzle piece: cooling_ice_1",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_ice",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_ice_2",
+      "name": "Puzzle piece: cooling_ice_2",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_ice",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_ice_3",
+      "name": "Puzzle piece: cooling_ice_3",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_ice",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_spring2_1",
+      "name": "Puzzle piece: cooling_spring2_1",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_spring2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_spring2_2",
+      "name": "Puzzle piece: cooling_spring2_2",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_spring2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_spring2_3",
+      "name": "Puzzle piece: cooling_spring2_3",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_spring2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_weather_1",
+      "name": "Puzzle piece: memory_weather_1",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_weather",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_weather_2",
+      "name": "Puzzle piece: memory_weather_2",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_weather",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_weather_3",
+      "name": "Puzzle piece: memory_weather_3",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_weather",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_ball1_1",
+      "name": "Puzzle piece: memory_ball1_1",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_ball1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_ball1_2",
+      "name": "Puzzle piece: memory_ball1_2",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_ball1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_ball1_3",
+      "name": "Puzzle piece: memory_ball1_3",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_ball1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_storm_1",
+      "name": "Puzzle piece: memory_storm_1",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_storm",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_storm_2",
+      "name": "Puzzle piece: memory_storm_2",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_storm",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_storm_3",
+      "name": "Puzzle piece: memory_storm_3",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_storm",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_ball2_1",
+      "name": "Puzzle piece: memory_ball2_1",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_ball2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_ball2_2",
+      "name": "Puzzle piece: memory_ball2_2",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_ball2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_ball2_3",
+      "name": "Puzzle piece: memory_ball2_3",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_ball2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_1",
+      "name": "Puzzle piece: gatcha_1",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_2",
+      "name": "Puzzle piece: gatcha_2",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_3",
+      "name": "Puzzle piece: gatcha_3",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_4",
+      "name": "Puzzle piece: gatcha_4",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_5",
+      "name": "Puzzle piece: gatcha_5",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_6",
+      "name": "Puzzle piece: gatcha_6",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_7",
+      "name": "Puzzle piece: gatcha_7",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_8",
+      "name": "Puzzle piece: gatcha_8",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_9",
+      "name": "Puzzle piece: gatcha_9",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_10",
+      "name": "Puzzle piece: gatcha_10",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_11",
+      "name": "Puzzle piece: gatcha_11",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_12",
+      "name": "Puzzle piece: gatcha_12",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_13",
+      "name": "Puzzle piece: gatcha_13",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_14",
+      "name": "Puzzle piece: gatcha_14",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_15",
+      "name": "Puzzle piece: gatcha_15",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_16",
+      "name": "Puzzle piece: gatcha_16",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_17",
+      "name": "Puzzle piece: gatcha_17",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_18",
+      "name": "Puzzle piece: gatcha_18",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_19",
+      "name": "Puzzle piece: gatcha_19",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_20",
+      "name": "Puzzle piece: gatcha_20",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_21",
+      "name": "Puzzle piece: gatcha_21",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_22",
+      "name": "Puzzle piece: gatcha_22",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_23",
+      "name": "Puzzle piece: gatcha_23",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_24",
+      "name": "Puzzle piece: gatcha_24",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_25",
+      "name": "Puzzle piece: gatcha_25",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_26",
+      "name": "Puzzle piece: gatcha_26",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_27",
+      "name": "Puzzle piece: gatcha_27",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gatcha_28",
+      "name": "Puzzle piece: gatcha_28",
+      "category": "PlayStation Labo",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gatcha",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_glider_4",
+      "name": "Puzzle piece: ssd_glider_4",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_glider",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_jetpack1_4",
+      "name": "Puzzle piece: ssd_jetpack1_4",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_jetpack1",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_space_4",
+      "name": "Puzzle piece: ssd_space_4",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_space",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/ssd_jetpack2_4",
+      "name": "Puzzle piece: ssd_jetpack2_4",
+      "category": "SSD Speedway",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "ssd_jetpack2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_forest_4",
+      "name": "Puzzle piece: gpu_forest_4",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_forest",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_forest_5",
+      "name": "Puzzle piece: gpu_forest_5",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_forest",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_highplatforming_4",
+      "name": "Puzzle piece: gpu_highplatforming_4",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_highplatforming",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/gpu_highplatforming_5",
+      "name": "Puzzle piece: gpu_highplatforming_5",
+      "category": "GPU Jungle",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "gpu_highplatforming",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_beach_4",
+      "name": "Puzzle piece: cooling_beach_4",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_beach",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_beach_5",
+      "name": "Puzzle piece: cooling_beach_5",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_beach",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_ice_4",
+      "name": "Puzzle piece: cooling_ice_4",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_ice",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/cooling_spring2_4",
+      "name": "Puzzle piece: cooling_spring2_4",
+      "category": "Cooling Springs",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "cooling_spring2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_weather_4",
+      "name": "Puzzle piece: memory_weather_4",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_weather",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_weather_5",
+      "name": "Puzzle piece: memory_weather_5",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_weather",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_storm_4",
+      "name": "Puzzle piece: memory_storm_4",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_storm",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Puzzle/memory_ball2_4",
+      "name": "Puzzle piece: memory_ball2_4",
+      "category": "Memory Meadow",
+      "description": "Original saved-key label. Candidate world follows the raw prefix only. No physical piece position or guide ordinal is mapped; 5/3 groups remain unchanged.",
+      "source": "https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "memory_ball2",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/trex",
+      "name": "Saved prop: trex",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/pool",
+      "name": "Saved prop: pool",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/hula_hoop",
+      "name": "Saved prop: hula hoop",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/boomerang",
+      "name": "Saved prop: boomerang",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/pshome",
+      "name": "Saved prop: pshome",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/chemistry_bottle",
+      "name": "Saved prop: chemistry bottle",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/manta_ray",
+      "name": "Saved prop: manta ray",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/trophy",
+      "name": "Saved prop: trophy",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/logo_board",
+      "name": "Saved prop: logo board",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/xmb",
+      "name": "Saved prop: xmb",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/beat_saber",
+      "name": "Saved prop: beat saber",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/ps2_clock",
+      "name": "Saved prop: ps2 clock",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/ps4_mini",
+      "name": "Saved prop: ps4 mini",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/ps3_mini",
+      "name": "Saved prop: ps3 mini",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/ps2_mini",
+      "name": "Saved prop: ps2 mini",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/ps1_mini",
+      "name": "Saved prop: ps1 mini",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/sackboy",
+      "name": "Saved prop: sackboy",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    },
+    {
+      "id": "Prop/pslogo",
+      "name": "Saved prop: pslogo",
+      "category": "Unmapped props",
+      "description": "Original readable alias of the literal raw key only, not a verified prize or scene name. Museum placement and gatcha dependencies are unproven.",
+      "source": "https://astrosplayroom.fandom.com/wiki/PlayStation_Labo",
+      "attributes": {
+        "schemaFingerprint": "e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40",
+        "mapping": "unresolved",
+        "confidence": "Unknown",
+        "internalGroup": "Prop",
+        "sourceVersion": "context page retrieved 2026-10-28; raw-key alias authored locally"
+      }
+    }
+  ]
+}
