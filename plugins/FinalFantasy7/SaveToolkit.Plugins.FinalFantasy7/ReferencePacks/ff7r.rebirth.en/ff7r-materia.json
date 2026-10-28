@@ -1,0 +1,884 @@
+{
+  "records": [
+    {
+      "id": "10001",
+      "name": "Healing",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 750, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,750,1200"
+      }
+    },
+    {
+      "id": "10002",
+      "name": "Cleansing",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10003",
+      "name": "Revival",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 5000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,5000"
+      }
+    },
+    {
+      "id": "10004",
+      "name": "Fire",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10005",
+      "name": "Ice",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10006",
+      "name": "Lightning",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10007",
+      "name": "Wind",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10008",
+      "name": "Poison",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10009",
+      "name": "Binding",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10010",
+      "name": "Time",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10011",
+      "name": "Barrier",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10012",
+      "name": "Subversion",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1200"
+      }
+    },
+    {
+      "id": "10017",
+      "name": "Petrify",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10018",
+      "name": "Gravity",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 1200, 3600. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1200,3600"
+      }
+    },
+    {
+      "id": "10019",
+      "name": "Comet",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 3000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,3000"
+      }
+    },
+    {
+      "id": "10020",
+      "name": "Empowerment",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300"
+      }
+    },
+    {
+      "id": "10021",
+      "name": "Fortification",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300"
+      }
+    },
+    {
+      "id": "10022",
+      "name": "Disempowerment",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300"
+      }
+    },
+    {
+      "id": "10023",
+      "name": "Enervation",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300"
+      }
+    },
+    {
+      "id": "10024",
+      "name": "Fire and Ice",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 1200, 3600. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1200,3600"
+      }
+    },
+    {
+      "id": "10025",
+      "name": "Lightning and Wind",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 1200, 3600. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1200,3600"
+      }
+    },
+    {
+      "id": "10026",
+      "name": "Poison and Petrify",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 1200, 3600. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1200,3600"
+      }
+    },
+    {
+      "id": "10027",
+      "name": "Reraise",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "11001",
+      "name": "Magnify",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 500, 2000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,2000"
+      }
+    },
+    {
+      "id": "11002",
+      "name": "Elemental",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 2500, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,2500,10000"
+      }
+    },
+    {
+      "id": "11003",
+      "name": "Warding",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 2500, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,2500,10000"
+      }
+    },
+    {
+      "id": "11004",
+      "name": "HP Absorption",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 2500, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,2500,10000"
+      }
+    },
+    {
+      "id": "11005",
+      "name": "MP Absorption",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 2500, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,2500,10000"
+      }
+    },
+    {
+      "id": "11006",
+      "name": "Synergy",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "11007",
+      "name": "AP Up",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "11008",
+      "name": "Magic Focus",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 1000, 3000, 9000, 27000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1000,3000,9000,27000"
+      }
+    },
+    {
+      "id": "11009",
+      "name": "Magic Efficiency",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 5000, 15000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,5000,15000"
+      }
+    },
+    {
+      "id": "11010",
+      "name": "Swiftcast",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 1000, 3000, 9000, 27000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1000,3000,9000,27000"
+      }
+    },
+    {
+      "id": "11011",
+      "name": "Auto-Cast",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,200"
+      }
+    },
+    {
+      "id": "11012",
+      "name": "Level Boost",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "12001",
+      "name": "Steal",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300"
+      }
+    },
+    {
+      "id": "12002",
+      "name": "Assess",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300"
+      }
+    },
+    {
+      "id": "12003",
+      "name": "Enemy Skill",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 50, 300, 800, 1500. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,50,300,800,1500"
+      }
+    },
+    {
+      "id": "12004",
+      "name": "Chakra",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 50, 150, 450, 1350. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,50,150,450,1350"
+      }
+    },
+    {
+      "id": "12005",
+      "name": "Prayer",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300, 900, 1500, 2400. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,900,1500,2400"
+      }
+    },
+    {
+      "id": "12006",
+      "name": "ATB Boost",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300, 900, 1500, 2400. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,900,1500,2400"
+      }
+    },
+    {
+      "id": "12101",
+      "name": "Morph",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "12102",
+      "name": "Spare Change",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "12103",
+      "name": "Item Economizer",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300, 900. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,900"
+      }
+    },
+    {
+      "id": "12104",
+      "name": "Limit Siphon",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "12105",
+      "name": "Jump",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "12106",
+      "name": "Darkside",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300, 900, 1500, 2400. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,900,1500,2400"
+      }
+    },
+    {
+      "id": "12107",
+      "name": "Gambler",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300, 900. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,900"
+      }
+    },
+    {
+      "id": "13001",
+      "name": "HP Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13002",
+      "name": "MP Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13003",
+      "name": "Magic Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13004",
+      "name": "Luck Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13005",
+      "name": "Gil Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13006",
+      "name": "EXP Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13007",
+      "name": "Item Master",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13008",
+      "name": "ATB Stagger",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13009",
+      "name": "First Strike",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13010",
+      "name": "Steadfast Block",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13011",
+      "name": "Skill Master",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13014",
+      "name": "ATB Assist",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 1000, 4000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1000,4000"
+      }
+    },
+    {
+      "id": "13016",
+      "name": "Provoke",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 100, 300. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,100,300"
+      }
+    },
+    {
+      "id": "13101",
+      "name": "HP<=>MP",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13102",
+      "name": "ATK<=>MATK",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13103",
+      "name": "VIT<=>SPR",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13104",
+      "name": "Limit Support",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13105",
+      "name": "Speed Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13106",
+      "name": "Strength Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13107",
+      "name": "Spirit Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13108",
+      "name": "Vitality Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13109",
+      "name": "Auto-Unique Ability",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13110",
+      "name": "Auto-Weapon Ability",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,200"
+      }
+    },
+    {
+      "id": "13111",
+      "name": "Precision Defense Focus",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 1000, 3000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1000,3000"
+      }
+    },
+    {
+      "id": "13112",
+      "name": "Synergy Support",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14001",
+      "name": "Chocobo & Moogle",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14002",
+      "name": "Shiva",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14003",
+      "name": "Ifrit",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14004",
+      "name": "Leviathan",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14010",
+      "name": "Ramuh",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14011",
+      "name": "Titan",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,0,0,0"
+      }
+    },
+    {
+      "id": "14012",
+      "name": "Phoenix",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,0,0,0"
+      }
+    },
+    {
+      "id": "14013",
+      "name": "Alexander",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,0,0,0"
+      }
+    },
+    {
+      "id": "14014",
+      "name": "Kujata",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,0,0,0"
+      }
+    },
+    {
+      "id": "14015",
+      "name": "Bahamut Arisen",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,0,0,0"
+      }
+    },
+    {
+      "id": "14016",
+      "name": "Odin",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,0,0,0"
+      }
+    },
+    {
+      "id": "14017",
+      "name": "Gilgamesh",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14018",
+      "name": "Posh Chocobo",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14019",
+      "name": "Magic Pot",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14020",
+      "name": "Moogle Trio",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    }
+  ]
+}

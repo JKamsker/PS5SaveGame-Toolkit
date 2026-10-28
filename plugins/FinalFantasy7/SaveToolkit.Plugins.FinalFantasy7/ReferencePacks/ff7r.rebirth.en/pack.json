@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "id": "ff7r.rebirth.en",
+  "version": "1.0.0",
+  "title": "FFVII Rebirth reference metadata",
+  "plugins": [
+    "ff7r"
+  ],
+  "titleIds": [
+    "PPSA08664",
+    "PPSA18936"
+  ],
+  "gameBuilds": [
+    "Rebirth",
+    "Rebirth Demo"
+  ],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "ff7r-items",
+      "kind": "records",
+      "title": "Rebirth items",
+      "files": [
+        {
+          "path": "ff7r-items.json",
+          "sha256": "1e024eb2a0a5e97fcf4a0713562e2a94ca6c08d19c11414c2b3f02374dbe8278"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+        "author": "RyudoSynbios / Game Tools Collection",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted type IDs, names, categories and AP tables. Added original metadata summaries; no game effect text or artwork."
+      }
+    },
+    {
+      "id": "ff7r-materia",
+      "kind": "records",
+      "title": "Rebirth materia",
+      "files": [
+        {
+          "path": "ff7r-materia.json",
+          "sha256": "588ecea9551a3861e3f6237bedf47370089bc463864bcfc3bc228f9c04a464dd"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+        "author": "RyudoSynbios / Game Tools Collection",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted type IDs, names, categories and AP tables. Added original metadata summaries; no game effect text or artwork."
+      }
+    },
+    {
+      "id": "ff7r-weapons",
+      "kind": "records",
+      "title": "Rebirth weapons",
+      "files": [
+        {
+          "path": "ff7r-weapons.json",
+          "sha256": "e0484edfc372126709743e9d9bb40bd9168484e3dec5455f603d4f18ca7e10ac"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts",
+        "author": "RyudoSynbios / Game Tools Collection",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted type IDs, names, categories and AP tables. Added original metadata summaries; no game effect text or artwork."
+      }
+    }
+  ]
+}

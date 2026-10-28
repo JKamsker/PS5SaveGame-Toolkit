@@ -1,7 +1,7 @@
 # Final Fantasy VII Remake / Rebirth (`ff7r`)
 
 **Maturity: Experimental.** A bounded PS5 linked-record explorer with in-place edits for narrowly
-qualified gil, occupied item quantities and ordinary materia AP on Remake and retail Rebirth. The
+qualified gil, ordinary item-stack quantities and materia AP within the original star tier on Remake and retail Rebirth. The
 supplied decrypted samples show no internal checksum or dependent metadata, and public editors/Save
 Wizard codes patch these values directly. Empty, unknown and summon-exception rows are read-only;
 demo gameplay remains read-only because its field meanings are inferred. No console loading test has
@@ -98,9 +98,12 @@ flag semantics are `Unknown`. Record offsets, allocation boundaries and declared
 Gil is exposed only if exactly one matching entry exists. Unknown names remain `Unknown ID 0x...`;
 no game-specific dictionary is shared across Remake/Rebirth. Empty slots and negative sentinel values
 remain visible; negative quantities receive a warning. No arbitrary gameplay limits are imposed on
-read-only values. On writable schemas, gil is limited to 0–9,999,999, ordinary item quantities to
-0–9,999, and materia AP to 0–999,999. These are conservative editor bounds, not proven game caps.
-Item/materia names are embedded reference data from the MIT-licensed source below.
+read-only values. Ordinary item stacks use an editor cap of 9,999, gil 9,999,999 and final-tier AP
+999,999; these are not proven game caps. An original value above a cap remains restorable after
+editing and refreshing bindings. Negative quantities, ambiguous gil, equipment, materials, key items,
+cards and other progression counts are read-only. AP must remain within the original coherent star
+tier. Every summon, unknown type and AP/level mismatch is read-only; no stored star is recalculated.
+Names, categories and source-metadata descriptions use the embedded MIT reference packs below.
 
 ### Read-only characters and owned relationships
 
@@ -109,11 +112,11 @@ measured `0x40` stride and Rebirth/demo use the measured `0x100` stride; level, 
 (for Rebirth) weapon-detail references are read-only `Inferred` fields. The names and order are the
 MIT resource order, while guest, past and cached records still need controlled screenshots.
 
-Retail/demo Rebirth also exposes lazy **Owned items** pages. Weapon rows join inventory instance/type
+Retail/demo Rebirth also exposes searchable F8 **Owned items** collections. Weapon rows join inventory instance/type
 records at `0x5FA6C` to detail records at `0xB3A68` (stride `0x60`) and show character references at
 `0xCC + index*0x100`. Materia rows join instance/type/quantity at `0x60A6C` to detail records at
 `0xBFA68`, including the observed owner byte at `+0x11`. These are identity joins only; they never
-enable an edit. The **Catalog** tab pages every embedded item/materia name and can use optional
+enable an edit. The **Catalog** tab searches all item/materia/weapon metadata and can use optional
 toolkit reference packs with catalog ids `ff7r-items`, `ff7r-materia`, `ff7r-weapons` and
 `ff7r-characters`.
 
@@ -125,9 +128,19 @@ bytes. `RelationshipTests` also checks every supplied retail/demo character weap
 the 128 measured weapon-detail records and checks the first owned materia join. This evidence does
 not prove gameplay behavior or console acceptance.
 
-Writable quantity/AP bindings now require a non-sentinel, mapped type ID. The Rebirth Titan type
-`14011` remains read-only because the public AP curve disagrees with its stored level in three retail
-samples. Existing stored values, including empty and unknown rows, remain visible and byte-preserved.
+Across all primary supplied retail snapshots, **465 Remake and 530 Rebirth ordinary materia rows**
+agree with the pinned AP curves and stored stars. This supports narrowing existing AP edits to the
+original tier, not enabling star transitions. The Rebirth Titan type `14011` illustrates why all
+summons remain disabled: repeated-zero source thresholds disagree with stored levels in three retail
+samples. Empty, unknown, incoherent and out-of-policy values remain visible and byte-preserved.
+
+The **Set AP within current star tier** action uses an F4 picker over owned eligible types and F6
+planning over selected rows or all copies of that type. F8 select-all-filtered scopes are resolved by
+Core. Preview reports old/new AP, skipped rows/reasons and the console warning. It changes no bytes;
+apply revalidates the plan and is one undo step. `MateriaPlanningTests` uses F1 `ByteDiffer` to prove
+that apply changes only the selected four-byte AP words, then checks reopen and exact undo/redo.
+Character XP/HP/level, equipment references, sockets, materia moves, loadouts and creation/removal
+remain disabled because no controlled before/after capture proves their complete dependencies.
 
 Examples asserted by tests (primary files):
 
@@ -141,6 +154,64 @@ Examples asserted by tests (primary files):
 | PPSA08664 / ff7rebirth001 | 2,000 | 1,035 |
 | PPSA18936 / ff7rebirth000 | 2,000 | 4,064 |
 | PPSA18936 / ff7rebirth001 | 2,000 | 4,080 |
+
+## Round-2 catalogs, progress and remaining scope
+
+Two embedded F2 packs are pinned to the supported title/build names. They provide 369 item types
+(including 32 weapons) and 54 materia types for Remake; 934 item types (including 51 weapons) and
+88 materia types for Rebirth. Every record has a name, category, source-metadata description and
+pinned MIT attribution. Descriptions explain classification, AP thresholds or identity domains;
+they are **not a complete set of game effect descriptions**. F8 searches the whole dataset before
+paging. Imported document-pinned packs can supply richer descriptions, with their own provenance,
+without changing the embedded edit policy. Character and owned-item names also show attribution.
+
+The **Cards** collection contains 145 individual Rebirth card types, with stored inventory quantities.
+Its 16 booster-pack types remain separate in the item catalog. Source labels duplicate display
+number 012 and omit 013; these labels are retained with an explicit warning, not corrected by an
+unverified numeric formula. Quantity, deck membership and opponent wins remain separate domains.
+
+The **Progress** collection shows 69 distinct Remake candidate bits for obtained dresses, battle
+intel entries/completion/rewards and VR missions. Rebirth/demo show 470 candidate bits for hard
+chapter flags, Queen's Blood opponents, World Intel discovery/completion and Chocobo-stop
+discovery/repair. Exact region and domain/state filters cover Grasslands, Junon, Corel, Gongaga,
+Cosmo Canyon and Nibel. Fields expose the source byte/bit and remain read-only **Inferred**.
+Shared source addresses and all `Intel Entries` groups were excluded because repeated placeholder
+addresses cannot distinguish individual objectives. A stored set bit is not a verified completion
+or reward. No percentages, universal completion preset, map-coordinate guesses or flag writes ship.
+
+This completes the scoped catalog/F4/F8 infrastructure and read-only progress/collection delivery.
+Full Phase 3 remains blocked on controlled character/gear/star-transition evidence. Full Phase 4
+still needs effect descriptions/icons and persistent loadouts, and Phase 5 still needs separately
+researched folios, crafting, enemy intel, relationships and minigame modules. Fandom page/revision
+retrieval returned HTTP 403/402 during this round; no unpinned CC BY-SA text was embedded. The
+MIT data path above was available. Any later wiki extract must pin revisions and preserve
+CC BY-SA attribution/share-alike in its own dataset, source sidecar and UI provenance.
+
+### Exact owner capture and validation checklist
+
+Use a disposable slot and capture **Remake main, INTERmission, retail Rebirth and demo separately**.
+For every pair record title ID, game patch, chapter, difficulty, slot, character/region, exact menu
+values and reproducible gameplay steps; include decrypted same-slot before/after files and screenshots.
+
+- [ ] One XP level-up: current and max HP/MP, XP/level before/after; distinguish cached/live/guest
+  records and identify Yuffie/Sonon, past characters and Rebirth guests explicitly.
+- [ ] One ordinary materia AP change below a threshold, then one star-up crossing it. Capture AP,
+  stars, equipped character/socket and the relevant spell/ability menu. For Rebirth capture one
+  summon-tier increase with AP unchanged; do not use ordinary AP rules for summons.
+- [ ] Swap one owned weapon, armor and accessory separately; move one materia between sockets,
+  including a linked pair and summon slot. Record type/instance IDs, all owners, sockets, weapon
+  level/proficiency and folio state. Swap back and compare decrypted bytes.
+- [ ] Acquire one Queen's Blood card, open one booster pack, change one deck and beat one named
+  opponent as separate pairs. Supply the menu display number/name for source-labeled cards 012/013.
+- [ ] Complete one World Intel objective, discover then repair one Chocobo stop, collect its reward,
+  purchase one folio node, craft one item, unlock one outfit and finish one minigame as separate pairs.
+  Record active region and objective states, counters, rewards and actor changes at each step.
+- [ ] Capture chapter-select/new-game-clear and quest-reset pairs separately from current chapter.
+  Do not infer historical clear, unlock and reward state from a single shared flag.
+- [ ] Import one spare edited save per writable variant: check gil/item/AP menus and actual effects,
+  play a battle, resave, decrypt and re-import. Confirm the intended scalar survives and no other
+  bytes, ownership/detail links or previous-state/common files were normalized. Report any load
+  error, missing reward, inventory loss or unexplained state change before expanding write scope.
 
 ## Integrity, crypto and compression
 
@@ -179,13 +250,12 @@ The plugin does not claim that a modified file will load on a console until that
 ## Bounded views and performance
 
 Overview contains only headline facts and a 2,048-entry scalar scan to find gil. The initial record
-table has at most 275 rows; record sections are grouped in lazy batches of 32. Inventory/materia pages
-have at most 128 rows. Every record has a paged hex view plus a lazy tree reaching **every** aligned
+table has at most 275 rows; record sections are grouped in lazy batches of 32. F8 inventory/materia/catalog/progress/owned collections return at most 200 rows per query; retained legacy lazy endpoints have at most 128 rows. Every record has a paged hex view plus a lazy tree reaching **every** aligned
 body word with u32, i32, f32 and ASCII interpretations. Word pages have at most 64 rows and intermediate
 ranges at most 32 children. NaN/Infinity interpretations are text, keeping the view JSON-serializable.
 Blob requests are capped at 64 KiB and copied to protect the document's backing buffer.
 
-Open allocates one file buffer and the small header index; no body copies or eager object graph.
+Open retains one file buffer, the small header index, catalog lookups and fixed-slot edit policies; there are no body copies or eager gameplay view trees.
 Tests check each supplied sample opens in under two seconds and the initial view stays below 2,500
 nodes. No framework changes, runtime file/network access or extra NuGet dependencies are required.
 
@@ -222,8 +292,7 @@ format test walks and no-op serializes **all** matching sample files, including 
 Edit conformance nudges a writable field on selected Remake and retail Rebirth samples; dedicated
 tests verify in-place byte scope, round-trip reopening, undo-by-old-value and atomic range rejection.
 
-Final local validation: **45/45 plugin tests**, **43/43 Core tests**, no skipped tests with the supplied
-archives, and the API build passed with zero warnings/errors. All 55 sample entries round-tripped;
+Round-2 local validation: **79/79 plugin tests, 0 skipped**, with the supplied archives and the API build passing with zero warnings/errors. The new tests include Core F4/F6/F8 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
 every measured sample Open call stayed below the two-second test bound.
 
 ## Open problems
@@ -240,7 +309,28 @@ every measured sample Open call stayed below the two-second test bound.
 
 None required. The existing lazy sections, field confidence and paged blob API support bounded editing.
 
-## Sources and licensing
+## Sources and attribution
+
+| Dataset | Pinned source | Licence / modifications |
+| --- | --- | --- |
+| Remake item categories/names (369) | [GTC resource.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts) | MIT, RyudoSynbios; extracted metadata, merged weapons, original summaries |
+| Remake weapons (32) | Same pinned Remake resource | MIT; extracted type/name rows, original identity description |
+| Remake materia (54) | Same pinned Remake resource | MIT; category/AP arrays, original AP summaries |
+| Rebirth item categories/names (934) | [GTC resource.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts) | MIT, RyudoSynbios; merged weapons, separated 145 cards/16 boosters, original summaries |
+| Rebirth weapons (51) | Same pinned Rebirth resource | MIT; type/name rows, original identity description |
+| Rebirth materia (88) | Same pinned Rebirth resource | MIT; category/AP arrays, summon restrictions in descriptions |
+| Remake progress candidates (69) | [GTC template.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts) | MIT; literal labels/addresses and state grouping, ambiguity filtering |
+| Rebirth progress candidates (470) | [GTC template.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts) | MIT; distinct region/state bits, excluded placeholders/aliases |
+| Legacy names.json / equipment.json and character order | Revisions `e38d207c2210d210d9b06ebd2a0a62b4e16c7aed` / `c7bdd6d8228304b87dcdf15e57155d092eb06fd2`, linked below | MIT; retained prior extracts and notice |
+
+Retrieved 2026-10-28. Catalog source sidecars and full MIT notices accompany
+[Remake](SaveToolkit.Plugins.FinalFantasy7/ReferencePacks/ff7r.remake.en/catalog.source.md) and
+[Rebirth](SaveToolkit.Plugins.FinalFantasy7/ReferencePacks/ff7r.rebirth.en/catalog.source.md).
+The [progress sidecar](SaveToolkit.Plugins.FinalFantasy7/Resources/progress.source.md) documents
+selection/exclusion rules. Manifest attribution is shown by F2's Sources panel; F4 candidates and
+F8 descriptions/source columns retain provenance. No wiki text, artwork, NC parser or unlicensed
+implementation was bundled. Existing research-only sources and legacy extracts follow.
+
 
 - Local starting evidence: [format overview](../../docs/formats/README.md),
   [Remake](../../docs/formats/PPSA01911.md), [Rebirth](../../docs/formats/PPSA08664.md),

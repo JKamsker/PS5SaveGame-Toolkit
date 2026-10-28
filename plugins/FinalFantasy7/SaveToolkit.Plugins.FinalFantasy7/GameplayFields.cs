@@ -8,39 +8,28 @@ internal sealed record ScalarField(string Id, string Label, int Offset, IntegerS
     bool Signed = false, bool Byte = false, string? Warning = null, bool Editable = false);
 
 /// <summary>Absolute offsets independently checked against the public PC schemas and every supplied PS5 slot.</summary>
-internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
+internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceData references)
 {
+    private readonly MateriaEditPolicy _materiaPolicy = new(bytes, schema);
+    private readonly QuantityEditPolicy _quantityPolicy = new(bytes, schema);
     public const int InventoryCount = 2048;
     public const int MateriaCount = 1000;
     public const int RowsPerPage = 128;
-    private const int MateriaStride = 32;
-    private const int QuantityOffset = 4;
+    private readonly GameplayLayout _layout = GameplayLayout.For(schema);
     private const int RemakeChapterOffset = 0x2E;
-    private const int RemakeInventoryOffset = 0x34DD8;
-    private const int RebirthInventoryOffset = 0x4FA70;
-    private const int RemakePlayTimeOffset = 0x2B0;
-    private const int RebirthPlayTimeOffset = 0x3C30;
-    private const int RemakeMateriaIdOffset = 0x1844;
-    private const int RebirthMateriaIdOffset = 0xBFA6C;
-    private const int RemakeMateriaApOffset = 0x1848;
-    private const int RebirthMateriaApOffset = 0xBFA70;
-    private const int RemakeMateriaLevelOffset = 0x1840;
-    private const int RebirthMateriaLevelOffset = 0xBFA78;
-    private const int RemakeInventoryStride = 24;
-    private const int RebirthInventoryStride = 32;
-    private const uint RemakeGilId = 20;
-    private const uint RebirthGilId = 1;
     private const string DemoWarning = "PC retail field mapping is inferred for the PS5 demo; no in-game confirmation.";
     private const string EditWarning = "Experimental in-place edit; keep a backup and do not rely on this until a console load is tested.";
-    private const int MaximumQuantity = 9_999;
-    private const int MaximumGil = 9_999_999;
-    private const int MaximumAp = 999_999;
-    private const uint RebirthTitanMateria = 14_011;
 
-    public int InventoryOffset => schema.IsRemake ? RemakeInventoryOffset : RebirthInventoryOffset;
-    public int InventoryStride => schema.IsRemake ? RemakeInventoryStride : RebirthInventoryStride;
-    public int PlayTimeOffset => schema.IsRemake ? RemakePlayTimeOffset : RebirthPlayTimeOffset;
+    public int InventoryOffset => _layout.InventoryOffset;
+    public int InventoryStride => _layout.InventoryStride;
+    public int PlayTimeOffset => _layout.PlayTimeOffset;
     public Confidence MeaningConfidence => schema.IsDemo ? Confidence.Inferred : Confidence.Verified;
+
+    public uint TypeId(bool materia, int slot) => U32(IdOffset(materia, slot));
+    public uint Ap(int slot) => U32(IdOffset(true, slot) + GameplayLayout.MateriaApDelta);
+    public int Level(int slot) => bytes[_layout.MateriaLevelOffset + slot * GameplayLayout.MateriaStride];
+    public int Quantity(int slot) => BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(IdOffset(false, slot) + GameplayLayout.QuantityDelta));
+    public IntegerSpec? ApRange(int slot) => _materiaPolicy.Range(slot);
 
     public IReadOnlyList<ViewNode> Summary(Func<ScalarField, FieldNode> bind)
     {
@@ -49,13 +38,13 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
             bind(Define("game/playtime", "Play time", PlayTimeOffset,
                 IntegerSpec.UInt32 with { Format = IntegerFormat.Duration, UnitsPerSecond = 1 })),
         };
-        var gilId = schema.IsRemake ? RemakeGilId : RebirthGilId;
+        var gilId = _layout.GilType;
         var gilSlots = Enumerable.Range(0, InventoryCount).Where(i => U32(InventoryOffset + i * InventoryStride) == gilId).ToArray();
         if (gilSlots.Length == 1)
         {
-            nodes.Add(bind(Define("game/gil", "Gil", InventoryOffset + gilSlots[0] * InventoryStride + QuantityOffset,
-                IntegerSpec.Int32 with { Min = 0, Max = MaximumGil }, signed: true,
-                editable: true, warning: $"{EditWarning} Value limited to 0–{MaximumGil:N0}.")));
+            nodes.Add(bind(Define("game/gil", "Gil", InventoryOffset + gilSlots[0] * InventoryStride + GameplayLayout.QuantityDelta,
+                _quantityPolicy.Range(gilSlots[0]) ?? IntegerSpec.Int32, signed: true,
+                editable: _quantityPolicy.Range(gilSlots[0]) is not null, warning: $"{EditWarning} Limits are editor policy, not proven game caps.")));
         }
         else
         {
@@ -76,7 +65,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
         var count = materia ? MateriaCount : InventoryCount;
         var category = materia ? "materia" : "inventory";
         return [.. Enumerable.Range(0, (count + RowsPerPage - 1) / RowsPerPage).Select(page =>
-            SectionNode.Lazy($"Slots {page * RowsPerPage}–{Math.Min(count, (page + 1) * RowsPerPage) - 1}",
+            SectionNode.Lazy($"Slots {page * RowsPerPage}-{Math.Min(count, (page + 1) * RowsPerPage) - 1}",
                 $"{category}/{page}"))];
     }
 
@@ -91,37 +80,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
         var rows = new List<TableRow>();
         for (var i = page * RowsPerPage; i < Math.Min(count, (page + 1) * RowsPerPage); i++)
         {
-            var idOffset = materia ? (schema.IsRemake ? RemakeMateriaIdOffset : RebirthMateriaIdOffset) + i * MateriaStride
-                : InventoryOffset + i * InventoryStride;
-            var id = U32(idOffset);
-            var key = $"{(materia ? "materia" : "inventory")}/{i}";
-            var cells = new Dictionary<string, ViewNode>(StringComparer.Ordinal)
-            {
-                ["slot"] = new TextNode(i.ToString()),
-                ["name"] = new TextNode(id == 0 ? "Empty" : ItemNames.Lookup(schema, materia, id)),
-                ["id"] = bind(Define($"{key}/id", "Item ID", idOffset, IntegerSpec.UInt32 with { Format = IntegerFormat.Hex })),
-            };
-            if (materia)
-            {
-                var apOffset = (schema.IsRemake ? RemakeMateriaApOffset : RebirthMateriaApOffset) + i * MateriaStride;
-                var levelOffset = (schema.IsRemake ? RemakeMateriaLevelOffset : RebirthMateriaLevelOffset) + i * MateriaStride;
-                var editable = IsWritableMateria(id);
-                cells["quantity"] = bind(Define($"{key}/ap", "AP", apOffset,
-                    IntegerSpec.UInt32 with { Min = 0, Max = MaximumAp }, editable: editable,
-                    warning: MateriaWarning(id, editable)));
-                cells["level"] = bind(Define($"{key}/level", "Level", levelOffset, IntegerSpec.UInt8, singleByte: true));
-            }
-            else
-            {
-                var isGil = id == (schema.IsRemake ? RemakeGilId : RebirthGilId);
-                var maximum = isGil ? MaximumGil : MaximumQuantity;
-                var editable = IsWritableItem(id);
-                cells["quantity"] = bind(Define($"{key}/quantity", "Quantity", idOffset + QuantityOffset,
-                    IntegerSpec.Int32 with { Min = 0, Max = maximum }, signed: true, editable: editable,
-                    warning: ItemWarning(id, editable, isGil)));
-            }
-
-            rows.Add(new TableRow(key, cells));
+            rows.Add(Row(materia, i, bind));
         }
 
         List<TableColumn> columns = [new("slot", "Slot"), new("name", "Name"), new("id", "ID"), new("quantity", materia ? "AP" : "Quantity")];
@@ -133,8 +92,44 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
         return new TableNode(columns, rows)
         {
             Title = materia ? "Materia" : "Inventory",
-            Description = schema.IsDemo ? DemoWarning : "Names and fields follow the cited game-specific schemas; unknown IDs remain raw. Empty slots are retained.",
+            Description = (schema.IsDemo ? DemoWarning : "Empty slots and unknown IDs are retained.") + " " + EmbeddedCatalogs.Attribution,
         };
+    }
+
+    public TableRow Row(bool materia, int i, Func<ScalarField, FieldNode> bind)
+    {
+        var idOffset = IdOffset(materia, i);
+        var id = U32(idOffset);
+        var key = $"{(materia ? "materia" : "inventory")}/{i}";
+        var cells = new Dictionary<string, ViewNode>(StringComparer.Ordinal)
+        {
+            ["slot"] = new TextNode(i.ToString()),
+            ["name"] = new TextNode(id is 0 or uint.MaxValue ? "Empty" : materia ? references.Materia(id) : references.Item(id)),
+            ["id"] = bind(Define($"{key}/id", "Item ID", idOffset, IntegerSpec.UInt32 with { Format = IntegerFormat.Hex })),
+        };
+        if (materia)
+        {
+            var apOffset = _layout.MateriaApOffset + i * GameplayLayout.MateriaStride;
+            var levelOffset = _layout.MateriaLevelOffset + i * GameplayLayout.MateriaStride;
+            var range = _materiaPolicy.Range(i);
+            var editable = range is not null;
+            cells["quantity"] = bind(Define($"{key}/ap", "AP", apOffset,
+                range ?? IntegerSpec.UInt32, editable: editable,
+                warning: editable ? $"{EditWarning} AP is restricted to the original star tier; star transitions are disabled."
+                    : "Write disabled: empty, unknown, summon or AP/level mismatch. The original bytes are retained."));
+            cells["level"] = bind(Define($"{key}/level", "Level", levelOffset, IntegerSpec.UInt8, singleByte: true));
+        }
+        else
+        {
+            var isGil = id == (_layout.GilType);
+            var range = _quantityPolicy.Range(i);
+            var editable = range is not null;
+            cells["quantity"] = bind(Define($"{key}/quantity", "Quantity", idOffset + GameplayLayout.QuantityDelta,
+                range ?? IntegerSpec.Int32, signed: true, editable: editable,
+                warning: ItemWarning(id, editable, isGil)));
+        }
+
+        return new TableRow(key, cells);
     }
 
     private ScalarField Define(string id, string label, int offset, IntegerSpec spec, bool signed = false,
@@ -144,19 +139,12 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
 
     private static string? JoinWarnings(string? first, string? second) => first is null ? second : second is null ? first : $"{first} {second}";
 
-    private bool IsWritableItem(uint id) => !schema.IsDemo &&
-        id != uint.MaxValue && id != 0 && (id == (schema.IsRemake ? RemakeGilId : RebirthGilId) || ItemNames.Contains(schema, false, id));
-
-    private bool IsWritableMateria(uint id) => !schema.IsDemo && id != 0 && id != uint.MaxValue &&
-        id != RebirthTitanMateria && ItemNames.Contains(schema, true, id);
-
     private string ItemWarning(uint id, bool editable, bool gil) => !editable
-        ? $"Write disabled: {(id == 0 || id == uint.MaxValue ? "empty" : "unmapped or unsupported")} row; raw value is retained."
+        ? $"Write disabled: {(id == 0 || id == uint.MaxValue ? "empty" : "unmapped, equipment or progression")} row; raw value is retained."
         : $"{EditWarning} {(gil ? "Gil" : "item quantity")} cap is an editor bound, not a proven game limit.";
 
-    private string MateriaWarning(uint id, bool editable) => !editable
-        ? $"Write disabled: {(id == 0 || id == uint.MaxValue ? "empty" : id == RebirthTitanMateria ? "summon AP/level relationship is unverified" : "unmapped or unsupported")} row; raw value is retained."
-        : $"{EditWarning} AP cap is an editor bound, not a proven game limit.";
-
+    private int IdOffset(bool materia, int slot) => materia
+        ? _layout.MateriaIdOffset + slot * GameplayLayout.MateriaStride
+        : InventoryOffset + slot * InventoryStride;
     private uint U32(int offset) => BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset));
 }

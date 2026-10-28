@@ -31,18 +31,21 @@ public sealed class EditingTests
         var schema = Ff7Schema.ForTitle(title)!;
         var source = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == schema.Prefix + "000");
         var original = source.ReadAllBytes();
+        var itemSlot = Enumerable.Range(0, GameplayFields.InventoryCount).First(slot =>
+            BinaryPrimitives.ReadUInt32LittleEndian(original.AsSpan(0x4FA70 + slot * 32)) == 100); // Potion.
         using var document = new FinalFantasy7Plugin().Open(source);
         _ = document.BuildView();
-        _ = document.ExpandNode("inventory/0");
+        _ = document.ExpandNode($"inventory/{itemSlot / GameplayFields.RowsPerPage}");
         _ = document.ExpandNode("materia/0");
 
         var oldGil = document.GetValue("game/gil");
-        var oldQuantity = document.GetValue("inventory/1/quantity");
+        var quantityId = $"inventory/{itemSlot}/quantity";
+        var oldQuantity = document.GetValue(quantityId);
         var oldAp = document.GetValue("materia/0/ap");
         var outcome = document.ApplyEdits(
         [
             new("game/gil", FieldValue.Of(oldGil.AsInt32() + 1L)),
-            new("inventory/1/quantity", FieldValue.Of(oldQuantity.AsInt32() + 1L)),
+            new(quantityId, FieldValue.Of(oldQuantity.AsInt32() + 1L)),
             new("materia/0/ap", FieldValue.Of(oldAp.AsUInt32() + 1U)),
         ]);
 
@@ -57,7 +60,7 @@ public sealed class EditingTests
         var expectedOffsets = new HashSet<int>
         {
             inventoryOffset + gilSlot * inventoryStride + 4,
-            inventoryOffset + 1 * inventoryStride + 4,
+            inventoryOffset + itemSlot * inventoryStride + 4,
             0xBFA70,
         };
         var changed = Enumerable.Range(0, original.Length).Where(i => original[i] != edited[i]).ToArray();
@@ -67,7 +70,7 @@ public sealed class EditingTests
         var undo = document.ApplyEdits(
         [
             new("game/gil", oldGil),
-            new("inventory/1/quantity", oldQuantity),
+            new(quantityId, oldQuantity),
             new("materia/0/ap", oldAp),
         ]);
         Assert.True(undo.Succeeded);

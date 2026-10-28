@@ -1,0 +1,544 @@
+{
+  "records": [
+    {
+      "id": "10001",
+      "name": "Healing",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 750, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,750,1200"
+      }
+    },
+    {
+      "id": "10002",
+      "name": "Cleansing",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10003",
+      "name": "Revival",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 5000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,5000"
+      }
+    },
+    {
+      "id": "10004",
+      "name": "Fire",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10005",
+      "name": "Ice",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10006",
+      "name": "Lightning",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10007",
+      "name": "Wind",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10008",
+      "name": "Poison",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10009",
+      "name": "Binding",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10010",
+      "name": "Time",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10011",
+      "name": "Barrier",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 300, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,1200"
+      }
+    },
+    {
+      "id": "10012",
+      "name": "Subversion",
+      "category": "Magic Materia",
+      "description": "Magic Materia. Source AP thresholds: 0, 1200. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1200"
+      }
+    },
+    {
+      "id": "11001",
+      "name": "Magnify",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 500, 2000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,2000"
+      }
+    },
+    {
+      "id": "11002",
+      "name": "Elemental",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 2500, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,2500,10000"
+      }
+    },
+    {
+      "id": "11003",
+      "name": "Warding",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 2500, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,2500,10000"
+      }
+    },
+    {
+      "id": "11004",
+      "name": "HP Absorption",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0, 2500, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,2500,10000"
+      }
+    },
+    {
+      "id": "11005",
+      "name": "MP Absorption",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "11006",
+      "name": "Synergy",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "11007",
+      "name": "AP Up",
+      "category": "Support Materia",
+      "description": "Support Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "11008",
+      "name": "Ninja Cannonball",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "12001",
+      "name": "Steal",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "12002",
+      "name": "Assess",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300"
+      }
+    },
+    {
+      "id": "12003",
+      "name": "Enemy Skill",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "12004",
+      "name": "Chakra",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 50, 150, 450, 1350. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,50,150,450,1350"
+      }
+    },
+    {
+      "id": "12005",
+      "name": "Prayer",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300, 900, 1500, 2400. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,900,1500,2400"
+      }
+    },
+    {
+      "id": "12006",
+      "name": "ATB Boost",
+      "category": "Command Materia",
+      "description": "Command Materia. Source AP thresholds: 0, 300, 900, 1500, 2400. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,300,900,1500,2400"
+      }
+    },
+    {
+      "id": "13001",
+      "name": "HP Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13002",
+      "name": "MP Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13003",
+      "name": "Magic Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13004",
+      "name": "Luck Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500, 1500, 5000, 10000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500,1500,5000,10000"
+      }
+    },
+    {
+      "id": "13005",
+      "name": "Gil Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13006",
+      "name": "EXP Up",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13007",
+      "name": "Item Master",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13008",
+      "name": "ATB Stagger",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13009",
+      "name": "First Strike",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13010",
+      "name": "Steadfast Block",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13011",
+      "name": "Skill Master",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 250, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,250,1000"
+      }
+    },
+    {
+      "id": "13012",
+      "name": "Deadly Dodge",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 1000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1000"
+      }
+    },
+    {
+      "id": "13013",
+      "name": "Parry",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 500. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,500"
+      }
+    },
+    {
+      "id": "13014",
+      "name": "ATB Assist",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 1000, 4000. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,1000,4000"
+      }
+    },
+    {
+      "id": "13015",
+      "name": "Auto-Cure",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 100. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,100"
+      }
+    },
+    {
+      "id": "13016",
+      "name": "Provoke",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0, 100, 300. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0,100,300"
+      }
+    },
+    {
+      "id": "13017",
+      "name": "Pedometer",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "13018",
+      "name": "Refocus",
+      "category": "Complete Materia",
+      "description": "Complete Materia. Source AP thresholds: 0. PS5 star transitions are unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14001",
+      "name": "Chocobo & Moogle",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14002",
+      "name": "Shiva",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14003",
+      "name": "Ifrit",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14004",
+      "name": "Leviathan",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14005",
+      "name": "Bahamut",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14006",
+      "name": "Fat Chocobo",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14007",
+      "name": "Carbuncle",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14008",
+      "name": "Cactuar",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14009",
+      "name": "Chocobo Chick",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    },
+    {
+      "id": "14010",
+      "name": "Ramuh",
+      "category": "Summon Materia",
+      "description": "Summon materia; source AP arrays do not establish summon tier. AP editing is disabled.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {
+        "apThresholds": "0"
+      }
+    }
+  ]
+}
