@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.References;
+using SaveToolkit.Core.Sessions.Groups;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 
@@ -15,6 +16,7 @@ public sealed class Workspace : IDisposable
     private readonly PluginCatalog _catalog;
     private readonly ReferencePackStore? _packs;
     private readonly Lock _openGate = new();
+    private readonly DocumentGroupRegistry _groups;
     private int _documentCounter;
 
     public Workspace(string id, string name, DiskSaveSet set, PluginCatalog catalog, ReferencePackStore? packs = null)
@@ -24,6 +26,7 @@ public sealed class Workspace : IDisposable
         Set = set;
         _catalog = catalog;
         _packs = packs;
+        _groups = new DocumentGroupRegistry(this, catalog, packs, _openGate);
         CreatedAt = DateTimeOffset.UtcNow;
         Touch();
     }
@@ -35,6 +38,31 @@ public sealed class Workspace : IDisposable
     public DateTimeOffset LastAccess { get; private set; }
 
     public IReadOnlyCollection<DocumentSession> Documents => [.. _documents.Values];
+
+    public IReadOnlyList<DocumentGroupSession> DocumentGroups => _groups.All;
+
+    internal T WithOwnershipLock<T>(Func<T> operation) { lock (_openGate) return operation(); }
+
+    public IReadOnlyList<DocumentGroupOffer> ProposeGroups(string fileId, string pluginId) => _groups.Propose(fileId, pluginId);
+
+    public DocumentGroupSession OpenGroup(string proposalToken, string? releaseCleanDocumentId = null, DocumentSessionOptions? options = null)
+    {
+        lock (_openGate)
+        {
+            var group = _groups.Open(proposalToken, $"doc{Interlocked.Increment(ref _documentCounter)}", releaseCleanDocumentId, options);
+            _documents[group.Session.Id] = group.Session;
+            _references[group.Session.Id] = group.References;
+            return group;
+        }
+    }
+
+    internal bool ReleaseCleanDocument(string documentId)
+    {
+        if (!_documents.TryGetValue(documentId, out var document) || !document.TryCloseClean()) return false;
+        _documents.TryRemove(documentId, out _);
+        _references.TryRemove(documentId, out _);
+        return true;
+    }
 
     public void Touch() => LastAccess = DateTimeOffset.UtcNow;
 
@@ -58,6 +86,7 @@ public sealed class Workspace : IDisposable
 
         lock (_openGate)
         {
+            _groups.ThrowIfOwned(file.RelativePath);
             var existing = _documents.Values.FirstOrDefault(d => d.File.Id == fileId);
             if (existing is not null)
             {
@@ -86,14 +115,14 @@ public sealed class Workspace : IDisposable
 
     public bool Close(string documentId)
     {
-        if (!_documents.TryRemove(documentId, out var session))
+        lock (_openGate)
         {
-            return false;
+            if (!_documents.TryRemove(documentId, out var session)) return false;
+            _references.TryRemove(documentId, out _);
+            try { session.Dispose(); }
+            finally { _groups.Remove(documentId); }
+            return true;
         }
-
-        _references.TryRemove(documentId, out _);
-        session.Dispose();
-        return true;
     }
 
     public void Dispose()

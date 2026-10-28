@@ -40,6 +40,8 @@ internal static class WorkspaceEndpoints
         ws.MapPost("/files/{fileId}/open", (WorkspaceRef w, string fileId, [FromBody] OpenRequest? request) =>
             w.Value.Open(fileId, request?.PluginId).ToDto());
 
+        ws.MapDocumentGroups();
+
         MapDocumentRoutes(ws.MapGroup("/documents/{documentId}"));
 
         ws.MapPost("/export/plan", (WorkspaceRef w, ExportRequest request) =>
@@ -65,7 +67,7 @@ internal static class WorkspaceEndpoints
     private static void MapDocumentRoutes(RouteGroupBuilder doc)
     {
         doc.MapActionReview();
-        doc.MapGet("", (DocumentRef d) => d.Value.ToDto());
+        doc.MapGet("", (DocumentRef d) => d.Value.ToDto(d.Workspace));
         doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound());
         doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id));
         doc.MapGet("/collections/{collectionId}", QueryCollection);
@@ -82,6 +84,8 @@ internal static class WorkspaceEndpoints
         doc.MapGet("/download", (DocumentRef d) =>
         {
             var session = d.Value;
+            if (d.Workspace.DocumentGroups.Any(g => g.Session.Id == session.Id))
+                return Results.Conflict(new ErrorDto("Use workspace export to download all group members atomically."));
             var own = session.Serialize().FirstOrDefault(o => o.RelativePath == session.File.RelativePath);
             return own is null
                 ? Results.Stream(session.File.OpenRead(), "application/octet-stream", session.File.FileName)

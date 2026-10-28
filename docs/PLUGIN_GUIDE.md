@@ -123,6 +123,84 @@ Value ids are opaque strings you choose. They must be **unique and stable for th
 document** (the browser caches values by id, undo replays by id). Path-like ids work well:
 `inventory/2227368435/quantity`, `tree/7c416083/7c018857[6]/d18b252d`.
 
+## Document groups (coordinated multi-file transactions)
+
+`Serialize()` already supports multiple `FileOutput`s. Use the optional `IDocumentGroupPlugin`
+capability when separately opened character/profile, gameplay/common or primary/backup files need
+one owner, one reviewable action and one undo history. Existing single-file plugins need no changes.
+No production plugin is opted in automatically. The runnable example is
+`tests/SaveToolkit.Core.Tests/Fakes/GroupPlugin.cs` and its composed `GroupDocument` model.
+
+1. **Propose exact members.** `ProposeGroups(anchor)` returns `DocumentGroupProposal`s with a title,
+   stable proposal id, explicit `(Role, RelativePath)` members and any missing/unsupported/ambiguous
+   partner errors. Include the anchor. Offer alternatives for the user to select; never silently pick
+   a matching-looking profile or another generation. Core requires 2–32 unique roles/paths, the same
+   title and imported generation, and existing game files (not `sce_sys` metadata). Imported generation
+   is archive occurrence identity, not evidence of chronological or gameplay compatibility.
+2. **Validate the complete immutable input.** `ValidateGroup(input, references)` checks supported
+   title/build/roles, container/serial relationships, capacities and any cross-file invariants. It runs
+   before ownership, at opening, before each publication and at export. Return `FieldError`s; malformed
+   formats may throw `SaveFormatException`. The same pinned F2 reference context is used throughout.
+3. **Open independent models.** `OpenGroup(input, references)` returns `IGroupedSaveDocument`, an
+   `ISaveDocument` with `CaptureMemento()`. Compose your member models behind one aggregate view.
+   All field/row/action/lazy/collection ids must be unique across the group; role prefixes work well.
+   The group session uses one ordinary `DocumentSession` around a staging adapter, so F5 history,
+   F6 plans and semantic review, F8 query scopes, assets and reference pickers retain their normal APIs.
+   There are no competing writable member sessions.
+4. **Capture complete state, not just persisted bytes.** The F5 `DocumentMemento` must include every
+   member, stable duplicate identities, allocation counters and any state needed to replay lazy/query
+   bindings (including opaque cursors). It must restore into a *fresh* `OpenGroup` instance. Capture
+   immutable copies, report retained size honestly, and copy again on restore. Inverse-only tokens
+   depending on the original instance cannot implement this stronger group snapshot contract.
+5. **Stage and publish together.** Core opens a private candidate from pinned original inputs, restores
+   the current whole-group snapshot, rebuilds exposed bindings and executes the request there. Failed
+   edits, exceptions, rejected plans, invalid outputs and failed restores discard the candidate. They
+   never mutate the live group. A successful mutation publishes one candidate with one whole-group
+   undo token. Every group mutation/undo/redo is a structural revision boundary: both members' pages,
+   lazy views, explicit edits and F6 previews become stale together. Existing single-file scalar/page
+   `_structuralRevision` behavior is unchanged. A failed F5 history replay may conservatively invalidate
+   the view while preserving the live bytes/history.
+6. **Serialize every owned member exactly once.** Paths outside the selection, duplicates and omitted
+   members are rejected. Core copies output bytes, validates the combined candidate set, and reopens
+   **each** output with `IGamePlugin.Open(file, references)` in its own original path/role. That method
+   must therefore understand each selected role, not just the character/anchor. Only a fully verified
+   candidate is published. Workspace export repeats validation and overlap checks before returning its
+   complete plan/ZIP; imported blobs are never overwritten. ZIP HTTP responses are buffered before send.
+7. **Own backups explicitly.** Group-owned outputs never trigger automatic backup mirroring, even when
+   workspace export requests it. Include backups as named members if they must change; their roles and
+   relationship must pass your validation. Independent open backup sessions are also protected from
+   ordinary export mirroring. Distinct generations are never treated as backups of one another.
+
+Opening reserves all selected paths under the workspace ownership gate and checks their imported
+SHA-256 fingerprints. Another group, any open member session, or a dirty session already emitting a
+selected path is a conflict. Users must explicitly close conflicts. Confirmation may explicitly replace
+the selected anchor's **clean** session; the clean check and disposal are atomic with respect to edits.
+Fingerprints are checked again before staging/restoring and export. A changed imported blob requires
+reimport. Future opaque outputs from an independent document that overlap a group are rejected at export.
+
+The framework retains at most 128 proposal offers, 32 alternatives per request, and 256 distinct queried
+pages between group publications, to bound candidate rebinding. A publication releases remembered query
+pages; reopening a clean group also releases them. F5's existing history/snapshot budgets still apply;
+groups reject a mutation before publication if either its undo or redo snapshot would exceed the
+single-token budget, preserving the undo/redo promise. Older entries may still be evicted under the
+normal F5 limits. `Workspace.OpenGroup` accepts optional `DocumentSessionOptions` for host configuration.
+F6's query-row and preview budgets remain unchanged. Keep groups as small as the proven dependency requires.
+
+API flow (all paths under `/api/workspaces/{workspaceId}`):
+
+| Route | Behavior |
+| --- | --- |
+| `GET /files/{fileId}/group-proposals?pluginId=...` | Non-owning proposals with opaque confirmation tokens, role/path/file/fingerprint metadata and errors. |
+| `POST /document-groups` | `{ proposalToken, releaseCleanDocumentId? }`; confirms the exact selection and returns an ordinary document DTO with `groupMembers`. Tokens are workspace-local and single-use after success. |
+| Existing `/documents/{id}` routes | Group view, edits, plan/apply, changes/revert, queries, undo/redo and close use one session id/revision. `groupMembers` also appears on workspace document summaries; every owned file points at that session. |
+| `GET /documents/{id}/download` | Group sessions return 409 directing the caller to workspace export, which includes all members together. |
+
+The editor's **Choose related files** control lists the exact proposed paths before **Open group**.
+It reports partner/ownership errors, shows all owned members afterwards, and routes rail clicks on any
+member back to the coordinated editor. Use normal F6 planned actions for transfers and reconciliation;
+there is no second output or transaction API to bypass review. Console/game validation is still the
+plugin author's responsibility.
+
 ## Structural edits (add / remove / reorder)
 
 Actions that add, remove, reorder or replace records can't be undone by replaying `ValueChange`s.

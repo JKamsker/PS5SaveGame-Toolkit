@@ -1,0 +1,185 @@
+using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Views;
+
+namespace SaveToolkit.Core.Sessions.Groups;
+
+/// <summary>
+/// Runs mutations and restores on independent candidates. The owning DocumentSession serializes calls
+/// and supplies F5 history/F6 plans. A failed plugin call never reaches the published group model.
+/// </summary>
+internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocument, IQueryableDocument
+{
+    private const int MaxRememberedQueries = 256;
+    private readonly Func<IGroupedSaveDocument> _open;
+    private readonly Func<IGroupedSaveDocument, IReadOnlyList<FileOutput>> _verify;
+    private readonly Action _preflight;
+    private readonly long _maxSnapshotBytes;
+    private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (string Collection, QueryableCollectionQuery Query)> _queries = new(StringComparer.Ordinal);
+    private IGroupedSaveDocument _current;
+    private IReadOnlyList<FileOutput> _outputs;
+
+    public StagedGroupDocument(Func<IGroupedSaveDocument> open,
+        Func<IGroupedSaveDocument, IReadOnlyList<FileOutput>> verify, Action preflight, long maxSnapshotBytes)
+    {
+        _open = open;
+        _verify = verify;
+        _preflight = preflight;
+        _maxSnapshotBytes = maxSnapshotBytes;
+        _current = open();
+        try { _outputs = verify(_current); }
+        catch { _current.Dispose(); throw; }
+    }
+
+    public string Title => _current.Title;
+    public bool CanEdit => _current.CanEdit;
+    public ViewNode BuildView() => _current.BuildView();
+    public FieldValue GetValue(string valueId) => _current.GetValue(valueId);
+    public AssetContent? GetAsset(string assetId) => _current.GetAsset(assetId);
+    public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => _current.ReadBlob(blobId, offset, count);
+
+    public IReadOnlyList<ViewNode> ExpandNode(string lazyId)
+    {
+        var nodes = _current.ExpandNode(lazyId);
+        _expanded.Add(lazyId);
+        return nodes;
+    }
+
+    public IReadOnlyList<QueryableCollection> Collections =>
+        _current is IQueryableDocument queryable ? queryable.Collections : [];
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
+    {
+        var copy = query with { Filters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(new Dictionary<string, string>(query.Filters)) };
+        var key = collectionId + "\n" + System.Text.Json.JsonSerializer.Serialize(copy);
+        if (!_queries.ContainsKey(key) && _queries.Count >= MaxRememberedQueries)
+            throw new InvalidOperationException("This group has reached its 256 retained query pages. Close and reopen it to release page bindings.");
+        var page = Queryable(_current).Query(collectionId, copy);
+        _queries[key] = (collectionId, copy);
+        return page;
+    }
+
+    public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) => Mutate(candidate => candidate.ApplyEdits(edits));
+
+    public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
+    {
+        string? message = null;
+        var outcome = Mutate(candidate =>
+        {
+            var action = candidate.InvokeAction(actionId, parameters);
+            message = action.Message;
+            return new EditOutcome
+            {
+                Changes = action.Changes, Warnings = action.Warnings,
+                StructureChanged = action.StructureChanged || !action.Undoable, Revert = action.Revert,
+            };
+        });
+        if (!outcome.Succeeded) throw new SaveFormatException(string.Join("; ", outcome.Errors.Select(e => e.Message)));
+        return new ActionOutcome
+        {
+            Changes = outcome.Changes, Warnings = outcome.Warnings, Message = message,
+            StructureChanged = outcome.StructureChanged, Revert = outcome.Revert,
+        };
+    }
+
+    // Even a buggy planner cannot mutate the live model. The usual F6 deterministic revalidation
+    // still runs, with the same identities, pinned context and group-wide revision.
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
+    {
+        using var candidate = CreateCandidate(_current.CaptureMemento());
+        return Planner(candidate).PlanAction(actionId, parameters, scope);
+    }
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
+        Mutate(candidate => Planner(candidate).ApplyActionPlan(actionId, parameters, scope, plan));
+
+    public IReadOnlyList<FileOutput> Serialize()
+    {
+        _preflight();
+        // Never let a plugin-owned mutable buffer escape into an export plan.
+        return _outputs.Select(o => o with { Content = o.Content.ToArray() }).ToArray();
+    }
+
+    public DocumentMemento RestoreMemento(DocumentMemento memento)
+    {
+        var inverse = _current.CaptureMemento();
+        var candidate = CreateCandidate(memento, rebind: false);
+        IReadOnlyList<FileOutput> outputs;
+        try { outputs = _verify(candidate); }
+        catch { candidate.Dispose(); throw; }
+        Publish(candidate, outputs);
+        return inverse;
+    }
+
+    public void Dispose() => _current.Dispose();
+
+    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation)
+    {
+        var before = _current.CaptureMemento();
+        var candidate = CreateCandidate(before);
+        try
+        {
+            var outcome = mutation(candidate);
+            if (!outcome.Succeeded || outcome.Changes.Count == 0 && !outcome.StructureChanged && outcome.Revert is null)
+                return outcome;
+            CheckSnapshotBudget(before);
+            var outputs = _verify(candidate);
+            // A group promises both undo and redo. Refuse the candidate before publication if
+            // either whole-group token would trigger F5's single-step non-undoable fallback.
+            CheckSnapshotBudget(candidate.CaptureMemento());
+            // Check the new view before publication as well. Every committed group mutation is a
+            // structural boundary, so all F8 pages/lazy views and F6 plans become stale together.
+            _ = candidate.BuildView();
+            Publish(candidate, outputs);
+            candidate = null;
+            return outcome with { Revert = before, StructureChanged = true };
+        }
+        finally { candidate?.Dispose(); }
+    }
+
+    private void CheckSnapshotBudget(DocumentMemento memento)
+    {
+        if (memento.SizeBytes < 0 || memento.SizeBytes > _maxSnapshotBytes)
+            throw new SaveFormatException("The group snapshot exceeds its undo budget. No changes were published.");
+    }
+
+    private IGroupedSaveDocument CreateCandidate(DocumentMemento memento, bool rebind = true)
+    {
+        _preflight();
+        var candidate = _open();
+        try
+        {
+            _ = candidate.RestoreMemento(memento);
+            _ = candidate.BuildView();
+            foreach (var lazyId in rebind ? _expanded : [])
+            {
+                try { _ = candidate.ExpandNode(lazyId); }
+                catch (KeyNotFoundException) { } // An earlier structural commit retired this section.
+            }
+            if (rebind && candidate is IQueryableDocument queryable)
+                foreach (var (collection, query) in _queries.Values)
+                    if (queryable.Collections.Any(c => c.Id == collection)) _ = queryable.Query(collection, query);
+            return candidate;
+        }
+        catch { candidate.Dispose(); throw; }
+    }
+
+    private void Publish(IGroupedSaveDocument candidate, IReadOnlyList<FileOutput> outputs)
+    {
+        var previous = _current;
+        _current = candidate;
+        _outputs = outputs;
+        _queries.Clear();
+        // Disposal is cleanup after publication, not a transaction failure.
+        try { previous.Dispose(); }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { }
+    }
+
+    private static IActionPlanningDocument Planner(IGroupedSaveDocument document) =>
+        document as IActionPlanningDocument ?? throw new NotSupportedException("This group does not support action planning.");
+
+    private static IQueryableDocument Queryable(IGroupedSaveDocument document) =>
+        document as IQueryableDocument ?? throw new KeyNotFoundException("This group has no queryable collections.");
+}

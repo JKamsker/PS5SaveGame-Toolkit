@@ -15,7 +15,7 @@ internal static class DtoMapper
         plugin.Info.Description,
         plugin.Info.Maturity,
         plugin.Info.Games,
-        plugin.Info.References);
+        plugin.Info.References) { SupportsGroups = plugin is IDocumentGroupPlugin };
 
     public static WorkspaceSummaryDto ToSummary(this Workspace ws) => new(
         ws.Id,
@@ -28,6 +28,8 @@ internal static class DtoMapper
     public static WorkspaceDto ToDto(this Workspace ws, PluginCatalog catalog)
     {
         var openByFile = ws.Documents.ToDictionary(d => d.File.Id, d => d.Id, StringComparer.Ordinal);
+        foreach (var group in ws.DocumentGroups)
+            foreach (var member in group.Members) openByFile[member.FileId] = group.Session.Id;
         var titles = ws.Set.Directories
             .GroupBy(d => d.TitleId, StringComparer.OrdinalIgnoreCase)
             .Select(g => new TitleDto(
@@ -35,14 +37,16 @@ internal static class DtoMapper
                 GameName(catalog, g.Key),
                 [.. g.Cast<DiskSaveDirectory>().Select(d => ToDto(ws, d, openByFile))]))
             .ToList();
-        return new WorkspaceDto(ws.Id, ws.Name, ws.CreatedAt, titles, [.. ws.Documents.Select(ToSummary)]);
+        return new WorkspaceDto(ws.Id, ws.Name, ws.CreatedAt, titles, [.. ws.Documents.Select(d =>
+            d.ToSummary() with { GroupMembers = ws.DocumentGroups.FirstOrDefault(g => g.Session.Id == d.Id)?.Members })]);
     }
 
     public static DocumentSummaryDto ToSummary(this DocumentSession d) =>
         new(d.Id, d.File.Id, d.File.RelativePath, d.Title, d.Plugin.Info.Id, d.State.IsDirty);
 
-    public static DocumentDto ToDto(this DocumentSession d) =>
-        new(d.Id, d.File.Id, d.File.RelativePath, d.Title, d.Plugin.ToDto(), d.CanEdit, d.State, d.BuildView());
+    public static DocumentDto ToDto(this DocumentSession d, Workspace? workspace = null) =>
+        new(d.Id, d.File.Id, d.File.RelativePath, d.Title, d.Plugin.ToDto(), d.CanEdit, d.State, d.BuildView())
+        { GroupMembers = workspace?.DocumentGroups.FirstOrDefault(g => g.Session.Id == d.Id)?.Members };
 
     private static DirectoryDto ToDto(Workspace ws, DiskSaveDirectory dir, Dictionary<string, string> openByFile)
     {
