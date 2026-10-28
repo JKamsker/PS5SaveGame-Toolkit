@@ -97,3 +97,25 @@ preview/apply and retains warnings; no game-aware preset is synthesized.
 
 See the exact capture/reload checklist in [README.md](README.md). None of the
 owner-dependent phase completion or console-maturity criteria has been met.
+
+## Unlicensed-source round (2026-10-29)
+
+F2 pack 1.3.0 adds original descriptions for all 60 existing effect IDs using
+dungeons.tools PC 1.1.2.0 / Steam build 25754144 factual reference data. Source
+HTML SHA-256: `fce93f92b4d8fcaf99b9d95069a0de34d7dc0694d81009aea44a61e232f580b6`.
+There are 60 unique exact-name crosswalks, 60 compatible-gear counts and 180
+tier display observations; the 16 remaining site records have no established
+catalog-ID mapping and are omitted. Original MIT identifiers remain unchanged.
+
+The actual PS5 sample still has five inventory entries with empty `Effects`
+arrays. No populated PS5 effect record confirms these descriptions or display
+percentages. `CommunityDescriptionTests` checks that boundary and byte-identical
+sample output, source/hash metadata, picker/field provenance, and synthetic
+effect edits/reopen/undo under both transforms with unrelated bytes preserved.
+No tier display value became a serialized strength, validator or gameplay limit.
+
+The lack of a published community licence is resolved under owner decision
+2026-10-28. Verbatim game descriptions and publisher icons/art stay excluded;
+MetaBot direct imports also remain excluded under its general NC terms. The
+README exclusions table and `effect-notes.source.md` preserve exact source pins,
+attribution and alternatives. Write warnings and Experimental maturity remain.

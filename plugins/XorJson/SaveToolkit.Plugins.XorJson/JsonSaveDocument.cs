@@ -215,7 +215,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
             Confidence = record is null ? Confidence.Unknown : Confidence.Inferred,
             Warning = node.Warning ?? (_character is not null ? CharacterWriteWarning : WriteWarning),
             Description = $"{node.TypedPath}; original UTF-8 token at 0x{node.Offset:X}." +
-                (record is null ? "" : $" {record.Name} ({record.Category}). {record.AttributionText}. PC catalog; PS5 semantics unverified."),
+                (record is null ? "" : $" {record.Name} ({record.Category}). {record.Description} {record.AttributionText}. PC catalog; PS5 semantics unverified."),
         };
         // Character collection cells remain direct fields so F8 tables can edit them without
         // expanding a per-cell wrapper. Raw container expansion still exposes F5 actions.

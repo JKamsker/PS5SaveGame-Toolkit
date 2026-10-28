@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "xorjson.community.en",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "title": "Dungeons II community identifiers (PS5 unverified)",
   "plugins": [
     "format.json-xor"
@@ -38,16 +38,16 @@
       "files": [
         {
           "path": "effects.json",
-          "sha256": "494f9c5af204b553fc4303e6af02e97b37ea634d20761c768ad71b62d94899fe"
+          "sha256": "80c9b3344f8d7f0a37f5258b09dfe1dfe8cac0a30ad5d97b66fda5fb96d198fb"
         }
       ],
       "attribution": {
-        "sourceUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
-        "author": "Ishiaki and mcd2-save-editor contributors",
-        "license": "MIT",
-        "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
-        "retrieved": "2026-10-28",
-        "modifications": "Extracted effect identifiers, short names and categories only; no tiers, strengths, limits or tooltip prose."
+        "sourceUrl": "https://www.dungeons.tools/2/effects",
+        "author": "dungeons.tools community author (reference facts); Ishiaki and mcd2-save-editor contributors (MIT identifiers); SaveToolkit contributors (original summaries)",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://www.dungeons.tools/privacy",
+        "retrieved": "2026-10-29",
+        "modifications": "Original summaries of factual behavior, compatible gear counts and display percentages for 60 exact-name matches to pinned MIT identifiers. No game tooltip prose, icons, serialized strength, limits or validators imported. Source snapshot SHA-256: fce93f92b4d8fcaf99b9d95069a0de34d7dc0694d81009aea44a61e232f580b6. Existing MIT identifier notice remains in LICENSE.txt and catalogs.source.md."
       }
     },
     {

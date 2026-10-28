@@ -29,18 +29,17 @@ Every record links to its upstream dataset and records the pinned revision and
 Inferred PS5 applicability. The pack is not build-compatible evidence; its
 build-independent manifest means advisory text can be shown with the warning.
 
-No scripts from the upstream project were executed. No tooltip descriptions,
-long quest prose, icons, numeric limits, effect tiers/strengths, coordinates or game
-assets were copied. Upstream credits MetaBot and community/player-read game
-data; those upstream research links are not independently licensed description
-or artwork sources. Only the MIT community catalog's curated facts/short labels
-are embedded. The complete upstream MIT notice is preserved alongside the data.
+No scripts from the upstream project were executed. No verbatim tooltip descriptions,
+long quest prose, icons, serialized effect strengths, coordinates or game assets
+were copied. Upstream credits MetaBot and community/player-read game data; the
+MIT notice covers the curated identifiers and short labels, not proprietary
+artwork or game prose. The complete upstream MIT notice remains alongside the data.
 
 Round-2 conversion verified exact set equality for all pinned base/unique item
 IDs and retained every pinned quest name, task label and task ID. Downloads and
 the authored conversion script stayed under the system temporary directory;
 the generated data is validated by the F2 manifest hashes and conformance test.
-Pack version 1.2.0 retains the upstream revision above. No CC BY-SA wiki content
+Pack version 1.3.0 retains the upstream revision above. No CC BY-SA wiki content
 is included: direct page/licence retrieval returned HTTP 403 on 2026-10-28.
 
 Per-dataset attribution and normalized-file SHA-256 hashes are in `pack.json`.
@@ -51,3 +50,13 @@ provenance. The F2 Sources panel exposes licence/author/modification metadata.
 ## Completion additions
 
 `attributes.json` and `rarities.json` are derived from the same pinned MIT `hero.py` mapping. Attribute bounds are conservative PC community observations, marked Inferred and never presented as PS5 legal limits. `world.json` retains only quest follows relationships as prerequisite metadata; coordinates, rewards and artwork are excluded.
+
+## Unlicensed-source additions (owner decision 2026-10-28)
+
+`effects.json` now supplements all 60 MIT identifiers with original descriptions
+of factual behavior, compatible gear counts and tier display percentages from
+dungeons.tools. See [effect-notes.source.md](effect-notes.source.md) for the exact
+snapshot hash, author, licence status, extraction and provenance boundary.
+The manifest's effect dataset attributes both sources; the licence field records
+the unlicensed factual supplement, while this sidecar and `LICENSE.txt` preserve
+the MIT terms for the identifiers. No effect values became write validators.
