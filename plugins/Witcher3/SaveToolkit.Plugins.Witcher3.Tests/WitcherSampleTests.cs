@@ -97,7 +97,9 @@ public sealed class WitcherSampleTests(ITestOutputHelper output)
             {
                 fields++;
                 Assert.True(field.Spec.ReadOnly || field.ValueId.StartsWith("player/", StringComparison.Ordinal) ||
-                    field.ValueId.StartsWith("inventory/", StringComparison.Ordinal));
+                    field.ValueId.StartsWith("inventory/", StringComparison.Ordinal) ||
+                    field.ValueId.StartsWith("abilities/skills/", StringComparison.Ordinal) ||
+                    field.ValueId.StartsWith("gwent/collection/", StringComparison.Ordinal));
                 Assert.Equal(field.Value, document.GetValue(field.ValueId));
             }
 

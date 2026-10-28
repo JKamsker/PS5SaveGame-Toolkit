@@ -5,6 +5,7 @@ namespace SaveToolkit.Plugins.Witcher3;
 internal sealed record GwentCard(int Index, int Copies)
 {
     public bool Leader { get; init; }
+    public int CopiesOffset { get; init; }
 }
 
 internal static class GwentReader
@@ -62,7 +63,7 @@ internal static class GwentReader
                 var index = BinaryData.Int32(data, indices[0].ValueOffset);
                 var quantity = BinaryData.Int32(data, copies[0].ValueOffset);
                 if (index < 0 || quantity < 0 || !ids.Add(index)) { throw new SaveFormatException("Invalid Gwent card count or identity."); }
-                cards.Add(new GwentCard(index, quantity) { Leader = leader });
+                cards.Add(new GwentCard(index, quantity) { Leader = leader, CopiesOffset = copies[0].ValueOffset });
             }
         }
     }

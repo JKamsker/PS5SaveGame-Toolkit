@@ -49,7 +49,7 @@ public sealed class WitcherFeatureReaderTests
         Assert.Empty(GwentReader.ReadCollection(manager, nodes, data));
         (manager, nodes, data) = GwentFixture();
         var card = Assert.Single(GwentReader.ReadCollection(manager, nodes, data));
-        Assert.Equal(new GwentCard(3, 2), card);
+        Assert.Equal((3, 2, 20), (card.Index, card.Copies, card.CopiesOffset));
         // A bogus deck card after SBSelectedDeckIndex must never become collection evidence.
         nodes.Add(new Sav3Node(nodes.Count, 80, 4, "VL", "cardIndex", "Int32", 80, 4));
         manager.Children.Add(nodes.Count - 1);
