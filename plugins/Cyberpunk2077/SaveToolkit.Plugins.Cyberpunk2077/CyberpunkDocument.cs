@@ -8,6 +8,7 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 internal sealed class CyberpunkDocument : BoundSaveDocument
 {
     private const int PageSize = 128;
+    private const uint MaximumStack = 999_999; // Editor policy, not a proven game limit.
     private const uint MaximumMoney = 100_000_000; // Editor policy, not a proven game limit.
     private readonly string _path;
     private readonly CsavContainer _container;
@@ -16,6 +17,10 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
     private readonly Dictionary<int, IReadOnlyList<SaveFact>> _facts;
     private readonly byte[] _edited;
     private readonly InventoryItem? _money;
+    private readonly ItemNames _names = new();
+    private readonly ProgressionData? _progression;
+    private readonly ProgressionEditor? _progressionEditor;
+    private readonly string? _progressionWarning;
 
     public CyberpunkDocument(string path, CsavContainer container, CsavTree tree, IReadOnlyList<InventoryItem> items)
     {
@@ -24,6 +29,8 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
         _tree = tree;
         _items = items;
         _edited = container.Payload.ToArray();
+        _progression = ProgressionData.TryRead(container, tree, out _progressionWarning);
+        _progressionEditor = _progression is null ? null : new ProgressionEditor(_progression, _edited);
         var candidates = items.Where(i => i.ContainerId == 1 && i.TweakId == InventoryReader.MoneyTweakId &&
             i.QuantityOffset.HasValue && tree.Nodes[i.NodeId].Size == 29 && i.Structure == 0).ToArray();
         _money = candidates.Length == 1 ? candidates[0] : null;
@@ -32,7 +39,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
     }
 
     public override string Title => "Cyberpunk 2077 · CSAV";
-    public override bool CanEdit => _money is not null;
+    public override bool CanEdit => _items.Any(IsWritable) || _progressionEditor?.CanEdit == true;
 
     public override ViewNode BuildView() => new TabsNode([
         new Tab("Overview", [
@@ -43,16 +50,19 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
                 new Stat("Nodes", _tree.Nodes.Count.ToString()),
                 new Stat("Expanded bytes", _edited.Length.ToString())]),
             new TextNode(CanEdit
-                ? "Experimental: only player money can be changed. Console loading has not been tested."
-                : "Read-only: no unique player money record in the verified PS5 schema was found.") { Tone = Tone.Warning },
-            new TextNode("Attributes, perk points, level and street cred remain undecoded in the scriptable systems payload."),
+                ? "Experimental: player attributes, point balances and supported player stack quantities can be changed. Console loading has not been tested."
+                : "Read-only: no editable records in a verified PS5 schema were found.") { Tone = Tone.Warning },
+            new TextNode(_progressionWarning ?? "Level, street cred and XP are read-only until their transition thresholds are verified."),
             .. (_money is null ? Array.Empty<ViewNode>() : [QuantityField(_money)])]),
+        new Tab("Player development", _progressionEditor?.Build(binding => Field(binding.Id, binding.Label, binding.Spec,
+            binding.Get, binding.Set, binding.Validate) with { Confidence = Confidence.Verified })
+            ?? [new TextNode(_progressionWarning ?? "Player development layout is not verified; edits refused.") { Tone = Tone.Warning }]),
         new Tab("Inventory", InventoryPages()),
         new Tab("Facts", _facts.Select(pair => (ViewNode)SectionNode.Lazy($"FactsTable {pair.Key}", $"facts/{pair.Key}/0", pair.Value.Count.ToString())).ToArray()),
         new Tab("Node tree", TreePage(-1, 0)),
         new Tab("Container", [SectionNode.Lazy("Chunk table", "chunks"),
             new HexNode("original", _container.Original.Length) { Title = "Original CSAV bytes" },
-            new HexNode("payload", _edited.Length) { Title = "Expanded payload (offsets exclude the container header)" }])]);
+            new HexNode("payload", _edited.Length) { Title = "Expanded payload with fixed patches (point additions materialize on export)" }])]);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
@@ -93,7 +103,31 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
         throw new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
     }
 
-    public override IReadOnlyList<FileOutput> Serialize() => [new FileOutput(_path, _container.Rebuild(_edited))];
+    public override IReadOnlyList<FileOutput> Serialize()
+    {
+        var bytes = _container.Rebuild(_edited, _progression?.Rebuild(_edited));
+        if (_progressionEditor is not null)
+        {
+            var reopened = CsavContainer.Parse(bytes);
+            _progressionEditor.Verify(reopened, CsavTree.Parse(reopened));
+        }
+
+        return [new FileOutput(_path, bytes)];
+    }
+
+    public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
+    {
+        var before = _progressionEditor?.DerivedValues();
+        var outcome = base.ApplyEdits(edits);
+        if (!outcome.Succeeded || before is null)
+        {
+            return outcome;
+        }
+
+        var after = _progressionEditor!.DerivedValues();
+        return outcome with { Changes = [.. outcome.Changes, .. before.Where(p => p.Value != after[p.Key])
+            .Select(p => new ValueChange(p.Key, p.Value, after[p.Key]))] };
+    }
 
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
     {
@@ -125,15 +159,15 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
     private FieldNode QuantityField(InventoryItem item)
     {
         var offset = item.QuantityOffset!.Value;
-        var writable = item == _money;
-        var maximum = Math.Max(MaximumMoney, BinaryData.UInt32(_container.Payload, offset));
+        var writable = IsWritable(item);
+        var maximum = Math.Max(item == _money ? MaximumMoney : MaximumStack, BinaryData.UInt32(_container.Payload, offset));
         Action<FieldValue>? setter = null;
         Func<FieldValue, string?>? validate = null;
         if (writable)
         {
             setter = value => BinaryPrimitives.WriteUInt32LittleEndian(_edited.AsSpan(offset), value.AsUInt32());
             validate = value => value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 || value.AsInteger() > maximum
-                ? "Money is outside the editor's supported range." : null;
+                ? "Quantity is outside the editor's supported range." : null;
         }
 
         return Field($"inventory/{item.NodeId}/quantity", item.TweakId == InventoryReader.MoneyTweakId ? "Money (Items.money)" : "Quantity",
@@ -145,6 +179,10 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
         };
     }
 
+    private bool IsWritable(InventoryItem item) => item == _money || item.ContainerId == 1 &&
+        item.QuantityOffset.HasValue && _tree.Nodes[item.NodeId].Size == 29 && item.Structure == 0 &&
+        _names.Find(item.TweakId)?.Kind is "Ammo" or "Component" or "Consumable";
+
     private IReadOnlyList<ViewNode> InventoryPages() => _items.Count == 0
         ? [new TextNode("Inventory schema is unsupported; inspect the inventory node bytes.")]
         : [SectionNode.Lazy("Inventory items", "inventory/0/0", _items.Count.ToString())];
@@ -155,10 +193,11 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
         {
             ["node"] = SectionNode.Lazy($"itemData {item.NodeId}", $"node/{item.NodeId}"),
             ["container"] = new TextNode(item.ContainerId.ToString()),
-            ["id"] = new TextNode(item.TweakId == InventoryReader.MoneyTweakId ? "Items.money" : $"0x{item.TweakId:X16}") { Monospace = true },
+            ["id"] = new TextNode(_names.Find(item.TweakId)?.Name ?? $"0x{item.TweakId:X16}") { Monospace = true },
+            ["hash"] = new TextNode($"0x{item.TweakId:X16}") { Monospace = true },
             ["quantity"] = item.QuantityOffset.HasValue ? QuantityField(item) : new TextNode("No quantity field"),
         })).ToArray();
-        return [new TableNode([new("node", "Node"), new("container", "Container ID"), new("id", "TweakDB ID"), new("quantity", "Quantity")], rows),
+        return [new TableNode([new("node", "Node"), new("container", "Container ID"), new("id", "Item record name"), new("hash", "TweakDB ID"), new("quantity", "Quantity")], rows),
             .. NextPage("Inventory", "inventory/0", start, _items.Count)];
     }
 

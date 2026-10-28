@@ -5,12 +5,13 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 
 public sealed class Cyberpunk2077Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("cyberpunk2077", "Cyberpunk 2077", "0.1.0")
+    public PluginInfo Info { get; } = new("cyberpunk2077", "Cyberpunk 2077", "0.2.0")
     {
-        Description = "CSAV node, inventory and fact explorer; experimental money editing for the verified PS5 schema.",
+        Description = "CSAV node, inventory and fact explorer; experimental attributes, development points and stack editing for the verified PS5 schema.",
         Games = [new GameTitle("PPSA04027", "Cyberpunk 2077")],
         Maturity = PluginMaturity.Experimental,
-        References = ["https://github.com/WolvenKit/CyberCAT", "https://github.com/WolvenKit/WolvenKit/tree/main/WolvenKit.RED4/Save"],
+        References = ["https://github.com/WolvenKit/CyberCAT", "https://github.com/WolvenKit/WolvenKit/tree/main/WolvenKit.RED4/Save",
+            "https://github.com/Deweh/CyberCAT-SimpleGUI"],
     };
 
     public ProbeResult Probe(ISaveFile file)

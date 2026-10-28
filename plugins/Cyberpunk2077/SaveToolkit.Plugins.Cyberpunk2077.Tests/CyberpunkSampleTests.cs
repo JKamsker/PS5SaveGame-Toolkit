@@ -57,7 +57,7 @@ public sealed class CyberpunkSampleTests(ITestOutputHelper output)
             var money = Assert.Single(InventoryReader.Read(before, tree), item => item.TweakId == InventoryReader.MoneyTweakId);
             using var document = plugin.Open(file);
             var fields = ExpandAll(document);
-            Assert.Single(fields, field => !field.Spec.ReadOnly);
+            Assert.Equal(14, fields.Count(field => !field.Spec.ReadOnly));
             var field = Assert.Single(fields, item => item.ValueId == $"inventory/{money.NodeId}/quantity");
             Assert.True(document.ApplyEdits([new(field.ValueId, FieldValue.Of(123456L))]).Succeeded);
             var bytes = Assert.Single(document.Serialize()).Content.ToArray();
@@ -91,7 +91,7 @@ public sealed class CyberpunkSampleTests(ITestOutputHelper output)
     public void EditBatchIsAtomicAndReadBlobsAreIsolated()
     {
         using var document = new Cyberpunk2077Plugin().Open(SampleFiles()[0]);
-        var field = Assert.Single(ExpandAll(document), field => !field.Spec.ReadOnly);
+        var field = Assert.Single(ExpandAll(document), field => field.ValueId == "inventory/39/quantity");
         var before = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(99L)), new("missing", FieldValue.Of(1L))]).Succeeded);
         Assert.Equal(field.Value, document.GetValue(field.ValueId));

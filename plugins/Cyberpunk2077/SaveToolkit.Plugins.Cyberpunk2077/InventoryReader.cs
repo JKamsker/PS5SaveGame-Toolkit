@@ -13,11 +13,13 @@ internal static class InventoryReader
     private const int VerifiedGameVersion = 2210;
     private const int VerifiedArchiveVersion = 195;
 
+    public static bool IsVerifiedVersion(CsavContainer container) => container.SaveVersion == VerifiedSaveVersion &&
+        container.GameVersion == VerifiedGameVersion && container.ArchiveVersion == VerifiedArchiveVersion;
+
     public static IReadOnlyList<InventoryItem> Read(CsavContainer container, CsavTree tree)
     {
         // Only this schema has been checked against the supplied PS5 bytes.
-        if (container.SaveVersion != VerifiedSaveVersion || container.GameVersion != VerifiedGameVersion ||
-            container.ArchiveVersion != VerifiedArchiveVersion)
+        if (!IsVerifiedVersion(container))
         {
             return [];
         }

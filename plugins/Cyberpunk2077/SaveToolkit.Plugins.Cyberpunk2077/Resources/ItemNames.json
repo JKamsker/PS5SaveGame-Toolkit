@@ -1,0 +1,182 @@
+[
+  {
+    "id": "00000010FE92A980",
+    "name": "Ammo.HandgunAmmo",
+    "kind": "Ammo"
+  },
+  {
+    "id": "0000001622CF0E78",
+    "name": "Ammo.RecipeHandgunAmmo",
+    "kind": "Other"
+  },
+  {
+    "id": "000000144F63BFEA",
+    "name": "Ammo.RecipeRifleAmmo",
+    "kind": "Other"
+  },
+  {
+    "id": "0000001638CD4355",
+    "name": "Ammo.RecipeShotgunAmmo",
+    "kind": "Other"
+  },
+  {
+    "id": "0000001A1708D4F7",
+    "name": "Ammo.RecipeSniperRifleAmmo",
+    "kind": "Other"
+  },
+  {
+    "id": "0000000E5BEC7BB0",
+    "name": "Ammo.RifleAmmo",
+    "kind": "Ammo"
+  },
+  {
+    "id": "00000010E490E4AD",
+    "name": "Ammo.ShotgunAmmo",
+    "kind": "Ammo"
+  },
+  {
+    "id": "00000014089D1CBC",
+    "name": "Ammo.SniperRifleAmmo",
+    "kind": "Ammo"
+  },
+  {
+    "id": "000000145C1A7DFB",
+    "name": "Items.BonesMcCoy70V0",
+    "kind": "Consumable"
+  },
+  {
+    "id": "000000142B1D4D6D",
+    "name": "Items.BonesMcCoy70V1",
+    "kind": "Consumable"
+  },
+  {
+    "id": "00000014B2141CD7",
+    "name": "Items.BonesMcCoy70V2",
+    "kind": "Consumable"
+  },
+  {
+    "id": "000000155AC5B1CB",
+    "name": "Items.CommonMaterial1",
+    "kind": "Component"
+  },
+  {
+    "id": "00000013DF810683",
+    "name": "Items.EpicMaterial1",
+    "kind": "Component"
+  },
+  {
+    "id": "0000001519DBB192",
+    "name": "Items.FirstAidWhiffV0",
+    "kind": "Consumable"
+  },
+  {
+    "id": "000000156EDC8104",
+    "name": "Items.FirstAidWhiffV1",
+    "kind": "Consumable"
+  },
+  {
+    "id": "00000015F7D5D0BE",
+    "name": "Items.FirstAidWhiffV2",
+    "kind": "Consumable"
+  },
+  {
+    "id": "00000017631C96CF",
+    "name": "Items.GrenadeEMPRegular",
+    "kind": "Other"
+  },
+  {
+    "id": "000000192896D9F8",
+    "name": "Items.GrenadeFlashRegular",
+    "kind": "Other"
+  },
+  {
+    "id": "00000018EDC63EF7",
+    "name": "Items.GrenadeFragRegular",
+    "kind": "Other"
+  },
+  {
+    "id": "00000014BB03F330",
+    "name": "Items.HolsteredFists",
+    "kind": "Other"
+  },
+  {
+    "id": "00000018A5EC1EA5",
+    "name": "Items.LegendaryMaterial1",
+    "kind": "Component"
+  },
+  {
+    "id": "0000001399E69AA2",
+    "name": "Items.PlayerFppHead",
+    "kind": "Other"
+  },
+  {
+    "id": "000000156E6C75D9",
+    "name": "Items.PlayerMaTppHead",
+    "kind": "Other"
+  },
+  {
+    "id": "0000001D46C4B50E",
+    "name": "Items.Preset_V_Unity_Cutscene",
+    "kind": "Other"
+  },
+  {
+    "id": "0000001A70DB4434",
+    "name": "Items.Q000_StreetKid_Pants",
+    "kind": "Other"
+  },
+  {
+    "id": "0000001A18683849",
+    "name": "Items.Q000_StreetKid_Shoes",
+    "kind": "Other"
+  },
+  {
+    "id": "0000001BCC508217",
+    "name": "Items.Q000_StreetKid_TShirt",
+    "kind": "Other"
+  },
+  {
+    "id": "0000001CB57F7F11",
+    "name": "Items.QuickHackEpicMaterial1",
+    "kind": "Component"
+  },
+  {
+    "id": "0000002138555834",
+    "name": "Items.QuickHackLegendaryMaterial1",
+    "kind": "Component"
+  },
+  {
+    "id": "0000001C6B7F4DC8",
+    "name": "Items.QuickHackRareMaterial1",
+    "kind": "Component"
+  },
+  {
+    "id": "0000002062D7084F",
+    "name": "Items.QuickHackUncommonMaterial1",
+    "kind": "Component"
+  },
+  {
+    "id": "000000130181345A",
+    "name": "Items.RareMaterial1",
+    "kind": "Component"
+  },
+  {
+    "id": "0000001709E636CA",
+    "name": "Items.UncommonMaterial1",
+    "kind": "Component"
+  },
+  {
+    "id": "0000001F398D5069",
+    "name": "Items.Underwear_Basic_01_Bottom",
+    "kind": "Other"
+  },
+  {
+    "id": "0000000BF5E188EC",
+    "name": "Items.money",
+    "kind": "Money"
+  },
+  {
+    "id": "0000001A9261AD92",
+    "name": "Items.w_melee_004__fists_a",
+    "kind": "Other"
+  }
+]
