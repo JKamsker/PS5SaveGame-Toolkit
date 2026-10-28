@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.Pragmata.Views;
 internal sealed class InventoryView(PragmataDocument document, LazyPages pages)
 {
     public IReadOnlyList<ViewNode> Build() => [
-        new TextNode("Item names and legal stack limits are unknown. IDs are preserved; quantities use the stored int32 range.") { Tone = Tone.Warning },
+        new TextNode("Player-facing item mappings and legal stack limits are unverified. Attributed reference packs can supply names, descriptions and images; raw IDs are always preserved. Quantities use the stored int32 range.") { Tone = Tone.Warning },
         document.Layout.Items.Count <= LazyPages.PageSize ? Table(0, document.Layout.Items.Count) :
             pages.Section("inventory", "_InventoryItems", document.Layout.Items.Count, (start, count) => [Table(start, count)]),
         new ActionNode(PragmataViews.QuantityAction, "Set quantity of all items to N")
@@ -29,11 +29,14 @@ internal sealed class InventoryView(PragmataDocument document, LazyPages pages)
             return new TableRow((start + index).ToString(CultureInfo.InvariantCulture), new Dictionary<string, ViewNode>
             {
                 ["id"] = new TextNode($"0x{id:x8} / {id}") { Monospace = true },
+                ["name"] = document.References.ItemField(item.Find(KnownHashes.ItemId)!),
                 ["quantity"] = document.Field(item.Find(KnownHashes.Quantity)!) with { Label = "Quantity" },
                 ["equipped"] = new TextNode(id == equipped ? "Equipped" : ""),
+                ["details"] = new SectionNode("Item details and sources", document.References.ItemDetails(id)),
             });
         }).ToArray();
-        return new TableNode([new("id", "Item ID (hex / decimal)"), new("quantity", "Quantity"), new("equipped", "Equipped")], rows)
+        return new TableNode([new("name", "Item (read-only reference)"), new("id", "Raw ID (hex / decimal)"),
+            new("quantity", "Quantity"), new("equipped", "Equipped"), new("details", "Details / sources")], rows)
         {
             Title = "_InventoryItems",
         };

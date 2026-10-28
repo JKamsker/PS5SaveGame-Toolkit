@@ -1,6 +1,7 @@
 using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Plugins.Pragmata.Crypto;
 
 namespace SaveToolkit.Plugins.Pragmata;
@@ -11,12 +12,13 @@ public sealed class PragmataPlugin : IGamePlugin
     private const string SlotDirectorySuffix = "Slot";
     private const string GameplaySaveLabel = "Gameplay save";
 
-    public PluginInfo Info { get; } = new("pragmata", "Pragmata", "0.1.0")
+    public PluginInfo Info { get; } = new("pragmata", "Pragmata", "0.2.0")
     {
-        Description = "DSSS/Mandarin editor with inventory, synchronized clocks and a lazy typed explorer.",
+        Description = "DSSS/Mandarin editor with attributed inventory references, read-only progression views, synchronized clocks and a lazy typed explorer.",
         Games = [new GameTitle("PPSA02530", "Pragmata")],
         Maturity = PluginMaturity.Experimental,
-        References = ["https://github.com/kvasszn/ree-save-editor", "https://github.com/google/cityhash"],
+        References = ["https://github.com/kvasszn/ree-save-editor", "https://github.com/google/cityhash",
+            Format.HashNames.Source, "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21"],
     };
 
     public ProbeResult Probe(ISaveFile file)
@@ -30,7 +32,10 @@ public sealed class PragmataPlugin : IGamePlugin
             string.Equals(file.FileName, "data00-1.bin", StringComparison.OrdinalIgnoreCase) ? "System data" : GameplayLabel(file.Directory.Name));
     }
 
-    public ISaveDocument Open(ISaveFile file) => new PragmataDocument(file.RelativePath, file.ReadAllBytes());
+    public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references) =>
+        new PragmataDocument(file.RelativePath, file.ReadAllBytes(), references);
 
     private static string GameplayLabel(string directoryName)
     {

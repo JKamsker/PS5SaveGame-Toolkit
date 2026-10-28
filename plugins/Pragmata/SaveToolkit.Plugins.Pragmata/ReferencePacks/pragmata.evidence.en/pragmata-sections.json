@@ -1,0 +1,301 @@
+{
+  "records": [
+    {
+      "id": "008054c1",
+      "name": "Database",
+      "category": "section",
+      "description": "app.DatabaseManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.DatabaseManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "06291f36",
+      "name": "Chapter",
+      "category": "section",
+      "description": "app.ChapterManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.ChapterManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "177d363c",
+      "name": "Campaign",
+      "category": "section",
+      "description": "app.CampaignManager.GameData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.CampaignManager.GameData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1c465d1e",
+      "name": "In Game Shop",
+      "category": "section",
+      "description": "app.InGameShopManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.InGameShopManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1d2193f5",
+      "name": "Gui",
+      "category": "section",
+      "description": "app.GuiManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.GuiManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "294fc0b8",
+      "name": "Character",
+      "category": "section",
+      "description": "app.CharacterManager.GameSaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.CharacterManager.GameSaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "354904c5",
+      "name": "Check Point",
+      "category": "section",
+      "description": "app.CheckPointManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.CheckPointManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "39a8f04e",
+      "name": "Environment Scene",
+      "category": "section",
+      "description": "app.EnvironmentSceneManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.EnvironmentSceneManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3a83076c",
+      "name": "Inventory",
+      "category": "section",
+      "description": "app.InventoryManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.InventoryManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4e2e2448",
+      "name": "App Uds",
+      "category": "section",
+      "description": "app.AppUdsManager.GameSaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.AppUdsManager.GameSaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6c2d3fc4",
+      "name": "Menu",
+      "category": "section",
+      "description": "app.MenuManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.MenuManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7d74c37a",
+      "name": "Game Clock",
+      "category": "section",
+      "description": "app.GameClock.GameSaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.GameClock.GameSaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8625456b",
+      "name": "App Analysis Log",
+      "category": "section",
+      "description": "app.analysislog.AppAnalysisLogManager.GameSaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.analysislog.AppAnalysisLogManager.GameSaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "90556bfe",
+      "name": "State",
+      "category": "section",
+      "description": "app.StateManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.StateManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "aeb9ba77",
+      "name": "Light",
+      "category": "section",
+      "description": "app.LightManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.LightManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "afa789cc",
+      "name": "Difficulty Level System",
+      "category": "section",
+      "description": "app.DifficultyLevelSystem.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.DifficultyLevelSystem.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b1c9a0b7",
+      "name": "Prop",
+      "category": "section",
+      "description": "app.PropManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.PropManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "bac94d0f",
+      "name": "Game Occurrence Event",
+      "category": "section",
+      "description": "app.GameOccurrenceEventManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.GameOccurrenceEventManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "bc854021",
+      "name": "Objective",
+      "category": "section",
+      "description": "app.ObjectiveManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.ObjectiveManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c003a978",
+      "name": "Game Occurrence Record",
+      "category": "section",
+      "description": "app.GameOccurrenceRecordManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.GameOccurrenceRecordManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c0116a49",
+      "name": "Item",
+      "category": "section",
+      "description": "app.ItemManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.ItemManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d7a5f463",
+      "name": "Enhance",
+      "category": "section",
+      "description": "app.EnhanceManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.EnhanceManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d9c2f963",
+      "name": "Conversation",
+      "category": "section",
+      "description": "app.ConversationManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.ConversationManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "db1b261c",
+      "name": "Various Param",
+      "category": "section",
+      "description": "app.VariousParamManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.VariousParamManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "df3c55af",
+      "name": "Gimmick",
+      "category": "section",
+      "description": "app.GimmickManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.GimmickManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e02e7bac",
+      "name": "Equipment Preset",
+      "category": "section",
+      "description": "app.EquipmentPresetManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.EquipmentPresetManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ff6c1e0a",
+      "name": "Weapon",
+      "category": "section",
+      "description": "app.WeaponManager.SaveData; grouping inferred from the identifier, not a verified in-game effect.",
+      "attributes": {
+        "identifier": "app.WeaponManager.SaveData",
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    }
+  ]
+}

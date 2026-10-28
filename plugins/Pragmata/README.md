@@ -9,7 +9,14 @@ test has been performed; only a human should promote this plugin to Stable.
 - Gameplay overview: slot, console-local save date, hours played, cleared flag,
   difficulty hash and editable fixed-size header fields.
 - Inventory: existing item IDs in hex and decimal, int32 quantities, equipped
-  marker, and an atomic “Set quantity of all items to N” action.
+  marker, and an atomic “Set quantity of all items to N” action. F2 reference packs
+  supply attributed names/descriptions/icons through read-only F4 reference fields
+  and F3 detail cells. The embedded item catalog labels all 90 IDs unmapped.
+- Bounded read-only Gadgets, Loadout, Progress and World tabs, grouped by the
+  hash-confirmed section classes. Stored record counts are not completion totals.
+- A developer-only F1 decoder and differential harness, plus a versioned section/ID
+  manifest. Canonical paths align reordered sections and uniquely keyed records.
+  See [evidence and exact owner capture checklist](evidence/README.md).
 - Synchronized playtime and elapsed/demo/pause editing, with every derived value
   reported in `EditOutcome.Changes` for framework undo/redo.
 - System/settings overview with localized `Title`, `SubTitle`, `Detail` strings.
@@ -28,7 +35,7 @@ After opening, gameplay titles include the parsed slot and inferred playtime in
 hours, e.g. “Pragmata · Slot 0 · 25.7 h”.
 
 Each tab starts with one experimental notice. Field descriptions retain compact
-provenance (`path · u32 @0x50`, with plaintext offsets); confidence conveys name
+provenance (`path · u32 @0x50`, with plaintext offsets) and source attribution; confidence conveys name
 verification separately. Inventory-specific risks and clock guidance remain in
 their tabs. The overview integrity stat reads “Verified”, with hash block counts
 and embedded key/IV verification details in its hint.
@@ -139,11 +146,13 @@ explicitly. No UTC conversion is made.
 
 ## Verified versus inferred and unknown
 
-`Resources/HashNames.json` embeds **413 identifiers**: all 288 distinct field
-names in the samples and 125 of 127 class names. Every entry reproduces its
+`Resources/HashNames.json` embeds **408 identifiers** selected from the pinned
+MIT RE_RSZ schema. Every entry reproduces its
 MurmurHash3 over UTF-8 with seed `0xffffffff`, checked on resource load and in
-tests. Class hashes `00000000` and `6cb10f10` remain unnamed; unmatched native
-root hashes remain numeric.
+tests. Five names from the earlier unlicensed dump are no longer distributed:
+`Slot`, `Detail`, `_IsFirstGetWeapon`, `_IsFirstGetActiveSkill` and
+`_AcquireContentsHashes`. Their fields remain available by raw hash. Class hashes
+`00000000` and `6cb10f10` remain unnamed; unmatched native root hashes remain numeric.
 
 Upstream dumps resolve additional names beyond the earlier map, including
 `_ApplicationVersion`, `_SaveSlotIconHash`, `_SaveSlotStageHash`,
@@ -162,27 +171,33 @@ the full signed int32 storage range with a warning; bulk N is nonnegative int32.
 The bulk action changes existing entries, including zero-count entries, without
 adding records or setting unlock flags.
 
-Regenerate the identifier subset from reviewed local upstream dumps:
+Regenerate the pack from a reviewed local copy of the pinned MIT schema:
 
 ```powershell
-python plugins/Pragmata/scripts/update-hash-names.py --archive <sample.zip> --rsz <rszpragmata.json> --strings <strings_pragmata.txt>
+python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz <MIT-rszpragmata.json>
 ```
 
-This developer script uses the supplied verified reader and its `cryptography`
-dependency. It does not download code or extract saves, rejects ambiguous names,
-and suppresses Python bytecode cache writes. Reference SHA-256 values:
+The generator validates source SHA-256
+`67e5ed72e0e9efff0287214ad36737a8959d799aa1510b6b76591731a21f4df2`,
+reads only the reviewed schema, current known-hash subset and evidence manifest,
+and does not download/execute upstream code or read saves. HashNames is the
+reviewed observed-hash allowlist; adding new hashes requires reviewing that subset.
 
-| Reference | SHA-256 |
-| --- | --- |
-| `rszpragmata.json` | `0857b7c165e10e9ceeef65eab80ef84157262bcc03f3da8f50108a3b95d4dad8` |
-| `strings_pragmata.txt` | `ce4616cd876ac4b02a5fc541782c49d00a5f55b8b46eac8956aa46d5f709665d` |
-| `enumspragmata.json` (reviewed only) | `c6a828b65ca065cd05003395e6d1b7a8d08872190dacca904899a615f9527c3b` |
+The embedded `pragmata.evidence.en` v1.0.0 pack contains `pragmata-identifiers`
+(408 MIT names), `pragmata-sections` (27 MIT-derived group labels) and
+`pragmata-items` (90 CC0 original unmapped-ID descriptions). User packs can supply
+names/descriptions/icons under another pack ID; item keys are invariant decimal
+uint32 strings. Identifier and section keys are eight-digit lower-case hex.
+See [pack provenance and import contract](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/data.source.md).
+F4 reference fields remain read-only, imported labels are at most Inferred, and
+reference limits do not become edit caps. No artwork or copyrighted game descriptions
+are embedded. Counts in the new family tabs denote records, not completion totals.
 
 ## Validation and development
 
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
-dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
 dotnet test --project tests/SaveToolkit.Core.Tests
 pwsh -NoProfile -File plugins/Pragmata/scripts/check-code-size.ps1
 ```
@@ -211,10 +226,19 @@ backup/snapshot labels against parsed slot values, one experimental notice per
 tab, compact field and lazy Raw provenance, integrity hints, and current playtime
 titles under a locale that normally uses a decimal comma.
 
-Recorded Round 2 validation: API build succeeded with zero warnings/errors;
+Historical Round 2 validation: API build succeeded with zero warnings/errors;
 **74 plugin tests passed**, **43 Core tests passed**. An independent run with an
 empty sample directory passed 44 pure tests and skipped all 30 sample-based tests.
-The identifier-generation script reproduced all 413 resource entries exactly.
+The previous identifier-generation script reproduced 413 entries; this round
+replaces that data route with the pinned MIT-only subset.
+
+Roadmap validation: **89 plugin tests passed, 0 failed, 0 skipped** with the sample
+environment exported in the test command. API and research builds passed with zero
+warnings/errors. New checks cover all-sample decoder completeness and unique paths,
+section/inventory reorder invariance, exact quantity delta, duplicate-key fallback,
+decode limits, manifest coverage, pack hashes/licensing, user-pack override and
+provenance, read-only batch rejection, bounded family views, and framework undo/redo
+of raw item-ID edits with read-only reference aliases.
 
 Builds run the plugin-local code-size check: warn above 300 C# lines and fail
 above 500 unless a reviewed justification exists in `code-size-exemptions.json`.
@@ -234,7 +258,23 @@ the plugin warns to expand every quantity page first to retain undo; otherwise
 the action explicitly returns `Undoable = false`. Internal bindings alone cannot
 safely promise framework undo. No framework change was required for these samples.
 
-## Sources and notices
+F1's stock CLI resolves plugin IDs through `PluginViewDecoder`; it has no external
+decoder-assembly registration option. The plugin-local research executable consumes
+`ISaveDecoder` directly through the shared F1 engine, so there is no production plugin
+dependency on Testing and no duplicate diff engine. Optional future request: discover
+external decoder hooks in the stock CLI. F2/F3/F4/F5 required no framework changes.
+
+## Sources and attribution
+
+| Dataset / code | Source, author, license | Retrieved / transformations |
+| --- | --- | --- |
+| HashNames; `pragmata-identifiers`; section names / declared types | [Pinned RE_RSZ schema](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json), alphazolam / praydog, [MIT](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/LICENSE) | 2026-10-28; observed hash subset; name hashing, group labels, type cross-index. Full notice in THIRD_PARTY_NOTICES.txt. |
+| Item ID placeholders / sample observation statistics | [Issue #21](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21), Save Toolkit contributors, [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) for original descriptions / computed facts | 2026-10-28; no gameplay name mapping; GUIDs fingerprinted; no sample payloads. |
+| CityHash64 algorithm adaptation | [Google CityHash](https://github.com/google/cityhash), Google, MIT | Existing port; full notice in THIRD_PARTY_NOTICES.txt. |
+| AES-OFB vectors | [NIST SP 800-38A](https://csrc.nist.gov/pubs/sp/800/38/a/final), NIST, US government publication | Existing F.4.1 test vectors. |
+| DSSS / Mandarin / typed-stream observations | [Supplied verified research](../../docs/research/pragmata/README.txt), owner-supplied format evidence | Existing independently implemented crypto/format; no upstream editor code embedded. |
+
+Research-only sources (no unlicensed datasets embedded):
 
 - [Verified format](../../docs/research/pragmata/FORMAT.txt),
   [research README](../../docs/research/pragmata/README.txt), `pragmata_save.py`,
@@ -254,7 +294,8 @@ safely promise framework undo. No framework change was required for these sample
 - [rszpragmata.json](https://github.com/kvasszn/ree-save-editor/blob/main/assets/pragmata/rszpragmata.json),
   [strings_pragmata.txt](https://github.com/kvasszn/ree-save-editor/blob/main/assets/pragmata/strings_pragmata.txt),
   [enumspragmata.json](https://github.com/kvasszn/ree-save-editor/blob/main/assets/pragmata/enumspragmata.json):
-  identifier candidates and enum research; only reproduced identifier facts are embedded.
+  earlier identifier candidates and enum research. Replaced by the MIT RE_RSZ subset;
+  no data from these unlicensed dumps is newly redistributed.
 - [Google CityHash](https://github.com/google/cityhash/blob/master/src/city.cc):
   CityHash64 algorithm, adapted under MIT; see [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
 - [NIST SP 800-38A](https://csrc.nist.gov/pubs/sp/800/38/a/final), Appendix F.4.1:

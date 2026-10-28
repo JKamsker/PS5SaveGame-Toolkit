@@ -12,6 +12,7 @@ internal sealed class PragmataViews
     private readonly LazyPages _pages = new();
     private readonly RawExplorer _raw;
     private readonly InventoryView _inventory;
+    private readonly EvidenceView _evidence;
 
     public PragmataViews(PragmataDocument document, int blockCount)
     {
@@ -19,6 +20,7 @@ internal sealed class PragmataViews
         _blockCount = blockCount;
         _raw = new RawExplorer(document, _pages);
         _inventory = new InventoryView(document, _pages);
+        _evidence = new EvidenceView(document, _pages);
     }
 
     public ViewNode Build()
@@ -27,6 +29,14 @@ internal sealed class PragmataViews
         if (_document.Layout.Inventory is not null)
         {
             tabs.Add(new Tab("Inventory", _inventory.Build()));
+            tabs.Add(new Tab("Gadgets", _evidence.Gadgets()));
+            tabs.Add(new Tab("Loadout", _evidence.Family("app.WeaponManager.SaveData", "app.EnhanceManager.SaveData",
+                "app.EquipmentPresetManager.SaveData", "app.CharacterManager.GameSaveData")));
+            tabs.Add(new Tab("Progress", _evidence.Family("app.ChapterManager.SaveData", "app.ObjectiveManager.SaveData",
+                "app.GameOccurrenceRecordManager.SaveData", "app.GameOccurrenceEventManager.SaveData", "app.CampaignManager.GameData",
+                "app.DifficultyLevelSystem.SaveData")));
+            tabs.Add(new Tab("World", _evidence.Family("app.CheckPointManager.SaveData", "app.GimmickManager.SaveData",
+                "app.PropManager.SaveData", "app.EnvironmentSceneManager.SaveData", "app.LightManager.SaveData")));
             tabs.Add(new Tab("Clock", Clock()));
         }
         tabs.Add(new Tab("Raw", [
@@ -62,7 +72,7 @@ internal sealed class PragmataViews
             stats.Add(new Stat("Difficulty hash", $"0x{_document.Read(header.Find(KnownHashes.Difficulty)!).AsUInt32():x8}") { Hint = "Difficulty ID meaning unknown." });
             fields.Add(new SectionNode("Save header", header.Children.Select(n => (ViewNode)_document.Field(n)).ToArray()));
         }
-        fields.Add(new SectionNode("File detail", layout.Detail.Children.Select(n => (ViewNode)new TextNode($"{HashNames.Label(n.Hash)}: {_document.PreviewOrValue(n)}")).ToArray()));
+        fields.Add(new SectionNode("File detail", layout.Detail.Children.Select(n => (ViewNode)new TextNode($"{HashNames.Label(n.Hash)}: {_document.PreviewOrValue(n)} · {HashNames.Provenance(n.Hash)}")).ToArray()));
         return [new StatsNode(stats), .. fields];
     }
 

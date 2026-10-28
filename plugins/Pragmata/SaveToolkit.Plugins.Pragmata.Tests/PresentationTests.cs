@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.Pragmata.Tests;
 public sealed class PresentationTests
 {
     [Theory]
-    [InlineData("data000.bin", 4)]
+    [InlineData("data000.bin", 8)]
     [InlineData("data00-1.bin", 2)]
     public void EachTabStartsWithOneExperimentalNoticeAndIntegrityDetailsStayInHint(string fileName, int tabCount)
     {
@@ -44,7 +44,7 @@ public sealed class PresentationTests
         using var document = EditingTests.Gameplay();
         var difficulty = document.Layout.Header!.Find(KnownHashes.Difficulty)!;
         var field = document.Field(difficulty);
-        Assert.Equal($"{difficulty.Path} · u32 @0x{difficulty.Offset:x}", field.Description);
+        Assert.Equal($"{difficulty.Path} · u32 @0x{difficulty.Offset:x} · {HashNames.Provenance(difficulty.Hash)}", field.Description);
         Assert.Equal(Confidence.Verified, field.Confidence);
         Assert.Null(field.Warning);
         Assert.Equal(Confidence.Inferred, document.Field(document.Layout.Header.Find(KnownHashes.Playtime)!).Confidence);

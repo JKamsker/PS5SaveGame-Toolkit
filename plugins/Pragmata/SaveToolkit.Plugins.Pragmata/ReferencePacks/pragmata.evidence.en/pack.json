@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "id": "pragmata.evidence.en",
+  "version": "1.0.0",
+  "title": "Pragmata observed identifiers (not a gameplay dictionary)",
+  "plugins": [
+    "pragmata"
+  ],
+  "titleIds": [
+    "PPSA02530"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "pragmata-identifiers",
+      "kind": "records",
+      "title": "pragmata-identifiers",
+      "files": [
+        {
+          "path": "pragmata-identifiers.json",
+          "sha256": "fb65f76e7b03781b50fb396cf27abd1a3ee310edda5d36bdc17fda33e0de612b"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json",
+        "author": "alphazolam; praydog (RSZ dumps)",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected observed hashes; verified spelling; original group labels and explicit unknown-ID descriptions. No game text or artwork."
+      }
+    },
+    {
+      "id": "pragmata-sections",
+      "kind": "records",
+      "title": "pragmata-sections",
+      "files": [
+        {
+          "path": "pragmata-sections.json",
+          "sha256": "45d3ac2e42312fce2eef2f3bc7dcff336247a4b3500abd678abbc163a6fd9d0e"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json",
+        "author": "alphazolam; praydog; Save Toolkit contributors (group labels)",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected observed hashes; verified spelling; original group labels and explicit unknown-ID descriptions. No game text or artwork."
+      }
+    },
+    {
+      "id": "pragmata-items",
+      "kind": "records",
+      "title": "pragmata-items",
+      "files": [
+        {
+          "path": "pragmata-items.json",
+          "sha256": "25e17cabbc82777f1492eea2ae41ea51c34987afd7be334ec21818bafe73ad93"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21",
+        "author": "Save Toolkit contributors",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected observed hashes; verified spelling; original group labels and explicit unknown-ID descriptions. No game text or artwork."
+      }
+    }
+  ]
+}

@@ -14,7 +14,8 @@ internal sealed class RawExplorer(PragmataDocument document, LazyPages pages)
         {
             var title = node.Type == FieldTags.Class ? $"{label} · {HashNames.Label(node.ClassHash)}" : label;
             return pages.Section($"tree/{node.Path}", title, node.Children.Count,
-                (start, count) => node.Children.Skip(start).Take(count).Select(Node).ToArray());
+                (start, count) => node.Children.Skip(start).Take(count).Select(Node).ToArray()) with
+            { Description = $"{HashNames.Provenance(node.Hash)} Class: {HashNames.Provenance(node.ClassHash)}" };
         }
         if (node.IsPrimitive)
         {
@@ -23,7 +24,7 @@ internal sealed class RawExplorer(PragmataDocument document, LazyPages pages)
                 return new TextNode($"{label}: {value} (non-finite, read-only) · {node.Path}") { Monospace = true };
             return document.Field(node, raw: true) with { Label = label };
         }
-        return new TextNode($"{label}: {document.Preview(node)} · {node.Size} bytes · {node.Path} (read-only)") { Monospace = node.Type == FieldTags.Struct };
+        return new TextNode($"{label}: {document.Preview(node)} · {node.Size} bytes · {node.Path} (read-only) · {HashNames.Provenance(node.Hash)}") { Monospace = node.Type == FieldTags.Struct };
     }
 
 }

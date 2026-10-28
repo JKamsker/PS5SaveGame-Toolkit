@@ -1,0 +1,2860 @@
+{
+  "records": [
+    {
+      "id": "0077d1c0",
+      "name": "_AssignEnvironmentSceneHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "008054c1",
+      "name": "app.DatabaseManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "012dbe79",
+      "name": "_State",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "012e593a",
+      "name": "_IsCompleted",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "017ac8bc",
+      "name": "_RecordType",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "019e88d0",
+      "name": "AttackOwnerID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0220c830",
+      "name": "_InteractDataContainer",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "02811834",
+      "name": "_CompletedArray",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "02a54029",
+      "name": "TotalCount",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "02af5e7c",
+      "name": "app.structure.SafeRoomLevelData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "034a5d08",
+      "name": "_OpenHelmet",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "03e66912",
+      "name": "PerkData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "04e0ff1d",
+      "name": "EquippedActiveSkills",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0564ccc6",
+      "name": "_EventType",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "06291f36",
+      "name": "app.ChapterManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "06fb805d",
+      "name": "app.structure.InteractableTriggerData.UnitData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "071df001",
+      "name": "_AcquiredItem",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "07dbc12f",
+      "name": "app.structure.SimpleAnimationData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "08b76848",
+      "name": "app.DatabaseManager.Unit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "09263dfc",
+      "name": "IsFinished",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "09978425",
+      "name": "app.ChapterFlagContext.ChapterProgressNumber.ChapterProgressWork",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0a6acfdb",
+      "name": "_SendedEventTypeHashes",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0a9c798b",
+      "name": "ChapterIDHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0c6dbd95",
+      "name": "_GameElapsedTime",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0ccf6b1d",
+      "name": "_DoneSpawn",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0cfa3fa1",
+      "name": "app.InteractTriggerResult",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0d89f003",
+      "name": "_Scale",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0e32cc88",
+      "name": "_ShortcutSlot",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "0e7d3f26",
+      "name": "_NowStatusUpgradeMaxLevel",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "10c16ed8",
+      "name": "app.structure.TimeCountDriverData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "10ed8be6",
+      "name": "_TalkCount",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "10f5bc8c",
+      "name": "CurrentPlayerCostumeHash_Trial",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "130a4b5a",
+      "name": "RecordTime",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "131fba48",
+      "name": "app.structure.BooleanSwitchData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "14108b06",
+      "name": "_ChapterProgressNo",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "148a10b8",
+      "name": "app.OptionValueInt",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "15b23ff6",
+      "name": "EquipmentPerkSaveData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "15dd369b",
+      "name": "_Guid",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "165b6f05",
+      "name": "WeaponShortcutSlot",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "16edacee",
+      "name": "app.SaveDataManager.SaveSlotHeaderData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "177d363c",
+      "name": "app.CampaignManager.GameData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "183b5bb9",
+      "name": "_IsCountStart",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "18f1d92d",
+      "name": "TotalBuyAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1965f652",
+      "name": "_InheritGameMode",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "19707431",
+      "name": "StoredRankPoint",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "197e74eb",
+      "name": "UserAge",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1a6232f1",
+      "name": "_UniversalPosition",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1a6b36c0",
+      "name": "CurrentStatusHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1af1a566",
+      "name": "GetItemContextId",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1b5a30c0",
+      "name": "_ID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1ba5ddb2",
+      "name": "app.MenuManager.SaveData.Unit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1c1438af",
+      "name": "app.OptionValueFloat",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1c192d52",
+      "name": "app.DatabaseManager.Unit.AssortmentDataUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1c465d1e",
+      "name": "app.InGameShopManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1d2193f5",
+      "name": "app.GuiManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1db48585",
+      "name": "RecordScore",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "1e3e50e1",
+      "name": "_Units",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "21e985fd",
+      "name": "app.PlayerBackup",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "22506996",
+      "name": "KindHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "22efd80d",
+      "name": "FailedCount",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "237a92e1",
+      "name": "app.structure.GetWeaponPropData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "23ee9295",
+      "name": "app.GadgetSlotInfo",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "24d6f859",
+      "name": "_ParamID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "24f98c12",
+      "name": "_Backups",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "26fe64d6",
+      "name": "app.structure.ItemContainerData.ItemInfo",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "288da618",
+      "name": "_IsCountFinish",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "28c9a89e",
+      "name": "_ResultData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "294fc0b8",
+      "name": "app.CharacterManager.GameSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2a7c5f52",
+      "name": "Hash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2b1634eb",
+      "name": "via.storage.saveService.SaveFileDetail",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2c3f2603",
+      "name": "_IsInteractable",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2c591b6a",
+      "name": "app.GameOccurrenceEventManager.SaveData.Item",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2c5b07d0",
+      "name": "CurrentTaskId",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2c5e1288",
+      "name": "app.SaveDataManager.SystemSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2ca07fd7",
+      "name": "app.PossessionPerkUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2ced4bb7",
+      "name": "app.PurchaseWeaponInfo",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2cfe2607",
+      "name": "app.OptionValueBool",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2ea5f1fa",
+      "name": "_Rotation",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2eee9c51",
+      "name": "_IsReleased",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2f6b6cc8",
+      "name": "Points",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2f9a089b",
+      "name": "_GlobalLightData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "2f9e01ad",
+      "name": "_PointIndex",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "31093a9f",
+      "name": "app.CampaignManager.SystemSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "31249159",
+      "name": "RecordTimeAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3185b7a5",
+      "name": "_InventoryItems",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "31fb62d7",
+      "name": "app.structure.SimpleGateData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "32059a8a",
+      "name": "CampaignDifficultyType",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "347be4ec",
+      "name": "CurrentChapters",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "354904c5",
+      "name": "app.CheckPointManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3576d5d4",
+      "name": "_IsSwitching",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "359042ba",
+      "name": "_IsWeaponUsedInThroughPlaying",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "35999fa1",
+      "name": "_IsGet",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "35c03d72",
+      "name": "GamePadButtons",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "365fdc82",
+      "name": "_KeyConfigId",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "37a04c0b",
+      "name": "Activity020",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "37fc1b38",
+      "name": "_GadgetSlotTypeList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3818ff6c",
+      "name": "IsNewGamePlusCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "39470d5d",
+      "name": "_SceneIdHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "39532f9f",
+      "name": "_slot",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "399fcbe9",
+      "name": "app.ItemInventoryInfo",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "39a8f04e",
+      "name": "app.EnvironmentSceneManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "39f3d647",
+      "name": "app.structure.PostureData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3a0b335c",
+      "name": "TotalCountAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3a376578",
+      "name": "_StructureDataContainer",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3a83076c",
+      "name": "app.InventoryManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3b7a2c39",
+      "name": "_ExplicitLightEnabled",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3cdafb40",
+      "name": "ReleasedAreaId",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3d77b685",
+      "name": "_AssignChapterHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3ddeab32",
+      "name": "_IsObtained",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3e874770",
+      "name": "app.KeyConfigValue",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3f6134b3",
+      "name": "Units",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "3fb449b8",
+      "name": "app.structure.InteractableTriggerData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "41a3979a",
+      "name": "_Hash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "41e2d9fb",
+      "name": "_IsInherit",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "42f44152",
+      "name": "TotalGetAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "43255bfa",
+      "name": "_Unlock",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "432adf88",
+      "name": "Quantity",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "44685924",
+      "name": "app.DatabaseManager.Unit.MissionDataUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "44ee794d",
+      "name": "_HP",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "45be832b",
+      "name": "_SystemSaveDataList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "476e3622",
+      "name": "app.GameClock.SystemSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "487cb347",
+      "name": "_IsCounting",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4932b41b",
+      "name": "app.structure.SimpleIterateData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4956bed7",
+      "name": "_DirtyParamBit_Uint",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "49864485",
+      "name": "_SaveSlotStageHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4a39cc11",
+      "name": "_Level",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4ac4066a",
+      "name": "_CurrentSaveSlotHeaderDescriptionHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4b0731ef",
+      "name": "GuiHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4c5f732d",
+      "name": "_DifficultyHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4e2e2448",
+      "name": "app.AppUdsManager.GameSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4e8845ca",
+      "name": "_SavePlayActualTime",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4ee2de73",
+      "name": "app.GameOccurrenceRecordManager.SaveData.Record",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4ef8ab14",
+      "name": "CurrentBasementRespawnPointHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "4f91ac8d",
+      "name": "SpecifiedWeaponDatas",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "500e2b4b",
+      "name": "LastEquipmentWeaponArray",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "505f6c70",
+      "name": "app.OptionManager.SystemSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "530cbccd",
+      "name": "CharacterBackups",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5474f754",
+      "name": "_IsOn",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "55d2ad51",
+      "name": "app.DatabaseManager.Unit.ConversationDataUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5674b734",
+      "name": "_ProgressWork",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "57c2e8d7",
+      "name": "_HasDoneUnlockedExchangeBaseMoney",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "582ca914",
+      "name": "StrategyUnlockDisplayedReinforceIDList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5968f5b0",
+      "name": "Activity010",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "597a29aa",
+      "name": "_ChapterGroup",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5a4113d1",
+      "name": "app.structure.SimpleLiftData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5aa1d910",
+      "name": "_AdditionalBasementSideChapterHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5d9399cc",
+      "name": "_IsPlayOnce",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5db7b8ed",
+      "name": "_Position",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5ddf33d6",
+      "name": "_CurrentSceneIDHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5df4b035",
+      "name": "_Likability",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5e6c05db",
+      "name": "_ChapterFlagId",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "5f4e4d94",
+      "name": "app.ContextID",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "60146a62",
+      "name": "_IsDynamicGen",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "60ffa18d",
+      "name": "LastEquipmentActiveSkillArray",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6142be0b",
+      "name": "app.OptionValueScriptable",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "61603112",
+      "name": "_CostumeOwnerIDHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6182c62b",
+      "name": "_SaveSlotIconHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "61ca51b7",
+      "name": "_DemoSpendingTime",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "626f35aa",
+      "name": "_Records",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "62a6dd88",
+      "name": "MenuUnits",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "63cdd17f",
+      "name": "TotalKill",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "64837520",
+      "name": "EquippedPassivePerkIDs",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "64d7e4fa",
+      "name": "app.DatabaseManager.Unit.PerkDataUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6521e877",
+      "name": "_HasDoneUnlockedExchangeSPFilament",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6829aab6",
+      "name": "_Flag",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "686a58e1",
+      "name": "RecordScoreAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "688fbadb",
+      "name": "_Count",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "68c1e0fb",
+      "name": "_ResetTiming",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "68f5ad41",
+      "name": "_LightEnabled",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6a208e01",
+      "name": "ItemData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6aa43862",
+      "name": "_IsFlowing",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6aea89fe",
+      "name": "_ParamBits",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6be795f4",
+      "name": "_CurrentCostumeList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6c2d3fc4",
+      "name": "app.MenuManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6cded215",
+      "name": "app.PerkUnitSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "6f622946",
+      "name": "_IsCompleteSpawnParam",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7150f246",
+      "name": "TotalUse",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "71619411",
+      "name": "TotalGet",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "719f80f7",
+      "name": "StoredObjectID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "73bf48e9",
+      "name": "ID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7420a3f4",
+      "name": "TotalKillAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "76611c5d",
+      "name": "FlagSaveData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "781ee97a",
+      "name": "_ApplicationVersion",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "788c716e",
+      "name": "_IsFailedPrevMinigame",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "78a006fb",
+      "name": "TotalBuy",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "78dff3cc",
+      "name": "_SystemElapsedTime",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7904f79d",
+      "name": "ClearedCount",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "796bbcdd",
+      "name": "_IsOpen",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "79f282c8",
+      "name": "IsHDRBrightnessSetupped",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7af4ed11",
+      "name": "_DisableCampaignResultTips",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7bb53050",
+      "name": "IsFirstBoot",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7bc24b1b",
+      "name": "_NowChapterFlagID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7c018857",
+      "name": "_GameSaveDataList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7c864afb",
+      "name": "_CurrentCostumeIDHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7cc080af",
+      "name": "app.ChapterFlagContext.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7d74c37a",
+      "name": "app.GameClock.GameSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7e3c6b40",
+      "name": "EquippedHackingStyle",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7e6e0a29",
+      "name": "app.DatabaseManager.Unit.CharacterDataUnit.SpecifiedWeaponDataUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "7f87ccf7",
+      "name": "app.ChapterFlagID",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "82ec7e31",
+      "name": "MenuHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "84341541",
+      "name": "app.LightManager.EnvironmentLightingData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "84d521e7",
+      "name": "app.SaveDataManager.SaveApplicationVersionSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "861ab707",
+      "name": "_Value",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8625456b",
+      "name": "app.analysislog.AppAnalysisLogManager.GameSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "865c70f0",
+      "name": "_IsNeedShowTramAfterDead",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "87a4fc6e",
+      "name": "_HasAcquiredNewWeapon",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "87e6c3c3",
+      "name": "PossessionPerkUnits",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8a59ce86",
+      "name": "app.structure.ItemContainerData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8a974a75",
+      "name": "SelectedHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8b0ced11",
+      "name": "app.OptionValueEmpty",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8bdb89a7",
+      "name": "app.DatabaseManager.Unit.CharacterDataUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8d13413d",
+      "name": "app.ObjectiveStatus",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8e1e6007",
+      "name": "_PresentEvent",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8e5c97fe",
+      "name": "_AutoVanishTime",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8ea1f944",
+      "name": "app.ConversationManager.PlayerDeadReasonData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "8f3dad98",
+      "name": "LastEquipmentPassiveSkillArray",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "90556bfe",
+      "name": "app.StateManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9075394b",
+      "name": "_Statuses",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "92793294",
+      "name": "app.structure.MeshPartsData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "93138971",
+      "name": "_IsPlayMinigame",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "94185aa8",
+      "name": "ArchiveData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "94732783",
+      "name": "app.ChapterFlagContext.ChapterProgressNumber",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "94b60f89",
+      "name": "app.CampaignManager.CurrentCostumeUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "94c61515",
+      "name": "_Played",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "954a624f",
+      "name": "_PostEffectData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "957de5af",
+      "name": "_LapCount",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "95e159cb",
+      "name": "_ParentID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9646ad86",
+      "name": "app.OptionValueEnum",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "97e5afbf",
+      "name": "app.achievement.AchievementManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "988634e9",
+      "name": "_SceneLightData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9896f2bd",
+      "name": "KeyConfigValues",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9aae82c8",
+      "name": "_ObjectID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9bde2f00",
+      "name": "_ChapterProgressName",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9db27fb6",
+      "name": "app.GameOccurrenceRecordManager.SaveData.ElementOneItem",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9deb246d",
+      "name": "_ItemID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9e388ae2",
+      "name": "TotalDamageAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9f3610cc",
+      "name": "_CurrentLevel",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9f4e06d5",
+      "name": "app.structure.PuzzleDriverData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "9ffc738c",
+      "name": "app.structure.TimeCountData.Data",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a01c092b",
+      "name": "app.layered.LayeredParamSelector`1.GlobalSwitchData<app.VariousParamKind>",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a0e009d5",
+      "name": "_GlobalParamData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a0f771dc",
+      "name": "TotalCampaignPlaythroughCount",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a1231b5f",
+      "name": "_ConfirmedExchangeMenu",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a20c84bf",
+      "name": "app.ChapterManager.SaveGroup",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a27e0308",
+      "name": "MissionData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a2ab8479",
+      "name": "app.structure.CompositeTriggerData.GroupData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a2cb80a4",
+      "name": "_ShopNum",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a2d10871",
+      "name": "app.SaveDataManager.GameSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a2f0512a",
+      "name": "app.structure.TreasureBoxData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a435cb0e",
+      "name": "_UnlockedAchievementTypeHashes",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a4e87d84",
+      "name": "_RegionHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a4fd8835",
+      "name": "_PauseSpendingTime",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a521862d",
+      "name": "app.structure.DestructibleObjectData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a616d4d9",
+      "name": "_Item",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a6eaf825",
+      "name": "_SaveSlotDescriptionHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a74d6b2e",
+      "name": "_id",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a973b0a6",
+      "name": "Datas",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "a987df6f",
+      "name": "ReasonData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "aa1afab3",
+      "name": "TotalClear",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ab3f09c7",
+      "name": "UseStageLocakCheckPoint",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ab9421cd",
+      "name": "_IsTriggered",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ad23fc77",
+      "name": "_GuiGadgetSlotList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ad5efa36",
+      "name": "app.hid.DeviceSystem.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ad5ffa5b",
+      "name": "RankPoint",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ad6d38ad",
+      "name": "_IsMoved",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "add68f1e",
+      "name": "app.PropBackup",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ae50c16b",
+      "name": "app.EquipmentPerk.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "aeb9ba77",
+      "name": "app.LightManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "aec0b919",
+      "name": "app.ConversationManager.SaveData.ConversationFlagData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "af43d038",
+      "name": "_HackingGauge",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "afa789cc",
+      "name": "app.DifficultyLevelSystem.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "afb1d6a1",
+      "name": "_CurrentCampaignPlaythroughCount",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "afdcf757",
+      "name": "_IsDirty",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b02c93f3",
+      "name": "_IsGoal",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b1337a7e",
+      "name": "_PurchaseWeapons",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b1a230b7",
+      "name": "StrategyUnlockDisplayedHashList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b1c9a0b7",
+      "name": "app.PropManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b223acff",
+      "name": "_PermanentAcquireContentsHashes",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b28a2bbb",
+      "name": "_PresetBit",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b2fc3a8f",
+      "name": "_IsLoop",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b5641604",
+      "name": "_DefaultPlayed",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b6182d04",
+      "name": "Title",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b6769c47",
+      "name": "app.PartnerBackup",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b76815a5",
+      "name": "_IsBooting",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b87abad7",
+      "name": "_CurrentCampaignHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "b99c6c24",
+      "name": "app.SaveDataManager.RegionSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ba321a13",
+      "name": "InfiniteBulletWeaponSaveData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ba644e2a",
+      "name": "IsActive",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ba95ed5d",
+      "name": "_ChapterLightData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "bac94d0f",
+      "name": "app.GameOccurrenceEventManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "bb030131",
+      "name": "IsContinuePlusCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "bb2026a4",
+      "name": "ProgressFlagDatas",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "bc854021",
+      "name": "app.ObjectiveManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "bd811789",
+      "name": "_IsDashUsedInThroughPlaying",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "bf2e4e0a",
+      "name": "app.EquipmentPresetManager.EquipmentPresetSaveInfo",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c003a978",
+      "name": "app.GameOccurrenceRecordManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c0116a49",
+      "name": "app.ItemManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c06838b5",
+      "name": "StartedCount",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c203ba95",
+      "name": "_PresetBits",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c2468a16",
+      "name": "SubTitle",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c254148c",
+      "name": "app.GameSightManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c2d28fd2",
+      "name": "_IsActivated",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c4a8dfea",
+      "name": "IsSDRBrightnessSetupped",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c4e27689",
+      "name": "ReleasedCheckPointHashs",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c5169969",
+      "name": "_HasDoneUnlockedExchangePowerupPoint",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c5f379ea",
+      "name": "_AlreadyShowTramAfterDead",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c6a3adf7",
+      "name": "ProgressNumbers",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c7119340",
+      "name": "_ClearedSave",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c720ca48",
+      "name": "app.structure.CompositeTriggerData.UnitData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c7329e4f",
+      "name": "_HasAcquiredNewActiveSkill",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c89b985c",
+      "name": "TotalDamage",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c8b6d499",
+      "name": "app.MeshMaterialInterpolatedData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c90fde36",
+      "name": "app.InventoryManager.ActiveShortcutSlotSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c95af6a1",
+      "name": "app.structure.BootPropData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c981d054",
+      "name": "_EventDoneData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c9c29249",
+      "name": "TotalClearAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "c9e4ec7e",
+      "name": "app.GameOccurrenceRecordManager.SaveData.ElementUint",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "cae4e083",
+      "name": "Activity000",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "caf66f7d",
+      "name": "ConversationData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "cafc1c7d",
+      "name": "_IsSuccessOnce",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "cb64802e",
+      "name": "_WorkList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "cb758641",
+      "name": "TotalFail",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "cc9ce0e9",
+      "name": "_ParamBit",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ccf19e24",
+      "name": "app.GuiManager.SystemSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ccf956b2",
+      "name": "_IsShowExchangeDialog",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "cd5833c3",
+      "name": "_GadgetSlotType",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "cdb26cf0",
+      "name": "_PointTime",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ce4c02d7",
+      "name": "app.DatabaseManager.Unit.ArchiveDataUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ced1bfad",
+      "name": "GadgetSlot",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "cfd041ca",
+      "name": "_UseParamGroupBit",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d06e3333",
+      "name": "app.structure.TimeCountData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d08ec5d6",
+      "name": "ClearActualTime_BestRecord_Trial",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d17a65f6",
+      "name": "CurrentActivityId",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d18b252d",
+      "name": "_Quantity",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d34b7230",
+      "name": "_EquippedItem",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d36306df",
+      "name": "_IsInheritNewGamePlus",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d4ede361",
+      "name": "app.AppUdsActivitySaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d50886f6",
+      "name": "app.ConversationManager.SaveData.ConversationData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d58f6d60",
+      "name": "TotalUseAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d5c9ed32",
+      "name": "_CurrentCampaignDifficultyHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d5f019ca",
+      "name": "_Loaded",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d628891d",
+      "name": "_SaveDate",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d686b6dc",
+      "name": "_InheritModeHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d6e4b77c",
+      "name": "CharacterData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d6f768a5",
+      "name": "_Elements",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d76ffc13",
+      "name": "MouseButtons",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d798905a",
+      "name": "app.structure.StageTramData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d7a5f463",
+      "name": "app.EnhanceManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d8b68df6",
+      "name": "_MissionNum",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d92a8739",
+      "name": "app.structure.RailFlowState",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d96726a0",
+      "name": "_DroppedItem",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "d9c2f963",
+      "name": "app.ConversationManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "da8e87cc",
+      "name": "_NarrativeNum",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "dae22c0e",
+      "name": "app.structure.StagePartnerTalkData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "db1b261c",
+      "name": "app.VariousParamManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "db64b556",
+      "name": "CurrentStageLocalCheckPointHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ddb75c93",
+      "name": "StatusFlagDatas",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "de5c8bc9",
+      "name": "KeyboardKeys",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "df3c55af",
+      "name": "app.GimmickManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e013e0e7",
+      "name": "app.InfiniteBulletWeaponSaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e02e7bac",
+      "name": "app.EquipmentPresetManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e05ede0f",
+      "name": "_IsHackingUsedInThroughPlaying",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e078cad1",
+      "name": "app.ChapterFlagData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e0d64098",
+      "name": "Index",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e185476a",
+      "name": "_ParentJointName",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e1ad6e1a",
+      "name": "SpecifiedActionDatas",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e2289295",
+      "name": "_IsEndOfPlaying",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e394a97f",
+      "name": "app.structure.MeshMaterialData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e3c789c5",
+      "name": "app.structure.ArchivePropData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e5e25b23",
+      "name": "StateBits",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e787c0a0",
+      "name": "InitialStateBits",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e79e116b",
+      "name": "app.structure.CompositeTriggerData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "e9880a3f",
+      "name": "app.DatabaseManager.Unit.CharacterDataUnit.SpecifiedActionDataUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ea659da7",
+      "name": "TotalFailAtCleared",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "eaac5e44",
+      "name": "EnableReleasePopUp",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "eabebcd2",
+      "name": "ConvDataList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "eb00cd1a",
+      "name": "_CostumeNum",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "eb9f1c06",
+      "name": "app.structure.InsetMovieData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ebe7126c",
+      "name": "app.structure.RailState",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ecfd6e74",
+      "name": "_Gadgets",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ed403a47",
+      "name": "_DefaultMoved",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ee09ab47",
+      "name": "_num",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "eee9b14a",
+      "name": "app.ConciergeBackup",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "eefc05ef",
+      "name": "_IsFindOnce",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ef10b158",
+      "name": "_Version",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ef9b5925",
+      "name": "app.structure.ActiveStateData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "efab5534",
+      "name": "app.DatabaseManager.Unit.ItemDataUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f23811ca",
+      "name": "_IsLocked",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f283d020",
+      "name": "_FlowSpeedRate",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f35c5f6c",
+      "name": "_RemainingBulletNum",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f5c19a99",
+      "name": "_StaySceneIDHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f62f5a2d",
+      "name": "_StatusHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f6eaa9ee",
+      "name": "_FigureNum",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f76c98aa",
+      "name": "app.StateManager.Unit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f888b579",
+      "name": "_RawID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f8eda7c2",
+      "name": "_BindTriggerHash",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f92445b6",
+      "name": "AssortmentData",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "f9f639a5",
+      "name": "_IsOverdriveUsedInThroughPlaying",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "fb4ad817",
+      "name": "FlagDataList",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "fbf9cd00",
+      "name": "_ParamIndex",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "fc801b42",
+      "name": "_MainSlot",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "fd8c731e",
+      "name": "Value",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "fe445d0c",
+      "name": "_PerkID",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "fe97424f",
+      "name": "_EarthItemCount",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ff5e9765",
+      "name": "_IsSpawn",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ff5f9d6e",
+      "name": "_OptionValues",
+      "category": "field",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ff6127c1",
+      "name": "app.MenuManager.SaveData.Unit.MenuUnit",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    },
+    {
+      "id": "ff6c1e0a",
+      "name": "app.WeaponManager.SaveData",
+      "category": "class",
+      "description": "Hash-verified identifier spelling. Gameplay meaning and legal values are unconfirmed.",
+      "source": "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json"
+    }
+  ]
+}

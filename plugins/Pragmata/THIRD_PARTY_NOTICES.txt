@@ -33,10 +33,40 @@ https://github.com/kvasszn/ree-save-editor
   src/sdk/type_map.rs
 No substantial Rust source or complete game-data dumps are distributed here.
 
-Resources/HashNames.json contains a subset of class/field identifier facts
-from that project's assets/pragmata/rszpragmata.json and strings_pragmata.txt,
-filtered to hashes present in the supplied samples. Each identifier is
-independently checked against MurmurHash3, seed 0xffffffff.
+Resources/HashNames.json and the identifier/section reference datasets now
+contain only the subset confirmed against the MIT RE_RSZ schema, pinned to:
+https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json
+Authors: alphazolam; praydog (RSZ dumps). Retrieved 2026-10-28.
+Selected observed spellings; independently checked Murmur3, seed 0xffffffff;
+extracted declared types and wrote descriptive group labels. The five old
+identifier names absent from this source are no longer embedded.
+Original unmapped-item descriptions/computed sample facts by Save Toolkit
+contributors are dedicated under CC0-1.0:
+https://creativecommons.org/publicdomain/zero/1.0/
 
 AES-OFB test vectors are from NIST SP 800-38A, Appendix F.4.1:
 https://csrc.nist.gov/pubs/sp/800/38/a/final
+
+RE_RSZ schema / derived identifier and section datasets:
+
+MIT License
+
+Copyright (c) 2021 alphazolam
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

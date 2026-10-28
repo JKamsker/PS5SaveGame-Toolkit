@@ -4,6 +4,7 @@ internal static class KnownHashes
 {
     public const uint HeaderRoot = 0x54fa76ae;
     public const uint GameRoot = 0x7c416083;
+    public const uint GameSections = 0x7c018857;
     public const uint SystemRoot = 0xe1d997cd;
     public const uint DetailRoot = 0x85e904c1;
     public const uint InventoryClass = 0x3a83076c;
