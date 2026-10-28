@@ -7,6 +7,7 @@ internal sealed class AstroLocations
 {
     private readonly AstroReferences _references;
     private readonly IReadOnlyDictionary<string, ReferenceRecord?> _records;
+    private readonly IReadOnlySet<string> _mappedWorldKeys;
 
     public AstroLocations(AstroSchema schema, AstroReferences references)
     {
@@ -14,6 +15,7 @@ internal sealed class AstroLocations
         _records = schema.Records.GroupBy(Key, StringComparer.Ordinal)
             .Where(group => group.Count() == 1).Select(group => group.Single())
             .ToDictionary(Key, record => references.Collectible(record.Group, record.Element.Name), StringComparer.Ordinal);
+        _mappedWorldKeys = schema.Records.Select(WorldKey).OfType<string>().ToHashSet(StringComparer.Ordinal);
     }
 
     public ReferenceRecord? Reference(AstroCollectionRecord record) =>
@@ -31,6 +33,11 @@ internal sealed class AstroLocations
 
     public ReferenceRecord? World(AstroCollectionRecord record) =>
         WorldKey(record) is { } key ? _references.World(key) : null;
+
+    public ReferenceEligibility AssessWorld(ReferenceRecord candidate) =>
+        _mappedWorldKeys.Contains(candidate.Key)
+            ? new ReferenceEligibility()
+            : new ReferenceEligibility { Eligible = false, Reasons = ["No existing saved collectible has a mapped record in this candidate world."] };
 
     public static string Key(AstroCollectionRecord record) => $"{record.Group}/{record.Element.Name}";
 }

@@ -92,7 +92,7 @@ old/new values, skipped rows and warnings before apply. Each apply is one undo/r
 | F1 SaveDiff | Used | `fixtures.json`, PluginViewDecoder and sample tests reproduce all 94 observed primitive transitions, byte changes and identical backups. Independent text oracles cover ownership output. |
 | F2 reference packs | Used | Offline schema-qualified English catalogue, per-record/dataset attribution, Sources panel and pinned context; no plugin I/O. |
 | F3 rich cells | Used | Read-only name/confidence fields, provenance/details and selected-row planned action. No game images: no cleared icon dataset was established. |
-| F4 reference picker | N/A (framework blocker) | Adoption attempted and Core eligibility verified, but F6's browser dialog disables ReferenceSpec parameters: see SDK requests below. Ship a small attributed EnumSpec world-choice fallback. Saved ownership/progress fields are booleans, not replaceable IDs. |
+| F4 reference picker | Used | F6's planned candidate-world parameter uses `ReferenceSpec("astro_worlds")` with eligibility restricted to worlds that have existing mapped records. Read-only catalogue inspection parameters use the browse-only picker with attribution. |
 | F5 structural undo | N/A | Writer patches existing primitive spans only. Record creation/removal/reorder lacks a known game grammar/dependency repair; this round adds no structural writer. Existing batches use ordinary grouped value history. |
 | F6 planned actions / #27 | Added this round | Existing coins/collect-all plus candidate-world ownership and bounded gatcha-budget top-up presets. Core resolves all-matching F8 scopes and exclusions; preview/apply/one-step undo/redo are tested. |
 | F7 document groups | N/A | One gameplay allocation; no distinct coupled file/invariant identified. Identical backups are handled by same-generation framework export mirroring, not an independently editable partner document. |
@@ -100,8 +100,8 @@ old/new values, skipped rows and warnings before apply. Each apply is one undo/r
 | F9 maps / graphs | Added this round | Lazy level schematic plus no-coordinate collectible maps and accessible marker lists; every supported marker links to an existing field/row. No prerequisite graph: no skill/perk tree or proven prerequisite edge exists in this format. |
 | F10 exact values | Used | SDK integer transport preserves exact signed values with `IntegerSpec`/`FieldValue.Integer`; boolean flags use BoolSpec. There are no JSON numeric lexemes, nullable values or union discriminators requiring the additional specs. |
 | F11 shared codecs | N/A | The observed 1 MiB payload is uncompressed readable UTF-8; no Kraken/Oodle/SQLite content or local codec exists to replace. |
-| F12 | Pending #32 | SaveDiff F8 traversal/decoder hooks were not on main at round start; retain observed eager group coverage and existing F1 tests. No local traversal substitute. |
-| F13 | Pending #33 | Inspect actions, browse-only picker, catalogue filters/sort and float duration were not on main at round start; no local substitutes. |
+| F12 | N/A | Astro has no plugin-owned test/research decoder: F1 uses the shared `PluginViewDecoder`, and the production view already publishes the bounded F8 collections. No decoder hook would add independent evidence. |
+| F13 | Used / N/A | Catalogue rows now expose `Mutates = false` inspection actions with read-only browseable reference parameters; the existing F8 catalogue provides bounded category/status/text filtering and deterministic sorting. Float duration is N/A because the observed schema has no floating-point timer fields. |
 
 ## Spatial navigation and candidate-world presets
 
@@ -120,8 +120,8 @@ names/raw keys, combine exact status/world/category filters, sort, then select a
 explicit exclusions before reviewing the ownership action. Small per-type tables remain convenient
 for the observed 50/96/18 records. All joins use the same duplicate-safe, schema-qualified catalogue.
 
-`collectibles/collect-world` offers an attributed candidate-world choice and F6 preview (EnumSpec
-fallback pending the F4/F6 browser fix below). It changes
+`collectibles/collect-world` offers an attributed candidate-world choice and F6 preview through a
+`ReferenceSpec` whose eligibility includes only worlds with existing mapped records. It changes
 only existing missing ownership fields whose catalogue world matches (or whose inferred stage has
 that parent world); explicit table/query selections intersect that set. Unmapped/outside-world
 records and already-owned rows appear as skips. No cinematic, notification, clear/reward/UDS/trophy
@@ -233,14 +233,15 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-To
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project tests/SaveToolkit.Core.Tests -- --filter-class '*Export*'
 ```
 
-Completion-round validation (2026-10-28): **71 plugin tests passed, 0 failed, 0 skipped**; **11 Core
+Completion-round validation (2026-10-28): **72 plugin tests passed, 0 failed, 0 skipped**; **11 Core
 export tests passed, 0 failed, 0 skipped**; API build **0 warnings/0 errors**. Adds F9 exact marker
 coverage/states/targets/attribution, 550-record lazy-map/F8 fallback bounds, nonboolean/duplicate-field
 robustness, whole-query selection/exclusions, world-preset exact-byte oracle and grouped undo/redo.
 Budget tests cover all sample records, exact coin-only bytes, zero/enough-balance no-ops, invalid and
 Int128-overflow-sized inputs, no repeated award, reparse and one-step history.
-The F4/F6 browser blocker below was found with the real frontend and recorded centrally; the small
-EnumSpec fallback retains working world selection. Earlier validation follows for historical context.
+The earlier F4/F6 browser blocker was recorded centrally and is fixed on main; this follow-up replaces
+the temporary enum fallback with the eligibility-filtered reference picker. Earlier validation follows
+for historical context.
 
 Focused browser verification used this branch's v0.4.0 API and the existing production frontend,
 without rebuilding or changing web files. Confirmed 51 schematic world-flag markers; external guide
@@ -329,19 +330,19 @@ and a fresh integrity investigation before curated support. The opaque suffix's 
 
 Phase 1 and the implementable Phase 3/5 work are complete: named catalogue, candidate-stage/world
 joins, completion summaries, selected/query/document ownership planning, candidate-world ownership
-preset, bounded gatcha-budget preset, original F9 schematic/navigation, F8 bounds and release hardening. Phase 2's controlled mapping
+preset, bounded gatcha-budget preset, original F9 schematic/navigation, F8 bounds, F12/F13 adoption and release hardening. Phase 2's controlled mapping
 and console acceptance remain tracked in #31; they do not gate existing-span writes. Phase 4 exposes
 schema diagnostics/absence only; bot support requires newer structures. Physical puzzle-location
 mapping, proven gameplay dependency/completion guarantees, coin-cap validation and human acceptance remain
-owner-blocked. Maturity stays Experimental. F4/F6 browser compatibility needs the central fix below;
-F12/F13 remain pending #32/#33, with no plugin-local substitute.
+owner-blocked. Maturity stays Experimental. The central F4/F6 planned-reference binding fix
+(`63580dc`) is adopted; no plugin-specific SDK requests remain.
 
 | Requirements | Completion disposition |
 | --- | --- |
 | AP-R1, AP-R4, AP-R5, AP-R6 | Owner-blocked (#31): controlled pickup/clear/coin/bot/update/transfer captures and console persistence; no guessed missing-state insertion. |
 | AP-R2, AP-R3 | Done: F1 fixtures, attributed schema-qualified catalogue and candidate aliases; owner still verifies physical locations/identities. |
 | AP-R7, AP-R17 | Rights route resolved: original schematic, cleared CC BY-SA names and link-only guide; catalogue screenshots/locations remain owner-blocked. |
-| AP-R8–AP-R13 | Done with existing F3/F6/F8/F9: rich details, world/status filtering, live refresh, named changes/skips/warnings and Core all-query scopes. F4 parameter compatibility uses documented fallback. |
+| AP-R8–AP-R13 | Done with existing F3/F4/F6/F8/F9/F13: rich details, world/status filtering, live refresh, named changes/skips/warnings, read-only catalogue inspection and Core all-query scopes. |
 | AP-R14, AP-R15 | F2 pinned context used; additional optional image/localization ingestion not pursued because there is no cleared icon/localization dataset to ingest. |
 | AP-R16 | Done: preservation, malformed schemas, per-action atomicity/undo, independent byte oracle, F1, conformance and Core export regression checks. |
 | AP-R18 | Done: original level schematic and externally linked collectible lists; physical coordinates stay absent pending owner mapping. No invented prerequisites/graph edges. |
@@ -397,15 +398,6 @@ the private artifacts folder; never include account identifiers in manifests or 
 
 ## SDK requests
 
-**F4 reference picker in an F6 planned action is disabled in the browser.** Reproduced against main
-and its existing production frontend on 2026-10-28. Minimal reproduction: publish an ActionNode with
-`SupportsPlanning = true` and parameter `new FieldNode("world", "World", new ReferenceSpec("astro_worlds"),
-FieldValue.Of("World/COOLING_SYSTEM"))`; open the action dialog. The trigger shows the raw ID and is
-disabled, so it cannot select another candidate. Core `SearchReferences("world", ..., actionId: ...)`
-works with attribution/eligibility and rejects bad IDs; this is a browser binding problem.
-`web/src/components/document/review/PlannedActionButton.tsx` passes neither `valueId={p.valueId}` nor
-`actionId={node.actionId}` to FieldControl; ReferenceControl disables when `valueId` is absent. Legacy
-ActionButton already passes both. The orchestrator should add those props and a planned-reference
-browser regression test centrally. This plugin uses a bounded EnumSpec fallback; no framework file
-was edited. Once the central fix lands, replace that small fallback with ReferenceSpec and its
-eligibility restriction to worlds with existing mapped records.
+No outstanding plugin-specific SDK requests. The planned-action reference binding fix from #11
+(`63580dc`) is on main and this plugin now uses its `ReferenceSpec("astro_worlds")` path with
+mapped-world eligibility.

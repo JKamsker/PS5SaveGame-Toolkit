@@ -64,11 +64,13 @@ public sealed class AstroCollectWriteTests
             Assert.False(diff.InputTruncated);
             Assert.False(diff.Truncated);
             Assert.Empty(diff.Warnings);
-            Assert.Equal(expectedChanges, diff.Total);
+            Assert.Equal(expectedChanges * 2, diff.Total);
             Assert.Equal(0, diff.Added);
             Assert.Equal(0, diff.Removed);
             Assert.Equal(plan.Changes.Select(c => c.ValueId).Order(StringComparer.Ordinal),
-                diff.Changes.Select(c => c.Path).Order(StringComparer.Ordinal));
+                diff.Changes.Where(c => c.Path.StartsWith('/'))
+                    .Select(c => c.Path).Order(StringComparer.Ordinal));
+            Assert.Equal(expectedChanges, diff.Changes.Count(c => c.Path.StartsWith("collections/", StringComparison.Ordinal)));
         }
     }
 

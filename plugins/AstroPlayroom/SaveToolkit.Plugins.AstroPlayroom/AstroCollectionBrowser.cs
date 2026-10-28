@@ -9,6 +9,7 @@ internal sealed class AstroCollectionBrowser(
     AstroLocations locations,
     Func<AstroField, FieldValue> current,
     Func<string, string, string, string, Confidence, FieldNode> label,
+    Func<string, string, string, string, Confidence, FieldNode> reference,
     Func<long?> coins)
 {
     public AstroCollectionQuery Queryable { get; } = new(schema, locations, current,
@@ -17,7 +18,7 @@ internal sealed class AstroCollectionBrowser(
     public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Catalogue labels are read-only. Ownership means the saved IsGot flag; names and locations are candidates, not console-validated mappings. Search/filter to find missing records, then preview the ownership action before applying."),
         BuildSummary(),
-        new SectionNode("All saved collectibles", [Queryable.View(), AstroPlanning.CollectionAction()]),
+        new SectionNode("All saved collectibles", [Queryable.View(), AstroPlanning.CollectionAction(), .. InspectionActions()]),
         Group("Artifact", "Artifacts"), Group("Puzzle", "Puzzle pieces"), Group("Prop", "Props"),
         .. AstroPlanning.Views(coins()),
         .. AstroWorldPlanning.Views(schema, locations),
@@ -53,6 +54,26 @@ internal sealed class AstroCollectionBrowser(
                 new TableColumn("confidence", "Meaning")
             ], areas) { Title = "Existing-record totals" }
         ]);
+    }
+
+    private IReadOnlyList<ViewNode> InspectionActions()
+    {
+        var candidate = schema.Records.Select(record => (Record: record, Reference: locations.Reference(record)))
+            .FirstOrDefault(item => item.Reference is not null);
+        if (candidate.Reference is null)
+        {
+            return [];
+        }
+
+        var key = AstroLocations.Key(candidate.Record);
+        var description = $"{candidate.Reference.Description} {candidate.Reference.AttributionText}";
+        return [new ActionNode(AstroReferences.InspectActionId, "Inspect a catalogue record")
+        {
+            Mutates = false,
+            Tone = Tone.Info,
+            Description = "Read-only catalogue details. Saved ownership and gameplay effects are not established.",
+            Parameters = [reference("record", "Catalogue record", key, description, Confidence.Inferred)]
+        }];
     }
 
     private SectionNode Group(string group, string title)
