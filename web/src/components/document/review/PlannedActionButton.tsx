@@ -18,12 +18,18 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   const [preview, setPreview] = useState<ActionPreview | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const scope: ActionScope = selection ? { rowKeys: selection.selectedRows.map(row => row.key) } : {};
+  const queryScope = selection?.queryScope;
+  const scope: ActionScope = queryScope ? { queryScope: {
+    collectionId: queryScope.collectionId,
+    query: { text: queryScope.query.q, filters: queryScope.query.filters, sortColumn: queryScope.query.sort, descending: queryScope.query.descending },
+    revision: queryScope.revision,
+    excludedRowKeys: queryScope.excludedRowKeys,
+  } } : selection ? { rowKeys: selection.selectedRows.map(row => row.key) } : {};
   const scopeKey = JSON.stringify(scope);
   const [previewScope, setPreviewScope] = useState("");
   const changesPage = useReviewPage(preview?.plan.changes ?? []);
   const skippedPage = useReviewPage(preview?.plan.skippedRows ?? []);
-  const selectedCount = preview ? preview.scope.rowKeys?.length : selection?.count;
+  const selectedCount = preview?.scope.rowKeys?.length ?? selection?.count;
   const scopeLabel = selectedCount === undefined ? "Whole document" : `${selectedCount} selected ${selectedCount === 1 ? "row" : "rows"}`;
   const stale = Boolean(preview && (preview.revision !== state.revision || previewScope !== scopeKey));
 

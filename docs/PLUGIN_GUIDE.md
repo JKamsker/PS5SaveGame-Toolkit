@@ -240,12 +240,34 @@ The two methods are:
   derived values, or a structural `Revert` memento as described above. Structural planned actions
   must support mementos; this interface has no non-undoable opt-out.
 
-`ActionScope.RowKeys == null` means document scope. An **empty list means no selected rows**;
+`ActionScope.RowKeys == null` with no `QueryScope` means document scope. An **empty list means no selected rows**;
 never reinterpret it as all rows. Keys are the stable `TableRow.Key` values from F3 selection,
 not visible positions. A table-cell action takes the enclosing table's selection, including
 selected rows hidden by filters. Outside a table, the dialog explicitly shows document scope.
 Validate that every requested key belongs to the intended collection and is eligible. Do not
 retain or mutate the supplied parameters, scope or plan.
+
+For a server-backed table's “select all filtered rows”, the preview sends `ActionScope.QueryScope`
+instead of loaded row keys. `ActionQueryScope` carries `CollectionId`, the existing F8
+`QueryableCollectionQuery`, the selection's `Revision`, and `ExcludedRowKeys`. Clients send either
+explicit row keys or a query scope, never both. The browser maps its `q` / `sort` query properties
+to the SDK wire names `text` / `sortColumn`; its estimated count is not trusted.
+
+Core normalizes offset/cursor back to the beginning, copies filters/exclusions, and resolves every
+matching page through `QueryCollection` under the session lock. Plugins receive **both** the
+normalized query metadata and the resolved `RowKeys`; use those keys for the operation and validate
+the collection ID. The preview's `Scope.RowKeys.Count` is the server-resolved selection count,
+including unloaded pages and excluding deselected keys. Exclusions outside the result are ignored.
+Zero matches or fully excluded results produce an empty key list, never document scope.
+
+`DocumentSessionOptions.MaxQueryActionRows` defaults to 5,000 and must be positive. The limit applies
+to matching rows **before** exclusions, so excluding rows cannot turn a huge scan into a permitted
+operation. Oversized queries are rejected with a clear planning error; narrow the query to proceed.
+Normal F8 filter/search/page limits still apply. Repeated keys across pages, inconsistent counts,
+non-progressing pages and malformed continuations are rejected instead of planning a partial result.
+The scope's revision must equal the current document revision even if the outer request has a newer
+revision; stale scopes return the existing HTTP 409 response. Apply resolves the query again and
+requires the same ordered keys before revalidating effects and recording one undo group.
 
 For a value-only action, the apply implementation can pass its planned direct changes through
 `ApplyEdits`; the document's normal derived-value logic still runs:
@@ -270,7 +292,8 @@ the document lock and requires the same effects, exclusions, warnings and errors
 therefore be deterministic for the same request and document. A successful apply runs inside
 `DocumentSession.RunGroup`, giving one undo entry (subject to the existing undo-memory budget).
 Planning works on read-only documents, but applying does not. The retained request plus preview
-is limited to 4 MiB and selection to 5,000 distinct keys; ask users to narrow larger operations.
+is limited to 4 MiB and explicit selection to 5,000 distinct keys; query scopes use the configurable
+matching-row limit above. Ask users to narrow larger operations.
 Review lists page at 100 entries to keep the browser DOM bounded.
 
 The API adds `POST /actions/plan`, `POST /actions/apply`, `GET /changes` and

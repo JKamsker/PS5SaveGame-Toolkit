@@ -6,6 +6,7 @@ import { actionReview, type ActionPreview, type SemanticChange, type SemanticCha
 import type { EditResult } from "../../../api/protocol";
 import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../../state/documentStore";
 import { ActionButton } from "../ActionButton";
+import { api } from "../../../api/client";
 import { ViewRenderer } from "../ViewRenderer";
 import { TableSelectionContext, useRowSelection } from "../table/selection";
 import { ChangesPanel } from "./ChangesPanel";
@@ -51,6 +52,36 @@ function SelectedAction() {
 }
 
 describe("action preview", () => {
+  it("sends the complete filtered query and exclusions from a server table and shows the resolved count", async () => {
+    const columns = [{ key: "name", label: "Name" }, { key: "action", label: "Action" }];
+    vi.spyOn(api, "queryCollection").mockResolvedValue({ collectionId: "items", columns, totalCount: 100_000,
+      filteredCount: 60, offset: 0, limit: 50, revision: 1, rows: [
+        { key: "a", cells: { name: { type: "text", text: "Potion" }, action: { type: "action", actionId: "refill", label: "Refill", supportsPlanning: true } } },
+        { key: "b", cells: { name: { type: "text", text: "Ether" } } },
+      ] });
+    const plan = vi.spyOn(actionReview, "plan").mockResolvedValue({ ...preview,
+      scope: { rowKeys: Array.from({ length: 58 }, (_, i) => `row-${i}`) } });
+    const apply = vi.spyOn(actionReview, "apply").mockResolvedValue(result);
+    renderDocument(<ViewRenderer node={{ type: "queryableTable", collectionId: "items", title: "Items", columns, totalCount: 100_000 }} />);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search Items" }), { target: { value: "potion" } });
+    fireEvent.change(screen.getByLabelText("Filter Name"), { target: { value: "healing" } });
+    fireEvent.change(screen.getByLabelText("Sort rows"), { target: { value: "name" } });
+    fireEvent.click(screen.getByRole("button", { name: "Ascending" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Select all 60 filtered rows" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select Ether" }));
+    expect(screen.getByText("59 selected")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Refill/ }));
+    await screen.findByText("58 selected rows");
+    expect(plan).toHaveBeenCalledWith("w1", "d1", "refill", {}, { queryScope: {
+      collectionId: "items", query: { text: "potion", filters: { name: "healing" }, sortColumn: "name", descending: true },
+      revision: 1, excludedRowKeys: ["b"],
+    } }, 1);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select Ether" }));
+    expect(screen.getByRole("alert").textContent).toContain("selection changed");
+    expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
+    expect(apply).not.toHaveBeenCalled();
+  });
+
   it("uses F3 selection, shows named and derived effects, warnings and skipped rows, and applies the retained token", async () => {
     const plan = vi.spyOn(actionReview, "plan").mockResolvedValue(preview);
     const apply = vi.spyOn(actionReview, "apply").mockResolvedValue(result);
