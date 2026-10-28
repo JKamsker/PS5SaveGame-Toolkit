@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using SaveToolkit.Core.Plugins;
+using SaveToolkit.Core.References;
 using SaveToolkit.Core.Storage;
 
 namespace SaveToolkit.Core.Sessions;
@@ -21,9 +22,10 @@ public sealed class WorkspaceStore : IDisposable
     private readonly ConcurrentDictionary<string, Workspace> _workspaces = new(StringComparer.Ordinal);
     private readonly WorkspaceStoreOptions _options;
 
-    public WorkspaceStore(PluginCatalog catalog, WorkspaceStoreOptions options)
+    public WorkspaceStore(PluginCatalog catalog, WorkspaceStoreOptions options, ReferencePackStore? packs = null)
     {
         Catalog = catalog;
+        Packs = packs ?? new ReferencePackStore(catalog.Plugins);
         _options = options;
         if (Directory.Exists(options.DataRoot))
         {
@@ -35,6 +37,9 @@ public sealed class WorkspaceStore : IDisposable
 
     public PluginCatalog Catalog { get; }
 
+    /// <summary>Reference packs pinned to documents when they open.</summary>
+    public ReferencePackStore Packs { get; }
+
     public IReadOnlyCollection<Workspace> All => [.. _workspaces.Values.OrderByDescending(w => w.CreatedAt)];
 
     public Workspace Create(string name, IEnumerable<ImportSource> sources)
@@ -44,7 +49,7 @@ public sealed class WorkspaceStore : IDisposable
         try
         {
             var set = SaveSetImporter.Import(sources, root, _options.Limits);
-            var workspace = new Workspace(id, name, set, Catalog);
+            var workspace = new Workspace(id, name, set, Catalog, Packs);
             _workspaces[id] = workspace;
             return workspace;
         }

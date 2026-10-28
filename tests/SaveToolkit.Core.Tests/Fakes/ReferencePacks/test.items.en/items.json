@@ -1,0 +1,7 @@
+{
+  "records": [
+    { "id": "1001", "name": "Potion", "category": "consumable", "limit": 99, "description": "Restores a little health.", "assetId": "icons/potion.png" },
+    { "id": "1002", "name": "Ether", "category": "consumable", "limit": 50, "description": "Restores a little mana.", "assetId": "icons/ether.png" },
+    { "id": "2001", "name": "Bronze Sword", "category": "weapon", "limit": 1, "attributes": { "internalName": "wpn_sword_bronze" } }
+  ]
+}

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using SaveToolkit.Core.Plugins;
+using SaveToolkit.Core.References;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 
@@ -10,16 +11,19 @@ public sealed class Workspace : IDisposable
 {
     private readonly ConcurrentDictionary<string, DocumentSession> _documents = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, IReadOnlyList<ProbeMatch>> _probes = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, ReferenceContext> _references = new(StringComparer.Ordinal);
     private readonly PluginCatalog _catalog;
+    private readonly ReferencePackStore? _packs;
     private readonly Lock _openGate = new();
     private int _documentCounter;
 
-    public Workspace(string id, string name, DiskSaveSet set, PluginCatalog catalog)
+    public Workspace(string id, string name, DiskSaveSet set, PluginCatalog catalog, ReferencePackStore? packs = null)
     {
         Id = id;
         Name = name;
         Set = set;
         _catalog = catalog;
+        _packs = packs;
         CreatedAt = DateTimeOffset.UtcNow;
         Touch();
     }
@@ -37,6 +41,9 @@ public sealed class Workspace : IDisposable
     public IReadOnlyList<ProbeMatch> Probe(DiskSaveFile file) => _probes.GetOrAdd(file.Id, _ => _catalog.Probe(file));
 
     public DocumentSession? FindDocument(string documentId) => _documents.GetValueOrDefault(documentId);
+
+    /// <summary>Reference packs pinned to an open document (empty when none apply).</summary>
+    public ReferenceContext References(string documentId) => _references.GetValueOrDefault(documentId) ?? ReferenceContext.None;
 
     /// <summary>
     /// Opens <paramref name="fileId"/> with the given plugin (or the best probe match). Re-opening the same
@@ -67,8 +74,11 @@ public sealed class Workspace : IDisposable
                 Close(existing.Id);
             }
 
-            var document = plugin.Open(file);
+            // Reference packs are pinned per document: packs imported later only affect documents opened later.
+            var references = _packs?.Pin(plugin, file.Directory.TitleId) ?? ReferenceContext.None;
+            var document = plugin.Open(file, references);
             var session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document);
+            _references[session.Id] = references;
             _documents[session.Id] = session;
             return session;
         }
@@ -81,6 +91,7 @@ public sealed class Workspace : IDisposable
             return false;
         }
 
+        _references.TryRemove(documentId, out _);
         session.Dispose();
         return true;
     }

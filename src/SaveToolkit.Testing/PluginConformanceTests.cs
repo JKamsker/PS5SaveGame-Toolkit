@@ -204,7 +204,7 @@ public abstract partial class PluginConformanceTests<TPlugin>
     {
         try
         {
-            return Plugin.Open(file);
+            return Plugin.Open(file, ReferencesFor(file));
         }
         catch (Exception ex)
         {
