@@ -7,6 +7,7 @@ import { RowDetails, rowHasDetails } from "./RowDetails";
 import { rowLabel } from "./cellText";
 import { TableCell } from "./TableCell";
 import { TableSelectionContext, useQueryableSelection } from "./selection";
+import { ReviewPath, useNextReviewPath, useViewJump } from "../review/navigation";
 
 const PAGE_SIZE = 50;
 
@@ -120,16 +121,21 @@ function Header({ columns, rows, selected, selection }: { columns: readonly Tabl
 }
 
 function ServerRow({ row, columns, rowIndex, selected, onToggle }: { row: TableRow; columns: readonly TableColumn[]; rowIndex: number; selected: boolean; onToggle: (key: string) => void }) {
+  const ref = useViewJump(row.key, "Row");
+  const next = useNextReviewPath();
   const label = rowLabel(row, columns.map((column) => column.key), (node) => node.value);
   const [details, setDetails] = useState(false);
+  useEffect(() => { if (next === `row:${row.key}`) setDetails(true); }, [next, row.key]);
   const hasDetails = rowHasDetails(row);
   return (
     <>
-      <div className={`table__row${selected ? " table__row--selected" : ""}`} role="row" aria-rowindex={rowIndex}>
+      <div ref={ref} tabIndex={-1} className={`table__row${selected ? " table__row--selected" : ""}`} role="row" aria-rowindex={rowIndex}>
         <div className="table__cell table__cell--control" role="cell"><input type="checkbox" aria-label={`Select ${label}`} checked={selected} onChange={() => onToggle(row.key)} /></div>
-        {columns.map((column) => <TableCell key={column.key} node={row.cells[column.key]} rowLabel={label} onOpenDetails={() => setDetails(true)} />)}
+        <ReviewPath part={`row:${row.key}`}>
+          {columns.map((column) => <TableCell key={column.key} node={row.cells[column.key]} rowLabel={label} onOpenDetails={() => setDetails(true)} />)}
+        </ReviewPath>
       </div>
-      {details && hasDetails && <div className="table__detail" role="row"><div className="table__detail-cell"><RowDetails row={row} columns={columns} /></div></div>}
+      {details && hasDetails && <div className="table__detail" role="row"><div className="table__detail-cell"><ReviewPath part={`row:${row.key}`}><RowDetails row={row} columns={columns} /></ReviewPath></div></div>}
     </>
   );
 }

@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "id": "test.spatial",
+  "version": "1.0.0",
+  "title": "Spatial example schematic (original CC0 fixture)",
+  "plugins": [
+    "test.spatial"
+  ],
+  "titleIds": [
+    "PPSA99993"
+  ],
+  "datasets": [
+    {
+      "id": "maps",
+      "kind": "assets",
+      "title": "Original schematic",
+      "files": [
+        {
+          "path": "schematic.png",
+          "sha256": "dfce332baa3bb16b1ae0dddad2925e93dbcaa512ec58506f44f898af79cab799"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "author": "PS5 Save Game Toolkit contributors",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Original synthetic courtyard schematic; no game or community assets. Created for the F9 tests."
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import { memo, useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { TableColumn, TableNode, TableRow } from "../../api/protocol";
-import { ReviewPath, useNextReviewPath } from "./review/navigation";
+import { ReviewPath, useNextReviewPath, useViewJump } from "./review/navigation";
 import { rowLabel } from "./table/cellText";
 import { RowDetails, rowHasDetails } from "./table/RowDetails";
 import { TableSelectionContext, useRowSelection, type TableSelection } from "./table/selection";
@@ -205,11 +205,12 @@ interface RowProps {
 }
 
 const Row = memo(function Row({ row, rowIndex, label, columnKeys, hasDetails, detailId, expanded, selected, onToggleSelected, onToggleExpanded }: RowProps) {
+  const ref = useViewJump(row.key, "Row");
   const openDetails = () => {
     if (!expanded) onToggleExpanded(row.key);
   };
   return (
-    <div className={`table__row${selected ? " table__row--selected" : ""}`} role="row" aria-rowindex={rowIndex}>
+    <div ref={ref} tabIndex={-1} className={`table__row${selected ? " table__row--selected" : ""}`} role="row" aria-rowindex={rowIndex}>
       <div className="table__cell table__cell--control" role="cell">
         <input type="checkbox" aria-label={`Select ${label}`} checked={selected} onChange={() => onToggleSelected(row.key)} />
       </div>

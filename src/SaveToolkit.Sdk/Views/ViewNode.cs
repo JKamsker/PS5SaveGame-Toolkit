@@ -20,6 +20,8 @@ namespace SaveToolkit.Sdk.Views;
 [JsonDerivedType(typeof(ActionNode), "action")]
 [JsonDerivedType(typeof(HexNode), "hex")]
 [JsonDerivedType(typeof(QueryableTableNode), "queryableTable")]
+[JsonDerivedType(typeof(GraphNode), "graph")]
+[JsonDerivedType(typeof(MapNode), "map")]
 public abstract record ViewNode;
 
 /// <summary>

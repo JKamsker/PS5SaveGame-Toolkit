@@ -23,6 +23,8 @@ function cellHasDetails(cell: ViewNode): boolean {
     case "tabs":
     case "table":
     case "hex":
+    case "graph":
+    case "map":
       return true;
     default:
       return false;

@@ -9,6 +9,8 @@ import { HexView } from "./HexView";
 import { ReviewPath, useFieldJump, useNextReviewPath } from "./review/navigation";
 import { TableView } from "./TableView";
 import { ServerTableView } from "./table/ServerTableView";
+import { GraphView } from "./spatial/GraphView";
+import { MapView } from "./spatial/MapView";
 
 export function ViewList({ nodes }: { nodes: ViewNode[] }) {
   return (
@@ -33,6 +35,10 @@ export function ViewRenderer({ node }: { node: ViewNode }) {
       return <TableView node={node} />;
     case "queryableTable":
       return <ServerTableView node={node} />;
+    case "graph":
+      return <GraphView node={node} />;
+    case "map":
+      return <MapView node={node} />;
     case "text":
       return <Text node={node} />;
     case "stats":

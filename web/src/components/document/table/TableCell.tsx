@@ -60,6 +60,8 @@ export function TableCell({ node, rowLabel, onOpenDetails }: TableCellProps) {
     case "tabs":
     case "table":
     case "hex":
+    case "graph":
+    case "map":
       return (
         <Cell>
           <DetailsChip label={nestedLabel(node)} rowLabel={rowLabel} onOpen={onOpenDetails} />
@@ -82,7 +84,7 @@ function Cell({ children, className = "", fieldRef }: { children: ReactNode; cla
   );
 }
 
-function nestedLabel(node: Extract<ViewNode, { type: "section" | "tabs" | "table" | "hex" }>): string {
+function nestedLabel(node: Extract<ViewNode, { type: "section" | "tabs" | "table" | "hex" | "graph" | "map" }>): string {
   switch (node.type) {
     case "section": {
       const title = node.title || "Section";
@@ -94,6 +96,9 @@ function nestedLabel(node: Extract<ViewNode, { type: "section" | "tabs" | "table
       return node.title ? `${node.title} (${node.rows.length})` : `${node.rows.length} rows`;
     case "hex":
       return node.title || `${node.length} bytes`;
+    case "graph":
+    case "map":
+      return node.title;
   }
 }
 
