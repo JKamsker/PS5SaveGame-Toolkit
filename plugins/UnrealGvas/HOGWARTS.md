@@ -45,6 +45,14 @@ invented item names. Missing catalogs affect only labels. Read-only F4 fields
 resolve names/candidates through the host; the current UI disables their picker
 button along with editing.
 
+The Spatial tab is intentionally link-first. It projects the 699 pinned catalogue
+records into 25 region markers plus one unjoined fast-travel domain, with original
+schematic coordinates and a text alternative. A companion GraphNode groups the same
+records by region and category; its edges are catalogue grouping only, never saved
+prerequisites or completion dependencies. Marker and graph states remain Unknown,
+external map art is not embedded, and every external link carries its source and
+licensing note. `SpatialViewValidation` is run by `HogwartsSpatialViewTests`.
+
 ## Reproducible sample evidence
 
 `HogwartsSampleTests` validates all 15 distinct HL0000–HL0014 gameplay payloads:

@@ -21,6 +21,8 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     private readonly Dictionary<string, Func<IReadOnlyList<ViewNode>>> _lazy = new(StringComparer.Ordinal);
     private readonly string? _readOnlyReason;
     private readonly string? _integrityWarning;
+    private const string RemoveLastPrefix = "gvas/structure/remove-last/";
+    private sealed record Snapshot(byte[] Bytes);
 
     public UnrealGvasDocument(string path, GvasEnvelope envelope, IReferenceContext references, string? readOnlyReason = null)
     {
@@ -44,6 +46,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     public override string Title => _envelope.File.Header.SaveClass;
     public override bool CanEdit => _readOnlyReason is null;
     internal JediActorStream? ActorStream => _actorStream;
+    internal GvasFile CurrentFile => _envelope.File;
 
     public override ViewNode BuildView()
     {
@@ -122,7 +125,11 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
                     : Bind(node));
             }
             else if (node.Children.Count > 0)
-                result.Add(Lazy(label, id, () => TreePage(node.Children, 0, id)) with { Badge = node.Children.Count.ToString() });
+            {
+                var children = TreePage(node.Children, 0, id);
+                if (CanRemoveLast(node)) children = [.. children, RemoveLastAction(id, node)];
+                result.Add(Lazy(label, id, () => children) with { Badge = node.Children.Count.ToString() });
+            }
             else
                 result.Add(Lazy(label, id, () => [new TextNode(node.Note ?? "Opaque or empty property; preserved verbatim.") { Tone = Tone.Muted },
                     new HexNode(id, node.Length) { Title = label }]) with { Badge = $"{node.Length} bytes" });
@@ -159,6 +166,63 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
             Warning = _readOnlyReason ?? _integrityWarning ?? EditWarning,
         };
     }
+
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
+    {
+        if (!actionId.StartsWith(RemoveLastPrefix, StringComparison.Ordinal))
+            return base.InvokeAction(actionId, parameters);
+        if (!CanEdit) return new ActionOutcome { Message = _readOnlyReason ?? "Document is read-only." };
+        if (_envelope.File.HasChanges) return new ActionOutcome { Message = "Save scalar edits before changing container structure." };
+        string id = actionId[RemoveLastPrefix.Length..];
+        if (!_nodes.TryGetValue(id, out var node) || !CanRemoveLast(node))
+            return new ActionOutcome { Message = "The selected container is not a bounded primitive collection." };
+        var outcome = Structural(() =>
+        {
+            var replacement = GvasStructuralEditor.RemoveLast(_envelope.File, node);
+            var output = _envelope.File.SerializeReplacements(new Dictionary<GvasNode, ReadOnlyMemory<byte>> { [node] = replacement }, true);
+            _envelope.ReplaceFile(GvasFile.Parse(output));
+            Reindex();
+        }, "Removed the last primitive container element. The operation is Experimental and reversible; game semantics are unverified.");
+        return _integrityWarning is { } warning ? outcome with { Warnings = [warning] } : outcome;
+    }
+
+    protected override DocumentMemento? CaptureSnapshot()
+    {
+        if (_envelope.IsWrapped) return null;
+        var bytes = _envelope.File.Serialize();
+        return DocumentMemento.Snapshot(new Snapshot(bytes), bytes.LongLength);
+    }
+
+    protected override void LoadSnapshot(DocumentMemento snapshot)
+    {
+        if (snapshot is not SnapshotMemento<Snapshot> state) throw new InvalidOperationException("Invalid GVAS structural snapshot.");
+        _envelope.ReplaceFile(GvasFile.Parse(state.State.Bytes));
+        Reindex();
+    }
+
+    private void Reindex()
+    {
+        _nodes.Clear();
+        _ids.Clear();
+        _lazy.Clear();
+        Index(_envelope.File.Properties, "property");
+    }
+
+    private static bool CanRemoveLast(GvasNode node)
+    {
+        var info = node.Container;
+        return info is not null && node.Children.Count > 0 &&
+            info.ElementType is not "StructProperty" &&
+            (info.Kind != "MapProperty" || info.ValueType is not "StructProperty") &&
+            node.Children.All(child => child.Scalar is not null);
+    }
+
+    private ActionNode RemoveLastAction(string id, GvasNode node) => new(RemoveLastPrefix + id, "Remove last element")
+    {
+        Description = $"Remove one {node.Container!.Kind} element while preserving all other bytes. Unknown game relationships are not inferred. {_integrityWarning ?? "Integrity metadata was not observed in this document."}",
+        Confirm = "Remove the last element? This is Experimental and can change game semantics.",
+        Tone = Tone.Warning,
+    };
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {

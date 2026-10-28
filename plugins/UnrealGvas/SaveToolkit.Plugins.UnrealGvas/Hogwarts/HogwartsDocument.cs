@@ -24,6 +24,7 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
     private readonly List<ViewNode> _warnings = [];
     private readonly Dictionary<string, HogwartsTable> _tables = new(StringComparer.Ordinal);
     private readonly IReferenceCatalog? _catalog;
+    private readonly HogwartsSpatialViews _spatial;
     private bool _dirty;
 
     public HogwartsDocument(string path, GvasEnvelope envelope, IReferenceContext references)
@@ -32,6 +33,7 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
         _envelope = envelope;
         _raw = new(path, envelope, references, ReadOnlyReason);
         _catalog = references.Catalog(CatalogId);
+        _spatial = new HogwartsSpatialViews(_catalog);
         try
         {
             foreach (string name in new[] { "RawDatabaseImage", "RawExclusiveImage" })
@@ -84,6 +86,7 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
             ]),
         };
         foreach (string group in new[] { "Character", "Inventory", "Progression", "Collections" }) tabs.Add(new(group, Group(group)));
+        tabs.Add(new("Spatial", _spatial.Build()));
         tabs.Add(new("Database tables", [
             new TextNode("All tables are queryable. Filters match raw column text; search covers every raw column. Rowid fallback identities are stable only within this unchanged document."),
             .. _databases.Select(database => (ViewNode)SectionNode.Lazy(database.Name, "hogwarts/tables/" + database.Name)),

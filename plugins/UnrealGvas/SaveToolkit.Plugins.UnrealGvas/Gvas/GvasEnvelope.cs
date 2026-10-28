@@ -10,7 +10,7 @@ public sealed class GvasEnvelope
     private static ReadOnlySpan<byte> AstroneerMagic => [0xBE, 0x40, 0x37, 0x4A, 0xEE, 0x0B, 0x74, 0xA3, 1, 0, 0, 0];
     private readonly byte[] _original;
     private readonly int _compressedOffset;
-    public GvasFile File { get; }
+    public GvasFile File { get; private set; }
     public string Label => _compressedOffset switch { 0 => "Plain GVAS", 16 => "Astroneer zlib GVAS", _ => "zlib GVAS" };
 
     private GvasEnvelope(byte[] original, int compressedOffset, GvasFile file)
@@ -96,6 +96,12 @@ public sealed class GvasEnvelope
         if (File.HasChanges) throw new SaveFormatException("Wrapped GVAS is read-only until wrapper recompression is verified.");
         _ = Open(_original);
         return _original.ToArray();
+    }
+
+    internal void ReplaceFile(GvasFile file)
+    {
+        if (IsWrapped) throw new SaveFormatException("Wrapped GVAS cannot replace its uncompressed file.");
+        File = file;
     }
 
     private sealed class PrefixStream(byte[] prefix, Stream tail) : Stream

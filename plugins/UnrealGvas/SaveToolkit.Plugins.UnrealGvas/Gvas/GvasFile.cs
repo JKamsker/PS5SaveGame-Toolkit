@@ -60,7 +60,8 @@ public sealed class GvasFile
     /// Serializes scalar edits and complete opaque payload replacements while preserving every
     /// unedited byte. Replacements are used by title-specific codecs whose payload length can grow.
     /// </summary>
-    public byte[] SerializeReplacements(IReadOnlyDictionary<GvasNode, ReadOnlyMemory<byte>> replacements)
+    public byte[] SerializeReplacements(IReadOnlyDictionary<GvasNode, ReadOnlyMemory<byte>> replacements,
+        bool allowStructureChange = false)
     {
         ArgumentNullException.ThrowIfNull(replacements);
         var patches = Descendants(Properties).Where(n => n.Scalar?.Changed == true)
@@ -96,6 +97,7 @@ public sealed class GvasFile
         output.Write(_original.AsSpan(position));
         var result = output.ToArray();
         var reparsed = Parse(result);
+        if (allowStructureChange) return result;
         var expected = Descendants(Properties).ToArray();
         var actual = Descendants(reparsed.Properties).ToArray();
         if (expected.Length != actual.Length) throw new SaveFormatException("Edited GVAS changed its parsed structure.");
