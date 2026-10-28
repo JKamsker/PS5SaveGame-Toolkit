@@ -10,6 +10,8 @@
   background: var(--surface);
   font-size: var(--text-sm);
   font-weight: 560;
+  color: var(--ink);
+  text-decoration: none;
   cursor: pointer;
   transition: background var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast);
 }
@@ -122,8 +124,8 @@
   font-size: var(--text-sm);
   line-height: 1.45;
 }
-.notice--Normal { padding-inline: 0; }
-.notice--Muted { padding-inline: 0; color: var(--ink-soft); }
+.notice--Normal { padding: 0; }
+.notice--Muted { padding: 0; color: var(--ink-soft); }
 .notice--Info { background: var(--signal-soft); }
 .notice--Success { background: color-mix(in oklab, var(--verified) 14%, var(--surface)); }
 .notice--Warning { background: var(--modified-soft); }
