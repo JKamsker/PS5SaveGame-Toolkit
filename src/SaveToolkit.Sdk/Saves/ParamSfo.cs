@@ -10,6 +10,8 @@ public sealed class ParamSfo
     private const ushort FormatUtf8Special = 0x0004;
     private const ushort FormatUtf8 = 0x0204;
     private const ushort FormatInt32 = 0x0404;
+    private const int HeaderSize = 20;
+    private const int EntrySize = 16;
 
     public ParamSfo(IReadOnlyDictionary<string, object> entries) => Entries = entries;
 
@@ -26,7 +28,7 @@ public sealed class ParamSfo
     /// <summary>Parses param.sfo bytes. Returns null when the data is not a valid SFO.</summary>
     public static ParamSfo? TryParse(ReadOnlySpan<byte> data)
     {
-        if (data.Length < 20 || BinaryPrimitives.ReadUInt32LittleEndian(data) != Magic)
+        if (data.Length < HeaderSize || BinaryPrimitives.ReadUInt32LittleEndian(data) != Magic)
         {
             return null;
         }
@@ -34,7 +36,8 @@ public sealed class ParamSfo
         var keyTable = BinaryPrimitives.ReadInt32LittleEndian(data[8..]);
         var dataTable = BinaryPrimitives.ReadInt32LittleEndian(data[12..]);
         var count = BinaryPrimitives.ReadInt32LittleEndian(data[16..]);
-        if (count < 0 || 20 + (count * 16) > data.Length || keyTable > data.Length || dataTable > data.Length)
+        if (count < 0 || count > (data.Length - HeaderSize) / EntrySize
+            || keyTable < 0 || keyTable > data.Length || dataTable < 0 || dataTable > data.Length)
         {
             return null;
         }
@@ -42,18 +45,21 @@ public sealed class ParamSfo
         var entries = new Dictionary<string, object>(StringComparer.Ordinal);
         for (var i = 0; i < count; i++)
         {
-            var e = data.Slice(20 + (i * 16), 16);
+            var e = data.Slice(HeaderSize + (i * EntrySize), EntrySize);
             var keyOffset = BinaryPrimitives.ReadUInt16LittleEndian(e);
             var format = BinaryPrimitives.ReadUInt16LittleEndian(e[2..]);
             var length = BinaryPrimitives.ReadInt32LittleEndian(e[4..]);
             var valueOffset = BinaryPrimitives.ReadInt32LittleEndian(e[12..]);
 
-            var keyStart = keyTable + keyOffset;
-            var valueStart = dataTable + valueOffset;
-            if (keyStart >= data.Length || valueStart < 0 || length < 0 || valueStart + length > data.Length)
+            // Check relative offsets before addition, so malformed counts/offsets cannot overflow.
+            if (keyOffset >= data.Length - keyTable || valueOffset < 0 || valueOffset > data.Length - dataTable)
             {
                 return null;
             }
+
+            var keyStart = keyTable + keyOffset;
+            var valueStart = dataTable + valueOffset;
+            if (length < 0 || length > data.Length - valueStart) return null;
 
             var keyEnd = data[keyStart..].IndexOf((byte)0);
             var key = Encoding.ASCII.GetString(data.Slice(keyStart, keyEnd < 0 ? data.Length - keyStart : keyEnd));
