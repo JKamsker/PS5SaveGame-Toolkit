@@ -10,7 +10,7 @@ describe("queryable selection", () => {
     act(() => result.current.toggle("other-page"));
     act(() => result.current.setMany(["a", "b"], true));
     expect(result.current.count).toBe(3);
-    expect([...result.current.selectedKeys]).toEqual(["a", "b"]);
+    expect([...result.current.selectedKeys]).toEqual(["other-page", "a", "b"]);
 
     act(() => result.current.setMany(["a", "b"], false));
     expect(result.current.count).toBe(1);
