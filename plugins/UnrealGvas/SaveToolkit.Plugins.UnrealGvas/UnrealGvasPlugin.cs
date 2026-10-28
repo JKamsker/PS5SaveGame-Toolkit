@@ -38,9 +38,11 @@ public sealed class UnrealGvasPlugin : IGamePlugin, ISaveDecoderProvider
     {
         try
         {
-            if (file.ReadHeader(4).AsSpan().SequenceEqual("GVAS"u8)) return ProbeResult.Match(ProbeScore.Engine, Label(file.Directory.TitleId));
+            if (file.Length > GvasFile.MaxFileLength) return ProbeResult.None;
             using var stream = file.OpenRead();
-            return GvasEnvelope.Probe(stream) is { } label ? ProbeResult.Match(ProbeScore.Engine, label) : ProbeResult.None;
+            var label = GvasEnvelope.Probe(stream);
+            return label is null ? ProbeResult.None : ProbeResult.Match(ProbeScore.Engine,
+                label == "Unreal GVAS" ? Label(file.Directory.TitleId) : label);
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or ArgumentException or InvalidOperationException) { return ProbeResult.None; }
     }
