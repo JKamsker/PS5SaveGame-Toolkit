@@ -15,6 +15,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     private readonly GvasEnvelope _envelope;
     private readonly UnrealGvasSchema _schema;
     private readonly IReferenceContext _references;
+    private readonly CatalogueInspection _catalogues;
     private readonly JediActorStream? _actorStream;
     private readonly Dictionary<string, GvasNode> _nodes = new(StringComparer.Ordinal);
     private readonly Dictionary<GvasNode, string> _ids = [];
@@ -30,6 +31,14 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
         _envelope = envelope;
         _references = references;
         _schema = UnrealGvasSchema.Detect(envelope.File);
+        _catalogues = new(references, UnrealGvasReferences.PropertyTypes, _schema.Kind switch
+        {
+            UnrealGvasSchemaKind.SackboyGeneral => UnrealGvasReferences.SackboyFields,
+            UnrealGvasSchemaKind.SackboyImageSet => UnrealGvasReferences.SackboyImageFields,
+            UnrealGvasSchemaKind.JediGameplay => UnrealGvasReferences.JediFields,
+            UnrealGvasSchemaKind.JediSettings => UnrealGvasReferences.JediSettings,
+            _ => UnrealGvasReferences.PropertyTypes,
+        });
         Index(envelope.File.Properties, "property");
         _actorStream = ReadActorStream();
         if (readOnlyReason is not null) _readOnlyReason = readOnlyReason;
@@ -71,6 +80,8 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
             ]),
             new Tab("Properties", [Lazy("Property tree", "tree", () => TreePage(file.Properties, 0, "tree"))]),
             new Tab("Search", [Lazy("Top-level primitive properties", "search", () => SearchPage(primitives, 0))]),
+            new Tab("Catalogues", _catalogues.Build((id, catalogue, record) =>
+                Field("property/" + id, catalogue.Dataset.Title ?? catalogue.Id, new ReferenceSpec(catalogue.Id), () => FieldValue.Of(record.Key)))),
         };
         if (_schema.IsTitleSchema) tabs.Add(new Tab("Schema", BuildSchemaOverlay()));
         return new TabsNode(tabs);
@@ -169,6 +180,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
+        if (_catalogues.Invoke(actionId) is { } inspection) return inspection;
         if (!actionId.StartsWith(RemoveLastPrefix, StringComparison.Ordinal))
             return base.InvokeAction(actionId, parameters);
         if (!CanEdit) return new ActionOutcome { Message = _readOnlyReason ?? "Document is read-only." };
@@ -237,73 +249,14 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
         node.Name.Contains("checksum", StringComparison.OrdinalIgnoreCase) ||
         node.Name.Contains("signature", StringComparison.OrdinalIgnoreCase);
 
-    private IReadOnlyList<ViewNode> BuildSchemaOverlay()
-    {
-        var nodes = GvasFile.Descendants(_envelope.File.Properties).ToArray();
-        var result = new List<ViewNode>
-        {
-            new StatsNode([
-                new Stat("Schema", _schema.Name),
-                new Stat("Build", _schema.Build),
-                new Stat("Evidence", _schema.Confidence),
-            ]),
-            new TextNode(_schema.Evidence) { Tone = Tone.Info },
-        };
-        if (_schema.Kind == UnrealGvasSchemaKind.SackboyGeneral)
-            result.Add(BuildNamedPropertyTable(nodes, UnrealGvasReferences.SackboyFields,
-                ["CollectabellsStored", "TotalCollectabellsCollected", "UnlockedWorlds", "Checksum"],
-                "Verified storage fields; checksum coverage and gameplay effects are unknown."));
-        else if (_schema.Kind == UnrealGvasSchemaKind.SackboyImageSet)
-            result.Add(BuildNamedPropertyTable(nodes, UnrealGvasReferences.SackboyImageFields,
-                ["SurfaceWidth", "SurfaceHeight", "PixelFormat", "Image"],
-                "Metadata is readable; PS5 channel order, swizzle and screenshot correspondence remain inferred."));
-        else if (_schema.Kind == UnrealGvasSchemaKind.JediGameplay)
-        {
-            result.Add(BuildNamedPropertyTable(nodes, UnrealGvasReferences.JediFields,
-                ["CompressedActorRecords", "UncompressedActorRecordsSize", "Crc32"],
-                "The complete document stays read-only until checksum coverage is established."));
-            result.Add(Lazy("Decoded actor stream", "jedi/actors", () => _actorStream is { IsValid: true }
+    private IReadOnlyList<ViewNode> BuildSchemaOverlay() => new GvasSchemaViews(_schema, _references).Build(
+        _envelope.File, _ids,
+        (id, catalogue, name) => Field(id, "Property", new ReferenceSpec(catalogue), () => FieldValue.Of(name)),
+        _schema.Kind != UnrealGvasSchemaKind.JediGameplay ? null :
+            Lazy("Decoded actor stream", "jedi/actors", () => _actorStream is { IsValid: true }
                 ? JediActorView.BuildSummary(_actorStream.Roots)
                 : [new TextNode(_actorStream?.Error ?? "Actor stream was not found.") { Tone = Tone.Warning }]) with
             { Badge = _actorStream is { IsValid: true } valid ? $"{valid.DecodedLength:N0} bytes" : "opaque" });
-        }
-        else if (_schema.Kind == UnrealGvasSchemaKind.HogwartsMetadata)
-            result.Add(new TextNode("Database tables are exposed in the Hogwarts tabs through the shared Kraken/SQLite codecs. Raw arrays and metadata remain read-only.") { Tone = Tone.Info });
-        return result;
-    }
-
-    private TableNode BuildNamedPropertyTable(IReadOnlyList<GvasNode> nodes, string catalogId,
-        IReadOnlyList<string> names, string description)
-    {
-        var rows = names.SelectMany(name => nodes.Where(candidate => candidate.Name == name)
-            .Cast<GvasNode?>().DefaultIfEmpty().Select(node =>
-        {
-            var id = node is null ? "undecoded/" + name : _ids[node];
-            var raw = node?.Scalar is { } scalar ? scalar.Value.ToString() ?? "" : node is null ? "Not decoded" : "Opaque";
-            var record = _references.Catalog(catalogId)?.Find(name);
-            var reference = Field($"schema/{catalogId}/{id}", "Property",
-                new ReferenceSpec(catalogId), () => FieldValue.Of(name))
-            with
-            {
-                Confidence = record is null || node is null ? Confidence.Unknown : Confidence.Inferred,
-                Description = record is null ? "Raw serialized property name; no pinned catalog record is available."
-                    : record.Description + " " + record.AttributionText,
-                Warning = "Read-only semantic overlay. The raw property remains the source of truth.",
-            };
-            return new TableRow(id, new Dictionary<string, ViewNode>
-            {
-                ["identity"] = new TextNode(id),
-                ["property"] = reference,
-                ["value"] = new TextNode(raw) { Monospace = node is null },
-                ["type"] = new TextNode(node?.Type ?? "Undecoded") { Tone = node is null ? Tone.Warning : Tone.Normal },
-            });
-        })).ToArray();
-        return new TableNode([new("identity", "Canonical raw identity"), new("property", "Catalog property"), new("type", "Storage type"), new("value", "Current value")], rows)
-        {
-            Title = "Observed schema fields",
-            Description = description + " Catalog attribution is shown by each field.",
-        };
-    }
 
     private JediActorStream? ReadActorStream()
     {

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Testing;
 using SaveToolkit.Testing.Diff;
 
@@ -13,7 +14,8 @@ public sealed class HogwartsEvidenceTests
             !file.Directory.IsBackup && file.FileName == "ue4savegame.ps5.sav" && file.Directory.Name.StartsWith("HL00", StringComparison.Ordinal))
             .OrderBy(file => file.Directory.Generation).ThenBy(file => file.Directory.Name, StringComparer.Ordinal).ToArray();
         Assert.Equal(15, samples.Length);
-        var decoder = new HogwartsSaveDecoder();
+        var hook = Assert.Single(Assert.IsAssignableFrom<ISaveDecoderProvider>(new UnrealGvasPlugin()).Decoders);
+        var decoder = new HookSaveDecoder(hook);
         var previous = decoder.Decode(samples[0], new());
         var summaries = new List<object>();
         var changesByTable = new Dictionary<string, int>(StringComparer.Ordinal);

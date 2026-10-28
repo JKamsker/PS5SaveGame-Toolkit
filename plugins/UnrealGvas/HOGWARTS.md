@@ -61,7 +61,8 @@ byte-identical database serialize/reopen and original GVAS no-op serialization.
 HL0010 images have 4,534,272 and 4,231,168 SQLite bytes (the codec handoff's decoded
 lengths include the eight-byte prefix). The database images are not assumed mirrors.
 
-`HogwartsSaveDecoder` is an F1 `ISaveDecoder` hook in the test project, with ID
+`HogwartsSaveDecoder` is a production SDK-only F1/F12 `ISaveDecoderHook`, registered
+through `UnrealGvasPlugin.Decoders`, with ID
 `unrealgvas.hogwarts.rows`. It emits table schema/count evidence and SHA-256 hashes
 of full typed rows, aligned by confirmed unique tuples. CollectionDynamic and
 MissionDynamic have duplicate candidate tuples in both images; their rows use

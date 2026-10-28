@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Plugins.UnrealGvas.Gvas;
@@ -6,8 +7,10 @@ using SaveToolkit.Plugins.UnrealGvas.Hogwarts;
 
 namespace SaveToolkit.Plugins.UnrealGvas;
 
-public sealed class UnrealGvasPlugin : IGamePlugin
+public sealed class UnrealGvasPlugin : IGamePlugin, ISaveDecoderProvider
 {
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new HogwartsSaveDecoder()];
+
     public PluginInfo Info { get; } = new("engine.unreal-gvas", "Unreal Engine GVAS", "0.4.0")
     {
         Description = "Lossless Unreal SaveGame property explorer and primitive editor.",

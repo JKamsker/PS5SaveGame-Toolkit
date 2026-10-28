@@ -18,16 +18,50 @@ enabled in this round with explicit rejection warnings; no bulk action is expose
 | F1 SaveDiff | Used | Hogwarts decoder hook and adjacent table/row evidence; corruption and no-op fixtures cover GVAS and database framing. |
 | F2 reference packs | Used | `unrealgvas.ps5`, `unrealgvas.storage` and `hogwarts.legilimens` are embedded, pinned and attributed in the Sources panel. |
 | F3 rich table cells | Used | F8 rows expose live field cells, text, confidence, descriptions, warnings and provenance; image-cell rendering remains host-owned. |
-| F4 `ReferenceSpec` pickers | Used | Exact table/column-qualified Hogwarts IDs and title storage captions use read-only reference specs. |
-| F5 structural edits | Added this round | Fully parsed primitive array/map/set nodes expose a bounded remove-last action with snapshot undo/redo, reparsing and size validation; struct/native/opaque containers remain read-only. |
+| F4 `ReferenceSpec` pickers | Used | Exact table/column-qualified Hogwarts IDs, title captions and catalogue examples open the F13 browse-only picker with attribution, category filters, declared sorting and no save commit. |
+| F5 structural edits | Added | Fully parsed primitive array/map/set nodes expose a bounded remove-last action with snapshot undo/redo, reparsing and size validation; struct/native/opaque containers remain read-only. |
 | F6 planned bulk actions | N/A | No bounded bulk or preset has proven gameplay semantics; adding one would hide unknown checksum/relationship effects. |
 | F7 document groups | N/A | No enabled edit safely owns a coupled companion; Hogwarts primary/backup and the two database images remain independent until owner captures establish roles. |
 | F8 queryable collections | Used | Generic nested properties, Jedi actor observations, Sackboy projections and all Hogwarts tables use bounded search/filter/sort/paging. |
-| F9 maps/graphs | Added this round | Hogwarts Spatial tab adds an attributed schematic collectible/location map and a catalogue-domain graph, both with text alternatives and unknown states. |
+| F9 maps/graphs | Added | Hogwarts Spatial tab adds an attributed schematic collectible/location map and a catalogue-domain graph, both with text alternatives and unknown states. |
 | F10 exact numbers and nullable/union specs | Used | GVAS widths are preserved through `Int128`/exact scalar bindings; nullable database values remain text-only when their semantics are unknown. |
 | F11 shared codecs | Used | Hogwarts routes Kraken framing and in-memory SQLite through `SaveToolkit.Codecs`; no local codec or filesystem I/O is present. |
-| F12 SaveDiff F8 traversal | Pending #32 | No substitute is built in this plugin; current F1 evidence uses the available decoder hook. |
-| F13 non-mutating inspect actions | Pending #33 | No local browse/action substitute is built; spatial and catalogue views are read-only nodes. |
+| F12 SaveDiff F8 traversal / decoder hook | Used | Shared `PluginViewDecoder` pages generic/named F8 views; `UnrealGvasPlugin.Decoders` registers the production SDK-only `unrealgvas.hogwarts.rows` evidence hook. |
+| F13 non-mutating inspection / catalogue browsing | Added | Attributed catalogue tabs and `Mutates = false` coverage/provenance actions work on writable and read-only documents; Hogwarts uses shared category filtering and Key/Name/Category sorting. |
+| F13 float duration hint | N/A | No exposed float timer has verified units; serialized time-like names alone do not justify a duration conversion. |
+| F4 in F6 planned parameters (`63580dc`) | N/A | No planned action or enum parameter fallback is published; catalogue inspection actions have no parameters and cannot mutate saved IDs. |
+
+## F12/F13 adoption
+
+The **Catalogues** tab (generic GVAS, Jedi and Sackboy) and **Collectible catalogue**
+tab (Hogwarts) publish read-only `ReferenceSpec` examples. They are explicitly
+catalogue examples, not saved values, ownership or completion evidence. The shared
+F13 picker provides bounded search, categories, paging, declared Key/Name/Category
+sorting and attribution. Existing read-only saved reference fields use the same
+browse-only picker; neither path writes an ID.
+
+Each loaded catalogue also publishes a `Mutates = false` inspection action that
+returns bounded coverage/category/sort metadata and provenance. Core runs it on an
+isolated current-save copy and verifies no byte/value/history/revision changes.
+Missing packs omit these examples/actions; raw saved IDs remain preserved.
+
+The former test-only Hogwarts F1 decoder now lives in the production plugin as an
+SDK-only `ISaveDecoderHook`, retaining its ID and schema/count/hashed-row semantics.
+The existing adjacent-snapshot evidence tests use the shared `HookSaveDecoder`
+adapter. The hook stops when the sink refuses output, honors file/depth limits,
+and caps traversed rows at 100,000 across both images, reporting truncation.
+Ambiguous modeled tables retain content-hash multisets with multiplicities and
+warnings; unmodeled tables retain schema/count coverage. Raw cell/account values
+are never emitted. Select it explicitly:
+
+```powershell
+dotnet run --project tools/SaveToolkit.SaveDiff -- list-decoders
+dotnet run --project tools/SaveToolkit.SaveDiff -- compare before.zip after.zip --decoder unrealgvas.hogwarts.rows
+```
+
+Shared F12 view traversal is also verified against 205 generic F8 rows over multiple
+pages, including truncation at the query-row cap. It describes rendered storage;
+the native Hogwarts hook remains the row-identity evidence mode.
 
 ## Enabled writes and their evidence
 
@@ -331,6 +365,7 @@ unproven checksums or guessed gameplay bounds. The former read-only-download req
 permits original-file download when editing is disabled. A canonical field-reference
 node and richer image cells remain useful future framework improvements, but this
 plugin does not duplicate them locally. Hogwarts uses F8 and the shared Codecs
-reference with no new required contract. Optional UX request: let a read-only F4
-field open a non-mutating catalog browser; the current UI disables its picker
-button, although names and attributed candidates resolve through the normal API.
+reference with no new required contract. The former read-only F4 browse request is
+resolved by F13 (#33): the shared picker remains searchable, filterable and sortable
+while selection/commit is disabled. F12 (#32) resolves native decoder discovery through
+`ISaveDecoderProvider`; no test-only decoder or plugin-side catalogue index is needed.
