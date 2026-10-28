@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>SaveToolkit.Plugins.BaldursGate3</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="K4os.Compression.LZ4" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" />
+    <PackageReference Include="ZstdSharp.Port" />
+    <!-- Plugins depend on the SDK only (never on Core/Api). -->
+    <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
+  </ItemGroup>
+</Project>
