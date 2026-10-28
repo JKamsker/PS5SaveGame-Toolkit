@@ -77,14 +77,22 @@ cells, metadata-only files or malformed/partial database pairs.
 ## Sample coverage and file roles
 
 Observations apply to the supplied archives, not every release of each title.
-Filenames alone never establish support. Probe returns `Engine` for raw GVAS or
-GVAS magic obtained by decompressing a supported envelope.
+Filenames or GVAS magic alone never establish support. Probe returns `Engine`
+only after validating the supported header and first root property name, either
+directly or inside a supported compression envelope. The shared header reader
+checks save/engine versions, FString lengths, encodings and NUL terminators,
+custom-version format/count/table length, save-class string and UE5 root flags.
+It stops before property tags/payloads, skips custom-version entries without
+modeling them, and uses the full parser's limits rather than a smaller probe cap.
+Files above the same 128 MiB input limit are unclaimed. Full property and wrapper
+integrity validation remains the responsibility of `Open`.
 
 | Title | Observed format and roles | Result |
 | --- | --- | --- |
 | PPSA01603, Hogwarts Legacy | `ue4savegame.ps5.sav`: plain GVAS, UE 4.27.2, package 524, 72 custom versions. `SaveGameList` contains slot metadata; `SavedUserOptions` an opaque settings array; `HL0000`–`HL0014` contain metadata and two Kraken/SQLite arrays. 34 files, 17 distinct payloads. | All round-trip exactly. Existing database cells can be edited through the bounded codec path; metadata and malformed pairs remain read-only. |
 | PPSA02199, STAR WARS Jedi: Fallen Order | `ue4savegame.dpx.sav`: plain GVAS, UE 4.25.0, package 518, 56 custom versions. `GameUserSettings` has settings/structs. `SaveGame00`/`Backup00` have zlib actor records and `Crc32`. 6 files, 3 distinct payloads. | All round-trip exactly. Existing gameplay scalar fields are editable with an unproven-checksum warning; `Crc32` and compressed actor payloads remain read-only. |
 | PPSA01288, Sackboy: A Big Adventure | `General`: UE 4.25.1 tagged progression, including `CollectabellsStored` and `Checksum`. `LevelImages_*` / `CostumeThumbnails_*`: GVAS image sets. 20 files, 6 distinct payloads. | All round-trip exactly. Existing General scalar fields are editable with an unproven-checksum warning; `Checksum` and opaque image payloads remain read-only. |
+| PPSA01463 / PPSA01493, Gearbox variants | 24 files start with GVAS magic but have header/length layouts incompatible with this reader. Includes character `1` and profile files, with primary/backup snapshots. | Unclaimed after header validation; use the higher-priority Gearbox plugin. Regression for [#36 finding F](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/36). |
 | PPSA10695, Atomic Heart | Starts `01 00 00 00`, then a UE-style header and `/Script/SaveExtension.SlotInfo`, followed by custom framing. No GVAS magic anywhere. | Unclaimed here; see the separate [AtomicHeart plugin](../AtomicHeart/README.md), which validates framing and SHA-1. |
 | PPSA01802 | Versioned binary with region names including `W0_Ruins_Region`. No GVAS magic. | Unclaimed; unknown format, no established compression wrapper. |
 | PPSA02343 | UTF-8 JSON with a `Profile` object. | Unclaimed; not GVAS. |
@@ -93,6 +101,12 @@ GVAS magic obtained by decompressing a supported envelope.
 All 60 claimed files, including backup twins, are tested byte-for-byte. Conformance
 also covers all 26 distinct payloads, exceeding the default six-file cap. Regression
 tests ensure that the other four titles' filenames never cause false matches.
+A corpus-wide regression probes and attempts to open every file in every available
+sample archive, asserting both that every match opens and that every openable file
+is claimed (60 matches in the supplied 33-title corpus). Dedicated tests reject all
+24 Gearbox variants. Synthetic tests cover legacy UE4 and modern UE5 headers,
+UTF-8/UTF-16, maximum supported lengths/counts, truncated/malformed headers, all
+three envelope forms, and short non-seekable reads that stop before property tags.
 
 ## Layout and reader/writer
 
@@ -344,6 +358,7 @@ upstream code was copied and no downloaded program was executed.
 
 | Dataset / implementation | Pinned source, author, license | Changes and display provenance |
 | --- | --- | --- |
+| GVAS header layout and probe validation | [uesave `Header::read` and `Root::read`, revision 1917a22](https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs), Truman Kilen / contributors; MIT; rechecked 2026-10-29 | Independently implemented shared C# header reader; no code copied. Header/string limits match this plugin's full parser. Actual PPSA01463/PPSA01493 header rejection and all 60 openable samples verified separately. |
 | Hogwarts 699 collectible IDs, type/region/index and guide links | [Legilimens 02525dde](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/tree/02525dde0fd9bc0be72982478680377dccb41246), Malin001 and contributors; [MIT](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/blob/02525dde0fd9bc0be72982478680377dccb41246/LICENSE); retrieved 2026-10-28 | Projected to F2 `hogwarts.legilimens` v1.0.0; labels combine type/region/index, table/column-qualified exact joins, no icons/video media. License and [source sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/hogwarts.legilimens/collectibles.source.md) accompany data; manifest hash, `Info.References`, Sources panel and each F4 field carry attribution. MIT retained; no CC BY-SA data imported. |
 | Hogwarts framing and schema research | [hl-savetools e568dedc](https://github.com/producedbytmsh/hl-savetools/tree/e568dedcda2611f54cc793e6d0237c749ae25094), producedbytmsh; MIT; retrieved 2026-10-28 | Independently implemented bounded framing; PS5 lengths/schema checked. No inherited PC mirror, state/reward or no-checksum claims. Navigation descriptions cite research and label meaning Inferred. |
 | Shared Kraken / SQLite | [SaveToolkit.Codecs](../../src/SaveToolkit.Codecs/README.md), toolkit contributors and attributed upstream authors; GPL-3.0-or-later decoder, MIT Microsoft.Data.Sqlite, Apache-2.0 SQLitePCLRaw, public-domain SQLite | Referenced, not ported/duplicated. Root LICENSE/THIRD-PARTY-NOTICES retain shared dependencies' notices. In-memory native SQLite only; no proprietary decoder. |

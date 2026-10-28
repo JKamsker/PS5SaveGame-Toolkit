@@ -27,21 +27,37 @@ public sealed class GvasEnvelope
             Span<byte> prefix = stackalloc byte[16];
             var read = stream.ReadAtLeast(prefix, prefix.Length, throwOnEndOfStream: false);
             if (read < 4) return null;
-            if (prefix[..4].SequenceEqual("GVAS"u8)) return "Unreal GVAS";
+            if (prefix[..4].SequenceEqual("GVAS"u8))
+            {
+                if (stream.CanSeek)
+                {
+                    stream.Seek(-read, SeekOrigin.Current);
+                    return CanOpen(stream) ? "Unreal GVAS" : null;
+                }
+                using var plain = new PrefixStream(prefix[..read].ToArray(), stream);
+                return CanOpen(plain) ? "Unreal GVAS" : null;
+            }
             if (read >= 16 && prefix[..12].SequenceEqual(AstroneerMagic))
             {
                 using var zlib = new ZLibStream(stream, CompressionMode.Decompress, leaveOpen: true);
-                Span<byte> magic = stackalloc byte[4];
-                return zlib.ReadAtLeast(magic, 4, false) == 4 && magic.SequenceEqual("GVAS"u8) ? "Unreal GVAS (Astroneer zlib)" : null;
+                return CanOpen(zlib) ? "Unreal GVAS (Astroneer zlib)" : null;
             }
             // Replay the consumed prefix without relying on seekable input streams.
             if ((prefix[0] & 15) != 8 || ((prefix[0] << 8) + prefix[1]) % 31 != 0) return null;
             using var replay = new PrefixStream(prefix[..read].ToArray(), stream);
             using var compressed = new ZLibStream(replay, CompressionMode.Decompress);
-            Span<byte> result = stackalloc byte[4];
-            return compressed.ReadAtLeast(result, 4, false) == 4 && result.SequenceEqual("GVAS"u8) ? "Unreal GVAS (zlib)" : null;
+            return CanOpen(compressed) ? "Unreal GVAS (zlib)" : null;
         }
-        catch (Exception ex) when (ex is IOException or InvalidDataException or ArgumentException or InvalidOperationException) { return null; }
+        catch (Exception ex) when (ex is SaveFormatException or IOException or InvalidDataException or ArgumentException or InvalidOperationException) { return null; }
+    }
+
+    private static bool CanOpen(Stream stream)
+    {
+        _ = GvasHeaderReader.Read(stream);
+        using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, leaveOpen: true);
+        // A root property name (possibly the None terminator) must follow the header.
+        // Do not walk property tags or payloads: Probe stays independent of save-body size.
+        return GvasString.Read(reader).Length != 0;
     }
 
     public static GvasEnvelope Open(byte[] original)

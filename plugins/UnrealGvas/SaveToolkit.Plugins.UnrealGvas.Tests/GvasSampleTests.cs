@@ -5,6 +5,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
+[Collection(nameof(GvasProbeSampleCollection))]
 public sealed class GvasSampleTests
 {
     [Theory]

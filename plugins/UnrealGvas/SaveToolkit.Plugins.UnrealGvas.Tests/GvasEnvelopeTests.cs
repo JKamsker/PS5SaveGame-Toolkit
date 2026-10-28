@@ -66,7 +66,7 @@ public sealed class GvasEnvelopeTests
         }
     }
 
-    private static byte[] Wrap(byte[] bytes, bool astroneer = false)
+    internal static byte[] Wrap(byte[] bytes, bool astroneer = false)
     {
         using var stream = new MemoryStream();
         if (astroneer)

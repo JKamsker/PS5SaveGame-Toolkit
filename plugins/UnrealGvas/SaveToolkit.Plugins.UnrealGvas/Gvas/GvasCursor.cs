@@ -38,16 +38,7 @@ internal sealed class GvasCursor(ReadOnlyMemory<byte> data, int start = 0, int? 
     public string String()
     {
         var length = Int32();
-        if (length == 0) return string.Empty;
-        if (length == int.MinValue || Math.Abs(length) > GvasFile.MaxStringLength)
-            throw new SaveFormatException("GVAS string exceeds the supported length limit.");
-        var wide = length < 0;
-        var bytes = Take(Math.Abs(length) * (wide ? 2 : 1));
-        var terminator = wide ? 2 : 1;
-        if (bytes[^1] != 0 || (wide && bytes[^2] != 0))
-            throw new SaveFormatException("GVAS string is missing its NUL terminator.");
-        try { return (wide ? Utf16 : Utf8).GetString(bytes[..^terminator]); }
-        catch (DecoderFallbackException ex) { throw new SaveFormatException("Invalid GVAS string encoding.", ex); }
+        return GvasString.Decode(length, Take(GvasString.ByteLength(length)));
     }
 
     public static byte[] EncodeString(string value, bool wide)

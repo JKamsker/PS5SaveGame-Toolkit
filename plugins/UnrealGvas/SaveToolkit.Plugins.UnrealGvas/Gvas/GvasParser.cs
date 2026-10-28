@@ -10,32 +10,9 @@ internal sealed class GvasParser(byte[] bytes)
 
     public GvasFile Parse()
     {
-        var reader = new GvasCursor(bytes);
-        if (!reader.Take(4).SequenceEqual("GVAS"u8)) throw new SaveFormatException("Not a GVAS SaveGame file.");
-        var version = reader.Int32();
-        if (version is < 1 or > 3) throw new SaveFormatException($"Unsupported GVAS save version {version}.");
-        var package = reader.Int32();
-        int? package5 = version >= 3 ? reader.Int32() : null;
-        var major = reader.UInt16();
-        var minor = reader.UInt16();
-        var patch = reader.UInt16();
-        var build = reader.UInt32();
-        var branch = reader.String();
-        if (major is < 4 or > 5) throw new SaveFormatException($"Unsupported Unreal engine version {major}.{minor}.");
-        var count = 0;
-        if (major >= 5 || minor >= 12)
-        {
-            var format = reader.Int32();
-            if (format != 3) throw new SaveFormatException($"Unsupported custom version format {format}; expected GUID format 3.");
-            count = reader.Count();
-            reader.Take(checked(count * 20));
-        }
-        var saveClass = reader.String();
-        _header = new GvasHeader(version, package, package5, major, minor, patch, build, branch, count, saveClass);
-        if (_header.CompleteTypeNames)
-        {
-            if (reader.Byte() != 0) throw new SaveFormatException("Unsupported UE5 root serialization control flags.");
-        }
+        using var stream = new MemoryStream(bytes, writable: false);
+        _header = GvasHeaderReader.Read(stream);
+        var reader = new GvasCursor(bytes, (int)stream.Position);
         var nodes = ReadProperties(reader, 0);
         // Bytes after the None terminator belong to the game and are preserved verbatim.
         return new GvasFile(bytes, _header, nodes, _sizes.ToArray());
