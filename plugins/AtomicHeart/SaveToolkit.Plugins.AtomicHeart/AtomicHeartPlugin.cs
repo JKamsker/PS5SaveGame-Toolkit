@@ -1,10 +1,11 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.AtomicHeart;
 
-public sealed class AtomicHeartPlugin : IGamePlugin
+public sealed class AtomicHeartPlugin : IGamePlugin, ISaveDecoderProvider
 {
     private const int ProbeHeaderBytes = 4096;
     public PluginInfo Info { get; } = new("atomic-heart", "Atomic Heart", "0.4.0")
@@ -27,6 +28,8 @@ public sealed class AtomicHeartPlugin : IGamePlugin
             "https://atomicheart.fandom.com/wiki/Skills",
         ],
     };
+
+    public IReadOnlyList<ISaveDecoderHook> Decoders => [new AtomicHeartSaveDecoder()];
 
     public ProbeResult Probe(ISaveFile file)
     {

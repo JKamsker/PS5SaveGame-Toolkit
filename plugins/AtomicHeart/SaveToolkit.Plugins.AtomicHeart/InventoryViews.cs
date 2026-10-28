@@ -21,9 +21,9 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
         new TextNode("Existing player/storage inventory slots only. Empty slots remain read-only; world loot is excluded. Amount limits use the original maximum in each serialized container, not a proven stack cap. " + InventoryState.WriteWarning) { Tone = Tone.Warning },
         new TextNode(state.Catalog is null ? "No item pack loaded; exact raw IDs are shown. Asset replacement requires the attributed pack." :
             $"Names: {state.Catalog.Dataset.Attribution.SourceUrl}. Exact object-name joins; PC-derived labels are inferred on PS5. No icons or limits are bundled."),
+        state.Catalog is null ? new TextNode("No pinned item catalogue is available for read-only inspection.") : CatalogueInspection.Action(state.Catalog),
         InventoryPlanning.Action(),
         new InventoryCollection(state, this).View,
-        // Keep the existing bounded inspection path until F12 traverses queryable fields for F1.
         SectionNode.Lazy("Slot details and original bytes", "inventory/0"),
     ];
 

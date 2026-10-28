@@ -115,6 +115,11 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
             StructureChanged = edits.Any(e => e.ValueId.EndsWith("/asset", StringComparison.Ordinal)) } : outcome;
     }
 
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        actionId == CatalogueInspection.ActionId
+            ? CatalogueInspection.Inspect(state.Catalog, parameters)
+            : base.InvokeAction(actionId, parameters);
+
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
         InventoryPlanning.Plan(state, actionId, parameters, scope);
 

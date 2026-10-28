@@ -1,5 +1,8 @@
 using System.Buffers.Binary;
 using SaveToolkit.Core.References;
+using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
@@ -9,6 +12,62 @@ namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
 public sealed class AtomicHeartEvidenceTests
 {
+    [Fact]
+    public void F12HookExposesStableScalarTagsAndHonorsDecoderBounds()
+    {
+        var file = SaveToolkit.Testing.MemorySaveSet.SingleFile("slot.dpx.sav",
+            SlotFixture.Create(plain: PlainFixture.Create(amount: 17)), "PPSA10695");
+        var provider = Assert.IsAssignableFrom<ISaveDecoderProvider>(new AtomicHeartPlugin());
+        var hook = Assert.Single(provider.Decoders);
+        Assert.Equal("atomic-heart.saveextension-v1", hook.Id);
+        Assert.True(hook.CanDecode(file));
+
+        var tree = new HookSaveDecoder(hook).Decode(file, new DecodeLimits { MaxDepth = 8 });
+        Assert.False(tree.Truncated);
+        Assert.Contains(tree.Values, value => value.Path.Contains("TestRoot", StringComparison.Ordinal)
+            && value.Value == "42");
+        Assert.Contains(tree.Values, value => value.Path.Contains("Amount", StringComparison.Ordinal)
+            && value.Value == "17");
+
+        var truncated = new HookSaveDecoder(hook).Decode(file, new DecodeLimits { MaxDepth = 1 });
+        Assert.True(truncated.Truncated);
+        Assert.NotEmpty(truncated.Warnings);
+    }
+
+    [Fact]
+    public void F13CatalogueInspectionIsReadOnlyAndCategoriesAreQueryable()
+    {
+        var plugin = new AtomicHeartPlugin();
+        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA10695");
+        var file = SaveToolkit.Testing.MemorySaveSet.SingleFile("slot.dpx.sav", SlotFixture.Create(), "PPSA10695");
+        using var document = plugin.Open(file, context);
+        var tabs = Assert.IsType<TabsNode>(document.BuildView());
+        var inventory = Assert.Single(tabs.Tabs, tab => tab.Title == "Inventory inspection");
+        var action = Assert.Single(inventory.Children.OfType<ActionNode>(), node => node.ActionId == CatalogueInspection.ActionId);
+        Assert.False(action.Mutates);
+        var parameter = Assert.Single(action.Parameters);
+        var spec = Assert.IsType<ReferenceSpec>(parameter.Spec);
+        Assert.False(spec.ReadOnly);
+
+        var catalog = context.Catalog(InventoryViews.CatalogId);
+        Assert.NotNull(catalog);
+        Assert.Contains(ReferenceSortKey.Category, catalog.SortKeys);
+        var category = catalog.Categories.FirstOrDefault();
+        Assert.NotNull(category);
+        var page = catalog.Search(new ReferenceQuery { Category = category, SortBy = ReferenceSortKey.Category, Limit = 200 });
+        Assert.NotEmpty(page.Items);
+        Assert.All(page.Items, item => Assert.Equal(category, item.Category));
+
+        var before = file.ReadAllBytes();
+        var outcome = document.InvokeAction(action.ActionId, new Dictionary<string, FieldValue>
+        {
+            [parameter.ValueId] = parameter.Value,
+        });
+        Assert.Contains(parameter.Value.AsString(), outcome.Message, StringComparison.Ordinal);
+        Assert.Empty(outcome.Changes);
+        Assert.Equal(before, Assert.Single(document.Serialize()).Content.ToArray());
+    }
+
     [Fact]
     public void EverySampleHasExactDecodedRecordSpansAndRetainedOriginalBytes()
     {

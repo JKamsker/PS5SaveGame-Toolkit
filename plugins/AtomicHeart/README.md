@@ -100,19 +100,19 @@ enabled paths.
 
 | Feature | Status | Adoption or concrete limit |
 | --- | --- | --- |
-| F1 SaveDiff | Used | `PluginViewDecoder`, real twin/generation evidence and authored relocated-property fixtures in the evidence tests. Existing lazy slot inspection remains available so F1 and conformance still reach all writable fields until F12. |
+| F1 SaveDiff | Used | `PluginViewDecoder` and the production `atomic-heart.saveextension-v1` F12 hook expose stable scalar tag identities; real twin/generation evidence and authored relocated-property fixtures remain in the evidence tests. |
 | F2 reference packs | Used; expanded this round | Immutable host-loaded, hashed 45-entry GPL-3.0-or-later catalog with per-field provenance and Sources-panel attribution. No per-view pack loading. |
 | F3 rich cells | Added this round | Inventory details, descriptions/provenance/hex; existing action cells and field confidence badges. Images omitted because no safely licensed item artwork was established. |
-| F4 reference pickers | Used; expanded this round | Existing inventory asset replacements; read-only catalog-matched blueprint/asset IDs in the record explorer. Unknown IDs remain raw and never become invented choices. Read-only picker browsing awaits F13. |
+| F4 reference pickers | Used; expanded this round | Existing inventory asset replacements plus browse-only `ReferenceSpec` fields for read-only catalog-matched asset IDs in the record explorer and catalogue inspection action. Unknown IDs remain raw and never become invented choices. |
 | F5 structural undo | N/A | No safe add/remove/move/split writer exists: opaque instance allocation, grid/indices, equipment and ownership references cannot be reconstructed from this snapshot. Scalar edits use normal undo. |
-| F6 planned actions | Used; query scopes added this round | `inventory/set-amount` previews selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Skill/loadout/spend/refund presets have no safe underlying writer. |
+| F6 planned actions | Used; query scopes added this round | `inventory/set-amount` previews selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Its only parameter is numeric target Amount, so no item parameter needs a `ReferenceSpec`. Skill/loadout/spend/refund presets have no safe underlying writer. |
 | F7 document groups | N/A | One self-contained gameplay file is rewritten. No coupled partner with a proved transaction contract exists; identical console backups are mirrored by the host. |
 | F8 queryable tables | Used; inventory added this round | All 4,063 records and all inventory slots; whole-model search/filter/sort, numeric Amount/ItemId ordering, stable IDs and bounded 200-row pages. Lazy original-byte inspection is retained separately. |
 | F9 maps/graphs | Added this round | Paged skill/weapon evidence graphs and external-only saved-level map, compact stable IDs, text alternatives, confidence and tested navigation. Prerequisites/coordinates/discovery remain unknown. |
 | F10 exact/nullable/union values | N/A | The decoded UE tags use fixed-width signed/unsigned integers and IEEE floating-point scalars; no JSON numeric lexemes, nullable scalar storage or tagged union is rewritten. Existing Int128 SDK values preserve all integer bits. |
 | F11 shared codecs | Used; optimized this round | `SaveToolkit.Codecs` Kraken decode/stored encode; retained compressed frames, exact output allocation, validated serialization cache and byte-identical no-op. No local codec. |
-| F12 SaveDiff F8 traversal/hooks | Pending #32 | Absent on the starting main checkout; retained the existing bounded lazy inspection path. No replacement traversal framework added. |
-| F13 inspect/browse/filter/duration | Pending #33 | Absent on the starting main checkout; no local substitute for non-mutating actions or browse-only pickers. |
+| F12 SaveDiff F8 traversal/hooks | Used | Registered `atomic-heart.saveextension-v1`, a bounded SDK-only decoder for stable scalar tag paths; shared `PluginViewDecoder` now traverses the inventory F8 collection. |
+| F13 inspect/browse/filter/duration | Used | Catalogue item inspection is `Mutates = false`; read-only asset references use browse-only pickers, and the pinned 45-entry catalogue supports category filtering and declared category/key/name sorting. Duration hints are N/A because no timer field is published. |
 
 ## Completion audit against the plan
 
@@ -131,8 +131,7 @@ enabled paths.
 
 Agent work complete for the available framework and supplied corpus. Remaining
 game-format/compatibility items require the captures, assets or console checks in
-[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). F12/F13 remain
-separate framework work in #32/#33.
+[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 
 ## Outer format and integrity
 
@@ -304,12 +303,12 @@ not embedded. No permission decision is pending for the shipped catalog.
 
 ## SDK requests
 
-None blocking the enabled writes or the new F9 views: F1/F2/F4/F6/F8/F9 and F11 suffice. F11's managed Kraken decoder
+None blocking the enabled writes or the new F9 views: F1/F2/F4/F6/F8/F9/F12/F13 and F11 suffice. F11's managed Kraken decoder
 and stored writer are used directly. Non-Kraken variants remain unsupported.
 Independent compressed-codec agreement and console captures are validation
 requests. Coupled skill/loadout, structural and story operations need a safe
 serialization/dependency model; no framework changes are requested here.
-Pending #32/#33: the existing F1 walker does not traverse F8 collections, and
-read-only reference fields do not yet have F13's browse-only inspection flow.
-The original bounded lazy inspection path remains reachable for F1/conformance;
-the main inventory uses F8. No framework files or plugin-local substitutes added.
+No SDK requests remain for F12/F13. The original bounded lazy inspection path
+remains reachable for F1/conformance, while the main inventory uses F8 and the
+production decoder hook covers native scalar evidence. No framework files were
+changed.

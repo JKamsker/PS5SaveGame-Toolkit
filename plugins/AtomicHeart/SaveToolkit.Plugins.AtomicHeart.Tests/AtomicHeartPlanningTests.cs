@@ -3,12 +3,42 @@ using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
 public sealed class AtomicHeartPlanningTests
 {
+    [Fact]
+    public void CatalogueInspectionUsesReadOnlyPickerAndPreservesSessionState()
+    {
+        var file = Assert.IsType<DiskSaveFile>(WriteTestData.Sample());
+        var context = Assert.IsType<ReferenceContext>(WriteTestData.References());
+        using var document = WriteTestData.Plugin.Open(file, context);
+        using var session = new DocumentSession("atomic-catalogue", file, WriteTestData.Plugin, document, references: context);
+        var tabs = Assert.IsType<TabsNode>(session.BuildView());
+        var inventory = Assert.Single(tabs.Tabs, tab => tab.Title == "Inventory inspection");
+        var action = Assert.Single(inventory.Children.OfType<ActionNode>(), node => node.ActionId == CatalogueInspection.ActionId);
+        var parameter = Assert.Single(action.Parameters);
+        Assert.False(Assert.IsType<ReferenceSpec>(parameter.Spec).ReadOnly);
+
+        var initial = session.State;
+        var candidates = session.SearchReferences(parameter.ValueId,
+            new ReferenceQuery { SortBy = ReferenceSortKey.Category, Limit = 1 }, initial.Revision, action.ActionId);
+        var selected = Assert.Single(candidates.Items);
+        var result = session.InvokeAction(action.ActionId,
+            new Dictionary<string, JsonElement> { [parameter.ValueId] = JsonSerializer.SerializeToElement(selected.RawId) }, initial.Revision);
+
+        Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
+        Assert.Contains(selected.RawId, result.Message);
+        Assert.Empty(result.Changes);
+        Assert.Equal(initial, session.State);
+        Assert.Empty(session.Serialize());
+        Assert.False(session.State.CanUndo);
+    }
+
     [Fact]
     public void BulkPreviewIsPureBoundedAndIncludesWarningsAndSkippedRows()
     {
