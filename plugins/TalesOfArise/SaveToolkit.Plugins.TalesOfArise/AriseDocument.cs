@@ -8,7 +8,7 @@ using static SaveToolkit.Plugins.TalesOfArise.AriseSchema;
 
 namespace SaveToolkit.Plugins.TalesOfArise;
 
-internal sealed class AriseDocument(string path, string fileName, AriseSave save, IReferenceContext references) : BoundSaveDocument, IQueryableDocument
+internal sealed class AriseDocument(string path, string fileName, AriseSave save, IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private const int GaldOffset = 0x18;
     private const int PlaySecondsOffset = 0xAF8;
@@ -21,11 +21,15 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     private const uint MaximumGald = 999999999;
     private const int ItemRecordSize = 16;
     private const int ItemRecordCount = 0x3A6; // Count in the cited PS4 inventory patch; later regions are not item stacks.
-    private const int ConsumableStackLimit = 15;
-    private const string ExperimentalWarning = "PS5 field mapping is inferred from PS4 research. Edits have not been tested in-game.";
+    internal const int ConsumableStackLimit = 15;
+    internal const string ExperimentalWarning = "Experimental: PS5 field mapping is inferred from PS4 research and sample bytes; edits have not been tested in-game. The game may reject an edited save even though ciphertext SHA1 and encryption self-check succeed.";
     private readonly AriseReferences _references = new(references);
+    private AriseInventoryActions? _inventoryActions;
     private AriseReadOnlyViews? _readOnlyViews;
+    private bool _inventoryBindingsReady;
     private AriseReadOnlyViews ReadOnlyViews => _readOnlyViews ??= new(save, _references);
+
+    private AriseInventoryActions InventoryActions => _inventoryActions ??= new(this);
 
     public override string Title => $"Tales of Arise · {fileName}";
 
@@ -54,6 +58,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                 new TextNode("Only existing, recognised consumables can be edited (0–15). Equipment and unknown IDs are read-only. Item flags, IDs and order are preserved.")
                     { Tone = Tone.Warning },
                 SectionNode.Lazy("Owned inventory records", "inventory"),
+                AriseInventoryActions.View(),
             ]),
             new Tab("Catalogs", _references.BuildView()),
             new Tab("Character sheets", ReadOnlyViews.CharacterView(ReadOnlyNumber)),
@@ -91,8 +96,29 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
         };
     }
 
-    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
-        _references.Handles(actionId) ? _references.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
+    {
+        if (AriseInventoryActions.Handles(actionId))
+        {
+            throw new InvalidOperationException("Inventory quantity changes require an F6 preview before applying.");
+        }
+
+        return _references.Handles(actionId) ? _references.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
+    }
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        InventoryActions.Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
+        InventoryActions.Apply(actionId, parameters, scope, plan);
+
+    public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
+    {
+        var result = base.ApplyEdits(edits);
+        return result.Succeeded && result.Changes.Count > 0
+            ? result with { Warnings = [ExperimentalWarning] }
+            : result;
+    }
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
@@ -106,6 +132,28 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     }
 
     public override IReadOnlyList<FileOutput> Serialize() => [new FileOutput(path, AriseFormat.Encode(save))];
+
+    internal void EnsureInventoryBindings() => _ = Inventory();
+    internal bool InventoryBindingsReady => _inventoryBindingsReady;
+
+    internal IReadOnlyList<AriseInventoryRow> ReadInventoryRows()
+    {
+        var section = Section("SaveData_ItemManager");
+        var rows = new List<AriseInventoryRow>();
+        for (var relative = 0; relative < ItemRecordCount * ItemRecordSize; relative += ItemRecordSize)
+        {
+            var offset = section.Offset + relative;
+            var id = BinaryPrimitives.ReadUInt16LittleEndian(save.Payload.AsSpan(offset + ItemIdOffset));
+            if (id == 0)
+            {
+                continue;
+            }
+
+            rows.Add(new(relative / ItemRecordSize, offset, id, save.Payload[offset], AriseSchema.ConsumableName(id)));
+        }
+
+        return rows;
+    }
 
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
     {
@@ -157,23 +205,18 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
 
     private TableNode Inventory()
     {
-        var section = Section("SaveData_ItemManager");
+        _inventoryBindingsReady = true;
         var rows = new List<TableRow>();
-        for (var relative = 0; relative < ItemRecordCount * ItemRecordSize; relative += ItemRecordSize)
+        foreach (var row in ReadInventoryRows())
         {
-            var offset = section.Offset + relative;
-            var id = BinaryPrimitives.ReadUInt16LittleEndian(save.Payload.AsSpan(offset + ItemIdOffset));
-            if (id == 0)
-            {
-                continue;
-            }
-
-            var supportedName = AriseSchema.ConsumableName(id);
+            var offset = row.Offset;
+            var id = row.Id;
+            var supportedName = row.Name;
             var reference = _references.Items?.Find(id.ToString(System.Globalization.CultureInfo.InvariantCulture));
             var name = reference?.Name ?? supportedName;
             var attribution = reference?.AttributionText ?? ConsumableAttribution;
-            var valueId = $"inventory/{relative / ItemRecordSize}/quantity";
-            var idField = Field($"inventory/{relative / ItemRecordSize}/id", $"0x{id:X4}",
+            var valueId = $"inventory/{row.Index}/quantity";
+            var idField = Field($"inventory/{row.Index}/id", $"0x{id:X4}",
                 new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true, AllowCustom = true },
                 () => FieldValue.Of(id.ToString())) with
                 {
@@ -187,12 +230,12 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             var quantity = Field(valueId, "Quantity", spec,
                 () => FieldValue.Of((long)save.Payload[offset]),
                 canWrite ? v => save.Payload[offset] = checked((byte)v.AsUInt32()) : null,
-                v => v.AsInteger() < 0 || v.AsInteger() > ConsumableStackLimit ? "Consumable quantities must be between 0 and 15." : null)
+                v => v.AsInteger() < 0 || v.AsInteger() > ConsumableStackLimit ? $"Consumable quantities must be between 0 and {ConsumableStackLimit}." : null)
                 with { Confidence = Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
             rows.Add(new TableRow(valueId, new Dictionary<string, ViewNode>
             {
                 ["id"] = idField,
-                ["name"] = Field($"inventory/{relative / ItemRecordSize}/name", "Item", new TextSpec(),
+                ["name"] = Field($"inventory/{row.Index}/name", "Item", new TextSpec(),
                     () => FieldValue.Of(name ?? "Unknown item / equipment"))
                     with { Description = name is null ? "Unknown numeric identity; no name join is assumed." : attribution, Confidence = name is null ? Confidence.Unknown : Confidence.Inferred },
                 ["quantity"] = quantity,
@@ -200,7 +243,11 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             }));
         }
 
-        return new TableNode([new("id", "ID"), new("name", "Item"), new("quantity", "Quantity"), new("flags", "Raw flags")], rows);
+        return new TableNode([new("id", "ID"), new("name", "Item"), new("quantity", "Quantity"), new("flags", "Raw flags")], rows)
+        {
+            Title = "Existing inventory records",
+            Description = "Only the recognised fixed-slot consumable quantity fields are writable. Unknown IDs and equipment remain preserved.",
+        };
     }
 
     private FieldNode Number(string id, string label, int offset, uint maximum, bool writable = true, uint minimum = 0)
