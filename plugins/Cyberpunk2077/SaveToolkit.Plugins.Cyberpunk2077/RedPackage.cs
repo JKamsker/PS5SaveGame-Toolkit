@@ -97,6 +97,15 @@ internal sealed class RedPackage
     public PackageClass Chunk(int index) => new(this, _bytes, _offsets[index],
         index + 1 < _offsets.Length ? _offsets[index + 1] : _bytes.Length);
 
+    public RedPackage WithNames(IEnumerable<string> required)
+    {
+        var added = required.Where(name => !Names.Contains(name, StringComparer.Ordinal)).Distinct(StringComparer.Ordinal).ToArray();
+        if (added.Length == 0) return this;
+        if (Names.Count + added.Length > MaximumEntries) throw new SaveFormatException("RED name count exceeds package limits.");
+        return new RedPackage(PackageNames.Append(_bytes, _baseOffset, BinaryData.Int32(_bytes, 12), _descriptors,
+            Types.Count, added), _baseOffset != HeaderSize);
+    }
+
     public byte[] Rebuild(int chunkIndex, byte[] replacement)
     {
         var start = _offsets[chunkIndex];

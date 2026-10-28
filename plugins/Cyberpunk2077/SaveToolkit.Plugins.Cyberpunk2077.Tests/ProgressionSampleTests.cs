@@ -23,13 +23,14 @@ public sealed class ProgressionSampleTests
             Assert.Null(progression.AttributeWarning);
             Assert.Equal(5, progression.Attributes.Count);
             Assert.All(progression.Attributes, a => { Assert.Equal(3, a.Value); Assert.NotNull(a.MirrorOffset); });
-            Assert.Equal(new[] { ("Level", 1, 0, 0), ("StreetCred", 1, 0, 0) }, progression.Proficiencies);
+            Assert.Equal(new[] { ("Level", 1, 0, 0), ("StreetCred", 1, 0, 0) },
+                progression.Proficiencies.Select(p => (p.Type, p.Level, p.Experience, p.Threshold)));
             Assert.Equal(new[] { ("Attribute", 7), ("Espionage", 0), ("Primary", 0), ("Secondary", 0) },
                 progression.Points.Select(p => (p.Type, p.Value)));
             using var document = new Cyberpunk2077Plugin().Open(file);
             var fields = CyberpunkSampleTests.ExpandAll(document);
             Assert.All(fields.Where(f => f.ValueId.StartsWith("progression/Level/", StringComparison.Ordinal) ||
-                f.ValueId.StartsWith("progression/StreetCred/", StringComparison.Ordinal)), f => Assert.True(f.Spec.ReadOnly));
+                f.ValueId.StartsWith("progression/StreetCred/", StringComparison.Ordinal)), f => Assert.False(f.Spec.ReadOnly));
             Assert.All(fields.Where(f => f.ValueId.StartsWith("facts/", StringComparison.Ordinal)), f => Assert.True(f.Spec.ReadOnly));
         }
     }

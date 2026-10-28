@@ -99,7 +99,8 @@ slot, exact action and observed item/stat values. Omit account identifiers and c
 
 Later phases still need the plan's level/Street Cred threshold, skill reward, perk-rank buy/refund,
 Relic-access, car acquisition/summon, travel discovery and specific quest-stage pairs, plus later
-PS5 schema samples (277/2500 only if actually obtained). No new writes are enabled for those areas.
+PS5 schema samples (277/2500 only if actually obtained). The write-enable round below supersedes
+the old evidence gate for raw stored progression/fact values and prepared stack actions.
 
 ### Exact round-2 additions
 
@@ -142,7 +143,68 @@ slots with Unknown capacity/rules, all stored skills/point budgets and modern/le
 F8 merged facts, typed garage/travel status and raw journal diagnostics. It does not claim the
 complete gameplay semantics or write-oriented acceptance criteria of those phases.
 Phase 3 actions, allocation/build mutations, world/story changes, structural inventory and new
-versions remain open. No new setters or bulk actions were added; any future bulk action must use F6.
+versions remain open. No new setters or bulk actions were added in round 2. The following write-enable
+round adds raw stored setters and shared F6 stack actions without claiming those full phases complete.
+
+## Write-enable round (owner decision: enable writes, keep warnings)
+
+Plugin 0.5.0 enables **nine write capabilities**: six Level/Street Cred level/XP/threshold fields,
+existing raw saved-fact values (2,750 in this corpus), set-supported-stack-target and refill-to-opening-
+quantity actions. Existing money, attributes and point writers remain. See the README's
+`Enabled writes and their evidence` table. Console evidence is tracked separately in
+[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31); no field becomes Stable.
+
+The six progression scalars stay Inferred; fact semantics stay Unknown. Descriptions/previews warn
+that rewards, unlocks, callbacks, related facts and XP curves are not recalculated. CSAV has no known
+container checksum, but opaque/console integrity algorithms are unknown; the game may reject edited
+saves. Bounds distinguish editor policies, the observed fact range and original out-of-range values.
+Exact version/package guards are unchanged. Missing `currentExp`/`expToLevel` names are appended
+without renumbering old names. Class/package/node/chunk sizes and offsets are repaired and the
+complete intended output is decompressed and reparsed inside Serialize(). Unknown bytes survive.
+
+**Validation:** 125 passed, 0 failed, 0 skipped with `SAVETOOLKIT_ARTIFACTS` set in the same command;
+API build 0 warnings / 0 errors. Tests include every new setter's persistence and undo/redo, invalid
+values, exact four-byte fact patches checked by F1 ByteDiffer, all nonempty fact planes, fixed-size
+already-materialized XP/threshold patches, untouched RED fields/chunks, omitted names and padding,
+mixed attribute/point/proficiency edits, live inspection values and F6 atomic single-step action undo.
+F6 tests cover document/explicit/empty/query scope, unloaded matches, exclusions, skipped money and
+unsupported rows, warnings, invalid parameters, tampered/stale plans and direct-invoke refusal.
+These are software checks, not console acceptance or controlled in-game deltas.
+Conflicting stored/forced level copies refuse the level setter; a synthetic disagreement regression
+checks this refusal, byte-identical preservation, and independently working XP editing.
+
+### Owner validation for enabled writes (#31)
+
+Use a spare slot, preserve originals, and record exact build/region/DLC/slot. Capture the idle control
+pair first. For each edited save: restore, load, inspect the effect, re-save, reload, re-export and diff.
+
+- [ ] Edit stored Level alone; record displayed level, stat mirror, points, rewards, perks/unlocks and
+  unchanged inventory. Earn one level separately to reveal the actual transition dependencies.
+- [ ] Edit Street Cred alone; record displayed cred, unlocks/rewards and persistence. Cross one normal
+  in-game cred threshold in a separate controlled pair.
+- [ ] Edit Level XP and Street Cred XP separately; note displayed XP and whether it is retained,
+  clamped or recomputed. Capture one threshold crossing for each, with rewards and points before/after.
+- [ ] Edit each stored XP threshold separately; record whether the game retains, ignores or recomputes
+  it, then earn XP normally and inspect progression. Do not infer a legal XP curve from the editor cap.
+- [ ] Edit one already-present, known noncritical fact at its exact table/hash; record visible before/
+  after state, related quest stage/callbacks and subsequent forward play. No absent-fact insertion or
+  complete-all preset is requested. Return a controlled in-game pair for that same event.
+- [ ] Set targets for two supported existing ammo/component stacks; confirm the preview's skipped
+  money/unsupported rows, actual quantities/use behavior and unrelated state after reload. Test healing
+  charge/replenishment behavior separately from ammunition.
+- [ ] After lowering two stacks in the editor, preview refill-to-opening-quantities; verify both in game
+  and after reload. Confirm a third stack above its opening quantity is unchanged.
+- [ ] Repeat existing money/attribute/point acceptance checks from the earlier checklist independently.
+
+### Still disabled because the mutation path is incomplete
+
+Inventory structure/ID/attachment/equipment changes require counts, duplicate prefixes, link/identity,
+counter and dependent-stat repair not implemented here. Perk/cyberware mutations require effect and
+capacity records that a scalar rank/slot toggle cannot maintain. Garage/travel creation and quest
+presets require omitted-array/reference/event mutation paths. Other skills and global/profile files
+have no prepared writer. Enabling these partial patches could leave unknown structure or references
+inconsistent; warnings cannot supply the missing serializer. F5/F7 infrastructure is available but no
+prepared structural or multi-file Cyberpunk writer existed in #13 to enable. No new SDK requests.
 
 ## Round-2 sample observations and limitations
 

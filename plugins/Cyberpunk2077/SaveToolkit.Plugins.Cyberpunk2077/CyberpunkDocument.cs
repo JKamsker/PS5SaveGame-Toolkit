@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -7,11 +6,9 @@ using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077;
 
-internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
+internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private const int PageSize = 128;
-    private const uint MaximumStack = 999_999; // Editor policy, not a proven game limit.
-    private const uint MaximumMoney = 100_000_000; // Editor policy, not a proven game limit.
     private readonly string _path;
     private readonly CsavContainer _container;
     private readonly CsavTree _tree;
@@ -20,7 +17,8 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
     private readonly InventoryInspection _inventory;
     private readonly CyberpunkReferences _references;
     private readonly byte[] _edited;
-    private readonly InventoryItem? _money;
+    private readonly StackEditor _stacks;
+    private readonly FactEditor _factEditor;
     private readonly ItemNames _names = new();
     private readonly ProgressionData? _progression;
     private readonly ProgressionEditor? _progressionEditor;
@@ -44,9 +42,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
         _edited = container.Payload.ToArray();
         _progression = ProgressionData.TryRead(container, tree, out _progressionWarning);
         _progressionEditor = _progression is null ? null : new ProgressionEditor(_progression, _edited);
-        var candidates = items.Where(i => i.ContainerId == 1 && i.TweakId == InventoryReader.MoneyTweakId &&
-            i.QuantityOffset.HasValue && tree.Nodes[i.NodeId].Size == 29 && i.Structure == 0).ToArray();
-        _money = candidates.Length == 1 ? candidates[0] : null;
+        _stacks = new StackEditor(container, tree, items, _edited);
         _references = new CyberpunkReferences(references, container.GameVersion);
         ScriptableReader? reader = null;
         string? inspectionWarning = null;
@@ -65,18 +61,19 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
         _world = new WorldInspection(reader, container, tree, _references, inspectionWarning);
         _itemStats = new ItemStatsInspection(container, tree, items);
         _journal = new JournalInspection(container, tree);
-        _inventory = new InventoryInspection(items, container, tree, _references, _names, _edited, QuantityField, ReadField, equipment);
+        _inventory = new InventoryInspection(items, container, tree, _references, _names, _edited, QuantityField, ReadField, equipment, _stacks.Actions);
         var facts = tree.Nodes.Where(n => n.Name == "FactsTable").ToDictionary(n => n.Id,
             n => FactsReader.Read(BinaryData.Slice(container.Payload, n.Offset, n.Size)));
+        _factEditor = new FactEditor(container, tree, _edited, facts);
         _facts = new FactInspection(facts, _references, ReadField,
-            (id, value) => Field(id, "Raw fact value", IntegerSpec.UInt32, () => FieldValue.Of((ulong)value)));
-        _factCatalog = FactCatalogInspection.Build(facts, _references);
+            (id, _) => _factEditor.Field(id, Bind), _factEditor.Value);
+        _factCatalog = FactCatalogInspection.Build(facts, _references, _factEditor.Value);
         _inspectionTables = new[] { _equipment.Table, _cyberware.Table, _development.Table, _world.Vehicles, _world.Travel, _factCatalog, _itemStats.Table, _journal.Table }
             .ToDictionary(table => table.Metadata.Id, StringComparer.Ordinal);
     }
 
     public override string Title => "Cyberpunk 2077 · CSAV";
-    public override bool CanEdit => _items.Any(IsWritable) || _progressionEditor?.CanEdit == true;
+    public override bool CanEdit => _stacks.CanEdit || _factEditor.CanEdit || _progressionEditor?.CanEdit == true;
 
     public override ViewNode BuildView() => new TabsNode([
         new Tab("Overview", [
@@ -87,12 +84,11 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
                 new Stat("Nodes", _tree.Nodes.Count.ToString()),
                 new Stat("Expanded bytes", _edited.Length.ToString())]),
             new TextNode(CanEdit
-                ? "Experimental: player attributes, point balances and supported player stack quantities can be changed. Console loading has not been tested."
+                ? "Experimental: attributes, point balances, raw stored progression, supported stacks and saved facts can be changed. " + WriteSafety.Warning
                 : "Read-only: no editable records in a verified PS5 schema were found.") { Tone = Tone.Warning },
-            new TextNode(_progressionWarning ?? "Level, street cred and XP are read-only until their transition thresholds are verified."),
-            .. (_money is null ? Array.Empty<ViewNode>() : [QuantityField(_money)])]),
-        new Tab("Player development", _progressionEditor?.Build(binding => Field(binding.Id, binding.Label, binding.Spec,
-            binding.Get, binding.Set, binding.Validate) with { Confidence = Confidence.Verified })
+            new TextNode(_progressionWarning ?? WriteSafety.ProgressionWarning) { Tone = Tone.Warning },
+            .. (_stacks.Money is null ? Array.Empty<ViewNode>() : [QuantityField(_stacks.Money)])]),
+        new Tab("Player development", _progressionEditor?.Build(Bind)
             ?? [new TextNode(_progressionWarning ?? "Player development layout is not verified; edits refused.") { Tone = Tone.Warning }]),
         new Tab("Inventory", _inventory.Build()),
         new Tab("Equipment and cyberware", [.. _equipment.Build(), .. _cyberware.Build()]),
@@ -105,7 +101,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
         new Tab("Node tree", TreePage(-1, 0)),
         new Tab("Container", [SectionNode.Lazy("Chunk table", "chunks"),
             new HexNode("original", _container.Original.Length) { Title = "Original CSAV bytes" },
-            new HexNode("payload", _edited.Length) { Title = "Expanded payload with fixed patches (point additions materialize on export)" }])]);
+            new HexNode("payload", _edited.Length) { Title = "Expanded payload with fixed patches (point/proficiency additions materialize on export)" }])]);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
@@ -167,7 +163,24 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
-        _references.IsInspection(actionId) ? _references.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
+        StackEditor.IsAction(actionId) ? new ActionOutcome { Message = "Preview and apply this action through F6 planning.", Warnings = [WriteSafety.Warning] }
+        : _references.IsInspection(actionId) ? _references.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        _stacks.Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+    {
+        var current = PlanAction(actionId, parameters, scope);
+        if (current.Errors.Count > 0 || !current.Changes.SequenceEqual(plan.Changes) || !current.SkippedRows.SequenceEqual(plan.SkippedRows) ||
+            !current.Warnings.SequenceEqual(plan.Warnings) || plan.Errors.Count > 0)
+            return EditOutcome.Rejected(actionId, "The action plan is invalid or stale; preview again.");
+        _stacks.BindTargets(current, Bind);
+        return ApplyEdits(current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray()) with { Warnings = current.Warnings };
+    }
+
+    private FieldNode Bind(ScalarBinding binding) => Field(binding.Id, binding.Label, binding.Spec,
+        binding.Get, binding.Set, binding.Validate) with { Confidence = Confidence.Inferred };
 
     private FieldNode ReadField(string id, string label, FieldSpec spec, string value) => Field(id, label, spec, () => FieldValue.Of(value));
 
@@ -212,33 +225,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
         throw new KeyNotFoundException($"Unknown blob '{id}'.");
     }
 
-    private FieldNode QuantityField(InventoryItem item)
-    {
-        var offset = item.QuantityOffset!.Value;
-        var writable = IsWritable(item);
-        var maximum = Math.Max(item == _money ? MaximumMoney : MaximumStack, BinaryData.UInt32(_container.Payload, offset));
-        Action<FieldValue>? setter = null;
-        Func<FieldValue, string?>? validate = null;
-        if (writable)
-        {
-            setter = value => BinaryPrimitives.WriteUInt32LittleEndian(_edited.AsSpan(offset), value.AsUInt32());
-            validate = value => value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 || value.AsInteger() > maximum
-                ? "Quantity is outside the editor's supported range." : null;
-        }
-
-        return Field($"inventory/{item.NodeId}/quantity", item.TweakId == InventoryReader.MoneyTweakId ? "Money (Items.money)" : "Quantity",
-            writable ? IntegerSpec.UInt32 with { Max = maximum } : IntegerSpec.UInt32,
-            () => FieldValue.Of((ulong)BinaryData.UInt32(_edited, offset)), setter, validate)
-        with {
-            Confidence = Confidence.Verified,
-            Description = item == _money ? CyberpunkReferences.BaselineAttribution : null,
-            Warning = writable ? "Experimental PS5 write; the editor cap is a policy, not a verified game limit." : null,
-        };
-    }
-
-    private bool IsWritable(InventoryItem item) => item == _money || item.ContainerId == 1 &&
-        item.QuantityOffset.HasValue && _tree.Nodes[item.NodeId].Size == 29 && item.Structure == 0 &&
-        _names.Find(item.TweakId)?.Kind is "Ammo" or "Component" or "Consumable";
+    private FieldNode QuantityField(InventoryItem item) => _stacks.Field(item, Bind);
 
     private IReadOnlyList<ViewNode> TreePage(int parent, int start)
     {

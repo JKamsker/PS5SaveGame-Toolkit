@@ -71,8 +71,8 @@ public sealed class ProgressionValidationTests
         foreach (var bad in new[] { new ValueEdit("progression/points/Primary", FieldValue.Of(-1L)),
             new ValueEdit("progression/attributes/Cool", FieldValue.Of(21L)),
             new ValueEdit("progression/attributes/Cool", FieldValue.Of("invalid")),
-            new ValueEdit("progression/Level/level", FieldValue.Of(10L)),
-            new ValueEdit("progression/StreetCred/xp", FieldValue.Of(100L)) })
+            new ValueEdit("progression/Level/level", FieldValue.Of(61L)),
+            new ValueEdit("progression/StreetCred/xp", FieldValue.Of(100001L)) })
         {
             var outcome = document.ApplyEdits([new("progression/attributes/Strength", FieldValue.Of(20L)),
                 new("progression/points/Espionage", FieldValue.Of(10L)), bad]);

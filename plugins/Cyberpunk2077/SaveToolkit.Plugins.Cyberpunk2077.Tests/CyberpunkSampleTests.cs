@@ -57,7 +57,7 @@ public sealed class CyberpunkSampleTests(ITestOutputHelper output)
             var money = Assert.Single(InventoryReader.Read(before, tree), item => item.TweakId == InventoryReader.MoneyTweakId);
             using var document = plugin.Open(file);
             var fields = ExpandAll(document);
-            Assert.Equal(14, fields.Count(field => !field.Spec.ReadOnly));
+            Assert.Equal(20, fields.Count(field => !field.Spec.ReadOnly));
             var field = Assert.Single(fields, item => item.ValueId == $"inventory/{money.NodeId}/quantity");
             Assert.True(document.ApplyEdits([new(field.ValueId, FieldValue.Of(123456L))]).Succeeded);
             var bytes = Assert.Single(document.Serialize()).Content.ToArray();

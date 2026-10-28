@@ -100,14 +100,20 @@ internal sealed class ProgressionData
                 throw new SaveFormatException($"Missing or ambiguous {type} proficiency.");
             }
 
-            return (Type: type, Level: matching[0].Int("currentLevel"), Experience: matching[0].Int("currentExp"),
-                Threshold: matching[0].Int("expToLevel"));
+            var record = matching[0];
+            var hasStat = mirrors.TryGetValue(PlayerStatsReader.NameHash(type), out var offset);
+            int? mirror = hasStat &&
+                BinaryPrimitives.ReadSingleLittleEndian(container.Payload.AsSpan(offset, 4)) == record.Int("currentLevel")
+                    ? offset : null;
+            var levelWarning = AttributeWarning ?? (hasStat && mirror is null
+                ? "Stored level disagrees with its forced player stat; level edit refused rather than choosing a copy." : null);
+            return new ProficiencyValue(type, record, mirror, levelWarning);
         }).ToArray();
     }
 
     public IReadOnlyList<PointBalance> Points { get; }
     public IReadOnlyList<ProgressionScalar> Attributes { get; }
-    public IReadOnlyList<(string Type, int Level, int Experience, int Threshold)> Proficiencies { get; }
+    public IReadOnlyList<ProficiencyValue> Proficiencies { get; }
     public string? AttributeWarning { get; }
 
     public static ProgressionData? TryRead(CsavContainer container, CsavTree tree, out string? warning)
@@ -141,13 +147,13 @@ internal sealed class ProgressionData
 
     public KeyValuePair<int, byte[]>? Rebuild(byte[] editedPayload)
     {
-        if (Points.All(p => p.Value == p.Original))
+        if (Points.All(p => p.Value == p.Original) && Proficiencies.All(p => !p.Changed))
         {
             return null;
         }
 
         // Read from the patched payload so attribute writes in this same batch are retained.
-        var package = new RedPackage(PackageBytes(editedPayload, _node), true);
+        var package = new RedPackage(PackageBytes(editedPayload, _node), true).WithNames(Proficiencies.SelectMany(p => p.RequiredNames));
         var player = package.Chunk(_playerIndex);
         using var array = new MemoryStream();
         Span<byte> integer = stackalloc byte[4];
@@ -160,7 +166,23 @@ internal sealed class ProgressionData
                 ? new Dictionary<string, byte[]>() : new Dictionary<string, byte[]> { ["unspent"] = integer.ToArray() }));
         }
 
-        var rebuilt = package.Rebuild(_playerIndex, player.Rebuild(new Dictionary<string, byte[]> { ["devPoints"] = array.ToArray() }));
+        var replacements = new Dictionary<string, byte[]>();
+        if (Points.Any(p => p.Value != p.Original)) replacements.Add("devPoints", array.ToArray());
+        if (Proficiencies.Any(p => p.Changed))
+        {
+            using var proficiencies = new MemoryStream();
+            var records = player.StructArray(player.Require("proficiencies", "array:SProficiency"));
+            BinaryPrimitives.WriteInt32LittleEndian(integer, records.Count);
+            proficiencies.Write(integer);
+            foreach (var record in records)
+            {
+                var type = record.Enum("type", "gamedataProficiencyType", "Assault");
+                var editable = Proficiencies.SingleOrDefault(p => p.Type == type);
+                proficiencies.Write(editable is null ? record.Rebuild(new Dictionary<string, byte[]>()) : editable.Rebuild(record));
+            }
+            replacements.Add("proficiencies", proficiencies.ToArray());
+        }
+        var rebuilt = package.Rebuild(_playerIndex, player.Rebuild(replacements));
         var result = new byte[rebuilt.Length + 8];
         BinaryPrimitives.WriteInt32LittleEndian(result, _node.Id);
         BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(4), rebuilt.Length);

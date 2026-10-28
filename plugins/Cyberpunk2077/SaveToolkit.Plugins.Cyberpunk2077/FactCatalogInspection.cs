@@ -7,7 +7,8 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 internal static class FactCatalogInspection
 {
     public const string CollectionId = "fact-catalog";
-    public static InspectionTable Build(IReadOnlyDictionary<int, IReadOnlyList<SaveFact>> tables, CyberpunkReferences references)
+    public static InspectionTable Build(IReadOnlyDictionary<int, IReadOnlyList<SaveFact>> tables, CyberpunkReferences references,
+        Func<int, int, uint>? currentValue = null)
     {
         var rows = new List<InspectionRow>();
         var saved = new HashSet<uint>();
@@ -48,6 +49,13 @@ internal static class FactCatalogInspection
             new("presence", "Presence"), new("value", "Raw uint32", IntegerSpec.UInt32), new("table", "Table node", IntegerSpec.UInt32),
             new("evidence", "Interpretation")], rows,
             "F8 search/filter/sort covers the complete merged facts catalog plus every saved entry, including unknown hashes and repeated entries. " +
-            "Use prefix, presence and raw-value filters to inspect progress evidence. Catalog-only rows have no stored value; no completion recipe or story writes.");
+            "Use prefix, presence and raw-value filters to inspect progress evidence. Catalog-only rows have no stored value; no completion recipe. " +
+            "Existing raw values can be edited in Saved facts with warnings.", (row, column) =>
+            {
+                if (column != "value" || currentValue is null || row.Values["table"].Length == 0) return row.Values.GetValueOrDefault(column, "");
+                var parts = row.Key.Split('/');
+                return currentValue(int.Parse(parts[2], CultureInfo.InvariantCulture), int.Parse(parts[3], CultureInfo.InvariantCulture))
+                    .ToString(CultureInfo.InvariantCulture);
+            });
     }
 }

@@ -41,7 +41,7 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         foreach (var row in facts)
         {
             var field = Assert.IsType<FieldNode>(row.Cells["value"]);
-            Assert.True(field.Spec.ReadOnly);
+            Assert.False(field.Spec.ReadOnly);
             Assert.Equal(field.Value, document.GetValue(field.ValueId));
         }
 
@@ -50,7 +50,7 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         Assert.Contains("MIT", name.Description);
         var found = session.QueryCollection("facts", new QueryableCollectionQuery { Text = name.Value.AsString() });
         Assert.Contains(found.Rows, row => row.Key == named.Key);
-        Assert.False(session.ApplyEdits([new(Assert.IsType<FieldNode>(named.Cells["value"]).ValueId, JsonSerializer.SerializeToElement("1"))]).Ok);
+        Assert.False(session.ApplyEdits([new(Assert.IsType<FieldNode>(named.Cells["value"]).ValueId, JsonSerializer.SerializeToElement("-1"))]).Ok);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         Assert.All(context.Datasets(), dataset => Assert.True(dataset.Used));
     }
