@@ -1,0 +1,1876 @@
+{
+  "records": [
+    {
+      "id": "0x200003E8",
+      "name": "Crimson Amber Medallion",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1000",
+        "upstreamName": "Crimson Amber Medallion",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200003E9",
+      "name": "Crimson Amber Medallion +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1001",
+        "upstreamName": "Crimson Amber Medallion +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200003EA",
+      "name": "Crimson Amber Medallion +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1002",
+        "upstreamName": "Crimson Amber Medallion +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200003F2",
+      "name": "Cerulean Amber Medallion",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1010",
+        "upstreamName": "Cerulean Amber Medallion",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200003F3",
+      "name": "Cerulean Amber Medallion +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1011",
+        "upstreamName": "Cerulean Amber Medallion +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200003F4",
+      "name": "Cerulean Amber Medallion +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1012",
+        "upstreamName": "Cerulean Amber Medallion +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200003FC",
+      "name": "Viridian Amber Medallion",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1020",
+        "upstreamName": "Viridian Amber Medallion",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200003FD",
+      "name": "Viridian Amber Medallion +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1021",
+        "upstreamName": "Viridian Amber Medallion +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200003FE",
+      "name": "Viridian Amber Medallion +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1022",
+        "upstreamName": "Viridian Amber Medallion +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000406",
+      "name": "Arsenal Charm",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1030",
+        "upstreamName": "Arsenal Charm",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000407",
+      "name": "Arsenal Charm +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1031",
+        "upstreamName": "Arsenal Charm +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000408",
+      "name": "Great-Jar's Arsenal",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1032",
+        "upstreamName": "Great-Jar's Arsenal",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000410",
+      "name": "Erdtree's Favor",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1040",
+        "upstreamName": "Erdtree's Favor",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000411",
+      "name": "Erdtree's Favor +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1041",
+        "upstreamName": "Erdtree's Favor +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000412",
+      "name": "Erdtree's Favor +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1042",
+        "upstreamName": "Erdtree's Favor +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000041A",
+      "name": "Radagon's Scarseal",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1050",
+        "upstreamName": "Radagon's Scarseal",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000041B",
+      "name": "Radagon's Soreseal",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1051",
+        "upstreamName": "Radagon's Soreseal",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000424",
+      "name": "Starscourge Heirloom",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1060",
+        "upstreamName": "Starscourge Heirloom",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000042E",
+      "name": "Prosthesis-Wearer Heirloom",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1070",
+        "upstreamName": "Prosthesis-Wearer Heirloom",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000438",
+      "name": "Stargazer Heirloom",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1080",
+        "upstreamName": "Stargazer Heirloom",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000442",
+      "name": "Two Fingers Heirloom",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1090",
+        "upstreamName": "Two Fingers Heirloom",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000044C",
+      "name": "Silver Scarab",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1100",
+        "upstreamName": "Silver Scarab",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000456",
+      "name": "Gold Scarab",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1110",
+        "upstreamName": "Gold Scarab",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000474",
+      "name": "Moon of Nokstella",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1140",
+        "upstreamName": "Moon of Nokstella",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000047E",
+      "name": "Green Turtle Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1150",
+        "upstreamName": "Green Turtle Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000488",
+      "name": "Stalwart Horn Charm",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1160",
+        "upstreamName": "Stalwart Horn Charm",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000489",
+      "name": "Stalwart Horn Charm +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1161",
+        "upstreamName": "Stalwart Horn Charm +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000492",
+      "name": "Immunizing Horn Charm",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1170",
+        "upstreamName": "Immunizing Horn Charm",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000493",
+      "name": "Immunizing Horn Charm +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1171",
+        "upstreamName": "Immunizing Horn Charm +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000049C",
+      "name": "Clarifying Horn Charm",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1180",
+        "upstreamName": "Clarifying Horn Charm",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000049D",
+      "name": "Clarifying Horn Charm +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1181",
+        "upstreamName": "Clarifying Horn Charm +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004A6",
+      "name": "Prince of Death's Pustule",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1190",
+        "upstreamName": "Prince of Death's Pustule",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004A7",
+      "name": "Prince of Death's Cyst",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1191",
+        "upstreamName": "Prince of Death's Cyst",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004B0",
+      "name": "Mottled Necklace",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1200",
+        "upstreamName": "Mottled Necklace",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004B1",
+      "name": "Mottled Necklace +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1201",
+        "upstreamName": "Mottled Necklace +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004BA",
+      "name": "Bull-Goat's Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1210",
+        "upstreamName": "Bull-Goat's Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004C4",
+      "name": "Marika's Scarseal",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1220",
+        "upstreamName": "Marika's Scarseal",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004C5",
+      "name": "Marika's Soreseal",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1221",
+        "upstreamName": "Marika's Soreseal",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004CE",
+      "name": "Warrior Jar Shard",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1230",
+        "upstreamName": "Warrior Jar Shard",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004CF",
+      "name": "Shard of Alexander",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1231",
+        "upstreamName": "Shard of Alexander",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200004E2",
+      "name": "Millicent's Prosthesis",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1250",
+        "upstreamName": "Millicent's Prosthesis",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200007D0",
+      "name": "Magic Scorpion Charm",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2000",
+        "upstreamName": "Magic Scorpion Charm",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200007DA",
+      "name": "Lightning Scorpion Charm",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2010",
+        "upstreamName": "Lightning Scorpion Charm",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200007E4",
+      "name": "Fire Scorpion Charm",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2020",
+        "upstreamName": "Fire Scorpion Charm",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200007EE",
+      "name": "Sacred Scorpion Charm",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2030",
+        "upstreamName": "Sacred Scorpion Charm",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200007F8",
+      "name": "Red-Feathered Branchsword",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2040",
+        "upstreamName": "Red-Feathered Branchsword",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000802",
+      "name": "Ritual Sword Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2050",
+        "upstreamName": "Ritual Sword Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000080C",
+      "name": "Spear Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2060",
+        "upstreamName": "Spear Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000816",
+      "name": "Hammer Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2070",
+        "upstreamName": "Hammer Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000820",
+      "name": "Winged Sword Insignia",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2080",
+        "upstreamName": "Winged Sword Insignia",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000821",
+      "name": "Rotten Winged Sword Insignia",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2081",
+        "upstreamName": "Rotten Winged Sword Insignia",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000082A",
+      "name": "Dagger Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2090",
+        "upstreamName": "Dagger Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000834",
+      "name": "Arrow's Reach Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2100",
+        "upstreamName": "Arrow's Reach Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000083E",
+      "name": "Blue Dancer Charm",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2110",
+        "upstreamName": "Blue Dancer Charm",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000848",
+      "name": "Twinblade Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2120",
+        "upstreamName": "Twinblade Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000852",
+      "name": "Axe Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2130",
+        "upstreamName": "Axe Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000085C",
+      "name": "Lance Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2140",
+        "upstreamName": "Lance Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000866",
+      "name": "Arrow's Sting Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2150",
+        "upstreamName": "Arrow's Sting Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000870",
+      "name": "Lord of Blood's Exultation",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2160",
+        "upstreamName": "Lord of Blood's Exultation",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000087A",
+      "name": "Kindred of Rot's Exultation",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2170",
+        "upstreamName": "Kindred of Rot's Exultation",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000884",
+      "name": "Claw Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2180",
+        "upstreamName": "Claw Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000088E",
+      "name": "Roar Medallion",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2190",
+        "upstreamName": "Roar Medallion",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000898",
+      "name": "Curved Sword Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2200",
+        "upstreamName": "Curved Sword Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200008A2",
+      "name": "Companion Jar",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2210",
+        "upstreamName": "Companion Jar",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200008AC",
+      "name": "Perfumer's Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "2220",
+        "upstreamName": "Perfumer's Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000BB8",
+      "name": "Graven-School Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "3000",
+        "upstreamName": "Graven-School Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000BB9",
+      "name": "Graven-Mass Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "3001",
+        "upstreamName": "Graven-Mass Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000BE0",
+      "name": "Faithful's Canvas Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "3040",
+        "upstreamName": "Faithful's Canvas Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000BEA",
+      "name": "Flock's Canvas Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "3050",
+        "upstreamName": "Flock's Canvas Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000BF4",
+      "name": "Old Lord's Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "3060",
+        "upstreamName": "Old Lord's Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000BFE",
+      "name": "Radagon Icon",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "3070",
+        "upstreamName": "Radagon Icon",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000C08",
+      "name": "Primal Glintstone Blade",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "3080",
+        "upstreamName": "Primal Glintstone Blade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000C12",
+      "name": "Godfrey Icon",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "3090",
+        "upstreamName": "Godfrey Icon",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FA0",
+      "name": "Dragoncrest Shield Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4000",
+        "upstreamName": "Dragoncrest Shield Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FA1",
+      "name": "Dragoncrest Shield Talisman +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4001",
+        "upstreamName": "Dragoncrest Shield Talisman +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FA2",
+      "name": "Dragoncrest Shield Talisman +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4002",
+        "upstreamName": "Dragoncrest Shield Talisman +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FA3",
+      "name": "Dragoncrest Greatshield Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4003",
+        "upstreamName": "Dragoncrest Greatshield Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FAA",
+      "name": "Spelldrake Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4010",
+        "upstreamName": "Spelldrake Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FAB",
+      "name": "Spelldrake Talisman +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4011",
+        "upstreamName": "Spelldrake Talisman +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FAC",
+      "name": "Spelldrake Talisman +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4012",
+        "upstreamName": "Spelldrake Talisman +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FB4",
+      "name": "Flamedrake Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4020",
+        "upstreamName": "Flamedrake Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FB5",
+      "name": "Flamedrake Talisman +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4021",
+        "upstreamName": "Flamedrake Talisman +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FB6",
+      "name": "Flamedrake Talisman +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4022",
+        "upstreamName": "Flamedrake Talisman +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FBE",
+      "name": "Boltdrake Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4030",
+        "upstreamName": "Boltdrake Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FBF",
+      "name": "Boltdrake Talisman +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4031",
+        "upstreamName": "Boltdrake Talisman +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FC0",
+      "name": "Boltdrake Talisman +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4032",
+        "upstreamName": "Boltdrake Talisman +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FC8",
+      "name": "Haligdrake Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4040",
+        "upstreamName": "Haligdrake Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FC9",
+      "name": "Haligdrake Talisman +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4041",
+        "upstreamName": "Haligdrake Talisman +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FCA",
+      "name": "Haligdrake Talisman +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4042",
+        "upstreamName": "Haligdrake Talisman +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FD2",
+      "name": "Pearldrake Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4050",
+        "upstreamName": "Pearldrake Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FD3",
+      "name": "Pearldrake Talisman +1",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4051",
+        "upstreamName": "Pearldrake Talisman +1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FD4",
+      "name": "Pearldrake Talisman +2",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4052",
+        "upstreamName": "Pearldrake Talisman +2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FDC",
+      "name": "Crucible Scale Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4060",
+        "upstreamName": "Crucible Scale Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FE6",
+      "name": "Crucible Feather Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4070",
+        "upstreamName": "Crucible Feather Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FF0",
+      "name": "Blue-Feathered Branchsword",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4080",
+        "upstreamName": "Blue-Feathered Branchsword",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20000FFA",
+      "name": "Ritual Shield Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4090",
+        "upstreamName": "Ritual Shield Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20001004",
+      "name": "Greatshield Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4100",
+        "upstreamName": "Greatshield Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000100E",
+      "name": "Crucible Knot Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "4110",
+        "upstreamName": "Crucible Knot Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20001388",
+      "name": "Crimson Seed Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "5000",
+        "upstreamName": "Crimson Seed Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20001392",
+      "name": "Cerulean Seed Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "5010",
+        "upstreamName": "Cerulean Seed Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000139C",
+      "name": "Blessed Dew Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "5020",
+        "upstreamName": "Blessed Dew Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200013A6",
+      "name": "Taker's Cameo",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "5030",
+        "upstreamName": "Taker's Cameo",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200013B0",
+      "name": "Godskin Swaddling Cloth",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "5040",
+        "upstreamName": "Godskin Swaddling Cloth",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200013BA",
+      "name": "Assassin's Crimson Dagger",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "5050",
+        "upstreamName": "Assassin's Crimson Dagger",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200013C4",
+      "name": "Assassin's Cerulean Dagger",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "5060",
+        "upstreamName": "Assassin's Cerulean Dagger",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20001770",
+      "name": "Crepus's Vial",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6000",
+        "upstreamName": "Crepus's Vial",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x2000177A",
+      "name": "Concealing Veil",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6010",
+        "upstreamName": "Concealing Veil",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20001784",
+      "name": "Carian Filigreed Crest",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6020",
+        "upstreamName": "Carian Filigreed Crest",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x20001798",
+      "name": "Longtail Cat Talisman",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6040",
+        "upstreamName": "Longtail Cat Talisman",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200017A2",
+      "name": "Shabriri's Woe",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6050",
+        "upstreamName": "Shabriri's Woe",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200017AC",
+      "name": "Daedicar's Woe",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6060",
+        "upstreamName": "Daedicar's Woe",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200017B6",
+      "name": "Sacrificial Twig",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6070",
+        "upstreamName": "Sacrificial Twig",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200017C0",
+      "name": "Furled Finger's Trick-Mirror",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6080",
+        "upstreamName": "Furled Finger's Trick-Mirror",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200017CA",
+      "name": "Host's Trick-Mirror",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6090",
+        "upstreamName": "Host's Trick-Mirror",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200017D4",
+      "name": "Entwining Umbilical Cord",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6100",
+        "upstreamName": "Entwining Umbilical Cord",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "0x200017DE",
+      "name": "Ancestral Spirit's Horn",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "6110",
+        "upstreamName": "Ancestral Spirit's Horn",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    },
+    {
+      "id": "talisman:upstream:999999999",
+      "name": "talisman:upstream:999999999",
+      "category": "talisman",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "999999999",
+        "upstreamName": "",
+        "nameStatus": "unnamed",
+        "identityStatus": "upstream-sentinel",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "c9cff96c0f2406c4403bf1fb4bed28393c1645ece1899d90da52e7ad7cab0d28"
+      }
+    }
+  ]
+}

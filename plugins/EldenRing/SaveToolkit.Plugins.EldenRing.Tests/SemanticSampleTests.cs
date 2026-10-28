@@ -22,7 +22,8 @@ public sealed class SemanticSampleTests
         var field = Assert.IsType<FieldNode>(Assert.Single(page.Rows).Cells["item"]);
         Assert.Equal("Rowa Fruit", session.FindReference(field.ValueId, field.Value.AsString(), page.Revision).Label);
         var candidates = session.SearchReferences("item", new() { Text = "Scimitar" }, actionId: "references/inspect");
-        Assert.Equal("0x006CF2A0", Assert.Single(candidates.Items).RawId);
+        Assert.Equal(13, candidates.Items.Count);
+        Assert.Contains(candidates.Items, item => item.RawId == "0x006CF2A0" && item.Label == "Scimitar");
         _ = session.Expand("characters/0");
         Assert.True(session.ApplyEdits([new IncomingEdit("slots/0/runes", JsonSerializer.SerializeToElement(1148))]).Ok);
         var lookup = session.InvokeAction("references/inspect", new Dictionary<string, JsonElement> { ["item"] = JsonSerializer.SerializeToElement("0x400050F0") });

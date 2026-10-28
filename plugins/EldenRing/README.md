@@ -1,6 +1,6 @@
 # Elden Ring (`eldenring`)
 
-**Experimental**, v0.2.0. The only gameplay write is the existing bounded held-rune edit
+**Experimental**, v0.3.0. The only gameplay write is the existing bounded held-rune edit
 for character/profile formats **150/90**. There is no console reload evidence. New inventory,
 storage, equipment, class, vitals and regulation views are read-only and **Inferred/Unknown**.
 
@@ -68,30 +68,51 @@ Deeper reads are gated to character format **150**. `ItemMapReader`, `SlotCursor
   identities to align moved physical rows; it does not claim persistence across container transfers.
 - HP/FP/stamina current/effective-max/base-max are read separately (`+08/+14/+24` for their triples).
   The archetype byte is `+B7`, independently tested against the nearby gift byte `+BB`.
-- Equipment representations remain independent raw references with Inferred labels; the plugin does
-  not claim which candidate is equipped or writable. Acquisition/event ranges are bounded candidates,
+- Equipment representations have a read-only relationship table and independent raw references with
+  Inferred labels; no equipment write is enabled. Acquisition/event ranges are bounded candidates,
   with no boss, quest, grace, completion or NG+ semantics.
 
 Sample assertions reproduce PlayerGameData `A2FF`, held inventory `A6A3` (63 common / 2 key rows),
 empty storage `13A5E`, two Scimitars and the shield, Rowa Fruit ×12, Smithing Stone [1] ×3,
-Cracked Pot ×1 and the west Limgrave map. Names come from the attributed factual crosswalk, not
+Cracked Pot ×1 and the west Limgrave map. Names come from the attributed upstream name catalog, not
 in-game screenshots. Sample HP is **504/504/476**, FP **88/88/88**, stamina **97/97/97**; no base-stat
 reset is inferred from those observations. See [Evidence/README.md](Evidence/README.md).
 
 ## Reference data and rich browsing (Phase 2, partial)
 
-F2 embeds the versioned `eldenring.sample-identities.en` pack, dataset/catalog **`eldenring-items`**,
-with six independently assembled short factual ID/name associations. Original crosswalk annotations
-are CC0; this is not a licence grant for game content or inherited upstream databases. No third-party
-prose, game art, scraped descriptions, TGA-derived bulk lists, quantity limits or DLC catalogue ships.
-Every record has coverage/evidence/schema attributes, per-dataset attribution, a source sidecar and a
-normalized content hash. Names remain Inferred. Empty contexts and unknown IDs always fall back to raw IDs.
+F2 embeds `eldenring.names.en` v2.0.0, dataset/catalog **`eldenring-items`**: the **complete 5,770
+literal ID/name pairs** from ClayAmore/ER-Save-Editor revision
+`014107f0ca1cff867b5f7565cb79d6684f9b35df`, using MIT under the owner policy on issue #14.
+This replaces the six-item sample pack. Completeness refers to these pinned tables, not all game
+builds/DLC. Names remain Inferred on PS5; no copied descriptions, icons or legal quantity caps ship.
+
+| Constituent table | Records | Empty upstream names | Canonical ID prefix |
+| --- | ---: | ---: | --- |
+| `weapon_name.rs` | 2,974 | 98 | `0x00000000` |
+| `item_name.rs` | 1,808 | 143 | `0x40000000` |
+| `armor_name.rs` | 653 | 30 | `0x10000000` |
+| `accessory_name.rs` | 117 | 1 | `0x20000000` |
+| `aow_name.rs` | 218 | 1 | `0x80000000` |
+
+Names (including accents), unused/test entries and all 273 empty names are retained. Empty names
+display the raw canonical key and preserve `upstreamName=""`. Out-of-category sentinels such as
+goods ID 999999999 use `goods:upstream:999999999`, never a fabricated canonical save ID. No item
+eligibility, ownership, upgrade ceiling or release/DLC coverage is inferred from presence in this list.
+Unknown IDs and empty reference contexts retain exact raw fallback; upgrades are not rounded silently.
+
+Each constituent has a source sidecar/hash; every record names its exact upstream file and revision.
+The combined F2 dataset has MIT attribution, LF-normalized content hashes and an adjacent full MIT
+notice. The importer [Evidence/import-name-catalog.py](Evidence/import-name-catalog.py) only parses
+reviewed scratch text with pinned SHA-256 checks; run it using `python -I <script> <scratch-directory>`.
+It does not download or execute upstream code. Offline tests independently pin sorted ID/name digests
+for all five tables and traverse every F8 page, including affinity variants and category collisions.
 
 `Open(file, IReferenceContext)` pins the catalog using the **64 lowercase hex SHA-256 of the complete
 preserved regulation allocation** as its compatibility key. This is a content fingerprint, not a guessed
 app patch or regulation version. An audited exact pack uses that key in `gameBuilds`; an unrelated
 build-specific pack is skipped. A changed IV/padding also changes this conservative key. Build-agnostic
-packs may supply identity labels only; the bundled six-item pack is JP-only. The Sources panel records
+packs may supply identity labels only; the bundled catalog applies to all four registered titles without
+claiming that their layouts or individual records are sample-verified. The Sources panel records
 resolved data; field descriptions, row details and the picker carry provenance. Optional imported icons
 use the SDK asset service and show their separate asset attribution; none are bundled.
 
@@ -136,14 +157,56 @@ bytes. Both history copies remain unchanged. Unknown versions are read-only. All
 read-only until controlled captures establish identity, mirrors, limits and side effects, followed by
 owner console reload/resave validation. Only the owner may promote maturity to Stable.
 
+### Phase 3: shared F6 review for held runes
+
+Each active character exposes **Review held-rune change**, using `IActionPlanningDocument` and
+`ActionNode.SupportsPlanning`. Preview lists the old/new balance and unchanged-history warning,
+without touching bytes or undo state. Apply recalculates the proposal, validates the same
+`min(existing lifetime total, 999999999)` cap, rejects altered/stale effects and uses the ordinary
+scalar binding. Core provides revision tokens, semantic review and one-step undo/redo. Direct action
+invocation is rejected; row/query scopes cannot accidentally target another character. No-op previews
+create no undo step. The sample regression proves exactly the existing four-byte patch, preserves
+HP **504/504/476**, both history mirrors and all regulation/unknown bytes, and restores exact bytes on undo.
+
+This completes review integration for the existing edit only. Quantity caps/containers, live/menu
+name padding, class minima and modifier-aware vitals, linked history increases and new stat/stack
+presets remain unproven and disabled. A byte-identical no-op does not establish those dependencies.
+
+### Phase 4: existing equipment relationship checks
+
+The character view joins **34** candidate gear/quick/pouch slots against the held common array,
+with names, raw handles, positions, IDs, status and attribution. It compares:
+
+- `EquipData`: physical common-array record **+0x180**, distinct from the acquisition `inventoryIndex`.
+- `ChrAsm2`: instance/direct handle; a unique held row and resolved category are required.
+- `ChrAsm`: category-stripped ID after seven selector words, for gear.
+- `EquippedItems`: category-qualified ID, including armor and talismans.
+- Quick/pouch records: `(handle, position)` pairs plus their `EquippedItems` copies.
+
+The sample has **17 agreeing nonempty slots** and 17 unassigned candidates. Its two Scimitars retain
+separate handles/record keys; the first has position `0x182`, physical record 2 and acquisition index
+`0x24D`. The helmet joins to Blue Cloth Cowl; armor/talisman ID prefixes are checked independently.
+Missing/ambiguous/zero-quantity/wrong-category references and mirror disagreements remain visible,
+unaltered and protected. Independent raw representations and unknown words remain inspectable.
+
+Agreement in one snapshot does not prove every write dependency, active-selector/empty/unarmed
+rules, talisman/memory unlocks, stat effects or maximum-ever matchmaking history. Equip, upgrade,
+affinity/AoW and loadout preset apply remain disabled. No speculative F6 loadout action is published;
+future supported presets must use shared F6, as the rune action now does. The exact next captures
+are in [Evidence/OWNER_CAPTURES.md](Evidence/OWNER_CAPTURES.md).
+
 ## Validation
 
-Verified on 2026-10-28: **105 plugin tests passed** with private samples; **93 passed / 12 skipped**
-with an empty sample root; **171 Core tests passed**. API build succeeded with zero warnings/errors.
+Round 2, verified on 2026-10-28: **130 plugin tests passed / 0 failed / 0 skipped** with private
+samples; **216 Core tests passed / 0 failed / 0 skipped**. API build succeeded with zero warnings/errors.
+The full-catalog sample initial-view test passes the plan's **under two seconds** target, including
+pack loading and document open. Round-1 sample-absence behavior remains
+covered by the shared sample loader; no absent-sample run counts as round-2 validation.
 
 Run with `SAVETOOLKIT_ARTIFACTS` pointing to the private artifacts folder:
 
 ```powershell
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 dotnet test --project plugins/EldenRing/SaveToolkit.Plugins.EldenRing.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
@@ -152,6 +215,8 @@ The suite covers conformance, byte-identical sample/backup export, four-byte run
 semantic offsets/identities, malformed counts, duplicate/unknown handles, privacy-filtered F1 fixtures,
 F2 pack validity and exact compatibility selection, F4 session routing/undo preservation, F8 complete-set
 paging/search/filter/sort, bounded DCX/BND/PARAM rejection and real regulation directories.
+Round 2 adds complete-source catalog digests/provenance, all 5,770 paged identities, equipment
+position/ID/handle joins and ambiguity rejection, F6 purity/bounds/staleness/review and exact undo.
 Sample-dependent cases skip when samples are absent. Current results are recorded in the issue #14
 final implementation comment; no binary sample or extracted regulation is included.
 
@@ -163,20 +228,29 @@ Retrieved/inspected **2026-10-28**. Downloaded code was read as untrusted text, 
 | --- | --- | --- |
 | PS prefix/profile, bounded GaItem/inventory/equipment reader | [ClayAmore/ER-Save-Editor, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save) | Dual MIT/Apache-2.0; MIT option retained in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Adapted only read algorithms, bounded ranges and ID-space facts; sample v150 only for deeper reads. |
 | AES/DCX/BND/PARAM directory format | [ClayAmore util, same revision](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/util) | MIT option, same notice. Narrow managed read-only port, sample-verified flag corrections, bounded decompression, no unsafe field/schema port. Public format key is not a user credential. |
-| Six sampled factual identities, v1.0.0 | [Toolkit contributors / evidence issue #14](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/14); research cross-checks [weapon names](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/weapon_name.rs), [goods names](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/item_name.rs) | Independently assembled factual subset and original annotations, [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/), not an imported third-party database. Category-qualified IDs; six JP observations only. No claimed relicensing of game names/art or upstream TGA lists. [Dataset sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.sample-identities.en/items.source.md). |
+| Weapon names/IDs: 2,974 rows | [ClayAmore / ER-Save-Editor, weapon_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/weapon_name.rs) | MIT; all literal pairs, category-qualified IDs, names verbatim, raw labels for empty names; no upgrade legality inferred. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/weapon-names.source.md). |
+| Goods names/IDs: 1,808 rows | [ClayAmore / ER-Save-Editor, item_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/item_name.rs) | MIT; all literal pairs, goods prefix, names verbatim, out-of-category sentinel retained separately; no caps/descriptions. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/item-names.source.md). |
+| Armor names/IDs: 653 rows | [ClayAmore / ER-Save-Editor, armor_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/armor_name.rs) | MIT; all literal pairs, armor prefix and unchanged names. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/armor-names.source.md). |
+| Talisman names/IDs: 117 rows | [ClayAmore / ER-Save-Editor, accessory_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs) | MIT; all literal pairs, talisman prefix and unchanged names; no slot eligibility implied. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/accessory-names.source.md). |
+| Ash of War names/IDs: 218 rows | [ClayAmore / ER-Save-Editor, aow_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs) | MIT; all literal pairs, ash prefix and unchanged names, including tests; no compatibility inferred. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/aow-names.source.md). |
+| Read-only equipment relationship checks | [ClayAmore / ER-Save-Editor, vm/equipment.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/equipment.rs) and same-revision `save/common/save_slot.rs` | MIT; adapted position/handle/ID relationships with explicit uniqueness/category checks; no writer, unsafe indexing or repair ported. Same full MIT notice. |
 | PS checksum / legacy-count research only | [Hapfel1/er-save-manager, 5974934](https://github.com/Hapfel1/er-save-manager/tree/5974934537feeace982721f82f0fbe69c20c208d) | Restricted/source-available current licence: no code translated, copied, executed or distributed. Facts independently checked against permissive code and sample bytes. |
 | Schema / data research only | [ERDB, e2028a6](https://github.com/EldenRingDatabase/erdb/tree/e2028a6e044b920a471388fb4e1c468b31b64350), [Paramdex](https://github.com/soulsmods/Paramdex), [TGA](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA) | ERDB generator MIT does not license game assets. Paramdex/TGA reuse rights unresolved: no code, schema files, bulk lists, descriptions or artwork imported. |
 | Title identity research | [JP](https://prosperopatches.com/PPSA03169), [Asia](https://prosperopatches.com/PPSA04608), [EU](https://prosperopatches.com/PPSA04609), [US](https://prosperopatches.com/PPSA04610) | Title/region facts only. No assets copied. |
 
 The [plan](../../docs/plans/EldenRing.md) records broader research and provenance exclusions.
-No approval to redistribute a larger database or artwork is inferred from the six factual labels.
+The owner's issue #14 policy approves these MIT name lists and attributed CC BY-SA text. No CC BY-SA
+text is needed by this release. Restricted er-save-manager and unresolved Paramdex/TGA remain
+research-only; none of their datasets, descriptions or artwork is embedded.
 
 ## Remaining gates and owner captures
 
 Phase 1 reader/evidence infrastructure is implemented; its temporal/console validation gate remains
-open. Phase 2 provides reference-pack plumbing, a small factual subset, rich browsing and regulation
-**directory** validation. PARAM field schemas, validated caps, full localized catalogues/icons/classes/
-graces/AoW and DLC/version coverage are unfinished. Phases 3–6 introduce no new writes this round.
+open. Phase 2 now includes the complete pinned five-table MIT name catalog, reference plumbing,
+rich browsing and regulation **directory** validation. PARAM field schemas, validated caps, additional
+localizations/descriptions/icons/classes/graces and actual DLC/version coverage remain unfinished.
+Phase 3 adds F6 review of the existing rune write; Phase 4 adds read-only equipment joins. All other
+Phase 3/4 writes and all Phase 5/6 writers remain gated by the capture checklist.
 
 The exact before/after capture and console-validation checklist is in
 [Evidence/OWNER_CAPTURES.md](Evidence/OWNER_CAPTURES.md). Independent control pairs, nonempty storage,
@@ -186,6 +260,7 @@ owned-instance equip/upgrade pairs, stat-modifier pairs and build/region/DLC obs
 
 No shared-code change is needed for the shipped reader, F2 packs, F4 inspection or F8 tables.
 For later work: keep ELDENRING-R22 open for explicitly nonmutating actions on read-only documents;
-currently Core blocks them. F6 review/preview integration is deferred to the shared implementation.
+currently Core blocks ordinary actions there. Shared F6 is available and used by the rune action;
+no local preview substitute or new SDK request is needed. Presets remain evidence-gated.
 Catalogue metadata currently exposes search/paging only; an optional native filter/sort query would
 avoid a plugin-side metadata index for very large F8 catalogues. No plugin substitute for F6 was added.

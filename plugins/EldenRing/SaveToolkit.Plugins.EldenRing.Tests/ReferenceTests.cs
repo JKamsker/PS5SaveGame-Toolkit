@@ -25,7 +25,7 @@ public sealed class ReferenceTests
         {
             var page = ((IQueryableDocument)document).Query("catalog/items", new() { Text = "Rowa Fruit" });
             Assert.Equal("Rowa Fruit", Assert.IsType<TextNode>(Assert.Single(page.Rows).Cells["name"]).Text);
-            Assert.Equal("eldenring.sample-identities.en", generic.CatalogForHost("eldenring-items")!.Pack.Id);
+            Assert.Equal("eldenring.names.en", generic.CatalogForHost("eldenring-items")!.Pack.Id);
         }
         var fingerprint = Convert.ToHexStringLower(SHA256.HashData(fixture.Bytes.AsSpan(0x1960070, 0x240010)));
         store.Import(Pack("test.exact-build", fingerprint, "Exact synthetic label"), "exact.zip");
@@ -38,23 +38,23 @@ public sealed class ReferenceTests
     }
 
     [Fact]
-    public void EmbeddedPack_IsVersionedPartialAttributedAndTitleScoped()
+    public void EmbeddedPack_IsVersionedAttributedAndIdentityOnlyAcrossSupportedTitles()
     {
         var plugin = new EldenRingPlugin();
         var store = new ReferencePackStore([plugin]);
         Assert.Empty(store.LoadErrors);
         var pack = Assert.Single(store.Packs);
-        Assert.Equal("1.0.0", pack.Info.Version);
+        Assert.Equal("2.0.0", pack.Info.Version);
         var context = store.Pin(plugin, "PPSA03169");
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("eldenring-items"));
-        Assert.Equal(6, catalog.Count);
+        Assert.Equal(5770, catalog.Count);
         var record = Assert.IsType<ReferenceRecord>(catalog.Find("0x400050F0"));
         Assert.Equal("Rowa Fruit", record.Name);
         Assert.Null(record.Limit);
         Assert.Null(record.AssetId);
-        Assert.Contains("CC0", record.AttributionText);
-        Assert.Contains("single sampled", record.Description);
-        Assert.Null(store.Pin(plugin, "PPSA04610").Catalog("eldenring-items"));
+        Assert.Contains("MIT", record.AttributionText);
+        Assert.Contains("Inferred on PS5", record.Description);
+        Assert.All(plugin.Info.Games, game => Assert.Equal(5770, store.Pin(plugin, game.TitleId).Catalog("eldenring-items")!.Count));
     }
 
     [Fact]

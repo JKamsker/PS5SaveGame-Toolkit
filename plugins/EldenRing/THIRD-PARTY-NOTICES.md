@@ -1,13 +1,19 @@
 # Reference implementation notice
 
 Elden Ring format facts, item-map traversal, bounded inventory/equipment reading and the
-read-only regulation AES/DCX/BND/PARAM-directory reader are based on ClayAmore/ER-Save-Editor,
+read-only regulation AES/DCX/BND/PARAM-directory reader and equipment relationship checks are based on ClayAmore/ER-Save-Editor,
 revision `014107f0ca1cff867b5f7565cb79d6684f9b35df` (retrieved 2026-10-28):
 https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df
 
 The adaptation adds bounds, output budgets and snapshot-specific BND flag/PARAM directory checks;
-it excludes unsafe PARAM field casting, upstream item databases, descriptions and game artwork.
+it excludes unsafe PARAM field casting, restricted/unlicensed databases, descriptions and game artwork.
 That project offers MIT and Apache-2.0 licences; the MIT option is used for this adaptation.
+
+The complete literal name/ID pairs from `src/db/weapon_name.rs`, `item_name.rs`, `armor_name.rs`,
+`accessory_name.rs` and `aow_name.rs` at the same revision are redistributed under MIT in
+`ReferencePacks/eldenring.names.en`. Names are unchanged; IDs are category-qualified; empty/test/
+sentinel rows are preserved with explicit metadata. Each table has its own source/hash sidecar.
+The full MIT notice below also accompanies the embedded data as `LICENSE-MIT.txt`.
 
 MIT License
 

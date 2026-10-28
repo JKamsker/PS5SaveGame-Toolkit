@@ -1,0 +1,3492 @@
+{
+  "records": [
+    {
+      "id": "0x80000000",
+      "name": "0x80000000",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "0",
+        "upstreamName": "",
+        "nameStatus": "unnamed",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000000A",
+      "name": "test gem 1",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10",
+        "upstreamName": "test gem 1",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000014",
+      "name": "test gem 2",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20",
+        "upstreamName": "test gem 2",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000001E",
+      "name": "test gem 3",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "30",
+        "upstreamName": "test gem 3",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000028",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "40",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000029",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "41",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000050",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "80",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000051",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "81",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000052",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "82",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000053",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "83",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000054",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "84",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000055",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "85",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000056",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "86",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000057",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "87",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000058",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "88",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000059",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "89",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000005A",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "90",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000064",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "100",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000065",
+      "name": "Ash of War: Impaling Thrust",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "101",
+        "upstreamName": "Ash of War: Impaling Thrust",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000066",
+      "name": "Ash of War: Piercing Fang",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "102",
+        "upstreamName": "Ash of War: Piercing Fang",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000067",
+      "name": "Ash of War: Spinning Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "103",
+        "upstreamName": "Ash of War: Spinning Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000068",
+      "name": "Ash of War:",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "104",
+        "upstreamName": "Ash of War:",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000069",
+      "name": "Ash of War: Charge Forth",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "105",
+        "upstreamName": "Ash of War: Charge Forth",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000006A",
+      "name": "Ash of War: Stamp (Upward Cut)",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "106",
+        "upstreamName": "Ash of War: Stamp (Upward Cut)",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000006B",
+      "name": "Ash of War: Stamp (Sweep)",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "107",
+        "upstreamName": "Ash of War: Stamp (Sweep)",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000006C",
+      "name": "Ash of War: Blood Tax",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "108",
+        "upstreamName": "Ash of War: Blood Tax",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000006D",
+      "name": "Ash of War: Repeating Thrust",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "109",
+        "upstreamName": "Ash of War: Repeating Thrust",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000006E",
+      "name": "Ash of War: Wild Strikes",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "110",
+        "upstreamName": "Ash of War: Wild Strikes",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000006F",
+      "name": "Ash of War: Spinning Strikes",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "111",
+        "upstreamName": "Ash of War: Spinning Strikes",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000070",
+      "name": "Ash of War: Double Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "112",
+        "upstreamName": "Ash of War: Double Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000071",
+      "name": "Ash of War: Prelate's Charge",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "113",
+        "upstreamName": "Ash of War: Prelate's Charge",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000072",
+      "name": "Ash of War: Unsheathe",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "114",
+        "upstreamName": "Ash of War: Unsheathe",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000073",
+      "name": "Ash of War: Square Off",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "115",
+        "upstreamName": "Ash of War: Square Off",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000074",
+      "name": "Ash of War: Giant Hunt",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "116",
+        "upstreamName": "Ash of War: Giant Hunt",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000075",
+      "name": "Ash of War: Torch Attack",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "117",
+        "upstreamName": "Ash of War: Torch Attack",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000076",
+      "name": "Ash of War: Loretta's Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "118",
+        "upstreamName": "Ash of War: Loretta's Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000077",
+      "name": "Ash of War: Poison Moth Flight",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "119",
+        "upstreamName": "Ash of War: Poison Moth Flight",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000078",
+      "name": "Ash of War: Spinning Weapon",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "120",
+        "upstreamName": "Ash of War: Spinning Weapon",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000079",
+      "name": "Ash of War:",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "121",
+        "upstreamName": "Ash of War:",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000007A",
+      "name": "Ash of War: Storm Assault",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "122",
+        "upstreamName": "Ash of War: Storm Assault",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000007B",
+      "name": "Ash of War: Stormcaller",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "123",
+        "upstreamName": "Ash of War: Stormcaller",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000007C",
+      "name": "Ash of War: Sword Dance",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "124",
+        "upstreamName": "Ash of War: Sword Dance",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000007D",
+      "name": "Ash of War: Sacred Blade",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "125",
+        "upstreamName": "Ash of War: Sacred Blade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000007E",
+      "name": "Ash of War: Ice Spear",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "126",
+        "upstreamName": "Ash of War: Ice Spear",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000007F",
+      "name": "Ash of War: Glintstone Pebble",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "127",
+        "upstreamName": "Ash of War: Glintstone Pebble",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000080",
+      "name": "Ash of War: Bloody Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "128",
+        "upstreamName": "Ash of War: Bloody Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000081",
+      "name": "Ash of War: Lifesteal Fist",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "129",
+        "upstreamName": "Ash of War: Lifesteal Fist",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000082",
+      "name": "Ash of War: Eruption",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "130",
+        "upstreamName": "Ash of War: Eruption",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000083",
+      "name": "Ash of War: Prayerful Strike",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "131",
+        "upstreamName": "Ash of War: Prayerful Strike",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000084",
+      "name": "Ash of War: Gravitas",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "132",
+        "upstreamName": "Ash of War: Gravitas",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000085",
+      "name": "Ash of War: Storm Blade",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "133",
+        "upstreamName": "Ash of War: Storm Blade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000086",
+      "name": "Ash of War: Phantom Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "134",
+        "upstreamName": "Ash of War: Phantom Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000087",
+      "name": "Ash of War: Earthshaker",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "135",
+        "upstreamName": "Ash of War: Earthshaker",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000088",
+      "name": "Ash of War: Golden Land",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "136",
+        "upstreamName": "Ash of War: Golden Land",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000089",
+      "name": "Ash of War: Flaming Strike",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "137",
+        "upstreamName": "Ash of War: Flaming Strike",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000008A",
+      "name": "Ash of War: Thunderbolt",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "138",
+        "upstreamName": "Ash of War: Thunderbolt",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000008B",
+      "name": "Ash of War: Lightning Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "139",
+        "upstreamName": "Ash of War: Lightning Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000008C",
+      "name": "Ash of War: Carian Grandeur",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "140",
+        "upstreamName": "Ash of War: Carian Grandeur",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000008D",
+      "name": "Ash of War: Carian Greatsword",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "141",
+        "upstreamName": "Ash of War: Carian Greatsword",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000008E",
+      "name": "Ash of War: Vacuum Slice",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "142",
+        "upstreamName": "Ash of War: Vacuum Slice",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000008F",
+      "name": "Ash of War: Black Flame Tornado",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "143",
+        "upstreamName": "Ash of War: Black Flame Tornado",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000090",
+      "name": "Ash of War: Sacred Ring of Light",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "144",
+        "upstreamName": "Ash of War: Sacred Ring of Light",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000092",
+      "name": "Ash of War: Shield Bash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "146",
+        "upstreamName": "Ash of War: Shield Bash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000093",
+      "name": "Ash of War: Barricade Shield",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "147",
+        "upstreamName": "Ash of War: Barricade Shield",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000094",
+      "name": "Ash of War: Parry",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "148",
+        "upstreamName": "Ash of War: Parry",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000095",
+      "name": "Ash of War: Buckler Parry",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "149",
+        "upstreamName": "Ash of War: Buckler Parry",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000097",
+      "name": "Ash of War: Carian Retaliation",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "151",
+        "upstreamName": "Ash of War: Carian Retaliation",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000098",
+      "name": "Ash of War: Storm Wall",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "152",
+        "upstreamName": "Ash of War: Storm Wall",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80000099",
+      "name": "Ash of War: Golden Parry",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "153",
+        "upstreamName": "Ash of War: Golden Parry",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000009A",
+      "name": "Ash of War: Shield Crash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "154",
+        "upstreamName": "Ash of War: Shield Crash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000009B",
+      "name": "Ash of War: Through and Through",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "155",
+        "upstreamName": "Ash of War: Through and Through",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000009C",
+      "name": "Ash of War: Barrage",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "156",
+        "upstreamName": "Ash of War: Barrage",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000009D",
+      "name": "Ash of War: Mighty Shot",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "157",
+        "upstreamName": "Ash of War: Mighty Shot",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000009E",
+      "name": "Ash of War: Enchanted Shot",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "158",
+        "upstreamName": "Ash of War: Enchanted Shot",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000009F",
+      "name": "Ash of War: Sky Shot",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "159",
+        "upstreamName": "Ash of War: Sky Shot",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000A0",
+      "name": "Ash of War: Rain of Arrows",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "160",
+        "upstreamName": "Ash of War: Rain of Arrows",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000A1",
+      "name": "Ash of War:",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "161",
+        "upstreamName": "Ash of War:",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000A3",
+      "name": "Ash of War:",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "163",
+        "upstreamName": "Ash of War:",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000A4",
+      "name": "Ash of War: Hoarfrost Stomp",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "164",
+        "upstreamName": "Ash of War: Hoarfrost Stomp",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000A5",
+      "name": "Ash of War: Storm Stomp",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "165",
+        "upstreamName": "Ash of War: Storm Stomp",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000A6",
+      "name": "Ash of War: Kick",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "166",
+        "upstreamName": "Ash of War: Kick",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000A7",
+      "name": "Ash of War: Lightning Ram",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "167",
+        "upstreamName": "Ash of War: Lightning Ram",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000A8",
+      "name": "Ash of War: Flame of the Redmanes",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "168",
+        "upstreamName": "Ash of War: Flame of the Redmanes",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000A9",
+      "name": "Ash of War: Ground Slam",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "169",
+        "upstreamName": "Ash of War: Ground Slam",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000AA",
+      "name": "Ash of War: Golden Slam",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "170",
+        "upstreamName": "Ash of War: Golden Slam",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000AB",
+      "name": "Ash of War: Waves of Darkness",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "171",
+        "upstreamName": "Ash of War: Waves of Darkness",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000AD",
+      "name": "Ash of War: Determination",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "173",
+        "upstreamName": "Ash of War: Determination",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000AE",
+      "name": "Ash of War: Assassin's Gambit",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "174",
+        "upstreamName": "Ash of War: Assassin's Gambit",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000AF",
+      "name": "Ash of War: Golden Vow",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "175",
+        "upstreamName": "Ash of War: Golden Vow",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B0",
+      "name": "Ash of War: Sacred Order",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "176",
+        "upstreamName": "Ash of War: Sacred Order",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B1",
+      "name": "Ash of War: Seppuku",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "177",
+        "upstreamName": "Ash of War: Seppuku",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B2",
+      "name": "Ash of War: Cragblade",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "178",
+        "upstreamName": "Ash of War: Cragblade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B3",
+      "name": "Ash of War: Shared Order",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "179",
+        "upstreamName": "Ash of War: Shared Order",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B4",
+      "name": "Ash of War: Barbaric Roar",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "180",
+        "upstreamName": "Ash of War: Barbaric Roar",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B5",
+      "name": "Ash of War: Beast's Roar",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "181",
+        "upstreamName": "Ash of War: Beast's Roar",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B6",
+      "name": "Ash of War:",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "182",
+        "upstreamName": "Ash of War:",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B7",
+      "name": "Ash of War: Braggart's Roar",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "183",
+        "upstreamName": "Ash of War: Braggart's Roar",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B8",
+      "name": "Ash of War: Troll's Roar",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "184",
+        "upstreamName": "Ash of War: Troll's Roar",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000B9",
+      "name": "Ash of War: Endure",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "185",
+        "upstreamName": "Ash of War: Endure",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000BA",
+      "name": "Ash of War: Vow of the Indomitable",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "186",
+        "upstreamName": "Ash of War: Vow of the Indomitable",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000BB",
+      "name": "Ash of War: Holy Ground",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "187",
+        "upstreamName": "Ash of War: Holy Ground",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000BE",
+      "name": "Ash of War: Quickstep",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "190",
+        "upstreamName": "Ash of War: Quickstep",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000BF",
+      "name": "Ash of War: Bloodhound's Step",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "191",
+        "upstreamName": "Ash of War: Bloodhound's Step",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000C0",
+      "name": "Ash of War: Raptor of the Mists",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "192",
+        "upstreamName": "Ash of War: Raptor of the Mists",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000C2",
+      "name": "Ash of War: White Shadow's Lure",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "194",
+        "upstreamName": "Ash of War: White Shadow's Lure",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000C3",
+      "name": "Ash of War: Sword Dance",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "195",
+        "upstreamName": "Ash of War: Sword Dance",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000C4",
+      "name": "Ash of War: Firebreather",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "196",
+        "upstreamName": "Ash of War: Firebreather",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000C5",
+      "name": "Ash of War: Blood Blade",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "197",
+        "upstreamName": "Ash of War: Blood Blade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800000C6",
+      "name": "Ash of War: Thops's Barrier",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "198",
+        "upstreamName": "Ash of War: Thops's Barrier",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003E8",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1000",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003E9",
+      "name": "Ash of War: Impaling Thrust",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1001",
+        "upstreamName": "Ash of War: Impaling Thrust",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003EA",
+      "name": "Ash of War: Spinning Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1002",
+        "upstreamName": "Ash of War: Spinning Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003EB",
+      "name": "Ash of War:",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1003",
+        "upstreamName": "Ash of War:",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003EC",
+      "name": "Ash of War: Glintblade Phalanx",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1004",
+        "upstreamName": "Ash of War: Glintblade Phalanx",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003ED",
+      "name": "Ash of War:",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1005",
+        "upstreamName": "Ash of War:",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003EE",
+      "name": "Ash of War: Eruption",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1006",
+        "upstreamName": "Ash of War: Eruption",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003EF",
+      "name": "Ash of War: Gravitas",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1007",
+        "upstreamName": "Ash of War: Gravitas",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F0",
+      "name": "Ash of War: Storm Blade",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1008",
+        "upstreamName": "Ash of War: Storm Blade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F1",
+      "name": "Ash of War: Earthshaker",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1009",
+        "upstreamName": "Ash of War: Earthshaker",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F2",
+      "name": "Ash of War: Flaming Strike",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1010",
+        "upstreamName": "Ash of War: Flaming Strike",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F3",
+      "name": "Ash of War: Thunderbolt",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1011",
+        "upstreamName": "Ash of War: Thunderbolt",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F4",
+      "name": "Ash of War: Carian Greatsword",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1012",
+        "upstreamName": "Ash of War: Carian Greatsword",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F5",
+      "name": "Ash of War: Storm Stomp",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1013",
+        "upstreamName": "Ash of War: Storm Stomp",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F6",
+      "name": "Ash of War: Determination",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1014",
+        "upstreamName": "Ash of War: Determination",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F7",
+      "name": "Ash of War: Holy Ground",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1015",
+        "upstreamName": "Ash of War: Holy Ground",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F8",
+      "name": "Ash of War: Quickstep",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1016",
+        "upstreamName": "Ash of War: Quickstep",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800003F9",
+      "name": "Ash of War: Raptor of the Mists",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "1017",
+        "upstreamName": "Ash of War: Raptor of the Mists",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002710",
+      "name": "Ash of War: Lion's Claw",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10000",
+        "upstreamName": "Ash of War: Lion's Claw",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002774",
+      "name": "Ash of War: Impaling Thrust",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10100",
+        "upstreamName": "Ash of War: Impaling Thrust",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800027D8",
+      "name": "Ash of War: Piercing Fang",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10200",
+        "upstreamName": "Ash of War: Piercing Fang",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000283C",
+      "name": "Ash of War: Spinning Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10300",
+        "upstreamName": "Ash of War: Spinning Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002904",
+      "name": "Ash of War: Charge Forth",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10500",
+        "upstreamName": "Ash of War: Charge Forth",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002968",
+      "name": "Ash of War: Stamp (Upward Cut)",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10600",
+        "upstreamName": "Ash of War: Stamp (Upward Cut)",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800029CC",
+      "name": "Ash of War: Stamp (Sweep)",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10700",
+        "upstreamName": "Ash of War: Stamp (Sweep)",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002A30",
+      "name": "Ash of War: Blood Tax",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10800",
+        "upstreamName": "Ash of War: Blood Tax",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002A94",
+      "name": "Ash of War: Repeating Thrust",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "10900",
+        "upstreamName": "Ash of War: Repeating Thrust",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002AF8",
+      "name": "Ash of War: Wild Strikes",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "11000",
+        "upstreamName": "Ash of War: Wild Strikes",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002B5C",
+      "name": "Ash of War: Spinning Strikes",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "11100",
+        "upstreamName": "Ash of War: Spinning Strikes",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002BC0",
+      "name": "Ash of War: Double Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "11200",
+        "upstreamName": "Ash of War: Double Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002C24",
+      "name": "Ash of War: Prelate's Charge",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "11300",
+        "upstreamName": "Ash of War: Prelate's Charge",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002C88",
+      "name": "Ash of War: Unsheathe",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "11400",
+        "upstreamName": "Ash of War: Unsheathe",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002CEC",
+      "name": "Ash of War: Square Off",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "11500",
+        "upstreamName": "Ash of War: Square Off",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002D50",
+      "name": "Ash of War: Giant Hunt",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "11600",
+        "upstreamName": "Ash of War: Giant Hunt",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002E18",
+      "name": "Ash of War: Loretta's Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "11800",
+        "upstreamName": "Ash of War: Loretta's Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002E7C",
+      "name": "Ash of War: Poison Moth Flight",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "11900",
+        "upstreamName": "Ash of War: Poison Moth Flight",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002EE0",
+      "name": "Ash of War: Spinning Weapon",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "12000",
+        "upstreamName": "Ash of War: Spinning Weapon",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80002FA8",
+      "name": "Ash of War: Storm Assault",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "12200",
+        "upstreamName": "Ash of War: Storm Assault",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000300C",
+      "name": "Ash of War: Stormcaller",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "12300",
+        "upstreamName": "Ash of War: Stormcaller",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80003070",
+      "name": "Ash of War: Sword Dance",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "12400",
+        "upstreamName": "Ash of War: Sword Dance",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80004E20",
+      "name": "Ash of War: Glintblade Phalanx",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20000",
+        "upstreamName": "Ash of War: Glintblade Phalanx",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80004E84",
+      "name": "Ash of War: Sacred Blade",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20100",
+        "upstreamName": "Ash of War: Sacred Blade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80004EE8",
+      "name": "Ash of War: Ice Spear",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20200",
+        "upstreamName": "Ash of War: Ice Spear",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80004F4C",
+      "name": "Ash of War: Glintstone Pebble",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20300",
+        "upstreamName": "Ash of War: Glintstone Pebble",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80004FB0",
+      "name": "Ash of War: Bloody Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20400",
+        "upstreamName": "Ash of War: Bloody Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005014",
+      "name": "Ash of War: Lifesteal Fist",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20500",
+        "upstreamName": "Ash of War: Lifesteal Fist",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800050DC",
+      "name": "Ash of War: Eruption",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20700",
+        "upstreamName": "Ash of War: Eruption",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005140",
+      "name": "Ash of War: Prayerful Strike",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20800",
+        "upstreamName": "Ash of War: Prayerful Strike",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800051A4",
+      "name": "Ash of War: Gravitas",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "20900",
+        "upstreamName": "Ash of War: Gravitas",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005208",
+      "name": "Ash of War: Storm Blade",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "21000",
+        "upstreamName": "Ash of War: Storm Blade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800052D0",
+      "name": "Ash of War: Earthshaker",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "21200",
+        "upstreamName": "Ash of War: Earthshaker",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005334",
+      "name": "Ash of War: Golden Land",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "21300",
+        "upstreamName": "Ash of War: Golden Land",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005398",
+      "name": "Ash of War: Flaming Strike",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "21400",
+        "upstreamName": "Ash of War: Flaming Strike",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005460",
+      "name": "Ash of War: Thunderbolt",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "21600",
+        "upstreamName": "Ash of War: Thunderbolt",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800054C4",
+      "name": "Ash of War: Lightning Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "21700",
+        "upstreamName": "Ash of War: Lightning Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005528",
+      "name": "Ash of War: Carian Grandeur",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "21800",
+        "upstreamName": "Ash of War: Carian Grandeur",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000558C",
+      "name": "Ash of War: Carian Greatsword",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "21900",
+        "upstreamName": "Ash of War: Carian Greatsword",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800055F0",
+      "name": "Ash of War: Vacuum Slice",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "22000",
+        "upstreamName": "Ash of War: Vacuum Slice",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005654",
+      "name": "Ash of War: Black Flame Tornado",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "22100",
+        "upstreamName": "Ash of War: Black Flame Tornado",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800056B8",
+      "name": "Ash of War: Sacred Ring of Light",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "22200",
+        "upstreamName": "Ash of War: Sacred Ring of Light",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005780",
+      "name": "Ash of War: Blood Blade",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "22400",
+        "upstreamName": "Ash of War: Blood Blade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800057E4",
+      "name": "Ash of War: Phantom Slash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "22500",
+        "upstreamName": "Ash of War: Phantom Slash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005848",
+      "name": "Ash of War: Spectral Lance",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "22600",
+        "upstreamName": "Ash of War: Spectral Lance",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800058AC",
+      "name": "Ash of War: Chilling Mist",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "22700",
+        "upstreamName": "Ash of War: Chilling Mist",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80005910",
+      "name": "Ash of War: Poisonous Mist",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "22800",
+        "upstreamName": "Ash of War: Poisonous Mist",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80007530",
+      "name": "Ash of War: Shield Bash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "30000",
+        "upstreamName": "Ash of War: Shield Bash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80007594",
+      "name": "Ash of War: Barricade Shield",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "30100",
+        "upstreamName": "Ash of War: Barricade Shield",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800075F8",
+      "name": "Ash of War: Parry",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "30200",
+        "upstreamName": "Ash of War: Parry",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80007724",
+      "name": "Ash of War: Carian Retaliation",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "30500",
+        "upstreamName": "Ash of War: Carian Retaliation",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80007788",
+      "name": "Ash of War: Storm Wall",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "30600",
+        "upstreamName": "Ash of War: Storm Wall",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800077EC",
+      "name": "Ash of War: Golden Parry",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "30700",
+        "upstreamName": "Ash of War: Golden Parry",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80007850",
+      "name": "Ash of War: Shield Crash",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "30800",
+        "upstreamName": "Ash of War: Shield Crash",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800078B4",
+      "name": "Ash of War: No Skill",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "30900",
+        "upstreamName": "Ash of War: No Skill",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80007918",
+      "name": "Ash of War: Thops's Barrier",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "31000",
+        "upstreamName": "Ash of War: Thops's Barrier",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80009C40",
+      "name": "Ash of War: Through and Through",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "40000",
+        "upstreamName": "Ash of War: Through and Through",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80009CA4",
+      "name": "Ash of War: Barrage",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "40100",
+        "upstreamName": "Ash of War: Barrage",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80009D08",
+      "name": "Ash of War: Mighty Shot",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "40200",
+        "upstreamName": "Ash of War: Mighty Shot",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80009DD0",
+      "name": "Ash of War: Enchanted Shot",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "40400",
+        "upstreamName": "Ash of War: Enchanted Shot",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80009E34",
+      "name": "Ash of War: Sky Shot",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "40500",
+        "upstreamName": "Ash of War: Sky Shot",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80009E98",
+      "name": "Ash of War: Rain of Arrows",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "40600",
+        "upstreamName": "Ash of War: Rain of Arrows",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000C3B4",
+      "name": "Ash of War: Hoarfrost Stomp",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "50100",
+        "upstreamName": "Ash of War: Hoarfrost Stomp",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000C418",
+      "name": "Ash of War: Storm Stomp",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "50200",
+        "upstreamName": "Ash of War: Storm Stomp",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000C47C",
+      "name": "Ash of War: Kick",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "50300",
+        "upstreamName": "Ash of War: Kick",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000C4E0",
+      "name": "Ash of War: Lightning Ram",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "50400",
+        "upstreamName": "Ash of War: Lightning Ram",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000C544",
+      "name": "Ash of War: Flame of the Redmanes",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "50500",
+        "upstreamName": "Ash of War: Flame of the Redmanes",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000C5A8",
+      "name": "Ash of War: Ground Slam",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "50600",
+        "upstreamName": "Ash of War: Ground Slam",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000C60C",
+      "name": "Ash of War: Golden Slam",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "50700",
+        "upstreamName": "Ash of War: Golden Slam",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000C670",
+      "name": "Ash of War: Waves of Darkness",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "50800",
+        "upstreamName": "Ash of War: Waves of Darkness",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000C6D4",
+      "name": "Ash of War: Hoarah Loux's Earthshaker",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "50900",
+        "upstreamName": "Ash of War: Hoarah Loux's Earthshaker",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000EA60",
+      "name": "Ash of War: Determination",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "60000",
+        "upstreamName": "Ash of War: Determination",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000EAC4",
+      "name": "Ash of War: Royal Knight's Resolve",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "60100",
+        "upstreamName": "Ash of War: Royal Knight's Resolve",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000EB28",
+      "name": "Ash of War: Assassin's Gambit",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "60200",
+        "upstreamName": "Ash of War: Assassin's Gambit",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000EB8C",
+      "name": "Ash of War: Golden Vow",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "60300",
+        "upstreamName": "Ash of War: Golden Vow",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000EBF0",
+      "name": "Ash of War: Sacred Order",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "60400",
+        "upstreamName": "Ash of War: Sacred Order",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000EC54",
+      "name": "Ash of War: Shared Order",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "60500",
+        "upstreamName": "Ash of War: Shared Order",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000ECB8",
+      "name": "Ash of War: Seppuku",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "60600",
+        "upstreamName": "Ash of War: Seppuku",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000ED1C",
+      "name": "Ash of War: Cragblade",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "60700",
+        "upstreamName": "Ash of War: Cragblade",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000FDE8",
+      "name": "Ash of War: Barbaric Roar",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "65000",
+        "upstreamName": "Ash of War: Barbaric Roar",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000FE4C",
+      "name": "Ash of War: War Cry",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "65100",
+        "upstreamName": "Ash of War: War Cry",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000FEB0",
+      "name": "Ash of War: Beast's Roar",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "65200",
+        "upstreamName": "Ash of War: Beast's Roar",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000FF14",
+      "name": "Ash of War: Troll's Roar",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "65300",
+        "upstreamName": "Ash of War: Troll's Roar",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x8000FF78",
+      "name": "Ash of War: Braggart's Roar",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "65400",
+        "upstreamName": "Ash of War: Braggart's Roar",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80011170",
+      "name": "Ash of War: Endure",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "70000",
+        "upstreamName": "Ash of War: Endure",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800111D4",
+      "name": "Ash of War: Vow of the Indomitable",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "70100",
+        "upstreamName": "Ash of War: Vow of the Indomitable",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80011238",
+      "name": "Ash of War: Holy Ground",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "70200",
+        "upstreamName": "Ash of War: Holy Ground",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80013880",
+      "name": "Ash of War: Quickstep",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "80000",
+        "upstreamName": "Ash of War: Quickstep",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x800138E4",
+      "name": "Ash of War: Bloodhound's Step",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "80100",
+        "upstreamName": "Ash of War: Bloodhound's Step",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80013948",
+      "name": "Ash of War: Raptor of the Mists",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "80200",
+        "upstreamName": "Ash of War: Raptor of the Mists",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    },
+    {
+      "id": "0x80014C08",
+      "name": "Ash of War: White Shadow's Lure",
+      "category": "ash",
+      "description": "Upstream identity label only; Inferred on PS5. Includes unused/test/unnamed rows. No ownership, legal cap, upgrade compatibility or game-build coverage is asserted.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+      "attributes": {
+        "schema": "eldenring-canonical-full-id/1",
+        "upstreamId": "85000",
+        "upstreamName": "Ash of War: White Shadow's Lure",
+        "nameStatus": "named",
+        "identityStatus": "canonical",
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "48dd5cd1f306f05be427cd30c9c8236b1df27ff96d31e025789f34fc59d92bbd"
+      }
+    }
+  ]
+}

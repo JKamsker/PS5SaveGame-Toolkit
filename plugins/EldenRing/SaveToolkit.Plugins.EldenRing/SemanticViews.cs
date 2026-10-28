@@ -3,7 +3,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.EldenRing;
 
-internal sealed class SemanticViews(byte[] bytes, IReadOnlyList<SemanticCharacter> characters)
+internal sealed class SemanticViews(byte[] bytes, IReadOnlyList<SemanticCharacter> characters, ReferenceBrowser references)
 {
     internal const string FormatSource = "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs";
     private static string Provenance => $"Inferred from ClayAmore/ER-Save-Editor, MIT, {FormatSource} (retrieved 2026-10-28). "
@@ -32,7 +32,8 @@ internal sealed class SemanticViews(byte[] bytes, IReadOnlyList<SemanticCharacte
             bind($"slots/{slot.Index}/class-id", "Archetype byte (class candidate)", IntegerSpec.UInt8,
                 () => FieldValue.Of((long)bytes[player + SemanticLayout.ClassOffset])) with
             { Confidence = Confidence.Inferred, Description = Provenance },
-            new SectionNode("Equipment candidates", Equipment(character, bind)) { Description = Provenance, Collapsed = true },
+            EquipmentViews.Build(bytes, character, references),
+            new SectionNode("Equipment raw representations", Equipment(character, bind)) { Description = Provenance, Collapsed = true },
             new TableNode([new("name", "Range"), new("offset", "File offset"), new("length", "Bytes")],
                 character.Ranges.Select(range => new TableRow($"slots/{slot.Index}/ranges/{range.Name}", new Dictionary<string, ViewNode>
                 {

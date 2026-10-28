@@ -14,7 +14,8 @@ internal sealed class ReferenceBrowser(IReferenceCatalog? catalog)
 
     public QueryableCollection Collection => new(CollectionId, "Item reference catalog", Columns, catalog?.Count ?? 0)
     {
-        Description = "Partial, attributed names only. No quantity limits, build compatibility or ownership is implied. "
+        Description = "Complete pinned upstream name tables, including unused/test/unnamed rows; PS5 identities remain Inferred. "
+            + "No quantity limits, build compatibility, DLC completeness or ownership is implied. "
             + (catalog?.Dataset.Attribution.ToShortText() ?? "No compatible pack: raw identities remain visible in inventory."),
     };
 
