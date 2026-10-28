@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { api, isStaleError } from "../../../api/client";
-import type { ReferenceCandidate, ReferenceCandidatePage, ReferenceSpec } from "../../../api/protocol";
+import type { ReferenceCandidate, ReferenceCandidatePage, ReferenceSortKey, ReferenceSpec } from "../../../api/protocol";
 import { useDocument } from "../../../state/documentStore";
 import type { FieldControlProps } from "../FieldControl";
 import { ReferenceIcon, ReferencePreview } from "./ReferencePreview";
@@ -8,8 +8,8 @@ import { ReferenceIcon, ReferencePreview } from "./ReferencePreview";
 const PAGE_SIZE = 30;
 const SEARCH_DELAY_MS = 180;
 
-export function ReferencePicker({ valueId, actionId, value, current, onCommit, onClose }: FieldControlProps & {
-  spec: ReferenceSpec; valueId: string; current?: ReferenceCandidate; onClose: () => void;
+export function ReferencePicker({ valueId, actionId, value, current, browseOnly = false, onCommit, onClose }: FieldControlProps & {
+  spec: ReferenceSpec; valueId: string; current?: ReferenceCandidate; browseOnly?: boolean; onClose: () => void;
 }) {
   const { workspaceId, documentId, store, refresh } = useDocument();
   const revision = store.state.revision;
@@ -18,6 +18,9 @@ export function ReferencePicker({ valueId, actionId, value, current, onCommit, o
   const search = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
+  const [sortBy, setSortBy] = useState<ReferenceSortKey | "">("");
+  const [descending, setDescending] = useState(false);
+  const [sortKeys, setSortKeys] = useState<ReferenceSortKey[]>([]);
   const [offset, setOffset] = useState(0);
   const [page, setPage] = useState<ReferenceCandidatePage>();
   const [active, setActive] = useState(-1);
@@ -47,8 +50,8 @@ export function ReferencePicker({ valueId, actionId, value, current, onCommit, o
     setRawCandidate(undefined);
     setError(undefined);
     const timer = setTimeout(() => {
-      void api.referenceCandidates(workspaceId, documentId, { valueId, actionId, revision, q, category, offset, limit: PAGE_SIZE })
-        .then((result) => { if (valid) { setPage(result); setLoading(false); } })
+      void api.referenceCandidates(workspaceId, documentId, { valueId, actionId, revision, q, category, sortBy: sortBy || undefined, descending, offset, limit: PAGE_SIZE })
+        .then((result) => { if (valid) { setSortKeys(result.sortKeys ?? []); setPage(result); setLoading(false); } })
         .catch((failure: unknown) => {
           if (!valid) return;
           setLoading(false);
@@ -57,10 +60,10 @@ export function ReferencePicker({ valueId, actionId, value, current, onCommit, o
         });
     }, SEARCH_DELAY_MS);
     return () => { valid = false; clearTimeout(timer); };
-  }, [workspaceId, documentId, valueId, actionId, revision, q, category, offset, refresh]);
+  }, [workspaceId, documentId, valueId, actionId, revision, q, category, sortBy, descending, offset, refresh]);
 
   const choose = async () => {
-    if (!preview?.eligibility.selectable || busy) return;
+    if (browseOnly || !preview?.eligibility.selectable || busy) return;
     setBusy(true);
     setError(undefined);
     try {
@@ -107,7 +110,8 @@ export function ReferencePicker({ valueId, actionId, value, current, onCommit, o
 
   return <dialog ref={dialog} className="dialog reference-picker" aria-labelledby={`${id}-title`} onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}>
     <div className="dialog__body">
-      <h2 id={`${id}-title`} className="dialog__title">Choose an item</h2>
+      <h2 id={`${id}-title`} className="dialog__title">{browseOnly ? "Browse items" : "Choose an item"}</h2>
+      {browseOnly && <p role="note">Read-only browsing. Item details can be inspected; the saved ID cannot be changed.</p>}
       <p>Current ID: <code>{String(value ?? "")}</code>. Search by name or raw ID.</p>
       <div className="reference-filters">
         <label>Search
@@ -121,12 +125,22 @@ export function ReferencePicker({ valueId, actionId, value, current, onCommit, o
             {(page?.categories ?? (category ? [category] : [])).map((name) => <option key={name}>{name}</option>)}
           </select>
         </label>
+        {sortKeys.length > 0 && <>
+          <label>Sort by
+            <select className="input" value={sortBy} onChange={(event) => { setSortBy(event.target.value as ReferenceSortKey | ""); setOffset(0); }}>
+              <option value="">Catalog order</option>
+              {sortKeys.map((key) => <option key={key} value={key}>{key}</option>)}
+            </select>
+          </label>
+          <label><input type="checkbox" checked={descending} disabled={!sortBy}
+            onChange={(event) => { setDescending(event.target.checked); setOffset(0); }} />Descending</label>
+        </>}
       </div>
       <div className="reference-picker__content">
         <div>
           <div id={`${id}-list`} role="listbox" aria-label="Candidates" aria-busy={loading} className="reference-options">
             {items.map((candidate, index) => <div key={candidate.rawId} id={`${id}-option-${index}`} role="option"
-              aria-selected={active === index} aria-disabled={!candidate.eligibility.selectable}
+              aria-selected={active === index} aria-disabled={browseOnly ? undefined : !candidate.eligibility.selectable}
               className={`reference-option${active === index ? " reference-option--active" : ""}`}
               onMouseDown={(event) => event.preventDefault()} onClick={() => { if (!busy) { setActive(index); setRawCandidate(undefined); search.current?.focus(); } }}>
               <ReferenceIcon candidate={candidate} workspaceId={workspaceId} documentId={documentId} />
@@ -149,8 +163,8 @@ export function ReferencePicker({ valueId, actionId, value, current, onCommit, o
       {error && <p role="alert" className="field__error">{error}</p>}
     </div>
     <div className="dialog__footer">
-      <button type="button" className="btn btn--quiet" disabled={busy} onClick={onClose}>Cancel</button>
-      <button type="button" className="btn btn--primary" disabled={busy || !preview?.eligibility.selectable} onClick={() => void choose()}>Use selected item</button>
+      <button type="button" className="btn btn--quiet" disabled={busy} onClick={onClose}>{browseOnly ? "Close" : "Cancel"}</button>
+      {!browseOnly && <button type="button" className="btn btn--primary" disabled={busy || !preview?.eligibility.selectable} onClick={() => void choose()}>Use selected item</button>}
     </div>
   </dialog>;
 }

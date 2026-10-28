@@ -20,7 +20,7 @@ const sword: ReferenceCandidate = {
   eligibility: { available: true, eligible: false, selectable: false, reasons: ["Requires a quest"] },
 };
 const unknown = (rawId: string, selectable = false): ReferenceCandidate => ({ rawId, eligibility: { available: true, eligible: selectable, selectable, reasons: ["Id absent from catalog"] } });
-const page = (items = [potion, sword]): ReferenceCandidatePage => ({ catalogId: "items", items, total: items.length, offset: 0, limit: 30, categories: ["consumable", "weapon"], revision: 0 });
+const page = (items = [potion, sword]): ReferenceCandidatePage => ({ catalogId: "items", items, total: items.length, offset: 0, limit: 30, categories: ["consumable", "weapon"], sortKeys: ["Key", "Name", "Category"], revision: 0 });
 const node = field("item/id", { kind: "reference", catalogId: "items" }, "9999", { label: "Item" });
 
 function renderField(options: { readOnly?: boolean; canEdit?: boolean; custom?: boolean } = {}) {
@@ -163,11 +163,52 @@ describe("reference field picker", () => {
     expect(document.activeElement).toBe(screen.getByRole("button", { name: /^Item/ }));
   });
 
-  it("disables selection on read-only fields", async () => {
-    renderField({ readOnly: true });
-    expect((screen.getByRole("button", { name: /^Item/ }) as HTMLButtonElement).disabled).toBe(true);
-    await waitFor(() => expect(api.referenceCandidate).toHaveBeenCalled());
-    expect(api.referenceCandidates).not.toHaveBeenCalled();
+  it.each([{ readOnly: true }, { canEdit: false }])("browses read-only details and attribution without a commit path (%j)", async (options) => {
+    const context = renderField(options);
+    await openPicker();
+    expect(screen.getByRole("heading", { name: "Browse items" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Use selected item" })).toBeNull();
+    const search = screen.getByRole("combobox", { name: "Search" });
+    fireEvent.keyDown(search, { key: "ArrowDown" });
+    expect(screen.getByText("Restores health")).toBeTruthy();
+    expect(screen.getAllByText(/Fixture contributors/)).toHaveLength(2);
+    fireEvent.keyDown(search, { key: "Enter" });
+    fireEvent.click(screen.getByRole("option", { name: /Sword/ }));
+    expect(screen.getByRole("heading", { name: "Sword" })).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Raw ID"), { target: { value: "1001" } });
+    fireEvent.click(screen.getByRole("button", { name: "Preview raw ID" }));
+    await screen.findByRole("heading", { name: "Potion" });
+    expect(context.commit).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: /^Item/ }));
+  });
+
+  it("sorts by declared keys and resets paging while retaining the category", async () => {
+    vi.mocked(api.referenceCandidates).mockResolvedValue({ ...page(), total: 61 });
+    renderField({ canEdit: false });
+    await openPicker();
+    fireEvent.change(screen.getByLabelText("Category"), { target: { value: "consumable" } });
+    await screen.findByRole("option", { name: /Potion/ });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await screen.findByRole("option", { name: /Potion/ });
+    fireEvent.change(screen.getByLabelText("Sort by"), { target: { value: "Name" } });
+    await waitFor(() => expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ category: "consumable", sortBy: "Name", descending: false, offset: 0 })));
+    await screen.findByRole("option", { name: /Potion/ });
+    fireEvent.click(screen.getByLabelText("Descending"));
+    await waitFor(() => expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ sortBy: "Name", descending: true, offset: 0 })));
+  });
+
+  it("offers browse-only mode inside a read-only table", async () => {
+    const restore = stubViewport();
+    try {
+      const result = renderTable(table([{ key: "one", cells: { value: node } }], ["value"]), { canEdit: false });
+      await openPicker();
+      fireEvent.keyDown(screen.getByRole("combobox", { name: "Search" }), { key: "Home" });
+      fireEvent.keyDown(screen.getByRole("combobox", { name: "Search" }), { key: "Enter" });
+      expect(result.commit).not.toHaveBeenCalled();
+      expect(screen.queryByRole("button", { name: "Use selected item" })).toBeNull();
+    } finally { restore(); }
   });
 
   it("opens the same picker inside a virtualised table cell", async () => {

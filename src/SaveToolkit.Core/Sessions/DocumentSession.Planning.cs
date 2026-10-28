@@ -38,6 +38,11 @@ public sealed partial class DocumentSession
             return Reject([new FieldError(actionId, "This action does not support planning.")]);
         }
 
+        if (!action.Mutates)
+        {
+            return Reject([new FieldError(actionId, "Inspection actions must use direct invocation, without planning.")]);
+        }
+
         if (requested.QueryScope is not null && requested.RowKeys is not null)
         {
             return Reject([new FieldError(actionId, "Supply either row keys or a query scope, not both.")]);

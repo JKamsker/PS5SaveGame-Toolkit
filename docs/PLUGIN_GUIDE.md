@@ -156,7 +156,7 @@ are required. The complete synthetic example is `tests/SaveToolkit.Core.Tests/Fa
 | --- | --- | --- |
 | `BoolSpec` | bool | |
 | `IntegerSpec(min, max)` | Int128 (wire: decimal string) | Presets `IntegerSpec.UInt32` etc. Narrow the range with `with { Min =, Max = }` when the game has real limits. `Format = Hex` for ids/hashes, `Duration` + `UnitsPerSecond` for timers. |
-| `FloatSpec` | double | `FloatSpec.Single` for float32 (values are rounded to float32 for you). |
+| `FloatSpec` | double | `FloatSpec.Single` for float32 (values are rounded to float32 for you). `Format = FloatFormat.Duration` + `UnitsPerSecond` for timers (defaults to seconds). |
 | `ExactNumberSpec` | `FieldValue.ExactNumber(text)` | JSON numeric lexeme, with exact optional `Min`/`Max`, `MaxLength`, and `MaxAbsoluteExponent`. Wire: `{kind:"exactNumber",text:"1.2300e+20"}`; distinct from text. |
 | `NullableSpec(inner)` | null or the inner spec's value | Explicit null is `FieldValue.Null`; it never inserts/removes a property or means empty text. |
 | `UnionSpec(options)` | `FieldValue.Union(optionId, value)` | Each `UnionOption(id, label, spec)` retains its inner constraints. Wire: `{kind:"union",type:"number",value:{kind:"exactNumber",text:"1e20"}}`. |
@@ -211,6 +211,36 @@ keep unlisted current values visible, and show the selected option's description
 Value ids are opaque strings you choose. They must be **unique and stable for the lifetime of the
 document** (the browser caches values by id, undo replays by id). Path-like ids work well:
 `inventory/2227368435/quantity`, `tree/7c416083/7c018857[6]/d18b252d`.
+
+### Read-only inspection actions (F13)
+
+Actions remain mutating by default. Opt into inspection explicitly:
+
+```csharp
+new ActionNode("inspect-item", "Inspect item") { Mutates = false }
+// InvokeAction returns new ActionOutcome { Message = "...", Warnings = [...] };
+```
+
+Core permits these actions when `CanEdit == false` and uses the normal published parameter
+validation and revision checks. Inspection runs on a **new document opened from the current
+serialized save**, including current edits and the same pinned reference context. Root bindings
+and previously expanded lazy sections are rebuilt on the copy. Keep action dispatch independent
+of transient UI/query caches; queries and other unsaved presentation state are not replayed.
+Results are the existing `Message` and `Warnings`, not changes to a live view.
+
+Core rejects any reported `Changes`, `Revert`, `StructureChanged`, or `Undoable = false`, and
+compares exposed field values and serialized file paths/content before and after invocation.
+Mutations, exceptions and verification failures discard the copy; live values, bindings, dirty
+state, undo/redo and revision stay unchanged. `SupportsPlanning` must be false. Inspection
+requires deterministic, lossless `Open`/`Serialize` and snapshots no larger than 256 MiB; an
+unverifiable action fails with an inspection error. This is isolation for plugin mistakes, not
+a substitute for the plugin purity rules. Never put inspection state in shared mutable objects.
+
+Float duration hints display hours, minutes and seconds to millisecond precision, including a
+fractional second and a negative sign when needed. For example, `FloatSpec.Single with {
+Format = FloatFormat.Duration, UnitsPerSecond = 1000 }` displays `61250` as `1 min 1.25 s`.
+The editor and protocol retain the raw numeric value; formatting never changes saved precision.
+Invalid/nonpositive rates fall back to raw display.
 
 ## Document groups (coordinated multi-file transactions)
 
@@ -563,15 +593,20 @@ It is never silently converted to the first candidate. Unknown incoming ids are 
 Undo can restore an original unknown or ineligible value without treating it as a new selection.
 
 The browser shares one picker between field rows, table cells and action parameters. It supports
-name/id search, categories, pages, arrow/Home/End navigation, Enter to choose, Escape/Cancel to
+name/id search, categories, declared sort keys/direction, pages, arrow/Home/End navigation, Enter to choose, Escape/Cancel to
 preserve the current value, exact raw-id preview, and catalog/icon attribution in the detail preview.
 Labels, descriptions, categories, asset ids and provenance travel as `ReferenceCandidate` responses,
 keeping the spec/view small. Supply the current record's `AttributionText` as the field description
 when displaying catalog names elsewhere (rule 9).
 
+Read-only fields and read-only documents open the same picker in **browse-only** mode. Search,
+filters, sorting, paging, keyboard detail navigation, raw-ID preview and attribution remain
+available, but there is no selection/commit button and Enter cannot write. Closing restores
+focus to the field trigger; the saved raw ID remains unchanged.
+
 Per-document field-aware API (only previously published fields/parameters are queryable):
 
-- `GET .../reference-fields/candidates?valueId=...&q=...&category=...&offset=0&limit=30&revision=0`
+- `GET .../reference-fields/candidates?valueId=...&q=...&category=...&sortBy=Name&descending=false&offset=0&limit=30&revision=0`
 - `GET .../reference-fields/record?valueId=...&rawId=...&revision=0`
 
 For action parameters also pass `actionId`. Paging clamps offset to zero and limit to 1–200.
@@ -579,6 +614,12 @@ Candidate pages include the view revision. Pass it with subsequent queries/edits
 HTTP 409 with `code: "stale"`. Exact lookup returns unknown ids with no label/dataset and an explicit
 eligibility reason. F2's catalog-wide endpoints remain unchanged. The attributed embedded test pack
 and `tests/SaveToolkit.Core.Tests/Fakes/ItemsPlugin.cs` demonstrate the complete contract.
+
+Publishing field specs without rendering pages is a separate proposed capability; see
+[F13 field-spec publishing design](plans/F13-FIELD-SPEC-PUBLISHING.md). Unknown action-reported
+IDs already replay during undo, but that alone does not establish primary bindings, alias policy,
+complete semantic review or safe unloaded-page preflight. Retain plugin guards until that
+capability is implemented.
 
 ## Reference packs
 
@@ -718,9 +759,16 @@ public override AssetContent? GetAsset(string assetId) => references.GetAsset(as
 - `Catalog(id, gameBuild)` picks one pack per catalog. Packs made for another build are skipped. An
   exact build match wins over build-agnostic packs. Ties go to the preferred locale (`Toolkit:Locales`,
   default `en`), then to user packs over embedded ones, then to the higher version.
-- `IReferenceCatalog` offers `Find(key)` (O(1)), `Search(new ReferenceQuery { Text, Category, Offset, Limit })`
-  (always paged, at most 200 per page), `Categories` and `Count`. There is deliberately no "all records"
+- `IReferenceCatalog` offers `Find(key)` (O(1)), `Search(new ReferenceQuery { Text, Category, SortBy, Descending, Offset, Limit })`
+  (always paged, at most 200 per page), `Categories`, `SortKeys` and `Count`. There is deliberately no "all records"
   enumeration.
+- Category filtering is exact and case-insensitive, and combines with substring search. Set
+  `SortBy` to a declared `ReferenceSortKey` (`Key`, `Name` or `Category`); loaded F2 packs support
+  all three. Text sorting is ordinal, case-insensitive, with an ascending ordinal raw-key tie
+  breaker in both directions. Null categories sort first ascending and last descending.
+  Omit `SortBy` to preserve file order. Filters run before sorting, then paging; `Total` is the
+  number of matches across all pages. Unknown keys are rejected. Custom catalog implementations
+  default to an empty `SortKeys` list and must declare/enforce any sorting they implement.
 - `ReferenceRecord.Dataset` resolves a record's provenance: the pack id, dataset and
   `ReferenceAttribution`. `AssetProvenance(assetId)` does the same for images.
 - Asset ids from records are pack-qualified (`packId:path`). Pass them through unchanged.
@@ -738,7 +786,7 @@ for a complete example.
 | Endpoint | Returns |
 | --- | --- |
 | `/sources` | Pinned datasets with attribution and a `used` flag |
-| `/references/{catalogId}?q=&category=&offset=&limit=` | A page of records |
+| `/references/{catalogId}?q=&category=&sortBy=Name&descending=false&offset=&limit=` | A page of records, categories and declared sort keys |
 | `/references/{catalogId}/record?key=` | One record with its provenance |
 | `/reference-assets?id=` | Image bytes, size-limited and served with `nosniff` |
 

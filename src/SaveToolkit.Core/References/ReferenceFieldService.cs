@@ -61,6 +61,9 @@ public sealed class ReferenceFieldService(ReferenceContext context)
         var page = catalog?.Search(query);
         return new ReferenceCandidatePage(spec.CatalogId,
             page is null ? [] : [.. page.Items.Select(r => Find(spec, r.Key))],
-            page?.Total ?? 0, query.Offset, query.Limit, catalog?.Categories ?? [], revision);
+            page?.Total ?? 0, query.Offset, query.Limit, catalog?.Categories ?? [], revision)
+        {
+            SortKeys = catalog?.SortKeys ?? [],
+        };
     }
 }

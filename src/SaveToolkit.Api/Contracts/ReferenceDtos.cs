@@ -41,7 +41,10 @@ public sealed record ReferencePageDto(
     int Total,
     int Offset,
     int Limit,
-    IReadOnlyList<string> Categories);
+    IReadOnlyList<string> Categories)
+{
+    public IReadOnlyList<ReferenceSortKey> SortKeys { get; init; } = [];
+}
 
 /// <summary>A record with its full provenance.</summary>
 public sealed record ReferenceRecordDetailDto(ReferenceRecordDto Record, string PackTitle, string PackVersion, ReferenceDatasetInfo Dataset);

@@ -36,10 +36,10 @@ export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpe
   const close = () => setOpen(false);
   return <>
     <button ref={trigger} id={id} type="button" className={`input reference-trigger${compact ? " input--compact" : ""}`}
-      aria-labelledby={labelledBy} aria-haspopup="dialog" disabled={!valueId || disabled || spec.readOnly} onClick={() => setOpen(true)}
+      aria-labelledby={labelledBy} aria-haspopup="dialog" disabled={!valueId} onClick={() => setOpen(true)}
       title={`${current?.label ?? "Unknown ID"} (${rawId})`}>
       {current?.label ? `${current.label} (${rawId})` : rawId || "Choose an item…"}
     </button>
-    {open && valueId && createPortal(<ReferencePicker {...props} valueId={valueId} current={current} onClose={close} />, document.body)}
+    {open && valueId && createPortal(<ReferencePicker {...props} valueId={valueId} browseOnly={Boolean(disabled || spec.readOnly)} current={current} onClose={close} />, document.body)}
   </>;
 }

@@ -8,6 +8,7 @@ import type {
   ReferencePackInfo,
   ReferencePacks,
   ReferencePage,
+  ReferenceSortKey,
   ReferenceCandidate,
   ReferenceCandidatePage,
   SaveDocument,
@@ -130,7 +131,7 @@ export const api = {
     wsId: string,
     docId: string,
     catalogId: string,
-    query: { q?: string; category?: string; offset?: number; limit?: number } = {},
+    query: { q?: string; category?: string; sortBy?: ReferenceSortKey; descending?: boolean; offset?: number; limit?: number } = {},
   ) => {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== "") params.set(key, String(value));
@@ -138,7 +139,7 @@ export const api = {
   },
   referenceAssetUrl: (wsId: string, docId: string, assetId: string) =>
     `/api${doc(wsId, docId)}/reference-assets?id=${encodeURIComponent(assetId)}`,
-  referenceCandidates: (wsId: string, docId: string, query: { valueId: string; actionId?: string; q?: string; category?: string; offset?: number; limit?: number; revision?: number }) =>
+  referenceCandidates: (wsId: string, docId: string, query: { valueId: string; actionId?: string; q?: string; category?: string; sortBy?: ReferenceSortKey; descending?: boolean; offset?: number; limit?: number; revision?: number }) =>
     request<ReferenceCandidatePage>(`${doc(wsId, docId)}/reference-fields/candidates?${referenceParams(query)}`),
   referenceCandidate: (wsId: string, docId: string, query: { valueId: string; rawId: string; actionId?: string; revision?: number }) =>
     request<ReferenceCandidate>(`${doc(wsId, docId)}/reference-fields/record?${referenceParams(query)}`),
@@ -164,6 +165,6 @@ export const api = {
   },
 };
 
-function referenceParams(query: Record<string, string | number | undefined>): string {
+function referenceParams(query: Record<string, string | number | boolean | undefined>): string {
   return new URLSearchParams(Object.entries(query).filter((entry) => entry[1] !== undefined).map(([key, value]) => [key, String(value)])).toString();
 }
