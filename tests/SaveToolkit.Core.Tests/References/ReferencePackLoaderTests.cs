@@ -108,6 +108,24 @@ public sealed class ReferencePackLoaderTests
     }
 
     [Fact]
+    public void NullEntries_AreRejectedNotCrashing()
+    {
+        var pack = PackBuilder.WithItems() with
+        {
+            Mutate = m =>
+            {
+                m["datasets"]!.AsArray().Add(null);
+                m["datasets"]![0]!["files"]!.AsArray().Add(null);
+            },
+        };
+
+        var error = ImportError(pack);
+
+        Assert.Contains("datasets must not contain null entries", error, StringComparison.Ordinal);
+        Assert.Contains("files must not contain null entries", error, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void MissingAttribution_IsRejected()
     {
         var pack = PackBuilder.WithItems() with { Mutate = m => m["datasets"]![1]!.AsObject().Remove("attribution") };

@@ -61,6 +61,12 @@ internal static partial class PackManifestValidator
         var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var d in m.Datasets)
         {
+            if (d is null)
+            {
+                problems.Add("datasets must not contain null entries");
+                continue;
+            }
+
             ValidateDataset(d, problems, ids, paths);
         }
 
@@ -87,6 +93,12 @@ internal static partial class PackManifestValidator
         problems.Check(d.Files is { Count: > 0 }, $"dataset '{name}': files must list at least one file");
         foreach (var f in d.Files ?? [])
         {
+            if (f is null)
+            {
+                problems.Add($"dataset '{name}': files must not contain null entries");
+                continue;
+            }
+
             problems.Check(PackPaths.IsSafeRelativePath(f.Path), $"dataset '{name}': unsafe path '{f.Path}' (use relative forward-slash paths without '..')");
             problems.Check(f.Path is null || !string.Equals(f.Path, PackManifest.FileName, StringComparison.OrdinalIgnoreCase), $"dataset '{name}': cannot list {PackManifest.FileName}");
             problems.Check(f.Path is null || paths.Add(f.Path), $"dataset '{name}': file '{f.Path}' is listed twice");
