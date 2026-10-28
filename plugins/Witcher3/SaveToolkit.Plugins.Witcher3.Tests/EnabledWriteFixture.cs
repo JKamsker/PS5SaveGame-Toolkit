@@ -41,11 +41,22 @@ internal static class EnabledWriteFixture
         var limits = new DecodeLimits();
         var oldTree = decoder.Decode(MemorySaveSet.SingleFile("Manual.sav", before, "PPSA04018"), limits);
         var newTree = decoder.Decode(MemorySaveSet.SingleFile("Manual.sav", after, "PPSA04018"), limits);
+        AssertOnlyPositionalIdentityLimit(oldTree);
+        AssertOnlyPositionalIdentityLimit(newTree);
         var diff = SemanticDiffer.Compare(oldTree, newTree, maxChanges: 10000);
         Assert.False(diff.Truncated);
-        Assert.False(diff.InputTruncated);
-        Assert.Empty(diff.Warnings);
+        Assert.True(diff.InputTruncated);
+        Assert.All(diff.Warnings, w => Assert.Contains("positional identity", w, StringComparison.Ordinal));
         Assert.Equal(expectedPaths.Order(), diff.Changes.Select(c => c.Path).Order());
+    }
+
+    public static void AssertOnlyPositionalIdentityLimit(SemanticTree tree)
+    {
+        // These fixtures include identity-less ability slots. They are emitted for evidence, but
+        // cannot prove record alignment; exact independent byte audits still protect every write.
+        Assert.True(tree.Truncated);
+        Assert.NotEmpty(tree.Warnings);
+        Assert.All(tree.Warnings, warning => Assert.Contains("positional identity", warning, StringComparison.Ordinal));
     }
 
     public static void SkillPreservation(byte[] beforeBytes, byte[] afterBytes, SkillRank rank)

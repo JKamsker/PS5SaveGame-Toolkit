@@ -11,7 +11,6 @@ internal sealed class CatalogViews(IReferenceContext references, string build, F
 {
     private const string CollectionPrefix = "catalog/";
     private const string ActionPrefix = "reference/inspect/";
-    private readonly Dictionary<string, IReadOnlyList<ReferenceRecord>> _records = new(StringComparer.Ordinal);
     private static IReadOnlyList<string> CatalogIds => ["items", "abilities", "gwent"];
     private static IReadOnlyList<QueryableColumn> Columns => [new("name", "Name"), new("raw", "Native ID / wiki reference key"),
         new("category", "Category"), new("owned", "Saved copies / state"), new("details", "Description and source")];
@@ -53,16 +52,42 @@ internal sealed class CatalogViews(IReferenceContext references, string build, F
             throw new ArgumentException("Unsupported reference catalog query.");
         }
 
-        var matches = Records(id, catalog).Where(record => Matches(id, record, query));
-        Func<ReferenceRecord, string> key = query.SortColumn switch {
-            "raw" => r => r.Key, "category" => r => r.Category ?? "", "owned" => r => State(id, r),
-            "details" => r => r.Description ?? "", _ => r => r.Name,
-        };
-        var ordered = (query.Descending ? matches.OrderByDescending(key, StringComparer.OrdinalIgnoreCase) :
-            matches.OrderBy(key, StringComparer.OrdinalIgnoreCase)).ThenBy(r => r.Key, StringComparer.Ordinal).ToArray();
         var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
-        return new QueryableCollectionPage(collectionId, Columns, ordered.Skip(query.Offset).Take(limit).Select(r => Row(id, r)).ToArray(),
-            catalog?.Count ?? 0, ordered.Length, query.Offset, limit);
+        var category = query.Filters.GetValueOrDefault("category");
+        var sort = query.SortColumn switch {
+            "raw" => ReferenceSortKey.Key, "category" => ReferenceSortKey.Category, _ => ReferenceSortKey.Name,
+        };
+        // Custom catalogs may not declare sorting. Their own stable file order remains the fallback.
+        var search = new ReferenceQuery {
+            Category = string.IsNullOrEmpty(category) ? null : category,
+            SortBy = catalog?.SortKeys.Contains(sort) == true ? sort : null,
+            Descending = query.Descending, Offset = query.Offset, Limit = limit,
+        };
+        if (string.IsNullOrWhiteSpace(query.Text) && query.Filters.All(f => f.Key == "category" || string.IsNullOrEmpty(f.Value)) &&
+            query.SortColumn is not ("owned" or "details"))
+        {
+            var page = catalog?.Search(search);
+            return new(collectionId, Columns, page?.Items.Select(r => Row(id, r)).ToArray() ?? [],
+                catalog?.Count ?? 0, page?.Total ?? 0, query.Offset, limit);
+        }
+
+        // Saved state/description are plugin presentation columns, not SDK reference sort keys.
+        // Full metadata text search and these legacy columns stream bounded reference pages without a second index.
+        var matches = Records(catalog, search).Where(record => Matches(id, record, query));
+        if (query.SortColumn is "owned" or "details")
+        {
+            Func<ReferenceRecord, string> key = query.SortColumn == "owned" ? r => State(id, r) : r => r.Description ?? "";
+            matches = (query.Descending ? matches.OrderByDescending(key, StringComparer.OrdinalIgnoreCase) :
+                matches.OrderBy(key, StringComparer.OrdinalIgnoreCase)).ThenBy(r => r.Key, StringComparer.Ordinal);
+        }
+        var rows = new List<TableRow>(limit);
+        var count = 0;
+        foreach (var record in matches)
+        {
+            if (count >= query.Offset && rows.Count < limit) { rows.Add(Row(id, record)); }
+            count++;
+        }
+        return new(collectionId, Columns, rows, catalog?.Count ?? 0, count, query.Offset, limit);
     }
 
     private IReferenceCatalog? Catalog(string id) => CatalogIds.Contains(id, StringComparer.Ordinal) ? references.Catalog(id, build) : null;
@@ -75,31 +100,30 @@ internal sealed class CatalogViews(IReferenceContext references, string build, F
         return [new TextNode(catalog.Dataset.Attribution.ToShortText()),
             new QueryableTableNode(CollectionPrefix + id, Title(id), Columns, catalog.Count),
             new ActionNode(ActionPrefix + id, "Look up reference") {
+                Mutates = false,
                 Description = "Inspect the selected reference and attribution without changing the save.",
                 Parameters = [new FieldNode("record", "Reference", new ReferenceSpec(id), FieldValue.Of(first))],
             }];
     }
 
-    private IReadOnlyList<ReferenceRecord> Records(string id, IReferenceCatalog? catalog)
+    private static IEnumerable<ReferenceRecord> Records(IReferenceCatalog? catalog, ReferenceQuery search)
     {
-        if (catalog is null) { return []; }
-        if (_records.TryGetValue(id, out var cached)) { return cached; }
-        var records = new List<ReferenceRecord>(catalog.Count);
+        if (catalog is null) { yield break; }
         for (var offset = 0; offset < catalog.Count; offset += ReferenceQuery.MaxLimit)
         {
-            records.AddRange(catalog.Search(new ReferenceQuery { Offset = offset, Limit = ReferenceQuery.MaxLimit }).Items);
+            var page = catalog.Search(search with { Offset = offset, Limit = ReferenceQuery.MaxLimit });
+            foreach (var record in page.Items) { yield return record; }
+            if (offset + page.Items.Count >= page.Total || page.Items.Count == 0) { yield break; }
         }
-
-        _records.Add(id, records);
-        return records;
     }
 
     private bool Matches(string id, ReferenceRecord record, QueryableCollectionQuery query)
     {
         string[] text = [record.Name, record.Key, record.Category ?? "", record.Description ?? "", State(id, record), .. record.Attributes.Values];
-        return (string.IsNullOrWhiteSpace(query.Text) || text.Any(t => t.Contains(query.Text, StringComparison.OrdinalIgnoreCase))) &&
+        return (string.IsNullOrWhiteSpace(query.Text) || text.Any(value => value.Contains(query.Text, StringComparison.OrdinalIgnoreCase))) &&
             query.Filters.All(f => string.IsNullOrEmpty(f.Value) || string.Equals(f.Key switch {
-                "name" => record.Name, "raw" => record.Key, "category" => record.Category, "owned" => State(id, record), "details" => record.Description, _ => null,
+                "name" => record.Name, "raw" => record.Key, "category" => record.Category,
+                "owned" => State(id, record), "details" => record.Description, _ => null,
             }, f.Value, StringComparison.OrdinalIgnoreCase));
     }
 
