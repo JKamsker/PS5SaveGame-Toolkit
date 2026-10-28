@@ -1,0 +1,3436 @@
+{
+  "records": [
+    {
+      "id": "SW.Item.HoneyBoots",
+      "name": "Beekeeper Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.HoneyBoots_Unique",
+      "name": "Hivemind Stingers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.HoneyLeggings",
+      "name": "Beekeeper Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.HoneyLeggings_Unique",
+      "name": "Hivemind Trousers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.HoneyChest",
+      "name": "Beekeeper Suit",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.HoneyChest_Unique",
+      "name": "Hivemind Thorax",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.HoneyHelmet",
+      "name": "Beekeeper Veil",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.HoneyHelmet_Unique",
+      "name": "Hivemind Hardhat",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.UndauntedBoots",
+      "name": "Bounty Hunter Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.UndauntedBoots_Unique",
+      "name": "Dauntless Sabatons",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.UndauntedChest",
+      "name": "Bounty Hunter Chestplate",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.UndauntedChest_Unique",
+      "name": "Dauntless Pauldrons",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.UndauntedHelmet",
+      "name": "Bounty Hunter Helmet",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.UndauntedHelmet_Unique",
+      "name": "Dauntless Horns",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.UndauntedLeggings",
+      "name": "Bounty Hunter Shinguards",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.UndauntedLeggings_Unique",
+      "name": "Dauntless Greaves",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.DiscipleLeggings",
+      "name": "Disciple Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.DiscipleLeggings_Unique",
+      "name": "Sage Belt",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.DiscipleHelmet",
+      "name": "Disciple mask",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.DiscipleHelmet_Unique",
+      "name": "Sage Headband",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.DiscipleChest",
+      "name": "Disciple Robe",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.DiscipleChest_Unique",
+      "name": "Sage Tunic",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.DiscipleBoots",
+      "name": "Disciple Wraps",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.DiscipleBoots_Unique",
+      "name": "Sage Wraps",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.MushroomBoots",
+      "name": "Mushroom Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.MushroomBoots_Unique",
+      "name": "Fly Agaric Galoshes",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.MushroomHelmet",
+      "name": "Mushroom Cap",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.MushroomHelmet_Unique",
+      "name": "Fly Agaric Cap",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.MushroomLeggings",
+      "name": "Mushroom Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.MushroomLeggings_Unique",
+      "name": "Fly Agaric Trousers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.MushroomChest",
+      "name": "Mushroom Robe",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.MushroomChest_Unique",
+      "name": "Fly Agaric Coat",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.MysticBoots",
+      "name": "Mystic Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.MysticBoots_Unique",
+      "name": "Oracle Sandals",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.MysticHelmet",
+      "name": "Mystic Circlet",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.MysticHelmet_Unique",
+      "name": "Oracle Crown",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.MysticLeggings",
+      "name": "Mystic Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.MysticLeggings_Unique",
+      "name": "Oracle Tights",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.MysticChest",
+      "name": "Mystic Robe",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.MysticChest_Unique",
+      "name": "Oracle Mantle",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.VoyagerBoots",
+      "name": "Nomad Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.VoyagerBoots_Unique",
+      "name": "Rover Sabatons",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.VoyagerChest",
+      "name": "Nomad Chestplate",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.VoyagerChest_Unique",
+      "name": "Rover Pauldrons",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.VoyagerHelmet",
+      "name": "Nomad Hood",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.VoyagerHelmet_Unique",
+      "name": "Rover Visor",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.VoyagerLeggings",
+      "name": "Nomad Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.VoyagerLeggings_Unique",
+      "name": "Rover Gaiters",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.PhantomBoots",
+      "name": "Phantom Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.PhantomBoots_Unique",
+      "name": "Dreamruler Slippers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.PhantomChest",
+      "name": "Phantom Chestplate",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.PhantomChest_Unique",
+      "name": "Dreamruler Cover",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.PhantomHelmet",
+      "name": "Phantom Helmet",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.PhantomHelmet_Unique",
+      "name": "Dreamruler Crown",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.PhantomLeggings",
+      "name": "Phantom Pants",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.PhantomLeggings_Unique",
+      "name": "Dreamruler Pyjamas",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.StalwartBoots",
+      "name": "Protector Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.StalwartBoots_Unique",
+      "name": "Humbler Tarsi",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.StalwartChest",
+      "name": "Protector Chestplate",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.StalwartChest_Unique",
+      "name": "Humbler Carapace",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.StalwartHelmet",
+      "name": "Protector Helmet",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.StalwartHelmet_Unique",
+      "name": "Humbler Antenna",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.StalwartLeggings",
+      "name": "Protector Shinguards",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.StalwartLeggings_Unique",
+      "name": "Humbler Greaves",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.RealmreacherBoots",
+      "name": "Ranger Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.RealmreacherBoots_Unique",
+      "name": "Sharpshooter Spurs",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.RealmreacherHelmet",
+      "name": "Ranger Cap",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.RealmreacherHelmet_Unique",
+      "name": "Sharpshooter Fedora",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.RealmreacherChest",
+      "name": "Ranger Jacket",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.RealmreacherChest_Unique",
+      "name": "Sharpshooter Duster",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.RealmreacherLeggings",
+      "name": "Ranger Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.RealmreacherLeggings_Unique",
+      "name": "Sharpshooter Chaps",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.TimewornBoots",
+      "name": "Realmreacher Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.TimewornBoots_Unique",
+      "name": "Soul Corruptor Sandals",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.TimewornHelmet",
+      "name": "Realmreacher Hat",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.TimewornHelmet_Unique",
+      "name": "Soul Corruptor Mask",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.TimewornLeggings",
+      "name": "Realmreacher Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.TimewornLeggings_Unique",
+      "name": "Soul Corruptor Sash",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.TimewornChest",
+      "name": "Realmreacher Robe",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.TimewornChest_Unique",
+      "name": "Soul Corruptor Duster",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.RedstoneBoots",
+      "name": "Redstone Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.RedstoneBoots_Unique",
+      "name": "Monstrosity Stompers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.RedstoneChest",
+      "name": "Redstone Chestplate",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.RedstoneChest_Unique",
+      "name": "Monstrosity Armor",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.RedstoneHelmet",
+      "name": "Redstone Helmet",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.RedstoneHelmet_Unique",
+      "name": "Monstrosity Horns",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.RedstoneLeggings",
+      "name": "Redstone Shinguards",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.RedstoneLeggings_Unique",
+      "name": "Monstrosity Greaves",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.ScampHelmet",
+      "name": "Scamp Hood",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.ScampHelmet_Unique",
+      "name": "Scoundrel Cowl",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.ScampChest",
+      "name": "Scamp Jacket",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.ScampChest_Unique",
+      "name": "Scoundrel Blazer",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.ScampLeggings",
+      "name": "Scamp Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.ScampLeggings_Unique",
+      "name": "Scoundrel Chaps",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.ScampBoots",
+      "name": "Scamp Sneakers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.ScampBoots_Unique",
+      "name": "Scoundrel Sneakers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.CaveCrawlerBoots",
+      "name": "Sculk Digger Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.CaveCrawlerBoots_Unique",
+      "name": "Twisted Warden Sneakers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.CaveCrawlerHelmet",
+      "name": "Sculk Digger Hood",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.CaveCrawlerHelmet_Unique",
+      "name": "Twisted Warden Blindfold",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.CaveCrawlerLeggings",
+      "name": "Sculk Digger Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.CaveCrawlerLeggings_Unique",
+      "name": "Twisted Warden Tights",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.CaveCrawlerChest",
+      "name": "Sculk Digger Robe",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.CaveCrawlerChest_Unique",
+      "name": "Twisted Warden Vest",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.ScavengerBoots",
+      "name": "Sculker Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.ScavengerBoots_Unique",
+      "name": "Monarch Talons",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.ScavengerHelmet",
+      "name": "Sculker Mask",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.ScavengerHelmet_Unique",
+      "name": "Monarch Crown",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.ScavengerChest",
+      "name": "Sculker Robe",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.ScavengerChest_Unique",
+      "name": "Monarch Mantle",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.ScavengerLeggings",
+      "name": "Sculker Slacks",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.ScavengerLeggings_Unique",
+      "name": "Monarch Sash",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.WellspringBoots",
+      "name": "Sifter Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.WellspringBoots_Unique",
+      "name": "Mad Sifter Paws",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.WellspringHelmet",
+      "name": "Sifter Hood",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.WellspringHelmet_Unique",
+      "name": "Mad Sifter Mask",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.WellspringLeggings",
+      "name": "Sifter Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.WellspringLeggings_Unique",
+      "name": "Mad Sifter Slacks",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.WellspringChest",
+      "name": "Sifter Robe",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.WellspringChest_Unique",
+      "name": "Mad Sifter Vest",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.EvocationBoots",
+      "name": "Sorcerer Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.EvocationBoots_Unique",
+      "name": "Alchemist Loafers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.EvocationHelmet",
+      "name": "Sorcerer Hat",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.EvocationHelmet_Unique",
+      "name": "Alchemist Top Hat",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.EvocationLeggings",
+      "name": "Sorcerer Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.EvocationLeggings_Unique",
+      "name": "Alchemist Trousers",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.EvocationChest",
+      "name": "Sorcerer Robe",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.EvocationChest_Unique",
+      "name": "Alchemist Overcoat",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.FrostRimeBoots",
+      "name": "Steel Wool Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.FrostRimeBoots_Unique",
+      "name": "Rimefrost Plodders",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.FrostRimeHelmet",
+      "name": "Steel Wool Cap",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.FrostRimeHelmet_Unique",
+      "name": "Rimefrost Icecap",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.FrostRimeLeggings",
+      "name": "Steel Wool Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.FrostRimeLeggings_Unique",
+      "name": "Rimefrost Longjohns",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.FrostRimeChest",
+      "name": "Steel Wool Sweater",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.FrostRimeChest_Unique",
+      "name": "Rimefrost Armor",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.HewnBarkChest",
+      "name": "Treehugger Chestplate",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.HewnBarkChest_Unique",
+      "name": "Woodsprite Barkpiece",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.HewnBarkBoots",
+      "name": "Treehugger Clogs",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.HewnBarkBoots_Unique",
+      "name": "Woodsprite Root Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.HewnBarkLeggings",
+      "name": "Treehugger Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.HewnBarkLeggings_Unique",
+      "name": "Woodsprite Trunks",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.HewnBarkHelmet",
+      "name": "Treehugger Mask",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.HewnBarkHelmet_Unique",
+      "name": "Woodsprite Crown",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.WolfclutchBoots",
+      "name": "Wolfpack Boots",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.WolfclutchBoots_Unique",
+      "name": "Packleader Paws",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Boots"
+      }
+    },
+    {
+      "id": "SW.Item.WolfclutchHelmet",
+      "name": "Wolfpack Hood",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.WolfclutchHelmet_Unique",
+      "name": "Packleader Muzzle",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Helmet"
+      }
+    },
+    {
+      "id": "SW.Item.WolfclutchChest",
+      "name": "Wolfpack Jacket",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.WolfclutchChest_Unique",
+      "name": "Packleader Hide",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Chestplate"
+      }
+    },
+    {
+      "id": "SW.Item.WolfclutchLeggings",
+      "name": "Wolfpack Leggings",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.WolfclutchLeggings_Unique",
+      "name": "Packleader Fur Chaps",
+      "category": "Armor",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
+        "slot": "Leggings"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.WarBanner",
+      "name": "Battle Banner",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.FireBracelet",
+      "name": "Blaze Bangle",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.PoisonBracelet",
+      "name": "Blight Bangle",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.FrostBracelet",
+      "name": "Blizzard Bangle",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.FlameSceptre",
+      "name": "Cinder Scepter",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.LightningQuiver",
+      "name": "Conductive Quiver",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.CorruptedBeacon",
+      "name": "Corrupted Beacon",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.CorruptedSeeds",
+      "name": "Corrupted Seeds",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.CreeperCandle",
+      "name": "Creeper Candle",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.DeathcapMushroom",
+      "name": "Death Cap Mushroom",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.CarapaceOcarina",
+      "name": "Echo Ocarina",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.ConductiveBracelet",
+      "name": "Electric Bangle",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.SmokeBomb",
+      "name": "Ender Fog",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.FightersFife",
+      "name": "Fighter's Flute",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.MaimingMushroom",
+      "name": "Fighting Fungus",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.FireworkQuiver",
+      "name": "Firework Arrow",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.FlameQuiver",
+      "name": "Flaming Quiver",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.FrostQuiver",
+      "name": "Freezing Quiver",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.Grindstone",
+      "name": "Grindstone",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.Honeypot",
+      "name": "Honey Dipper",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.RallyingHorn",
+      "name": "Humbling Horn",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.LightningRod",
+      "name": "Lightning Rod",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.PicnicBlanket",
+      "name": "Picnic Basket",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.Satchel.Fire",
+      "name": "Pouch of Ember",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.Satchel.Freezing",
+      "name": "Pouch of Frost",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.Satchel.Poison",
+      "name": "Pouch of Poison",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.Satchel.Conductive",
+      "name": "Pouch of Thunder",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.Powershaker",
+      "name": "Powershaker",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.RedstoneMines",
+      "name": "Redstone Mine Launcher",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.SoulHarvester",
+      "name": "Soul Harvester",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.HasteMushroom",
+      "name": "Tempo Truffle",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.TotemOfCasting",
+      "name": "Totem of Casting",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.TotemOfRegeneration",
+      "name": "Totem of Regeneration",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.TotemOfShielding",
+      "name": "Totem of Shielding",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.IronHideLute",
+      "name": "Turtle Master's Mandolin",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.PoisonQuiver",
+      "name": "Venomous Quiver",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.WardingChimes",
+      "name": "Warding Chimes",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.WarriorsDrums",
+      "name": "Warrior Drums",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.BlizzardStaff",
+      "name": "Winter Staff",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Artifact.WitchesBrew",
+      "name": "Witch Brew",
+      "category": "Artifact",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Axe",
+      "name": "Axe",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Axe_Unique1",
+      "name": "Hunter's Hatchet",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Hammer",
+      "name": "Battle Hammer",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Hammer_Unique1",
+      "name": "Emerald Hammer",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Battlestaff",
+      "name": "Battlestaff",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Battlestaff_Unique1",
+      "name": "Elemental Staff",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Claymore",
+      "name": "Claymore",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Claymore_Unique1",
+      "name": "Slaymore",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.GiantClub",
+      "name": "Clobberer",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.GiantClub_Unique1",
+      "name": "Redstone Wrecker",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.CurvedGreatsword",
+      "name": "Cookiecutter",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.CurvedGreatsword_Unique1",
+      "name": "Lullaby Blade",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Daggers",
+      "name": "Double Daggers",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Daggers_Unique1",
+      "name": "Venomous Fangs",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Sickles",
+      "name": "Double Sickles",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Sickles_Unique1",
+      "name": "Sift Sickles",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Gauntlet",
+      "name": "Gauntlets",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Gauntlet_Unique1",
+      "name": "Prime Enchanter's Gauntlets",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Glaive",
+      "name": "Glaive",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Glaive_Unique1",
+      "name": "Golden Glaive",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.GreatAxe",
+      "name": "Greataxe",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.GreatAxe_Unique1",
+      "name": "Awesomeaxe",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Greatsword",
+      "name": "Greatsword",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Greatsword_Unique1",
+      "name": "The Darkshard",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.StraightSword",
+      "name": "Longsword",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.StraightSword_Unique1",
+      "name": "Frostbiter",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Mace",
+      "name": "Mace",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Mace_Unique1",
+      "name": "Carapace Mace",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Cleaver",
+      "name": "Meat Cleaver",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Cleaver_Unique1",
+      "name": "Cacaphonous Cleaver",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.GiantMallet",
+      "name": "Mob Mallet",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.GiantMallet_Unique1",
+      "name": "Monster Masher",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Pickaxe",
+      "name": "Pickaxe",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Pickaxe_Unique1",
+      "name": "The Prospector's Pick",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Pike",
+      "name": "Pike",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Pike_Unique1",
+      "name": "Stormcaller",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Rapier",
+      "name": "Rapier",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Rapier_Unique1",
+      "name": "The Thousand Cuts",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.CurvedLongsword",
+      "name": "Riftslasher",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.CurvedLongsword_Unique1",
+      "name": "Pride of the Plains",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Sabre",
+      "name": "Sabre",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Sabre_Unique1",
+      "name": "Rascal's Razor",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Scythe",
+      "name": "Scythe",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Scythe_Unique1",
+      "name": "Soul Reaper",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.ShortSpear",
+      "name": "Short Spear",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.ShortSpear_Unique1",
+      "name": "Spectral Spear",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Shovel",
+      "name": "Shovel",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Shovel_Unique1",
+      "name": "Diamond Shovel",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Sword",
+      "name": "Sword",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Sword_Unique1",
+      "name": "The Burning Blade",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.MoonSword",
+      "name": "Tidal Sickle",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.MoonSword_Unique1",
+      "name": "Lunar Sickle",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Dagger",
+      "name": "Twilight Dagger",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Dagger_Unique1",
+      "name": "Sculker's Bane",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.WarHammer",
+      "name": "War Hammer",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.WarHammer_Unique1",
+      "name": "Heartbreaker",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Claws",
+      "name": "Wolf Claws",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Claws_Unique1",
+      "name": "Sculker Claws",
+      "category": "Melee",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Bow",
+      "name": "Bow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Bow_Unique1",
+      "name": "Ranger's Promise",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Crossbow",
+      "name": "Crossbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Crossbow_Unique1",
+      "name": "The Shackler",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.DualCrossbow",
+      "name": "Dual Crossbows",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.DualCrossbow_Unique1",
+      "name": "Double Crossers",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Greatbow",
+      "name": "Greatbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Greatbow_Unique1",
+      "name": "Humbler Heartstring",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.HeavyCrossbow",
+      "name": "Heavy Crossbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.HeavyCrossbow_Unique1",
+      "name": "The Close Ranger",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Longbow",
+      "name": "Longbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Longbow_Unique1",
+      "name": "Creaking's Reach",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Powerbow",
+      "name": "Powerbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Powerbow_Unique1",
+      "name": "Paragon",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.RapidCrossbow",
+      "name": "Rapid Crossbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.RapidCrossbow_Unique1",
+      "name": "The Cross Pollinator",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.ScatterCrossbow",
+      "name": "Scatter Crossbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.ScatterCrossbow_Unique1",
+      "name": "Harp Crossbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Shortbow",
+      "name": "Shortbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Shortbow_Unique1",
+      "name": "Shooting Star",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Trickbow",
+      "name": "Trickbow",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Trickbow_Unique1",
+      "name": "Phantom Wing",
+      "category": "Ranged",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.RangedBuff",
+      "name": "Amethyst Lens",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.RollingCooldown",
+      "name": "Armadillo Amulet",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.EmeraldIncrease",
+      "name": "Emerald of Good Fortune",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.ArtifactCooldown",
+      "name": "Essence of Efficiency",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.Brawling",
+      "name": "Fist of Iron",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.PotionCooldown",
+      "name": "Glowstone Flask",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.IronGolem",
+      "name": "Golem Kit",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.Healing",
+      "name": "Healing Heart",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.DropChance",
+      "name": "Looter's Charm",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.DoubleDrop",
+      "name": "Lucky Clover",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.SpeedIncrement",
+      "name": "Medallion of Momentum",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.Plummeting",
+      "name": "Ocelot's Paw",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.Prickle",
+      "name": "Prickle's Mark",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.StatusBuff",
+      "name": "Sculk Badge",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.HealthBoost",
+      "name": "Sigil of Beeswax",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.SoulCapacity",
+      "name": "Soul Chip",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.Wolf",
+      "name": "Tasty Bone",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.HealthyStrike",
+      "name": "Tendrils of the Sprout",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.ExperienceIncrease",
+      "name": "The Eye of Experience",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.FiringEmeralds",
+      "name": "Thrifty Pendant",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.AmmoCapacity",
+      "name": "Twig of Dark Oak",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.SoulGather",
+      "name": "Twisted Tooth",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.Talisman.Wobble",
+      "name": "Wobblestone",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "sw.Item.Talisman.Llama",
+      "name": "Wonderful Wheat",
+      "category": "Talisman",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.SoulInfusedPotion",
+      "name": "Ancient Alchemy",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Arcane",
+      "name": "Artifact Amplifier",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.PotionBarrier",
+      "name": "Barrier Brew",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.MultiPotion",
+      "name": "Bottomless Brew",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.PotionSharing",
+      "name": "Buddy Brew",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.ChainReaction",
+      "name": "Chain Reaction",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Unstoppable",
+      "name": "Cow Stampede",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Blowback",
+      "name": "Crash Landing",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.CriticalQuiver",
+      "name": "Critical Quiver",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Dynamo",
+      "name": "Dynamo",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Borealis",
+      "name": "Ender Mines",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.ExpandedQuiver",
+      "name": "Ender Quiver",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.FireAspect",
+      "name": "Fire Aspect",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.FrostCrescent",
+      "name": "Frost Crescent",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.GravityPulse",
+      "name": "Gravity Pulse",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Radiance",
+      "name": "Healing Smite",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.HealthSynergy",
+      "name": "Health Synergy",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Channeling",
+      "name": "Lightning Surge",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Piercing",
+      "name": "Piercing",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.PoisonFog",
+      "name": "Poison Fog",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.LingeringPower",
+      "name": "Power Amplifier",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Ricochet",
+      "name": "Ricochet",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.ShadowStrike",
+      "name": "Shadowcloak",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.GuardingStrike",
+      "name": "Shielding Smite",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Shockwave",
+      "name": "Shockwave",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.MultiRoll",
+      "name": "Somersault",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.SoulAspect",
+      "name": "Soul Blast",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.SpringLoaded",
+      "name": "Springload",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Swirling",
+      "name": "Swirling",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.TempoTheft",
+      "name": "Tempo Theft",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.Thundering",
+      "name": "Thundering",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Item.EnchantmentBook.BurstBowstring",
+      "name": "Tumbleshot",
+      "category": "Enchantment Book",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    }
+  ]
+}

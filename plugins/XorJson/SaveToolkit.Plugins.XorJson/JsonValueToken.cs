@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk.Values;
@@ -7,66 +6,87 @@ namespace SaveToolkit.Plugins.XorJson;
 
 internal sealed class JsonValueToken(int index, string label, JsonTokenType kind, int offset, int length)
 {
-    public int Index { get; } = index;
-    public string Label { get; } = label;
+    public int Index { get; set; } = index;
+    public string Label { get; set; } = label;
     public JsonTokenType Kind { get; } = kind;
     public int Offset { get; } = offset;
-    public int Length { get; } = length;
+    public int Length { get; set; } = length;
+    public int EntryOffset { get; set; } = offset;
+    public int LeadingOffset { get; set; } = offset;
+    public byte[] Source { get; init; } = [];
+    public JsonValueToken? Parent { get; set; }
+    public JsonPathSegment? Segment { get; set; }
     public List<JsonValueToken> Children { get; } = [];
+    public int[] OriginalChildren { get; set; } = [];
     public FieldSpec? Spec { get; set; }
     public FieldValue Original { get; set; }
     public FieldValue Current { get; set; }
     public string? Warning { get; set; }
     public bool IsContainer => Kind is JsonTokenType.StartObject or JsonTokenType.StartArray;
     public string ValueId => $"value/{Index}";
+    public string TypedPath => (Parent?.TypedPath ?? "$") + (Segment?.Display ?? "");
+    public FieldValue Scalar => Current.Kind == FieldValueKind.Union ? Current.AsUnion().Value : Current;
+
+    public JsonValueToken? Member(string name)
+    {
+        JsonValueToken? result = null;
+        foreach (var child in Children)
+        {
+            if (child.Segment is not JsonMemberPath p || p.Name != name) continue;
+            if (result is not null) return null; // Ambiguous semantic keys stay visible in the raw tree.
+            result = child;
+        }
+        return result;
+    }
 
     public string? Validate(FieldValue value)
     {
-        if (value.Kind != Original.Kind)
+        if (Spec?.ReadOnly == true) return "This token exceeds editable limits.";
+        var inner = Spec is NullableSpec nullable ? nullable.Inner : Spec;
+        if (value.IsNull && Spec is NullableSpec) return null;
+        if (inner is UnionSpec union)
         {
-            return "JSON value types cannot be changed.";
+            if (value.Kind != FieldValueKind.Union) return "Choose an explicit JSON scalar type.";
+            var choice = value.AsUnion();
+            inner = union.Options.FirstOrDefault(o => o.Id == choice.Type)?.Spec;
+            if (inner is null) return "Unknown JSON scalar type.";
+            value = choice.Value;
         }
-
-        if (value.Kind == FieldValueKind.Float && !double.IsFinite(value.AsDouble()))
-        {
-            return "JSON numbers must be finite.";
-        }
-
-        if (value.Kind == FieldValueKind.Text)
-        {
-            var text = value.AsString();
-            for (var i = 0; i < text.Length; i++)
-            {
-                if (char.IsSurrogate(text[i]) && (!char.IsHighSurrogate(text[i]) || ++i >= text.Length || !char.IsLowSurrogate(text[i])))
-                {
-                    return "Text contains an unpaired Unicode surrogate.";
-                }
-            }
-        }
-
+        if (inner is ExactNumberSpec exact)
+            return value.Kind == FieldValueKind.ExactNumber
+                ? ExactJsonNumber.Validate(value.AsExactNumber(), exact) : "An exact JSON number is required.";
+        if (inner is BoolSpec) return value.Kind == FieldValueKind.Bool ? null : "A boolean is required.";
+        if (inner is not (TextSpec or ReferenceSpec) || value.Kind != FieldValueKind.Text)
+            return "The value does not match the JSON scalar type.";
+        var text = value.AsString();
+        if (inner is TextSpec { MaxLength: { } limit } && text.Length > limit) return "Text exceeds the field length limit.";
+        for (var i = 0; i < text.Length; i++)
+            if (char.IsSurrogate(text[i]) && (!char.IsHighSurrogate(text[i]) || ++i >= text.Length || !char.IsLowSurrogate(text[i])))
+                return "Text contains an unpaired Unicode surrogate.";
         return null;
     }
 
-    public byte[] Encode()
+    public byte[] Encode() => Scalar.Kind switch
     {
-        if (Current.Kind == FieldValueKind.Text)
-        {
-            return JsonSerializer.SerializeToUtf8Bytes(Current.AsString());
-        }
+        FieldValueKind.Text => JsonSerializer.SerializeToUtf8Bytes(Scalar.AsString()),
+        FieldValueKind.ExactNumber => Encoding.UTF8.GetBytes(Scalar.AsExactNumber()),
+        FieldValueKind.Bool => Scalar.AsBool() ? "true"u8.ToArray() : "false"u8.ToArray(),
+        FieldValueKind.Null => "null"u8.ToArray(),
+        _ => throw new InvalidOperationException("Unsupported JSON scalar type."),
+    };
+}
 
-        var text = Current.Kind switch
-        {
-            FieldValueKind.Bool => Current.AsBool() ? "true" : "false",
-            FieldValueKind.Integer => Current.AsInteger().ToString(CultureInfo.InvariantCulture),
-            FieldValueKind.Float => Current.AsDouble().ToString("R", CultureInfo.InvariantCulture),
-            _ => throw new InvalidOperationException("Unsupported JSON field type."),
-        };
-        // Keep float tokens distinguishable from integral source tokens after reopening.
-        if (Current.Kind == FieldValueKind.Float && !text.Contains('.') && !text.Contains('E') && !text.Contains('e'))
-        {
-            text += ".0";
-        }
+internal abstract record JsonPathSegment
+{
+    public abstract string Display { get; }
+}
 
-        return Encoding.UTF8.GetBytes(text);
-    }
+internal sealed record JsonMemberPath(string Name, int Occurrence) : JsonPathSegment
+{
+    public override string Display => $".member({JsonSerializer.Serialize(Name)},{Occurrence})";
+}
+
+internal sealed record JsonElementPath(int Position) : JsonPathSegment
+{
+    public override string Display => $".element({Position})";
 }
