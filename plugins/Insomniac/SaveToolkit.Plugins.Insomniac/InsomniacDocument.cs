@@ -27,6 +27,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
     private readonly RiftArmourView _armour;
     private readonly IReadOnlyList<ViewNode> _progress;
     private readonly IReadOnlyList<ViewNode> _collectibles;
+    private readonly IReferenceCatalog? _guideMarkers;
     private readonly Dictionary<string, Func<IReadOnlyList<ViewNode>>> _lazy = new(StringComparer.Ordinal);
 
     internal InsomniacDocument(string path, Dat1Container container, string fileName, IReferenceContext references, bool supportedTitle)
@@ -51,6 +52,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
         _armour = new RiftArmourView(_sections, blocks, references.Catalog("rift-armor"), _collections, BindReadOnly);
         _progress = new RiftProgressView(_sections, _collections, BindReadOnly).Build();
         _collectibles = new RiftCollectibleView(_sections, references.Catalog("rift-world"), _collections, BindReadOnly).Build();
+        _guideMarkers = references.Catalog(RiftGuideMaps.CatalogId);
     }
 
     public override string Title => _fileName.Equals("i29-userprefs.save", StringComparison.OrdinalIgnoreCase)
@@ -77,7 +79,8 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
             tabs.Add(new Tab("Weapons", _arsenal.Weapons()));
             tabs.Add(new Tab("Armour", _armour.Build()));
             tabs.Add(new Tab("Upgrades", _arsenal.Upgrades()));
-            tabs.Add(new Tab("Collectibles", _collectibles));
+            var guideMaps = RiftGuideMaps.Build(_guideMarkers, _lazy);
+            tabs.Add(new Tab("Collectibles", guideMaps is null ? _collectibles : [.. _collectibles, guideMaps]));
             tabs.Add(new Tab("Inventory", _inventory.Build()));
             tabs.Add(new Tab("World", [.. _progress, .. _world.Build()]));
             tabs.Add(new Tab("Campaign details", _readOnly.CampaignDetails()));

@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "id": "insomniac.rift.maps.en",
+  "version": "1.0.0",
+  "title": "Rift Apart community guide coordinates",
+  "plugins": [
+    "insomniac"
+  ],
+  "titleIds": [
+    "PPSA01474"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "rift-guide-markers",
+      "kind": "records",
+      "title": "Guides4Gamers regional markers (unjoined)",
+      "files": [
+        {
+          "path": "markers.json",
+          "sha256": "4d3cecbcd3a74662816a93e8a24f85257250ec1a566bb859bd38ba4f465a6d58"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/",
+        "author": "Guides4Gamers",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected factual marker IDs, labels, categories, pixel coordinates and map dimensions from nine map.2.0 snapshots; pinned map versions and SHA-256 in markers.source.md. Omitted HTML descriptions, icons, images, paths, scripts and game assets. No save identity joins."
+      }
+    }
+  ]
+}

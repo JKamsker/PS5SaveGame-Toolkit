@@ -8,7 +8,8 @@ internal static class RiftCollectibleMap
 {
     internal const string GuideUrl = "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/";
     internal const string GuideAttribution = "Guides4Gamers, Ratchet & Clank: Rift Apart interactive maps; " +
-        "accessed 2026-10-28. Link only: no artwork, descriptions or coordinates imported; reuse licence unconfirmed.";
+        "accessed 2026-10-28. Link only for these storage bits: no guide-to-save identity join. " +
+        "Separate community guide maps contain attributed reference coordinates; publisher artwork remains excluded.";
     private const string FieldsTitle = "Map storage values";
     private const int MaskBits = 64;
 

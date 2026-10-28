@@ -96,3 +96,19 @@ original upgrade-mask descriptions with CC0 schema attribution. No art/coordinat
 or downloaded upstream implementation imported. Nothing outside the plugin changed.
 
 Agent work complete; remaining items are owner-blocked (#31).
+
+## Unlicensed community-source follow-up (0.7.0)
+
+The historical link-only exclusion above is resolved for Guides4Gamers factual
+community data by owner decision 2026-10-28. A second F2 pack now embeds 403
+attributed marker records across nine pinned regional snapshots, with lazy F9
+coordinate maps and per-marker categories/source links. Publisher art remains
+excluded. Guide positions are Inferred, all pickup statuses Unknown, and no
+save-bit/hash join or fog/world transform is asserted. Existing write warnings
+and owner capture requirements remain applicable.
+
+Validation: 128 passed, 0 failed, 0 skipped with external samples assigned in the
+same test invocation; API build 0 warnings/errors. Four new tests cover snapshot
+vectors/counts/provenance, all nine maps in Core across 36 primary saves with
+unchanged bytes, and absent-pack fallback. See SPATIAL-SOURCES.md and the new
+pack's markers.source.md for pin hashes, extraction and the owner reuse notice.

@@ -9,7 +9,7 @@ public sealed class InsomniacPlugin : IGamePlugin, ISaveDecoderProvider
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new RiftEvidenceDecoder()];
 
-    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.6.0")
+    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.7.0")
     {
         Description = "Experimental bolt, gold-bolt option and boolean preference edits, with read-only arsenal/world inspection. Not console-validated; the game may reject edited saves.",
         Games = [new GameTitle("PPSA01474", "Ratchet & Clank: Rift Apart")],
@@ -17,6 +17,15 @@ public sealed class InsomniacPlugin : IGamePlugin, ISaveDecoderProvider
         References =
         [
             RiftCollectibleMap.GuideUrl,
+            "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/corson-v/",
+            "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/sargasso/",
+            "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/scarstu-debris-field/",
+            "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/savali/",
+            "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/blizar-prime/",
+            "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/torren-iv/",
+            "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/cordelion/",
+            "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/ardolis/",
+            "https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/viceron/",
             DdlSections.SchemaSource,
             "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json.license",
             "https://ratchetandclank.fandom.com/wiki/Burst_Pistol",
