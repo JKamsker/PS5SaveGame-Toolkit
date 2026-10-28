@@ -40,6 +40,9 @@ public sealed class TsushimaPlayTimeTests
             Assert.Contains("Not validated on console", field.Description);
             Assert.Contains("param.sfo SUBTITLE remain unchanged", field.Warning);
             var spec = Assert.IsType<FloatSpec>(field.Spec);
+            Assert.Equal(FloatFormat.Duration, spec.Format);
+            Assert.Equal(1, spec.UnitsPerSecond);
+            Assert.True(spec.SinglePrecision);
             Assert.Equal(ObservedMaximum, spec.Max);
             var before = field.Value;
             const float target = 123.25f;

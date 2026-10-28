@@ -12,7 +12,7 @@
       "notes": "Uncontrolled sample generations. This fixture validates parser coverage and semantic decoder bounds; it does not prove any game-state transition.",
       "before": { "archive": "PPSA02225_saves_dec.zip", "generation": 0 },
       "after": { "archive": "PPSA02225_saves_dec.zip", "generation": 1 },
-      "decoder": "suckerpunch",
+      "decoder": "suckerpunch.native-v1",
       "files": ["dis.dat", "memory.dat"],
       "strict": false
     }

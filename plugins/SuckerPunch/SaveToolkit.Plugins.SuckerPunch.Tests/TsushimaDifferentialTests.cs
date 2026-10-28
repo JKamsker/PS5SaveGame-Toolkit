@@ -1,3 +1,4 @@
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Testing;
 using SaveToolkit.Testing.Diff;
 
@@ -20,7 +21,8 @@ public sealed class TsushimaDifferentialTests
             fixture,
             samples,
             samples,
-            FixtureVerifier.OptionsFor(fixture, manifest, new PluginViewDecoder(new SuckerPunchPlugin())));
+            FixtureVerifier.OptionsFor(fixture, manifest,
+                new HookSaveDecoder(Assert.Single(((ISaveDecoderProvider)new SuckerPunchPlugin()).Decoders))));
 
         Assert.True(verification.Passed,
             string.Join("; ", verification.Errors.Concat(verification.Unexpected)));

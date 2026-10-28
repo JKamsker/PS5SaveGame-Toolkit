@@ -1,13 +1,16 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Plugins.SuckerPunch;
 
-public sealed class SuckerPunchPlugin : IGamePlugin
+public sealed class SuckerPunchPlugin : IGamePlugin, ISaveDecoderProvider
 {
-    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.6.0")
+    public IReadOnlyList<ISaveDecoderHook> Decoders => [new SuckerPunchSaveDecoder()];
+
+    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.7.0")
     {
         Description = "Experimental Tsushima quantity/play-time editing with action previews and attributed wiki guides; Yōtei inspection.",
         Games =

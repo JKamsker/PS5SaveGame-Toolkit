@@ -105,7 +105,7 @@ public sealed class TsushimaReferenceTests
     [InlineData("suckerpunch_sword_guide", 41)]
     [InlineData("suckerpunch_technique_guide", 18)]
     [InlineData("suckerpunch_world_guide", 17)]
-    public void LazyGuidesShowAttributionAndUnknownSaveStateWithoutCreatingBindings(string catalogId, int count)
+    public void LazyGuidesShowAttributedBrowseOnlyReferencesAndUnknownSaveState(string catalogId, int count)
     {
         var plugin = new SuckerPunchPlugin();
         var file = Slot("suckerpunchUser1");
@@ -121,7 +121,13 @@ public sealed class TsushimaReferenceTests
             var attribution = Assert.IsType<TextNode>(row.Cells["source"]).Text;
             Assert.Contains("oldid=", attribution);
             Assert.Contains("CC-BY-SA-3.0", attribution);
-            Assert.All(row.Cells.Values, cell => Assert.IsType<TextNode>(cell));
+            var name = Assert.IsType<FieldNode>(row.Cells["name"]);
+            var spec = Assert.IsType<ReferenceSpec>(name.Spec);
+            Assert.True(spec.ReadOnly);
+            Assert.Equal(catalogId, spec.CatalogId);
+            Assert.Equal(row.Key, document.GetValue(name.ValueId).AsString());
+            Assert.Contains("CC-BY-SA-3.0", name.Description);
+            Assert.False(document.ApplyEdits([new(name.ValueId, FieldValue.Of("wiki:other"))]).Succeeded);
         });
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }

@@ -1,7 +1,7 @@
 # Sucker Punch save plugin (`suckerpunch`)
 
 Titles: **PPSA02225** (Ghost of Tsushima, Director's Cut) and **PPSA26344** (Ghost of Yōtei).
-Version 0.6.0 is **Experimental**: Tsushima inventory and play-time edits pass conformance and exact byte-difference
+Version 0.7.0 is **Experimental**: Tsushima inventory and play-time edits pass conformance and exact byte-difference
 tests, but have not been tested in-game. Yōtei documents remain **read-only**. No sample bytes,
 extracted saves, or third-party implementation code are included in this plugin.
 
@@ -60,16 +60,18 @@ Still disabled for structural safety, rather than pending console approval:
   ordinary validated scalar edits and one Core undo/redo group. Neither unlocks items or claims a capacity.
 * Difficulty is **Inferred** and read-only. The **Inferred** v48/v49 play timer is writable, with the
   explicit metadata/counter warning and observed bound above. Every unedited slot's whole play-time
-  minutes and difficulty match its `param.sfo SUBTITLE`. The v47 timer layout is different, so no timer
-  is published for it. No console metadata or difficulty counters are rewritten.
+  minutes and difficulty match its `param.sfo SUBTITLE`. The timer publishes F13
+  `FloatFormat.Duration` with one stored unit per second; raw float32 editing and fractions are retained.
+  The v47 timer layout is different, so no timer is published for it. No console metadata or difficulty counters are rewritten.
 * Locked records, unmatched ammo copies, unmapped item kinds and existing quantities above 32767 are
   inspection-only. The editable range 0–32767 follows the upstream refill value, **not a proven game
   capacity**. The UI warns that quantities can be clamped. Ownership/upgrade flags are never changed.
 * The embedded F2 pack `suckerpunch.tsushima` contains attributed raw-ID catalogs for the 48 inventory
   records plus observed equipment and technique identifiers. F4 `ReferenceSpec` fields preserve each
   exact ID and expose the catalog picker metadata; they are read-only because no safe ID replacement
-  mapping has been proven. Each catalog field carries its dataset attribution and an Inferred/Unknown
-  confidence label.
+  mapping has been proven. F13 opens these fields in browse-only mode, including category filters,
+  declared Key/Name/Category sorting, paging, raw-ID previews and attribution. Each catalog field carries
+  its dataset attribution and an Inferred/Unknown confidence label.
 * Tsushima has read-only Equipment, Techniques and Character tabs. They show first observed offsets and
   explicit Unknown ownership/equipped/progression relationships. Identifier presence is not treated as
   ownership, a loadout, a prerequisite, or an editable value. Raw record words remain read-only.
@@ -83,7 +85,9 @@ Still disabled for structural safety, rather than pending console approval:
   references plus an eager text table for row navigation. It is a schematic list with no imported art or
   coordinates: discovered/completed/rewarded state is Unknown for every entry, and the external PowerPyx
   guide is link-only. Edits invalidate raw block snapshots. Guide views are capped at 200 rows and report
-  truncation if a larger pack is used.
+  truncation if a larger pack is used. Guide names are also read-only `ReferenceSpec` fields: their
+  pickers browse the complete pinned catalog even when the eager guide page is capped. Guide tables
+  use shared category sorting, while wiki IDs remain separate from saved IDs and cannot be committed.
 * Opening copies the input; exports and hex pages are isolated copies. No-op exports are byte-identical,
   including unknown data, console metadata and padding. Only the selected document's file is returned;
   sibling saves, backup slots and `param.sfo` are preserved.
@@ -92,19 +96,36 @@ Still disabled for structural safety, rather than pending console approval:
 
 | Feature | Status | Concrete adoption or reason |
 | --- | --- | --- |
-| F1 SaveDiff | Used | `fixtures.json` records the uncontrolled Tsushima generation pair; plugin-view decoding and bounded semantic paths are exercised by `TsushimaDifferentialTests`, while byte-span tests use `ByteDiffer`. No fixture embeds save bytes. |
+| F1 SaveDiff | Used | `fixtures.json` records the uncontrolled Tsushima generation pair and selects `suckerpunch.native-v1`; bounded native and F8 view decoding are tested alongside `ByteDiffer`. No fixture embeds save bytes. |
 | F2 reference packs | Used | Embedded `suckerpunch.tsushima` v2.0.0 catalogs are loaded through `IReferenceContext`; per-record and UI descriptions carry attribution and the Sources panel exposes each dataset. |
 | F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. Images are intentionally absent because no icon licence is cleared; the SDK has no separate detail-cell node, and actions remain dedicated planned controls rather than blank table cells. |
 | F4 reference pickers | Used | Every catalog-backed inventory, equipment and technique ID is a read-only `ReferenceSpec` field with raw-ID fallback, category/description metadata and attribution. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: enclosing sizes, references, ownership and acquisition side effects are unproven, so a plugin-local structural substitute would risk data loss. |
 | F6 planned actions | Used | Existing resource/ammo target actions provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. |
 | F7 document groups | N/A | No controlled capture proves that `memory.dat`, `dis.dat`, `param.sfo` or a backup must change with a supported edit; the safe contract rewrites only the selected file. |
-| F8 queryable collections | Added this round | The 122-row equipment identifier view is now `equipment/identifiers`, with stable IDs, bounded pages, search, filters and deterministic sorting. Small inventory/technique/world views remain eager because they are below the paging threshold. |
-| F9 maps and graphs | Added this round | Techniques publish a validated read-only `GraphNode` with field targets and a text alternative; World publishes a validated external-link-first `MapNode` with row targets, Unknown statuses, and a schematic/list fallback. |
+| F8 queryable collections | Used | The per-save equipment identifier view is `equipment/identifiers`, with stable IDs, bounded pages, search, filters and deterministic sorting. Small inventory/technique/world views remain eager because they are below the paging threshold. |
+| F9 maps and graphs | Used | Techniques publish a validated read-only `GraphNode` with field targets and a text alternative; World publishes a validated external-link-first `MapNode` with row targets, Unknown statuses, and a schematic/list fallback. |
 | F10 exact numbers and nullable/union specs | N/A | Supported edits are fixed-width uint32 quantities and an observed float32 timer; no save field carries an exact JSON number lexeme, nullable value or union that this plugin could preserve. |
 | F11 shared codecs | N/A | Tsushima/Yōtei samples are fixed-size plaintext containers; no Kraken, Oodle or SQLite codec is involved. |
-| F12 SaveDiff traversal/decoder hooks | Pending #32 | The shared traversal and decoder-hook expansion is not on `main`; this plugin keeps the bounded F1 manifest and `PluginViewDecoder` coverage without a substitute. |
-| F13 inspect actions/picker filtering/duration | Pending #33 | Non-mutating inspect actions, browse-only picker behavior, richer catalog filtering and float-duration presentation are shared work not on `main`; no plugin-local substitute is added. |
+| F12 SaveDiff traversal/decoder hooks | Added | `ISaveDecoderProvider` registers SDK-only `suckerpunch.native-v1`; the F1 fixture uses the hook through `HookSaveDecoder`. Separate `PluginViewDecoder` tests traverse every F8 equipment row across small pages and verify incomplete-input limits. |
+| F13 inspect actions/picker filtering/duration | Added | The float32 timer declares Duration/seconds. Inventory, equipment, techniques and all six guide catalogs use browse-only read-only references with shared category filters and declared sorting; guide tables use catalog category ordering. Inspection actions are N/A: existing actions change quantities and there is no message-only inspection operation to opt in. |
+
+The merged F4/F6 parameter fix (`63580dc`) is N/A here: both planned actions accept only a
+bounded integer target quantity, with no `EnumSpec` ID fallback or reference replacement parameter.
+
+The explicit F12 hook emits stable native paths for four header words, inferred difficulty/play
+seconds, all 48 existing Tsushima quantities and mirrored ammo counts. It reuses the validated
+container/inventory/progress parsers, stops when the sink declines a value, honors file/depth limits,
+and retains evidence warnings. It deliberately omits labels, offsets, reference-guide selections,
+account data and unknown payloads. Yōtei exposes only four raw header words with an unknown-gameplay/
+integrity warning; this hook does not claim a complete payload decode. The F8 view decoder remains
+available as `--decoder suckerpunch` for view-oriented inspection.
+
+```powershell
+dotnet run --project tools/SaveToolkit.SaveDiff -- list-decoders
+dotnet run --project tools/SaveToolkit.SaveDiff -- compare before.zip after.zip --decoder suckerpunch.native-v1
+dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/SuckerPunch/fixtures.json
+```
 
 `CanEdit` is per document: a validated Tsushima container with the recognised inventory is writable;
 containers without its anchor can be inspected without edits. Yōtei and empty placeholders cannot edit.
@@ -415,6 +436,21 @@ exported in the invocation. The API build passed with **0 warnings and 0 errors*
 F8 query-page/filter/sort/session, and F9 graph/map validation tests cover the new presentation paths;
 all existing exact-byte and no-op checks remain green.
 
+F12/F13 follow-up checks on 2026-10-28: **126 passed, 0 failed, 0 skipped** with the artifacts
+variable exported in the invocation. The API build passed with **0 warnings and 0 errors**.
+`savediff list-decoders` lists `suckerpunch.native-v1`; CLI fixture verification passes **1 fixture,
+0 failed, 0 skipped** through the registered hook. Native decoding covers all 25 Tsushima / 8 Yōtei
+entries, exact timer/ammo/checksum changes, determinism, corruption/foreign rejection and sink/file/
+depth bounds. F8 decoding traverses every observed equipment row across seven-row pages and reports
+query caps. Guide picker tests cover all declared sort keys in both directions, categories, search,
+paging, attribution, rejected writes and unchanged bytes/history/revision. All six guide catalogs
+retain explicit Unknown save state. Every non-generated C# file remains below 300 physical lines.
+
+The follow-up rechecked the existing [KOVRlN technical notes](https://github.com/KOVRlN/ghostoftsushima-save-converter/blob/main/TECHNICAL.md)
+and [Apollo ammo anchors](https://github.com/bucanero/apollo-patches/blob/main/PS4/CUSA11456.savepatch)
+on 2026-10-28. The hook reuses existing validated parsers; no new format hypothesis, reference dataset
+or upstream implementation code was added. Existing attribution remains intact.
+
 ## Open questions
 
 * Console-load the edited quantities; only a human can promote maturity to Stable.
@@ -425,10 +461,11 @@ all existing exact-byte and no-op checks remain green.
 
 ## SDK requests
 
-None for this round: F2/F4 references and F6 planning are used directly, and F8 now serves the 122-row
+None for this round: F2/F4 references and F6 planning are used directly, and F8 serves the per-save
 equipment identifier collection. The smaller inventory, technique and world lists remain bounded eager
 views; larger imported guides are bounded to one 200-row page. Equipment/progression/world blockers
 require sample evidence rather than new SDK substitutes.
-Float timers have no Duration display equivalent to `IntegerSpec`,
-so the timer is presented in seconds. A future metadata-edit contract/policy could clarify
+The float-duration display request is resolved by F13 (`FloatFormat.Duration`, seconds). F12 supplies
+the SDK-only decoder registration; no Testing dependency or plugin-local traversal workaround is needed.
+A future metadata-edit contract/policy could clarify
 whether changing play time or difficulty should update `param.sfo SUBTITLE`; this plugin leaves it intact.
