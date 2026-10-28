@@ -74,8 +74,8 @@ public sealed class WorkspaceStore : IDisposable
             return false;
         }
 
-        ws.Dispose();
-        TryDelete(ws.Set.StorageRoot);
+        try { ws.Dispose(); }
+        finally { TryDelete(ws.Set.StorageRoot); }
         return true;
     }
 
@@ -87,13 +87,7 @@ public sealed class WorkspaceStore : IDisposable
         return stale.Count(Remove);
     }
 
-    public void Dispose()
-    {
-        foreach (var id in _workspaces.Keys)
-        {
-            Remove(id);
-        }
-    }
+    public void Dispose() => SessionCleanup.RunAll(_workspaces.Keys, id => Remove(id));
 
     private static void TryDelete(string path)
     {

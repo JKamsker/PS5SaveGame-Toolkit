@@ -80,21 +80,71 @@ public sealed class WorkspaceLifetimeTests : IDisposable
         finally { resume.Set(); }
     }
 
-    private sealed class BlockingPlugin(Action opening) : IGamePlugin
+    [Fact]
+    public void Dispose_ClosesAllSessionsEvenWhenPluginCleanupThrows()
+    {
+        var disposed = 0;
+        var plugin = new BlockingPlugin(() => { }, () =>
+        {
+            disposed++;
+            throw new InvalidOperationException("Plugin cleanup failed.");
+        });
+        using var store = new WorkspaceStore(new PluginCatalog([plugin]), new() { DataRoot = TestZips.TempDir() });
+        var workspace = store.Create("failing cleanup", Enumerable.Range(0, 3)
+            .Select(i => new ImportSource($"PPSA00001/sdimg_SAVE/file{i}.dat", () => new MemoryStream([1]))));
+        var sessions = workspace.Set.AllDiskFiles.Select(f => workspace.Open(f.Id, plugin.Info.Id)).ToArray();
+
+        var failure = Assert.Throws<AggregateException>(workspace.Dispose);
+
+        Assert.Equal(3, failure.InnerExceptions.Count);
+        Assert.Equal(3, disposed);
+        Assert.Empty(workspace.Documents);
+        Assert.All(sessions, s => Assert.Throws<ObjectDisposedException>(() => s.BuildView()));
+        workspace.Dispose();
+        Assert.Equal(3, disposed);
+    }
+
+    [Fact]
+    public void StoreDisposal_ReleasesAllWorkspacesAndBlobsWhenPluginCleanupThrows()
+    {
+        var plugin = new BlockingPlugin(() => { }, () => throw new InvalidOperationException("Plugin cleanup failed."));
+        using var store = new WorkspaceStore(new PluginCatalog([plugin]), new() { DataRoot = TestZips.TempDir() });
+        var workspaces = Enumerable.Range(0, 2).Select(_ => store.Create("failing cleanup",
+            [new ImportSource("save.dat", () => new MemoryStream([1]))])).ToArray();
+        foreach (var workspace in workspaces) workspace.Open(workspace.Set.AllDiskFiles.Single().Id, plugin.Info.Id);
+
+        var failure = Assert.Throws<AggregateException>(store.Dispose);
+
+        Assert.Equal(2, failure.Flatten().InnerExceptions.Count);
+        Assert.Empty(store.All);
+        Assert.All(workspaces, workspace =>
+        {
+            Assert.Empty(workspace.Documents);
+            Assert.False(Directory.Exists(workspace.Set.StorageRoot));
+        });
+        store.Dispose();
+    }
+
+    private sealed class BlockingPlugin(Action opening, Action? dispose = null) : IGamePlugin
     {
         public PluginInfo Info { get; } = new("test.lifetime", "Lifetime test", "1.0.0");
         public ProbeResult Probe(ISaveFile file) => ProbeResult.None;
         public ISaveDocument Open(ISaveFile file)
         {
             opening();
-            return new EmptyDocument();
+            return new EmptyDocument(dispose);
         }
     }
 
-    private sealed class EmptyDocument : BoundSaveDocument
+    private sealed class EmptyDocument(Action? dispose) : BoundSaveDocument
     {
         public override string Title => "Lifetime test";
         public override ViewNode BuildView() => new TextNode(Title);
         public override IReadOnlyList<FileOutput> Serialize() => [];
+        protected override void Dispose(bool disposing)
+        {
+            try { dispose?.Invoke(); }
+            finally { base.Dispose(disposing); }
+        }
     }
 }

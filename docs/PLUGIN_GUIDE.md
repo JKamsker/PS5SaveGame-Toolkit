@@ -45,7 +45,7 @@ and `plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests/` with the conformance suit
 `BoundSaveDocument` implements the bookkeeping (binding registry, atomic apply with rollback,
 `GetValue`). Prefer it: build views with `Field(id, label, spec, get, set, validate)`.
 See `tests/SaveToolkit.Core.Tests/Fakes/CounterPlugin.cs` for the smallest complete example.
-Its `ApplyEdits` rollback includes setters that throw after changing their bound value, failed
+`BoundSaveDocument.ApplyEdits` rollback includes setters that throw after changing their bound value, failed
 readbacks and failures while enumerating `DerivedChanges`. Setters must accept their previous value
 for rollback; `DerivedChanges` reports consequences and must not independently mutate state outside
 those bindings. Custom `ApplyEdits` and action implementations still own their atomicity.

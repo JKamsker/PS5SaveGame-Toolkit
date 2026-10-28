@@ -142,10 +142,7 @@ public sealed class Workspace : IDisposable
         {
             if (_disposed) return;
             _disposed = true;
-            foreach (var id in _documents.Keys)
-            {
-                Close(id);
-            }
+            SessionCleanup.RunAll(_documents.Keys, id => Close(id));
         }
     }
 }
