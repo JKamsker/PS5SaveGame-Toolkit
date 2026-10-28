@@ -1,6 +1,6 @@
 # Baldur's Gate 3 (`bg3`)
 
-Title: **PPSA18463**. Maturity: **Experimental**, version 0.2.0.
+Title: **PPSA18463**. Maturity: **Experimental**, version 0.3.0.
 
 Opens decrypted BG3 save packages and profile resources, lists package entries with
 stored/expanded sizes and compression, and exposes every resource node and attribute
@@ -9,6 +9,11 @@ vectors/matrices, translation handles, and paged raw bytes for opaque or large v
 LSX exploration includes XML wrapper elements, metadata attributes and text.
 Round 2 adds validated LSPK v18 checksums, preservation-first LSF/LSPK writers,
 primitive editing and a sourced Party summary. No in-game write test has occurred.
+Version 0.3.0 adds a bounded read-only LSMF directory/EntityId reader, lazy all-owner
+saved-item inspection, an attributed F2 starter pack and an F1 evidence manifest.
+This completes early subsets of roadmap phases 1–3, not their full exit criteria.
+See [LSMF.md](LSMF.md) for the independent implementation record and
+[EVIDENCE.md](EVIDENCE.md) for phase status and the exact owner capture checklist.
 
 ## Supported scope and preservation
 
@@ -69,18 +74,38 @@ The profile files are LSOF v7 with extended metadata format 1:
 Verified sample values in `meta.lsf`: `Level = TUT_Avernus_C`, raw `Difficulty = 2`,
 raw `OriginalPlatform = 3`. Numeric enum meanings are deliberately not assigned.
 `Globals.lsf` has a `NewAge` root with a `ScratchBuffer` named `NewAge` of 2,618,936
-bytes beginning `LSMF`. It is available in the raw explorer without being decoded.
+bytes beginning `LSMF`. The NewAge tab validates its 315-entry directory and
+displays nominal component fingerprints and paged EntityId occurrences. There
+are 9,453 occurrences but 1,984 distinct GUIDs; duplicates are not collapsed into
+an invented unique character. Owner lists, packed streams and gameplay values
+remain uninterpreted. Unknown/unsupported NewAge stays available raw.
 
 The Party tab reads `SaveInfo.json / Active Party / Characters`: the supplied sample
 contains three rows at level 1, with current/total XP `(30,30)`, `(30,30)`, `(0,0)`.
-Origin strings are shown as origins rather than invented localised names. The
+Origin strings retain their raw values alongside optional sourced origin labels. The
 `meta.lsf` leader display-name primitive is also exposed (metadata only; it does
 not rename a live character). Summary meanings use `Confidence.Inferred`, backed
 by the cited community parser/editor documentation and exact sample keys. Level
-and XP summaries are read-only. Gold quantities and localised companion names are
-unavailable; no validated mapping for them is implemented. The metadata has two
+and XP summaries are read-only. The starter pack names Laezel and DarkUrge as
+origins; these are not live character names or party/ECS identity joins. Gold
+quantities remain unavailable. The metadata has two
 `CharacterMetaData` nodes, so those nodes are not assumed to map one-to-one to the
 three JSON rows. Editing primitive metadata does not synchronise live ECS state.
+
+The Inventory tab browses original `Globals.lsf / Items / Item` occurrences from
+**all owners**, including world and trader items. Four exact template GUIDs in the
+starter pack label 40 of the sample's 761 occurrences (including twenty healing
+potions and four gold-template occurrences); these are not known in-game stack
+counts or player inventory totals. Each candidate name carries per-cell source,
+licence and raw-ID provenance. Duplicate templates remain separate, unknown IDs
+stay raw, and owner/equipment/quantity stay explicitly unknown. Original snapshot
+inspection does not reinterpret primitive edits or synchronise gameplay state.
+
+The framework loads the embedded `bg3.starter.en` pack and injects it through
+`Open(file, references)`. `Open(file)` without a context retains raw fallbacks.
+The native build is unknown, so build-specific catalogs are refused. Only
+build-agnostic labels are accepted; no rules/limits/icons are supplied and no
+pack data enters serialized saves. There is no plugin file or network I/O.
 
 ## Binary layout
 
@@ -181,8 +206,8 @@ flag byte. Unchanged sections/entries are never passed through a compressor.
 
 The digest does not cover filenames, container metadata or padding and is not
 authentication. Standalone LSFs have structural checks but no discovered content
-checksum. NewAge/LSMF and Osiris internal formats/integrity are not decoded or
-modified. Community load failures after ECS changes are not evidence about the
+checksum. NewAge's directory and EntityId are inspected read-only; its gameplay
+semantics/integrity and Osiris are not decoded or modified. Community load failures after ECS changes are not evidence about the
 primitive-only writer; PS5 compatibility still needs human testing. Maturity stays
 Experimental until that test, even though the byte/checksum/conformance tests pass.
 
@@ -192,9 +217,10 @@ Verified: magic/version/layout matches, sample counts, actual primitive values, 
 output sizes, XML structure, the LSMF signature, byte-identical no-op preservation,
 the supplied package digest and preservation of every unedited compressed payload.
 Raw fields carry `Confidence.Unknown` because their **gameplay meaning** is unvalidated.
-Curated Party metadata uses `Confidence.Inferred`. Live character names, level/XP,
-gold, abilities and inventory relationships inside LSMF need a separate validated
-decoder. No live stat or gold editor, guessed item names, tree insertion/deletion,
+Curated Party metadata and exact-reference label candidates use `Confidence.Inferred`;
+unresolved names and raw fingerprints use `Unknown`. Live character names, level/XP,
+gold, abilities and inventory relationships inside LSMF need further validated
+decoding and controlled PS5 observations. No live stat or gold editor, guessed item names, tree insertion/deletion,
 multipart/solid writer, or console compatibility is claimed.
 
 Other limits: 256 MiB input, 256 MiB total expanded package payloads, 256 MiB expanded
@@ -224,19 +250,43 @@ UTF-8/UUID/scalar vectors, malformed/truncated data, entity rejection, meaningfu
 leader-name edits in conformance, thumbnails/blob ranges, and 20,000-entry/child
 paging. Synthetic tests run without samples.
 
-Validation on .NET SDK 10.0.400: API build passed with zero warnings/errors; all 120
-plugin tests and all 43 framework tests passed. With an empty
-`SAVETOOLKIT_ARTIFACTS` directory, 103 plugin tests pass and 17 sample-dependent
+Validation for 0.3.0 on .NET SDK 10.0.400: API build passed with zero warnings/errors;
+all 148 plugin tests pass. F1 `verify plugins/BaldursGate3/fixtures.json` passes,
+with one generation, identical package twins and zero changes. With an empty
+`SAVETOOLKIT_ARTIFACTS` directory, 128 plugin tests pass and 20 sample-dependent
 tests skip. The source-size test
 runs with the plugin tests; all source files are below 300 physical lines. No plugin
 hooks, scripts, build targets or repository tooling are installed.
 
 ## SDK requests
 
-None. Existing bindings support atomic edits, rollback, lazy raw fields and undo.
-The current shared conformance suite also checks no-op output for read-only files.
+None for this subset. F1 consumes the new bound read-only values through its
+existing `PluginViewDecoder`; F2 supplies immutable catalog context/attribution.
+Existing bindings support atomic primitive edits, rollback, lazy views and undo.
+F4/F6/F8 remain separate framework work; no local substitutes were added.
 
-## Sources and licensing
+## Sources and attribution
+
+| Dataset / code | Source and author | Licence / retrieval | Changes and scope |
+| --- | --- | --- | --- |
+| `bg3_templates` (4 records) | [bg3.wiki contributors](https://bg3.wiki/): [Gold](https://bg3.wiki/w/index.php?title=Gold&oldid=419021), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), [Longsword](https://bg3.wiki/wiki/Longsword), [Shortbow](https://bg3.wiki/w/index.php?title=Shortbow&oldid=423168) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels/technical GUIDs, original uncertainty annotations; no wiki prose, limits or icons. Exact GUID candidates only. |
+| `bg3_origins` (3 records) | [bg3.wiki contributors](https://bg3.wiki/): [Lae'zel](https://bg3.wiki/wiki/Lae%27zel), [Shadowheart](https://bg3.wiki/wiki/Shadowheart), [Dark Urge](https://bg3.wiki/wiki/The_Dark_Urge_(Origin)) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels mapped to SaveInfo Origin keys; original uncertainty annotations. Not live identity/name mappings. |
+| Independent LSMF directory/EntityId reader | [DanFinchUK format documentation, pinned revision](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md), independently measured PS5 bytes | Upstream code licence unresolved; research inspected 2026-10-28 | No implementation copied or run. Independent code and handwritten vectors; measured PS5 arena offset corrects upstream prose. See [LSMF.md](LSMF.md). |
+| Existing LSPK/LSF/LSX and UUID format ports | [Norbyte/LSLib](https://github.com/Norbyte/lslib/tree/6f5f6987d10d8485876b8368431c948e4dea4f83) | MIT; [licence notice](THIRD-PARTY-NOTICES.md) | Managed preservation-first implementations; format files listed below. |
+| Managed LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
+| Managed zstd codec | [ZstdSharp](https://github.com/oleg-st/ZstdSharp), Oleg Stepanischev and contributors | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
+
+The starter data adaptation remains **CC BY-SA 4.0**, separately from code. Retain
+its attribution, source links, modification notice and share-alike terms in
+redistributed/adapted packs. See the embedded
+[data.source.md](SaveToolkit.Plugins.BaldursGate3/ReferencePacks/bg3.starter.en/data.source.md)
+and per-dataset `pack.json` attribution. The UI includes provenance on every name
+cell, and the framework Sources panel shows the resolved datasets.
+
+The [wiki copyright policy](https://bg3.wiki/wiki/bg3wiki:Copyrights) distinguishes
+legacy CC BY-NC-SA content from dual-licensed contributions. This factual-label
+subset copies no legacy expressive text or artwork. Full descriptions and assets
+still need a rights manifest; a current footer alone does not resolve their terms.
 
 Primary reference: [Norbyte/LSLib](https://github.com/Norbyte/lslib), MIT, inspected at
 revision `6f5f6987d10d8485876b8368431c948e4dea4f83`. Adapted format algorithms and type

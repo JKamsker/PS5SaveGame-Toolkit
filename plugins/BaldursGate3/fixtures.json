@@ -1,0 +1,32 @@
+{
+  "format": "savetoolkit-fixtures/1",
+  "description": "BG3 supplied generation-0 baseline reproducibility only. There is no before/after gameplay pair or no-action resave control. No churn is masked.",
+  "ignore": [],
+  "fixtures": [
+    {
+      "id": "bg3-supplied-g0-baseline-self-comparison",
+      "titleId": "PPSA18463",
+      "game": "Baldur's Gate 3",
+      "platform": "PS5",
+      "slot": "Save0001",
+      "event": "Compare the supplied snapshot to itself to pin archive identity and verify primary/backup equality; no in-game event occurred.",
+      "control": false,
+      "notes": "Native build, capture date, ruleset and mods are unknown. Only generation 0 exists. Identical backups are not independent gameplay evidence. Add controlled event and no-action resave pairs before interpreting quantity/owner changes.",
+      "before": {
+        "archive": "PPSA18463_saves_dec.zip",
+        "generation": "0",
+        "sha256": "f5e037363c926c03cd21539d7e4c089574f82094ba6040be464256a67a552159"
+      },
+      "after": {
+        "archive": "PPSA18463_saves_dec.zip",
+        "generation": "0",
+        "sha256": "f5e037363c926c03cd21539d7e4c089574f82094ba6040be464256a67a552159"
+      },
+      "files": ["AutoSave_0.lsv"],
+      "expected": [
+        { "directory": "Save0001", "file": "AutoSave_0.lsv", "offset": 0, "length": 8, "before": "4c53504b12000000", "after": "4c53504b12000000", "changed": false, "note": "LSPK v18 prefix; strict comparison accounts for the complete unchanged file." }
+      ],
+      "strict": true
+    }
+  ]
+}

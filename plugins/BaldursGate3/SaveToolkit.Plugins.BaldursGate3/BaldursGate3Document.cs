@@ -1,5 +1,6 @@
 using System.Globalization;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -15,15 +16,23 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
     private readonly LspkPackage? _package;
     private readonly IReadOnlyList<DocumentEntry> _entries;
     private readonly ResourceExplorer _explorer;
+    private readonly IReferenceContext _referenceContext;
+    private readonly Bg3References _references;
+    private readonly LsmfInspection _lsmf;
+    private readonly SavedItemInspection _items;
     private readonly Dictionary<string, byte[]> _edits = new(StringComparer.Ordinal);
 
-    private BaldursGate3Document(ISaveFile file, byte[] bytes, LspkPackage? package, List<DocumentEntry> entries)
+    private BaldursGate3Document(ISaveFile file, byte[] bytes, LspkPackage? package, List<DocumentEntry> entries, IReferenceContext references)
     {
         _path = file.RelativePath;
         _original = bytes;
         _package = package;
         _entries = entries;
         _explorer = new ResourceExplorer(entries, Bind);
+        _referenceContext = references;
+        _references = new Bg3References(references);
+        _lsmf = new LsmfInspection(entries, BindInspection);
+        _items = new SavedItemInspection(entries, _references, BindInspection);
         CanEdit = (package is null || package.Version == 18) && entries.Any(e => e.Resource?.Attributes.Any(AttributeEncoder.CanWrite) == true);
         Title = $"Baldur's Gate 3 · {file.FileName}";
     }
@@ -31,7 +40,7 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
     public override string Title { get; }
     public override bool CanEdit { get; }
 
-    internal static BaldursGate3Document Open(ISaveFile file)
+    internal static BaldursGate3Document Open(ISaveFile file, IReferenceContext references)
     {
         var bytes = file.ReadAllBytes();
         var budget = new ResourceBudget();
@@ -52,7 +61,7 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
             entries.Add(new DocumentEntry(file.FileName, bytes, resource));
         }
 
-        return new BaldursGate3Document(file, bytes, package, entries);
+        return new BaldursGate3Document(file, bytes, package, entries, references);
     }
 
     public override ViewNode BuildView() => new TabsNode(
@@ -67,17 +76,24 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
                 new Stat("Original bytes", _original.Length.ToString("N0")),
             ]),
             new TextNode(CanEdit
-                ? "Experimental primitive editing. Edits have not been tested in game. Live character components remain opaque."
+                ? "Experimental primitive editing. Edits have not been tested in game. NewAge structure and saved items can be inspected read-only."
                 : "Read-only resource. Writing is supported for LSF primitives and LSPK v18 only.") { Tone = Tone.Info },
             .. PackageMetadata(),
             .. _explorer.EntryList(_package),
         ]),
-        new Tab("Party", PartyView.Build(_entries, Bind, BindSummary)),
+        new Tab("Party", PartyView.Build(_entries, Bind, BindSummary, _references)),
+        new Tab("Inventory", _items.Build()),
+        new Tab("NewAge", _lsmf.Build()),
         new Tab("Resources", _explorer.ResourceList()),
         new Tab("Raw", [new HexNode("original", _original.Length) { Title = "Original file (unchanged)" }]),
     ]);
 
-    public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _explorer.Expand(lazyId, _package);
+    public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => lazyId switch
+    {
+        _ when lazyId.StartsWith(LsmfInspection.Prefix, StringComparison.Ordinal) => _lsmf.Expand(lazyId),
+        _ when lazyId.StartsWith(SavedItemInspection.Prefix, StringComparison.Ordinal) => _items.Expand(lazyId),
+        _ => _explorer.Expand(lazyId, _package),
+    };
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
@@ -132,7 +148,7 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
     {
         if (!_explorer.TryEntryAsset(assetId, out var entry))
         {
-            return null;
+            return _referenceContext.GetAsset(assetId);
         }
 
         return new AssetContent("image/webp", entry.Bytes.ToArray());
@@ -178,6 +194,13 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
         {
             Confidence = Confidence.Inferred,
             Description = "SaveInfo.json party summary; not a writable live character stat.",
+        };
+
+    private FieldNode BindInspection(string id, string label, FieldValue value) =>
+        Field(id, label, value.Kind == FieldValueKind.Integer ? IntegerSpec.Int64 : new TextSpec(), () => value) with
+        {
+            Confidence = Confidence.Inferred,
+            Description = "Original saved structure only. Gameplay meaning and joins have not been established with controlled PS5 captures.",
         };
 
     private IEnumerable<ViewNode> PackageMetadata()

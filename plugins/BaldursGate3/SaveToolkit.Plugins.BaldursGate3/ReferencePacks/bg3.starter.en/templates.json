@@ -1,0 +1,36 @@
+{
+  "records": [
+    {
+      "id": "1c3c9c74-34a1-4685-989e-410dc080be6f",
+      "name": "Gold",
+      "category": "Currency",
+      "description": "Gold template label. This reference does not establish who owns a saved item or its quantity.",
+      "source": "https://bg3.wiki/w/index.php?title=Gold&oldid=419021",
+      "attributes": { "uid": "OBJ_Goldpile", "mapping": "exact-template-guid", "rights": "CC-BY-SA-4.0; factual identifiers and original annotation only" }
+    },
+    {
+      "id": "d47006e9-8a51-453d-b200-9e0d42e9bbab",
+      "name": "Potion of Healing",
+      "category": "Potion",
+      "description": "Healing potion template label. Live effects and stack limits are not supplied by this pack.",
+      "source": "https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944",
+      "attributes": { "uid": "CONS_Potion_Healing_A", "stats": "OBJ_Potion_Healing", "mapping": "exact-template-guid", "rights": "CC-BY-SA-4.0; factual identifiers and original annotation only" }
+    },
+    {
+      "id": "1865323f-b428-4791-a0a9-578841e57463",
+      "name": "Longsword",
+      "category": "Weapon",
+      "description": "Longsword template label. It does not identify an equipment slot or a particular duplicate copy.",
+      "source": "https://bg3.wiki/wiki/Longsword",
+      "attributes": { "uid": "WPN_HUM_Longsword_A_0", "mapping": "exact-template-guid", "rights": "CC-BY-SA-4.0; factual identifiers and original annotation only" }
+    },
+    {
+      "id": "c5403c1d-f372-43e1-927a-9189e9e3545d",
+      "name": "Shortbow",
+      "category": "Weapon",
+      "description": "Shortbow template label. It does not establish whether a saved item is carried or equipped.",
+      "source": "https://bg3.wiki/w/index.php?title=Shortbow&oldid=423168",
+      "attributes": { "uid": "WPN_HUM_Shortbow_A_0", "mapping": "exact-template-guid", "rights": "CC-BY-SA-4.0; factual identifiers and original annotation only" }
+    }
+  ]
+}

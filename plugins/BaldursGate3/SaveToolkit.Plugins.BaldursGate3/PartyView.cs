@@ -16,7 +16,7 @@ internal static class PartyView
 
     internal static IReadOnlyList<ViewNode> Build(IReadOnlyList<DocumentEntry> entries,
         Func<string, string, ResourceAttribute, FieldNode> bindAttribute,
-        Func<string, string, FieldValue, FieldNode> bindSummary)
+        Func<string, string, FieldValue, FieldNode> bindSummary, Bg3References? references = null)
     {
         var nodes = new List<ViewNode>
         {
@@ -60,17 +60,18 @@ internal static class PartyView
                     var rows = party.EnumerateArray().Take(MaxCharacters).Select((character, index) => new TableRow(
                         index.ToString(CultureInfo.InvariantCulture), new Dictionary<string, ViewNode>
                         {
+                            ["name"] = Name(character, index),
                             ["origin"] = Text(character, "Origin", index),
                             ["level"] = Number(character, "Level", index),
                             ["currentXp"] = Number(character, CurrentXp, index),
                             ["totalXp"] = Number(character, TotalXp, index),
                         })).ToArray();
                     nodes.Add(new StatsNode([new Stat("Active characters", party.GetArrayLength().ToString(CultureInfo.InvariantCulture))]));
-                    nodes.Add(new TableNode([new("origin", "Character origin"), new("level", "Level"),
+                    nodes.Add(new TableNode([new("name", "Origin label"), new("origin", "Raw origin"), new("level", "Level"),
                         new("currentXp", "XP (current level)"), new("totalXp", "XP (total)")], rows)
                     {
                         Title = "Active party",
-                        Description = "SaveInfo.json snapshot; origin strings may be IDs rather than localised character names. At most 128 rows are shown.",
+                        Description = "Original SaveInfo.json snapshot. Sourced origin labels are not live character names; each label carries its attribution. At most 128 rows are shown.",
                     });
                 }
                 else nodes.Add(new TextNode("SaveInfo.json has no supported Active Party / Characters array."));
@@ -81,8 +82,19 @@ internal static class PartyView
             }
         }
 
-        nodes.Add(new TextNode("Gold quantity is unavailable: a live inventory quantity mapping has not been verified for this save. Localised companion names are unresolved."));
+        nodes.Add(new TextNode("Gold quantity is unavailable: a live inventory quantity mapping has not been verified for this save. Unlisted origins retain their raw IDs."));
         return nodes;
+
+        ViewNode Name(JsonElement character, int index)
+        {
+            var value = Property(character, "Origin");
+            if (value.ValueKind != JsonValueKind.String) return new TextNode("Unavailable");
+            var raw = value.GetString()!;
+            if (raw.Length > MaxDisplayText) return new TextNode("Origin exceeds the name lookup limit; inspect its raw payload.");
+            var record = references?.Origin(raw);
+            return Bg3References.Describe(bindSummary($"party/{index}/origin-label", "Origin label",
+                FieldValue.Of(record?.Name ?? raw)), record, raw);
+        }
 
         ViewNode Number(JsonElement character, string name, int index)
         {

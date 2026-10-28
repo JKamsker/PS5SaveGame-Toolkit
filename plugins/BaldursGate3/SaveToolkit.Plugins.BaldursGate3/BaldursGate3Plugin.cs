@@ -1,13 +1,14 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Plugins.BaldursGate3;
 
 public sealed class BaldursGate3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.2.0")
+    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.3.0")
     {
-        Description = "LSPK/LSOF/LSX explorer with experimental LSF primitive editing and verified v18 package checksums.",
+        Description = "LSPK/LSOF/LSX editor with bounded read-only NewAge structure, attributed party/item labels and verified v18 checksums.",
         Games = [new GameTitle("PPSA18463", "Baldur's Gate 3")],
         Maturity = PluginMaturity.Experimental,
         References =
@@ -15,6 +16,18 @@ public sealed class BaldursGate3Plugin : IGamePlugin
             "https://github.com/Norbyte/lslib",
             "https://github.com/Norbyte/lslib/blob/master/LSLib/LS/PackageFormat.cs",
             "https://github.com/Norbyte/lslib/blob/master/LSLib/LS/Resources/LSF/LSFReader.cs",
+            "https://github.com/DanFinchUK/bg3-savefile-parser/tree/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8",
+            "https://bg3.wiki/wiki/Gold",
+            "https://bg3.wiki/wiki/Potion_of_Healing",
+            "https://bg3.wiki/wiki/Longsword",
+            "https://bg3.wiki/wiki/Shortbow",
+            "https://bg3.wiki/wiki/Lae%27zel",
+            "https://bg3.wiki/wiki/Shadowheart",
+            "https://bg3.wiki/wiki/The_Dark_Urge_(Origin)",
+            "https://bg3.wiki/wiki/bg3wiki:Copyrights",
+            "https://github.com/Hawk-on/bg3-save-editor/blob/master/FIELD_MAPPING.md",
+            "https://github.com/Wahkah/BG3SE",
+            "https://github.com/Serofix-code/bg3-save-editor",
         ],
     };
 
@@ -34,12 +47,14 @@ public sealed class BaldursGate3Plugin : IGamePlugin
             package ? "BG3 save package" : "BG3 profile resource") : ProbeResult.None;
     }
 
-    public ISaveDocument Open(ISaveFile file)
+    public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         try
         {
             BinaryData.Size((ulong)file.Length);
-            return BaldursGate3Document.Open(file);
+            return BaldursGate3Document.Open(file, references);
         }
         catch (Exception exception) when (exception is IOException or InvalidDataException or ArgumentException or OverflowException or
             System.Xml.XmlException or ZstdSharp.ZstdException or InvalidOperationException)

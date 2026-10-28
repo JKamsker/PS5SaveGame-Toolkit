@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
+    <None Include="..\fixtures.json" Link="fixtures.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

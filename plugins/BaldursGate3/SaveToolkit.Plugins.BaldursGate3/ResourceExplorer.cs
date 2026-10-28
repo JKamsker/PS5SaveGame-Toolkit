@@ -143,7 +143,7 @@ internal sealed class ResourceExplorer(IReadOnlyList<DocumentEntry> entries, Fun
 
     private LarianResource Resource(int index) => entries[index].Resource ?? throw new KeyNotFoundException("Entry has no resource tree.");
 
-    private static IReadOnlyList<ViewNode> Pages(string title, string prefix, int total, int offset = 0)
+    internal static IReadOnlyList<ViewNode> Pages(string title, string prefix, int total, int offset = 0)
     {
         var pages = new List<ViewNode>();
         // Hierarchical ranges keep even the list of page links bounded.
@@ -162,7 +162,7 @@ internal sealed class ResourceExplorer(IReadOnlyList<DocumentEntry> entries, Fun
         return pages;
     }
 
-    private static IEnumerable<int> Range(int start, int count, int total)
+    internal static IEnumerable<int> Range(int start, int count, int total)
     {
         if (start < 0 || count < 0 || count > PageSize || start > total || count > total - start)
         {

@@ -1,0 +1,28 @@
+{
+  "records": [
+    {
+      "id": "Laezel",
+      "name": "Lae'zel",
+      "category": "Origin",
+      "description": "Origin label only; not a join to a live character or a replacement for a player-assigned name.",
+      "source": "https://bg3.wiki/wiki/Lae%27zel",
+      "attributes": { "mapping": "SaveInfo-Origin-label", "rights": "CC-BY-SA-4.0; factual labels and original annotation only" }
+    },
+    {
+      "id": "Shadowheart",
+      "name": "Shadowheart",
+      "category": "Origin",
+      "description": "Origin label only; no class, ability, relationship or party membership defaults are implied.",
+      "source": "https://bg3.wiki/wiki/Shadowheart",
+      "attributes": { "mapping": "SaveInfo-Origin-label", "rights": "CC-BY-SA-4.0; factual labels and original annotation only" }
+    },
+    {
+      "id": "DarkUrge",
+      "name": "The Dark Urge (origin)",
+      "category": "Origin",
+      "description": "Customisable origin label; the character's chosen name, race and class are not inferred.",
+      "source": "https://bg3.wiki/wiki/The_Dark_Urge_(Origin)",
+      "attributes": { "mapping": "SaveInfo-Origin-label", "rights": "CC-BY-SA-4.0; factual labels and original annotation only" }
+    }
+  ]
+}
