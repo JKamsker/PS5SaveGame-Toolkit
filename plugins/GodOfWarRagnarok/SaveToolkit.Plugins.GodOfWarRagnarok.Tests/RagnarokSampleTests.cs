@@ -64,8 +64,8 @@ public sealed class RagnarokSampleTests(ITestOutputHelper output)
         Assert.Equal(211, wallet.Rows.Count);
         AssertQuantity(wallet, "Hacksilver", 288_638);
         AssertQuantity(wallet, "Rawhide", 52);
-        AssertQuantity(wallet, "Chaos Flame", 0);
-        AssertQuantity(wallet, "XP (2018 EconomyXP ID; Ragnarök role inferred)", 84_725);
+        AssertQuantity(wallet, "Chaos Flame", 0, "888DE11A0DA6CFDC");
+        AssertQuantity(wallet, "Kratos XP", 84_725);
         var hacksilver = Assert.Single(wallet.Rows, r => r.Cells["name"] is TextNode { Text: "Hacksilver" });
         Assert.Equal("0x1BC88", Assert.IsType<TextNode>(hacksilver.Cells["offset"]).Text);
         var anchors = Assert.IsType<TableNode>(Assert.Single(first.ExpandNode("anchors/0")));
@@ -136,9 +136,10 @@ public sealed class RagnarokSampleTests(ITestOutputHelper output)
         Assert.Throws<SaveFormatException>(() => _plugin.Open(MemorySaveSet.SingleFile(file.FileName, file.ReadAllBytes()[..^16], "PPSA08330")));
     }
 
-    private static void AssertQuantity(TableNode table, string name, int expected)
+    private static void AssertQuantity(TableNode table, string name, int expected, string? literalId = null)
     {
-        var row = Assert.Single(table.Rows, r => r.Cells["name"] is TextNode text && text.Text == name);
+        var row = Assert.Single(table.Rows, r => r.Cells["name"] is TextNode text && text.Text == name &&
+            (literalId is null || r.Cells["id"] is FieldNode id && RagnarokReferences.Key(id.Value.AsUInt64()) == literalId));
         var field = Assert.IsType<FieldNode>(row.Cells["quantity"]);
         Assert.Equal(expected, field.Value.AsInt32());
         Assert.Equal(Confidence.Inferred, field.Confidence);

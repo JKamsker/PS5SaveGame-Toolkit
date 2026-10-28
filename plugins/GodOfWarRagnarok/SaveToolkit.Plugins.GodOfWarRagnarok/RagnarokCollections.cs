@@ -50,7 +50,7 @@ internal sealed class RagnarokCollections
 
         Add("resources", "Resources · all counted containers", resources, "Quantity and container roles are inferred. Duplicate IDs in separate containers are never summed.");
         Add("xp", "XP · attributed role candidates", resources.Where(r => r.Cells["category"] == "XP").ToArray(),
-            "EconomyXP identity is inferred; character ownership and XP/level dependencies need controlled PS5 captures.");
+            "PC runtime XP labels are candidates; PS5 character ownership and XP/level dependencies need controlled captures.");
         Add("collectibles", "Collectibles · raven resource counters", resources.Where(r => r.Cells["category"] == "collectible").ToArray(),
             "PC raven counter identities match PS5 rows. Values are raw counters, without a derived completion total.");
         Add("nested-ids", "Nested IDs · gear/skill candidates", ids,
@@ -67,13 +67,15 @@ internal sealed class RagnarokCollections
                 var id = document.ReadId(offset);
                 flags.Add(new($"flags/{group.Id:X16}/{id:X16}/{row}", offset, Cells(
                     ("group", RagnarokReferences.Key(group.Id)), ("id", RagnarokReferences.Key(id)),
+                    ("group-name", references.Community.Tree(group.Id)?.Name ?? "Unknown group"),
+                    ("group-source", references.Community.Tree(group.Id)?.AttributionText ?? "No sourced group mapping"),
                     ("name", references.Name(id)), ("source", references.Attribution(id)),
                     ("flags", $"0x{document.ReadWord(offset + sizeof(ulong)):X8}"), ("offset", Hex(offset)))));
             }
         }
 
         Add("flags", "Progression · grouped flags", flags,
-            "Four raw bytes per ID. Quest/collectible completion and flag-bit meanings remain Unknown.");
+            "Four raw bytes per ID. Matching PC skill-tree group names are inferred; individual skill IDs, unlock bits and quest/collectible completion remain Unknown.");
 
         var directory = Enumerable.Range(0, index.DirectoryCount).Select(row =>
         {
@@ -139,7 +141,7 @@ internal sealed class RagnarokCollections
         {
             "nested-ids" => ["container", "id", "name", "category", "source", "offset"],
             "index-words" => ["container", "word", "offset"],
-            "flags" => ["group", "id", "name", "source", "flags", "offset"],
+            "flags" => ["group", "id", "group-name", "group-source", "name", "source", "flags", "offset"],
             "directory" => ["id", "name", "source", "word", "offset"],
             _ => ["container", "name", "id", "category", "quantity", "metadata", "source", "offset"],
         };
@@ -174,6 +176,10 @@ internal sealed class RagnarokCollections
             cells[column] = document.CounterField(row.NumberOffset);
             cells["inspect"] = RagnarokInspection.Action(row.Offset);
             cells["restore"] = RagnarokWrites.RestoreAction();
+        }
+
+        if (cells.ContainsKey("id"))
+        {
             var id = document.ReadId(row.Offset);
             if (_references.Catalog(id) is { } catalog)
                 cells["id"] = document.ResourceReference(row.Offset, catalog, _references.Name(id));
@@ -199,6 +205,7 @@ internal sealed class RagnarokCollections
     {
         "id" => "ID (literal LE bytes)", "quantity" => "Quantity (inferred)", "metadata" => "Metadata (unknown)",
         "word" => "Word (unknown)", "flags" => "Four raw bytes", "source" => "Attribution", "container" => "Container (role inferred)",
+        "group-name" => "Group role (inferred)", "group-source" => "Group attribution",
         _ => char.ToUpperInvariant(key[0]) + key[1..],
     };
 

@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "gow-ragnarok.2018.en",
+  "version": "1.0.0",
+  "title": "2018 crosswalk candidates (Ragnarök semantics Unknown)",
+  "plugins": [
+    "gow-ragnarok"
+  ],
+  "titleIds": [
+    "PPSA08330"
+  ],
+  "gameBuilds": [
+    "PS5 revision 0x00513040"
+  ],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "gow-ragnarok-2018",
+      "kind": "records",
+      "title": "gow-ragnarok-2018",
+      "files": [
+        {
+          "path": "gow-ragnarok-2018.json",
+          "sha256": "6c4b4a2f1b20fec4da78fc8dbedd47438496ec0f67544fc944239912c8c84bf7"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/xcier/GoW-2018-PS4-editor/blob/9342d5f3967ef74bac1161581dc4eab8bb41760d/app/resources/database/gow2018_items.json",
+        "author": "ProtoBuffers / xcier / God of War IDs spreadsheet contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/xcier/GoW-2018-PS4-editor/blob/9342d5f3967ef74bac1161581dc4eab8bb41760d/app/resources/database/gow2018_items.json",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted factual IDs/names/categories only; normalized literal LE keys, deduplicated identical rows; no code, game prose, assets or legal maxima imported. Cross-game and PC-to-PS5 meanings retain explicit uncertainty."
+      }
+    }
+  ]
+}

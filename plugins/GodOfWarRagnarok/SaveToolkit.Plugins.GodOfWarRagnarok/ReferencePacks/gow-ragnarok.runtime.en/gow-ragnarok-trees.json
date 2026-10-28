@@ -1,0 +1,36 @@
+{
+  "records": [
+    {
+      "id": "C65F861310000000",
+      "name": "Leviathan Axe skill tree (inferred)",
+      "category": "skill tree",
+      "source": "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT",
+      "limit": null,
+      "description": "PC GetSkillTree argument matches a PS5 grouped-flag identity. Individual skills and saved flag-bit meanings remain Unknown; no unlock writer is provided."
+    },
+    {
+      "id": "19682628084AEA38",
+      "name": "Blades of Chaos skill tree (inferred)",
+      "category": "skill tree",
+      "source": "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT",
+      "limit": null,
+      "description": "PC GetSkillTree argument matches a PS5 grouped-flag identity. Individual skills and saved flag-bit meanings remain Unknown; no unlock writer is provided."
+    },
+    {
+      "id": "11BBAC4390AA4B01",
+      "name": "Draupnir Spear skill tree (inferred)",
+      "category": "skill tree",
+      "source": "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT",
+      "limit": null,
+      "description": "PC GetSkillTree argument matches a PS5 grouped-flag identity. Individual skills and saved flag-bit meanings remain Unknown; no unlock writer is provided."
+    },
+    {
+      "id": "665D34DFD734A107",
+      "name": "Atreus skill tree (inferred)",
+      "category": "skill tree",
+      "source": "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT",
+      "limit": null,
+      "description": "PC GetSkillTree argument matches a PS5 grouped-flag identity. Individual skills and saved flag-bit meanings remain Unknown; no unlock writer is provided."
+    }
+  ]
+}

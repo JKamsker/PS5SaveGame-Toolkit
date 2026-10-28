@@ -18,4 +18,20 @@ The full GPL text accompanies the [community pack](SaveToolkit.Plugins.GodOfWarR
 
 Original resource names/categories remain under CC BY-SA 3.0, attributed to God of War Wiki
 contributors in their existing sidecar, manifest and README. No new wiki text or game media was
-added in round 2. Runtime tables and editors without redistribution licences were research only.
+added in round 2. The historical no-licence exclusion is superseded by the owner decision below.
+
+## Unlicensed-source unblock (owner decision 2026-10-28)
+
+Licence for each dataset below: **No licence published; reused with attribution per owner decision 2026-10-28**.
+This records the owner's reuse decision, not a new licence granted by the upstream author.
+No third-party implementation was copied; the importer and lookup/decoding integration are original code.
+
+| Upstream / authors | Revision / imported facts | Provenance |
+| --- | --- | --- |
+| mooofin / community spreadsheet contributors, God-of-War-Ragnarok | `7b1730217b92d27ab910d6d421efbd503cc109b2`: `item#.zip`, 961 unique resource/name/category candidates; `gow.CT`, four named skill-tree arguments | [Pinned sources, hashes and transformation](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.runtime.en/tables.source.md) |
+| ProtoBuffers / xcier / God of War IDs spreadsheet contributors, GoW Save Lab | `9342d5f3967ef74bac1161581dc4eab8bb41760d`: `gow2018_items.json`, 1,682 factual ID/name/category/internal-name crosswalk candidates, explicitly marked 2018 / Unknown | [Pinned source, hash and transformation](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.2018.en/tables.source.md) |
+
+Attribution appears in the F2 manifests/records, README, `Info.References`, F8 source cells,
+F4 descriptions and F12 labels. No Sony/Santa Monica art, textures, icons, screenshots, extracted
+dialogue or game prose is included. Gear/quest labels are not promoted to verified Ragnarök
+semantics; all existing write warnings and conservative ceilings remain intact.

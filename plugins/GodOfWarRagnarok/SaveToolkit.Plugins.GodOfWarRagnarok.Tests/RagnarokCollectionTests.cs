@@ -69,10 +69,12 @@ public sealed class RagnarokCollectionTests
         });
         Assert.Equal(132, queryable.Query("flags", new()).TotalCount);
         Assert.Equal(261, queryable.Query("nested-ids", new()).TotalCount);
-        var xp = Assert.Single(queryable.Query("xp", new()
+        var xp = queryable.Query("xp", new()
         {
             Filters = new Dictionary<string, string> { ["container"] = "Hero wallet (inferred)" },
-        }).Rows);
-        Assert.Equal(84_725, Assert.IsType<FieldNode>(xp.Cells["quantity"]).Value.AsInt32());
+        }).Rows;
+        Assert.Equal(3, xp.Count);
+        var kratos = Assert.Single(xp, row => Assert.IsType<TextNode>(row.Cells["name"]).Text == "Kratos XP");
+        Assert.Equal(84_725, Assert.IsType<FieldNode>(kratos.Cells["quantity"]).Value.AsInt32());
     }
 }

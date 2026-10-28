@@ -23,6 +23,10 @@ public sealed class RagnarokFrameworkFeatureTests
         Assert.Contains(sink.Values, value => value.Path.Contains("/quantity", StringComparison.Ordinal));
         Assert.Contains(sink.Values, value => value.Path.StartsWith("integrity[algorithm=SHA-256", StringComparison.Ordinal));
         Assert.Contains(sink.Values, value => value.Path.StartsWith("flags[", StringComparison.Ordinal));
+        Assert.Contains(sink.Values, value => value.Label?.Contains("Kratos XP", StringComparison.Ordinal) == true &&
+            value.Label.Contains("mooofin", StringComparison.Ordinal) && value.Label.Contains("owner decision 2026-10-28", StringComparison.Ordinal));
+        Assert.Contains(sink.Values, value => value.Path.StartsWith("flags[", StringComparison.Ordinal) &&
+            value.Label?.Contains("Leviathan Axe skill tree (inferred)", StringComparison.Ordinal) == true);
         Assert.All(sink.Values, value => Assert.InRange(value.Path.Length, 1, sink.MaxValueLength));
     }
 
@@ -47,12 +51,12 @@ public sealed class RagnarokFrameworkFeatureTests
         public int MaxValueLength => maxValueLength;
         public int MaxDepth => maxDepth;
         public long MaxFileBytes => maxFileBytes;
-        public List<(string Path, string Kind, string Value)> Values { get; } = [];
+        public List<(string Path, string Kind, string Value, string? Label)> Values { get; } = [];
         public bool Truncated { get; private set; }
         public bool Add(string path, string kind, string value, string? label = null)
         {
             if (Values.Count == MaxValues || path.Length > MaxValueLength || value.Length > MaxValueLength) return false;
-            Values.Add((path, kind, value));
+            Values.Add((path, kind, value, label));
             return true;
         }
         public void Warn(string message) { }
