@@ -70,7 +70,13 @@ internal sealed class LspkPackage
             previousEnd = entry.Offset + entry.StoredSize;
         }
 
-        return new LspkPackage(bytes, version, bytes[LspkLayout.Flags], entries);
+        var package = new LspkPackage(bytes, version, bytes[LspkLayout.Flags], entries);
+        if (version == 18)
+        {
+            LspkIntegrity.Validate(package);
+        }
+
+        return package;
     }
 
     internal byte[] Extract(PackageEntry entry) =>
