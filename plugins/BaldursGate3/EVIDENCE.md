@@ -1,4 +1,45 @@
-# BG3 evidence corpus and remaining gates
+# BG3 evidence corpus and owner validation
+
+## Write-enable round (0.5.0)
+
+The owner's 2026-10-28 decision supersedes the old evidence gates: **Enable writes.
+Keep warnings.** [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31)
+tracks console validation separately. No enabled write waits for these captures.
+The historical phase/capture notes below remain useful for validating semantics.
+
+- Enabled three existing SaveInfo summary field kinds (level/current XP/total XP),
+  nine cells in this sample. Confidence stays Inferred; these are metadata only.
+- Enabled direct, unambiguous positive LSF Item integer quantity candidates with
+  Unknown confidence and observed per-type bounds. The supplied 761 Item nodes
+  contain **zero** such candidates: no runtime gold/quantity address is fabricated.
+- All fields warn about absent console validation and possible game rejection.
+  Known v18 MD5+1 is repaired/verified; other game consistency/dependency checks
+  are unknown. Unknown NewAge/Osiris data stays byte-identical.
+- Real-sample plugin run: **168 passed, 0 failed, 0 skipped**. All sample summary
+  cells pass edit/reopen, F1 intended-token diff, compressed-entry preservation,
+  range rejection and Core batch undo/redo. Synthetic direct quantities also pass
+  persistence, byte/section preservation, invalid-batch rollback and session history.
+- Live NewAge values, creation/removal/transfers/equipment and story actions have
+  no safe writer for their packed/reference structure. They remain unavailable for
+  this structural reason, not pending a console test. No prepared F5/F6/F7 action
+  existed to switch on. Full roadmap phases 4–7 are not claimed complete.
+
+### Current owner checks in #31
+
+1. Spare-slot untouched export: load, resave, reload and redump; log warnings.
+2. Separate metadata exports: change one party level 1→2, current XP 30→29 and
+   total XP 30→29. Inspect save-selection summary and the unchanged live character
+   sheet; resave/reload/redump each. Also test one multi-row metadata batch.
+3. Test existing LeaderName metadata separately; confirm it does not rename the
+   live character and record whether the game preserves or regenerates the summary.
+4. Supply a same-build save with an explicit positive LSF Item quantity attribute,
+   identify owner/stack and visible count, reduce that value by one, then
+   load/use/trade/rest/resave/reload/redump and inspect unrelated owners. Such a
+   control is enabled when present; the current snapshot cannot exercise it.
+5. Continue the no-action, gold ±1, potion, split/merge/transfer, character/spell,
+   equipment and story captures below to support the missing decoders and future
+   confidence improvements. Record build/ruleset/mods and observed outcomes without
+   account identifiers. Only the owner may promote Stable.
 
 Inspected 2026-10-28. The corpus contains no saves, extracted bytes, account IDs,
 player names or console metadata values. `fixtures.json` pins the source archive
@@ -92,21 +133,22 @@ Follow `docs/SAMPLES.md`; put dumps only in the external artifacts directory.
    torch/instrument equip/unequip pairs with visible character sheets/loadouts.
 7. **Character/story (later):** separate damage/heal/temp-HP, boosted-gear,
    learn/prepare-spell, level-up/respec, quest accept/complete/fail, approval ±,
-   rest/romance and recipe/waypoint event pairs before enabling those features.
+   rest/romance and recipe/waypoint event pairs for decoder development and confidence validation.
    Include one dump whose StorySave marker set is unchanged by a no-action resave and
    one controlled approval/quest event with the corresponding visible UI outcome; this
    is required before marker presence can be promoted to a tuple decoder.
 8. **Reference rights:** provide build/language/module-matched permitted template,
    stats/LOCA data and a rights manifest; decide icon/commercial scope, legacy
    wiki content, spoiler policy and required write-validation standard.
-9. **Console gate:** first restore an untouched re-export into a spare slot and
+9. **Console validation:** first restore an untouched re-export into a spare slot and
    load/resave/re-export it. Test metadata-only changes separately. Test any future
-   live edit only after its evidence fixture exists; confirm effect, unchanged
+   enabled edit separately; confirm effect, unchanged
    unrelated characters, rest/trade/combat where relevant, resave, reload and redump.
    Supply warnings/failures as well as successful results. Only the owner promotes
    maturity to Stable.
 
 No new SDK request blocks this subset. F1's existing view adapter, F2 packs/context,
-F4 reference fields and F8 queryable collections are used read-only. F6 and structural
-undo remain framework-owned. Future full parser/evidence work is still required before
-those UI features could safely expose gameplay operations.
+F4 reference labels remain read-only; F8 quantity pages share canonical primitive
+bindings. F5/F6/F7 remain framework-owned and are not needed for these scalar edits.
+Future full parser work must preserve packed streams/references before safely
+exposing structural gameplay operations.

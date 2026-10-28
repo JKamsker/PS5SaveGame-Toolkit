@@ -1,6 +1,6 @@
 # Baldur's Gate 3 (`bg3`)
 
-Title: **PPSA18463**. Maturity: **Experimental**, version 0.4.0.
+Title: **PPSA18463**. Maturity: **Experimental**, version 0.5.0.
 
 Opens decrypted BG3 save packages and profile resources, lists package entries with
 stored/expanded sizes and compression, and exposes every resource node and attribute
@@ -12,7 +12,9 @@ primitive editing and a sourced Party summary. No in-game write test has occurre
 Version 0.4.0 adds pinned attributed item, equipment, spell, passive, companion and
 camp-supply catalogs, F8 queryable catalog/inventory collections, explicit LSMF live-state
 candidate signals, and bounded StorySave database-marker inspection. These are read-only
-candidate views; controlled PS5 joins and gameplay writes remain disabled.
+candidate views. Version 0.5.0 enables existing party-summary number tokens and
+explicit LSF quantity candidates with warnings, following the owner's decision
+“Enable writes. Keep warnings.” Console validation is tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 See [LSMF.md](LSMF.md) for the independent implementation record and
 [EVIDENCE.md](EVIDENCE.md) for phase status and the exact owner capture checklist.
 
@@ -33,7 +35,8 @@ See [LSMF.md](LSMF.md) for the independent implementation record and
   through the section rebuilder for all fourteen embedded/standalone LSF copies.
 - Integers, finite floats/doubles, booleans and ordinary UTF-8 string types can be
   edited. GUIDs, vectors/matrices, translation structures, ScratchBuffers, LSX,
-  JSON and story data stay read-only. The UUID-only analytics resource has no
+  arbitrary JSON and story data stay read-only. Existing SaveInfo party level/XP
+  number tokens are editable in v18 packages. The UUID-only analytics resource has no
   editable primitive. No file/network I/O or external executable is used.
 
 Solid packages, multipart packages, deletion entries and older versions are rejected
@@ -87,7 +90,7 @@ Origin strings retain their raw values alongside optional sourced origin labels.
 `meta.lsf` leader display-name primitive is also exposed (metadata only; it does
 not rename a live character). Summary meanings use `Confidence.Inferred`, backed
 by the cited community parser/editor documentation and exact sample keys. Level
-and XP summaries are read-only. The starter pack names Laezel and DarkUrge as
+and XP summaries are now editable as metadata, with console warnings. The starter pack names Laezel and DarkUrge as
 origins; these are not live character names or party/ECS identity joins. Gold
 quantities remain unavailable. The metadata has two
 `CharacterMetaData` nodes, so those nodes are not assumed to map one-to-one to the
@@ -102,7 +105,46 @@ licence and raw-ID provenance. Duplicate templates remain separate, unknown IDs
 stay raw. If an Item node carries an explicit owner or quantity attribute, it is shown
 as an unverified candidate; absent attributes remain `Unknown / unknown`. The same
 collection is exposed through the SDK's bounded F8 query contract with stable row keys.
-Original snapshot inspection does not reinterpret primitive edits or synchronise gameplay state.
+Unambiguous, positive integer quantity candidates use the canonical raw-resource
+binding with conservative observed bounds; the current value refreshes after edits
+and can be sorted in the queryable table. The original owner/quantity text is
+explicitly labelled as the original snapshot. None of the supplied 761 occurrences
+has such a quantity control; their live amounts are not guessed from templates.
+
+## Enabled writes and their evidence
+
+All writes remain **Experimental**. Newly writable fields carry `Inferred` or
+`Unknown` confidence, a “Not validated on console” description and a visible
+warning that the game may reject the edited save. No owner evidence is needed to
+use these enabled paths. Metadata changes do not update live NewAge state.
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
+| --- | --- | --- | --- | --- |
+| Existing SaveInfo party `Level` | Inferred | Three real PS5 JSON rows; exact-token edit/reopen, F1 byte diff and session undo/redo. Base-game cap 12 from [Experience](https://bg3.wiki/wiki/Experience); higher existing levels extend only to the observed maximum. | v18 MD5+1 repaired and verified; output JSON re-parsed. Other game consistency checks unknown; save may be rejected or summary overwritten. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): test level metadata independently, inspect save selection and live sheet, resave/reload/redump. |
+| Existing SaveInfo party current-level XP | Inferred | Three PS5 tokens (30,30,0). Nonnegative range bounded by the current summary's observed maximum (30 in supplied save); no gameplay limit claimed. | Same verified v18 digest and JSON checks; unknown game consistency checks may reject/overwrite edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): change one summary XP token, inspect metadata/live state, resave/reload/redump. |
+| Existing SaveInfo party total XP | Inferred | Three PS5 tokens (30,30,0); same conservative observed bounds; persistence, intended-token diff and undo/redo tests. | Same verified v18 digest and JSON checks; unknown game consistency checks may reject/overwrite edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): test total XP separately and compare both summary and live XP after resave. |
+| Explicit existing LSF Item quantity candidate (`Quantity`, `Amount`, `Count`, `StackAmount`, `StackCount`) | Unknown | Existing candidate-name inspection plus proven primitive writer. Synthetic standalone/package fixtures test bytes, persistence, invalid batches, raw/page binding consistency and session undo/redo. **No supplied item has a direct quantity attribute.** | LSF structure re-parsed; v18 digest repaired and verified when packaged. Cross-representation dependencies/integrity unknown; game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): supply a save with a direct positive integer quantity, identify owner/stack, reduce by one, load/use/trade/resave/reload/redump. |
+
+Summary edits patch existing UTF-8 number tokens only. Unknown members, string
+escapes, whitespace, number spellings and trailing whitespace are retained. Undo
+returns the original token spelling and exact original archive. Missing, fractional,
+overflowed, negative or ambiguous duplicate-property summaries remain read-only;
+unsupported/multiple SaveInfo entries are preserved. Only the first 128 character
+rows are exposed. Origins and reference labels remain read-only.
+
+Quantity candidates must have one numeric alias, a positive original integer and
+an unshared attribute identity. Their allowed range is 1 through the largest
+observed positive quantity of that stored integer type in the document. Zero/removal
+semantics are unknown and rejected by the new control. The same canonical binding
+and bounds apply in the raw explorer and table. This is not a player-gold total.
+
+Live NewAge gold/HP/abilities/spells, inventory creation/removal/transfers/equipment
+and Osiris quest/approval writes still have **no safe structural writer**: packed
+streams, ownerlists, allocation/relocation and cross-references are unmodeled. A
+warning cannot make an unknown pointer write preserve data. No prepared bulk,
+structural or multi-file action was found to enable; no F5/F6/F7 substitute is
+introduced. Existing primitives and LeaderName remain enabled. These limitations
+are implementation/structure limits, not a wait for the owner validation in #31.
 
 The Catalogs tab exposes the embedded pack as bounded queryable collections. Raw IDs use
 an F4-compatible `ReferenceSpec` with custom values allowed and read-only confidence;
@@ -219,7 +261,7 @@ The digest does not cover filenames, container metadata or padding and is not
 authentication. Standalone LSFs have structural checks but no discovered content
 checksum. NewAge's directory and EntityId are inspected read-only; its gameplay
 semantics/integrity and Osiris are not decoded or modified. Community load failures after ECS changes are not evidence about the
-primitive-only writer; PS5 compatibility still needs human testing. Maturity stays
+primitive/summary writer; PS5 compatibility still needs human testing. Maturity stays
 Experimental until that test, even though the byte/checksum/conformance tests pass.
 
 ## Confidence and remaining limits
@@ -249,6 +291,7 @@ on the development machine; this is an observation, not a timing assertion in CI
 
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 dotnet test --project plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3.Tests
 dotnet test --project tests/SaveToolkit.Core.Tests
 ```
@@ -260,6 +303,16 @@ preservation of untouched compressed sections and entries, atomic rollback/undo,
 UTF-8/UUID/scalar vectors, malformed/truncated data, entity rejection, meaningful
 leader-name edits in conformance, thumbnails/blob ranges, and 20,000-entry/child
 paging. Synthetic tests run without samples.
+
+Version 0.5.0: **168 passed, 0 failed, 0 skipped** with the real artifacts path;
+API build passed with zero warnings/errors. With an empty artifacts path,
+**144 passed, 24 skipped, 0 failed**, confirming absent samples skip cleanly.
+New tests cover all nine sample summary fields, F1 intended-token differences,
+unchanged compressed entries, length-changing/escaped JSON preservation, duplicate
+properties, integer bounds, failed mixed batches, canonical quantity bindings,
+sample absence of direct quantities and Core undo/redo (multi-row edits are one step).
+Quantity write tests use synthetic data because the actual sample has no direct
+quantity attribute; this does not establish live NewAge stack behavior.
 
 Validation for 0.3.0 on .NET SDK 10.0.400: API build passed with zero warnings/errors;
 all 148 plugin tests pass. F1 `verify plugins/BaldursGate3/fixtures.json` passes,
@@ -274,12 +327,16 @@ hooks, scripts, build targets or repository tooling are installed.
 None for this subset. F1 consumes the new bound read-only values through its
 existing `PluginViewDecoder`; F2 supplies immutable catalog context/attribution.
 Existing bindings support atomic primitive edits, rollback, lazy views and undo.
-F4/F6/F8 remain separate framework work; no local substitutes were added.
+F4 reference fields and F8 queryable inventory pages use the SDK directly. No bulk,
+structural or multi-file operation is implemented/prepared, so F5/F6/F7 need no
+plugin changes for these single-package scalar edits. No local substitutes were added.
 
 ## Sources and attribution
 
 | Dataset / code | Source and author | Licence / retrieval | Changes and scope |
 | --- | --- | --- | --- |
+| Summary level cap (12) | [bg3.wiki contributors, Experience](https://bg3.wiki/wiki/Experience) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | One factual base-game cap; no prose, progression table or new pack copied. Unknown modded levels use the observed maximum. Source is also adjacent to the constant, in Info.References and field descriptions. |
+| Summary/quantity write research | [Hawk-on FIELD_MAPPING.md, pinned revision](https://github.com/Hawk-on/bg3-save-editor/blob/6a62466c77ad4939fc5e6fdcbc2e4188efdfcd15/FIELD_MAPPING.md); [Norbyte PackageWriter.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/PackageWriter.cs) | MIT, revisited 2026-10-28 | Confirms metadata/runtime distinction and existing outer hash algorithm. No new upstream implementation copied or executed; live gold heuristics rejected. |
 | `bg3_templates` (4 records) | [bg3.wiki contributors](https://bg3.wiki/): [Gold](https://bg3.wiki/w/index.php?title=Gold&oldid=419021), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), [Longsword](https://bg3.wiki/wiki/Longsword), [Shortbow](https://bg3.wiki/w/index.php?title=Shortbow&oldid=423168) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels/technical GUIDs, original uncertainty annotations; no wiki prose, limits or icons. Exact GUID candidates only. |
 | `bg3_origins` (3 records) | [bg3.wiki contributors](https://bg3.wiki/): [Lae'zel](https://bg3.wiki/w/index.php?title=Lae%27zel&oldid=409907), [Shadowheart](https://bg3.wiki/w/index.php?title=Shadowheart&oldid=438521), [Dark Urge](https://bg3.wiki/w/index.php?title=The_Dark_Urge_%28Origin%29&oldid=434137) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels mapped to SaveInfo Origin keys; original uncertainty annotations. Not live identity/name mappings. |
 | `bg3_items` (6 records) | Pinned [Supply Pack](https://bg3.wiki/w/index.php?title=Supply_Pack&oldid=423731), [Camp Supply Sack](https://bg3.wiki/w/index.php?title=Camp_Supply_Sack&oldid=416884), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), Gold, Longsword and Shortbow revisions | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual item labels plus UUID/UID candidates; no descriptive prose, images or limits. |
