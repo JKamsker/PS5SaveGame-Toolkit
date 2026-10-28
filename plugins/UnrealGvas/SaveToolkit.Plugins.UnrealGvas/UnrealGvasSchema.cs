@@ -1,4 +1,5 @@
 using SaveToolkit.Plugins.UnrealGvas.Gvas;
+using SaveToolkit.Plugins.UnrealGvas.Hogwarts;
 
 namespace SaveToolkit.Plugins.UnrealGvas;
 
@@ -38,9 +39,10 @@ internal sealed record UnrealGvasSchema(
         if (names.Contains("CompressedActorRecords") && names.Contains("Crc32"))
             return new(UnrealGvasSchemaKind.JediGameplay, "Jedi gameplay actor stream", BuildText(file),
                 $"Save class {saveClass} includes the actor array, declared decoded size and explicit CRC field.", "Verified storage; actor semantics and checksum coverage remain Unknown");
-        if (saveClass == "/Script/PersistentData.PersistentGameData" && names.Contains("RawDatabaseImage"))
+        if (saveClass == HogwartsImage.SaveClass && names.Contains("RawDatabaseImage") &&
+            file.Header is { EngineMajor: 4, EngineMinor: 27, EnginePatch: 2, PackageVersion: 524, CustomVersionCount: 72 })
             return new(UnrealGvasSchemaKind.HogwartsMetadata, "Hogwarts metadata envelope", BuildText(file),
-                "PersistentData save class and raw database image names match the supplied PS5 generations.", "Verified outer metadata; database contents unavailable until #28");
+                "PersistentData save class and raw database image names match the supplied PS5 generations.", "Verified storage; database state is read-only and game effects remain unverified");
         return new(UnrealGvasSchemaKind.Generic, "Generic GVAS", BuildText(file),
             "No complete title schema signature matched; the generic lossless property explorer is used.", "Unknown");
     }
