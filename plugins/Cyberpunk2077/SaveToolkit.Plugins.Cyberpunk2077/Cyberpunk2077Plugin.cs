@@ -6,9 +6,9 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 
 public sealed class Cyberpunk2077Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("cyberpunk2077", "Cyberpunk 2077", "0.5.0")
+    public PluginInfo Info { get; } = new("cyberpunk2077", "Cyberpunk 2077", "0.6.0")
     {
-        Description = "Experimental PS5 attributes, points, raw progression/fact edits and planned stack actions; equipment, cyberware, perks, garage and travel inspection.",
+        Description = "Experimental PS5 stored-value edits and planned stack actions; equipment/world inspection, stored-perk graphs and link-first travel maps.",
         Games = [new GameTitle("PPSA04027", "Cyberpunk 2077")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/WolvenKit/CyberCAT", "https://github.com/WolvenKit/WolvenKit/tree/main/WolvenKit.RED4/Save",
@@ -18,6 +18,10 @@ public sealed class Cyberpunk2077Plugin : IGamePlugin
             CyberpunkReferences.Upstream + "/CP2077SaveEditor/Resources/Vehicles.json",
             CyberpunkReferences.Upstream + "/CP2077SaveEditor/Resources/FastTravel.json",
             ScriptableReader.SourceUrl,
+            TravelMapInspection.SourceUrl,
+            "https://www.cyberpunk.net/en/build-planner",
+            "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SNewPerk.cs",
+            "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SAttributeData.cs",
             "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SProficiency.cs",
             "https://github.com/PixelRick/CyberpunkSaveEditor/blob/3afe7428e9f26165e371ea7a3ee2cfd4ee4f1062/source/redx/csav/nodes/questSystem/FactsDB/FactsTable.h",
             "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/Helper/InventoryHelper.cs",

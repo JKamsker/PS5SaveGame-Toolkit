@@ -41,3 +41,12 @@ of unrelated plugin code or the separately attributed MIT technical dictionaries
 
 Fandom's [Help:Licensing revision 3983537](https://community.fandom.com/wiki/Help:Licensing?oldid=3983537)
 states its default text licence is CC BY-SA 3.0; images/video are not automatically covered.
+
+## External spatial references (not imported)
+
+The F9 map links to [Piggyback's official Night City map](https://maps.piggyback.com/cyberpunk-2077/maps/night-city),
+by Piggyback Interactive Limited / CD PROJEKT RED, all rights reserved. No map assets, coordinates,
+location IDs or prose are bundled. The [official build planner](https://www.cyberpunk.net/en/build-planner)
+is an external research/documentation reference, not an embedded rules dataset. Consulted 2026-10-28.
+Stored perk views reuse independently implemented parsing researched from the pinned WolvenKit
+SAttributeData/SNewPerk schemas (GPL-3.0; no source copied). See `SpatialViews.source.md` beside the code.

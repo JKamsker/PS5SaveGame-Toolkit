@@ -13,6 +13,8 @@ internal sealed class WorldInspection
 {
     public const string VehiclesId = "vehicles";
     public const string TravelId = "travel";
+    public const string RegisteredTravelState = "Registered in saved FastTravelSystem";
+    private readonly TravelMapInspection _map;
     public WorldInspection(ScriptableReader? reader, CsavContainer container, CsavTree tree, CyberpunkReferences references, string? warning)
     {
         IReadOnlyList<GarageVehicle> garage = [];
@@ -28,10 +30,12 @@ internal sealed class WorldInspection
         }
         GarageWarning = garageWarning;
         TravelWarning = travelWarning;
+        var garageByRecord = garage.ToLookup(vehicle => vehicle.Record);
+        var travelByRecord = travel.ToLookup(point => point.Record);
         var vehicles = CatalogRows(references.Catalog("vehicles"), garage.Select(v => v.Record))
             .Select(pair =>
             {
-                var lists = garage.Where(v => v.Record == pair.Id).Select(v => v.List).Distinct(StringComparer.Ordinal).ToArray();
+                var lists = garageByRecord[pair.Id].Select(v => v.List).Distinct(StringComparer.Ordinal).ToArray();
                 return Row("vehicles/" + pair.Id, pair.Id, pair.Record, garageWarning is not null ? "Unknown: garage unavailable"
                     : lists.Length == 0 ? "Not listed in decoded garage" : string.Join(", ", lists),
                     "Stored garage list membership only; ownership, summon availability, entitlement and current spawned state are distinct.", GarageReader.Source);
@@ -42,14 +46,15 @@ internal sealed class WorldInspection
             "An unfamiliar garage property disables status interpretation rather than guessing around opaque bytes.");
         var points = CatalogRows(references.Catalog("travel"), travel.Select(v => v.Record)).Select(pair =>
         {
-            var saved = travel.Where(point => point.Record == pair.Id).ToArray();
+            var saved = travelByRecord[pair.Id].ToArray();
             var marker = pair.Record?.Attributes.GetValueOrDefault("markerRef");
             return Row("travel/" + pair.Id, pair.Id, pair.Record, travelWarning is not null ? "Unknown: travel unavailable"
-                : saved.Length == 0 ? "Not registered in saved FastTravelSystem" : "Registered in saved FastTravelSystem",
+                : saved.Length == 0 ? "Not registered in saved FastTravelSystem" : RegisteredTravelState,
                 $"Saved marker: {string.Join(", ", saved.Select(p => p.Marker))}; catalog marker: {marker ?? "unknown"}; " +
                 $"catalog IsEP1: {pair.Record?.Attributes.GetValueOrDefault("requiresEp1") ?? "unknown"}. " +
                 "Registration does not prove current accessibility, discovery cause or DLC entitlement.");
         }).ToArray();
+        _map = new TravelMapInspection(points);
         Travel = new InspectionTable(TravelId, "Fast travel registration (read-only)", [new("id", "TweakDB ID"),
             new("name", "Travel point identifier"), new("state", "Saved registration"), new("details", "Marker / evidence")], points,
             "Catalog + saved handle union; each handle must target gameFastTravelPointData. Marker refs remain separate from record IDs. " +
@@ -61,7 +66,9 @@ internal sealed class WorldInspection
     public InspectionTable Travel { get; }
     public IReadOnlyList<ViewNode> Build() => [new TextNode(GarageWarning ?? Vehicles.Metadata.Description!)
         { Tone = GarageWarning is null ? Tone.Info : Tone.Warning }, Vehicles.View(),
-        new TextNode(TravelWarning ?? Travel.Metadata.Description!) { Tone = TravelWarning is null ? Tone.Info : Tone.Warning }, Travel.View()];
+        new TextNode(TravelWarning ?? Travel.Metadata.Description!) { Tone = TravelWarning is null ? Tone.Info : Tone.Warning }, .. _map.Build(), Travel.View()];
+
+    public IReadOnlyList<ViewNode> Expand(string id, Func<string, string, FieldSpec, string, FieldNode> readField) => _map.Expand(id, readField);
 
     private static IReadOnlyList<TravelPoint> ReadTravel(ScriptableReader reader)
     {

@@ -67,7 +67,8 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
         _factEditor = new FactEditor(container, tree, _edited, facts);
         _facts = new FactInspection(facts, _references, ReadField,
             (id, _) => _factEditor.Field(id, Bind), _factEditor.Value);
-        _factCatalog = FactCatalogInspection.Build(facts, _references, _factEditor.Value);
+        _factCatalog = FactCatalogInspection.Build(facts, _references, _factEditor.Value,
+            (id, label, spec, get) => Field(id, label, spec, get));
         _inspectionTables = new[] { _equipment.Table, _cyberware.Table, _development.Table, _world.Vehicles, _world.Travel, _factCatalog, _itemStats.Table, _journal.Table }
             .ToDictionary(table => table.Metadata.Id, StringComparer.Ordinal);
     }
@@ -105,6 +106,8 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        if (lazyId.StartsWith(PerkGraphInspection.Prefix, StringComparison.Ordinal)) return _development.Expand(lazyId, ReadField);
+        if (lazyId.StartsWith(TravelMapInspection.Prefix, StringComparison.Ordinal)) return _world.Expand(lazyId, ReadField);
         if (lazyId == "chunks")
         {
             return [ChunkTable()];
