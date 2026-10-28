@@ -12,13 +12,14 @@ internal static class JsonSearch
     public static IReadOnlyList<QueryableColumn> Columns { get; } = [
         new("path", "Occurrence path") { Width = ColumnWidth.Wide },
         new("type", "JSON type"),
-        new("value", "Current value") { Width = ColumnWidth.Wide },
+        new("value", "Current value / edit details") { Width = ColumnWidth.Wide },
+        new("reset", "Reset imported values"),
     ];
 
     public static QueryableCollection Metadata(int count) => new(CollectionId, "Whole-tree search", Columns, count)
     {
         Description = "Search all keys, occurrence paths and live scalar values, including collapsed content. "
-            + "Use the value cell to inspect/edit a match. Type filter: object, array, null, string, number, boolean. "
+            + "Open value details to edit a match; select rows before previewing a reset. Type filter is exact: object, array, null, string, number, boolean. Other column filters match text. "
             + "Sorting is lexical and requires at most 10,000 matches; narrow larger queries. Long displayed paths are clipped and retain the node ID.",
     };
 
@@ -55,14 +56,21 @@ internal static class JsonSearch
             {
                 ["path"] = new TextNode(entry.Path) { Monospace = true },
                 ["type"] = new TextNode(Type(entry.Node)),
-                ["value"] = entry.Node.IsContainer ? new TextNode($"{entry.Node.Children.Count} entries") : field(entry.Node, entry.Path),
+                ["value"] = entry.Node.IsContainer ? new TextNode($"{entry.Node.Children.Count} entries")
+                    : new SectionNode(Preview(entry.Node), [field(entry.Node, entry.Path)]),
+                ["reset"] = JsonResetActions.View(),
             })).ToArray();
         return new(CollectionId, Columns, page, total, filtered, offset, limit);
     }
 
     private static bool Matches(JsonValueToken node, string path, QueryableCollectionQuery query)
     {
-        if (query.Filters.TryGetValue("type", out var type) && type != Type(node)) return false;
+        foreach (var filter in query.Filters)
+        {
+            var value = SortValue(node, path, filter.Key);
+            if (filter.Key == "type" ? !string.Equals(filter.Value, value, StringComparison.OrdinalIgnoreCase)
+                : !value.Contains(filter.Value, StringComparison.OrdinalIgnoreCase)) return false;
+        }
         var text = query.Text;
         return string.IsNullOrEmpty(text) || node.Label.Contains(text, StringComparison.OrdinalIgnoreCase)
             || path.Contains(text, StringComparison.OrdinalIgnoreCase)
@@ -73,8 +81,16 @@ internal static class JsonSearch
     {
         "path" => path,
         "type" => Type(node),
+        "reset" => "Reset existing values to imported values",
         _ => node.IsContainer ? "" : node.Current.ToString(),
     };
+
+    private static string Preview(JsonValueToken node)
+    {
+        const int MaxPreviewLength = 64;
+        var text = node.Current.ToString().ReplaceLineEndings(" ");
+        return $"{Type(node)}: {(text.Length > MaxPreviewLength ? text[..MaxPreviewLength] + "…" : text)}";
+    }
 
     private static string Type(JsonValueToken node) => node.Kind switch
     {
@@ -87,8 +103,8 @@ internal static class JsonSearch
     {
         if (query.Cursor is not null) throw new ArgumentException("JSON search uses offset paging.");
         if (query.Text?.Length > QueryableCollectionLimits.MaxQueryLength) throw new ArgumentException("Search text is too long.");
-        if (query.SortColumn is not null and not ("path" or "type" or "value")) throw new ArgumentException("Unknown sort column.");
-        if (query.Filters.Count > 1 || query.Filters.Any(f => f.Key != "type" || f.Value.Length > QueryableCollectionLimits.MaxFilterLength))
-            throw new ArgumentException("Only the JSON type filter is supported.");
+        if (query.SortColumn is not null and not ("path" or "type" or "value" or "reset")) throw new ArgumentException("Unknown sort column.");
+        if (query.Filters.Count > Columns.Count || query.Filters.Any(f => f.Key is not ("path" or "type" or "value" or "reset")
+            || f.Value.Length > QueryableCollectionLimits.MaxFilterLength)) throw new ArgumentException("Invalid JSON search column filter.");
     }
 }

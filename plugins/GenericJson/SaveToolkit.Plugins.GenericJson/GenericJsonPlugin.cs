@@ -61,6 +61,6 @@ public sealed class GenericJsonPlugin : IGamePlugin
 
         var bytes = file.ReadAllBytes();
         var tree = JsonTokenTree.Parse(bytes);
-        return new JsonSaveDocument(file.FileName, file.RelativePath, bytes, tree, JsonOverlay.Match(file, tree));
+        return new JsonSaveDocument(file, tree);
     }
 }

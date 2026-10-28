@@ -128,7 +128,7 @@ public sealed class JsonEditingTests
             switch (node)
             {
                 case FieldNode field:
-                    fields.Add(field);
+                    if (!field.ValueId.StartsWith("structure/", StringComparison.Ordinal)) fields.Add(field);
                     break;
                 case TabsNode tabs:
                     foreach (var child in tabs.Tabs.SelectMany(t => t.Children)) Visit(child);

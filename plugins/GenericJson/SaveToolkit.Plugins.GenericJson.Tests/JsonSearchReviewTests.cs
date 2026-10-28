@@ -18,7 +18,7 @@ public sealed class JsonSearchReviewTests
         Assert.Equal(40_001, page.TotalCount);
         var row = Assert.Single(page.Rows);
         Assert.Contains("[19999]", Assert.IsType<TextNode>(row.Cells["path"]).Text, StringComparison.Ordinal);
-        var field = Assert.IsType<FieldNode>(row.Cells["value"]);
+        var field = Assert.IsType<FieldNode>(Assert.Single(Assert.IsType<SectionNode>(row.Cells["value"]).Children));
         var outcome = document.ApplyEdits([new(field.ValueId, JsonEditingTests.Text("new-live-value"))]);
         Assert.True(outcome.Succeeded);
         Assert.Empty(query.Query("json-tree", new() { Text = "entry-19999" }).Rows);
@@ -38,10 +38,16 @@ public sealed class JsonSearchReviewTests
         Assert.Contains("#2", Assert.IsType<TextNode>(Assert.Single(page.Rows).Cells["path"]).Text, StringComparison.Ordinal);
         var nulls = query.Query("json-tree", new() { Filters = new Dictionary<string, string> { ["type"] = "null" } });
         Assert.Single(nulls.Rows);
-        Assert.True(Assert.IsType<FieldNode>(nulls.Rows[0].Cells["value"]).Value.IsNull);
+        Assert.True(Assert.IsType<FieldNode>(Assert.Single(Assert.IsType<SectionNode>(nulls.Rows[0].Cells["value"]).Children)).Value.IsNull);
         var sorted = query.Query("json-tree", new() { SortColumn = "type", Descending = true });
         Assert.Equal(4, sorted.Rows.Select(r => r.Key).Distinct().Count());
         Assert.Throws<ArgumentException>(() => query.Query("json-tree", new() { Cursor = "forged" }));
+        var filtered = query.Query("json-tree", new()
+        {
+            Filters = new Dictionary<string, string> { ["path"] = "a/b", ["value"] = "-0", ["type"] = "NUMBER", ["reset"] = "imported" },
+            SortColumn = "reset",
+        });
+        Assert.Single(filtered.Rows);
     }
 
     [Fact]
@@ -50,7 +56,7 @@ public sealed class JsonSearchReviewTests
         const string source = "{\"shown\":-0,\"hidden\":{\"n\":1.0000,\"s\":\"1\",\"null\":null}}";
         using var fixture = new JsonSessionFixture(source, new DocumentSessionOptions { MaxHistory = 1 });
         var root = Assert.IsType<TabsNode>(fixture.Session.BuildView()).Tabs.Single(t => t.Title == "JSON").Children[0];
-        var lazy = Assert.IsType<SectionNode>(root).LazyId!;
+        var lazy = Assert.Single(Assert.IsType<SectionNode>(root).Children.OfType<SectionNode>(), s => s.LazyId is not null).LazyId!;
         var shown = Assert.IsType<FieldNode>(fixture.Session.Expand(lazy)[0]);
         Assert.True(fixture.Edit(shown.ValueId, JsonEditingTests.Number("0")).Ok);
         // Hidden fields were never expanded by the client; Core opens a separate original baseline.

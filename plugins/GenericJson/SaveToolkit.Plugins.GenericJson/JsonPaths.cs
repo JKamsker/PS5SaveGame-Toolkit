@@ -9,6 +9,20 @@ internal static class JsonPaths
 
     public static IEnumerable<(JsonValueToken Node, string Path)> Walk(JsonValueToken root) => Walk(root, "$");
 
+    public static string ForNode(JsonValueToken node)
+    {
+        var chain = new Stack<JsonValueToken>();
+        for (var current = node; current.Parent is not null; current = current.Parent) chain.Push(current);
+        var path = "$";
+        foreach (var child in chain)
+        {
+            var segment = child.Parent!.Kind == JsonTokenType.StartArray ? $"[{child.Position}]"
+                : $"[{JsonSerializer.Serialize(Clip(child.Label, MaxDisplayKey))}]#{child.Occurrence}";
+            path = Clip(path + segment, MaxDisplayPath);
+        }
+        return path.EndsWith('…') ? path + $" ({node.ValueId})" : path;
+    }
+
     private static IEnumerable<(JsonValueToken Node, string Path)> Walk(JsonValueToken parent, string path)
     {
         yield return (parent, path);

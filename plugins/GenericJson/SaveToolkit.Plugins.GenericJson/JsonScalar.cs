@@ -61,4 +61,13 @@ internal static class JsonScalar
     }
 
     public static string TypeOf(FieldValue value) => value.IsNull ? "null" : value.AsUnion().Type;
+
+    // F6's current browser formatter uses String(value) for tagged values. Keep exact, typed effects
+    // and also place JSON literal transitions in preview labels until that shared formatter supports F10.
+    public static string ReviewTransition(string label, FieldValue before, FieldValue after, bool oldExists = true, bool newExists = true) =>
+        $"{label}: {Literal(before, oldExists)} → {Literal(after, newExists)}";
+
+    private static string Literal(FieldValue value, bool exists) => !exists ? "(absent)" : value.Kind == FieldValueKind.Text
+        ? value.AsString() // Read-only number resource fallback: already a validated JSON number lexeme.
+        : Encoding.UTF8.GetString(Encode(value));
 }

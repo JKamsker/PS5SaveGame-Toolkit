@@ -8,10 +8,26 @@ namespace SaveToolkit.Plugins.GenericJson;
 internal sealed class JsonTokenTree
 {
     internal const int MaxBytes = 16 * 1024 * 1024;
-    private const int MaxNodes = 250_000;
+    internal const int MaxNodes = 250_000;
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
 
     public List<JsonValueToken> Nodes { get; } = [];
+    public Dictionary<int, JsonValueToken> ById { get; } = [];
+    public ReadOnlyMemory<byte> Preamble { get; private set; }
+    public ReadOnlyMemory<byte> Postamble { get; private set; }
+    public int NextId { get; set; }
+
+    public JsonValueToken? FindValue(string valueId) => valueId.StartsWith("value/", StringComparison.Ordinal)
+        && int.TryParse(valueId.AsSpan("value/".Length), out var id) && ById.TryGetValue(id, out var node) && node.ValueId == valueId ? node : null;
+
+    public static JsonTokenTree Parse(string text)
+    {
+        try { return Parse(StrictUtf8.GetBytes(text)); }
+        catch (EncoderFallbackException)
+        {
+            throw new SaveFormatException("JSON text contains an unpaired Unicode surrogate.");
+        }
+    }
 
     public static JsonTokenTree Parse(byte[] bytes)
     {
@@ -28,17 +44,20 @@ internal sealed class JsonTokenTree
             var tree = new JsonTokenTree();
             var parents = new Stack<JsonValueToken>();
             string? property = null;
+            var propertyOffset = 0;
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
                     property = reader.GetString();
+                    propertyOffset = checked((int)reader.TokenStartIndex + bom);
                     continue;
                 }
 
                 if (reader.TokenType is JsonTokenType.EndObject or JsonTokenType.EndArray)
                 {
-                    parents.Pop();
+                    var container = parents.Pop();
+                    container.Length = checked((int)reader.BytesConsumed + bom - container.Offset);
                     continue;
                 }
 
@@ -51,7 +70,11 @@ internal sealed class JsonTokenTree
                 var label = property ?? (parent is null ? "$" : $"[{parent.Children.Count}]");
                 property = null;
                 var node = new JsonValueToken(tree.Nodes.Count, label, reader.TokenType,
-                    checked((int)reader.TokenStartIndex + bom), checked((int)(reader.BytesConsumed - reader.TokenStartIndex)));
+                    checked((int)reader.TokenStartIndex + bom), checked((int)(reader.BytesConsumed - reader.TokenStartIndex)))
+                {
+                    Source = bytes, Parent = parent,
+                    MemberOffset = parent?.Kind == JsonTokenType.StartObject ? propertyOffset : checked((int)reader.TokenStartIndex + bom),
+                };
                 tree.Nodes.Add(node);
                 parent?.Children.Add(node);
                 if (node.IsContainer)
@@ -70,6 +93,9 @@ internal sealed class JsonTokenTree
                 throw new SaveFormatException("JSON must contain one value.");
             }
 
+            tree.InitializeSpans(bytes);
+            tree.NextId = tree.Nodes.Count;
+            tree.Reindex();
             return tree;
         }
         catch (Exception ex) when (ex is JsonException or DecoderFallbackException or InvalidOperationException or FormatException)
@@ -77,6 +103,79 @@ internal sealed class JsonTokenTree
             // Do not include input text: JSON may contain private settings.
             throw new SaveFormatException("Invalid JSON or UTF-8 text (maximum depth: 64).", ex);
         }
+    }
+
+    private void InitializeSpans(byte[] bytes)
+    {
+        var root = Nodes[0];
+        Preamble = bytes.AsMemory(0, root.Offset);
+        Postamble = bytes.AsMemory(root.Offset + root.Length);
+        foreach (var container in Nodes.Where(n => n.IsContainer))
+        {
+            var start = container.Offset + 1;
+            var end = container.Offset + container.Length - 1;
+            var previousEnd = start;
+            foreach (var child in container.Children)
+            {
+                if (previousEnd == start) container.Leading = bytes.AsMemory(start, child.MemberOffset - start);
+                else child.SeparatorBefore = bytes.AsMemory(previousEnd, child.MemberOffset - previousEnd);
+                previousEnd = child.Offset + child.Length;
+            }
+            if (container.Children.Count == 0) container.Leading = bytes.AsMemory(start, end - start);
+            else container.Trailing = bytes.AsMemory(previousEnd, end - previousEnd);
+            container.DefaultSeparator = container.Children.Skip(1).FirstOrDefault()?.SeparatorBefore
+                ?? new byte[] { (byte)',' }.Concat(container.Leading.ToArray()).ToArray();
+        }
+    }
+
+    public void Reindex()
+    {
+        var root = Nodes[0];
+        Nodes.Clear();
+        ById.Clear();
+        Visit(root, null);
+        void Visit(JsonValueToken node, JsonValueToken? parent)
+        {
+            node.Parent = parent;
+            Nodes.Add(node);
+            ById.Add(node.Index, node);
+            var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (var i = 0; i < node.Children.Count; i++)
+            {
+                if (node.Kind == JsonTokenType.StartArray) node.Children[i].Label = $"[{i}]";
+                var child = node.Children[i];
+                child.Position = i;
+                occurrences.TryGetValue(child.Label, out var previous);
+                child.Occurrence = previous + 1;
+                occurrences[child.Label] = child.Occurrence;
+                Visit(node.Children[i], node);
+            }
+        }
+    }
+
+    public JsonTokenTree Clone()
+    {
+        var clone = new JsonTokenTree { Preamble = Preamble, Postamble = Postamble, NextId = NextId };
+        clone.Nodes.Add(Nodes[0].Clone());
+        clone.Reindex();
+        return clone;
+    }
+
+    public static JsonTokenTree FromValue(JsonValueToken value)
+    {
+        var tree = new JsonTokenTree();
+        var root = value.Clone();
+        root.Label = "$";
+        tree.Nodes.Add(root);
+        tree.Reindex();
+        return tree;
+    }
+
+    public long EstimateBytes()
+    {
+        const int NodeOverhead = 320;
+        return Nodes.Select(n => n.Source).Distinct().Sum(b => (long)b.Length)
+            + Nodes.Sum(n => NodeOverhead + 2L * (n.Label.Length + n.Original.ToString().Length + n.Current.ToString().Length));
     }
 
     private static void ReadValue(JsonValueToken node, ref Utf8JsonReader reader)

@@ -5,11 +5,21 @@ namespace SaveToolkit.Plugins.GenericJson;
 
 internal sealed class JsonValueToken(int index, string label, JsonTokenType kind, int offset, int length)
 {
-    public int Index { get; } = index;
-    public string Label { get; } = label;
+    public int Index { get; set; } = index;
+    public string Label { get; set; } = label;
     public JsonTokenType Kind { get; } = kind;
     public int Offset { get; } = offset;
-    public int Length { get; } = length;
+    public int Length { get; set; } = length;
+    public int MemberOffset { get; set; } = offset;
+    public byte[] Source { get; set; } = [];
+    public ReadOnlyMemory<byte> Leading { get; set; }
+    public ReadOnlyMemory<byte> Trailing { get; set; }
+    public ReadOnlyMemory<byte> SeparatorBefore { get; set; }
+    public ReadOnlyMemory<byte> DefaultSeparator { get; set; }
+    public JsonValueToken? Parent { get; set; }
+    public int Position { get; set; }
+    public int Occurrence { get; set; } = 1;
+    public bool Imported { get; set; } = true;
     public List<JsonValueToken> Children { get; } = [];
     public FieldSpec? Spec { get; set; }
     public FieldValue Original { get; set; }
@@ -21,4 +31,17 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     public string? Validate(FieldValue value) => Spec?.ReadOnly == true ? "Field is read-only." : JsonScalar.Validate(value);
 
     public byte[] Encode() => JsonScalar.Encode(Current);
+
+    public JsonValueToken Clone(JsonValueToken? parent = null)
+    {
+        var clone = new JsonValueToken(Index, Label, Kind, Offset, Length)
+        {
+            MemberOffset = MemberOffset, Source = Source, Leading = Leading, Trailing = Trailing,
+            SeparatorBefore = SeparatorBefore, DefaultSeparator = DefaultSeparator, Parent = parent,
+            Imported = Imported, Spec = Spec, Original = Original, Current = Current, Warning = Warning,
+            Position = Position, Occurrence = Occurrence,
+        };
+        clone.Children.AddRange(Children.Select(child => child.Clone(clone)));
+        return clone;
+    }
 }

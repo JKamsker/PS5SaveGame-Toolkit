@@ -14,10 +14,10 @@ internal sealed record JsonOverlay(string Title, string Evidence, IReadOnlyList<
         if (root.Kind != JsonTokenType.StartObject) return null;
         var title = file.Directory.TitleId;
         if (title == "PPSA04027" && file.FileName == "settings.json"
-            && Unique(root, "version")?.Current.ToString() == "136"
+            && HasType(Unique(root, "version"), JsonScalar.Number) && Unique(root, "version")?.Current.ToString() == "136"
             && Unique(root, "data") is { Kind: JsonTokenType.StartArray } data
             && data.Children.All(g => g.Kind == JsonTokenType.StartObject
-                && Unique(g, "group_name")?.Kind == JsonTokenType.String
+                && HasType(Unique(g, "group_name"), JsonScalar.Text)
                 && Unique(g, "options")?.Kind == JsonTokenType.StartArray)
             && data.Children.Count <= 128)
         {
@@ -27,7 +27,7 @@ internal sealed record JsonOverlay(string Title, string Evidence, IReadOnlyList<
 
         if (title == "PPSA02343" && file.FileName == "ue4savegame.dpx.sav"
             && Unique(root, "Profile") is { Kind: JsonTokenType.StartObject } profile
-            && profile.Children.All(n => n.Kind == JsonTokenType.String)
+            && profile.Children.All(n => HasType(n, JsonScalar.Text))
             && Unique(root, "CloudSettings") is not null && Unique(root, "LocalSettings") is not null)
         {
             var gameplay = profile.Children.Where(n => n.Label.StartsWith("Minigame.", StringComparison.Ordinal)
@@ -53,4 +53,7 @@ internal sealed record JsonOverlay(string Title, string Evidence, IReadOnlyList<
         var matches = parent.Children.Where(n => n.Label == name).Take(2).ToArray();
         return matches.Length == 1 ? matches[0] : null;
     }
+
+    private static bool HasType(JsonValueToken? node, string type) =>
+        node is { IsContainer: false, Current.Kind: SaveToolkit.Sdk.Values.FieldValueKind.Union } && node.Current.AsUnion().Type == type;
 }
