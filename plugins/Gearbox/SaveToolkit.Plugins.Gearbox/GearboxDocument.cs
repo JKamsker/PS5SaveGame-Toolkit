@@ -8,11 +8,17 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.Gearbox;
 
 internal sealed class GearboxDocument(string relativePath, string titleId, GearboxContainer container, ProtoMessage root,
-    IReferenceContext references) : BoundSaveDocument, IQueryableDocument
+    IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private readonly Dictionary<string, Func<FieldValue>> _readers = new(StringComparer.Ordinal);
     private readonly GearboxLazyViews _lazy = new();
+    private readonly GearboxSerialIntegrity _serialIntegrity = new(root, container.Profile);
+    private int _highestLevel = container.Profile ? 0 : root.Schema.Level(checked((int)root.Integer("experience_points")));
     private ItemBrowser? _items;
+    private GearboxInventory? _inventory;
+    internal GearboxInventory Inventory => _inventory ??= new(this);
+    private GearboxItemActions? _actions;
+    private GearboxItemActions Actions => _actions ??= new(this);
     private ItemBrowser Items => _items ??= new(this, Root, Profile, _lazy, references);
     private GearboxWorldCatalog? _world;
     internal GearboxWorldCatalog World => _world ??= new(this, references);
@@ -24,6 +30,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     public ProtoMessage Root { get; private set; } = root;
     public bool Profile => container.Profile;
+    internal bool Coordinated { get; init; }
     public override string Title => Profile ? "Gearbox profile" : Root.Text("preferred_character_name");
 
     public override ViewNode BuildView()
@@ -45,6 +52,12 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     internal FieldNode InspectionField(string id, string label, string value, Confidence confidence, string? source) =>
         Bind(id, label, new TextSpec { ReadOnly = true }, () => FieldValue.Of(value), null)
             with { Confidence = confidence, Description = source };
+
+    internal FieldNode ItemNumber(string id, string label, int minimum, int maximum, Func<int> get, Action<int> set) =>
+        Bind(id, label, new IntegerSpec(Math.Min(minimum, get()), Math.Max(maximum, get())), () => FieldValue.Of(get()),
+            value => set(value.AsInt32()), value => value.Kind != FieldValueKind.Integer || value.AsInteger() < minimum || value.AsInteger() > maximum
+                ? "Value is outside the supported editor policy." : null, SerialWrites.Warning)
+            with { Confidence = Confidence.Inferred, Description = SerialWrites.Warning };
 
     internal FieldNode AssetLabel(string id, string label, string path)
     {
@@ -95,13 +108,13 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         var schema = Root.Schema;
         return Bind("character/level", "Level", new IntegerSpec(1, schema.Experience.Count),
             () => FieldValue.Of(schema.Level(checked((int)Root.Integer("experience_points")))),
-            v => CharacterProgression.SetExperience(Root, schema.Experience[v.AsInt32() - 1]),
+            v => SetExperience(schema.Experience[v.AsInt32() - 1]),
             v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 1 || v.AsInteger() > schema.Experience.Count ? "Unsupported level." : null,
             "Adjusts XP and the recorded level; Wonderlands awards skill points when levelling up. Lowering level preserves spent points. Milestone challenges and mission unlocks are unchanged.");
     }
 
     internal FieldNode Experience() => Bind("character/xp", "Experience points", new IntegerSpec(0, int.MaxValue),
-        () => FieldValue.Of(Root.Integer("experience_points")), v => CharacterProgression.SetExperience(Root, v.AsInt32()),
+        () => FieldValue.Of(Root.Integer("experience_points")), v => SetExperience(v.AsInt32()),
         v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 0 || v.AsInteger() > int.MaxValue ? "Unsupported XP value." : null,
         "Changing XP can change level. Values beyond the supported level cap remain experimental.");
 
@@ -126,6 +139,8 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     {
         var before = _readers.ToDictionary(p => p.Key, p => p.Value());
         var previous = Root;
+        var previousHighest = _highestLevel;
+        var snapshot = CaptureState();
         Root = Root.Clone();
         // Replayed derived fields (XP, skill points, recorded level) override automatic level adjustments.
         var ordered = edits.OrderBy(e => e.ValueId == "character/level" ? 0 : e.ValueId == "character/xp" ? 1 : 2).ToArray();
@@ -133,18 +148,68 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         if (!result.Succeeded)
         {
             Root = previous;
+            _highestLevel = previousHighest;
             return result;
         }
         var changes = _readers.Select(p => new ValueChange(p.Key, before[p.Key], p.Value())).Where(c => c.OldValue != c.NewValue).ToArray();
-        return result with { Changes = changes, StructureChanged = changes.Length > 0 };
+        if (changes.Length > 0) InvalidateItems();
+        return result with { Changes = changes, StructureChanged = changes.Length > 0, Revert = changes.Length > 0 ? snapshot : null };
+    }
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        Actions.Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+    {
+        var fresh = Actions.Plan(actionId, parameters, scope);
+        if (fresh.Errors.Count > 0) return new() { Errors = fresh.Errors };
+        if (fresh.Changes.Count == 0) return new() { Warnings = fresh.Warnings };
+        var outcome = Structural(() => Actions.Apply(actionId, parameters, scope), SerialWrites.Warning);
+        return new() { StructureChanged = true, Revert = outcome.Revert, Warnings = fresh.Warnings,
+            Changes = fresh.Changes.Select(c => new ValueChange(c.ValueId, c.OldValue, c.NewValue)).ToArray() };
+    }
+
+    internal void InvalidateItems()
+    {
+        _items = null;
+        _readers.Clear();
+    }
+    private void SetExperience(int experience)
+    {
+        CharacterProgression.SetExperience(Root, experience, _highestLevel);
+        _highestLevel = Math.Max(_highestLevel, Root.Schema.Level(experience));
+    }
+
+    internal DocumentMemento CaptureState() => new GearboxSnapshot(Root.Clone(), Inventory.Capture(), _highestLevel);
+    protected override DocumentMemento CaptureSnapshot() => CaptureState();
+    protected override void LoadSnapshot(DocumentMemento memento)
+    {
+        if (memento is not GearboxSnapshot snapshot || snapshot.Root.Type != Root.Type || snapshot.Root.Schema != Root.Schema)
+            throw new InvalidOperationException("Invalid Gearbox document snapshot.");
+        Root = snapshot.Root.Clone();
+        Inventory.Restore(snapshot.Identity);
+        _highestLevel = snapshot.HighestLevel;
+        _readers.Clear();
+        InvalidateItems();
     }
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
+        _serialIntegrity.Validate(Inventory, Root.Schema.Wonderlands);
         var output = container.Encode(Root);
         var check = GearboxContainer.Parse(output, titleId, Profile).Decode();
         if (!check.Encode().AsSpan().SequenceEqual(Root.Encode()))
             throw new SaveFormatException("Gearbox output verification failed.");
         return [new FileOutput(relativePath, output)];
     }
+}
+
+internal sealed class GearboxSnapshot(ProtoMessage root, InventoryIdentity identity, int highestLevel) : DocumentMemento
+{
+    internal ProtoMessage Root { get; } = root;
+    internal InventoryIdentity Identity { get; } = identity;
+    internal int HighestLevel { get; } = highestLevel;
+    public override long SizeBytes => Estimate(Root) + Identity.Lists.Sum(p => 128 + p.Value.Sum(id => 64L + id.Length * 2));
+    private static long Estimate(ProtoMessage message) => 256 + message.Encode().LongLength * 4 +
+        message.Fields.Sum(f => 256L + (f.Message is { } child ? Estimate(child) : 0));
 }

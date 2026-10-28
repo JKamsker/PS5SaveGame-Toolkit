@@ -30,9 +30,11 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
             var index = i;
             Func<ProtoMessage> get = () => document.Root.Children("game_state_save_data_for_playthrough").ElementAt(index);
             nodes.Add(document.Integer($"world/{i}/difficulty", document.Root.Schema.Wonderlands ? $"Chaos level (playthrough {i})" : $"Mayhem level (playthrough {i})",
-                get, "mayhem_level", writable: false));
+                get, "mayhem_level", document.Root.Schema.Wonderlands ? 100 : 11, warning: SerialWrites.Warning) with
+                { Confidence = Confidence.Inferred, Description = "Existing playthrough difficulty only. Unlock challenges, modifier seeds and rewards are unchanged. " + SerialWrites.Warning });
             if (document.Root.Schema.Wonderlands)
-                nodes.Add(document.Integer($"world/{i}/unlocked", $"Chaos unlocked (playthrough {i})", get, "mayhem_unlocked_level", writable: false));
+                nodes.Add(document.Integer($"world/{i}/unlocked", $"Chaos unlocked (playthrough {i})", get, "mayhem_unlocked_level", 100, warning: SerialWrites.Warning) with
+                    { Confidence = Confidence.Inferred, Description = "Raw unlocked ceiling; trial milestones and rewards are unchanged. " + SerialWrites.Warning });
         }
         if (offset + GearboxLazyViews.PageSize < states)
             nodes.Add(lazy.Register($"difficulty/{offset + GearboxLazyViews.PageSize}", "More playthroughs", () => Difficulty(offset + GearboxLazyViews.PageSize)));
@@ -49,7 +51,24 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
         var list = document.Profile ? "profile_sdu_list" : "sdu_list";
         return MessageTable(list, "sdus", [new("asset", "SDU asset"), new("level", "Purchased level")], (m, i) => Row(i.ToString(),
             ("asset", document.AssetLabel($"sdu/{i}/label", "SDU", m.Text("sdu_data_path"))),
-            ("level", document.Integer($"sdu/{i}", "Purchased level", () => document.Root.Children(list).ElementAt(i), "sdu_level", writable: false))));
+            ("level", Sdu(list, m, i))));
+    }
+
+    private ViewNode Sdu(string list, ProtoMessage message, int index)
+    {
+        var maximum = GearboxWritePolicies.SduMaximum(message.Text("sdu_data_path"), document.Root.Schema.Wonderlands);
+        if (maximum is null) return document.Integer($"sdu/{index}", "Purchased level", () => document.Root.Children(list).ElementAt(index), "sdu_level", writable: false);
+        return document.ItemNumber($"sdu/{index}", "Purchased level", 0, maximum.Value,
+            () => checked((int)document.Root.Children(list).ElementAt(index).Integer("sdu_level")), value =>
+            {
+                var current = document.Root.Children(list).ElementAt(index);
+                current.SetInteger("sdu_level", value);
+                var path = current.Text("sdu_data_path");
+                var inventory = path.Contains("SDU_Backpack.", StringComparison.Ordinal) ? GearboxInventory.Backpack :
+                    path.Contains("SDU_Bank.", StringComparison.Ordinal) ? GearboxInventory.Bank :
+                    path.Contains("SDU_LostLoot.", StringComparison.Ordinal) ? GearboxInventory.LostLoot : null;
+                if (inventory is not null) document.Inventory.EnsureCapacity(inventory, 0);
+            });
     }
 
     private IReadOnlyList<ViewNode> Ammo() => MessageTable("resource_pools", "ammo", [new("asset", "Resource pool"), new("amount", "Ammo")],

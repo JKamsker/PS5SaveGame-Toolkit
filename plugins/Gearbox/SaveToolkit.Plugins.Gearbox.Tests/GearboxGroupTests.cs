@@ -21,7 +21,7 @@ public sealed class GearboxGroupTests
     [Theory]
     [InlineData("PPSA01463")]
     [InlineData("PPSA01493")]
-    public void EveryGenerationAndBackup_ExplicitPairsReadOnlyViewsAndFreshSnapshotRestoration(string title)
+    public void EveryGenerationAndBackup_ExplicitPairsWritableViewsAndFreshSnapshotRestoration(string title)
     {
         var set = SampleSaves.Load(title);
         var characters = set.AllDiskFiles.Where(f => f.FileName == "1").ToArray();
@@ -39,7 +39,7 @@ public sealed class GearboxGroupTests
             });
             Assert.Equal(proposal.Members, Assert.Single(_plugin.ProposeGroups(input.Members.Single(m => m.Role == "profile").File)).Members);
             using var group = _plugin.OpenGroup(input, IReferenceContext.Empty);
-            Assert.False(group.CanEdit);
+            Assert.True(group.CanEdit);
             var view = group.BuildView();
             Assert.NotEmpty(JsonSerializer.Serialize<ViewNode>(view));
             var nodes = Walk(group, view).ToArray();
@@ -50,7 +50,8 @@ public sealed class GearboxGroupTests
             Assert.Equal(fields.Length, fields.Select(f => f.ValueId).Distinct().Count());
             Assert.Contains(fields, f => f.ValueId == "character/character/xp");
             Assert.Contains(fields, f => f.ValueId.StartsWith("profile/", StringComparison.Ordinal));
-            Assert.All(fields, f => { Assert.True(f.Spec.ReadOnly); Assert.Equal(f.Value, group.GetValue(f.ValueId)); });
+            Assert.Contains(fields, f => !f.Spec.ReadOnly);
+            Assert.All(fields, f => Assert.Equal(f.Value, group.GetValue(f.ValueId)));
             var collections = ((IQueryableDocument)group).Collections;
             Assert.Equal(collections.Count, collections.Select(c => c.Id).Distinct().Count());
             var query = new QueryableCollectionQuery { Limit = 2 };
@@ -70,8 +71,8 @@ public sealed class GearboxGroupTests
             _ = restored.BuildView();
             foreach (var output in restored.Serialize()) Assert.Equal(((ISaveSet)set).FindFile(output.RelativePath)!.ReadAllBytes(), output.Content.ToArray());
             Assert.Equal(2, restored.Serialize().Count);
-            Assert.False(group.ApplyEdits([new("character/character/xp", FieldValue.Of(0L))]).Succeeded);
-            Assert.Throws<NotSupportedException>(() => group.InvokeAction("transfer", new Dictionary<string, FieldValue>()));
+            Assert.False(group.ApplyEdits([new("character/character/xp", FieldValue.Of(-1L))]).Succeeded);
+            Assert.Throws<KeyNotFoundException>(() => group.InvokeAction("transfer/deposit", new Dictionary<string, FieldValue>()));
             foreach (var output in group.Serialize()) Assert.Equal(((ISaveSet)set).FindFile(output.RelativePath)!.ReadAllBytes(), output.Content.ToArray());
         }
     }
@@ -124,14 +125,14 @@ public sealed class GearboxGroupTests
         var group = workspace.OpenGroup(offer.Token, single.Id);
         var session = group.Session;
         _ = session.BuildView();
-        Assert.False(session.CanEdit);
+        Assert.True(session.CanEdit);
         Assert.Throws<InvalidOperationException>(() => workspace.Open(profile.Id, "gearbox"));
         Assert.Throws<InvalidOperationException>(() => workspace.OpenGroup(Assert.Single(workspace.ProposeGroups(character.Id, "gearbox")).Token));
         var page = session.QueryCollection("character/inventory_items", new() { Limit = 1 });
         Assert.Single(page.Rows);
         var detail = Assert.IsType<SectionNode>(page.Rows[0].Cells["detail"]);
         Assert.NotEmpty(session.Expand(detail.LazyId!));
-        Assert.False(session.ApplyEdits([new("character/character/xp", JsonSerializer.SerializeToElement("0"))]).Ok);
+        Assert.False(session.ApplyEdits([new("character/character/xp", JsonSerializer.SerializeToElement("-1"))]).Ok);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
         Assert.Equal(0, session.State.Revision);
