@@ -1,12 +1,21 @@
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { ActionNode, FieldValue } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { FieldControl } from "../fields/FieldControl";
 
+interface ActionButtonProps {
+  node: ActionNode;
+  /** Table-cell form: no inline description (it goes into the tooltip) and an optional fuller accessible name. */
+  compact?: boolean;
+  ariaLabel?: string;
+}
+
 /** Plugin command. Opens a dialog when it has parameters or asks for confirmation. */
-export function ActionButton({ node }: { node: ActionNode }) {
+export function ActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
   const { canEdit, runAction } = useDocument();
   const dialog = useRef<HTMLDialogElement>(null);
+  // Unique per instance: the same action may be rendered in several table rows and the detail row.
+  const idPrefix = useId();
   const parameters = node.parameters ?? [];
   const [values, setValues] = useState<Record<string, FieldValue>>(() => Object.fromEntries(parameters.map((p) => [p.valueId, p.value])));
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -29,18 +38,20 @@ export function ActionButton({ node }: { node: ActionNode }) {
   };
 
   return (
-    <div className="action">
+    <div className={compact ? "action action--compact" : "action"}>
       <button
         type="button"
-        className={`btn${node.tone === "Danger" ? " btn--danger" : ""}`}
+        className={`btn${node.tone === "Danger" ? " btn--danger" : ""}${compact ? " btn--small" : ""}`}
+        aria-label={ariaLabel}
+        title={compact ? node.description : undefined}
         disabled={!canEdit || busy}
         onClick={() => (needsDialog ? dialog.current?.showModal() : void run())}
       >
         {node.label}
       </button>
-      {node.description && <span className="action__description">{node.description}</span>}
+      {node.description && !compact && <span className="action__description">{node.description}</span>}
       {needsDialog && (
-        <dialog ref={dialog} className="dialog" aria-labelledby={`${node.actionId}-title`}>
+        <dialog ref={dialog} className="dialog" aria-labelledby={`${idPrefix}-title`}>
           <form
             method="dialog"
             onSubmit={(e) => {
@@ -49,17 +60,17 @@ export function ActionButton({ node }: { node: ActionNode }) {
             }}
           >
             <div className="dialog__body">
-              <h2 className="dialog__title" id={`${node.actionId}-title`}>
+              <h2 className="dialog__title" id={`${idPrefix}-title`}>
                 {node.label}
               </h2>
               {node.confirm && <p className="notice notice--Warning">{node.confirm}</p>}
               {parameters.map((p) => (
                 <div className="field" key={p.valueId}>
-                  <label className="field__label" htmlFor={`${node.actionId}-${p.valueId}`}>
+                  <label className="field__label" htmlFor={`${idPrefix}-${p.valueId}`}>
                     {p.label}
                   </label>
                   <FieldControl
-                    id={`${node.actionId}-${p.valueId}`}
+                    id={`${idPrefix}-${p.valueId}`}
                     spec={{ ...p.spec, readOnly: false }}
                     value={values[p.valueId] ?? p.value}
                     onCommit={(v) => {
