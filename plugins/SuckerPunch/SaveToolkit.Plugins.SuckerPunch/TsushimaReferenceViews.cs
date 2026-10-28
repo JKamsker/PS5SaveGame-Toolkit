@@ -11,7 +11,7 @@ internal sealed class TsushimaReferenceViews(
     IReadOnlyList<TsushimaIdentifier> identifiers,
     Func<FieldNode, FieldNode> bind)
 {
-    private const int GuidePageSize = 200;
+    private readonly TsushimaGuideViews _guides = new(references, bind);
     public const string EquipmentCollectionId = "equipment/identifiers";
 
     public static IReadOnlyList<ViewNode> EquipmentGuides =>
@@ -134,53 +134,9 @@ internal sealed class TsushimaReferenceViews(
         { Title = "Character and progression candidates", Description = "Identifier evidence only; no character value or relationship is asserted." };
     }
 
-    public TableNode WorldReferenceTable()
-    {
-        var catalog = references.Catalog(TsushimaIds.WorldGuide);
-        return catalog is null
-            ? new TableNode(GuideColumns(), []) { Title = "Shrine reference", Description = "No pinned reference guide is available." }
-            : GuideTable(catalog);
-    }
+    public TableNode WorldReferenceTable() => _guides.WorldTable();
 
-    public IReadOnlyList<ViewNode> ExpandGuide(string lazyId)
-    {
-        var catalogId = lazyId[TsushimaIds.GuidePrefix.Length..];
-        if (catalogId is not (TsushimaIds.ResourceGuide or TsushimaIds.CharmGuide or TsushimaIds.ArmorGuide or
-            TsushimaIds.SwordGuide or TsushimaIds.TechniqueGuide or TsushimaIds.WorldGuide))
-        {
-            throw new KeyNotFoundException($"Unknown reference guide '{lazyId}'.");
-        }
-
-        var catalog = references.Catalog(catalogId);
-        if (catalog is null)
-        {
-            return [new TextNode("No pinned reference guide is available. Save identifiers remain unchanged.")];
-        }
-
-        // These curated guides fit one bounded page. Larger user packs cannot cause an eager unbounded view.
-        var page = catalog.Search(new ReferenceQuery { Limit = GuidePageSize });
-        return [new TextNode("Reference only. Names and acquisition information do not report owned, equipped, " +
-            "discovered, completed or rewarded state. Wiki keys are not save IDs. " +
-            $"Showing {page.Items.Count} of {catalog.Count} entries."), GuideTable(catalog)];
-    }
-
-    private TableNode GuideTable(IReferenceCatalog catalog)
-    {
-        var page = catalog.Search(new ReferenceQuery { Limit = GuidePageSize });
-        var rows = page.Items.Select(record => new TableRow(record.Key, new Dictionary<string, ViewNode>
-        {
-            ["name"] = new TextNode(record.Name),
-            ["category"] = new TextNode(record.Category ?? "Unknown"),
-            ["description"] = new TextNode(record.Description ?? ""),
-            ["state"] = new TextNode("Unmapped; save state Unknown") { Tone = Tone.Warning },
-            ["source"] = new TextNode(record.AttributionText),
-        })).ToArray();
-        return new TableNode(GuideColumns(), rows)
-        {
-            Title = catalog.Dataset.Title,
-            Description = catalog.Dataset.Attribution.ToShortText(),
-        };
-    }
+    public IReadOnlyList<ViewNode> ExpandGuide(string lazyId) => _guides.Expand(lazyId);
 
     public static TableNode RawInventory(TsushimaInventory inventory, Func<int, uint> readWord)
     {
@@ -225,10 +181,6 @@ internal sealed class TsushimaReferenceViews(
         new("raw", "Raw ID"), new("reference", "Reference"), new("category", "Category"),
         new("location", "First offset"), new("mapping", "Name mapping"), new("state", "Ownership / state"),
     ];
-
-    private static IReadOnlyList<TableColumn> GuideColumns() =>
-    [new("name", "Name"), new("category", "Category / region"), new("description", "Description"),
-        new("state", "Save mapping / state"), new("source", "Attribution")];
 
     private TableRow IdentifierRow(TsushimaIdentifier identifier, ReferenceRecord? record, IReferenceCatalog? catalog)
     {

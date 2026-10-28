@@ -13,7 +13,11 @@ internal sealed class TsushimaPlayTime(byte[] bytes, int offset, float originalS
         "Only the timer and container checksum change; per-difficulty counters and param.sfo SUBTITLE remain unchanged and may disagree. " +
         "The game may normalize or reject the edited save. The upper bound is the observed range or the original value, not a game limit.";
 
-    public FloatSpec Spec => FloatSpec.Single with { Min = 0, Max = Math.Max(HighestObservedSeconds, originalSeconds), Unit = "seconds" };
+    public FloatSpec Spec => FloatSpec.Single with
+    {
+        Min = 0, Max = Math.Max(HighestObservedSeconds, originalSeconds), Unit = "seconds",
+        Format = FloatFormat.Duration, UnitsPerSecond = 1,
+    };
     public FieldValue Read() => FieldValue.Of(BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(offset)));
     public void Write(FieldValue value) => BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset), (float)value.AsDouble());
 
