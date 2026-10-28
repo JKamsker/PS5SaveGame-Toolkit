@@ -6,9 +6,9 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 
 public sealed class BaldursGate3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.3.0")
+    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.4.0")
     {
-        Description = "LSPK/LSOF/LSX editor with bounded read-only NewAge structure, attributed party/item labels and verified v18 checksums.",
+        Description = "LSPK/LSOF/LSX editor with bounded read-only NewAge/story inspection, attributed BG3 catalogs and verified v18 checksums.",
         Games = [new GameTitle("PPSA18463", "Baldur's Gate 3")],
         Maturity = PluginMaturity.Experimental,
         References =
@@ -17,13 +17,22 @@ public sealed class BaldursGate3Plugin : IGamePlugin
             "https://github.com/Norbyte/lslib/blob/master/LSLib/LS/PackageFormat.cs",
             "https://github.com/Norbyte/lslib/blob/master/LSLib/LS/Resources/LSF/LSFReader.cs",
             "https://github.com/DanFinchUK/bg3-savefile-parser/tree/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8",
-            "https://bg3.wiki/wiki/Gold",
-            "https://bg3.wiki/wiki/Potion_of_Healing",
-            "https://bg3.wiki/wiki/Longsword",
+            "https://bg3.wiki/w/index.php?title=Gold&oldid=419021",
+            "https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944",
+            "https://bg3.wiki/w/index.php?title=Longsword&oldid=420599",
             "https://bg3.wiki/wiki/Shortbow",
             "https://bg3.wiki/wiki/Lae%27zel",
             "https://bg3.wiki/wiki/Shadowheart",
             "https://bg3.wiki/wiki/The_Dark_Urge_(Origin)",
+            "https://bg3.wiki/w/index.php?title=Equipment&oldid=405329",
+            "https://bg3.wiki/w/index.php?title=Spells&oldid=433193",
+            "https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706",
+            "https://bg3.wiki/w/index.php?title=Companions&oldid=439368",
+            "https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610",
+            "https://bg3.wiki/w/index.php?title=Supply_Pack&oldid=423731",
+            "https://bg3.wiki/w/index.php?title=Camp_Supply_Sack&oldid=416884",
+            "https://bg3.wiki/w/index.php?title=Guidance&oldid=413520",
+            "https://bg3.wiki/w/index.php?title=Fire_Bolt&oldid=373237",
             "https://bg3.wiki/wiki/bg3wiki:Copyrights",
             "https://github.com/Hawk-on/bg3-save-editor/blob/master/FIELD_MAPPING.md",
             "https://github.com/Wahkah/BG3SE",

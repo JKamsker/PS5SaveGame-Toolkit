@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "id": "bg3.starter.en",
-  "version": "1.0.0",
-  "title": "BG3 starter labels (English, CC BY-SA 4.0)",
+  "version": "1.1.0",
+  "title": "BG3 attributed labels and candidate catalogs (English, CC BY-SA 4.0)",
   "plugins": [
     "bg3"
   ],
@@ -18,7 +18,7 @@
       "title": "BG3 template labels (four candidates)",
       "files": [
         {
-          "sha256": "2713fd93710e545649ab960003f33de8950c6605d00f9abc85869c22481294e6",
+          "sha256": "de512fe33b78c3c7ff42e76ab687b62a2c35248d69e8d0b74c78226aacf255df",
           "path": "templates.json"
         }
       ],
@@ -37,7 +37,7 @@
       "title": "BG3 origin labels (three candidates)",
       "files": [
         {
-          "sha256": "e23f060e63581b1b1ce909a6c84ed4bb4ac9b670aeaf27ea5a4e0796e8de6136",
+          "sha256": "8f2d1d05465b6d8af6c4c6311a68520a5bc34ffb3ead0623cc6955aae94d8853",
           "path": "origins.json"
         }
       ],
@@ -49,6 +49,121 @@
         "retrieved": "2026-10-28",
         "modifications": "Extracted factual names and technical identifiers only; mapped SaveInfo origin keys; wrote original uncertainty annotations. No wiki prose or images copied. Adapted pack remains CC BY-SA 4.0."
       }
+    },
+    {
+      "id": "bg3_items",
+      "kind": "records",
+      "title": "BG3 item labels and technical candidates",
+      "files": [
+        {
+          "sha256": "f016935a4fec732836b26bc81532126d0e64a8f416456cf846e34d45057ffa27",
+          "path": "items.json"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://bg3.wiki/w/index.php?title=Supply_Pack&oldid=423731",
+        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+      }
+    },
+    {
+      "id": "bg3_equipment",
+      "kind": "records",
+      "title": "BG3 equipment candidates",
+      "files": [
+        {
+          "sha256": "5ee438c99d68450335df7df11842a475b502a684544143b6c88d4f9717592593",
+          "path": "equipment.json"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://bg3.wiki/w/index.php?title=Equipment&oldid=405329",
+        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+      }
+    },
+    {
+      "id": "bg3_spells",
+      "kind": "records",
+      "title": "BG3 spell candidates",
+      "files": [
+        {
+          "sha256": "af9ebcdfd054083000d9574d0a667ab6836f9f03926c790b99dbfe103e2d1dd8",
+          "path": "spells.json"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://bg3.wiki/w/index.php?title=Spells&oldid=433193",
+        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+      }
+    },
+    {
+      "id": "bg3_passives",
+      "kind": "records",
+      "title": "BG3 passive candidates",
+      "files": [
+        {
+          "sha256": "5e338b4cd62daa51c969b653023da88b07a043c78a5286f6d18825cef8b2265c",
+          "path": "passives.json"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706",
+        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+      }
+    },
+    {
+      "id": "bg3_companions",
+      "kind": "records",
+      "title": "BG3 origin and companion candidates",
+      "files": [
+        {
+          "sha256": "f9d17110f9dd44a7efd7c6a3b5341f48bdef4671f873cfc9cdbdaaf39d3cfb20",
+          "path": "companions.json"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://bg3.wiki/w/index.php?title=Companions&oldid=439368",
+        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+      }
+    },
+    {
+      "id": "bg3_camp_supplies",
+      "kind": "records",
+      "title": "BG3 camp-supply candidates",
+      "files": [
+        {
+          "sha256": "67b6a0c0823fbfc58afddd58172d87b7446df8532689e054c015ca13c21bb8a8",
+          "path": "camp-supplies.json"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610",
+        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+      }
     }
-  ]
+  ],
+  "description": "Pinned factual labels and technical identifiers from post-2024-compatible or explicitly pinned bg3.wiki revisions. Legacy expressive prose, icons and game assets are excluded."
 }

@@ -1,0 +1,59 @@
+{
+  "records": [
+    {
+      "id": "Target_Guidance",
+      "name": "Guidance",
+      "category": "Cantrip",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Guidance&oldid=413520",
+      "attributes": {
+        "mapping": "UID candidate; no PS5 spellbook join",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "Projectile_FireBolt",
+      "name": "Fire Bolt",
+      "category": "Cantrip",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Fire_Bolt&oldid=373237",
+      "attributes": {
+        "mapping": "UID candidate; no PS5 spellbook join",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "Shout_Bless",
+      "name": "Bless",
+      "category": "Spell",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Spells&oldid=433193",
+      "attributes": {
+        "mapping": "UID candidate; list-page label only",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "Target_HealingWord",
+      "name": "Healing Word",
+      "category": "Spell",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Spells&oldid=433193",
+      "attributes": {
+        "mapping": "UID candidate; list-page label only",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "Target_MageHand",
+      "name": "Mage Hand",
+      "category": "Cantrip",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Cantrips&oldid=420539",
+      "attributes": {
+        "mapping": "UID candidate; list-page label only",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    }
+  ]
+}

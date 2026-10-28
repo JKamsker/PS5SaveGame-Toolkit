@@ -1,0 +1,78 @@
+{
+  "records": [
+    {
+      "id": "398e7328-ce90-4c02-94a2-93341fac499a",
+      "name": "Supply Pack",
+      "category": "Camp supplies",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Supply_Pack&oldid=423731",
+      "attributes": {
+        "mapping": "candidate UUID from pinned page",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uid": "LOOT_Camp_Pack",
+        "stats": "OBJ_Camp_Pack"
+      }
+    },
+    {
+      "id": "efcb70b7-868b-4214-968a-e23f6ad586bc",
+      "name": "Camp Supply Sack",
+      "category": "Container",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Camp_Supply_Sack&oldid=416884",
+      "attributes": {
+        "mapping": "candidate UUID from pinned page",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uid": "CONT_GEN_CampSupplySack"
+      }
+    },
+    {
+      "id": "d47006e9-8a51-453d-b200-9e0d42e9bbab",
+      "name": "Potion of Healing",
+      "category": "Potion",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944",
+      "attributes": {
+        "mapping": "exact-template-guid",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uid": "CONS_Potion_Healing_A",
+        "stats": "OBJ_Potion_Healing"
+      }
+    },
+    {
+      "id": "1c3c9c74-34a1-4685-989e-410dc080be6f",
+      "name": "Gold",
+      "category": "Currency",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Gold&oldid=419021",
+      "attributes": {
+        "mapping": "exact-template-guid",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uid": "OBJ_Goldpile"
+      }
+    },
+    {
+      "id": "WPN_HUM_Longsword_A_0",
+      "name": "Longsword",
+      "category": "Weapon",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Longsword&oldid=420599",
+      "attributes": {
+        "mapping": "UID candidate; not a save GUID",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uuid": "1865323f-b428-4791-a0a9-578841e57463"
+      }
+    },
+    {
+      "id": "WPN_HUM_Shortbow_A_0",
+      "name": "Shortbow",
+      "category": "Weapon",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Shortbow&oldid=423168",
+      "attributes": {
+        "mapping": "UID candidate; not a save GUID",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uuid": "c5403c1d-f372-43e1-927a-9189e9e3545d"
+      }
+    }
+  ]
+}

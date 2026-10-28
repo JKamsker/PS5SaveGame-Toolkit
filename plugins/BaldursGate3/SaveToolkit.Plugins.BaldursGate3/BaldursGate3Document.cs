@@ -1,5 +1,6 @@
 using System.Globalization;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
@@ -9,7 +10,7 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 
 internal sealed record DocumentEntry(string Name, byte[] Bytes, LarianResource? Resource);
 
-internal sealed class BaldursGate3Document : BoundSaveDocument
+internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocument
 {
     private readonly string _path;
     private readonly byte[] _original;
@@ -20,6 +21,8 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
     private readonly Bg3References _references;
     private readonly LsmfInspection _lsmf;
     private readonly SavedItemInspection _items;
+    private readonly ReferenceCatalogView _catalogs;
+    private readonly StoryInspection _story;
     private readonly Dictionary<string, byte[]> _edits = new(StringComparer.Ordinal);
 
     private BaldursGate3Document(ISaveFile file, byte[] bytes, LspkPackage? package, List<DocumentEntry> entries, IReferenceContext references)
@@ -33,6 +36,8 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
         _references = new Bg3References(references);
         _lsmf = new LsmfInspection(entries, BindInspection);
         _items = new SavedItemInspection(entries, _references, BindInspection);
+        _catalogs = new ReferenceCatalogView(_references);
+        _story = new StoryInspection(entries);
         CanEdit = (package is null || package.Version == 18) && entries.Any(e => e.Resource?.Attributes.Any(AttributeEncoder.CanWrite) == true);
         Title = $"Baldur's Gate 3 · {file.FileName}";
     }
@@ -83,7 +88,9 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
         ]),
         new Tab("Party", PartyView.Build(_entries, Bind, BindSummary, _references)),
         new Tab("Inventory", _items.Build()),
+        new Tab("Catalogs", _catalogs.Build()),
         new Tab("NewAge", _lsmf.Build()),
+        new Tab("Story", _story.Build()),
         new Tab("Resources", _explorer.ResourceList()),
         new Tab("Raw", [new HexNode("original", _original.Length) { Title = "Original file (unchanged)" }]),
     ]);
@@ -92,8 +99,15 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
     {
         _ when lazyId.StartsWith(LsmfInspection.Prefix, StringComparison.Ordinal) => _lsmf.Expand(lazyId),
         _ when lazyId.StartsWith(SavedItemInspection.Prefix, StringComparison.Ordinal) => _items.Expand(lazyId),
+        _ when lazyId.StartsWith(StoryInspection.Prefix, StringComparison.Ordinal) => _story.Expand(lazyId),
         _ => _explorer.Expand(lazyId, _package),
     };
+
+    public IReadOnlyList<QueryableCollection> Collections =>
+        [.. _catalogs.Collections, _items.Collection];
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        collectionId == _items.Collection.Id ? _items.Query(query) : _catalogs.Query(collectionId, query, BindInspection);
 
     public override IReadOnlyList<FileOutput> Serialize()
     {

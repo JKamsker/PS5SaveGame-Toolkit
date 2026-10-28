@@ -1,6 +1,6 @@
 # Baldur's Gate 3 (`bg3`)
 
-Title: **PPSA18463**. Maturity: **Experimental**, version 0.3.0.
+Title: **PPSA18463**. Maturity: **Experimental**, version 0.4.0.
 
 Opens decrypted BG3 save packages and profile resources, lists package entries with
 stored/expanded sizes and compression, and exposes every resource node and attribute
@@ -9,9 +9,10 @@ vectors/matrices, translation handles, and paged raw bytes for opaque or large v
 LSX exploration includes XML wrapper elements, metadata attributes and text.
 Round 2 adds validated LSPK v18 checksums, preservation-first LSF/LSPK writers,
 primitive editing and a sourced Party summary. No in-game write test has occurred.
-Version 0.3.0 adds a bounded read-only LSMF directory/EntityId reader, lazy all-owner
-saved-item inspection, an attributed F2 starter pack and an F1 evidence manifest.
-This completes early subsets of roadmap phases 1–3, not their full exit criteria.
+Version 0.4.0 adds pinned attributed item, equipment, spell, passive, companion and
+camp-supply catalogs, F8 queryable catalog/inventory collections, explicit LSMF live-state
+candidate signals, and bounded StorySave database-marker inspection. These are read-only
+candidate views; controlled PS5 joins and gameplay writes remain disabled.
 See [LSMF.md](LSMF.md) for the independent implementation record and
 [EVIDENCE.md](EVIDENCE.md) for phase status and the exact owner capture checklist.
 
@@ -98,8 +99,18 @@ starter pack label 40 of the sample's 761 occurrences (including twenty healing
 potions and four gold-template occurrences); these are not known in-game stack
 counts or player inventory totals. Each candidate name carries per-cell source,
 licence and raw-ID provenance. Duplicate templates remain separate, unknown IDs
-stay raw, and owner/equipment/quantity stay explicitly unknown. Original snapshot
-inspection does not reinterpret primitive edits or synchronise gameplay state.
+stay raw. If an Item node carries an explicit owner or quantity attribute, it is shown
+as an unverified candidate; absent attributes remain `Unknown / unknown`. The same
+collection is exposed through the SDK's bounded F8 query contract with stable row keys.
+Original snapshot inspection does not reinterpret primitive edits or synchronise gameplay state.
+
+The Catalogs tab exposes the embedded pack as bounded queryable collections. Raw IDs use
+an F4-compatible `ReferenceSpec` with custom values allowed and read-only confidence;
+the pack's build, module and load-order are unspecified, so these records are candidate
+labels rather than live joins. The NewAge live-state section reports only component-family
+presence (character, health, classes, spellbook, containers and stack candidates). The
+Story tab reports bounded byte markers for known Osiris database families, without claiming
+tuple values, approval totals, quest completion or romance state.
 
 The framework loads the embedded `bg3.starter.en` pack and injects it through
 `Open(file, references)`. `Open(file)` without a context retains raw fallbacks.
@@ -270,7 +281,11 @@ F4/F6/F8 remain separate framework work; no local substitutes were added.
 | Dataset / code | Source and author | Licence / retrieval | Changes and scope |
 | --- | --- | --- | --- |
 | `bg3_templates` (4 records) | [bg3.wiki contributors](https://bg3.wiki/): [Gold](https://bg3.wiki/w/index.php?title=Gold&oldid=419021), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), [Longsword](https://bg3.wiki/wiki/Longsword), [Shortbow](https://bg3.wiki/w/index.php?title=Shortbow&oldid=423168) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels/technical GUIDs, original uncertainty annotations; no wiki prose, limits or icons. Exact GUID candidates only. |
-| `bg3_origins` (3 records) | [bg3.wiki contributors](https://bg3.wiki/): [Lae'zel](https://bg3.wiki/wiki/Lae%27zel), [Shadowheart](https://bg3.wiki/wiki/Shadowheart), [Dark Urge](https://bg3.wiki/wiki/The_Dark_Urge_(Origin)) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels mapped to SaveInfo Origin keys; original uncertainty annotations. Not live identity/name mappings. |
+| `bg3_origins` (3 records) | [bg3.wiki contributors](https://bg3.wiki/): [Lae'zel](https://bg3.wiki/w/index.php?title=Lae%27zel&oldid=409907), [Shadowheart](https://bg3.wiki/w/index.php?title=Shadowheart&oldid=438521), [Dark Urge](https://bg3.wiki/w/index.php?title=The_Dark_Urge_%28Origin%29&oldid=434137) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels mapped to SaveInfo Origin keys; original uncertainty annotations. Not live identity/name mappings. |
+| `bg3_items` (6 records) | Pinned [Supply Pack](https://bg3.wiki/w/index.php?title=Supply_Pack&oldid=423731), [Camp Supply Sack](https://bg3.wiki/w/index.php?title=Camp_Supply_Sack&oldid=416884), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), Gold, Longsword and Shortbow revisions | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual item labels plus UUID/UID candidates; no descriptive prose, images or limits. |
+| `bg3_equipment` (6 records) | [Equipment](https://bg3.wiki/w/index.php?title=Equipment&oldid=405329), pinned weapon/container and companion pages | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Equipment/category candidates; sets are not item identities. |
+| `bg3_spells` (5 records) and `bg3_passives` (5 records) | Pinned [Spells](https://bg3.wiki/w/index.php?title=Spells&oldid=433193), [Cantrips](https://bg3.wiki/w/index.php?title=Cantrips&oldid=420539), [Guidance](https://bg3.wiki/w/index.php?title=Guidance&oldid=413520), [Fire Bolt](https://bg3.wiki/w/index.php?title=Fire_Bolt&oldid=373237), [Passive feature](https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | UID/display-key candidates only; spellbook/source and passive joins remain unknown. |
+| `bg3_companions` (7 records) and `bg3_camp_supplies` (8 records) | Pinned [Companions](https://bg3.wiki/w/index.php?title=Companions&oldid=439368), origin pages and [Camp Supplies](https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Character UUID/UID and supply-value candidates; no party ownership, approval or inventory totals. |
 | Independent LSMF directory/EntityId reader | [DanFinchUK format documentation, pinned revision](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md), independently measured PS5 bytes | Upstream code licence unresolved; research inspected 2026-10-28 | No implementation copied or run. Independent code and handwritten vectors; measured PS5 arena offset corrects upstream prose. See [LSMF.md](LSMF.md). |
 | Existing LSPK/LSF/LSX and UUID format ports | [Norbyte/LSLib](https://github.com/Norbyte/lslib/tree/6f5f6987d10d8485876b8368431c948e4dea4f83) | MIT; [licence notice](THIRD-PARTY-NOTICES.md) | Managed preservation-first implementations; format files listed below. |
 | Managed LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
