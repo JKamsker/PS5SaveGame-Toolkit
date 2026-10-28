@@ -25,14 +25,14 @@ describe("spatial navigation", () => {
       ], rows: [{ key: "region", cells: { name: { type: "text", text: "Test region" }, map, graph } }] }} />);
       fireEvent.click(await screen.findByRole("button", { name: "Show Courtyard for Test region" }));
       expect(await screen.findByRole("region", { name: "Courtyard" })).toBeTruthy();
-      expect(screen.getByRole("region", { name: "Skills" })).toBeTruthy();
+      expect(await screen.findByRole("region", { name: "Skills" })).toBeTruthy();
       expect(screen.getAllByText(/Text alternative/)).toHaveLength(2);
     } finally { restore(); }
   });
 
   it("jumps from a graph card into a collapsed section and inactive tab without editing", async () => {
     const { context } = renderSpatial(<><ViewRenderer node={graph} /><ViewRenderer node={controls} /></>);
-    fireEvent.click(screen.getByRole("button", { name: /Dash: Available/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Dash: Available/ }));
     const checkbox = await screen.findByLabelText("Dash unlocked");
     await waitFor(() => expect(document.activeElement).toBe(checkbox));
     expect(context.commit).not.toHaveBeenCalled();
@@ -41,7 +41,7 @@ describe("spatial navigation", () => {
 
   it("jumps to an action without invoking it from either the diagram or the text alternative", async () => {
     const { context } = renderSpatial(<><ViewRenderer node={graph} /><ViewRenderer node={controls} /></>);
-    fireEvent.click(screen.getByRole("button", { name: "Jump to Respec" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Jump to Respec" }));
     const action = await screen.findByRole("button", { name: "Reset discoveries" });
     await waitFor(() => expect(document.activeElement).toBe(action));
     expect(context.runAction).not.toHaveBeenCalled();
@@ -52,7 +52,7 @@ describe("spatial navigation", () => {
 
   it("jumps from a marker list to an existing field", async () => {
     renderSpatial(<><ViewRenderer node={map} /><ViewRenderer node={{ type: "field", valueId: "world/cache", label: "Cache found", spec: { kind: "bool" }, value: false }} /></>);
-    fireEvent.click(screen.getByRole("button", { name: "Jump to Courtyard cache" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Jump to Courtyard cache" }));
     await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText("Cache found")));
   });
 
@@ -64,7 +64,7 @@ describe("spatial navigation", () => {
     ] }]);
     try {
       const { context } = renderSpatial(<><ViewRenderer node={targetMap} /><ViewRenderer node={{ type: "section", title: "World", lazyId: "world", collapsed: true, children: [] }} /></>);
-      fireEvent.click(screen.getByRole("button", { name: "Jump to Courtyard cache" }));
+      fireEvent.click(await screen.findByRole("button", { name: "Jump to Courtyard cache" }));
       const selection = await screen.findByRole("checkbox", { name: "Select Cache row" });
       await waitFor(() => expect(document.activeElement).toBe(selection));
       expect(context.commit).not.toHaveBeenCalled();
