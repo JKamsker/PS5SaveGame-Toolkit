@@ -176,13 +176,14 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
         string id = actionId[RemoveLastPrefix.Length..];
         if (!_nodes.TryGetValue(id, out var node) || !CanRemoveLast(node))
             return new ActionOutcome { Message = "The selected container is not a bounded primitive collection." };
-        return Structural(() =>
+        var outcome = Structural(() =>
         {
             var replacement = GvasStructuralEditor.RemoveLast(_envelope.File, node);
             var output = _envelope.File.SerializeReplacements(new Dictionary<GvasNode, ReadOnlyMemory<byte>> { [node] = replacement }, true);
             _envelope.ReplaceFile(GvasFile.Parse(output));
             Reindex();
         }, "Removed the last primitive container element. The operation is Experimental and reversible; game semantics are unverified.");
+        return _integrityWarning is { } warning ? outcome with { Warnings = [warning] } : outcome;
     }
 
     protected override DocumentMemento? CaptureSnapshot()
@@ -216,9 +217,9 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
             node.Children.All(child => child.Scalar is not null);
     }
 
-    private static ActionNode RemoveLastAction(string id, GvasNode node) => new(RemoveLastPrefix + id, "Remove last element")
+    private ActionNode RemoveLastAction(string id, GvasNode node) => new(RemoveLastPrefix + id, "Remove last element")
     {
-        Description = $"Remove one {node.Container!.Kind} element while preserving all other bytes. Unknown game relationships are not inferred.",
+        Description = $"Remove one {node.Container!.Kind} element while preserving all other bytes. Unknown game relationships are not inferred. {_integrityWarning ?? "Integrity metadata was not observed in this document."}",
         Confirm = "Remove the last element? This is Experimental and can change game semantics.",
         Tone = Tone.Warning,
     };
