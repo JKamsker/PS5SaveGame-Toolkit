@@ -11,6 +11,24 @@ catalogs, corrected Jedi actor decoding and extended checksum evidence. See
 [round-2 evidence and exact owner checklist](ROUND2.md). Existing-value writes are
 enabled in this round with explicit rejection warnings; no bulk action is exposed.
 
+## Framework feature adoption
+
+| feature | status | where / reason |
+| --- | --- | --- |
+| F1 SaveDiff | Used | Hogwarts decoder hook and adjacent table/row evidence; corruption and no-op fixtures cover GVAS and database framing. |
+| F2 reference packs | Used | `unrealgvas.ps5`, `unrealgvas.storage` and `hogwarts.legilimens` are embedded, pinned and attributed in the Sources panel. |
+| F3 rich table cells | Used | F8 rows expose live field cells, text, confidence, descriptions, warnings and provenance; image-cell rendering remains host-owned. |
+| F4 `ReferenceSpec` pickers | Used | Exact table/column-qualified Hogwarts IDs and title storage captions use read-only reference specs. |
+| F5 structural edits | N/A | Generic arrays/maps/sets retain unknown bytes and schemas, but insertion/removal cannot be lossless without stable element identities and a plugin-owned memento; scalar size-region edits remain covered. |
+| F6 planned bulk actions | N/A | No bounded bulk or preset has proven gameplay semantics; adding one would hide unknown checksum/relationship effects. |
+| F7 document groups | N/A | No enabled edit safely owns a coupled companion; Hogwarts primary/backup and the two database images remain independent until owner captures establish roles. |
+| F8 queryable collections | Used | Generic nested properties, Jedi actor observations, Sackboy projections and all Hogwarts tables use bounded search/filter/sort/paging. |
+| F9 maps/graphs | Added this round | Hogwarts Spatial tab adds an attributed schematic collectible/location map and a catalogue-domain graph, both with text alternatives and unknown states. |
+| F10 exact numbers and nullable/union specs | Used | GVAS widths are preserved through `Int128`/exact scalar bindings; nullable database values remain text-only when their semantics are unknown. |
+| F11 shared codecs | Used | Hogwarts routes Kraken framing and in-memory SQLite through `SaveToolkit.Codecs`; no local codec or filesystem I/O is present. |
+| F12 SaveDiff F8 traversal | Pending #32 | No substitute is built in this plugin; current F1 evidence uses the available decoder hook. |
+| F13 non-mutating inspect actions | Pending #33 | No local browse/action substitute is built; spatial and catalogue views are read-only nodes. |
+
 ## Enabled writes and their evidence
 
 | write | confidence | evidence | integrity status | owner validation needed |
@@ -131,6 +149,10 @@ Hogwarts adds independent
 Character, Inventory, Progression and Collections F8 tables for each image; every
 other table is available lazily. The pinned MIT Legilimens F2 catalog supplies 699
 collectible location records, with exact table/column-qualified F4 reference fields.
+Its Spatial tab adds a link-first schematic map of attributed regions plus a catalogue
+domain graph. Positions are plugin-authored grouping coordinates, not game coordinates;
+all marker and graph states remain Unknown, and fast travel is an unjoined external
+domain. `SpatialViewValidation` checks bounds, links, attribution and acyclicity.
 Hogwarts metadata and malformed/partial database pairs remain read-only. Existing
 integer, real and text cells in a complete pair are editable with Inferred confidence;
 identity columns, blobs and catalog reference cells stay read-only. Top-level fields
@@ -165,10 +187,10 @@ The Hogwarts round adds all-image integrity/no-op checks, F1 row diff evidence,
 F8 host registration/query bounds, F2/F4 attribution and candidate resolution,
 corruption isolation, and test-only stored-frame GVAS reconstruction. Sample
 tests require the artifacts environment variable in the same command as the run.
-Validated for the write-enable round: **81 passed, 0 failed, 0 skipped**, including
+Validated for the completion round: **82 passed, 0 failed, 0 skipped**, including
 Jedi/Sackboy warned scalar edits, Hogwarts SQLite/stored-block edit/reopen, all
 Hogwarts regressions, conformance, query bounds/identities and corruption tests;
-API build: **0 warnings, 0 errors**.
+F9 spatial validation; API build: **0 warnings, 0 errors**.
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
@@ -189,6 +211,9 @@ added in this round remain below 300 lines; repository policy is enforced in rev
    version extensions when samples become available.
 5. Solve Sackboy General checksum coverage; decode image texture layouts before
    providing image previews. Atomic Heart now has its own read-only plugin.
+6. Generic structural add/remove/reorder remains disabled until stable collection
+   element identities, required defaults and reversible mementos are proven; current
+   scalar length changes are lossless and covered by the existing size-region tests.
 
 ## Historical overlay handoff (2026-10-28)
 
@@ -294,6 +319,7 @@ upstream code was copied and no downloaded program was executed.
 | Generic serialized GVAS type captions | [uesave 1917a22](https://github.com/trumank/uesave/tree/1917a22ab69e9a4045e613d9d7f39a49fe00bd46), Truman Kilen / contributors; MIT upstream reference, GPL-3.0-or-later original captions; 2026-10-28 | `unrealgvas.storage` v1.0.0: 17 type identifiers and independently authored explanations; no implementation port. Full [MIT notice](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.storage/LICENSE.txt), [source sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.storage/property-types.source.md), normalized hashes, Info.References, per-row attribution and Sources panel. Applies to generic GVAS without a known title. |
 | External gameplay guides / unclear-license schema leads | [Imagisphere levels](https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels), [Imagisphere shop](https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29), [PowerPyx Jedi guide](https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/), [SackboyWorldUnlocker](https://github.com/MsKrypt1/SackboyWorldUnlocker), [GingerBread scaffold](https://github.com/LBPHaxMods/GingerBread/tree/2cf1351e8992ca07d7d7474be454c6476f8ebde2); respective authors, research only | Rule 9 external-link route: source/details links only. No prose, game lists, prices, code, icons or media imported; no wiki revision or game-ID match is falsely asserted. No new CC BY-SA adaptation bundled. |
 | Sackboy image metadata catalog | [Peter on Programming](https://peteronprogramming.wordpress.com/2024/01/06/reverse-engineering-the-end-of-level-photos-in-sackboy-a-big-adventure/); [MIT extractor 3b26966](https://github.com/Donpedro13/GingerBreadImageExtractor/tree/3b26966a04a2b6e20d61962ef6fcb84242bb7a1f), original PS5 evidence, 2026-10-28 | Existing field-name-only dataset unchanged; metadata evidence is separate from unverified PS5 pixels/swizzle. |
+| Hogwarts spatial navigation links | [Legilimens 02525dde](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/tree/02525dde0fd9bc0be72982478680377dccb41246), MIT; [MapGenie external map](https://mapgenie.io/hogwarts-legacy/maps/hogwarts), link-only, retrieved 2026-10-28 | Region positions are original GPL-3.0-or-later schematic coordinates. No external map art, coordinates, guide prose or fast-travel data is embedded; MapGenie reuse rights remain unclaimed. |
 
 ## SDK requests
 
