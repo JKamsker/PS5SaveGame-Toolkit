@@ -31,8 +31,14 @@ public sealed class AriseDiffTests
         var file = AriseSampleTests.GameplayFiles().First();
         var decoder = new PluginViewDecoder(new TalesOfArisePlugin());
         Assert.True(decoder.CanDecode(file));
-        var tree = decoder.Decode(file, new DecodeLimits { MaxValues = 200_000 });
-        Assert.False(tree.Truncated);
+        // F12 also visits the rich F8 evidence cells alongside the full primitive explorer.
+        var tree = decoder.Decode(file, new DecodeLimits
+        {
+            MaxValues = 1_000_000,
+            MaxQueryRows = 200_000,
+            MaxQueryBytes = 256L * 1024 * 1024,
+        });
+        Assert.False(tree.Truncated, string.Join(';', tree.Warnings));
         Assert.Contains(tree.Values, value => value.Path.Contains("party/gald", StringComparison.Ordinal));
         Assert.Contains(tree.Values, value => value.Path.Contains("inventory/", StringComparison.Ordinal));
     }

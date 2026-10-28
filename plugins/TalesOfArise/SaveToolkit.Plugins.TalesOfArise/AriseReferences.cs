@@ -39,6 +39,15 @@ internal sealed class AriseReferences(IReferenceContext context)
 
     public bool Handles(string actionId) => actionId.StartsWith(InspectPrefix, StringComparison.Ordinal);
 
+    public static ActionNode InspectionAction(string id, ReferenceRecord record, bool fixedRecord = true) =>
+        new(InspectPrefix + id, fixedRecord ? "Inspect" : "Inspect a reference record")
+        {
+            Mutates = false,
+            Tone = Tone.Info,
+            Description = $"Read-only reference details. {record.AttributionText}",
+            Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(id) { ReadOnly = fixedRecord }, FieldValue.Of(record.Key))],
+        };
+
     public ActionOutcome Inspect(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
         var id = actionId[InspectPrefix.Length..];
@@ -88,12 +97,8 @@ internal sealed class AriseReferences(IReferenceContext context)
                     Description = "Search names, IDs, prerequisites and facts; exact column filters and deterministic sorting cover every catalog page." +
                         (character is null ? "" : $" Use the Character filter: {character}."),
                 },
-                new ActionNode(InspectPrefix + id, "Inspect a reference record")
-                {
-                    Description = catalog.Dataset.Attribution.ToShortText(),
-                    Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(id) { ReadOnly = true },
-                        FieldValue.Of(catalog.Search(new ReferenceQuery { Limit = 1 }).Items.FirstOrDefault()?.Key ?? ""))],
-                },
+                .. catalog.Search(new ReferenceQuery { Limit = 1 }).Items
+                    .Select(record => InspectionAction(id, record, fixedRecord: false)),
             ]);
     }
 

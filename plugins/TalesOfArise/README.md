@@ -55,6 +55,9 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
 - Records section-relative evidence in `Resources/EvidenceLedger.csv`. `AriseDiff` aligns
   decrypted bodies by schema ID and reports relative changed offsets, so shuffled physical
   addresses do not become false field evidence. No new gameplay meaning is promoted by this ledger.
+- Publishes the SDK-only `tales-of-arise.sections-v1` decoder hook for the shared SaveDiff
+  CLI. Inspection actions explicitly declare `Mutates = false`; read-only item, arte and
+  skill identities open browse-only reference pickers with category filters and sorting.
 
 `SystemSaveData.sav` is a separate **4,096-byte opaque system blob**. It is not claimed,
 decrypted or rewritten; the framework's raw viewer remains available. Each document
@@ -66,17 +69,17 @@ only returns its own file, without silently changing the console backup twin.
 | --- | --- | --- |
 | F1 SaveDiff | Used | `AriseDiff` aligns decrypted sections by schema ID and relative offsets; twin and slot tests prove the alignment. The shared `PluginViewDecoder` can traverse the plugin without plugin I/O; private sample bytes stay outside git. |
 | F2 reference packs | Used | The embedded `talesofarise.catalog` v2 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. |
-| F3 rich table cells | Added this round | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. No image cells are included because no icon licence is cleared. |
-| F4 reference pickers | Used | Inventory ID fields and all catalog identity columns use `ReferenceSpec`, preserve unknown numeric IDs and allow custom fallback. |
+| F3 rich table cells | Used | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. No image cells are included because no icon licence is cleared. |
+| F4 reference pickers | Used | Inventory ID fields and all catalog identity columns use read-only `ReferenceSpec` browse-only pickers, preserve unknown numeric IDs and allow custom fallback. Standalone inspection parameters select an existing reference without changing saved IDs. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: allocation, inverse records and acquisition invariants are unproven, so fixed-slot scalar writes remain the only structural-safe scope. |
 | F6 planned actions | Used | `inventory/set-quantity` previews changes, skips unsupported rows, revalidates at apply and records one undo group. Core-resolved F8 query scopes are accepted and tested. |
 | F7 document groups | N/A | `SystemSaveData.sav` is opaque and the console backup twin has no proven independent ownership contract; this plugin intentionally edits one selected gameplay file only. |
 | F8 queryable collections | Used | Catalogs page and sort all 2,157 records; the inventory collection supplies stable fixed-slot rows for search and query-scoped planning. |
-| F9 maps and graphs | Added this round | Skill-panel and arte prerequisite DAGs plus an external-link-first schematic map use bounded `GraphNode`/`MapNode` views, text alternatives, stable targets and spatial validation. |
+| F9 maps and graphs | Used | Skill-panel and arte prerequisite DAGs plus an external-link-first schematic map use bounded `GraphNode`/`MapNode` views, text alternatives, stable targets and spatial validation. |
 | F10 exact numbers / nullable unions | N/A | The supported PS5 schema is fixed-width integers and bytes; it contains no JSON numeric lexemes or nullable/union fields requiring F10. |
 | F11 shared codecs | N/A | Tales of Arise uses its measured AES/XOR/SHA1 format; it has no Kraken or SQLite payload, so `SaveToolkit.Codecs` does not apply. |
-| F12 SaveDiff F8 traversal and decoder hooks | Pending #32 | The framework feature is not on `main` in this round; no plugin-local substitute is added. |
-| F13 inspect/picker/filter and float-duration improvements | Pending #33 | The framework feature is not on `main` in this round; current read-only actions and integer duration remain on existing contracts. |
+| F12 SaveDiff F8 traversal and decoder hooks | Added | `TalesOfArisePlugin` registers `AriseDiff` through `ISaveDecoderProvider` as `tales-of-arise.sections-v1`; section-relative uint32 evidence has stable schema identities, explicit bounds and no Testing dependency. The shared view decoder also traverses rich F8 evidence with explicit test budgets. |
+| F13 inspect/picker/filter and float-duration improvements | Added | Every reference inspection declares `Mutates = false`; read-only item/arte/skill identities retain browse-only `ReferenceSpec` pickers. Standard category filtering and declared Key/Name/Category sorting delegate to F2; rich facts/character/title filters retain plugin policy. Float durations are N/A: the supported counters are integers and retain integer duration formatting. |
 
 ## Enabled writes and their evidence
 
@@ -214,12 +217,12 @@ three slots. Slot 002 adds an Apple Gel stack of one at inventory record 24.
 ## Validation
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests
 python -I -X utf8 plugins/TalesOfArise/ReferenceData/test_wiki_tables.py
 ```
 
-Round-2 plugin suite: **59 passed, 0 failed, 0 skipped**, including the inherited
+Round-2 plugin suite (historical): **59 passed, 0 failed, 0 skipped**, including the inherited
 conformance suite and a Core F8 session integration test. Python parser suite:
 **3 passed**. API build: **zero warnings/errors**. Earlier standalone Core-suite
 counts are historical; this round does not claim to have rerun that suite.
@@ -235,6 +238,38 @@ no sample data or downloaded reference implementation is embedded. New tests cov
 catalog pages, pinned licence attribution, title-node relations, source duplicates and
 unknowns, tail searches, character/title filters, deterministic sorting, bound read-only
 query fields, live aliases, and byte-identical read-only views on all six gameplay files.
+
+F12/F13 follow-up: **84 passed, 0 failed, 0 skipped**, using the external artifacts
+directory above. API build: **0 warnings, 0 errors**. SaveDiff `list-decoders --format json`
+lists the registered native hook; comparing the sample archive with itself using that hook
+reports 0 changes and 0 decode failures. No files outside this plugin were changed.
+
+Follow-up tests additionally cover SDK hook registration, all 138,832 words,
+backup equivalence, physical section relocation, a controlled single-word edit, output/depth/
+file limits, corruption rejection, read-only and edited Core inspection sessions with unchanged
+bytes/revision/undo/redo, browse-only picker metadata and unknown IDs, and delegated catalogue
+category/sort/page queries with rich-search and custom-catalog fallbacks.
+
+### Native SaveDiff evidence
+
+```powershell
+dotnet run --project tools/SaveToolkit.SaveDiff -- list-decoders
+dotnet run --project tools/SaveToolkit.SaveDiff -- compare before.zip after.zip --decoder tales-of-arise.sections-v1
+```
+
+`AriseDiff` retains its byte-offset comparison helper and exposes the same schema alignment
+through the F12 SDK hook. Paths are `evidence/<schema-id:X8>/<body-offset:X6>` and values are
+invariant little-endian uint32 integers, labelled as unknown meaning. Four-byte words cover
+every section body, including unknown bytes; these are section-relative observations, not
+claimed gameplay record identities. The validated schema fixes section IDs, sizes and versions.
+Reordering a physical section does not alter evidence identity. Outer metadata, screenshots,
+link pointers and gaps are excluded and explicitly reported as a decoder warning.
+
+The native hook emits 138,832 values within default F1 budgets, stops immediately when the
+sink refuses a value, and reports incomplete evidence for insufficient output/depth budgets.
+The generic view decoder additionally emits explorer and rich F8 presentation values; its
+full-traversal regression uses larger explicit budgets. Production code depends only on SDK;
+tests use the shared `HookSaveDecoder` adapter without a plugin-local workaround.
 
 ## Round-2 scope and remaining evidence
 
@@ -321,7 +356,10 @@ PPSA02745 only. No complete licensed owl/quest identity table or save join was e
 
 ## SDK requests
 
-None. The existing bindings, queryable tables, reference picker, lazy sections and paged blobs
-support this plugin. Evidence, rather than a missing framework contract, gates equipment,
+None. F12 decoder hooks and F13 inspection/browse/category/sort contracts are now adopted.
+The `63580dc` F6 reference-parameter fix needs no migration: the only planned-action parameter
+is an integer quantity, with no `EnumSpec` identity fallback. Float-duration hints do not apply
+to the supported integer counters. The existing bindings, queryable tables, reference picker,
+lazy sections and paged blobs support this plugin. Evidence, rather than a missing framework contract, gates equipment,
 arte/skill and progression writes. F6 planning and F8 query-scope resolution are available
 when the owner captures establish safe bulk operations; no plugin-local substitute was added.

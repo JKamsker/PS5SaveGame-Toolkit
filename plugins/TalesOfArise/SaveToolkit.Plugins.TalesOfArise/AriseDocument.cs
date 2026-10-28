@@ -258,12 +258,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             ["flags"] = new TextNode($"0x{save.Payload[offset + ItemFlagsOffset]:X2}"),
             ["inspect"] = reference is null
                 ? new TextNode("—")
-                : new ActionNode($"references/inspect/{AriseReferences.ItemsCatalogId}", "Inspect")
-                {
-                    Tone = Tone.Info,
-                    Description = attribution,
-                    Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true }, FieldValue.Of(id.ToString()))],
-                },
+                : AriseReferences.InspectionAction(AriseReferences.ItemsCatalogId, reference),
         };
         return new TableRow(valueId, cells);
     }
