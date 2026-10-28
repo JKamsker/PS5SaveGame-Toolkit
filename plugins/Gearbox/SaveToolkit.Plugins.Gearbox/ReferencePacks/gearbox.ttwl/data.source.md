@@ -15,3 +15,5 @@ Original compressed-file SHA-256:
 - `ttwlsave/resources/balance_to_inv_key.json.gz`: `c1726466a09572233987e7187dd59b7742e4488f44b87b611e0fefd21953372e`
 
 Balance catalogue keys are lower-case object paths; duplicate object paths are collapsed for keyed lookup (BL3 2,848 slots → 2,803 distinct paths; TTWL 2,037 → 2,030). Every original serial index, including repeated assets, is retained separately in `serial-indices.json`. This normalization changes neither serial numbers nor their indices.
+
+Completion 1.2.0: serial index display names use the original asset object token; full raw paths remain in `attributes.asset` and descriptions. Labels are not localized names or combat-stat claims. No indices renumbered.

@@ -27,7 +27,6 @@ internal sealed class ItemBrowser
         _references = new(root.Schema.Wonderlands, references);
         _lists = profile ? new() { ["bank_inventory_list"] = "Bank", ["lost_loot_inventory_list"] = "Lost loot" }
             : new() { ["inventory_items"] = "Backpack" };
-        var reader = new SerialReader(root.Schema.Wonderlands);
         foreach (var list in _lists.Keys)
         {
             foreach (var entry in document.Inventory.Entries.Where(e => e.List == list))
@@ -35,7 +34,7 @@ internal sealed class ItemBrowser
                 var field = entry.Field;
                 var serial = field.Message?.Last("item_serial_number")?.Value as byte[] ?? field.Value as byte[] ?? [];
                 var item = new BrowserItem(entry.Id, list, entry.Index, serial,
-                    field.Message?.Integer("flags"), field.Message?.Integer("pickup_order_index"), new(() => reader.Read(serial)));
+                    field.Message?.Integer("flags"), field.Message?.Integer("pickup_order_index"), new(() => document.Inventory.Info(entry.Id)));
                 _items.Add(item);
             }
         }
@@ -54,6 +53,7 @@ internal sealed class ItemBrowser
         { Description = "Search/filter/sort covers the complete collection. " + _references.Database.Pack.Title }));
         result.Add(new ActionNode(InspectAction, "Inspect catalogue entry")
         {
+            Mutates = false,
             Description = "Search the attributed balance catalogue; inspection does not change save bytes. No replacement or item creation.",
             Parameters = [new FieldNode("balance", "Balance / family", new ReferenceSpec(ItemCatalogs.Balances)
             {
@@ -63,6 +63,7 @@ internal sealed class ItemBrowser
         });
         result.Add(new ActionNode(InspectPartAction, "Inspect serial index / part")
         {
+            Mutates = false,
             Description = "Browse raw serial asset indices by category with attribution. No compatibility or legal-combination claim; no save changes.",
             Parameters = [new FieldNode("part", "Serial asset / part", new ReferenceSpec(ItemCatalogs.Indices), FieldValue.Of(string.Empty))],
         });
@@ -76,6 +77,16 @@ internal sealed class ItemBrowser
         if (query.Cursor is not null) throw new ArgumentException("Gearbox collections use offset paging.");
         if (query.SortColumn is { } sort && columns.All(c => c.Key != sort)) throw new ArgumentException("Unknown sort column.");
         if (query.Filters.Keys.Any(key => columns.All(c => c.Key != key))) throw new ArgumentException("Unknown filter column.");
+        // Plain paging/index ordering needs only row metadata. Decode the visible serials, not the entire bank.
+        if (collectionId != "catalogue" && string.IsNullOrEmpty(query.Text) && query.Filters.Count == 0 && query.SortColumn is null or "index")
+        {
+            var source = _items.Where(item => item.List == collectionId);
+            var orderedItems = query.Descending ? source.OrderByDescending(item => item.Index) : source.OrderBy(item => item.Index);
+            var start = Math.Max(0, query.Offset);
+            var size = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
+            return new(collectionId, columns, orderedItems.Skip(start).Take(size).Select(item => Row(Entry(item))).ToArray(),
+                collection.TotalCount, collection.TotalCount, start, size);
+        }
         var entries = collectionId == "catalogue"
             ? _references.Database.Records(ItemCatalogs.Balances).Select(r => new BrowserEntry(r.Key,
                 new Dictionary<string, string> { ["name"] = ItemReferences.Label(_references.Balance(r.Key), r.Key), ["category"] = r.Category ?? "Unmapped", ["asset"] = r.Key }, null))
@@ -134,7 +145,8 @@ internal sealed class ItemBrowser
         var info = item.Info.Value;
         var record = _references.Balance(info.Balance?.Path);
         List<ViewNode> nodes = [new TextNode(info.Diagnostic) { Tone = info.Complete ? Tone.Info : Tone.Warning },
-            ReadOnly(item.Id + "/balance", "Balance asset", info.Balance?.Path ?? $"index {info.Balance?.Index}", Confidence.Unknown, record?.AttributionText),
+            _document.InspectionReference(item.Id + "/balance", "Balance asset", info.Balance?.Path?.ToLowerInvariant() ?? $"index {info.Balance?.Index}",
+                ItemCatalogs.Balances, Confidence.Unknown, record?.AttributionText),
             new TextNode($"Serial v{info.Version}; database {info.DatabaseVersion}; flags {item.Flags}; pickup order {item.Pickup}."),
             AssetField(item.Id + "/inventory", "Inventory asset", info.Inventory),
             AssetField(item.Id + "/manufacturer", "Manufacturer asset", info.Manufacturer),
@@ -148,7 +160,7 @@ internal sealed class ItemBrowser
                 info.Balance?.Path is null || info.Inventory?.Path is null || info.Manufacturer?.Path is null) continue;
             nodes.Add(_document.ItemNumber(item.Id + "/" + property, "Item " + property, property == "level" ? 1 : 0,
                 SerialWrites.Maximum(_document.Root.Schema.Wonderlands, property),
-                () => SerialWrites.Value(new SerialReader(_document.Root.Schema.Wonderlands).Read(_document.Inventory.Find(item.Id).Serial), property)!.Value,
+                () => SerialWrites.Value(_document.Inventory.Info(item.Id), property)!.Value,
                 value => _document.Inventory.SetSerial(item.Id, SerialWrites.Set(_document.Inventory.Find(item.Id).Serial, _document.Root.Schema.Wonderlands, property, value))));
         }
         if (_document.Inventory.Find(item.Id).Field.Message is { } itemMessage && (itemMessage.Integer("flags") & 6) != 6)
@@ -160,8 +172,10 @@ internal sealed class ItemBrowser
                 }));
         var parts = info.Parts.Concat(info.GenericParts).Select((p, i) => new TableRow(i.ToString(CultureInfo.InvariantCulture),
             new Dictionary<string, ViewNode> { ["category"] = new TextNode(p.Category), ["index"] = new TextNode(p.Index.ToString(CultureInfo.InvariantCulture)),
-                ["asset"] = ReadOnly(item.Id + "/part/" + i, "Raw part asset", p.Path ?? "Unmapped", p.Path is null ? Confidence.Unknown : Confidence.Verified,
-                    _references.Database.Find(ItemCatalogs.Indices, $"{p.Category}:{p.Index}")?.AttributionText) })).ToArray();
+                ["asset"] = info.Complete ? SerialParts.Field(_document, item.Id, i,
+                    _references.Database.Find(ItemCatalogs.Indices, p.Key)!.AttributionText) :
+                    _document.InspectionReference(item.Id + "/part/" + i, "Raw part asset", p.Key, ItemCatalogs.Indices, p.Path is null ? Confidence.Unknown : Confidence.Verified,
+                    _references.Database.Find(ItemCatalogs.Indices, p.Key)?.AttributionText) })).ToArray();
         nodes.Add(new TableNode([new("category", "Category"), new("index", "Index"), new("asset", "Raw asset")], parts));
         return nodes;
     }
@@ -170,7 +184,7 @@ internal sealed class ItemBrowser
         _document.InspectionField(id, label, value, confidence, source);
 
     private FieldNode AssetField(string id, string label, SerialAsset? asset) =>
-        ReadOnly(id, label, asset?.Path ?? $"Unmapped index {asset?.Index}", asset?.Path is null ? Confidence.Unknown : Confidence.Verified,
+        _document.InspectionReference(id, label, asset?.Key ?? "Unknown", ItemCatalogs.Indices, asset?.Path is null ? Confidence.Unknown : Confidence.Verified,
             asset is null ? null : _references.Database.Find(ItemCatalogs.Indices, $"{asset.Category}:{asset.Index}")?.AttributionText);
 
     public ActionOutcome? Inspect(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)

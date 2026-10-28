@@ -17,7 +17,7 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
         nodes.Add(document.Integer("world/completed", "Playthroughs completed", () => document.Root, "playthroughs_completed", writable: false));
         nodes.Add(lazy.Register("ammo", "Ammo pools", Ammo));
         nodes.Add(lazy.Register("difficulty", "Mayhem / Chaos levels", () => Difficulty(0)));
-        nodes.Add(lazy.Register("missions", "Missions", () => Missions(0)));
+        nodes.AddRange(document.Missions.Build());
         return nodes;
     }
 
@@ -82,18 +82,6 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
         List<ViewNode> result = [new TableNode(columns, messages.Skip(offset).Take(GearboxLazyViews.PageSize).Select((m, i) => row(m, i + offset)).ToArray())];
         if (offset + GearboxLazyViews.PageSize < messages.Length)
             result.Add(lazy.Register($"{id}/{offset + GearboxLazyViews.PageSize}", "More records", () => MessageTable(list, id, columns, row, offset + GearboxLazyViews.PageSize)));
-        return result;
-    }
-
-    private IReadOnlyList<ViewNode> Missions(int offset)
-    {
-        var all = document.Root.Children("mission_playthroughs_data").SelectMany((p, i) => p.Children("mission_list").Select(m => (Index: i, Mission: m))).ToArray();
-        var rows = all.Skip(offset).Take(GearboxLazyViews.PageSize).Select((v, i) => Row((offset + i).ToString(),
-            ("playthrough", new TextNode(v.Index.ToString())), ("mission", document.World.Label($"missions/{offset + i}/label", "Mission", v.Mission.Text("mission_class_path"), mission: true)),
-            ("status", new TextNode(v.Mission.Integer("status") switch { 0 => "Not started", 1 => "Active", 2 => "Complete", 3 => "Failed", _ => "Unknown" })))).ToArray();
-        List<ViewNode> result = [new TableNode([new("playthrough", "Playthrough"), new("mission", "Mission asset"), new("status", "Status")], rows)];
-        if (offset + GearboxLazyViews.PageSize < all.Length)
-            result.Add(lazy.Register($"missions/{offset + GearboxLazyViews.PageSize}", "More missions", () => Missions(offset + GearboxLazyViews.PageSize)));
         return result;
     }
 

@@ -27,12 +27,12 @@ internal static class SerialWrites
     {
         if (value < (property == "level" ? 1 : 0) || value > Maximum(wonderlands, property))
             throw new SaveFormatException("The serial value is outside the supported editor policy.");
-        var info = new SerialReader(wonderlands).Read(serial);
+        var info = new SerialReader(wonderlands).Read(serial, out var envelope);
         var offset = property switch { "level" => info.LevelOffset, "rerolls" => info.RerollOffset, "chaos" => info.ChaosOffset, _ => null };
         // The header's exact level bits can be patched without interpreting or rebuilding an unknown tail.
         if (!info.ChecksumValid || info.Balance?.Path is null || info.Inventory?.Path is null || info.Manufacturer?.Path is null || offset is null)
             throw new SaveFormatException("This serial property has no safely located bit range; original bytes are preserved.");
-        var edited = SerialEnvelope.Decode(serial, wonderlands).Patch(offset.Value, property == "rerolls" ? 8 : 7, value);
+        var edited = envelope!.Patch(offset.Value, property == "rerolls" ? 8 : 7, value);
         var check = new SerialReader(wonderlands).Read(edited);
         if (!check.ChecksumValid || Value(check, property) != value) throw new SaveFormatException("Edited serial failed validation.");
         return edited;

@@ -39,13 +39,17 @@ internal sealed class SerialReader(bool wonderlands)
     private readonly SerialDatabase _database = SerialDatabase.For(wonderlands);
 
     public SerialInfo Read(ReadOnlySpan<byte> serial)
+        => Read(serial, out _);
+
+    internal SerialInfo Read(ReadOnlySpan<byte> serial, out SerialEnvelope? envelope)
     {
+        envelope = null;
         var info = new SerialInfo { Version = serial.IsEmpty ? 0 : serial[0] };
         try
         {
-            var envelope = SerialEnvelope.Decode(serial, wonderlands);
+            envelope = SerialEnvelope.Decode(serial, wonderlands);
             info = info with { ChecksumValid = true };
-            var bits = new SerialBits(envelope.Payload.ToArray());
+            var bits = new SerialBits(envelope.Payload);
             if (bits.Take(ByteBits) != HeaderMarker) throw new SaveFormatException("Unknown item header marker.");
             var version = bits.Take(VersionBits);
             info = info with { DatabaseVersion = version };
@@ -81,8 +85,12 @@ internal sealed class SerialReader(bool wonderlands)
         catch (SaveFormatException ex) { return info with { Rerolls = null, Chaos = null, Diagnostic = ex.Message }; }
     }
 
-    private SerialAsset ReadAsset(SerialBits bits, string category, int version) =>
-        _database.Asset(category, bits.Take(_database.Width(category, version)));
+    private SerialAsset ReadAsset(SerialBits bits, string category, int version)
+    {
+        var offset = bits.Position;
+        var width = _database.Width(category, version);
+        return _database.Asset(category, bits.Take(width)) with { Offset = offset, Width = width };
+    }
 
     private SerialAsset[] ReadAssets(SerialBits bits, string category, int version, int countBits)
     {
@@ -93,7 +101,7 @@ internal sealed class SerialReader(bool wonderlands)
     }
 }
 
-internal sealed class SerialBits(byte[] bytes)
+internal sealed class SerialBits(ReadOnlyMemory<byte> bytes)
 {
     private int _position;
     public int Position => _position;
@@ -103,7 +111,8 @@ internal sealed class SerialBits(byte[] bytes)
         if (count is < 0 or > 31 || count > Remaining)
             throw new SaveFormatException("Truncated or unsupported item bit layout.");
         var value = 0;
-        for (var i = 0; i < count; i++, _position++) value |= ((bytes[_position / 8] >> (_position % 8)) & 1) << i;
+        var data = bytes.Span;
+        for (var i = 0; i < count; i++, _position++) value |= ((data[_position / 8] >> (_position % 8)) & 1) << i;
         return value;
     }
 }

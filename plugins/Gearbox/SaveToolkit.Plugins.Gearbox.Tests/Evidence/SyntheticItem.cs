@@ -7,8 +7,8 @@ internal static class SyntheticItem
     {
         var db = SerialDatabase.For(wonderlands);
         var balance = db.Records("serial-indices").First(r => r.Category == "InventoryBalanceData"
-            && db.Find("part-families", r.Name.ToLowerInvariant()) is not null);
-        var partKey = db.Find("part-families", balance.Name.ToLowerInvariant())!.Name;
+            && db.Find("part-families", r.Attributes["asset"].ToLowerInvariant()) is not null);
+        var partKey = db.Find("part-families", balance.Attributes["asset"].ToLowerInvariant())!.Name;
         List<(int Value, int Width)> fields = [(128, 8), (db.MaximumVersion, 7),
             (int.Parse(balance.Attributes["index"], System.Globalization.CultureInfo.InvariantCulture), db.Width("InventoryBalanceData", db.MaximumVersion)),
             (1, db.Width("InventoryData", db.MaximumVersion)), (1, db.Width("ManufacturerData", db.MaximumVersion)), (12, 7),

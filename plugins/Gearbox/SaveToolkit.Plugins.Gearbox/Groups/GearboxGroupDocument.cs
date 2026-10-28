@@ -120,8 +120,10 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
     private static ActionScope LocalScope(GearboxGroupMember member, ActionScope scope) => new(scope.RowKeys?.Select(key =>
     {
         var local = member.Local(key);
-        var entry = member.Document.Inventory.Entries.SingleOrDefault(e => local == e.List + "/" + e.Id)
-            ?? throw new SaveFormatException("The selection is not an existing item row in this member.");
+        var separator = local.IndexOf('/');
+        if (separator < 0) throw new SaveFormatException("The selection is not an existing item row in this member.");
+        var entry = member.Document.Inventory.Find(local[(separator + 1)..]);
+        if (local[..separator] != entry.List) throw new SaveFormatException("The item row belongs to another collection.");
         if (scope.QueryScope is { } query && member.Local(query.CollectionId) != entry.List)
             throw new SaveFormatException("The resolved item selection belongs to another collection.");
         return entry.Id;

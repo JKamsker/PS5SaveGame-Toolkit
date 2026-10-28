@@ -46,21 +46,22 @@ internal sealed class GearboxItemActions(GearboxDocument document)
                         try
                         {
                             _ = SerialWrites.Set(entry.Serial, document.Root.Schema.Wonderlands, "level", level);
-                            var old = new SerialReader(document.Root.Schema.Wonderlands).Read(entry.Serial).Level!.Value;
+                            var old = document.Inventory.Info(entry.Id).Level!.Value;
                             if (old != level) changes.Add(new(entry.Id + "/level", entry.Id + " level", FieldValue.Of(old), FieldValue.Of(level)));
                         }
                         catch (SaveFormatException ex) { skipped.Add(new(entry.Id, ex.Message)); }
                     }
                     else
                     {
-                        if (actionId == "items/duplicate" && !new SerialReader(document.Root.Schema.Wonderlands).Read(entry.Serial).Complete)
+                        if (actionId == "items/duplicate" && !document.Inventory.Info(entry.Id).Complete)
                         { skipped.Add(new(entry.Id, "Cannot create an item with an unknown or invalid layout.")); continue; }
                         changes.Add(new(entry.Id + "/presence", entry.Id + (actionId == "items/remove" ? " removed" : " duplicated"),
                             FieldValue.Of(1), FieldValue.Of(actionId == "items/remove" ? 0 : 2)));
                     }
                 }
+                var skippedIds = skipped.Select(row => row.RowKey).ToHashSet(StringComparer.Ordinal);
                 if (actionId == "items/duplicate")
-                    foreach (var group in selected.Where(e => skipped.All(s => s.RowKey != e.Id)).GroupBy(e => e.List))
+                    foreach (var group in selected.Where(e => !skippedIds.Contains(e.Id)).GroupBy(e => e.List))
                         document.Inventory.EnsureCapacity(group.Key, group.Count());
                 if (actionId == "items/remove") AddSlotChanges(changes, selected);
             }
@@ -88,7 +89,7 @@ internal sealed class GearboxItemActions(GearboxDocument document)
                 if (actionId == "items/remove") document.Inventory.Remove(entry.Id);
                 else if (actionId == "items/duplicate")
                 {
-                    if (new SerialReader(document.Root.Schema.Wonderlands).Read(entry.Serial).Complete)
+                    if (document.Inventory.Info(entry.Id).Complete)
                         document.Inventory.Append(entry.List, entry.Field);
                 }
                 else
@@ -110,9 +111,11 @@ internal sealed class GearboxItemActions(GearboxDocument document)
         if (requireSelection && scope.RowKeys is null) throw new SaveFormatException("Select explicit item rows before this structural action.");
         var entries = document.Inventory.Entries.ToArray();
         if (scope.RowKeys is null) return entries;
-        if (scope.RowKeys.Distinct().Count() != scope.RowKeys.Count || scope.RowKeys.Any(key => entries.All(e => e.Id != key)))
+        var keys = scope.RowKeys.ToHashSet(StringComparer.Ordinal);
+        var known = entries.Select(entry => entry.Id).ToHashSet(StringComparer.Ordinal);
+        if (keys.Count != scope.RowKeys.Count || !keys.IsSubsetOf(known))
             throw new SaveFormatException("The selection contains stale, foreign or duplicate item rows.");
-        return entries.Where(e => scope.RowKeys.Contains(e.Id)).ToArray();
+        return entries.Where(e => keys.Contains(e.Id)).ToArray();
     }
 
     private int TargetLevel(IReadOnlyDictionary<string, FieldValue> parameters)
