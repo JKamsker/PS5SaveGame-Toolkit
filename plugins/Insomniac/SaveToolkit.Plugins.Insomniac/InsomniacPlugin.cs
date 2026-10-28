@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.Insomniac;
 
 public sealed class InsomniacPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.3.0")
+    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.4.0")
     {
         Description = "Read-only loadout, preferences, world state and lossless DAT1/DDL exploration for Rift Apart saves.",
         Games = [new GameTitle("PPSA01474", "Ratchet & Clank: Rift Apart")],
@@ -18,6 +18,9 @@ public sealed class InsomniacPlugin : IGamePlugin
             "https://ratchetandclank.fandom.com/wiki/Burst_Pistol",
             "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript",
             "https://ratchetandclank.fandom.com/wiki/Warmonger",
+            "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+            "https://ratchetandclank.fandom.com/wiki/Rift_Apart_armor?oldid=402364",
+            "https://raw.githubusercontent.com/Tkachov/ALERT/bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb/dat1lib/crc64.py",
             "https://github.com/Tkachov/ALERT/blob/main/dat1lib/types/dat1.py",
             "https://github.com/Tkachov/ALERT/wiki/Formats",
             "https://github.com/VELD-Dev/riftripper",

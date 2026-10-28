@@ -23,6 +23,8 @@ public sealed class DifferentialEvidenceTests
         Assert.Contains(diff.Changes, c => c.Path == "campaign/CareerBolts/0" && c.Before == "363925" && c.After == "977095");
         Assert.Contains(diff.Changes, c => c.Kind == SemanticChangeKind.Changed && c.Path.EndsWith("/xp", StringComparison.Ordinal));
         Assert.Contains(diff.Changes, c => c.Kind == SemanticChangeKind.Changed && c.Path.EndsWith("/loaded-ammo", StringComparison.Ordinal));
+        Assert.Contains(diff.Changes, c => c.Kind == SemanticChangeKind.Changed && c.Path.Contains("/mod-grid/", StringComparison.Ordinal));
+        Assert.Contains(diff.Changes, c => c.Kind == SemanticChangeKind.Changed && c.Path.Contains("/mod-count/", StringComparison.Ordinal));
         var oldXp = oldTree.Values.Where(v => v.Path.EndsWith("/xp", StringComparison.Ordinal)).Select(v => v.Path).ToHashSet();
         Assert.True(newTree.Values.Count(v => oldXp.Contains(v.Path)) >= 10);
     }

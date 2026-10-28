@@ -16,7 +16,9 @@ public sealed class ReadOnlyViewTests
         Assert.Empty(store.LoadErrors);
         var context = store.Pin(plugin, "PPSA01474");
         var weapons = context.Catalog("rift-weapons")!;
-        Assert.Equal(3, weapons.Count);
+        Assert.Equal(20, weapons.Count);
+        Assert.Equal(57, context.Catalog("rift-armor")!.Count);
+        Assert.Equal(20, context.Catalog("rift-world")!.Count);
         Assert.Equal(86, context.Catalog("rift-schema")!.Count);
         Assert.Equal(5, context.Catalog("rift-item-types")!.Count);
         foreach (var record in context.Catalog("rift-item-types")!.Search(new()).Items)
@@ -30,7 +32,20 @@ public sealed class ReadOnlyViewTests
             Assert.Contains("inferred", record.Description, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(record.Source!, plugin.Info.References);
         }
-        Assert.Null(weapons.Find("configs\\equipment\\wpn_warprifle_item.config"));
+        foreach (var record in context.Catalog("rift-armor")!.Search(new() { Limit = 200 }).Items)
+        {
+            Assert.Equal("CC-BY-SA-3.0", record.Dataset.Attribution.License);
+            Assert.EndsWith("?oldid=402364", record.Source);
+            Assert.Contains(record.Source!, plugin.Info.References);
+            Assert.False(string.IsNullOrWhiteSpace(record.Attributes["saveId"]));
+            Assert.True(record.Attributes["slot"] is "Head" or "Torso" or "Legs");
+            Assert.Null(record.Limit);
+            Assert.Null(record.AssetId);
+        }
+        Assert.All(context.Catalog("rift-world")!.Search(new()).Items,
+            record => Assert.Equal("CC0-1.0", record.Dataset.Attribution.License));
+        Assert.Equal("Blackhole Storm", weapons.Find("configs\\equipment\\wpn_warprifle_item.config")!.Name);
+        Assert.Null(weapons.Find("configs\\equipment\\wpn_unknown_item.config"));
         Assert.Null(store.Pin(plugin, "PPSA00000").Catalog("rift-weapons"));
     }
 
@@ -52,11 +67,10 @@ public sealed class ReadOnlyViewTests
             Assert.Equal(f.Value, document.GetValue(f.ValueId));
         });
         var named = fields.Where(f => f.Confidence == Confidence.Inferred).ToArray();
-        Assert.Equal(3, named.Length);
+        Assert.Equal(4, named.Length);
         Assert.All(named, f => Assert.Contains("CC-BY-SA-3.0", f.Description));
-        var unknown = Assert.Single(fields, f => f.Confidence == Confidence.Unknown);
-        Assert.EndsWith("wpn_warprifle_item.config", unknown.Value.AsString());
-        Assert.False(document.ApplyEdits([new(unknown.ValueId, named[0].Value)]).Succeeded);
+        var warp = Assert.Single(fields, f => f.Value.AsString().EndsWith("wpn_warprifle_item.config", StringComparison.Ordinal));
+        Assert.False(document.ApplyEdits([new(warp.ValueId, named[0].Value)]).Succeeded);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
 
         using var noPacks = plugin.Open(file);

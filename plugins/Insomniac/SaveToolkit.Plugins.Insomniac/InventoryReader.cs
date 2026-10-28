@@ -4,7 +4,12 @@ using SaveToolkit.Sdk;
 namespace SaveToolkit.Plugins.Insomniac;
 
 internal sealed record InventoryRecord(uint Type, int Offset, int Size, string Key,
-    string? GuidBytes, string? ConfigBytes, uint? Count, uint? Xp, float? CheckpointAmmo, float? LoadedAmmo);
+    string? GuidBytes, string? ConfigBytes, uint? Count, uint? Xp, float? CheckpointAmmo, float? LoadedAmmo)
+{
+    internal ushort? ItemId { get; init; }
+    internal WeaponUpgrades? Upgrades { get; init; }
+    internal VanityState? Vanity { get; init; }
+}
 
 internal sealed record InventoryBlock(uint Tag, int Occurrence, int Offset, int Size, int OpaqueBytes,
     IReadOnlyList<InventoryRecord> Records)
@@ -122,7 +127,12 @@ internal static class InventoryReader
                 loaded = null;
             }
         }
-        return new(type, offset, payload.Length, "", guid, config, count, xp, checkpoint, loaded);
+        return new(type, offset, payload.Length, "", guid, config, count, xp, checkpoint, loaded)
+        {
+            ItemId = BinaryPrimitives.ReadUInt16BigEndian(payload[(maskBytes + 2 * sizeof(ulong) + sizeof(uint))..]),
+            Upgrades = type is WeaponType or MeleeType ? InventoryState.Weapon(payload) : null,
+            Vanity = type == VanityType ? InventoryState.Vanity(payload) : null,
+        };
     }
 
     private static uint Word(byte[] bytes, ref int position, int limit)

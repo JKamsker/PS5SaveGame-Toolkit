@@ -1,25 +1,43 @@
 # Ratchet & Clank: Rift Apart (`insomniac`)
 
-Version **0.3.0**, **ReadOnly**, for decrypted **PPSA01474** saves. Phase 1 of
+Version **0.4.0**, **ReadOnly**, for decrypted **PPSA01474** saves. Phase 1 of
 [#20](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/20) is implemented;
-Phase 2 has structural inventory/world inspection, with semantic joins still open.
+Round 2 delivers Phase 2's read-only weapons, armour, upgrades, collectibles and
+world views. Controlled ownership/equipment, upgrade-node and precise pickup joins
+remain evidence gates; no unsupported Phase 2 semantics or Phase 3 writes are claimed.
 The engine family name does not claim Spider-Man, other titles or other regions.
 
 ## Views
 
 - **Player:** career/spent counters, inferred available bolts, play time, challenge
   flags, gold-bolt options and per-location counters. Career weapon XP is aggregate.
-- **Loadout:** four exact quick-select paths using F4 reference fields. An attributed
-  F2 catalog supplies three inferred English labels: Burst Pistol, Mr. Fungi and
-  Warmonger. Unknown paths, including `warprifle`, remain raw. A shortcut does not
-  prove ownership. Read-only reference controls intentionally disable replacement.
+- **Loadout:** four exact quick-select paths using F4 read-only reference fields.
+  The attributed F2 catalog supplies twenty English weapon-label candidates,
+  including Blackhole Storm for `warprifle`. All twenty paths hash to measured
+  inventory tokens; localization aliases remain inferred. Unknown paths stay raw.
+- **Weapons:** F8 search/filter/sort over weapon/melee records, with candidate names,
+  config tokens, container identity, per-record XP/ammo and Omega state. No record
+  presence, shortcut or container position is equated with ownership/equipment.
+- **Armour:** F8 collection checklist with 57 attributed piece candidates, independent
+  stored collection bits and menu-viewed flags. Unknown/reserved bits stay visible.
+  A separate appearance table shows vanity config/ID/color/preview slots. Catalog
+  bonus categories describe collection; no effective percentages or equip joins.
+- **Upgrades:** F8 Mods masks, sixteen ModGrid row masks, thirty-two ModCount slots
+  and SelectedCell per supported weapon record. Values remain inferred schema
+  state, not named purchased nodes, prices, prerequisites or legal caps.
+- **Collectibles:** F8 location counters, ten inferred spybot identity candidates and
+  complete 64-bit spybot/Lorb/Zurpstone checklists with unresolved slots retained.
+  Collectible award CurrentValue/PrizeGiven fields include CraiggerBear progress,
+  with no bear-count, completion or platform-unlock inference. No guide coordinates
+  or exact gold-bolt hash joins are invented.
 - **Inventory:** 27 sequentially bounded TVNI containers per measured gameplay save,
   lazy record tables, five schema type joins, GUID/config byte-token candidates,
   candidate counts and candidate per-weapon XP/checkpoint-ammo/loaded-ammo state.
   Container tags repeat; no actor, ownership or equipped-state mapping is asserted.
-- **World:** stored objective graph keys, award codenames/progress, gold-bolt hashes
-  and fog-area keys with dimensions, bounds and set-bit counts. No planet/mission
-  names, collectible-location joins, map transform or trophy unlocks are invented.
+- **World:** F8 mission/objective node states and completed counts, pocket dimension
+  completion flags and global progress values. Stored menu mission codes join to
+  node keys by CRC at runtime. Additional diagnostic tables show graph keys, award
+  codenames, gold-bolt hashes and fog bounds/counts. No trophy unlock or map transform.
 - **Campaign details:** character/checkpoint/location codes, multiplier and additional
   flags/counters with storage-only confidence and interpretation warnings.
 - **Preferences:** more than 100 scalar fields grouped into audio, controls,
@@ -62,9 +80,11 @@ See [EVIDENCE.md](EVIDENCE.md) for the measured layouts and F1 comparisons.
 | Available bolts | Inferred career minus spent; independent in-game comparison still needed |
 | Career raritanium / spending | Separate stored counters; late spending exceeds career total, so no available balance is offered |
 | Difficulty / CurrentLevel | Stored codes only; CurrentLevel is not player level and is zero throughout this corpus |
-| Quick-select names | Inferred path joins; three attributed candidate labels, with unresolved paths visible |
+| Weapon names | Twenty attributed localization candidates; all twenty path-to-config-token joins corroborated on PS5; ownership/equipment unproven |
 | Inventory type IDs | Verified against five CC0 schema IDs and name hashes |
-| Inventory GUID/config/count/XP/ammo slots | Inferred fixed-mask schema interpretations, corroborated by changing snapshots; no ownership, level conversion or ammo cap |
+| Inventory GUID/count/XP/ammo/upgrade/vanity slots | Inferred supported full-mask schema interpretations; all 1,120 weapon/melee and 3,687 vanity records checked; no ownership, level conversion or ammo cap |
+| Armour collection and spybot labels | Inferred schema ordinals; base armour bit population matches LevelVanityPickups and spybot bit-to-location counts match LevelRYNOPlans in all 36 primary records |
+| Mission/dimension states | Verified stored fields; mission-code joins use current-save CRC identities; viewed entries are not completion proof |
 | Raw DDL semantics, mission/planet/collectible joins | Unknown unless separately described; stored bytes remain available |
 | Fog set-bit count | Inferred interpretation of byte population counts, including padding; not an exploration percentage |
 
@@ -79,7 +99,11 @@ Historical research tested 41,652 CRC/FNV/Murmur section-digest candidates acros
 That does not exclude custom seeds, other coverage, mirrored state or signatures.
 Section `BC60B495` follows career XP in every sample; it is not an identified digest.
 Public cheat listings did not supply a proven PS5 patch/checksum implementation.
-See [RESEARCH.md](RESEARCH.md) for the earlier investigation and source links.
+Round-2 in-memory fixed-width bolt/option probes preserve every unrelated byte and
+produce one F1 semantic change, but do not prove integrity/console acceptance. An XP
+probe reparses despite its unrepaired BC60B495 mirror: parser acceptance is insufficient.
+See [RESEARCH.md](RESEARCH.md), [EVIDENCE.md](EVIDENCE.md) and the exact
+[owner acceptance checklist](OWNER-CAPTURES.md).
 
 ## Validation
 
@@ -91,17 +115,19 @@ dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Latest sample-backed plugin run: **64 passed, 0 failed, 0 skipped**. All **76** game
+Latest sample-backed plugin run: **86 passed, 0 failed, 0 skipped**. All **76** game
 records round-trip byte-identically, including duplicate generations and backup twins.
 The tests cover all 36 primary inventories, field/name vectors, nested alignment,
 parent bounds/depth/count corruption, unknown payloads, embedded pack hashes/licensing,
-read-only F4 fields, visible lazy details and F1 semantic evidence. Sample-dependent
+read-only F4 fields, F8 lazy page construction/filtering/numeric sorting/stable IDs,
+Core session page acceptance, all new query bindings, full-mask upgrade/vanity
+boundaries, 20/20 config-path hashes, ordinal corroboration and in-memory write probes.
+Sample-dependent
 tests skip when samples are absent.
 
-API build: **0 warnings / 0 errors**. Core tests: **190 passed, 0 skipped**.
-Existing frontend F3/F4 regression tests:
-**27 passed** across `TableView.test.tsx`, `table/table.test.tsx` and
-`reference/ReferenceControl.test.tsx`. No frontend source was changed.
+API build: **0 warnings / 0 errors**. Core's actual F8 session path is exercised in
+the plugin suite. No frontend/framework source changed; historical round-1 Core and
+frontend counts are recorded in issue #20 rather than presented as fresh runs.
 
 F1 evidence tests compare a same-campaign snapshot pair with persistent inventory
 identity candidates and changed XP/ammo candidates, and ZIP generations 0/1 with
@@ -119,7 +145,10 @@ The Sources panel lists the F2 datasets resolved by the document.
 | `schema.json`: 86 field names and containing types | Neptuwunium / [Rivet CC0 schema, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json) | CC0-1.0, confirmed by the file-specific sidecar; selected names only, omitted runtime offsets/defaults/code |
 | `item-types.json`: five serialized type IDs/names | Same pinned Rivet schema | CC0-1.0; selected type IDs, original uncertainty notes; measured framing independently verified on PS5 |
 | `Resources/PlayerFields.json` | Same pinned Rivet schema; toolkit contributors' labels/groups | CC0 schema facts, original labels; sidecar documents selection and PS5 validation |
-| `weapons.json`: three English label candidates | [Burst Pistol](https://ratchetandclank.fandom.com/wiki/Burst_Pistol), [menu transcript](https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript), [Warmonger](https://ratchetandclank.fandom.com/wiki/Warmonger), Ratchet & Clank Wiki contributors | Derived data under CC BY-SA 3.0; selected factual names/categories, original short summaries and inferred PS5 path joins; no game prose, prices, limits or artwork |
+| `weapons.json`: twenty English name/description candidates | Ratchet & Clank Wiki contributors, [menu transcript revision 403465](https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465) | CC BY-SA 3.0 derived data; short paraphrases and inferred localization aliases; all twenty paths match PS5 tokens; no prices, limits or art |
+| `armor.json`: 57 piece/slot/set candidates and bonus categories | [Armour revision 402364](https://ratchetandclank.fandom.com/wiki/Rift_Apart_armor?oldid=402364), Ratchet & Clank Wiki contributors, plus pinned Rivet CC0 schema | Entire derived dataset CC BY-SA 3.0; selected names and bonus paraphrases with inferred ordinal/set aliases; no bonus percentages or availability claims |
+| `world.json`: twenty location/spybot labels | Neptuwunium / pinned Rivet schema above | CC0-1.0; selected enum labels and ordinal keys, original confidence notes; no pickup coordinates |
+| Asset path identity algorithm research | [ALERT crc64.py, bc90ed9b](https://raw.githubusercontent.com/Tkachov/ALERT/bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb/dat1lib/crc64.py) | GPL research only; independently written bitwise mathematical CRC, no copied lookup table/code. Verified against PS5 inventory tokens; unrelated to integrity |
 | Section strategies / format research | Neptuwunium / [Rivet SaveData, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs) | EUPL-1.2 reference only; no implementation copied or executed |
 | Earlier DAT1 and integrity research | [ALERT format wiki](https://github.com/Tkachov/ALERT/wiki/Formats), [RiftRipper](https://github.com/VELD-Dev/riftripper), [NinjaSaves](https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474) | Research only; no source/artwork port or proven integrity routine |
 
@@ -130,9 +159,12 @@ the plugin code. No EUPL/GPL implementation is incorporated.
 
 ## Open work and exact owner capture checklist
 
-Phase 1 is delivered. Phase 2 is **partial**: framing/type joins and read-only world
-inspection are delivered; ownership, config/localization identities, legal limits,
-collectible locations and precise maps remain open. Phases 3–5 are not enabled.
+Phase 1 and the round-2 **read-only Phase 2 view scope** are delivered. The plan's
+controlled ownership/equipment, localization, legal-limit, upgrade-node and exact
+pickup-location requirements remain open. Phase 3 has research probes, without write
+promotion; Phases 4–5 remain gated. The complete numbered capture protocol and exact
+acceptance candidates are in [OWNER-CAPTURES.md](OWNER-CAPTURES.md). In particular,
+the corpus has no positive Omega state, and vanity ColorId includes codes above 19.
 
 For each pair, use one PPSA01474 slot/build and record region, version, normal versus
 Challenge Mode, character and DLC. First capture save/load/save without gameplay as

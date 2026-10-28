@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "insomniac.rift.en",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "title": "Rift Apart read-only reference data",
   "plugins": [
     "insomniac"
@@ -34,20 +34,20 @@
     {
       "id": "rift-weapons",
       "kind": "records",
-      "title": "Rift Apart weapon label candidates",
+      "title": "Rift Apart weapon name candidates",
       "files": [
         {
           "path": "weapons.json",
-          "sha256": "2d47ce6be409bc3484a9adf66e4423c394d89ec09133b133b94490bdef9c20cb"
+          "sha256": "ab7bcf6122a88f16a56ec375c2fcd2495c702b495d29dbf2861ce9d736f1984f"
         }
       ],
       "attribution": {
-        "sourceUrl": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript",
+        "sourceUrl": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
         "author": "Ratchet & Clank Wiki contributors; PS5 Save Game Toolkit contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Selected three factual weapon labels/categories; authored short descriptions and inferred path joins from PS5 storage. No game prose, limits or artwork."
+        "modifications": "Selected twenty names and short paraphrases; inferred internal-path aliases. No game prose, limits or art. Pinned revision 403465."
       }
     },
     {
@@ -67,6 +67,44 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
         "retrieved": "2026-10-28",
         "modifications": "Selected five serialized item type IDs and names; PS5 fixed-mask sizes are independently observed. No generated code or runtime offsets."
+      }
+    },
+    {
+      "id": "rift-armor",
+      "kind": "records",
+      "title": "Armour collection candidates",
+      "files": [
+        {
+          "path": "armor.json",
+          "sha256": "b38adb0781a847c1877c046a865c6cbc5619c43312279ebe00c95de84af98c8b"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_armor?oldid=402364",
+        "author": "Ratchet & Clank Wiki contributors; Neptuwunium / Rivet; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected schema ordinals and labels; authored confidence notes. Inferred friendly set aliases and paraphrased bonus categories, pinned wiki revision 402364; no game art."
+      }
+    },
+    {
+      "id": "rift-world",
+      "kind": "records",
+      "title": "Location and spybot schema labels",
+      "files": [
+        {
+          "path": "world.json",
+          "sha256": "41db4855fc5e0e1c92624bb9a2a0889404fe11cca3a3d16462100bc5914e243f"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+        "author": "Neptuwunium / Rivet; PS5 Save Game Toolkit contributors",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected schema ordinals and labels; authored confidence notes. No location coordinates or game assets."
       }
     }
   ]

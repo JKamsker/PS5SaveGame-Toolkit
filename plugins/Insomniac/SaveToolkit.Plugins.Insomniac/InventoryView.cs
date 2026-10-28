@@ -11,7 +11,7 @@ internal sealed class InventoryView(IReadOnlyList<InventoryBlock> blocks, IRefer
 {
     internal IReadOnlyList<ViewNode> Build() =>
     [
-        new TextNode("Read-only inventory structure. Blocks are not weapons or actors: repeated type groups can hold shared, equipped or cached state. Ownership, config-name joins and upgrade limits remain unproven. GUID/config columns show exact stored byte tokens, without assuming numeric byte order.") { Tone = Tone.Warning },
+        new TextNode("Raw inventory diagnostics. Named path/token joins and selected state appear in Weapons, Armour and Upgrades. Repeated blocks can hold shared, equipped or cached state; actor/ownership and upgrade limits remain unproven. GUID/config columns preserve exact stored byte tokens.") { Tone = Tone.Warning },
         new StatsNode([new("Bounded TVNI blocks", blocks.Count.ToString(CultureInfo.InvariantCulture)),
             new("Serialized records", blocks.Sum(b => b.Records.Count).ToString(CultureInfo.InvariantCulture))]),
         .. blocks.Select(block =>
