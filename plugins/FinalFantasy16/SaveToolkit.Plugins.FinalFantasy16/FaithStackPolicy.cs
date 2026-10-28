@@ -13,7 +13,7 @@ internal static class FaithStackPolicy
         3 => "AP is separate from learned ranks, costs and refund accounting; no skill state is adjusted.",
         _ => category switch
         {
-            "consumable" => "The active bank, UseItem capacity and pouch upgrades are unverified; no refill or legal-max action is enabled.",
+            "consumable" => "The active bank, UseItem capacity and pouch upgrades are unverified; explicit targets are not a legal max or calculated refill.",
             "quest-item" or "curiosity" or "orchestrion" => "This label does not prove quest, upgrade, collection or unlock state. No dependent flags are changed.",
             "weapon" or "belt" or "vambrace" or "accessory" => "Equipment banks, equipped references, ownership and uniqueness limits are not reconciled.",
             _ => "Game-specific limits and progression effects are unknown. Large values may be clamped or rejected by the game.",

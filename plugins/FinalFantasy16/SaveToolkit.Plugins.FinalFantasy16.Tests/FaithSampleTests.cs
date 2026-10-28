@@ -58,7 +58,7 @@ public sealed class FaithSampleTests
         _ = before.BuildView();
         _ = after.BuildView();
         Assert.True(before.CanEdit);
-        Assert.False(after.CanEdit); // Later archive occurrence is an empty initialised save, not progress.
+        Assert.True(after.CanEdit); // Empty main inventory still has independently gated context fields.
         Assert.Equal(0, after.GetValue("user/playTime").AsInt32());
         Assert.Equal(second.ReadAllBytes(), Assert.Single(after.Serialize()).Content.ToArray());
     }
@@ -89,7 +89,7 @@ public sealed class FaithSampleTests
         foreach (var file in FaithSamples.Records(title))
         {
             using var document = _plugin.Open(file);
-            if (!document.CanEdit)
+            if (FaithInventory.Parse(file.ReadAllBytes(), FaithContainer.Parse(file.ReadAllBytes())).Items.Count == 0)
             {
                 continue;
             }

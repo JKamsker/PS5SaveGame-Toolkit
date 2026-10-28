@@ -6,12 +6,12 @@ namespace SaveToolkit.Plugins.FinalFantasy16;
 
 internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory, FaithCatalog catalog)
 {
-    public IReadOnlyList<ViewNode> Build(Func<FaithItem, FieldNode> quantity, Func<string, int, FieldNode> identity) =>
+    public IReadOnlyList<ViewNode> Build(Func<FaithItem, string, FieldNode> quantity, Func<string, int, FieldNode> identity) =>
     [
-        new TextNode("Only existing main-bank quantities can be edited. Identity pickers are read-only: " +
-            "replacing, adding, removing or equipping items requires controlled evidence.") { Tone = Tone.Warning },
+        new TextNode("Existing supported main/secondary records can be patched in place. No records are added or removed. " +
+            FaithWriteMap.Warning) { Tone = Tone.Warning },
         new TextNode("Legacy manual edits use storage bounds only; reference names and limits do not establish current gameplay caps. " +
-            "F6 refill/set-quantity bulk actions are unavailable until active-bank, capacity and dependency evidence is supplied.") { Tone = Tone.Warning },
+            "F6 explicit-quantity previews use an observed corpus ceiling; they do not calculate a legal max or refill capacity.") { Tone = Tone.Warning },
         new TextNode($"Named main records: {inventory.Items.Count(item => catalog.Item(item.Id) is not null)}/{inventory.Items.Count}. " +
             "Unmapped IDs remain visible. Categories describe the reference source, not ownership or availability."),
         new ActionNode(FaithCatalog.LookupActionId, "Look up an item")
@@ -22,31 +22,34 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
         },
         inventory.IsSupported ? Table(inventory.Items, "inventory", quantity, identity) :
             new TextNode("Main inventory schema/allocation is unsupported or ambiguous; use Structure/Hex.") { Tone = Tone.Warning },
-        new SectionNode("Secondary bank — unconfirmed role, read-only", [
+        new SectionNode("Secondary bank — unconfirmed role, Experimental", [
             new TextNode("This is a separate stored bank. It may contain historical/stage data; it is not identified as current inventory. " +
                 "ID zero is preserved without assigning a sentinel meaning.") { Tone = Tone.Warning },
-            inventory.IsSecondarySupported ? Table(inventory.SecondaryItems, "secondary", null, identity) :
+            inventory.IsSecondarySupported ? Table(inventory.SecondaryItems, "secondary", quantity, identity) :
                 new TextNode("Secondary allocation is not a supported dense bank; all bytes remain in Structure/Hex."),
         ]),
     ];
 
     private TableNode Table(IReadOnlyList<FaithItem> items, string bank,
-        Func<FaithItem, FieldNode>? quantity, Func<string, int, FieldNode> identity) => new([
+        Func<FaithItem, string, FieldNode> quantity, Func<string, int, FieldNode> identity) => new([
         new TableColumn("slot", "Storage slot"), new TableColumn("id", "Raw ID / reference"),
         new TableColumn("name", "Name"), new TableColumn("category", "Category"),
         new TableColumn("quantity", "Stored stack"), new TableColumn("flags", "Raw new-flag word"),
+        new TableColumn("action", "Selected rows"),
     ], items.Select(item => new TableRow($"{bank}/{item.Slot}", new Dictionary<string, ViewNode>
     {
         ["slot"] = new TextNode(FaithCatalog.Key(item.Slot)),
         ["id"] = identity($"{bank}/{item.Slot}/item", item.Id),
         ["name"] = new TextNode(catalog.Name(item.Id)),
         ["category"] = new TextNode(catalog.Category(item.Id)),
-        ["quantity"] = quantity is null
-            ? new TextNode(FaithCatalog.Key(ReadInt(item.Offset + sizeof(int)))) : quantity(item),
+        ["quantity"] = quantity(item, bank),
         ["flags"] = new TextNode($"0x{ReadInt(item.Offset + 2 * sizeof(int)):X8}"),
+        ["action"] = bank == "inventory" ? FaithQuantityPlanning.Action() : new TextNode("No secondary bulk action"),
     })).ToArray())
     {
         Title = bank == "inventory" ? "Main allocated records (zero stacks included)" : "Secondary allocated records (unconfirmed role)",
+        Description = bank == "inventory" ? "Select main rows, then use a table action to preview their explicit target quantities. " +
+            "No selected rows means no changes. The separate action below the table has document scope." : "Stored stage/bank role remains unconfirmed.",
     };
 
     private int ReadInt(int offset) => BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(offset));

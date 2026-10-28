@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using static SaveToolkit.Plugins.FinalFantasy16.FaithContextLayout;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
@@ -7,21 +8,20 @@ using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.FinalFantasy16;
 
-internal sealed class FaithDocument : BoundSaveDocument
+internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
 {
     private const string CrcId = "integrity/crc32";
     private const int QuantityOffset = 4;
-    private const int ChildLevelOffset = 8;
-    private const int ChildXpOffset = 12;
     private readonly ISaveFile _file;
     private readonly byte[] _bytes;
     private readonly FaithContainer _container;
     private readonly FaithSchema _schema;
-    private readonly FaithInventory _inventory;
+    private FaithInventory _inventory;
     private readonly FaithExplorer _explorer;
     private readonly FaithCatalog _catalog;
-    private readonly FaithReadOnlyContext _context;
+    private readonly FaithCharacterContext _context;
     private readonly IReferenceContext _references;
+    private readonly FaithWriteMap _writes;
 
     public FaithDocument(ISaveFile file, byte[] bytes, FaithContainer container, FaithSchema schema, IReferenceContext references)
     {
@@ -33,17 +33,20 @@ internal sealed class FaithDocument : BoundSaveDocument
         _explorer = new FaithExplorer(bytes, container);
         _references = references;
         _catalog = new FaithCatalog(references);
-        _context = new FaithReadOnlyContext(bytes, container, schema, references);
+        _context = new FaithCharacterContext(bytes, container, schema, references);
+        _writes = new FaithWriteMap(bytes, container, schema, _inventory);
     }
 
     public override string Title => $"Final Fantasy XVI{(_schema.IsDemo ? " Demo" : "")} · {_file.FileName}";
-    public override bool CanEdit => _inventory.Items.Any(item => ReadInt(item.Offset + QuantityOffset) >= 0);
+    public override bool CanEdit => !_container.IsSystem &&
+        (_writes.CanEdit || _inventory.Items.Any(item => ReadInt(item.Offset + QuantityOffset) >= 0));
 
     public override ViewNode BuildView() => new TabsNode([
         new Tab("Overview", Overview()),
         new Tab("Inventory", [.. new FaithInventoryView(_bytes, _inventory, _catalog).Build(Quantity, ItemIdentity),
-            new FaithCapacityContext(_bytes, _inventory, _catalog).Build(BindReadOnly)]),
-        new Tab("Character context", _context.Build(BindReadOnly, ItemIdentity)),
+            FaithQuantityPlanning.Action(),
+            new FaithCapacityContext(_bytes, _inventory, _catalog).Build(BindContextField)]),
+        new Tab("Character context", _context.Build(BindContextField, ItemIdentity)),
         new Tab("Structure", _explorer.BuildView()),
         new Tab("Hex", [new HexNode(FaithExplorer.FileBlobId, _bytes.Length) { Title = "Original layout with current edits" }]),
     ]);
@@ -72,20 +75,53 @@ internal sealed class FaithDocument : BoundSaveDocument
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
+        if (!CanEdit) return EditOutcome.Rejected("", "This save has no supported writable schema.");
+        if (edits.Select(edit => edit.ValueId).Distinct(StringComparer.Ordinal).Count() != edits.Count)
+            return EditOutcome.Rejected("", "A batch cannot edit the same field twice.");
+        var before = _bytes.ToArray();
+        var aliases = FaithDerivedValues.Capture(_bytes, _inventory, _writes);
         var oldCrc = ReadCrc();
         var result = base.ApplyEdits(edits);
+        result = result with { Changes = result.Changes.Where(change => change.OldValue != change.NewValue).ToArray() };
         if (!result.Succeeded || result.Changes.Count == 0)
         {
             return result;
         }
-
+        var errors = _writes.ValidateIdentityBatch(_bytes, _inventory, edits);
+        if (errors.Count > 0)
+        {
+            before.CopyTo(_bytes, 0);
+            return new EditOutcome { Errors = errors };
+        }
+        _inventory = FaithInventory.Parse(_bytes, _container);
+        var derived = FaithDerivedValues.Capture(_bytes, _inventory, _writes)
+            .Where(pair => aliases.TryGetValue(pair.Key, out var old) && old != pair.Value)
+            .Select(pair => new ValueChange(pair.Key, aliases[pair.Key], pair.Value));
+        result = result with { Changes = [.. result.Changes, .. derived] };
         var newCrc = FaithCrc32.Compute(_bytes.AsSpan(FaithContainer.HeaderSize));
         BinaryPrimitives.WriteUInt32LittleEndian(_bytes.AsSpan(FaithContainer.CrcOffset), newCrc);
         return result with
         {
+            StructureChanged = true,
+            Warnings = [FaithWriteMap.Warning],
             Changes = oldCrc == newCrc ? result.Changes :
                 [.. result.Changes, new ValueChange(CrcId, FieldValue.Of((ulong)oldCrc), FieldValue.Of((ulong)newCrc))],
         };
+    }
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        new FaithQuantityPlanning(_bytes, _inventory, _catalog).Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+    {
+        var current = PlanAction(actionId, parameters, scope);
+        if (current.Errors.Count > 0) return new EditOutcome { Errors = current.Errors };
+        if (!current.Changes.SequenceEqual(plan.Changes) || !current.SkippedRows.SequenceEqual(plan.SkippedRows) ||
+            !current.Warnings.SequenceEqual(plan.Warnings) || plan.Errors.Count > 0)
+            return EditOutcome.Rejected(actionId, "The reviewed plan no longer matches this save.");
+        _ = BuildView();
+        return ApplyEdits(current.Changes.Where(change => !change.Derived)
+            .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray()) with { Warnings = current.Warnings };
     }
 
     public override IReadOnlyList<FileOutput> Serialize()
@@ -122,24 +158,24 @@ internal sealed class FaithDocument : BoundSaveDocument
         var nodes = new List<ViewNode>
         {
             new StatsNode(stats),
-            new TextNode("Experimental: inventory writes pass format round trips; console loading has not been tested.") { Tone = Tone.Warning },
+            new TextNode(FaithWriteMap.Warning) { Tone = Tone.Warning },
             Field(CrcId, "CRC32 (payload)", IntegerSpec.UInt32 with { Format = IntegerFormat.Hex },
                 () => FieldValue.Of((ulong)ReadCrc())) with { Confidence = Confidence.Verified },
         };
         if (player is not null)
         {
             nodes.Add(new SectionNode("Character", [
-                ReadOnlyInt("player/level", "Level", player.PayloadOffset),
-                ReadOnlyInt("player/xp", "Experience", player.PayloadOffset + sizeof(int)),
-                ReadOnlyInt("player/childLevel", "Child level", player.PayloadOffset + ChildLevelOffset),
-                ReadOnlyInt("player/childXp", "Child experience", player.PayloadOffset + ChildXpOffset),
-                new TextNode("Level and experience are read-only because growth/stat dependencies have not been mapped.") { Tone = Tone.Muted },
+                ContextInt("player/level", "Level", player.PayloadOffset),
+                ContextInt("player/xp", "Experience", player.PayloadOffset + sizeof(int)),
+                ContextInt("player/childLevel", "Child level", player.PayloadOffset + ChildLevelOffset),
+                ContextInt("player/childXp", "Child experience", player.PayloadOffset + ChildXpOffset),
+                new TextNode("Level/XP are independent stored values. Growth/stat dependencies are not recalculated.") { Tone = Tone.Warning },
             ]));
         }
 
         if (user is not null)
         {
-            nodes.Add(ReadOnlyInt("user/playTime", "Play time", user.PayloadOffset,
+            nodes.Add(ContextInt("user/playTime", "Play time", user.PayloadOffset,
                 IntegerSpec.Int32 with { Format = IntegerFormat.Duration, UnitsPerSecond = 1, Unit = "s" }));
         }
 
@@ -152,10 +188,13 @@ internal sealed class FaithDocument : BoundSaveDocument
         return nodes;
     }
 
-    private FieldNode Quantity(FaithItem item)
+    private FieldNode Quantity(FaithItem item, string bank = "inventory")
     {
         var offset = item.Offset + QuantityOffset;
-        var writable = ReadInt(offset) >= 0;
+        if (bank == "secondary") return BindContextField($"secondary/{item.Slot}/quantity", $"{_catalog.Name(item.Id)} stored stack",
+            IntegerSpec.Int32, () => FieldValue.Of(ReadInt(offset)), Confidence.Unknown,
+            "Secondary bank role is unconfirmed; this may be historical/stage state. ID zero has unknown meaning and its identity stays read-only. " + _catalog.Provenance(item.Id));
+        var writable = !_container.IsSystem && ReadInt(offset) >= 0;
         return Field(item.QuantityId, $"{_catalog.Name(item.Id)} stack",
             writable ? new IntegerSpec(0, int.MaxValue) : IntegerSpec.Int32,
             () => FieldValue.Of(ReadInt(offset)),
@@ -170,21 +209,39 @@ internal sealed class FaithDocument : BoundSaveDocument
         };
     }
 
-    private FieldNode ReadOnlyInt(string id, string label, int offset, IntegerSpec? spec = null) =>
-        Field(id, label, spec ?? IntegerSpec.Int32, () => FieldValue.Of(ReadInt(offset))) with { Confidence = Confidence.Verified };
+    private FieldNode ContextInt(string id, string label, int offset, IntegerSpec? spec = null) =>
+        BindContextField(id, label, spec ?? IntegerSpec.Int32, () => FieldValue.Of(ReadInt(offset)), Confidence.Inferred,
+            "Supported PlayerData/UserData fixed-width layout; PS5 sample bytes checked. " + FaithCharacterContext.SchemaSource);
 
     private FieldNode ItemIdentity(string id, int itemId) =>
-        Field(id, _catalog.Name(itemId), new ReferenceSpec(FaithCatalog.ItemsId) { AllowCustom = true },
-            () => FieldValue.Of(FaithCatalog.Key(itemId))) with
+        BindContextField(id, _catalog.Name(itemId), new ReferenceSpec(FaithCatalog.ItemsId) { AllowCustom = true },
+            () => FieldValue.Of(FaithCatalog.Key(itemId)),
+            _catalog.Item(itemId) is null ? Confidence.Unknown : Confidence.Inferred, _catalog.Provenance(itemId)) with
         {
-            Confidence = _catalog.Item(itemId) is null ? Confidence.Unknown : Confidence.Inferred,
-            Description = _catalog.Provenance(itemId),
-            Warning = "Identity is read-only; catalog presence does not establish ownership, slot eligibility or game-build availability.",
+            Warning = FaithWriteMap.Warning + "Catalog presence does not establish ownership, slot eligibility or game-build availability. " +
+                (_writes.Find(id) is null ? "This reference has no writable storage mapping." : "Only this ID is replaced; no item is allocated or removed."),
         };
 
-    private FieldNode BindReadOnly(string id, string label, FieldSpec spec, Func<FieldValue> get,
-        Confidence confidence, string description) => Field(id, label, spec, get) with
-        { Confidence = confidence, Description = description };
+    private FieldNode BindContextField(string id, string label, FieldSpec spec, Func<FieldValue> get,
+        Confidence confidence, string description)
+    {
+        var write = _writes.Find(id);
+        if (write is null) return Field(id, label, spec, get) with { Confidence = confidence, Description = description };
+        var catalog = (spec as ReferenceSpec)?.CatalogId;
+        if (spec is ReferenceSpec reference) spec = reference with
+        {
+            Assess = record => write.Validate(FieldValue.Of(record.Key), catalog, _catalog) is { } error
+                ? new ReferenceEligibility { Eligible = false, Reasons = [error] } : new ReferenceEligibility(),
+        };
+        return Field(id, label, write.Spec(spec), () => write.Get(catalog is not null),
+            value => write.Set(value, catalog is not null), value => write.Validate(value, catalog, _catalog)) with
+        {
+            Confidence = confidence == Confidence.Verified ? Confidence.Inferred : confidence,
+            Description = description + $" Fixed-width file range 0x{write.Offset:X}..0x{write.Offset + write.Width:X}. " +
+                FaithWriteMap.Warning + $"Conservative observed/type bounds {write.Minimum}..{write.Maximum}; original values are preserved.",
+            Warning = FaithWriteMap.Warning,
+        };
+    }
 
     private int ReadInt(int offset) => BinaryPrimitives.ReadInt32LittleEndian(_bytes.AsSpan(offset));
     private uint ReadCrc() => BinaryPrimitives.ReadUInt32LittleEndian(_bytes.AsSpan(FaithContainer.CrcOffset));

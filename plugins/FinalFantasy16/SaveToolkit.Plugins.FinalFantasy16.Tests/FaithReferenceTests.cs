@@ -44,7 +44,7 @@ public sealed class FaithReferenceTests
     }
 
     [Fact]
-    public void FallbackAndHostCatalogAgreeAndIdentityIsReadOnly()
+    public void FallbackAndHostCatalogAgreeAndIdentityReplacementPersists()
     {
         var bytes = FaithTestData.Container((FaithSchema.ItemType, FaithSchema.ItemVersion, FaithTestData.Items()));
         var file = FaithTestData.File(bytes);
@@ -56,10 +56,12 @@ public sealed class FaithReferenceTests
         Assert.Equal(actual.Label, fallback.Label);
         Assert.Equal(actual.Description, fallback.Description);
         Assert.IsType<ReferenceSpec>(actual.Spec);
-        Assert.True(actual.Spec.ReadOnly);
+        Assert.False(actual.Spec.ReadOnly);
         Assert.Equal("1", actual.Value.AsString());
         Assert.Contains("CC-BY-SA", actual.Description);
-        Assert.False(withPack.ApplyEdits([new ValueEdit(actual.ValueId, FieldValue.Of("5"))]).Succeeded);
+        Assert.True(withPack.ApplyEdits([new ValueEdit(actual.ValueId, FieldValue.Of("5"))]).Succeeded);
+        Assert.Equal("5", withPack.GetValue(actual.ValueId).AsString());
+        Assert.True(withPack.ApplyEdits([new ValueEdit(actual.ValueId, FieldValue.Of("1"))]).Succeeded);
         Assert.Equal(bytes, Assert.Single(withPack.Serialize()).Content.ToArray());
     }
 

@@ -1,0 +1,206 @@
+{
+  "PPSA10665": {
+    "level": {
+      "min": 10,
+      "max": 42
+    },
+    "xp": {
+      "min": 0,
+      "max": 27376
+    },
+    "childLevel": {
+      "min": 5,
+      "max": 8
+    },
+    "childXp": {
+      "min": 0,
+      "max": 41
+    },
+    "hp": {
+      "min": -1,
+      "max": 2650
+    },
+    "recovery": {
+      "min": -1,
+      "max": 0
+    },
+    "lb": {
+      "min": -1,
+      "max": 33600
+    },
+    "currentSummon": {
+      "min": 0,
+      "max": 2
+    },
+    "learnedSummons": {
+      "min": 0,
+      "max": 510
+    },
+    "revealedSummons": {
+      "min": 0,
+      "max": 351
+    },
+    "summons": {
+      "min": 0,
+      "max": 6
+    },
+    "commands": {
+      "min": 0,
+      "max": 328
+    },
+    "shortcuts": {
+      "min": 0,
+      "max": 9
+    },
+    "scene": {
+      "min": 0,
+      "max": 2
+    },
+    "map": {
+      "min": 0,
+      "max": 701000
+    },
+    "party": {
+      "min": 0,
+      "max": 12350
+    },
+    "memberCount": {
+      "min": 0,
+      "max": 4
+    },
+    "mainQuantity": {
+      "min": 0,
+      "max": 127811
+    },
+    "mainId": {
+      "min": 1,
+      "max": 100507
+    },
+    "secondaryQuantity": {
+      "min": 0,
+      "max": 152
+    },
+    "secondaryId": {
+      "min": 0,
+      "max": 100506
+    },
+    "playTime": {
+      "min": 0,
+      "max": 604277
+    },
+    "equipment": {
+      "min": 0,
+      "max": 900000
+    },
+    "ranks": {
+      "min": 0,
+      "max": 3
+    },
+    "skillFlags": {
+      "min": 0,
+      "max": 255
+    }
+  },
+  "PPSA13803": {
+    "level": {
+      "min": 10,
+      "max": 10
+    },
+    "xp": {
+      "min": 0,
+      "max": 50
+    },
+    "childLevel": {
+      "min": 6,
+      "max": 8
+    },
+    "childXp": {
+      "min": 32,
+      "max": 48
+    },
+    "hp": {
+      "min": -1,
+      "max": 1000
+    },
+    "recovery": {
+      "min": -1,
+      "max": 107
+    },
+    "lb": {
+      "min": 0,
+      "max": 0
+    },
+    "currentSummon": {
+      "min": 0,
+      "max": 0
+    },
+    "learnedSummons": {
+      "min": 64,
+      "max": 64
+    },
+    "revealedSummons": {
+      "min": 0,
+      "max": 0
+    },
+    "summons": {
+      "min": 0,
+      "max": 6
+    },
+    "commands": {
+      "min": 0,
+      "max": 202
+    },
+    "shortcuts": {
+      "min": 0,
+      "max": 9
+    },
+    "scene": {
+      "min": 2,
+      "max": 3
+    },
+    "map": {
+      "min": 191000,
+      "max": 392000
+    },
+    "party": {
+      "min": 101,
+      "max": 1403
+    },
+    "memberCount": {
+      "min": 1,
+      "max": 3
+    },
+    "mainQuantity": {
+      "min": 16,
+      "max": 321
+    },
+    "mainId": {
+      "min": 1,
+      "max": 3
+    },
+    "secondaryQuantity": {
+      "min": 0,
+      "max": 152
+    },
+    "secondaryId": {
+      "min": 0,
+      "max": 100506
+    },
+    "playTime": {
+      "min": 4267,
+      "max": 89891
+    },
+    "equipment": {
+      "min": 0,
+      "max": 900000
+    },
+    "ranks": {
+      "min": 0,
+      "max": 1
+    },
+    "skillFlags": {
+      "min": 0,
+      "max": 255
+    }
+  }
+}

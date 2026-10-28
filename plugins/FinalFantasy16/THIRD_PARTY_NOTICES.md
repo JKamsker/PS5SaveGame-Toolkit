@@ -27,7 +27,9 @@ SOFTWARE.
 
 ## Additional schema research and reference annotations
 
-The new PartyData, EquipmentData, SkillData and common PlayerData readers adapt
+The PartyData, EquipmentData, SkillData and common PlayerData readers and
+fixed-width writers (including the shared context layout and range-measurement
+research script) adapt
 the wire layout in Nenkai/010GameTemplates, revision
 `4a3685f9b63f72ca49e24ac2f18420aaad2762b8`. The 2024 MIT notice above applies.
 Downloaded templates were inspected as text and never executed.

@@ -56,7 +56,8 @@ public sealed class FaithEvidenceTests
         Assert.Equal("Byte 39", fields["skills/ranks/39"].Label);
         Assert.Equal(Confidence.Unknown, fields["skills/ranks/39"].Confidence);
         Assert.Equal(2, fields["skills/ranks/39"].Value.AsInt32());
-        Assert.All(fields.Values, field => Assert.True(field.Spec.ReadOnly));
+        Assert.True(reference.Spec.ReadOnly);
+        Assert.False(fields["skills/ranks/39"].Spec.ReadOnly);
         Assert.False(document.ApplyEdits([new ValueEdit(reference.ValueId, FieldValue.Of("45"))]).Succeeded);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
@@ -73,7 +74,7 @@ public sealed class FaithEvidenceTests
         BinaryPrimitives.WriteInt32LittleEndian(player.AsSpan(52), 201);
         var bytes = FaithTestData.Container((FaithSchema.PlayerType, FaithSchema.PlayerVersion, player));
         using var document = _plugin.Open(FaithTestData.File(bytes));
-        var fields = FaithViewFields.All(document.BuildView()).ToDictionary(field => field.ValueId);
+        var fields = FaithViewFields.All(document.BuildView()).DistinctBy(field => field.ValueId).ToDictionary(field => field.ValueId);
         Assert.Contains(eikon ?? "Summon slot", fields["context/summons/0"].Label);
         var reference = fields["context/feats/0"];
         Assert.Contains(feat ?? "Reference feat", reference.Label);
@@ -81,27 +82,29 @@ public sealed class FaithEvidenceTests
         Assert.Equal(feat is null ? Confidence.Unknown : Confidence.Inferred, reference.Confidence);
         Assert.Contains("Phoenix Shift", fields["context/commands/0"].Label);
         Assert.Equal("201", fields["context/commands/0"].Value.AsString());
-        Assert.All(fields.Values, field => Assert.True(field.Spec.ReadOnly));
+        Assert.True(reference.Spec.ReadOnly);
+        Assert.False(fields["context/commands/0"].Spec.ReadOnly);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
     [Fact]
-    public void GrowthBranchesAreStoredPairsWithoutComputedTargetsOrWritePaths()
+    public void GrowthBranchesAreStoredPairsWithoutComputedTargets()
     {
         var player = new byte[FaithSchema.LegacyPlayerLength];
         int[] values = [42, 13891, 10, 123];
         for (var i = 0; i < values.Length; i++) BinaryPrimitives.WriteInt32LittleEndian(player.AsSpan(i * sizeof(int)), values[i]);
         var bytes = FaithTestData.Container((FaithSchema.PlayerType, FaithSchema.PlayerVersion, player));
         using var document = _plugin.Open(FaithTestData.File(bytes));
-        var fields = FaithViewFields.All(document.BuildView()).Where(field => field.ValueId.StartsWith("growth/", StringComparison.Ordinal)).ToArray();
+        var fields = FaithViewFields.All(document.BuildView()).Where(field => field.ValueId.StartsWith("player/", StringComparison.Ordinal))
+            .DistinctBy(field => field.ValueId).ToArray();
         Assert.Equal(values, fields.Select(field => field.Value.AsInt32()));
-        Assert.All(fields, field => Assert.True(field.Spec.ReadOnly));
-        Assert.False(document.ApplyEdits([new ValueEdit("growth/adult/level", FieldValue.Of(43))]).Succeeded);
+        Assert.All(fields, field => Assert.False(field.Spec.ReadOnly));
+        Assert.False(document.ApplyEdits([new ValueEdit("player/level", FieldValue.Of(43))]).Succeeded);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
     [Fact]
-    public void UpgradeDiagnosticsNeverAuthorizeCapsOrBulkActionsAndTrackManualEdits()
+    public void UpgradeDiagnosticsDoNotCalculateCapsAndTrackManualEdits()
     {
         var items = FaithTestData.Items();
         BinaryPrimitives.WriteInt32LittleEndian(items.AsSpan(16), 506);
@@ -117,8 +120,8 @@ public sealed class FaithEvidenceTests
         Assert.Equal(int.MaxValue, Assert.IsType<IntegerSpec>(quantity.Spec).Max);
         Assert.Contains("Legacy experimental policy", quantity.Warning);
         Assert.Contains("No dependent flags", quantity.Warning);
-        Assert.False(document is IActionPlanningDocument);
-        Assert.Equal(FaithCatalog.LookupActionId, Assert.Single(Actions(view)).ActionId);
+        Assert.IsAssignableFrom<IActionPlanningDocument>(document);
+        Assert.Contains(Actions(view), action => action.ActionId == FaithQuantityPlanning.ActionId && action.SupportsPlanning);
         Assert.False(document.ApplyEdits([new ValueEdit("capacity/506/main/1", FieldValue.Of(0))]).Succeeded);
         var outcome = document.ApplyEdits([new ValueEdit(quantity.ValueId, FieldValue.Of(0))]);
         Assert.True(outcome.Succeeded);
