@@ -1,0 +1,54 @@
+PS5 Save Game Toolkit is licensed GPL-3.0-or-later. See LICENSE.
+Third-party components retain their original licences and notices. This file covers the
+shared codecs added for F11; existing per-plugin notice files remain applicable.
+
+Kraken decoder port
+-------------------
+Original work: "Kraken Decompressor for Windows", Copyright (C) 2016, Powzix.
+C# port: Copyright (C) 2026, the TekkenMusicModManager authors.
+Licence: GNU General Public License version 3 or, at your option, any later version.
+Licence text: LICENSE.
+Source: https://github.com/AaryanKh/TekkenMusicModManager/blob/8737709e840c74efc935e23ac0d33cdb6aaef8f5/src/Tmm.Core/Pak/Kraken.cs
+Original: https://github.com/powzix/ooz/blob/05038060aa68f9187ae9923b2388ca8db40e58d1/kraken.cpp
+Retrieved: 2026-10-28.
+Location: src/SaveToolkit.Codecs/Oodle/.
+Changes: split decoding stages by responsibility; replace all unsafe pointers, fixed buffers,
+stack allocation and native scratch allocation with checked managed buffer views; enforce
+size, work and recursion limits; reject unchecked quantum checksums; correct single-symbol
+Huffman payload consumption; expose bounded Kraken/stored APIs. Original algorithm names,
+format constants and arithmetic are retained to support comparison with upstream.
+No proprietary Oodle runtime, compressor or binaries are included.
+
+Microsoft.Data.Sqlite and Microsoft.Data.Sqlite.Core 10.0.14
+---------------------------------------------------------
+Copyright (c) .NET Foundation and Contributors. All rights reserved.
+Package copyright: Microsoft Corporation. All rights reserved.
+Licence: MIT (docs/licenses/Microsoft-MIT.txt).
+Source: https://github.com/dotnet/efcore/tree/main/src/Microsoft.Data.Sqlite.Core
+Package: https://www.nuget.org/packages/Microsoft.Data.Sqlite/10.0.14
+Used unchanged as a NuGet dependency.
+
+SQLitePCLRaw 2.1.13 (core, bundle_e_sqlite3, provider_e_sqlite3, lib.e_sqlite3)
+----------------------------------------------------------------------------
+Copyright 2014-2024 SourceGear, LLC. Author: Eric Sink.
+Licence: Apache-2.0 (docs/licenses/Apache-2.0.txt).
+Upstream notice: docs/licenses/SQLitePCLRaw-NOTICE.txt.
+Source: https://github.com/ericsink/SQLitePCL.raw
+Package: https://www.nuget.org/packages/SQLitePCLRaw.core/2.1.13
+Used unchanged as NuGet dependencies. e_sqlite3 native libraries are bundled by NuGet;
+no system SQLite installation, downloaded proprietary library, or temp-file bridge is used.
+The underlying SQLite library is public domain: https://sqlite.org/copyright.html
+The preserved upstream NOTICE (trailing whitespace normalized) also describes optional SQLCipher and legacy OpenSSL/SSLeay
+builds. Those providers/libraries are NOT dependencies of this e_sqlite3 bundle and are not
+included. Legacy OpenSSL/SSLeay would need a separate GPL compatibility/exception review;
+the bundled SQLite route avoids that combination.
+
+Licence compatibility
+---------------------
+The imported decoder explicitly allows GPL-3.0-or-later. MIT, Apache-2.0 and public-domain
+SQLite can be combined with GPLv3. No GPL-2.0-only code has been imported. OozSharp was
+not used: its package MIT claim does not remove the GPL notice in its derived decoder,
+and its inspected implementation only decodes Mermaid, not the required Kraken streams.
+No source with unclear relicensing (such as an MIT-labelled ooz derivation) was imported.
+An incompatible licence combination found later must be resolved before merging; this
+decision does not grant redistribution rights to game assets, save samples or reference data.
