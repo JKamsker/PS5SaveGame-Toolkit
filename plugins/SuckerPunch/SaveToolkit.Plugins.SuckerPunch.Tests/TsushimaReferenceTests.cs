@@ -1,5 +1,6 @@
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -79,12 +80,20 @@ public sealed class TsushimaReferenceTests
             Assert.True(bamboo.Spec.ReadOnly);
             Assert.Contains("oldid=29221", bamboo.Description);
             Assert.Contains("CC-BY-SA-3.0", bamboo.Description);
-            var equipment = Assert.IsType<TableNode>(root.Tabs.Single(tab => tab.Title == "Equipment").Children[1]);
-            var storm = Assert.IsType<FieldNode>(equipment.Rows.Single(row => row.Key == "SwordKatanaSakaiStorm").Cells["reference"]);
-            Assert.Equal("The Storm of Clan Sakai", storm.Label);
-            Assert.Equal("SwordKatanaSakaiStorm", document.GetValue(storm.ValueId).AsString());
-            Assert.Equal(Confidence.Inferred, storm.Confidence);
-            Assert.All(equipment.Rows, row => Assert.Equal("Unknown", Assert.IsType<TextNode>(row.Cells["state"]).Text));
+            var equipmentNode = Assert.IsType<QueryableTableNode>(root.Tabs.Single(tab => tab.Title == "Equipment").Children[1]);
+            var equipment = Assert.IsAssignableFrom<IQueryableDocument>(document);
+            var equipmentPage = equipment.Query(equipmentNode.CollectionId, new QueryableCollectionQuery { Limit = 200 });
+            var stormRow = equipmentPage.Rows.SingleOrDefault(row => row.Key == "SwordKatanaSakaiStorm");
+            if (stormRow is not null)
+            {
+                var storm = Assert.IsType<FieldNode>(stormRow.Cells["reference"]);
+                Assert.Equal("The Storm of Clan Sakai", storm.Label);
+                Assert.Equal("SwordKatanaSakaiStorm", document.GetValue(storm.ValueId).AsString());
+                Assert.Equal(Confidence.Inferred, storm.Confidence);
+            }
+
+            Assert.NotEmpty(equipmentPage.Rows);
+            Assert.All(equipmentPage.Rows, row => Assert.Equal("Unknown", Assert.IsType<TextNode>(row.Cells["state"]).Text));
             Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         }
     }

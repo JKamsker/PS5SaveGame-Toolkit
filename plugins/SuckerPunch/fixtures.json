@@ -1,0 +1,20 @@
+{
+  "format": "savetoolkit-fixtures/1",
+  "description": "Uncontrolled Tsushima generation pair used for bounded F1 decoder and no-op differential coverage. The event and platform metadata are not gameplay evidence.",
+  "fixtures": [
+    {
+      "id": "tsushima-observed-generations-0-1",
+      "titleId": "PPSA02225",
+      "game": "Ghost of Tsushima",
+      "platform": "PS5",
+      "event": "Compare supplied generations 0 and 1; action unknown",
+      "control": false,
+      "notes": "Uncontrolled sample generations. This fixture validates parser coverage and semantic decoder bounds; it does not prove any game-state transition.",
+      "before": { "archive": "PPSA02225_saves_dec.zip", "generation": 0 },
+      "after": { "archive": "PPSA02225_saves_dec.zip", "generation": 1 },
+      "decoder": "suckerpunch",
+      "files": ["dis.dat", "memory.dat"],
+      "strict": false
+    }
+  ]
+}

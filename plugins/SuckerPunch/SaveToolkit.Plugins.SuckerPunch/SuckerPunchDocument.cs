@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
@@ -7,7 +8,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.SuckerPunch;
 
-internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDocument
+internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDocument, IQueryableDocument
 {
     private const string InventoryBlockId = "blocks/inventory";
     private const string ProgressBlockId = "blocks/progress";
@@ -20,6 +21,8 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
     private readonly IReferenceContext _references;
     private readonly IReferenceCatalog? _items;
     private readonly TsushimaReferenceViews _views;
+    private readonly TsushimaSpatialViews _spatialViews;
+    private readonly TsushimaQueryableCollections _queryableCollections;
     private readonly TsushimaQuantityPlanning _quantityPlanning;
     private readonly string? _subtitle;
     private readonly SuckerPunchOverview _overview;
@@ -52,6 +55,8 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
         }
 
         _views = new TsushimaReferenceViews(references, _identifiers, BindReadOnly);
+        _spatialViews = new TsushimaSpatialViews(references, _identifiers);
+        _queryableCollections = new TsushimaQueryableCollections(_views, _identifiers.Count > 0);
         _quantityPlanning = new TsushimaQuantityPlanning(bytes, container, _inventory);
     }
 
@@ -97,7 +102,8 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
                 tabs.Add(new Tab("Techniques", [new TextNode(
                     "Read-only identifier evidence. Prerequisites, points, unlock state and progression effects are " +
                     "not established by these strings.") { Tone = Tone.Warning },
-                    _views.Identifiers(IdentifierGroup.Technique, TsushimaIds.Techniques), TsushimaReferenceViews.TechniqueGuide]));
+                    _views.Identifiers(IdentifierGroup.Technique, TsushimaIds.Techniques), _spatialViews.TechniqueGraph(),
+                    TsushimaReferenceViews.TechniqueGuide]));
                 tabs.Add(new Tab("Character", [new TextNode(
                     "Read-only relationships inferred from identifier names. Values are not exposed as edits, and " +
                     "the scanner does not distinguish definitions, counters, ownership or active state.") { Tone = Tone.Warning },
@@ -106,6 +112,7 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
             tabs.Add(new Tab("World", [new TextNode(
                 "Shrine reference by region. Discovery, completion and rewards cannot be read from the supplied saves yet; " +
                 "all location states remain Unknown. This is not a missing-content tracker.") { Tone = Tone.Warning },
+                _spatialViews.CollectibleMap(), _views.WorldReferenceTable(),
                 TsushimaReferenceViews.WorldGuide]));
             tabs.Add(new Tab("Blocks", BuildBlocks()));
         }
@@ -116,7 +123,10 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
         => _quantityPlanning.Plan(actionId, parameters, scope);
+    public IReadOnlyList<QueryableCollection> Collections => _queryableCollections.Collections;
 
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
+        => _queryableCollections.Query(collectionId, query);
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
         var current = PlanAction(actionId, parameters, scope);
