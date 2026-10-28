@@ -107,8 +107,14 @@ public sealed class ExplorerTests
         Assert.Equal(name, Assert.IsType<TextNode>(inventory.Rows[itemSlot].Cells["name"]).Text);
         Assert.All(inventory.Rows.SelectMany(r => r.Cells.Values).OfType<FieldNode>()
             .Where(f => f.ValueId.EndsWith("/id", StringComparison.Ordinal)), f => Assert.True(f.Spec.ReadOnly));
-        Assert.All(inventory.Rows.SelectMany(r => r.Cells.Values).OfType<FieldNode>()
-            .Where(f => f.ValueId.EndsWith("/quantity", StringComparison.Ordinal)), f => Assert.Equal(title == "PPSA18936", f.Spec.ReadOnly));
+        foreach (var row in inventory.Rows)
+        {
+            var quantity = Assert.IsType<FieldNode>(row.Cells["quantity"]);
+            var id = Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsUInt32();
+            var expectedReadOnly = title == "PPSA18936" ||
+                (id != 1 && id != 20 && !ItemNames.Contains(schema, false, id));
+            Assert.Equal(expectedReadOnly, quantity.Spec.ReadOnly);
+        }
         Assert.Equal(104, Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("materia/7"))).Rows.Count);
         Assert.Throws<KeyNotFoundException>(() => document.ExpandNode("materia/8"));
         Assert.Throws<KeyNotFoundException>(() => document.ExpandNode("inventory/16"));

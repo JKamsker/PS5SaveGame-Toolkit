@@ -1,4 +1,4 @@
-Item and materia name data derived from RyudoSynbios/game-tools-collection.
+Item, materia, character and weapon display data derived from RyudoSynbios/game-tools-collection.
 
 The MIT License (MIT)
 

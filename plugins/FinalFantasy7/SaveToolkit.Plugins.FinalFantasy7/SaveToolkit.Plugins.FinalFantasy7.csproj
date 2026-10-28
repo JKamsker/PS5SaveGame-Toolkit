@@ -8,6 +8,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources/names.json" />
+    <EmbeddedResource Include="Resources/equipment.json" />
     <InternalsVisibleTo Include="SaveToolkit.Plugins.FinalFantasy7.Tests" />
   </ItemGroup>
 </Project>
