@@ -37,7 +37,7 @@ public sealed class SampleFormatTests
             using var document = plugin.Open(file);
             timer.Stop();
             Assert.True(timer.Elapsed < TimeSpan.FromSeconds(2), $"Open exceeded 2s: {file.RelativePath}: {timer.Elapsed}.");
-            Assert.False(document.CanEdit);
+            Assert.Equal(!common && title != "PPSA18936", document.CanEdit);
             Assert.True(bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span), file.RelativePath);
         }
     }
@@ -101,6 +101,32 @@ public sealed class SampleFormatTests
         }
 
         Assert.True(pairs > 0, "No matching Remake primary/backup twins were tested.");
+    }
+
+    [Fact]
+    public void DemoSnapshotDiffs_DoNotChangeRecordMetadata()
+    {
+        const string title = "PPSA18936";
+        var schema = Ff7Schema.ForTitle(title)!;
+        var files = SampleSaves.Load(title).AllDiskFiles;
+        var first = files.First(f => f.FileName == schema.Prefix + "000");
+        var second = files.First(f => f.FileName == schema.Prefix + "001");
+        var a = first.ReadAllBytes();
+        var b = second.ReadAllBytes();
+        var records = LinkedRecords.Parse(a, schema, common: false);
+        var changed = 0;
+        foreach (var record in records)
+        {
+            var metadataLength = record.IsTail ? 16 : 40;
+            Assert.True(a.AsSpan(record.Offset, metadataLength).SequenceEqual(b.AsSpan(record.Offset, metadataLength)),
+                $"Record {record.Index} envelope/content header changed between demo snapshots.");
+            for (var offset = record.Offset + metadataLength; offset < record.Offset + record.Length; offset++)
+            {
+                changed += a[offset] == b[offset] ? 0 : 1;
+            }
+        }
+
+        Assert.True(changed > 0, "The two demo snapshots must contain a gameplay change.");
     }
 
     [Theory]

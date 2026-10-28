@@ -10,7 +10,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
 {
     private const int RecordsPerSection = 32;
     private const int MaximumBlobPage = 64 * 1024;
-    private const string IntegrityWarning = "Read-only: PS5 checksums/integrity dependencies are unknown. Structural validation cannot detect arbitrary payload damage.";
+    private const string IntegrityWarning = "Experimental editing: no internal checksum or dependent metadata was found in the supplied samples. Console loading is untested; keep a backup.";
     private readonly string _path;
     private readonly byte[] _bytes;
     private readonly Ff7Schema _schema;
@@ -33,7 +33,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
     }
 
     public override string Title { get; }
-    public override bool CanEdit => false;
+    public override bool CanEdit => !_common && !_schema.IsDemo;
 
     public override ViewNode BuildView() => new TabsNode(
     [
@@ -47,7 +47,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
                 new("Records (including tail)", _records.Count.ToString()),
             ]),
             new TextNode(IntegrityWarning) { Tone = Tone.Warning },
-            new TextNode("Record framing is verified against samples. Gameplay meanings use cited public schemas; demo mappings remain inferred.") { Tone = Tone.Info },
+            new TextNode("Record framing is verified against samples. Gameplay meanings use cited public schemas; demo mappings remain inferred. Remake and retail Rebirth expose experimental gil, item-quantity and materia-AP edits.") { Tone = Tone.Info },
             new SectionNode("Gameplay", _common
                 ? [new TextNode("Common-file settings have no substantiated gameplay mapping. Use the record explorer.")]
                 : _gameplay.Summary(Bind)),
@@ -130,7 +130,29 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
             warning = "Negative value retained as stored; it may be a sentinel or an unsupported mapping.";
         }
 
-        return Field(scalar.Id, scalar.Label, scalar.Spec, Read) with
+        Action<FieldValue>? set = scalar.Editable ? value =>
+        {
+            if (scalar.Byte)
+            {
+                _bytes[scalar.Offset] = checked((byte)value.AsUInt32());
+            }
+            else if (scalar.Signed)
+            {
+                BinaryPrimitives.WriteInt32LittleEndian(_bytes.AsSpan(scalar.Offset), checked(value.AsInt32()));
+            }
+            else
+            {
+                BinaryPrimitives.WriteUInt32LittleEndian(_bytes.AsSpan(scalar.Offset), checked(value.AsUInt32()));
+            }
+        } : null;
+        Func<FieldValue, string?>? validate = scalar.Editable ? value =>
+        {
+            var integer = value.AsInteger();
+            return integer < scalar.Spec.Min || integer > scalar.Spec.Max
+                ? $"Value must be between {scalar.Spec.Min} and {scalar.Spec.Max}."
+                : null;
+        } : null;
+        return Field(scalar.Id, scalar.Label, scalar.Spec, Read, set, validate) with
         {
             Confidence = scalar.Confidence,
             Description = $"Absolute offset 0x{scalar.Offset:X}; { (scalar.Byte ? "u8" : scalar.Signed ? "i32 LE" : "u32 LE") }.",
