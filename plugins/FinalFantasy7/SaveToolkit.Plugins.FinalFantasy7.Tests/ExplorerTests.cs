@@ -101,7 +101,7 @@ public sealed class ExplorerTests
         var view = Assert.IsType<TabsNode>(document.BuildView());
         Assert.True(NodeCount(view) < 2500, "Opening a file must not eagerly decode its bodies or gameplay tables.");
         var summary = view.Tabs[0].Children.OfType<SectionNode>().Single();
-        Assert.All(summary.Children.OfType<FieldNode>(), f => Assert.Equal(confidence, f.Confidence));
+        Assert.All(summary.Children.OfType<FieldNode>(), f => Assert.Equal(f.Spec.ReadOnly ? confidence : Confidence.Inferred, f.Confidence));
         var inventory = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("inventory/0")));
         Assert.Equal(128, inventory.Rows.Count);
         Assert.Equal(name, Assert.IsType<TextNode>(inventory.Rows[itemSlot].Cells["name"]).Text);
@@ -112,8 +112,10 @@ public sealed class ExplorerTests
             var quantity = Assert.IsType<FieldNode>(row.Cells["quantity"]);
             var id = Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsUInt32();
             var source = EmbeddedCatalogs.Records(schema, "ff7r-items").FirstOrDefault(record => record.Key == id.ToString());
-            var expectedReadOnly = title == "PPSA18936" ||
-                (id != (schema.IsRemake ? 20U : 1U) && source?.Category != "Items");
+            var expectedReadOnly = id != (schema.IsRemake ? 20U : 1U) &&
+                (source is null || source.Name.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase) ||
+                    source.Category is "Weapons" or "Armor" or "Accessories" or "Chocobo Gear");
+            expectedReadOnly |= quantity.Value.AsInt32() < 0;
             Assert.Equal(expectedReadOnly, quantity.Spec.ReadOnly);
         }
         Assert.Equal(104, Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("materia/7"))).Rows.Count);

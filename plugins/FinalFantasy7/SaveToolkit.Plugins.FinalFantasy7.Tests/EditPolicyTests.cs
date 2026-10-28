@@ -14,7 +14,7 @@ public sealed class EditPolicyTests
     [InlineData(301, 2, 300, 749)]
     [InlineData(749, 2, 300, 749)]
     [InlineData(750, 3, 750, 1199)]
-    public void HealingApCannotCrossEitherBoundaryOfItsStoredTier(uint ap, byte level, uint minimum, uint maximum)
+    public void HealingApCrossesBoundariesAndUpdatesStars(uint ap, byte level, uint minimum, uint maximum)
     {
         var file = SampleSaves.Load("PPSA08664").AllDiskFiles.First(file => file.FileName == "ff7rebirth000");
         var bytes = file.ReadAllBytes();
@@ -25,13 +25,11 @@ public sealed class EditPolicyTests
         _ = document.ExpandNode("materia/0");
         Assert.True(document.ApplyEdits([new("materia/0/ap", FieldValue.Of((long)minimum))]).Succeeded);
         Assert.True(document.ApplyEdits([new("materia/0/ap", FieldValue.Of((long)maximum))]).Succeeded);
-        Assert.False(document.ApplyEdits([new("materia/0/ap", FieldValue.Of((long)maximum + 1))]).Succeeded);
-        if (minimum > 0)
-        {
-            Assert.False(document.ApplyEdits([new("materia/0/ap", FieldValue.Of((long)minimum - 1))]).Succeeded);
-        }
-
-        Assert.Equal(level, document.GetValue("materia/0/level").AsUInt32());
+        Assert.True(document.ApplyEdits([new("materia/0/ap", FieldValue.Of((long)maximum + 1))]).Succeeded);
+        var expectedLevel = maximum + 1 >= 1200 ? 4 : maximum + 1 >= 750 ? 3 : maximum + 1 >= 300 ? 2 : 1;
+        Assert.Equal((uint)expectedLevel, document.GetValue("materia/0/level").AsUInt32());
+        Assert.False(document.ApplyEdits([new("materia/0/ap", FieldValue.Of(-1L))]).Succeeded);
+        Assert.False(document.ApplyEdits([new("materia/0/ap", FieldValue.Of(1000000L))]).Succeeded);
         Assert.True(document.ApplyEdits([new("materia/0/ap", FieldValue.Of((long)ap))]).Succeeded);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }

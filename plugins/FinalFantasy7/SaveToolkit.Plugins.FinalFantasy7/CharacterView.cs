@@ -1,59 +1,77 @@
+using System.Buffers.Binary;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.FinalFantasy7;
 
-/// <summary>Read-only character candidates backed by the measured GTC-compatible arrays.</summary>
-internal sealed class CharacterView(Ff7Schema schema, ReferenceData references, Func<ScalarField, FieldNode> bind)
+/// <summary>Candidate live records; all writes retain source and console warnings.</summary>
+internal sealed class CharacterView
 {
-    private const int BaseOffset = 0x30;
-    private const int RemakeStride = 0x40;
-    private const int RebirthStride = 0x100;
+    private const uint MaximumExperience = 9_999_999;
+    private readonly ReferenceData _references;
+    private readonly Func<ScalarField, FieldNode> _bind;
+    private readonly List<Dictionary<string, ScalarField>> _fields = [];
+
+    public CharacterView(byte[] bytes, Ff7Schema schema, ReferenceData references,
+        Func<ScalarField, FieldNode> bind, ProgressionEdits progression)
+    {
+        _references = references;
+        _bind = bind;
+        if (bytes.Length == Ff7Schema.CommonFileLength) return;
+        var curves = ProgressionEdits.CharacterCurves(schema);
+        var weapons = new WeaponEquipment(bytes, schema, references);
+        for (var index = 0; index < Ff7Schema.CharacterCount; index++)
+        {
+            var offset = CharacterLayout.Offset(schema, index);
+            var key = $"character/{index}";
+            var level = bytes[offset];
+            var xp = U32(bytes, offset + CharacterLayout.ExperienceDelta);
+            var editable = level >= 1 && level <= curves[index].Length;
+            if (editable) progression.Add(key + "/experience", key + "/level", curves[index], xp, level);
+            var fields = new Dictionary<string, ScalarField>(StringComparer.Ordinal)
+            {
+                ["level"] = new(key + "/level", "Level", offset,
+                    IntegerSpec.UInt8 with { Min = Math.Min(level, curves[index].Count(value => value == 0)), Max = Math.Max(level, curves[index].Length) },
+                    Confidence.Inferred, Byte: true, Editable: editable, Warning: WriteWarnings.Progression),
+                ["experience"] = new(key + "/experience", "Experience", offset + CharacterLayout.ExperienceDelta,
+                    IntegerSpec.UInt32 with { Max = Math.Max(MaximumExperience, xp) }, Confidence.Inferred,
+                    Editable: editable, Warning: WriteWarnings.Progression),
+            };
+            AddVital(fields, "hp", "HP", key, bytes, offset + CharacterLayout.HpDelta, editable);
+            AddVital(fields, "mp", "MP", key, bytes, offset + CharacterLayout.MpDelta, editable);
+            if (!schema.IsRemake) fields["weapon"] = weapons.Field(index);
+            _fields.Add(fields);
+        }
+    }
 
     public TableNode Build()
     {
-        var rows = new List<TableRow>(Ff7Schema.CharacterCount);
-        for (var index = 0; index < Ff7Schema.CharacterCount; index++)
+        var rows = _fields.Select((fields, index) =>
         {
-            var baseOffset = BaseOffset + index * (schema.IsRemake ? RemakeStride : RebirthStride);
-            var key = $"character/{index}";
-            var cells = new Dictionary<string, ViewNode>(StringComparer.Ordinal)
-            {
-                ["name"] = new TextNode(references.Character(index)),
-                ["source"] = new TextNode(references.CharacterSource(index)),
-                ["level"] = bind(Field(key + "/level", "Level", baseOffset, IntegerSpec.UInt8, singleByte: true)),
-                ["experience"] = bind(Field(key + "/experience", "Experience", baseOffset + 0x20, IntegerSpec.UInt32)),
-                ["hp"] = bind(Field(key + "/hp", "Current HP", baseOffset + 0x10, IntegerSpec.UInt32)),
-                ["maxHp"] = bind(Field(key + "/max-hp", "Max HP", baseOffset + 0x14, IntegerSpec.UInt32)),
-            };
-            if (!schema.IsRemake)
-            {
-                cells["weapon"] = bind(Field(key + "/weapon", "Weapon instance", baseOffset + 0x9C,
-                    IntegerSpec.UInt32 with { Format = IntegerFormat.Hex }));
-            }
-
-            rows.Add(new TableRow(key, cells));
-        }
-
-        var columns = new List<TableColumn>
-        {
-            new("name", "Character"), new("level", "Level"), new("experience", "XP"),
-            new("hp", "HP"), new("maxHp", "Max HP"),
-            new("source", "Name source"),
-        };
-        if (!schema.IsRemake)
-        {
-            columns.Add(new("weapon", "Weapon instance"));
-        }
-
-        return new TableNode(columns, rows)
+            var cells = fields.ToDictionary(pair => pair.Key, pair => (ViewNode)_bind(pair.Value), StringComparer.Ordinal);
+            cells["name"] = new TextNode(_references.Character(index));
+            cells["source"] = new TextNode(_references.CharacterSource(index));
+            return new TableRow($"character/{index}", cells);
+        }).ToArray();
+        List<TableColumn> columns = [new("name", "Character"), new("level", "Level"), new("experience", "XP"),
+            new("hp", "HP"), new("max-hp", "Max HP"), new("mp", "MP"), new("max-mp", "Max MP"), new("source", "Source")];
+        if (_fields.Any(fields => fields.ContainsKey("weapon"))) columns.Add(new("weapon", "Weapon instance"));
+        return new(columns, rows)
         {
             Title = "Character sheets",
-            Description = "Candidate party records from the public MIT schema and matching PS5 sample values. Values are read-only and Inferred until controlled screenshots and before/after captures identify guest and cached records. " + EmbeddedCatalogs.Attribution,
+            Description = WriteWarnings.Progression + "HP/MP are bounded by the original stored maxima. Maxima remain read-only caches. " + EmbeddedCatalogs.Attribution,
         };
     }
 
-    private static ScalarField Field(string id, string label, int offset, IntegerSpec spec, bool singleByte = false) =>
-        new(id, label, offset, spec, Confidence.Inferred, Byte: singleByte,
-            Warning: "Candidate character field; no controlled PS5 mutation proves its gameplay meaning.");
+    private static void AddVital(Dictionary<string, ScalarField> fields, string suffix, string label,
+        string key, byte[] bytes, int offset, bool editable)
+    {
+        fields[suffix] = new(key + "/" + suffix, "Current " + label, offset,
+            IntegerSpec.UInt32 with { Max = Math.Max(U32(bytes, offset), U32(bytes, offset + CharacterLayout.MaximumVitalDelta)) }, Confidence.Inferred,
+            Editable: editable, Warning: WriteWarnings.Experimental + "Based on public schema and sample values; original maximum is the conservative editor bound.");
+        fields["max-" + suffix] = new(key + "/max-" + suffix, "Max " + label, offset + CharacterLayout.MaximumVitalDelta,
+            IntegerSpec.UInt32, Confidence.Inferred, Warning: "Derived/cached maximum; preserved as stored.");
+    }
+
+    private static uint U32(byte[] bytes, int offset) => BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset));
 }

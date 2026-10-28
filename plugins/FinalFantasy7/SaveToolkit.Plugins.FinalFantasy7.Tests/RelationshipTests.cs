@@ -9,7 +9,7 @@ namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 public sealed class RelationshipTests
 {
     [Fact]
-    public void RebirthCharactersAndOwnedRelationshipsUseStableReadOnlyRows()
+    public void RebirthCharactersAndOwnedRelationshipsUseStableRows()
     {
         var schema = Ff7Schema.ForTitle("PPSA08664")!;
         var file = SampleSaves.Load("PPSA08664").AllDiskFiles.First(f => f.FileName == "ff7rebirth000");
@@ -21,7 +21,10 @@ public sealed class RelationshipTests
         Assert.Equal(148409, Assert.IsType<FieldNode>(characters.Rows[0].Cells["experience"]).Value.AsInt32());
         Assert.Equal(300001, Assert.IsType<FieldNode>(characters.Rows[0].Cells["weapon"]).Value.AsInt32());
         Assert.All(characters.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>(), field =>
-            Assert.True(field.Spec.ReadOnly));
+        {
+            Assert.Equal(Confidence.Inferred, field.Confidence);
+            Assert.Equal(field.ValueId.Contains("/max-", StringComparison.Ordinal), field.Spec.ReadOnly);
+        });
 
         var weaponPage = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("owned/weapon/0")));
         Assert.Contains(weaponPage.Rows, row => Assert.IsType<TextNode>(row.Cells["name"]).Text == "Buster Sword");

@@ -30,7 +30,7 @@ internal sealed class DocumentCollections
 
             Add(new(new(id, materia ? "Materia" : "Inventory", columns, count)
             {
-                Description = "Search includes every fixed slot. Equipment and progression quantities are read-only. " + EmbeddedCatalogs.Attribution,
+                Description = "Search includes every fixed slot. Existing mapped non-equipment quantities are experimental; counts do not update reward/acquisition flags. " + EmbeddedCatalogs.Attribution,
             }, () => Enumerable.Range(0, count).Select(slot =>
             {
                 var type = gameplay.TypeId(materia, slot);

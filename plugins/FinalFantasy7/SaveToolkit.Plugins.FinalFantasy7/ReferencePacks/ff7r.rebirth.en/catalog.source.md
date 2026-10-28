@@ -8,8 +8,9 @@ License: MIT; full notice in LICENSE.txt. Retrieved 2026-10-28.
 The three datasets extract raw type IDs, names, category labels and AP arrays. Weapon
 names are merged into the item catalog without changing their type identity. Descriptions
 are original summaries of these source facts, not game effect text or gameplay legality.
-Materia AP thresholds are display/research metadata; all summon edits and star transitions
-remain disabled. User-pack metadata cannot widen the plugin's embedded write policy.
+Materia AP thresholds drive experimental ordinary AP/star transitions after the write-enable
+decision; summon/repeated-zero and incoherent original rows remain protected.
+User-pack metadata cannot widen the plugin's embedded write policy.
 
 Rebirth card labels retain source numbering, which duplicates 012 and omits 013. Booster
 packs have a separate derived category; no sequential type-ID-to-card-number rule is used.

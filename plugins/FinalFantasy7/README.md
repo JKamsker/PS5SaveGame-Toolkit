@@ -1,11 +1,44 @@
 # Final Fantasy VII Remake / Rebirth (`ff7r`)
 
-**Maturity: Experimental.** A bounded PS5 linked-record explorer with in-place edits for narrowly
-qualified gil, ordinary item-stack quantities and materia AP within the original star tier on Remake and retail Rebirth. The
-supplied decrypted samples show no internal checksum or dependent metadata, and public editors/Save
-Wizard codes patch these values directly. Empty, unknown and summon-exception rows are read-only;
-demo gameplay remains read-only because its field meanings are inferred. No console loading test has
-been performed; keep backups and treat every edit as untested.
+**Maturity: Experimental, v0.4.0.** The owner-authorized write-enable round turns on mapped existing
+character values, ordinary materia AP/star transitions, owned Rebirth weapon references, mapped
+non-equipment counts and individual progress bits on Remake/INTERmission, retail Rebirth and demo.
+All new writes are **Inferred** and **not validated on console**. Internal integrity is unconfirmed:
+the game may reject edited saves. Unknown bytes are preserved and `Serialize()` structurally reparses
+its output; this does not prove gameplay compatibility. Keep a backup and use a disposable slot.
+
+## Enabled writes and their evidence
+
+Owner evidence is tracked separately in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+It is validation work, not a prerequisite to using these Experimental controls. The nine rows below
+count new or expanded write kinds; legacy gil/ordinary-stack editing is also retained for demo.
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
+| --- | --- | --- | --- | --- |
+| Current HP | Inferred | Public u32 offsets; sample values; bound by original current/max HP | Unknown internal integrity; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): load, battle, resave/reimport |
+| Current MP | Inferred | Public u32 offsets; sample values; bound by original current/max MP | Unknown; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spend MP, resave/reimport |
+| Character XP | Inferred | Pinned MIT character curves; updates level atomically | Unknown; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): progression/stats/abilities |
+| Character level | Inferred | Same variant/character curves; sets XP to minimum tier value | Unknown; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): level-up and derived effects |
+| Rebirth owned weapon reference | Inferred | Unique inventory/detail joins; original inferred source type family; rejects foreign, duplicate, dangling instances | Unknown; only reference word changes | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): sockets/capacity, proficiency, folios, combat |
+| Ordinary AP, including tier crossing | Inferred | 995 coherent retail rows and pinned strict AP curves; updates stored stars; F6 preview/apply | Unknown; AP word and dependent star byte only | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): below/at/above star threshold, ability effect |
+| Ordinary stored stars | Inferred | Same curves; sets AP to target tier threshold | Unknown; AP/star pair reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): both increase and decrease, equipped copies |
+| Existing mapped non-equipment counts | Inferred | Existing allocated type rows; new categories use original observed category maxima (minimum editor bound 1) | Unknown; count word only; flags/decks/rewards untouched | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): materials, tokens, keys, cards/boosters, progression categories |
+| Individual progress candidate bits | Inferred | 69 Remake / 470 Rebirth/demo distinct pinned public-template mappings | Unknown; neighboring bits preserved; rewards/actors/counters not repaired; softlocks possible | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): each domain, rewards/actors, chapter reset and reversal |
+
+XP is bounded by the upstream editor policy of 9,999,999, ordinary AP by 999,999, Remake levels by 50
+and retail/demo Rebirth levels by 70. Duplicate zero XP thresholds in INTERmission make level 2 the
+lowest coherent zero-XP tier. Original above-policy values remain restorable. No unrelated stored
+maximum, cached stat, previous-state record, socket, ownership byte or common file is normalized.
+A previously inconsistent original XP/level pair is accepted only as the exact original pair for undo;
+new conflicting pairs reject atomically. Gil aliases with conflicting targets also reject atomically.
+
+Unknown/empty/negative-sentinel rows and ambiguous gil stay protected. Summon/repeated-zero and
+incoherent ordinary AP/star rows have no qualified dependency mapping: applying the ordinary rule
+could replace a distinct progression state, so these remain read-only. Gear quantities would create
+instances without matching detail records, and remain read-only. Derived HP/MP maxima remain caches.
+Remake gear, armor/accessory/socket moves, loadouts, allocation/removal and common/multi-file changes
+have no prepared writer with complete structure/ownership handling; no guessed F5/F7 transaction is
+introduced. Unmapped structures and repeated placeholder progress addresses remain inaccessible.
 
 ## Supported titles and files
 
@@ -76,7 +109,8 @@ second RESD as previous common state; the UI avoids assigning that meaning to Re
 ## Curated fields and confidence
 
 All offsets below are **absolute**, into the first RESD record only. Previous-state copies are
-available through the raw explorer and are not conflated with current gameplay.
+available through the raw explorer and are not conflated with current gameplay. Current MP/max MP
+are u32 words at character base +0x18/+0x1C; XP is +0x20, HP/max HP +0x10/+0x14, level +0x00.
 
 | Meaning | Remake | Rebirth retail | Demo confidence |
 | --- | --- | --- | --- |
@@ -100,23 +134,23 @@ no game-specific dictionary is shared across Remake/Rebirth. Empty slots and neg
 remain visible; negative quantities receive a warning. No arbitrary gameplay limits are imposed on
 read-only values. Ordinary item stacks use an editor cap of 9,999, gil 9,999,999 and final-tier AP
 999,999; these are not proven game caps. An original value above a cap remains restorable after
-editing and refreshing bindings. Negative quantities, ambiguous gil, equipment, materials, key items,
-cards and other progression counts are read-only. AP must remain within the original coherent star
-tier. Every summon, unknown type and AP/level mismatch is read-only; no stored star is recalculated.
+editing and refreshing bindings. Negative quantities, ambiguous gil and instance-bearing gear quantities are read-only. Existing mapped
+non-equipment counts are writable with the warnings above. Qualified ordinary AP can cross tiers and
+updates stored stars atomically; every summon, unknown type and AP/level mismatch remains read-only.
 Names, categories and source-metadata descriptions use the embedded MIT reference packs below.
 
-### Read-only characters and owned relationships
+### Characters and owned relationships
 
 The **Characters** tab exposes seven candidate party records for each gameplay file. Remake uses the
-measured `0x40` stride and Rebirth/demo use the measured `0x100` stride; level, XP, current/max HP and
-(for Rebirth) weapon-detail references are read-only `Inferred` fields. The names and order are the
+measured `0x40` stride and Rebirth/demo use the measured `0x100` stride; level, XP, current/max HP/MP and
+(for Rebirth) weapon-detail references are `Inferred` fields with the write scope listed above. The names and order are the
 MIT resource order, while guest, past and cached records still need controlled screenshots.
 
 Retail/demo Rebirth also exposes searchable F8 **Owned items** collections. Weapon rows join inventory instance/type
 records at `0x5FA6C` to detail records at `0xB3A68` (stride `0x60`) and show character references at
 `0xCC + index*0x100`. Materia rows join instance/type/quantity at `0x60A6C` to detail records at
-`0xBFA68`, including the observed owner byte at `+0x11`. These are identity joins only; they never
-enable an edit. The **Catalog** tab searches all item/materia/weapon metadata and can use optional
+`0xBFA68`, including the observed owner byte at `+0x11`. These read-only relationship tables expose identity joins; the character weapon field separately
+enables qualified existing-instance changes. The **Catalog** tab searches all item/materia/weapon metadata and can use optional
 toolkit reference packs with catalog ids `ff7r-items`, `ff7r-materia`, `ff7r-weapons` and
 `ff7r-characters`.
 
@@ -129,18 +163,17 @@ the 128 measured weapon-detail records and checks the first owned materia join. 
 not prove gameplay behavior or console acceptance.
 
 Across all primary supplied retail snapshots, **465 Remake and 530 Rebirth ordinary materia rows**
-agree with the pinned AP curves and stored stars. This supports narrowing existing AP edits to the
-original tier, not enabling star transitions. The Rebirth Titan type `14011` illustrates why all
+agree with the pinned AP curves and stored stars. The write-enable decision now allows source-derived star transitions with warnings; these
+observations still do not establish console compatibility. The Rebirth Titan type `14011` illustrates why all
 summons remain disabled: repeated-zero source thresholds disagree with stored levels in three retail
 samples. Empty, unknown, incoherent and out-of-policy values remain visible and byte-preserved.
 
-The **Set AP within current star tier** action uses an F4 picker over owned eligible types and F6
+The **Set AP and derived stars** action uses an F4 picker over owned eligible types and F6
 planning over selected rows or all copies of that type. F8 select-all-filtered scopes are resolved by
-Core. Preview reports old/new AP, skipped rows/reasons and the console warning. It changes no bytes;
+Core. Preview reports old/new AP, dependent old/new stars, skipped rows/reasons and integrity/console warnings. It changes no bytes;
 apply revalidates the plan and is one undo step. `MateriaPlanningTests` uses F1 `ByteDiffer` to prove
-that apply changes only the selected four-byte AP words, then checks reopen and exact undo/redo.
-Character XP/HP/level, equipment references, sockets, materia moves, loadouts and creation/removal
-remain disabled because no controlled before/after capture proves their complete dependencies.
+that apply changes only the selected four-byte AP words and derived star bytes, then checks reopen
+and exact group undo/redo. Direct star edits also update AP using the source threshold.
 
 Examples asserted by tests (primary files):
 
@@ -174,13 +207,14 @@ The **Progress** collection shows 69 distinct Remake candidate bits for obtained
 intel entries/completion/rewards and VR missions. Rebirth/demo show 470 candidate bits for hard
 chapter flags, Queen's Blood opponents, World Intel discovery/completion and Chocobo-stop
 discovery/repair. Exact region and domain/state filters cover Grasslands, Junon, Corel, Gongaga,
-Cosmo Canyon and Nibel. Fields expose the source byte/bit and remain read-only **Inferred**.
+Cosmo Canyon and Nibel. Fields expose the source byte/bit as writable **Inferred** candidates with explicit dependency/softlock warnings.
 Shared source addresses and all `Intel Entries` groups were excluded because repeated placeholder
 addresses cannot distinguish individual objectives. A stored set bit is not a verified completion
-or reward. No percentages, universal completion preset, map-coordinate guesses or flag writes ship.
+or reward. No percentages, universal completion preset or map-coordinate guesses ship. Individual bits do not
+repair dependencies or grant rewards.
 
-This completes the scoped catalog/F4/F8 infrastructure and read-only progress/collection delivery.
-Full Phase 3 remains blocked on controlled character/gear/star-transition evidence. Full Phase 4
+The scoped catalog/F4/F8 delivery remains available; the enabled Phase 3 scalar/reference writes
+and Phase 5 individual bits are Experimental while owner validation continues in #31. Full Phase 4
 still needs effect descriptions/icons and persistent loadouts, and Phase 5 still needs separately
 researched folios, crafting, enemy intel, relationships and minigame modules. Fandom page/revision
 retrieval returned HTTP 403/402 during this round; no unpinned CC BY-SA text was embedded. The
@@ -292,14 +326,14 @@ format test walks and no-op serializes **all** matching sample files, including 
 Edit conformance nudges a writable field on selected Remake and retail Rebirth samples; dedicated
 tests verify in-place byte scope, round-trip reopening, undo-by-old-value and atomic range rejection.
 
-Round-2 local validation: **79/79 plugin tests, 0 skipped**, with the supplied archives and the API build passing with zero warnings/errors. The new tests include Core F4/F6/F8 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
+Write-enable local validation: **99/99 plugin tests, 0 failed, 0 skipped**, with the supplied archives and the API build passing with zero warnings/errors. The new tests include Core F4/F6/F8 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
 every measured sample Open call stayed below the two-second test bound.
 
 ## Open problems
 
 - Confirm that edited files load on a PS5 and establish real in-game value limits; no Stable claim.
-- Confirm retail meanings/ranges and demo mappings against controlled in-game changes. Demo remains
-  read-only until its offsets are independently confirmed.
+- Confirm retail meanings/ranges and demo mappings against controlled in-game changes. Demo writes use
+  inferred retail mappings with explicit warnings and need their own validation.
 - Map Rebirth chapter/difficulty/party, common settings and MLSD/NVSD semantics.
 - Decode deeper record structures from evidence; no generic Unreal property parser is assumed.
 - Validate additional patches/regions/sizes explicitly; current gates intentionally accept only the
@@ -321,6 +355,7 @@ None required. The existing lazy sections, field confidence and paged blob API s
 | Rebirth materia (88) | Same pinned Rebirth resource | MIT; category/AP arrays, summon restrictions in descriptions |
 | Remake progress candidates (69) | [GTC template.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts) | MIT; literal labels/addresses and state grouping, ambiguity filtering |
 | Rebirth progress candidates (470) | [GTC template.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts) | MIT; distinct region/state bits, excluded placeholders/aliases |
+| Character XP curves (7 Remake/INTERmission, shared main-seven Rebirth curve) | [Remake resource.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts), [Rebirth resource.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils/resource.ts) | MIT, RyudoSynbios; inserted explicit level-one zero, bounded Remake to 50 tiers; see `Resources/character-curves.source.md` |
 | Legacy names.json / equipment.json and character order | Revisions `e38d207c2210d210d9b06ebd2a0a62b4e16c7aed` / `c7bdd6d8228304b87dcdf15e57155d092eb06fd2`, linked below | MIT; retained prior extracts and notice |
 
 Retrieved 2026-10-28. Catalog source sidecars and full MIT notices accompany
