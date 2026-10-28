@@ -20,7 +20,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     private readonly Dictionary<string, Func<IReadOnlyList<ViewNode>>> _lazy = new(StringComparer.Ordinal);
     private readonly string? _readOnlyReason;
 
-    public UnrealGvasDocument(string path, GvasEnvelope envelope, IReferenceContext references)
+    public UnrealGvasDocument(string path, GvasEnvelope envelope, IReferenceContext references, string? readOnlyReason = null)
     {
         _path = path;
         _envelope = envelope;
@@ -28,7 +28,8 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
         _schema = UnrealGvasSchema.Detect(envelope.File);
         Index(envelope.File.Properties, "property");
         _actorStream = ReadActorStream();
-        if (envelope.IsWrapped) _readOnlyReason = "This compressed envelope is read-only; recompression has not been verified.";
+        if (readOnlyReason is not null) _readOnlyReason = readOnlyReason;
+        else if (envelope.IsWrapped) _readOnlyReason = "This compressed envelope is read-only; recompression has not been verified.";
         else if (_nodes.Values.Any(n => n.Name.Contains("crc", StringComparison.OrdinalIgnoreCase) ||
                  n.Name.Contains("checksum", StringComparison.OrdinalIgnoreCase) || n.Name.Contains("signature", StringComparison.OrdinalIgnoreCase)))
             _readOnlyReason = "This save contains a game-specific integrity field. Its coverage is unknown, so the entire document is read-only.";
@@ -198,7 +199,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
             { Badge = _actorStream is { IsValid: true } valid ? $"{valid.DecodedLength:N0} bytes" : "opaque" });
         }
         else if (_schema.Kind == UnrealGvasSchemaKind.HogwartsMetadata)
-            result.Add(new TextNode("RawDatabaseImage and RawExclusiveImage remain opaque. #28 must provide the managed Kraken decoder and bounded in-memory SQLite reader before database rows can be exposed.") { Tone = Tone.Warning });
+            result.Add(new TextNode("Database tables are exposed in the Hogwarts tabs through the shared Kraken/SQLite codecs. Raw arrays and metadata remain read-only.") { Tone = Tone.Info });
         return result;
     }
 

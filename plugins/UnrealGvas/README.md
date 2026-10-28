@@ -2,7 +2,9 @@
 
 Experimental editor for decrypted Unreal SaveGame properties. The reusable parser
 is in `SaveToolkit.Plugins.UnrealGvas.Gvas`, without UI types, filesystem/network
-access, additional packages, or native DLLs.
+access, additional packages, or native DLLs. Hogwarts database inspection uses
+the shared [Codecs](../../src/SaveToolkit.Codecs/README.md) library, including its
+bundled native in-memory SQLite dependency.
 
 ## Sample coverage and file roles
 
@@ -12,7 +14,7 @@ GVAS magic obtained by decompressing a supported envelope.
 
 | Title | Observed format and roles | Result |
 | --- | --- | --- |
-| PPSA01603, Hogwarts Legacy | `ue4savegame.ps5.sav`: plain GVAS, UE 4.27.2, package 524, 72 custom versions. `SaveGameList` contains slot metadata; `SavedUserOptions` an opaque settings array; `HL0000`–`HL0014` contain metadata and compressed database arrays. 34 files, 17 distinct payloads. | All round-trip exactly. Primitive metadata editable; embedded byte arrays read-only. |
+| PPSA01603, Hogwarts Legacy | `ue4savegame.ps5.sav`: plain GVAS, UE 4.27.2, package 524, 72 custom versions. `SaveGameList` contains slot metadata; `SavedUserOptions` an opaque settings array; `HL0000`–`HL0014` contain metadata and two Kraken/SQLite arrays. 34 files, 17 distinct payloads. | All round-trip exactly. All Hogwarts writes disabled. Both database images expose independent named F8 tables and attributed F4 labels. |
 | PPSA02199, STAR WARS Jedi: Fallen Order | `ue4savegame.dpx.sav`: plain GVAS, UE 4.25.0, package 518, 56 custom versions. `GameUserSettings` has settings/structs. `SaveGame00`/`Backup00` have zlib actor records and `Crc32`. 6 files, 3 distinct payloads. | All round-trip exactly. Settings editable. Gameplay/backup documents read-only: checksum coverage unknown. |
 | PPSA01288, Sackboy: A Big Adventure | `General`: UE 4.25.1 tagged progression, including `CollectabellsStored` and `Checksum`. `LevelImages_*` / `CostumeThumbnails_*`: GVAS image sets. 20 files, 6 distinct payloads. | All round-trip exactly. General remains read-only because its checksum coverage is unknown. Image sets contain opaque compressed textures. |
 | PPSA10695, Atomic Heart | Starts `01 00 00 00`, then a UE-style header and `/Script/SaveExtension.SlotInfo`, followed by custom framing. No GVAS magic anywhere. | Unclaimed here; see the separate [AtomicHeart plugin](../AtomicHeart/README.md), which validates framing and SHA-1. |
@@ -69,10 +71,13 @@ synthetic. Dictionaries and trailing wrapper extensions are unsupported.
 
 Hogwarts `RawDatabaseImage` and `RawExclusiveImage` are byte arrays beginning with
 UE chunk magic `C1 83 2A 9E 00 00 00 00`; the first compressed stream in each begins
-`8C 06`, verified in HL0010. Upstream tools identify this as Oodle Kraken carrying
-SQLite databases. **Database contents have not been inspected or edited here**;
-there is no managed Oodle implementation. The arrays and their internal framing
-remain untouched. `RawMiniMapImage` and settings arrays are likewise read-only.
+`8C 06`, verified in HL0010. The shared managed Kraken decoder now exposes both
+SQLite images through the shared in-memory helper, with separate integrity checks.
+All 30 images across 15 distinct gameplay snapshots decode and serialize without
+changes byte-identically. Original compressed arrays remain untouched by runtime
+serialization. `RawMiniMapImage` and settings arrays are likewise read-only.
+See [Hogwarts evidence and owner checklist](HOGWARTS.md) for framing, row identities,
+F1 diffs, write-probe results and remaining console/slot-budget gates.
 
 Jedi actor data has zlib framing, alongside explicit `UncompressedActorRecordsSize`
 and `Crc32` properties. Standard IEEE CRC32, CRC32C, FNV-1a, Adler32 and byte-sum
@@ -93,7 +98,11 @@ Overview shows header facts, writability and the selected version/class/property
 signature schema. Sackboy General and image sets expose read-only schema tables
 with attributed catalog pickers; Jedi gameplay saves expose a bounded actor-stream
 index after zlib decoding. Properties uses lazy sections with 100-node pages;
-Search contains paged tables of top-level primitives. Top-level fields appear only
+Search contains paged tables of top-level primitives. Hogwarts adds independent
+Character, Inventory, Progression and Collections F8 tables for each image; every
+other table is available lazily. The pinned MIT Legilimens F2 catalog supplies 699
+collectible location records, with exact table/column-qualified F4 reference fields.
+All Hogwarts metadata and database fields remain read-only. Top-level fields appear only
 in Search to satisfy global value-ID uniqueness; nested fields appear in the
 explorer. IDs use ordinal paths, stable across length changes.
 Opaque values expose paged read-only hex.
@@ -101,8 +110,9 @@ Opaque values expose paged read-only hex.
 `Verified` means the serialized name/storage type or sourced struct component
 layout is known. Game effects, valid combinations, and useful ranges remain
 unknown and fields carry that warning. Layouts absent from the real samples are
-source-backed and synthetically tested, not console-verified. SQLite interpretation
-comes from upstream research; contents are not independently confirmed.
+source-backed and synthetically tested, not console-verified. Hogwarts table/column
+storage and exact catalog-ID matches are checked against actual PS5 bytes; labels,
+state interpretation, image relationships and game effects remain Inferred/Unknown.
 
 Limits: 128 MiB unwrapped data; 100,000 decoded nodes; 64 nested parsing levels;
 1,048,576 FString units. Byte-array lengths use the file bound, not the node bound.
@@ -120,24 +130,27 @@ nested struct-array/map/set size changes, byte-exact undo, atomic rejection,
 bounded views/hex, truncations/corruption, and randomized foreign/mutated input.
 Sample-dependent tests skip through SampleSaves when archives are absent.
 
-Verified locally: API build completed with zero warnings/errors; plugin tests
-38 passed, zero skipped with samples present; framework tests 43 passed. With
-an empty sample directory, 21 tests pass and 17 sample-dependent tests skip.
+The Hogwarts round adds all-image integrity/no-op checks, F1 row diff evidence,
+F8 host registration/query bounds, F2/F4 attribution and candidate resolution,
+corruption isolation, and test-only stored-frame GVAS reconstruction. Sample
+tests require the artifacts environment variable in the same command as the run.
+Validated for this round: **62 passed, 0 failed, 0 skipped**, including conformance;
+API build: **0 warnings, 0 errors**.
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 dotnet test --project plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas.Tests
-dotnet test --project tests/SaveToolkit.Core.Tests
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
 No plugin build hooks, git hooks or size-check scripts are installed. All C# files
-remain below 300 lines; repository policy is enforced in review.
+added in this round remain below 300 lines; repository policy is enforced in review.
 
 ## Open problems
 
 1. Resolve Jedi gameplay checksum coverage before enabling gameplay writes.
-2. Obtain managed, permissively licensed Oodle support and validate Hogwarts
-   database consistency before offering database edits.
+2. Validate Hogwarts database roles, effective gameplay limits, stored-output slot
+   budgets and console load/save/reload behavior before offering database edits.
 3. Verify compression rewriting against actual wrapped PS5 samples.
 4. Add game schemas for opaque map/set structs, native values, complex FText and
    version extensions when samples become available.
@@ -159,18 +172,12 @@ no limits, icons, localization or private sample bytes. The UI attaches a
 `ReferenceSpec` to each read-only catalog property so F4 can resolve the raw name
 without changing the stored value.
 
-### Hogwarts integration boundary for #28
+### Hogwarts follow-up after #28
 
-Hogwarts remains metadata-only in this round. The future codec adapter needs to take
-the original `RawDatabaseImage` and `RawExclusiveImage` byte-array spans plus their
-UE chunk headers, validate each declared decoded length, and return immutable decoded
-buffers with per-chunk offsets. A separate #28 SQLite layer must accept each decoded
-buffer in memory, expose read-only schema/row queries, and report a fingerprint and
-integrity result; it must not assume the two images are mirrors. `UnrealGvasDocument`
-can then add a read-only database tab at the existing schema-overlay point while
-leaving original compressed spans untouched. No Kraken, SQLite, filesystem or native
-codec code is implemented here, and writes stay disabled until #28 supplies the
-bounded API and owner evidence.
+The merged shared APIs now provide Kraken and in-memory SQLite. A composed
+`HogwartsDocument` adds the named views without changing the generic parser or
+Jedi/Sackboy functionality. No codec or SQLite implementation is duplicated here.
+See [HOGWARTS.md](HOGWARTS.md) for the complete current boundary and evidence.
 
 ## Round 2 evidence (2026-10-28)
 
@@ -218,11 +225,12 @@ upstream code was copied and no downloaded program was executed.
   native struct layouts and opaque fallback.
 * https://github.com/13xforever/gvas-converter — C# alternative surveyed before
   choosing uesave as the primary layout reference.
-* https://github.com/turtle-insect/GvasViewer — C# alternative surveyed; native
-  Oodle DLL requirement informed the decision to keep this plugin managed-only.
+* https://github.com/turtle-insect/GvasViewer — C# alternative surveyed; no native
+  proprietary Oodle DLL is shipped. Shared SQLite uses bundled native e_sqlite3.
 * https://github.com/topche-katt/hlsavetool — Hogwarts byte-array/SQLite/Oodle flow.
 * https://github.com/producedbytmsh/hl-savetools — RawDatabaseImage/RawExclusiveImage
-  UE chunk headers and `8C 06` Kraken framing; only outer signatures verified here.
+  UE chunk headers and `8C 06` Kraken framing; decoded PS5 schema is now inspected
+  independently rather than inheriting PC column names or mirror/write assumptions.
 * https://gist.github.com/MartyMacGyver/ebeb8f803ef66be87c7c7d95d000ab42 — Astroneer
   wrapper magic, declared size, zlib and reported 4 KiB compression-window constraint.
 * https://www.rfc-editor.org/rfc/rfc1950 — zlib header and Adler-32 definition,
@@ -233,6 +241,17 @@ upstream code was copied and no downloaded program was executed.
 * https://prosperopatches.com/PPSA01288 — Sackboy title-id mapping.
 * https://www.save-editor.com/tools/pc_game_save_converter_title_StarWars_Jedi_FallenOrder.html — converter surveyed; publishes no usable checksum implementation. No data uploaded or code executed.
 
+## Sources and attribution
+
+| Dataset / implementation | Pinned source, author, license | Changes and display provenance |
+| --- | --- | --- |
+| Hogwarts 699 collectible IDs, type/region/index and guide links | [Legilimens 02525dde](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/tree/02525dde0fd9bc0be72982478680377dccb41246), Malin001 and contributors; [MIT](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/blob/02525dde0fd9bc0be72982478680377dccb41246/LICENSE); retrieved 2026-10-28 | Projected to F2 `hogwarts.legilimens` v1.0.0; labels combine type/region/index, table/column-qualified exact joins, no icons/video media. License and [source sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/hogwarts.legilimens/collectibles.source.md) accompany data; manifest hash, `Info.References`, Sources panel and each F4 field carry attribution. MIT retained; no CC BY-SA data imported. |
+| Hogwarts framing and schema research | [hl-savetools e568dedc](https://github.com/producedbytmsh/hl-savetools/tree/e568dedcda2611f54cc793e6d0237c749ae25094), producedbytmsh; MIT; retrieved 2026-10-28 | Independently implemented bounded framing; PS5 lengths/schema checked. No inherited PC mirror, state/reward or no-checksum claims. Navigation descriptions cite research and label meaning Inferred. |
+| Shared Kraken / SQLite | [SaveToolkit.Codecs](../../src/SaveToolkit.Codecs/README.md), toolkit contributors and attributed upstream authors; GPL-3.0-or-later decoder, MIT Microsoft.Data.Sqlite, Apache-2.0 SQLitePCLRaw, public-domain SQLite | Referenced, not ported/duplicated. Root LICENSE/THIRD-PARTY-NOTICES retain shared dependencies' notices. In-memory native SQLite only; no proprietary decoder. |
+| PS5 schema captions / F1 identity evidence | Toolkit contributors, GPL-3.0-or-later; privately retained sample observations, 2026-10-28 | Original navigation text and storage observations, no extracted sample records committed. Table descriptions cite provenance and expose schema fingerprints; raw labels remain when catalog joins fail. |
+| Sackboy progression and Jedi actor property catalogs | [Toolkit original evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit), contributors; original evidence index, 2026-10-28 | Existing `unrealgvas.ps5` v1.0.0 unchanged; per-dataset provenance and F4 descriptions retained. |
+| Sackboy image metadata catalog | [Peter on Programming](https://peteronprogramming.wordpress.com/2024/01/06/reverse-engineering-the-end-of-level-photos-in-sackboy-a-big-adventure/); [MIT extractor 3b26966](https://github.com/Donpedro13/GingerBreadImageExtractor/tree/3b26966a04a2b6e20d61962ef6fcb84242bb7a1f), original PS5 evidence, 2026-10-28 | Existing field-name-only dataset unchanged; metadata evidence is separate from unverified PS5 pixels/swizzle. |
+
 ## SDK requests
 
 No new SDK request is required for this round. The implementation uses the existing
@@ -240,4 +259,7 @@ No new SDK request is required for this round. The implementation uses the exist
 tables. The former read-only-download request is stale: the current API already
 permits original-file download when editing is disabled. A canonical field-reference
 node and richer image cells remain useful future framework improvements, but this
-plugin does not duplicate them locally.
+plugin does not duplicate them locally. Hogwarts uses F8 and the shared Codecs
+reference with no new required contract. Optional UX request: let a read-only F4
+field open a non-mutating catalog browser; the current UI disables its picker
+button, although names and attributed candidates resolve through the normal API.

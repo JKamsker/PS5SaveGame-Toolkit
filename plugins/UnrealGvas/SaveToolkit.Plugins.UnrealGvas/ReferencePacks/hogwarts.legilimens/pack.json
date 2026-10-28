@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "id": "hogwarts.legilimens",
+  "version": "1.0.0",
+  "title": "Hogwarts Legilimens collectible locations",
+  "description": "Pinned MIT PC location catalog; exact PS5 ID joins are read-only and state semantics remain inferred. No icons or video content embedded.",
+  "plugins": [
+    "engine.unreal-gvas"
+  ],
+  "titleIds": [
+    "PPSA01603"
+  ],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "unrealgvas_hogwarts_collectibles",
+      "kind": "records",
+      "title": "Collectible IDs and guide locations",
+      "files": [
+        {
+          "path": "collectibles.json",
+          "sha256": "e30d8e24f23e642a8f87ea336b8c3e9791e0b02f577262ea6f091c711382f101"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/tree/02525dde0fd9bc0be72982478680377dccb41246",
+        "author": "Malin001 and Legilimens contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/blob/02525dde0fd9bc0be72982478680377dccb41246/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "699 location records projected to F2. Display labels combine type, region and guide index; table/column joins transcribed from legilimens.py. Guide URLs retained; no icons, video media or game descriptions copied. PS5 join evidence is observational, not console validation."
+      }
+    }
+  ]
+}
