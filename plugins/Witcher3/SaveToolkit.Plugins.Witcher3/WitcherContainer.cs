@@ -48,7 +48,11 @@ internal sealed record WitcherContainer(byte[] Original, byte[] Payload, int Hea
         var targetOffset = 0;
         foreach (var chunk in chunks)
         {
-            if (LZ4Codec.Decode(bytes.AsSpan(chunk.Offset, chunk.StoredSize), payload.AsSpan(targetOffset, chunk.ExpandedSize)) != chunk.ExpandedSize)
+            if (chunk.StoredSize == chunk.ExpandedSize)
+            {
+                bytes.AsSpan(chunk.Offset, chunk.StoredSize).CopyTo(payload.AsSpan(targetOffset));
+            }
+            else if (LZ4Codec.Decode(bytes.AsSpan(chunk.Offset, chunk.StoredSize), payload.AsSpan(targetOffset, chunk.ExpandedSize)) != chunk.ExpandedSize)
             {
                 throw new SaveFormatException("Invalid Witcher 3 LZ4 block or expanded length mismatch.");
             }

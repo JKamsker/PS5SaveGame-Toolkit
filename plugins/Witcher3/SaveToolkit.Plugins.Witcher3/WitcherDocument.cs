@@ -7,8 +7,9 @@ namespace SaveToolkit.Plugins.Witcher3;
 internal sealed class WitcherDocument(string path, WitcherContainer container, Sav3Directory directory, Sav3Tree tree) : BoundSaveDocument
 {
     private const int PageSize = 128;
+    private readonly PlayerData? _player = PlayerData.Read(container, directory, tree);
     public override string Title => "The Witcher 3 · SAV3";
-    public override bool CanEdit => false;
+    public override bool CanEdit => _player is not null;
 
     public override ViewNode BuildView() => new TabsNode([
         new Tab("Overview", [
@@ -16,12 +17,15 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
                 new Stat("Expanded bytes", container.Payload.Length.ToString()),
                 new Stat("Indexed variables", directory.Entries.Count.ToString()),
                 new Stat("Names", directory.Names.Count.ToString()), new Stat("Explorer nodes", tree.Nodes.Count.ToString())]),
-            new TextNode("Read-only: player level, XP, crowns, skill points and integrity dependencies are not yet verified for PS5.") { Tone = Tone.Warning },
+            new TextNode(CanEdit ? "Experimental editing: output is validated by re-opening; console loading has not been tested." :
+                "Read-only: this save does not match the supported PS5 player schema.") { Tone = Tone.Warning },
             new TextNode("Variable names and encoded types come from the save. Their gameplay effects and ownership may be unknown."),
             Field("header/0", "SAV3 version word 1", IntegerSpec.Int32, () => FieldValue.Of((long)BinaryData.Int32(container.Payload, 4))) with { Confidence = Confidence.Unknown },
             Field("header/1", "SAV3 version word 2", IntegerSpec.Int32, () => FieldValue.Of((long)BinaryData.Int32(container.Payload, 8))) with { Confidence = Confidence.Unknown },
             Field("header/2", "SAV3 version word 3", IntegerSpec.Int32, () => FieldValue.Of((long)BinaryData.Int32(container.Payload, 12))) with { Confidence = Confidence.Unknown },
             .. SummaryFields()]),
+        new Tab("Player", PlayerFields()),
+        new Tab("Inventory", InventoryPage(0)),
         new Tab("Variable tree", ChildPage(-1, 0)),
         new Tab("Names", [SectionNode.Lazy("MANU name dictionary", "names/0", directory.Names.Count.ToString())]),
         new Tab("Container", [SectionNode.Lazy("LZ4 chunk table", "chunks"),
@@ -37,6 +41,11 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         }
 
         var parts = lazyId.Split('/');
+        if (parts.Length == 2 && parts[0] == "inventory" && int.TryParse(parts[1], out var inventoryStart) && inventoryStart >= 0)
+        {
+            return InventoryPage(inventoryStart);
+        }
+
         if (parts.Length == 2 && parts[0] == "names" && int.TryParse(parts[1], out var start) && start >= 0 && start <= directory.Names.Count)
         {
             return [NamesTable(start), .. NextPage("Names", "names", start, directory.Names.Count)];
@@ -50,7 +59,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
                 new Stat("Virtual offset", $"0x{node.Offset + container.HeaderSize:X}"), new Stat("Span bytes", node.Size.ToString())]),
                 new TextNode(node.Type is null ? node.Name : $"{node.Name} : {node.Type}"),
                 .. (scalar is null ? Array.Empty<ViewNode>() : [scalar]),
-                new HexNode($"node/{id}", node.Size) { Title = "Original token bytes" },
+                new HexNode($"node/{id}", node.Size) { Title = "Input token bytes" },
                 .. ChildPage(id, 0)];
         }
 
@@ -63,7 +72,78 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         throw new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
     }
 
-    public override IReadOnlyList<FileOutput> Serialize() => [new FileOutput(path, container.Original.ToArray())];
+    public override IReadOnlyList<FileOutput> Serialize()
+    {
+        var patches = _player?.Patches(directory, container).ToArray() ?? [];
+        if (patches.Length == 0)
+        {
+            return [new FileOutput(path, container.Original.ToArray())];
+        }
+
+        var payload = Sav3Writer.Write(container, directory, tree, patches);
+        var bytes = WitcherWriter.Write(container, payload);
+        var check = WitcherContainer.Parse(bytes);
+        var checkDirectory = Sav3Directory.Parse(check);
+        var checkTree = Sav3Tree.Parse(check.Payload, checkDirectory);
+        _player!.Verify(PlayerData.Read(check, checkDirectory, checkTree));
+        return [new FileOutput(path, bytes)];
+    }
+
+    private IReadOnlyList<ViewNode> PlayerFields()
+    {
+        if (_player is null)
+        {
+            return [new TextNode("Player identity and level manager could not be established for this schema.")];
+        }
+
+        var progress = _player.Progress;
+        var crowns = _player.Inventory?.Items.Where(i => i.Name == "Crowns").ToArray() ?? [];
+        return [new StatsNode([new Stat("Level", progress.Level.ToString()),
+                new Stat("Total XP", ((long)progress.Experience + progress.UsedExperience).ToString()),
+                new Stat("Available ability points", progress.AbilityPoints.ToString())]),
+            Field("player/level", "Character level", new IntegerSpec(1, progress.MaximumDefinedLevel),
+                () => FieldValue.Of(progress.Level), v => progress.Level = v.AsInt32()) with {
+                Confidence = Confidence.Inferred, Description = "Player IdTag → Entity → levelManager → level.",
+                Warning = "Changes the stored level only. XP, level rewards, skill slots and scaled stats are not recalculated." },
+            Field("player/xp", "Unspent XP", new IntegerSpec(0, int.MaxValue - progress.UsedExperience),
+                () => FieldValue.Of(progress.Experience), v => progress.Experience = v.AsInt32()) with {
+                Confidence = Confidence.Inferred, Description = "levelManager.points[1].free; total XP includes used XP.",
+                Warning = "Does not run the game's level-up logic. Keep XP consistent with the character level." },
+            Field("player/abilityPoints", "Available ability points", new IntegerSpec(0, int.MaxValue - progress.UsedAbilityPoints),
+                () => FieldValue.Of(progress.AbilityPoints), v => progress.AbilityPoints = v.AsInt32()) with {
+                Confidence = Confidence.Inferred, Description = "levelManager.points[0].free; omitted defaults are decoded as zero." },
+            Field("player/usedXp", "Used XP", IntegerSpec.Int32, () => FieldValue.Of(progress.UsedExperience)) with { Confidence = Confidence.Inferred },
+            Field("player/usedAbilityPoints", "Spent ability points", IntegerSpec.Int32, () => FieldValue.Of(progress.UsedAbilityPoints)) with { Confidence = Confidence.Inferred },
+            .. (crowns.Length == 1 ? new ViewNode[] { ItemField(crowns[0]) } : [new TextNode("No unique Crowns stack was decoded.")]),
+            new TextNode("Crowns are money. Orens and Florens are separate inventory items if present. Values are inferred from stored names and published layouts."),
+            new TextNode("Raw views show the input image; pending edits appear in Player and Inventory.")];
+    }
+
+    private FieldNode ItemField(InventoryItem item) => Field(item.ValueId, item.Name, new IntegerSpec(1, ushort.MaxValue),
+        () => FieldValue.Of(item.Quantity), v => item.Quantity = checked((ushort)v.AsInteger())) with {
+        Confidence = Confidence.Inferred,
+        Description = $"Native CInventoryComponent record {item.Id}; stored item name, uint16 quantity.",
+        Warning = "Stack limits and quest/equipment dependencies are unknown. Changing quantities may affect gameplay." };
+
+    private IReadOnlyList<ViewNode> InventoryPage(int start)
+    {
+        if (_player?.Inventory is not { } inventory)
+        {
+            return [new TextNode("No supported player inventory layout was decoded.")];
+        }
+
+        if (start > inventory.Items.Count)
+        {
+            throw new KeyNotFoundException("Inventory page exceeds the item list.");
+        }
+
+        return [new TableNode([new("name", "Stored item name"), new("quantity", "Quantity"), new("equipped", "Equipped")],
+            inventory.Items.Skip(start).Take(PageSize).Select(item => new TableRow(item.Id.ToString(), new Dictionary<string, ViewNode> {
+                ["name"] = new TextNode(item.Name), ["quantity"] = ItemField(item),
+                ["equipped"] = new TextNode(item.Equipped ? "Yes (inferred)" : "No (inferred)"),
+            })).ToArray()) { Title = $"Player inventory · {inventory.Items.Count} records" },
+            .. NextPage("Inventory", "inventory", start, inventory.Items.Count)];
+    }
 
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
     {

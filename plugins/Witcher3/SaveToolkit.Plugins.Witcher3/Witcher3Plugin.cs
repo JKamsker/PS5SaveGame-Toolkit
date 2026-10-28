@@ -5,12 +5,13 @@ namespace SaveToolkit.Plugins.Witcher3;
 
 public sealed class Witcher3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.1.0")
+    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.2.0")
     {
-        Description = "Read-only SNFH/LZ4 and SAV3 variable explorer for decrypted PS5 saves.",
+        Description = "Experimental player progression, Crowns and inventory editing with a preserving SAV3/SNFH writer.",
         Games = [new GameTitle("PPSA04018", "The Witcher 3: Wild Hunt - Complete Edition")],
-        Maturity = PluginMaturity.ReadOnly,
-        References = ["https://github.com/Atvaark/W3SavegameEditor", "https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md"],
+        Maturity = PluginMaturity.Experimental,
+        References = ["https://github.com/Atvaark/W3SavegameEditor", "https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md",
+            "https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter"],
     };
 
     public ProbeResult Probe(ISaveFile file) => file.Directory.TitleId == "PPSA04018" &&

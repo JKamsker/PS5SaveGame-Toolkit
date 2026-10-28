@@ -75,7 +75,7 @@ internal static class SyntheticSave
         return Wrap(payload);
     }
 
-    private static byte[] Wrap(byte[] payload)
+    public static byte[] Wrap(byte[] payload)
     {
         var middle = payload.Length / 2;
         var first = Compress(payload.AsSpan(0, middle));
