@@ -77,7 +77,7 @@ public sealed class TsushimaEditingTests
         var original = file.ReadAllBytes();
         var outcome = document.ApplyEdits([Edit(SuppliesId, 86), Edit(ArrowId, 7)]);
         Assert.True(outcome.Succeeded);
-        Assert.True(document.ApplyEdits(outcome.Changes.Where(change => change.ValueId != "container/word2")
+        Assert.True(document.ApplyEdits(outcome.Changes.Where(change => change.ValueId is SuppliesId or ArrowId)
             .Reverse().Select(change => new ValueEdit(change.ValueId, change.OldValue)).ToArray()).Succeeded);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
     }

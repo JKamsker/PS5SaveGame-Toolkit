@@ -22,6 +22,8 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
     private readonly TsushimaReferenceViews _views;
     private readonly TsushimaQuantityPlanning _quantityPlanning;
     private readonly string? _subtitle;
+    private readonly SuckerPunchOverview _overview;
+    private readonly TsushimaPlayTime? _playTime;
 
     private SuckerPunchDocument(ISaveFile file, byte[] bytes, SaveContainer container, IReferenceContext references)
     {
@@ -43,6 +45,12 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
             _identifiers = [];
         }
 
+        _overview = new SuckerPunchOverview(file, bytes, container, _progress);
+        if (_inventory is not null && _progress?.PlaySeconds is { } seconds)
+        {
+            _playTime = new TsushimaPlayTime(bytes, _progress.PlayTimeOffset, seconds);
+        }
+
         _views = new TsushimaReferenceViews(references, _identifiers, BindReadOnly);
         _quantityPlanning = new TsushimaQuantityPlanning(bytes, container, _inventory);
     }
@@ -61,47 +69,15 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
 
     public override ViewNode BuildView()
     {
-        var isTsushima = _container.Kind == ContainerKind.Tsushima;
-        var format = _container.Kind switch
+        var overview = _overview.Build((id, label, spec, get) => Field(id, label, spec, get)).ToList();
+        if (_playTime is { } timer)
         {
-            ContainerKind.Tsushima => $"Tsushima container v{_container.Word3}",
-            ContainerKind.YoteiEmpty => "Yōtei empty placeholder",
-            _ => "Yōtei container (unmapped)",
-        };
-        var overview = new List<ViewNode>
-        {
-            new StatsNode(
-            [
-                new Stat("Title", _file.Directory.TitleId),
-                new Stat("File", _file.PathInDirectory),
-                new Stat("Size", $"{_bytes.Length:N0} bytes"),
-                new Stat("Format", format),
-                new Stat("Checksum", _container.ChecksumValid ? "Verified" : "Unknown"),
-            ]),
-            new SectionNode("Container header", BuildHeaderFields(isTsushima)),
-        };
-        if (!string.IsNullOrWhiteSpace(_subtitle))
-        {
-            overview.Add(new TextNode($"param.sfo SUBTITLE: {_subtitle}") { Tone = Tone.Info });
-        }
-
-        if (_progress is { } progress)
-        {
-            overview.Add(Field("progress/difficulty", "Difficulty", new TextSpec(),
-                () => FieldValue.Of(progress.Difficulty)) with
+            overview.Add(Field(TsushimaPlayTime.ValueId, "Play time", timer.Spec, timer.Read, timer.Write, timer.Validate) with
             {
                 Confidence = Confidence.Inferred,
-                Description = "Length-prefixed name before the difficulty timer table; matches all slot subtitles.",
+                Description = "Float32 at difficulty-table + 231; whole minutes match all v48/v49 slot subtitles. " + TsushimaPlayTime.Warning,
+                Warning = TsushimaPlayTime.Warning,
             });
-            if (progress.PlaySeconds is { } seconds)
-            {
-                overview.Add(Field("progress/play-seconds", "Play time", FloatSpec.Single with { Min = 0, Unit = "seconds" },
-                    () => FieldValue.Of(seconds)) with
-                {
-                    Confidence = Confidence.Inferred,
-                    Description = "Float32 at difficulty-table + 231; its whole minutes match every v48/v49 slot subtitle.",
-                });
-            }
         }
 
         var tabs = new List<Tab> { new("Overview", overview) };
@@ -109,8 +85,9 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
         {
             tabs.Add(new Tab("Inventory", [new TextNode(
                 "Experimental edits: only existing unlocked records can change. Ammo updates both count copies. " +
-                "The game may clamp quantities to its capacity limits.") { Tone = Tone.Warning },
-                _views.Inventory(_inventory, QuantityField), TsushimaQuantityPlanning.View, TsushimaReferenceViews.ResourceGuide]));
+                "Not validated on console. The game may clamp quantities to its capacity limits.") { Tone = Tone.Warning },
+                _views.Inventory(_inventory, QuantityField, MirrorField), TsushimaQuantityPlanning.View, TsushimaQuantityPlanning.InventoryView,
+                TsushimaReferenceViews.ResourceGuide]));
             if (_identifiers.Count > 0)
             {
                 tabs.Add(new Tab("Equipment", [new TextNode(
@@ -150,7 +127,7 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
 
         if (!TsushimaQuantityPlanning.Matches(current, plan))
         {
-            return EditOutcome.Rejected(actionId, "The goods preview is stale or does not match the request. Preview again.");
+            return EditOutcome.Rejected(actionId, "The quantity preview is stale or does not match the request. Preview again.");
         }
 
         _ = BuildView();
@@ -165,17 +142,44 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
             return [];
         }
 
+        var derived = new List<ValueChange>();
+        foreach (var change in applied)
+        {
+            var record = _inventory?.Records.SingleOrDefault(record => record.ValueId == change.ValueId);
+            if (record?.IsAmmo == true)
+            {
+                derived.Add(new ValueChange(record.MirrorValueId, change.OldValue,
+                    FieldValue.Of((ulong)ReadWord(record.QuantityOffset + sizeof(uint)))));
+            }
+        }
+
         var old = ReadWord(8);
         var checksum = SaveContainer.CalculateTsushimaChecksum(_bytes, _container.Word1, _container.Magic, _container.Word3);
         WriteWord(8, checksum);
-        return old == checksum ? [] : [new ValueChange(TsushimaIds.ChecksumValue, FieldValue.Of((ulong)old), FieldValue.Of((ulong)checksum))];
+        if (old != checksum)
+        {
+            derived.Add(new ValueChange(TsushimaIds.ChecksumValue, FieldValue.Of((ulong)old), FieldValue.Of((ulong)checksum)));
+        }
+        return derived;
     }
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
         var outcome = base.ApplyEdits(edits);
-        // The lazy raw block contains snapshot text, so invalidate it when the quantities change.
-        return outcome with { StructureChanged = outcome.Succeeded && outcome.Changes.Count > 0 };
+        // Raw blocks contain snapshot text; rebuild them and the current timer value after edits.
+        var warnings = new List<string>(outcome.Warnings);
+        if (outcome.Succeeded && outcome.Changes.Count > 0)
+        {
+            if (edits.Any(edit => edit.ValueId == TsushimaPlayTime.ValueId))
+            {
+                warnings.Add(TsushimaPlayTime.Warning);
+            }
+            if (edits.Any(edit => edit.ValueId.StartsWith("inventory/", StringComparison.Ordinal)))
+            {
+                warnings.Add(TsushimaQuantityPlanning.CapacityWarning);
+            }
+        }
+        return outcome with { StructureChanged = outcome.Succeeded && outcome.Changes.Count > 0, Warnings = warnings };
     }
 
     public override IReadOnlyList<FileOutput> Serialize()
@@ -186,7 +190,11 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
         {
             var content = output.AsSpan(0, (int)parsed.Word1);
             _ = TsushimaInventory.Parse(content);
-            _ = TsushimaProgress.Parse(content, parsed.Word3);
+            var progress = TsushimaProgress.Parse(content, parsed.Word3);
+            if (_playTime is not null && (progress?.PlaySeconds is not { } seconds || seconds != _playTime.Read().AsDouble()))
+            {
+                throw new SaveFormatException("The edited Tsushima play-time field did not reparse correctly.");
+            }
         }
 
         return [new FileOutput(_file.RelativePath, output)];
@@ -221,41 +229,24 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
 
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 
-    private IReadOnlyList<ViewNode> BuildHeaderFields(bool isTsushima)
-    {
-        string[] labels = isTsushima ? ["Magic", "Content size", "Checksum", "Format version"] :
-            ["Header word 0", "Header word 1", "Header word 2", "Header word 3"];
-        return Enumerable.Range(0, labels.Length).Select(index => (ViewNode)(Field(
-            $"container/word{index}", labels[index], IntegerSpec.UInt32 with { Format = IntegerFormat.Hex },
-            () => FieldValue.Of((ulong)ReadWord(index * sizeof(uint)))) with
-        {
-            Confidence = isTsushima ? Confidence.Verified : Confidence.Unknown,
-            Description = $"Little-endian uint32 at offset 0x{index * sizeof(uint):X2}.",
-            Warning = isTsushima ? null : "Yōtei game fields remain unmapped; editing is disabled.",
-        })).ToArray();
-    }
-
     private FieldNode QuantityField(InventoryRecord record)
     {
-        var flags = ReadWord(record.DataOffset);
         var quantity = ReadWord(record.QuantityOffset);
-        var mirrorsMatch = !record.IsAmmo || quantity == ReadWord(record.QuantityOffset + sizeof(uint));
-        var editable = (record.IsAmmo || record.IsResource) && flags is 1 or 3 && mirrorsMatch &&
-            quantity <= InventoryRecord.MaximumQuantity;
+        var editable = record.CanEdit(_bytes);
         var reference = _items?.Find(record.Name);
         return Field(record.ValueId, reference?.Name ?? record.Name, new IntegerSpec(0,
             Math.Max(quantity, InventoryRecord.MaximumQuantity)),
             () => FieldValue.Of((ulong)ReadWord(record.QuantityOffset)),
-            editable ? value => SetQuantity(record, value.AsUInt32()) : null,
+            editable ? value => record.WriteQuantity(_bytes, value.AsUInt32()) : null,
             value => value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 ||
                 value.AsInteger() > InventoryRecord.MaximumQuantity ? "Quantity must be between 0 and 32767." : null) with
         {
             Confidence = record.IsAmmo ? Confidence.Verified : Confidence.Inferred,
-            Description = $"Named record at 0x{record.Start:X}; count at 0x{record.QuantityOffset:X}. " +
+            Description = $"Named record at 0x{record.Start:X}; count at 0x{record.QuantityOffset:X}. Not validated on console. " +
                 (record.IsAmmo ? "Apollo/Save Wizard targets these two count words." :
                 "Resource count inferred from the named record and consistent slot values; raw identifier retained.") +
                 (reference is null ? "" : $" {reference.Description} {reference.AttributionText}"),
-            Warning = editable ? "In-game capacity limits are unknown; large quantities may be clamped." :
+            Warning = editable ? TsushimaQuantityPlanning.CapacityWarning :
                 "Unmapped, locked, oversized, or inconsistent record: inspection only.",
         };
     }
@@ -266,14 +257,12 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
         return node;
     }
 
-    private void SetQuantity(InventoryRecord record, uint quantity)
+    private FieldNode MirrorField(InventoryRecord record) => Field(record.MirrorValueId, $"{record.Name} count copy",
+        IntegerSpec.UInt32, () => FieldValue.Of((ulong)ReadWord(record.QuantityOffset + sizeof(uint)))) with
     {
-        WriteWord(record.QuantityOffset, quantity);
-        if (record.IsAmmo)
-        {
-            WriteWord(record.QuantityOffset + sizeof(uint), quantity);
-        }
-    }
+        Confidence = Confidence.Verified,
+        Description = "Apollo targets both count words; equal in all supplied samples. Derived from quantity edits; not validated on console.",
+    };
 
     private IReadOnlyList<ViewNode> BuildBlocks()
     {

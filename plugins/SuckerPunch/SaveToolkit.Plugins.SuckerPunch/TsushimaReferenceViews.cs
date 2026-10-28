@@ -23,7 +23,8 @@ internal sealed class TsushimaReferenceViews(
     public static SectionNode TechniqueGuide => SectionNode.Lazy("Technique reference", TsushimaIds.GuidePrefix + TsushimaIds.TechniqueGuide);
     public static SectionNode WorldGuide => SectionNode.Lazy("Shrines by region", TsushimaIds.GuidePrefix + TsushimaIds.WorldGuide);
 
-    public TableNode Inventory(TsushimaInventory inventory, Func<InventoryRecord, FieldNode> quantity)
+    public TableNode Inventory(TsushimaInventory inventory, Func<InventoryRecord, FieldNode> quantity,
+        Func<InventoryRecord, FieldNode> mirror)
     {
         var catalog = references.Catalog(TsushimaIds.Items);
         var rows = inventory.Records.Select(record => new TableRow(record.Name, new Dictionary<string, ViewNode>
@@ -32,10 +33,11 @@ internal sealed class TsushimaReferenceViews(
             ["item"] = ReferenceField($"inventory/{record.Name}/reference", record.Name, TsushimaIds.Items, catalog),
             ["category"] = new TextNode(catalog?.Find(record.Name)?.Category ?? "Unknown"),
             ["quantity"] = quantity(record),
+            ["copy"] = record.IsAmmo ? mirror(record) : new TextNode("—"),
             ["mapping"] = new TextNode(MappingConfidence(catalog?.Find(record.Name)).ToString()),
         })).ToArray();
         return new TableNode([new("raw", "Raw ID"), new("item", "Item"), new("category", "Category"),
-            new("quantity", "Quantity"), new("mapping", "Name mapping")], rows)
+            new("quantity", "Quantity"), new("copy", "Ammo count copy"), new("mapping", "Name mapping")], rows)
         {
             Title = "Existing inventory",
             Description = "48 length-prefixed records. Name confidence is separate from quantity confidence and write safety. " +

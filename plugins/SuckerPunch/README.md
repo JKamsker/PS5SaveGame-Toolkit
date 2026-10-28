@@ -1,9 +1,46 @@
 # Sucker Punch save plugin (`suckerpunch`)
 
 Titles: **PPSA02225** (Ghost of Tsushima, Director's Cut) and **PPSA26344** (Ghost of Yōtei).
-Version 0.4.0 is **Experimental**: Tsushima inventory edits pass conformance and exact byte-difference
+Version 0.5.0 is **Experimental**: Tsushima inventory and play-time edits pass conformance and exact byte-difference
 tests, but have not been tested in-game. Yōtei documents remain **read-only**. No sample bytes,
 extracted saves, or third-party implementation code are included in this plugin.
+
+## Enabled writes and their evidence
+
+The 2026-10-28 owner decision, **"Enable writes. Keep warnings."**, replaces console-evidence gates.
+This round enables **two additional write paths**: the existing v48/v49 play timer and F6 resource/ammo
+target-quantity planning. Existing scalar quantities and the narrower goods action stay enabled.
+Console evidence is tracked separately in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31);
+no write is advertised as console-validated or Stable.
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
+| --- | --- | --- | --- | --- |
+| Existing resource quantities (already enabled) | Inferred | Named five-word records and consistent values across all 25 Tsushima entries | Known additive checksum repaired; output reparsed; unrelated bytes preserved | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): +1 resources, labels, carry limits, load/resave/reload |
+| Existing ammo quantities and count copies (already enabled) | Verified byte structure; console effect unverified | Apollo named count-word targets; both copies agree in every sample | Both words updated together; checksum repaired; output reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): fire/pick up ammo, capacity/clamping, load/resave/reload |
+| F6 target quantities for existing supported resources/ammo (**new**) and Supplies/Flowers/raw Hide (existing action) | Same Inferred/Verified byte evidence as individual fields | Uses the same existing-record eligibility and fixed-width writer; all 25 samples tested | Preview lists primary counts, derived ammo copies and checksum, skips and warnings; apply revalidates; one undo/redo group | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate a small multi-resource/ammo edit in each intended build/mode |
+| v48/v49 play time (**new**) | Inferred | Four-byte float at difficulty-table + 231; whole minutes match all non-empty slot subtitles; 23 supported entries including backups | Only timer plus repaired checksum change; output reparsed; finite bounded values only | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small timer edit, load/resave/reload, inspect per-difficulty counters and stale subtitle normalization |
+
+Quantity fields, action descriptions, previews and apply outcomes retain **not validated on console**
+warnings. Quantity bounds remain 0–32767 (an upstream edit value, not a game capacity). Timer bounds
+are 0–198318.828125 seconds, the highest observed v48/v49 value; a larger original value extends that
+document's bound so undo can restore it. This is a conservative editor range, not a game limit.
+The timer warning explicitly says the game may normalize or reject the edit: per-difficulty counters
+and `param.sfo SUBTITLE` remain unchanged and may disagree. No v47 or unknown-version timer writer exists.
+
+Still disabled for structural safety, rather than pending console approval:
+
+- **Yōtei:** unknown integrity alone would permit a warning-labelled experimental writer, but there is
+  no identified gameplay quantity offset. Its two zero-valued, differently shaped name tables could
+  be schemas/registries, not inventory. Guessing a uint32 count could overwrite unknown fields or
+  references. A **"game may reject the edited save"** warning cannot make such a structural guess safe.
+  Empty placeholders also contain no records to edit. Nothing is written to either table or header.
+- **Equipment, techniques, character progression and world state:** the scanner identifies strings,
+  not writable state fields or ownership/selection/reward relationships. Replacing them could damage
+  definitions or references. No gated writer for these was implemented in the earlier handoffs.
+- **Difficulty and structural add/remove:** general difficulty changes alter string lengths; enclosing
+  sizes, offsets and references cannot be updated safely by the current fixed-width model. Item
+  insertion/removal likewise has no understood enclosing structure or acquisition side effects.
+  No F5/F7 transaction is exposed because no safe structural or sibling-file mutation is defined.
 
 ## Supported behavior
 
@@ -18,11 +55,13 @@ extracted saves, or third-party implementation code are included in this plugin.
   in observed container versions 47–49. Document scope covers those three records; an explicit empty
   row selection changes nothing. Locked/oversized/already-matching rows are skipped; other selected
   IDs are excluded. The preview includes count/checksum changes and warnings, is pure, and is rechecked
-  on apply. It uses ordinary validated scalar edits and one Core undo/redo group. It does not refill
-  to a claimed capacity, unlock items, or introduce new equipment/progression writes.
-* Difficulty and v48/v49 play time are **Inferred**, read-only fields. Every slot's whole play-time
-  minutes and difficulty match its `param.sfo SUBTITLE`; changing these would also require deciding
-  how to update console metadata. The v47 timer layout is different, so no timer is published for it.
+  on apply. A second action, `inventory/set-quantity`, extends the same workflow to all existing
+  supported resource/ammo records, with derived ammo copies shown explicitly. Both actions use
+  ordinary validated scalar edits and one Core undo/redo group. Neither unlocks items or claims a capacity.
+* Difficulty is **Inferred** and read-only. The **Inferred** v48/v49 play timer is writable, with the
+  explicit metadata/counter warning and observed bound above. Every unedited slot's whole play-time
+  minutes and difficulty match its `param.sfo SUBTITLE`. The v47 timer layout is different, so no timer
+  is published for it. No console metadata or difficulty counters are rewritten.
 * Locked records, unmatched ammo copies, unmapped item kinds and existing quantities above 32767 are
   inspection-only. The editable range 0–32767 follows the upstream refill value, **not a proven game
   capacity**. The UI warns that quantities can be clamped. Ownership/upgrade flags are never changed.
@@ -78,10 +117,10 @@ checksum = (sum(bytes[0x10:contentSize]) + contentSize + 0x14E + version) modulo
 ```
 
 The range is half-open; trailing padding is excluded and preserved even if non-zero. Header values and
-content bytes are not re-encoded. After edits, only count words and the checksum at 0x08 change.
+content bytes are not re-encoded. After edits, only selected count words/the play-time float and the checksum at 0x08 change.
 `Serialize()` validates the emitted container, inventory structure and recognised progress block before
 returning it. Invalid batches leave every byte unchanged. Undo replays the primary quantity values and
-recomputes the checksum, restoring the original bytes.
+recomputes the checksum, restoring the original bytes. Timer undo/redo likewise restores the exact float bits.
 
 ## Inventory structure and anchor evidence
 
@@ -168,7 +207,8 @@ All-zero `dis.dat` placeholders remain opaque. Two non-empty samples have these 
 | AutoE1/dis.dat | `0x150` | 16 | 411397 | 30157398 |
 
 Earlier format research found a promising additive integrity relationship and two counted name tables. The complete
-header and writable gameplay semantics have not yet been established; Yōtei remains read-only.
+header and writable gameplay semantics have not yet been established; Yōtei remains read-only because
+no safe gameplay field is located, not because console validation is required before enabling writes.
 
 ### Earlier integrity and structure follow-up
 
@@ -185,9 +225,11 @@ with/without magic, size and word1 addends compared byte sums, aligned 16/32-bit
 endiannesses, CRC32 and Adler32. Only the byte sum from 0x10 plus magic and size matched both files.
 
 However, **both range ends match**: every byte after the apparent content end is zero. A whole-file
-checksum and a content-only checksum therefore remain indistinguishable. This is not enough evidence
-to enable Yōtei writing or tighten its opaque parser's integrity requirements. A sample with non-zero
-padding, a proven implementation, or a controlled game round trip is needed to settle the range.
+checksum and a content-only checksum therefore remain indistinguishable. Unknown coverage would require
+an explicit **game may reject the edited save** warning on any future writer; it does not by itself
+prevent experimental writes under the owner addendum. Its opaque parser's integrity requirements are
+not tightened from this hypothesis. A sample with non-zero padding, a proven implementation, or a
+controlled game round trip would settle the range.
 
 Each non-empty payload also contains two `uint32 48` + length-prefixed `ArrowNormal` tables. Offsets:
 memory `0x62F17` / `0x640F5`; AutoE1 `0x62E39` / `0x64017`. Their 48 names match, including `Mon`
@@ -198,7 +240,7 @@ inventory or where a currency count belongs. The Tsushima parser is deliberately
 
 `YoteiResearchTests` records both header vectors, the ambiguous checksum ranges, both record layouts,
 and read-only byte-identical exports for all eight Yōtei files. No Yōtei field meaning or write support
-is claimed. This is the stopping point for the stretch goal.
+is claimed. The write round deliberately does not turn zero schema-like bytes into guessed counters.
 
 ## Research log and sources
 
@@ -209,6 +251,13 @@ subtitles, and tested fixed-size edits. Searches for Yōtei save editors, checks
 research did not produce a usable primary-source parser. Downloaded references were read as text and
 never executed. Only algorithms and patch semantics were independently implemented; no substantial
 third-party code was copied or ported.
+
+Write-round recheck, 2026-10-28: reread [KOVRlN technical notes at 519bb466](https://github.com/KOVRlN/ghostoftsushima-save-converter/blob/519bb46620ef20a4424f1ef899d11455f4381044/TECHNICAL.md)
+and [Apollo's patch at 273f032b](https://github.com/bucanero/apollo-patches/blob/273f032b4c31c017fed5c1588f209b8faf87ba6c/PS4/CUSA11456.savepatch).
+The checksum and paired ammo-write facts remain the basis of the existing writer. The timer is an
+independent inference from the supplied PS5 correlations, not a field documented by either tool.
+A fresh GitHub-focused Yōtei `memory.dat`/checksum/editor search yielded no usable primary-source
+quantity parser; no third-party code or new reference dataset was imported in the write round.
 
 * [KOVRlN technical notes](https://github.com/KOVRlN/ghostoftsushima-save-converter/blob/main/TECHNICAL.md):
   Tsushima header and additive checksum. Independently verified against every supplied Tsushima file.
@@ -280,13 +329,14 @@ Unknown. The historical Archery Master's Attire is marked removed in patch 2.04.
 separates Izuhara (7), Toyotama (6), Kamiagata (3), and Iki expansion (1), without claiming a
 save-specific denominator or completed count. No Yōtei entries are imported into Tsushima's pack.
 
-### Remaining phase gates and owner captures
+### Remaining work and owner captures
 
 Phase 1's attributed naming/readability and target-quantity preview are implemented. Phase 2 still
 lacks live equipment/character joins. Phase 3's equipment/technique/character edits and Phase 4's
-saved world-state reads remain blocked by evidence; the World reference is not a completion tracker.
+saved world-state reads require actual field/relationship definitions; the World reference is not a completion tracker.
 The existing corpus contains no annotated single-action captures. No new gameplay state semantics
-were inferred merely from different slot balances. No console-tested feature or Stable maturity is claimed.
+were inferred merely from different slot balances. The timer and expanded quantity action above are
+enabled independently of owner console evidence. No console-tested feature or Stable maturity is claimed.
 
 For each capture, use one disposable slot and retain **all participating files**; record title, PS5
 patch/build, region, mode (campaign/Legends), NG/NG+, DLC and locale. First capture an unchanged
@@ -310,7 +360,10 @@ load/save control. Then capture separate before/after pairs for:
    before claiming support in those modes.
 6. **Yōtei:** non-zero Mon/resource/ammo single-action pairs, manual/autosave/memory role controls,
    and natural non-zero trailing bytes or an owner-controlled integrity/load/resave experiment.
-   Checksum coverage and authoritative records must be resolved before any Yōtei write.
+   Identify a structurally safe authoritative quantity field; integrity uncertainty may retain a warning.
+7. **Play time:** on a disposable v48/v49 slot, change the timer by one minute within its displayed
+   bound. Load, check displayed time, resave, reload and export. Compare the timer, per-difficulty
+   counters, all participating files and `param.sfo SUBTITLE`; record normalization or rejection.
 
 ## Validation and maintenance
 
@@ -323,6 +376,9 @@ Sample-dependent tests use `SampleSaves.Load` and skip if archives are absent. A
 round validation. With the supplied artifacts, round 1's baseline was **48 passed, 0 skipped**.
 Round-2 final checks on 2026-10-28: **85 passed, 0 failed, 0 skipped** with the artifacts variable
 exported in the test command; the full API build passed with **0 warnings and 0 errors**.
+Write-round checks on 2026-10-28: **105 passed, 0 failed, 0 skipped**, including conformance and
+F1 `ByteDiffer` assertions restricting new edits to their exact intended byte ranges. The full API
+build passed with **0 warnings and 0 errors**. All non-generated C# files remain below 300 physical lines.
 Coverage includes all 25 Tsushima / 8 Yōtei
 payload entries, byte-identical no-op exports, exact changed count/checksum spans, mirrored ammo,
 locked/malformed/ambiguous records, rollback/undo, non-zero padding, isolated returned memory,
@@ -335,7 +391,7 @@ New C# files stay below 300 physical lines; no hooks, build targets or repositor
 * Console-load the edited quantities; only a human can promote maturity to Stable.
 * Confirm individual resource meanings and game capacity limits, plus the flag bits and other raw words.
 * Identify chapter/quest state and rank/technique records without relying on unmatched PS4 offsets.
-* Locate the v47 play timer and determine the accounting of per-difficulty float counters.
+* Locate the v47 play timer and determine the accounting of per-difficulty float counters and subtitle normalization.
 * Finish the Yōtei header interpretation and validate non-zero gameplay counts before exposing edits.
 
 ## SDK requests
@@ -344,5 +400,5 @@ None for this round: F2/F4 references and F6 planning are used directly. F8 is u
 small lazy guides (maximum 79 rows); larger imported guides are bounded to one 200-row page.
 Equipment/progression/world blockers require sample evidence rather than new SDK substitutes.
 Float timers have no Duration display equivalent to `IntegerSpec`,
-so the read-only timer is presented in seconds. A future metadata-edit contract/policy could clarify
+so the timer is presented in seconds. A future metadata-edit contract/policy could clarify
 whether changing play time or difficulty should update `param.sfo SUBTITLE`; this plugin leaves it intact.

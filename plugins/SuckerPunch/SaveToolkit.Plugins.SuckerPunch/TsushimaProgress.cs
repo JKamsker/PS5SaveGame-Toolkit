@@ -7,6 +7,7 @@ internal sealed record TsushimaProgress(string Difficulty, float? PlaySeconds, i
 {
     private const int PlayTimeRelativeOffset = 231;
     private const int DifficultyLookBehind = 80;
+    public int PlayTimeOffset => Start + DifficultyLookBehind + PlayTimeRelativeOffset;
 
     public static TsushimaProgress? Parse(ReadOnlySpan<byte> content, uint version)
     {

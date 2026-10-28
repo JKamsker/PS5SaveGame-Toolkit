@@ -5,39 +5,48 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.SuckerPunch;
 
-/// <summary>Plans only existing goods quantities; it never unlocks records or interprets carrying capacities.</summary>
+/// <summary>Plans existing resource/ammo quantities; it never unlocks records or interprets carrying capacities.</summary>
 internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer container, TsushimaInventory? inventory)
 {
     public const string ActionId = "inventory/set-goods-quantity";
+    public const string InventoryActionId = "inventory/set-quantity";
     public const string QuantityParameter = "quantity";
     private const uint OldestObservedVersion = 47;
     private const uint LatestObservedVersion = 49;
-    private const string CapacityWarning = "Experimental: game carrying capacities and console persistence are unverified. " +
+    public const string CapacityWarning = "Experimental: not validated on console. Game carrying capacities and console persistence are unverified. " +
         "This sets a target quantity, not a capacity refill. Hide retains its raw name because its friendly mapping is unproven.";
 
     public static ActionNode View => new(ActionId, "Set existing goods quantity")
     {
         SupportsPlanning = true,
         Description = "Preview one target quantity for existing Supplies, Flowers and raw Hide records. " +
-            "Locked or oversized records are skipped. Other inventory IDs are excluded.",
+            "Locked or oversized records are skipped. Other inventory IDs are excluded. " + CapacityWarning,
         Parameters = [new FieldNode(QuantityParameter, "Target quantity", new IntegerSpec(0, InventoryRecord.MaximumQuantity), FieldValue.Of(0L))],
+    };
+
+    public static ActionNode InventoryView => View with
+    {
+        ActionId = InventoryActionId,
+        Label = "Set existing resource/ammo quantities",
+        Description = "Preview one target quantity for existing supported resources and ammo. Both ammo count words change together. " +
+            "Locked, oversized, unmapped and inconsistent records are skipped. " + CapacityWarning,
     };
 
     public ActionPlan Plan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
-        if (actionId != ActionId)
+        if (actionId is not (ActionId or InventoryActionId))
         {
             throw new KeyNotFoundException($"Unknown action '{actionId}'.");
         }
 
         if (inventory is null || container.Kind != ContainerKind.Tsushima)
         {
-            return Reject("Goods planning is available only for the recognized Tsushima inventory.");
+            return Reject("Quantity planning is available only for the recognized Tsushima inventory.");
         }
 
         if (container.Word3 is < OldestObservedVersion or > LatestObservedVersion)
         {
-            return Reject("Goods planning is limited to observed Tsushima container versions 47–49.");
+            return Reject("Quantity planning is limited to observed Tsushima container versions 47–49.");
         }
 
         if (parameters.Count != 1 || !parameters.TryGetValue(QuantityParameter, out var target) ||
@@ -57,20 +66,23 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             return Reject("Selection contains an unknown inventory row.");
         }
 
+        var goodsOnly = actionId == ActionId;
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
-        foreach (var record in inventory.Records.Where(record => selected?.Contains(record.Name) ?? IsSupported(record)))
+        var warnings = new List<string> { CapacityWarning };
+        foreach (var record in inventory.Records.Where(record => selected?.Contains(record.Name) ?? IsSupported(record, goodsOnly)))
         {
-            if (!IsSupported(record))
+            if (!IsSupported(record, goodsOnly))
             {
-                skipped.Add(new(record.Name, "Excluded: this action supports only Supplies, Flowers and raw Hide."));
+                skipped.Add(new(record.Name, goodsOnly ? "Excluded: this action supports only Supplies, Flowers and raw Hide." :
+                    "Excluded: this record is not a supported resource or ammo kind."));
                 continue;
             }
 
             var current = Word(record.QuantityOffset);
-            if (Word(record.DataOffset) is not (1 or 3) || current > InventoryRecord.MaximumQuantity)
+            if (!record.CanEdit(bytes))
             {
-                skipped.Add(new(record.Name, "Locked or oversized record; inspection only."));
+                skipped.Add(new(record.Name, "Locked, oversized or inconsistent record; inspection only."));
                 continue;
             }
 
@@ -86,10 +98,14 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
         if (changes.Count > 0)
         {
             var preview = bytes.ToArray();
-            foreach (var change in changes)
+            foreach (var change in changes.ToArray())
             {
                 var record = inventory.Records.Single(record => record.ValueId == change.ValueId);
-                BinaryPrimitives.WriteUInt32LittleEndian(preview.AsSpan(record.QuantityOffset), change.NewValue.AsUInt32());
+                record.WriteQuantity(preview, change.NewValue.AsUInt32());
+                if (record.IsAmmo)
+                {
+                    changes.Add(new(record.MirrorValueId, $"{record.Name} count copy", change.OldValue, change.NewValue) { Derived = true });
+                }
             }
 
             var checksum = SaveContainer.CalculateTsushimaChecksum(preview, container.Word1, container.Magic, container.Word3);
@@ -100,7 +116,7 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             }
         }
 
-        return new ActionPlan { Changes = changes, SkippedRows = skipped, Warnings = [CapacityWarning] };
+        return new ActionPlan { Changes = changes, SkippedRows = skipped, Warnings = warnings };
     }
 
     public static bool Matches(ActionPlan expected, ActionPlan supplied) =>
@@ -108,7 +124,8 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
         expected.Changes.SequenceEqual(supplied.Changes) && expected.SkippedRows.SequenceEqual(supplied.SkippedRows) &&
         expected.Warnings.SequenceEqual(supplied.Warnings);
 
-    private static bool IsSupported(InventoryRecord record) => record.Name is "Supplies" or "Flowers" or "Hide";
+    private static bool IsSupported(InventoryRecord record, bool goodsOnly) => goodsOnly
+        ? record.Name is "Supplies" or "Flowers" or "Hide" : record.IsResource || record.IsAmmo;
     private static ActionPlan Reject(string message) => new() { Errors = [new(QuantityParameter, message)] };
     private uint Word(int offset) => BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset));
 }

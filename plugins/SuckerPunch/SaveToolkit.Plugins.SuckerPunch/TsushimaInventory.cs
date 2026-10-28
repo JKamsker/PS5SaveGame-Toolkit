@@ -13,7 +13,25 @@ internal sealed record InventoryRecord(string Name, int Start, int DataOffset)
     public bool IsResource => Name.StartsWith("Ingred", StringComparison.Ordinal) ||
         Name is "Supplies" or "Hide" or "Flowers" or "NGPFlowers";
     public string ValueId => $"inventory/{Name}/quantity";
+    public string MirrorValueId => $"inventory/{Name}/quantity-copy";
     public int QuantityOffset => DataOffset + sizeof(uint);
+
+    public bool CanEdit(ReadOnlySpan<byte> bytes)
+    {
+        var flags = BinaryPrimitives.ReadUInt32LittleEndian(bytes[DataOffset..]);
+        var quantity = BinaryPrimitives.ReadUInt32LittleEndian(bytes[QuantityOffset..]);
+        return (IsAmmo || IsResource) && flags is 1 or 3 && quantity <= MaximumQuantity &&
+            (!IsAmmo || quantity == BinaryPrimitives.ReadUInt32LittleEndian(bytes[(QuantityOffset + sizeof(uint))..]));
+    }
+
+    public void WriteQuantity(Span<byte> bytes, uint quantity)
+    {
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes[QuantityOffset..], quantity);
+        if (IsAmmo)
+        {
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes[(QuantityOffset + sizeof(uint))..], quantity);
+        }
+    }
 }
 
 internal sealed record TsushimaInventory(int Start, int End, IReadOnlyList<InventoryRecord> Records)
