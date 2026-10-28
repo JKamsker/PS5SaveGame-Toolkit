@@ -100,6 +100,8 @@ an issue or a committed report. Diff output can contain them, so share it only a
 $diff = 'tools/SaveToolkit.SaveDiff'
 dotnet run --project $diff -- list artifacts/PPSA01325_saves_dec.zip
 dotnet run --project $diff -- compare before.zip after.zip --semantic auto
+dotnet run --project $diff -- list-decoders
+dotnet run --project $diff -- compare before.zip after.zip --decoder <listed-hook-id>
 dotnet run --project $diff -- compare artifacts/PPSA01325_saves_dec.zip artifacts/PPSA01325_saves_dec.zip `
     --before-gen 0 --after-gen 1 --semantic astro-playroom --ignore plugins/X/fixtures.json
 dotnet run --project $diff -- verify plugins/X/fixtures.json --format json
@@ -123,16 +125,31 @@ How it works:
   (`--max-ranges`), but every byte is counted.
 - **Semantic mode** (`--semantic json|auto|<plugin-id>`): a decoder turns each file into typed
   values with identity paths. Records align by identity, not offset, and the report lists added,
-  removed and changed paths. Decoders implement `ISaveDecoder`:
+  removed and changed paths. `--decoder <id>` also selects an explicit plugin hook listed by
+  `list-decoders` (exclusive with `--semantic`). Decoders implement `ISaveDecoder` or the SDK's
+  `ISaveDecoderHook`, exposed by a catalogued plugin's optional `ISaveDecoderProvider`:
   - `JsonSaveDecoder` aligns arrays of objects by `id`-like keys, e.g. `items[id=42]/qty`.
   - `PluginViewDecoder` turns any existing plugin into a decoder by using its `FieldNode` value
-    ids as paths.
+    ids as paths. It expands lazy sections and pages through F8 queryable tables, including direct
+    read-only text and rich cell titles under stable collection/row/column paths. Default query order
+    must be deterministic; offset/cursor positions never become row identities.
   - `auto` uses the best-probing plugin, then JSON.
 - **Bounds:** inputs are copied to a private temp folder, which is deleted afterwards, and byte
   diffs stream in 64 KiB blocks. Decoded trees, value lengths, reported ranges and reported
-  changes are all capped; the report says when something was cut.
+  changes are all capped; the report says when something was cut. Across all F8 collections in a file,
+  defaults are 100,000 rows, 1,000 pages and 32 MiB of complete UTF-8 response pages. Override them with
+  `--max-query-rows`, `--max-query-pages`, `--max-query-bytes` (zero disables traversal for that budget).
+  Over-budget pages are omitted. `inputTruncated` and warnings identify incomplete semantic inputs;
+  absent paths then do not establish removal. See [the F1 plugin guide](PLUGIN_GUIDE.md#differential-save-tooling-f1--f12)
+  for native hooks and identity/path rules.
 - **Output:** text, or `--format json` (`savetoolkit-savediff/1`). `--out` refuses paths inside
   `artifacts/` or any git working tree.
+  `list-decoders` defaults to ID/kind/plugin columns; its JSON envelope is `savetoolkit-decoders/1`.
+  CLI options override fixed defaults; decoder selection has no environment/config fallback.
+  Commands never prompt or read stdin. Reports go to stdout (or checked `--out`); usage/input errors
+  go to stderr with exit code 2 in both output modes. Inputs are read-only; there is no destructive
+  operation or confirmation flow. `SAVETOOLKIT_ARTIFACTS` only locates sample/fixture archives, with
+  `verify --artifacts` taking precedence.
 - **Exit codes:**
   - `0`: no changes, or all fixtures passed.
   - `1`: changes found, or a fixture failed.
@@ -191,7 +208,7 @@ The values above are illustrative; the PPSA01325 pair does not exist yet.
 | --- | --- |
 | `ignore[]` (manifest or fixture) | Churn rules. `titleId` (omit or `*` for any), `directory` and `file` globs (`*`, `?`; directory = logical name without `sdimg_`). Then `offset` + `length` (bytes), or `path` (semantic glob), or neither (whole file). `reason` is required. |
 | `before` / `after` | `archive` (relative to `--artifacts`, `SAVETOOLKIT_ARTIFACTS` or `./artifacts`), `generation` (`all`, `latest` or a number), optional `sha256` of the archive. |
-| `decoder` | `json`, `auto` or a plugin id. Omit it for byte expectations only. |
+| `decoder` | `json`, `auto`, a plugin id or a registered hook id from `list-decoders`. Omit it for byte expectations only. |
 | `files` | Globs limiting which files are compared. |
 | `expected[]` | One change per entry, in main files (`"backup": true` for backups) matched by `directory`/`file`. It is either a byte range (`offset`, `length` ≤ 4096, optional hex `before`/`after`) or a semantic `path` (optional value text; `(absent)` = path missing). `"changed": false` asserts that nothing changed there. Every matched file must satisfy it. |
 | `strict` | Every unmasked change must be covered: each changed file by some expectation, each byte range by a byte expectation, each semantic change by a path expectation. |

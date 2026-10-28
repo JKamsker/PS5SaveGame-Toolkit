@@ -26,7 +26,13 @@ internal static class CompareCommand
     {
         var rules = args.GetAll("ignore").SelectMany(path => FixtureManifest.Load(path).Ignore);
         var defaults = new ByteDiffOptions();
-        var semantic = args.Get("semantic");
+        if (args.Get("semantic") is not null && args.Get("decoder") is not null)
+        {
+            throw new UsageException("Use either --decoder or --semantic, not both.");
+        }
+
+        var semantic = args.Get("decoder") ?? args.Get("semantic");
+        var decodeLimits = new DecodeLimits();
         return new SaveDiffOptions
         {
             BeforeGeneration = CliApp.Generation(args, "before-gen"),
@@ -44,6 +50,12 @@ internal static class CompareCommand
                 MaxPreviewBytes = args.GetInt("preview", defaults.MaxPreviewBytes, min: 1),
             },
             MaxSemanticChanges = args.GetInt("max-changes", 500),
+            DecodeLimits = decodeLimits with
+            {
+                MaxQueryRows = args.GetInt("max-query-rows", decodeLimits.MaxQueryRows),
+                MaxQueryPages = args.GetInt("max-query-pages", decodeLimits.MaxQueryPages),
+                MaxQueryBytes = args.GetInt("max-query-bytes", checked((int)decodeLimits.MaxQueryBytes)),
+            },
             Decoder = semantic is null or "none" ? null : resolver().Resolve(semantic),
         };
     }

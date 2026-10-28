@@ -16,6 +16,7 @@ internal static class CliApp
           savediff list    <save>                    Directories, generations, backup twins and hashes
           savediff compare <before> <after> [opts]   Byte (and optional semantic) diff of two save sets
           savediff verify  <manifest.json> [opts]    Check fixture expectations against the artifacts
+          savediff list-decoders [opts]             Built-in modes, plugin views and decoder hooks
 
         <save> is a decrypted dump .zip, a folder or a single file. Repeated ZIP entries become
         generations 0, 1, ... in archive order; use the same zip twice with --before-gen/--after-gen
@@ -27,6 +28,10 @@ internal static class CliApp
           --title PPSAxxxxx    only this title
           --ignore FILE        churn rules from a manifest / ignore file (repeatable)
           --semantic MODE      none|json|auto|<plugin-id> (default none = bytes only)
+          --decoder ID         select a listed mode, plugin view or hook (exclusive with --semantic)
+          --max-query-rows N   F8 rows per file (default 100000)
+          --max-query-pages N  F8 pages per file (default 1000)
+          --max-query-bytes N  UTF-8 F8 response bytes per file (default 33554432)
           --system             include sce_sys/* files
           --no-collapse        diff backups even when they mirror their main file
           --all                also list unchanged files
@@ -42,7 +47,7 @@ internal static class CliApp
 
     private static readonly HashSet<string> CompareFlags = ["system", "no-collapse", "all"];
     private static readonly HashSet<string> CompareValued =
-        ["before-gen", "after-gen", "gen", "file", "title", "ignore", "semantic", "max-ranges", "merge-gap", "context", "preview", "max-changes", "format", "out"];
+        ["before-gen", "after-gen", "gen", "file", "title", "ignore", "semantic", "decoder", "max-query-rows", "max-query-pages", "max-query-bytes", "max-ranges", "merge-gap", "context", "preview", "max-changes", "format", "out"];
     private static readonly HashSet<string> VerifyValued = ["artifacts", "fixture", "format", "out"];
     private static readonly HashSet<string> ListValued = ["format", "out"];
     private static readonly HashSet<string> NoFlags = [];
@@ -63,6 +68,7 @@ internal static class CliApp
                 "compare" => CompareCommand.Run(CliArguments.Parse(args, CompareFlags, CompareValued), stdout, resolver),
                 "verify" => VerifyCommand.Run(CliArguments.Parse(args, NoFlags, VerifyValued), stdout, resolver),
                 "list" => ListCommand.Run(CliArguments.Parse(args, NoFlags, ListValued), stdout),
+                "list-decoders" => ListDecodersCommand.Run(CliArguments.Parse(args, NoFlags, ListValued), stdout, resolver),
                 _ => throw new UsageException($"Unknown command '{args[0]}'. Run 'savediff help'."),
             };
         }

@@ -790,6 +790,82 @@ for a complete example.
 | `/references/{catalogId}/record?key=` | One record with its provenance |
 | `/reference-assets?id=` | Image bytes, size-limited and served with `nosniff` |
 
+## Differential-save tooling (F1 / F12)
+
+`tools/SaveToolkit.SaveDiff` is the shared, read-only byte/semantic diff and fixture tool.
+See [SAMPLES.md](SAMPLES.md#differential-save-tool-savediff) for capture, compare and fixture commands.
+`savediff list-decoders` lists built-in modes, plugin views and explicit decoder hooks; use
+`--format json` for the versioned `savetoolkit-decoders/1` envelope.
+
+### Decode through the view
+
+`savediff compare before.zip after.zip --decoder <plugin-id>` uses `PluginViewDecoder`.
+`--semantic <plugin-id>` remains supported. Both modes retain `FieldNode.ValueId` as the semantic
+path and expand lazy sections, then page through encountered F8 `QueryableTableNode`s. Duplicate
+appearances of a field/collection are visited once. Action parameters are never decoded as saved data.
+
+F8 queries have no search, filters or requested sort. **Keep the default query order deterministic**
+with stable native identities as the tie-break; never derive keys from page offsets or localized
+labels. The visitor supports offset and cursor paging, sorts each page's rows and columns ordinally,
+and compares fields by value id. Direct `TextNode` cells and rich `SectionNode` cell titles also
+become semantic values, at
+`collections/<collection-id>/rows/<row-key>/cells/<column-key>`. These path components use JSON-pointer
+escaping (`~` → `~0`, `/` → `~1`); fields retain their existing ids without a collection prefix.
+Text cells can contain presentation churn, so use a native hook when a view is unsuitable evidence.
+
+`DecodeLimits` bounds **all collections together per file**: `MaxQueryRows` (100,000),
+`MaxQueryPages` (1,000) and `MaxQueryBytes` (32 MiB). `QueryPageSize` defaults to 200 (SDK maximum),
+and must be 1–200. The CLI exposes `--max-query-rows`, `--max-query-pages` and `--max-query-bytes`;
+zero disables that traversal budget. The byte cap counts complete serialized UTF-8 response pages,
+including metadata and read-only cells; an over-budget page contributes no semantic values.
+The existing value, value-length, view-depth and lazy-expansion limits still apply. Duplicate row
+keys, repeated cursors, invalid metadata and unexpectedly empty pages stop that collection with an
+incomplete-input warning. Caps set `SemanticTree.Truncated` / report `inputTruncated` and explain
+which bound stopped traversal. Missing paths in an incomplete tree are **not proof of removal**.
+
+### Publish a native decoder hook
+
+An existing catalogued `IGamePlugin` may additionally implement
+`SaveToolkit.Sdk.Diff.ISaveDecoderProvider`. Its `Decoders` property returns an explicit
+`IReadOnlyList<ISaveDecoderHook>`; no decoder assemblies or types are scanned separately.
+SDK-only production plugins do **not** need a dependency on Testing:
+
+```csharp
+// On the plugin class: IGamePlugin, ISaveDecoderProvider
+public IReadOnlyList<ISaveDecoderHook> Decoders => [new MyEvidenceDecoder()];
+
+// On MyEvidenceDecoder: ISaveDecoderHook
+public string Id => "mygame.native-v1";
+public bool CanDecode(ISaveFile file) => new MyPlugin().Probe(file).IsMatch;
+public void Decode(ISaveFile file, ISaveDecodeSink sink)
+{
+    var model = MyFormat.Parse(file.ReadAllBytes());
+    foreach (var item in model.Items)
+    {
+        if (!sink.Add($"inventory/{item.StableId}/quantity", "integer",
+            item.Quantity.ToString(CultureInfo.InvariantCulture))) return;
+    }
+}
+```
+
+Use stable native record identities independent of offsets, physical order and translated labels.
+Keep hooks stateless, read-only, bounded and free of I/O. The host checks `MaxFileBytes` before
+calling an SDK hook and supplies a bounded sink; stop when `Add` returns false. Honor its
+`MaxDepth`/other limits while parsing or traversing, and call `MarkTruncated(reason)` for any
+additional bound or unproven identity fallback. `Warn` records other evidence limitations.
+Never emit account/credential values into committed evidence; use opaque fingerprints where needed.
+
+Existing `SaveToolkit.Testing.Diff.ISaveDecoder` implementations also implement the SDK hook through
+a default adapter, so they can be returned unchanged by a provider in a project that already depends
+on Testing. `HookSaveDecoder` adapts an SDK-only hook to the F1 engine. Test/research assemblies are
+not discovered automatically; register hooks on a plugin that is actually present in `PluginCatalog`.
+
+Hook ids must be globally unique (case-insensitive), 1–128 ASCII letters/digits or `.`, `_`, `-`.
+They cannot replace `none`, `json`, `auto` or any plugin id. Collisions produce a CLI usage error.
+Select a hook with `savediff compare before.zip after.zip --decoder mygame.native-v1`, or use its id
+as a fixture manifest's `decoder`. `--decoder` and `--semantic` are mutually exclusive.
+`auto` retains its existing best-plugin-view-then-JSON behavior; hooks require explicit selection.
+
 ## Tests
 
 The conformance suite (`SaveToolkit.Testing.PluginConformanceTests<T>`) checks, against the real samples:
