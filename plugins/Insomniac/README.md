@@ -1,18 +1,23 @@
 # Ratchet & Clank: Rift Apart (`insomniac`)
 
-Version **0.5.0**, **Experimental**, for decrypted **PPSA01474** saves. Phase 1 of
+Version **0.6.0**, **Experimental**, for decrypted **PPSA01474** saves. Phase 1 of
 [#20](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/20) is implemented;
 Round 2 delivers Phase 2's read-only weapons, armour, upgrades, collectibles and
 world views. Controlled ownership/equipment, upgrade-node and precise pickup joins
 remain evidence gaps. The write-enable round adds bounded existing scalar edits under
 the owner's “Enable writes. Keep warnings.” decision; console acceptance is unproven.
 The engine family name does not claim Spider-Man, other titles or other regions.
+The completion round adds F9 storage diagrams/link-only maps, F6 calculated-balance
+target planning, more F4 ID references, F8 raw inventory paging and robustness fixes.
+See [COMPLETION-AUDIT.md](COMPLETION-AUDIT.md) for every requirement and acceptance gap.
 
 ## Views
 
 - **Player:** career/spent counters, inferred available bolts, play time, challenge
   flags, gold-bolt options and per-location counters. Career/spent bolts and seven
   existing gold-bolt switches are editable. Career weapon XP is aggregate and read-only.
+  The F6 **Set calculated bolt balance** action previews CareerBolts and derived
+  balance/expanded diagnostics while preserving SpentBolts, with one-step undo/redo.
 - **Loadout:** four exact quick-select paths using F4 read-only reference fields.
   The attributed F2 catalog supplies twenty English weapon-label candidates,
   including Blackhole Storm for `warprifle`. All twenty paths hash to measured
@@ -27,13 +32,19 @@ The engine family name does not claim Spider-Man, other titles or other regions.
 - **Upgrades:** F8 Mods masks, sixteen ModGrid row masks, thirty-two ModCount slots
   and SelectedCell per supported weapon record. Values remain inferred schema
   state, not named purchased nodes, prices, prerequisites or legal caps.
+  A separate F8 diagram list lazily opens an F9 graph of the sixteen stored masks.
+  Every graph node links to its exact scalar text alternative; all states are Unknown
+  and there are no fabricated prerequisite edges or costs.
 - **Collectibles:** F8 location counters, ten inferred spybot identity candidates and
   complete 64-bit spybot/Lorb/Zurpstone checklists with unresolved slots retained.
   Collectible award CurrentValue/PrizeGiven fields include CraiggerBear progress,
   with no bear-count, completion or platform-unlock inference. No guide coordinates
   or exact gold-bolt hash joins are invented.
+  F9 lists all 64 spybot storage bits with links to exact read-only controls and an
+  attributed external planet-map index. All pickup statuses stay Unknown; bit set/clear
+  is explicit in each description. No community artwork or coordinates are embedded.
 - **Inventory:** 27 sequentially bounded TVNI containers per measured gameplay save,
-  lazy record tables, five schema type joins, GUID/config byte-token candidates,
+  lazy F8 record tables, five F4 schema type joins, GUID/config byte-token candidates,
   candidate counts and candidate per-weapon XP/checkpoint-ammo/loaded-ammo state.
   Container tags repeat; no actor, ownership or equipped-state mapping is asserted.
 - **World:** F8 mission/objective node states and completed counts, pocket dimension
@@ -123,9 +134,10 @@ conversion remain read-only: mirror/dependency rules, ownership, constructors or
 legal ranges are incomplete, so writing them would risk inconsistent unknown
 structure. Quick-select strings also stay read-only because their stored metadata
 and relocation/size rules have no proven writer. Numeric preferences have no
-prepared, calibrated write policy. No bulk/preset, structural or multi-file action
-was prepared; none is exposed. Future bulk operations must use F6, structural
-operations F5 and actual cross-file dependencies F7.
+prepared, calibrated write policy. The F6 bolt-target action reuses the existing
+career-counter writer; there is no safe ammo/loadout/upgrade bulk recipe. Structural
+operations require F5 and actual cross-file dependencies F7; neither has a safe
+applicable mutation in this format yet.
 
 ## Enabled writes and their evidence
 
@@ -138,8 +150,28 @@ the exact protocol remains in [OWNER-CAPTURES.md](OWNER-CAPTURES.md).
 | SpentBolts | Inferred | Same schema and corpus; observed maximum 260,875; edit/reopen/F1/undo tests; final-balance batch validation | Same unknown integrity; game may reject; accounting semantics not console-calibrated | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one purchase capture, isolated spent-counter edit and wallet/downstream validation |
 | Seven existing gold-bolt option booleans | Inferred | Named one-byte DDL bools; RPG research probe; each production switch edit/reopen/F1/undo tested in early/late samples | Bool only; collectible/unlock state untouched; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): legal in-game toggle then independent edit for each unlocked option; check effect and re-save/reload |
 | Existing scalar boolean preferences (61 keys) | Inferred | Descriptor/name validation in both supplied primary preference records; each edit/reopen/F1/undo tested | Bool only; numeric/string fields untouched; independent integrity unknown; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged preference export, one-setting capture and separate edit/menu/re-save/reload checks |
+| F6 calculated bolt target | Inferred | Existing CareerBolts writer; previews career and derived balance/expanded diagnostics; all 36 primary records tested for pure preview, apply/reopen, single-atom F1 diff and Core undo/redo | Only career atom changes; spent history preserved; body integrity and HUD accounting unknown; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): lower balance by one, inspect preview, apply, purchase/native-save/reload/re-export; test zero on a disposable slot |
 
 The observed 70 write controls are listed in [ENABLED-WRITES.md](ENABLED-WRITES.md).
+The additional F6 action exposes the same career atom, rather than a new storage writer.
+
+## Framework feature adoption
+
+| Feature | Adoption | Where / concrete applicability |
+| --- | --- | --- |
+| F1 SaveDiff | **Used** | RiftEvidenceDecoder and differential/write/planning tests retain DDL identities, widths, generations and identical backup collapse; no private save bytes committed. |
+| F2 reference packs | **Used** | Five embedded catalogs, immutable Open context, source sidecars, per-record UI provenance and Sources-panel attribution; no plugin I/O. |
+| F3 rich cells | **Used; extended this round** | Inventory lazy detail cells and confidence/warnings; F9 diagrams expand from F8 detail cells. No image cells because no safely licensed game art is supplied. |
+| F4 reference pickers | **Used; extended this round** | Four loadout paths plus arsenal config paths, armour/world identity candidates and raw inventory type IDs. Unjoined opaque GUID/config bytes are retained rather than falsely treated as catalog keys. |
+| F5 structural undo | **N/A** | No lossless record constructor/remover/string relocation/dependency repair exists. Existing writes preserve size and use scalar undo; speculative structure mutation would violate data preservation. |
+| F6 action planning | **Added this round** | Explicit calculated-bolt target, primary/derived previews, warnings, no-op explanation, stale/forged-plan rejection and Core grouped undo. #27 query scopes are inapplicable to a document-wide wallet target; row/query scopes reject explicitly. Ammo/refill/loadout/upgrade actions lack ownership, legal caps and dependency recipes. |
+| F7 document groups | **N/A** | Gameplay and preferences have no identified coupled invariant; each writer affects one existing file. No transaction over unrelated files is invented. |
+| F8 queryable tables | **Used; extended this round** | Arsenal/armour/upgrades/collectibles/objectives/dimensions/globals plus upgrade-diagram lists and every populated raw inventory container; bounded pages, search/filter/sort and lazy cell bindings. Raw DDL arrays retain bounded diagnostic pages. |
+| F9 maps/graphs | **Added this round** | Read-only stored upgrade-row graphs with field targets; external-link-only spybot map/list with all bits, text alternatives and explicit Unknown semantics. Physical coordinates/fog/prerequisites require owner captures. |
+| F10 exact/nullable numbers | **Used** | Width-specific integer specs and exact UInt64/128-bit transport preserve IDs/masks above 2^53 (including UInt64.MaxValue vectors). DDL floats retain their actual binary precision. DDL type-19 is an empty array, not a nullable scalar or union; no artificial nullable/union control. |
+| F11 shared codecs | **N/A** | These measured DAT1/DDL/TVNI files are uncompressed, with no Kraken or SQLite payload; no local codec implementation exists to replace. |
+| F12 SaveDiff F8 traversal/hooks | **Pending #32** | Not on the baseline main; retain existing F1 test adapter without inventing a replacement framework. |
+| F13 browse/inspect/filter/duration | **Pending #33** | Not on the baseline main; ID references stay read-only and float play time remains its stored numeric type. |
 
 Historical research tested 41,652 CRC/FNV/Murmur section-digest candidates across
 36 primary gameplay records without finding a nondegenerate outside-range match.
@@ -162,7 +194,7 @@ dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Latest sample-backed plugin run: **94 passed, 0 failed, 0 skipped**. All **76** game
+Latest sample-backed plugin run: **111 passed, 0 failed, 0 skipped**. All **76** game
 records round-trip byte-identically, including duplicate generations and backup twins.
 The tests cover all 36 primary inventories, field/name vectors, nested alignment,
 parent bounds/depth/count corruption, unknown payloads, embedded pack hashes/licensing,
@@ -177,6 +209,15 @@ read-only rejection, live diagnostics and real Core single/batch undo/redo.
 Foreign-title DAT1 matches remain read-only.
 Unusual counters above the corpus maxima remain byte-identical on open and can be
 restored after edits; malformed serialized booleans are rejected inside Serialize.
+Completion tests cover F9 marker bits across all 36 primary records, Core graph
+expansion and exact field targets, paged inventory details/catalog IDs, F6 pure
+preview/apply/reopen/single-atom diffs/grouped undo across all 36 records, boundary
+targets, no-ops, changed spending headroom, raw diagnostics and stale/forged plans.
+Negative counter/mask corruption now yields a named SaveFormatException; unfamiliar
+optional diagnostic shapes remain unresolved. UInt64 transport is spec-coerced
+exactly above 2^53, long opaque ASCII previews are bounded, and returned export
+buffers remain isolated. The immutable player-field definitions load once; Serialize
+reuses the isolated validation parse instead of making another whole-file copy.
 Sample-dependent
 tests skip when samples are absent.
 
@@ -207,6 +248,7 @@ The Sources panel lists the F2 datasets resolved by the document.
 | Asset path identity algorithm research | [ALERT crc64.py, bc90ed9b](https://raw.githubusercontent.com/Tkachov/ALERT/bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb/dat1lib/crc64.py) | GPL research only; independently written bitwise mathematical CRC, no copied lookup table/code. Verified against PS5 inventory tokens; unrelated to integrity |
 | Section strategies / format research | Neptuwunium / [Rivet SaveData, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs) and [save CLI](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.CLI/Utility/RivetSaveCommand.cs) | EUPL-1.2 reference only; no implementation copied or executed. Write-round recheck still does not establish PS5 integrity |
 | Earlier DAT1 and integrity research | [ALERT format wiki](https://github.com/Tkachov/ALERT/wiki/Formats), [RiftRipper](https://github.com/VELD-Dev/riftripper), [NinjaSaves](https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474) | Research only; no source/artwork port or proven integrity routine |
+| F9 external planet-map index | [Guides4Gamers interactive maps](https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/), accessed 2026-10-28 | Link only, reuse licence unconfirmed; no coordinates, art, marker descriptions or scripts imported. Graph descriptions/layout are original presentations of attributed CC0 schema facts and measured stored row masks. See SPATIAL-SOURCES.md. |
 
 See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and the reference pack's
 [data.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.en/data.source.md).
@@ -217,8 +259,9 @@ the plugin code. No EUPL/GPL implementation is incorporated.
 
 Phase 1 and the round-2 **read-only Phase 2 view scope** are delivered. The plan's
 controlled ownership/equipment, localization, legal-limit, upgrade-node and exact
-pickup-location requirements remain open. Phase 3 has research probes, without write
-promotion; Phases 4–5 remain gated. The complete numbered capture protocol and exact
+pickup-location requirements remain open. Phase 3 scalar writes and the Phase 4
+bounded resource-target action are enabled with warnings. Other Phase 4 dependencies
+need controlled captures; Phase 5 has no safe structural writer. The complete numbered capture protocol and exact
 acceptance candidates are in [OWNER-CAPTURES.md](OWNER-CAPTURES.md). In particular,
 the corpus has no positive Omega state, and vanity ColorId includes codes above 19.
 
@@ -251,6 +294,8 @@ Never commit saves, extracted game assets, account metadata or research patch ou
 
 None blocking this release. F2/F4 support the attributed read-only path references;
 F3 renders nested cells and confidence/details. INSOMNIAC-R8/R9 and the old R5 blank
-cell concern are covered for this scope. Accurate maps/graphs still need the
-INSOMNIAC-R10/R12/R18 data and presentation work; no plugin-local substitute or
-structural/bulk edit workflow is introduced.
+cell concern are covered for this scope. F6/F9 are now adopted directly. Accurate
+physical maps, prerequisite edges and purchase/refill recipes need the R6/R7/R12
+owner captures; the lack of those joins is not an SDK bug. F12/F13 remain pending
+[#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32) /
+[#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33); no substitutes added.

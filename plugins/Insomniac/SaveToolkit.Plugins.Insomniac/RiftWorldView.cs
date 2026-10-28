@@ -81,7 +81,7 @@ internal sealed class RiftWorldView(DdlSections sections, Func<string, string, F
     private static TableNode Awards(DdlField list) => new([new("code", "Stored codename"), new("state", "Save fields")],
         list.Objects.Select((award, index) => new TableRow(index.ToString(CultureInfo.InvariantCulture), new Dictionary<string, ViewNode>
         {
-            ["code"] = new TextNode(award.Fields.TryGetValue("CodeName", out var code) ? code.Values.Single().AsString() : "Unresolved"),
+            ["code"] = new TextNode(DdlShape.Text(award.Fields.GetValueOrDefault("CodeName")) ?? "Unresolved layout; inspect Systems"),
             ["state"] = new TextNode(Summary(award.Fields.GetValueOrDefault("AwardSave")?.Objects ?? [])),
         })).ToArray())
     {

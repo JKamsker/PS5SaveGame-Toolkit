@@ -12,8 +12,8 @@ internal sealed class RiftScalarWrites
     // Maximum stored counters in the supplied 36 primary gameplay records, not game caps.
     internal const long ObservedCareerBoltsMaximum = 1_297_735;
     internal const long ObservedSpentBoltsMaximum = 260_875;
-    private const string CareerId = "player/CareerBolts";
-    private const string SpentId = "player/SpentBolts";
+    internal const string CareerId = "player/CareerBolts";
+    internal const string SpentId = "player/SpentBolts";
     internal const string BalanceId = "player/AvailableBolts";
     private readonly byte[] _bytes;
     private readonly Dictionary<string, ScalarWrite> _writes = new(StringComparer.Ordinal);

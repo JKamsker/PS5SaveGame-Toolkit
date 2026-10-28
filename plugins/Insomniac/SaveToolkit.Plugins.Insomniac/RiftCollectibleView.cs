@@ -20,6 +20,7 @@ internal sealed class RiftCollectibleView(DdlSections sections, IReferenceCatalo
             Locations(campaign),
             Awards(),
         };
+        result.AddRange(RiftCollectibleMap.Build(sections, catalog, bind));
         foreach (var (field, title, prefix) in new[]
         {
             ("RYNOPlansCollected", "Spybot checklist", "spybot"),
@@ -44,15 +45,14 @@ internal sealed class RiftCollectibleView(DdlSections sections, IReferenceCatalo
             [new("code", "Stored award code"), new("value", "CurrentValue"), new("prize", "PrizeGiven")],
             (awards?.Objects ?? []).Select((award, index) => (award, index)).Where(pair =>
             {
-                var code = pair.award.Fields.GetValueOrDefault("CodeName")?.Values.Single().AsString() ?? "";
+                var code = DdlShape.Text(pair.award.Fields.GetValueOrDefault("CodeName")) ?? "";
                 return code.Contains("Collect", StringComparison.OrdinalIgnoreCase) ||
                     code.Contains("Bear", StringComparison.OrdinalIgnoreCase) || code.Contains("RYNO", StringComparison.OrdinalIgnoreCase) ||
                     code.Contains("Zerp", StringComparison.OrdinalIgnoreCase) || code.Contains("Lorb", StringComparison.OrdinalIgnoreCase);
             }).Select(pair =>
             {
-                var code = pair.award.Fields["CodeName"].Values.Single().AsString();
-                var state = pair.award.Fields.GetValueOrDefault("AwardSave")?.Objects.SingleOrDefault()?.Fields
-                    .GetValueOrDefault("Obj")?.Objects.SingleOrDefault()?.Fields;
+                var code = DdlShape.Text(pair.award.Fields["CodeName"])!;
+                var state = DdlShape.Fields(DdlShape.Fields(pair.award.Fields.GetValueOrDefault("AwardSave"))?.GetValueOrDefault("Obj"));
                 var id = $"collectibles/award/{code}/{pair.index}";
                 return new RiftRow(id, new Dictionary<string, RiftCell>
                 {
@@ -116,7 +116,8 @@ internal sealed class RiftCollectibleView(DdlSections sections, IReferenceCatalo
     }
 
     private RiftCell Name(string id, ReferenceRecord? reference, string fallback) =>
-        RiftCollections.Field(reference?.Name ?? fallback, () => bind(id + "/name", "Identity candidate", new TextSpec(), FieldValue.Of(reference?.Name ?? fallback)) with
+        RiftCollections.Field(reference?.Name ?? fallback, () => bind(id + "/name", "Identity candidate",
+            new ReferenceSpec("rift-world") { AllowCustom = true }, FieldValue.Of(reference?.Key ?? fallback)) with
         {
             Confidence = reference is null ? Confidence.Unknown : Confidence.Inferred,
             Description = reference is null ? "No established reference join; raw identity retained." :

@@ -21,7 +21,7 @@ internal sealed class RiftReadOnlyViews(
         foreach (var direction in new[] { "Up", "Right", "Down", "Left" })
         {
             var name = $"QuickSelectWeapon{direction}";
-            if (!campaign.TryGetValue(name, out var field) || field.Values.Count != 1) continue;
+            if (!campaign.TryGetValue(name, out var field) || field.Values.Count != 1 || field.Values[0].Kind != FieldValueKind.Text) continue;
             var raw = field.Values[0].AsString();
             var record = weapons?.Find(raw);
             fields.Add(bind($"loadout/{name}", $"{direction} · {record?.Name ?? "Unresolved weapon path"}",

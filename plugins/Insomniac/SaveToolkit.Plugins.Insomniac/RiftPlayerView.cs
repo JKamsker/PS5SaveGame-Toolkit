@@ -16,12 +16,10 @@ internal sealed class RiftPlayerView
     private const string GoldBoltOptionsGroup = "Gold bolt options";
     private const int SecondsPerHour = 3600;
     private readonly Dictionary<uint, IReadOnlyDictionary<string, DdlField>> _sections = [];
-    private readonly IReadOnlyList<PlayerFieldDefinition> _definitions;
+    private static readonly IReadOnlyList<PlayerFieldDefinition> Definitions = LoadDefinitions();
 
     internal RiftPlayerView(Dat1Container container, DdlSections? sections = null)
     {
-        using var stream = typeof(RiftPlayerView).Assembly.GetManifestResourceStream(DefinitionsResource)!;
-        _definitions = JsonSerializer.Deserialize<PlayerFieldDefinition[]>(stream)!;
         foreach (var section in (sections ?? new DdlSections(container)).Roots.Where(s => s.Key is CampaignTag or GoldBoltTag or SpeedrunTag))
         {
             if (!_sections.TryAdd(section.Key, section.Value))
@@ -56,7 +54,7 @@ internal sealed class RiftPlayerView
             Description = "CareerBolts minus SpentBolts; not independently confirmed against an in-game display.",
         });
 
-        foreach (var group in _definitions.GroupBy(d => d.Group))
+        foreach (var group in Definitions.GroupBy(d => d.Group))
         {
             var fields = group.Select(definition => BuildField(definition, bind)).OfType<ViewNode>().ToArray();
             if (fields.Length > 0) result.Add(new SectionNode(group.Key, fields));
@@ -139,12 +137,26 @@ internal sealed class RiftPlayerView
 
     private void ValidateKnownFields()
     {
-        foreach (var definition in _definitions)
+        foreach (var definition in Definitions)
         {
             var tag = definition.Group == GoldBoltOptionsGroup ? GoldBoltTag : CampaignTag;
             if (!_sections.TryGetValue(tag, out var fields)) continue;
             if (!fields.TryGetValue(definition.Name, out var field) || field.Values.Count != 1 || !Matches(definition.Kind, field.Values[0]))
                 throw new SaveFormatException($"Missing or unsupported Rift Apart field '{definition.Name}'.");
+            if (definition.Kind == "Integer" && (field.Values[0].AsInteger() < 0 || field.Values[0].AsInteger() > ulong.MaxValue))
+                throw new SaveFormatException($"Unsupported negative or oversized Rift Apart counter '{definition.Name}'.");
+        }
+        if (_sections.TryGetValue(CampaignTag, out var campaign))
+        {
+            foreach (var name in new[] { "LevelBolts", "LevelExp", "LevelWeaponExp", "LevelRaritanium", "LevelGoldBolts", "LevelRYNOPlans", "LevelVanityPickups" })
+                if (campaign.TryGetValue(name, out var field) && field.Values.Any(value =>
+                    value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 || value.AsInteger() > ulong.MaxValue))
+                    throw new SaveFormatException($"Unsupported Rift Apart location counter array '{name}'.");
+            foreach (var name in new[] { "VanityPickupsCollected", "RuinTokensCollected", "ZerpStonesCollected" })
+                if (campaign.TryGetValue(name, out var field) &&
+                    (field.Values.Count != 1 || field.Values[0].Kind != FieldValueKind.Integer ||
+                     field.Values[0].AsInteger() < 0 || field.Values[0].AsInteger() > ulong.MaxValue))
+                    throw new SaveFormatException($"Unsupported Rift Apart bit mask '{name}'.");
         }
         if (_sections.TryGetValue(GoldBoltTag, out var gold) &&
             (!gold.TryGetValue("CollectedBoltHashes", out var hashes) ||
@@ -161,4 +173,10 @@ internal sealed class RiftPlayerView
     };
 
     private sealed record PlayerFieldDefinition(string Name, string Label, string Group, string Kind);
+
+    private static IReadOnlyList<PlayerFieldDefinition> LoadDefinitions()
+    {
+        using var stream = typeof(RiftPlayerView).Assembly.GetManifestResourceStream(DefinitionsResource)!;
+        return JsonSerializer.Deserialize<PlayerFieldDefinition[]>(stream)!;
+    }
 }

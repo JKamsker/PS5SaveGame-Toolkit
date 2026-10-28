@@ -14,10 +14,12 @@ internal sealed class RiftArsenalView
     private readonly Dictionary<string, ReferenceRecord> _names = new(StringComparer.Ordinal);
     private readonly QueryableTableNode _weapons;
     private readonly QueryableTableNode _upgrades;
+    private readonly QueryableTableNode _graphs;
     private const string Boundary = "Serialized record presence is not ownership. Repeated containers can contain cached, shared or equipment state. No character assignment, level conversion, capacity or upgrade dependency is assumed.";
 
     internal RiftArsenalView(IReadOnlyList<InventoryBlock> blocks, IReferenceCatalog? names,
-        RiftCollections collections, Func<string, string, FieldSpec, FieldValue, FieldNode> bind)
+        RiftCollections collections, Func<string, string, FieldSpec, FieldValue, FieldNode> bind,
+        Dictionary<string, Func<IReadOnlyList<ViewNode>>> lazy)
     {
         _bind = bind;
         if (names is not null)
@@ -36,6 +38,18 @@ internal sealed class RiftArsenalView
              new("index", "Index", IntegerSpec.UInt16), new("value", "Stored value", IntegerSpec.UInt64)],
             records.SelectMany(pair => UpgradeRows(pair.Block, pair.Record)),
             "ModGrid contains sixteen stored row masks; ModCount contains thirty-two counters. These are not named upgrade nodes or costs. Bit order, prerequisites and purchased-node meaning need controlled grid captures. " + DdlSections.Attribution);
+        _graphs = collections.Add("arsenal/graphs", "Stored upgrade diagrams",
+            [new("name", "Weapon candidate"), new("container", "Container"), new("diagram", "Diagram and text values")],
+            records.Where(pair => pair.Record.Upgrades is not null).Select(pair =>
+            {
+                var id = $"upgrades/{pair.Block.Key}/{pair.Record.Key}";
+                return new RiftRow(id, new Dictionary<string, RiftCell>
+                {
+                    ["name"] = Name(id, pair.Record),
+                    ["container"] = RiftCell.TextOnly(pair.Block.Key),
+                    ["diagram"] = new("Stored grid diagram", () => RiftUpgradeGraph.Lazy(pair.Block, pair.Record, lazy, bind)),
+                });
+            }), RiftUpgradeGraph.Boundary + DdlSections.Attribution);
     }
 
     internal IReadOnlyList<ViewNode> Weapons() => [new TextNode(Boundary) { Tone = Tone.Warning }, _weapons];
@@ -43,6 +57,7 @@ internal sealed class RiftArsenalView
     [
         new TextNode("Read-only upgrade state. Search by weapon or container, then compare row masks/counters with the in-game grid. A mask bit is not presented as a proven purchase or prerequisite.") { Tone = Tone.Warning },
         _upgrades,
+        _graphs,
     ];
 
     private RiftRow WeaponRow(InventoryBlock block, InventoryRecord record)
@@ -53,7 +68,7 @@ internal sealed class RiftArsenalView
             ["name"] = Name(id, record),
             ["container"] = RiftCell.TextOnly(block.Key),
             ["kind"] = RiftCell.TextOnly(record.Type == MeleeType ? "Melee schema" : "Weapon schema"),
-            ["config"] = RiftCell.TextOnly(record.ConfigBytes ?? "Opaque"),
+            ["config"] = Config(id, record),
             ["xp"] = record.Xp is { } xp ? Value(id + "/xp", "XP candidate", xp) : RiftCell.TextOnly("Opaque"),
             ["ammo"] = record.LoadedAmmo is { } ammo ? RiftCollections.Field(ammo.ToString("R", CultureInfo.InvariantCulture),
                 () => Candidate(id + "/ammo", "Loaded ammo candidate", FloatSpec.Single, FieldValue.Of(ammo)),
@@ -93,6 +108,20 @@ internal sealed class RiftArsenalView
             Confidence = reference is null ? Confidence.Unknown : Confidence.Inferred,
             Description = reference is null ? "No matching pinned config-path catalog entry. Exact config token retained." :
                 $"Config path: {reference.Key}. {reference.Description} {reference.AttributionText}",
+        });
+    }
+
+    private RiftCell Config(string id, InventoryRecord record)
+    {
+        var reference = record.ConfigBytes is { } token ? _names.GetValueOrDefault(token) : null;
+        var key = reference?.Key ?? record.ConfigBytes ?? "Opaque";
+        return RiftCollections.Field(key, () => _bind(id + "/config", "Config identity candidate",
+            new ReferenceSpec("rift-weapons") { AllowCustom = true }, FieldValue.Of(key)) with
+        {
+            Confidence = reference is null ? Confidence.Unknown : Confidence.Inferred,
+            Description = $"Exact stored config bytes: {record.ConfigBytes ?? "opaque"}. " +
+                (reference?.AttributionText ?? "No catalog join; raw token preserved."),
+            Warning = Boundary,
         });
     }
 

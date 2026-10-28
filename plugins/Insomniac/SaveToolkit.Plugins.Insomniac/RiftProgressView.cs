@@ -32,7 +32,7 @@ internal sealed class RiftProgressView(DdlSections sections, RiftCollections col
         var names = new Dictionary<string, string>(StringComparer.Ordinal);
         if (sections.Roots.TryGetValue(RiftPlayerView.CampaignTag, out var campaign) &&
             campaign.TryGetValue("NewMissionsViewed", out var viewed))
-            foreach (var value in viewed.Values)
+            foreach (var value in viewed.Values.Where(v => v.Kind == FieldValueKind.Text))
             {
                 var code = value.AsString();
                 names.TryAdd(DdlReader.NameHash(Encoding.UTF8.GetBytes(code)).ToString(CultureInfo.InvariantCulture), code);
@@ -41,7 +41,7 @@ internal sealed class RiftProgressView(DdlSections sections, RiftCollections col
         foreach (var node in Children(Child(graph, "NodeDataTable")))
         {
             var state = Child(Child(node, "NodeData"), "Obj");
-            var fields = state?.Objects.SingleOrDefault()?.Fields;
+            var fields = state is { Objects.Count: 1 } ? state.Objects[0].Fields : null;
             var status = fields?.GetValueOrDefault("MissionState") ?? fields?.GetValueOrDefault("ObjectiveState") ?? fields?.GetValueOrDefault("WasStarted");
             var count = fields?.GetValueOrDefault("CompletedCount");
             var id = $"world/objective/{graph.Name}/{node.Name}";
