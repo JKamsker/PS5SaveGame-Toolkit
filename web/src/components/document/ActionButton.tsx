@@ -3,8 +3,15 @@ import type { ActionNode, FieldValue } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { FieldControl } from "../fields/FieldControl";
 
+interface ActionButtonProps {
+  node: ActionNode;
+  /** Table-cell form: no inline description (it goes into the tooltip) and an optional fuller accessible name. */
+  compact?: boolean;
+  ariaLabel?: string;
+}
+
 /** Plugin command. Opens a dialog when it has parameters or asks for confirmation. */
-export function ActionButton({ node }: { node: ActionNode }) {
+export function ActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
   const { canEdit, runAction } = useDocument();
   const dialog = useRef<HTMLDialogElement>(null);
   const parameters = node.parameters ?? [];
@@ -29,16 +36,18 @@ export function ActionButton({ node }: { node: ActionNode }) {
   };
 
   return (
-    <div className="action">
+    <div className={compact ? "action action--compact" : "action"}>
       <button
         type="button"
-        className={`btn${node.tone === "Danger" ? " btn--danger" : ""}`}
+        className={`btn${node.tone === "Danger" ? " btn--danger" : ""}${compact ? " btn--small" : ""}`}
+        aria-label={ariaLabel}
+        title={compact ? node.description : undefined}
         disabled={!canEdit || busy}
         onClick={() => (needsDialog ? dialog.current?.showModal() : void run())}
       >
         {node.label}
       </button>
-      {node.description && <span className="action__description">{node.description}</span>}
+      {node.description && !compact && <span className="action__description">{node.description}</span>}
       {needsDialog && (
         <dialog ref={dialog} className="dialog" aria-labelledby={`${node.actionId}-title`}>
           <form
