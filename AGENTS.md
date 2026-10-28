@@ -55,4 +55,5 @@ Tests use the MTP runner (`global.json`), so pass `--project`. Warnings are erro
 
 ## Forge
 
-Not yet pushed to a remote.
+GitHub (`github`), private repo `JKamsker/PS5SaveGame-Toolkit`, api_base `https://api.github.com`.
+Use `gh` for PRs, issues, releases and Actions.
