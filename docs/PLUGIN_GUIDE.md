@@ -439,6 +439,9 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
    [THIRD-PARTY-NOTICES](../THIRD-PARTY-NOTICES) as well as the plugin README. Flag incompatible
    combinations before merging, including GPL-2.0-only with Apache-2.0 or this GPLv3 repository.
    If a source has no licence or forbids reuse, do not embed it. Cite it as research only.
+   **When the licence is unclear, link instead of importing.** Expose an external link to the source
+   (e.g. a wiki page or a community interactive map) in the record's `source`/details. Import the data
+   only once its licence is clearly safe.
 
 ## Catalog-valued fields and searchable pickers
 
