@@ -7,9 +7,9 @@ namespace SaveToolkit.Plugins.SuckerPunch;
 
 public sealed class SuckerPunchPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.4.0")
+    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.5.0")
     {
-        Description = "Experimental Tsushima quantity editing with action previews and attributed wiki reference guides; Yōtei inspection.",
+        Description = "Experimental Tsushima quantity/play-time editing with action previews and attributed wiki guides; Yōtei inspection.",
         Games =
         [
             new GameTitle("PPSA02225", "Ghost of Tsushima"),
