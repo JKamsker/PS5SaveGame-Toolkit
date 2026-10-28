@@ -1,0 +1,92 @@
+{
+  "records": [
+    {
+      "id": "1",
+      "name": "Phoenix Shift",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "commandId": "201",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Deadly Embrace",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "commandId": "222",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Titanic Block",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "commandId": "236",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Blind Justice",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "commandId": "321",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Cold Snap",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "commandId": "261",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Phoenix Shift",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "commandId": "201",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Arm of Darkness",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "commandId": "281",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "9",
+      "name": "Serpent's Cry",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "commandId": "341",
+        "confidence": "Inferred"
+      }
+    }
+  ]
+}

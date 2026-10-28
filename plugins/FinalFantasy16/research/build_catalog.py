@@ -29,10 +29,15 @@ def main():
         seen.add(key)
         if not row["name"].strip() or "<" in row["name"] or not row["source"].startswith("https://"):
             raise ValueError(f"Invalid plain-text name/source: {key}")
-        records.append({"id": key, "name": row["name"], "category": row["category"], "source": row["source"]})
+        if row["confidence"] != "Inferred" or not row["evidence"].strip():
+            raise ValueError(f"Missing or unsupported mapping evidence: {key}")
+        records.append({"id": key, "name": row["name"], "category": row["category"], "source": row["source"],
+                        "description": row["evidence"], "attributes": {
+                            "confidence": row["confidence"], "identifierSource": row["identifierSource"],
+                            "sourceLicense": row["sourceLicense"]}})
     digest = write_json(PACK / "items.json", {"records": records})
     write_json(PACK / "pack.json", {
-        "schema": 1, "id": "ffxvi.wiki.en", "version": "1.0.0",
+        "schema": 1, "id": "ffxvi.wiki.en", "version": "1.1.0",
         "title": "FFXVI English wiki labels (partial, CC BY-SA 3.0)",
         "plugins": ["ffxvi"], "titleIds": ["PPSA10665", "PPSA13803"],
         "gameBuilds": [], "locale": "en",
@@ -42,10 +47,10 @@ def main():
             "files": [{"path": "items.json", "sha256": digest}],
             "attribution": {
                 "sourceUrl": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473",
-                "author": "Final Fantasy Wiki contributors; PS5 Save Game Toolkit contributors",
+                "author": "Final Fantasy Wiki contributors; Nenkai (MIT UseItem annotations); PS5 Save Game Toolkit contributors",
                 "license": "CC-BY-SA-3.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
                 "retrieved": "2026-10-28",
-                "modifications": "Extracted English names and categories, joined factual numeric identifiers, omitted unmatched labels, prose, art and limits. Adaptation remains CC BY-SA 3.0."
+                "modifications": "Curated English labels, factual identifiers, documented aliases/upgrade suffixes and mapping evidence; added four MIT UseItem labels with original notice retained. Omitted unsupported joins, prose, art and limits. Adaptation remains CC BY-SA 3.0."
             }
         }]
     })

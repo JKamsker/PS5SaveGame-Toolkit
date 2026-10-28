@@ -75,3 +75,41 @@ The source URL/version, per-record provenance, modifications and coverage are
 listed in the pack's `data.source.md` and `pack.json`, and in README.
 The unlicensed published ID CSVs were consulted as research and are not vendored
 or re-licensed by these notices.
+
+Round 2 extends the CC BY-SA adaptation with pinned Fafnir, Wall of Memories,
+Journal, Patron's Whisper and Joshua Rosfield labels, normalized aliases and
+factual upgrade suffixes. Four explicitly named item IDs from Nenkai's MIT
+UseItem.layout are included with their original notice above and per-record
+origin. Skill.layout's three explicit skill-ID annotations remain in the MIT Nex
+pack, separate from the save-rank bytes. All joined labels remain Inferred.
+
+## Vanilla Eikonic feat references — Logos-Unleashed
+
+`ReferencePacks/ffxvi.feats.en` adapts seven vanilla command-name pairs and eight
+summon-mode relationships from mThund3R's restoration code in
+[Logos-Unleashed, revision 6424cb4e60bd31005ef7f0cfb42d4e5360660fc6](https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs).
+No upstream code is imported/executed; custom/modded commands and ambiguous
+restoration paths are omitted. See the pack sidecar for selection and limitations.
+Original [licence](https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LICENSE):
+
+MIT License
+
+Copyright (c) 2025 mThund3R
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

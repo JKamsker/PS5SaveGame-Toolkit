@@ -41,7 +41,8 @@ internal sealed class FaithDocument : BoundSaveDocument
 
     public override ViewNode BuildView() => new TabsNode([
         new Tab("Overview", Overview()),
-        new Tab("Inventory", new FaithInventoryView(_bytes, _inventory, _catalog).Build(Quantity, ItemIdentity)),
+        new Tab("Inventory", [.. new FaithInventoryView(_bytes, _inventory, _catalog).Build(Quantity, ItemIdentity),
+            new FaithCapacityContext(_bytes, _inventory, _catalog).Build(BindReadOnly)]),
         new Tab("Character context", _context.Build(BindReadOnly, ItemIdentity)),
         new Tab("Structure", _explorer.BuildView()),
         new Tab("Hex", [new HexNode(FaithExplorer.FileBlobId, _bytes.Length) { Title = "Original layout with current edits" }]),
@@ -165,7 +166,7 @@ internal sealed class FaithDocument : BoundSaveDocument
             Confidence = Confidence.Verified,
             Description = $"ItemData slot {item.Slot}, stack at file offset 0x{offset:X}. " +
                 _catalog.Provenance(item.Id),
-            Warning = "Game-specific stack limits and progression effects are unknown. Large values may be clamped or rejected by the game.",
+            Warning = FaithStackPolicy.Warning(item.Id, _catalog.Category(item.Id)),
         };
     }
 

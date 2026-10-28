@@ -9,15 +9,16 @@ including gil, AP and renown. No modified save has been validated on a console.
 Equipment, ability arrays, location, growth context, item identity and the
 secondary bank are read-only. System/empty/unsupported saves preserve every byte.
 
-## Delivered in this round (#15)
+## Delivered through round 2 (#15)
 
 - Phase 1 foundation: named categorized inventory, F2 attribution, F4 catalog
   lookup, explicit unknown IDs, separate secondary-bank diagnostic, deterministic
   catalog conversion, F1 generation fixture and machine-readable schema/evidence.
-- The 205-entry English item/equipment/resource pack names **105/172 distinct
-  observed retail main IDs** and **2/2 demo IDs**. The other 67 retail IDs have
-  explicit numeric fallbacks, including quest items and enhanced variants absent
-  from the cleared extract. This is partial game coverage, not a complete catalog.
+- The **234-entry** item/equipment/resource pack names **131/172 distinct
+  observed retail main IDs** and **2/2 demo IDs**. Round 2 resolves **26 of the
+  original 67 gaps** with attributed Inferred mappings; **41 remain Unknown**.
+  The [complete decision ledger](research/round2-naming-audit.json) records every
+  original gap and its evidence or rejection reason. This is partial coverage.
 - F4 identity fields preserve the exact raw ID and are read-only. **Look up an
   item** opens a searchable catalog picker and returns attributed information
   without changing save bytes or undo history. No item replacement is enabled.
@@ -29,10 +30,21 @@ secondary bank are read-only. System/empty/unsupported saves preserve every byte
   first autosaves, candidate map IDs resolve to Hideaway 2 (retail) and Phoenix
   Gate (demo). Their semantic joins remain **Inferred**. Map subrow/sky variation
   is preserved as reference context rather than collapsed to a unique asset.
+- Round 2 adds three named Nex skill IDs in a separate research table, seven
+  vanilla feat command labels/eight summon-mode relationships from MIT restoration
+  code, separate stored adult/child level/XP pairs, and read-only potion-upgrade
+  diagnostics. **Nex skill IDs are not joined to rank-byte indices.** A reference
+  feat is not proof of an equipped command, learned ability or unlocked Eikon.
+- Phase 3 evidence review: explicit per-field legacy manual policy and resource,
+  consumable, quest/curio and equipment dependency warnings. The four upgrade IDs
+  are named by the MIT UseItem schema, but current numerical capacities, active
+  banks and gameplay activation are unproven. **Contextual caps and F6 bulk
+  actions remain disabled**; naming an upgrade does not authorize a write.
 
-Phase 1's full-name ambition remains open for the 67 missing observed labels.
+Phase 1's full-name ambition remains open for the 41 missing observed labels.
 Phase 2's controlled field identification, skill-index mapping, matched growth
-curves and human-observed acceptance remain open. Phases 3–6 are not implemented.
+curves and human-observed acceptance remain open. Phase 3's writes/actions are
+evidence-blocked; Phases 4–6 are not implemented. No new write path was introduced.
 
 ## File roles and platform boundary
 
@@ -96,21 +108,28 @@ caps, unique/key-item effects and progression dependencies prevent bulk controls
 
 ## Reference data and presentation
 
-`Open(file, IReferenceContext)` resolves `ffxvi_items`, `ffxvi_maps` and
-`ffxvi_summons`. Optional external `ffxvi_commands` and `ffxvi_growth` datasets
-provide attributed context only; no command names/growth curves are embedded or
-fabricated. A growth label never triggers XP/HP calculations. Unknown IDs remain
-exact strings. Standalone `Open(file)` uses the same embedded item extract as a
-fallback; it does not perform filesystem/network I/O.
+`Open(file, IReferenceContext)` resolves `ffxvi_items`, `ffxvi_maps`,
+`ffxvi_summons`, `ffxvi_skills`, `ffxvi_commands` and `ffxvi_feats`. All have
+embedded attributed fallbacks. `ffxvi_feats` uses summon-mode keys;
+`ffxvi_commands` uses command keys. Optional external `ffxvi_growth` supplies
+label/context only; no matched growth curves are embedded. A level number does
+not identify a proven ParamGrow row. No XP/HP calculation follows from a label.
+Unknown IDs remain exact strings. Standalone opening reads immutable assembly
+resources, with no filesystem/network I/O.
 
 Labels and categories are sourced, not inferred from numeric ranges. Names carry
 record/dataset provenance in field descriptions and the Sources panel. The
-catalog picker displays the pinned dataset's provenance. Known `<i>` and
+catalog picker displays the pinned dataset's provenance. Every item record now
+also carries Inferred confidence, factual identifier provenance and an evidence
+note. Aliases, plural normalization and upgrade suffixes are explicit, including
+Hanged Man Signboard and the source's singular Flame of Rebirth spelling. Two
+Martelle Apples IDs remain separate. Known `<i>` and
 `<color=...>` game presentation tags are removed from imported names; unknown
 markup remains literal text. No text is interpreted as HTML. There are no icons.
 
 Tables are bounded (main at most 1200, secondary at most 100, gear 18, skill arrays
-92 bytes). Structure expands lazily, at most 64 children and 128 words per leaf;
+92 bytes, named skill research at most 68 references, growth 2 branches, capacity
+4 upgrade IDs). Structure expands lazily, at most 64 children and 128 words per leaf;
 raw words have Unknown meaning. Hex requests are bounded to 64 KiB.
 
 ## Reproducible evidence and validation
@@ -131,14 +150,15 @@ is derived from this pair. Do not mistake missing other generation-1 directories
 in a whole-archive diff for files removed by the game.
 
 ```powershell
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
-dotnet test --project plugins/FinalFantasy16/SaveToolkit.Plugins.FinalFantasy16.Tests
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/FinalFantasy16/SaveToolkit.Plugins.FinalFantasy16.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/FinalFantasy16/research/generations.fixture.json --artifacts $env:SAVETOOLKIT_ARTIFACTS
 # Metadata goes to scratch, never to an artifacts archive:
 python -I plugins/FinalFantasy16/research/summarize_corpus.py --summary > "$env:TEMP/ff16-corpus.json"
 python -I plugins/FinalFantasy16/research/build_catalog.py
 python -I plugins/FinalFantasy16/research/build_layout_catalog.py '<scratch>/ffxvi-nex-layouts'
+python -I plugins/FinalFantasy16/research/build_feat_catalog.py
+python -I plugins/FinalFantasy16/research/verify_reference_audit.py
 ```
 
 Tests cover conformance, every archive occurrence, CRC vectors, corruption,
@@ -149,6 +169,12 @@ F4 read-only identities/nonmutating lookup, literal markup and the shared F1 fix
 Sample tests explicitly skip when archives are absent; validation requires 0 skipped.
 No sample bytes, extracted saves or downloaded third-party code are committed.
 
+Round-2 validation (2026-10-28): **75 passed, 0 failed, 0 skipped**, with the
+artifacts variable exported in the test command; API build **0 warnings/errors**;
+F1 verification **1 passed, 0 failed, 0 skipped** (all four expectations).
+All three catalog converters reproduce their committed JSON byte-for-byte;
+the naming audit and independent corpus preservation checks also pass.
+
 ## Sources and attribution
 
 Research/retrieval date: 2026-10-28. Downloads stayed in scratch and were read as
@@ -157,8 +183,12 @@ text; no upstream code/templates were executed. Notices are retained in
 
 | Dataset / code research | Source / revision | Licence / modifications |
 | --- | --- | --- |
-| English names/categories and resource labels | [Final Fantasy Wiki translations, 4007473](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473); per-record Gil/Renown/AP revision links | CC BY-SA 3.0; 205 selected labels, original factual ID crosswalk, normalized categories, no prose/art/caps. Adaptation remains CC BY-SA 3.0; [sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.wiki.en/data.source.md) |
+| English names/categories and resource labels | [Final Fantasy Wiki translations, 4007473](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473); per-record Gil/Renown/AP revision links | CC BY-SA 3.0; original 205 labels plus sourced base labels for upgraded variants; original factual ID crosswalk and evidence, no prose/art/caps. [Share-alike sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.wiki.en/data.source.md) |
+| Additional curio, quest and material labels | [Fafnir, 3987229](https://finalfantasy.fandom.com/wiki/Fafnir?oldid=3987229), [Wall of Memories, 3968454](https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454), [Journal, 3776380](https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380), [Patron's Whisper, 3965500](https://finalfantasy.fandom.com/wiki/Patron%27s_Whisper?oldid=3965500), [Joshua Rosfield, 4047110](https://finalfantasy.fandom.com/wiki/Joshua_Rosfield?oldid=4047110) | CC BY-SA 3.0; selected labels and documented aliases/normalization; factual ID joins Inferred; same share-alike pack/sidecar |
+| Four potion-upgrade IDs/labels | [Nenkai UseItem.layout, d3ad062](https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout) | MIT (2025 Nenkai); explicit 506–509 annotations incorporated into the CC BY-SA item adaptation with MIT notice retained; no numeric capacities imported |
 | Map/summon annotations | [Nenkai Nex layouts, d3ad062](https://github.com/Nenkai/ffxvi-nex-layouts/tree/d3ad0627a29af168916ad574dadbca6759e2ac48) | MIT (2025 Nenkai); extracted 107/10 research annotations, grouped subrows; [sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.nex.en/data.source.md) |
+| Three named skill IDs | [Nenkai Skill.layout, d3ad062](https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/Skill.layout) | MIT (2025 Nenkai); explicit annotations for IDs 39/45/49 only; no rank/flag association; same Nex sidecar |
+| Vanilla Eikonic feat/command crosswalk | [Logos-Unleashed Mod.cs, 6424cb4](https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs) | MIT (2025 mThund3R); selected vanilla restoration relationships, omitted custom IDs/ambiguous paths; [sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.feats.en/data.source.md), full original notice retained |
 | Save block/allocator/context layout | [Nenkai 010 template, 4a3685f](https://github.com/Nenkai/010GameTemplates/blob/4a3685f9b63f72ca49e24ac2f18420aaad2762b8/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt) | MIT (2024 Nenkai); composed gated PS5 readers and fixed-width writer; measured against actual bytes |
 | CRC/platform boundary research | [FF16Tools, b87c2f2](https://github.com/Nenkai/FF16Tools/blob/b87c2f22a8ea630cb03f7b2198af84c7709a1b0c/FF16Tools.Files/Save/FaithSaveFile.cs) | MIT (2025 Nenkai); independent CRC checked on 72 records; PC wrapper excluded |
 | Numeric identifier research only | [Published IDs, 4b5e7eb](https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids) | No dataset licence found; CSV files are not vendored/re-licensed. Wiki-derived labels are a separately curated extract; ID associations remain Inferred |
@@ -190,13 +220,28 @@ filename/slot and exact UI values. First capture a save/reload/save no-action pa
 6. For an existing-stack edit, back up a spare slot, edit only a small quantity,
    export/load, verify UI, spend/use/sell, save, reload and re-export. Report every
    effect and compare unrelated fields. CRC success alone is insufficient.
+7. For the [41 remaining IDs](research/round2-naming-audit.json), provide a
+   licence-compatible ID/localized-name table with pinned revision and its licence,
+   or separately observed item-label/acquisition pairs. A similarly named song,
+   recurring item in another title, or unlicensed guide is insufficient.
+8. For potency/capacity IDs **506, 507, 508, 509**, capture one upgrade at a time:
+   record both banks, all displayed potion/tonic capacities and potency values,
+   quest state, mode, DLC and stage. Include an allocated zero-stack control and
+   a stage replay. This must distinguish allocation/quantity from activation.
+9. To associate named skill IDs **39, 45, 49** with save indices, capture each
+   ability's learn/upgrade/master/reset independently with exact AP deltas,
+   displayed rank and Eikon assignment. Supply all rank bytes and both flag
+   arrays through the original save; do not assume equal numeric IDs/indices.
 
-Still needed: cleared names for 67 observed IDs; matched skill/command/growth data;
+Still needed: cleared names for 41 observed IDs; matched skill/command/growth data;
 normal/FF NG+/DLC/legacy/extended coverage; controlled bank/flag semantics and
 on-console acceptance. Only the owner may promote maturity to Stable.
 
 ## SDK requests
 
 None for this round. F1/F2/F4 and existing table/field/asset contracts suffice.
-Future transactions should use F5/F6/F8 after the underlying gameplay rules are
-proven; no plugin-local transaction/picker substitute was built.
+F6 planning and F8 bounded query scopes are already available; they are not the
+blocker. Future bulk actions must use F6, preview every included/skipped row and
+derived CRC, apply atomically, and restore exact bytes with one undo. Their first
+prerequisite is a proven current capacity/dependency policy. No local substitute
+or non-applicable preview action was built.

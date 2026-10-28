@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.FinalFantasy16;
 
 public sealed class FinalFantasy16Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.2.0")
+    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.3.0")
     {
         Description = "Named PS5 inventories, experimental stack edits, and read-only gear, abilities and location context.",
         Games = [new GameTitle("PPSA10665", "Final Fantasy XVI"), new GameTitle("PPSA13803", "Final Fantasy XVI Demo")],
@@ -27,6 +27,17 @@ public sealed class FinalFantasy16Plugin : IGamePlugin
             "https://github.com/Nenkai/ffxvi-nex-layouts/tree/d3ad0627a29af168916ad574dadbca6759e2ac48",
             "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
             "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+            "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/Skill.layout",
+            "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+            "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/Item.layout",
+            "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/ParamGrow.layout",
+            "https://finalfantasy.fandom.com/wiki/Fafnir?oldid=3987229",
+            "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454",
+            "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380",
+            "https://finalfantasy.fandom.com/wiki/Patron%27s_Whisper?oldid=3965500",
+            "https://finalfantasy.fandom.com/wiki/Joshua_Rosfield?oldid=4047110",
+            "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+            "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LICENSE",
         ],
     };
 

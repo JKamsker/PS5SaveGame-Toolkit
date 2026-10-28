@@ -1,0 +1,500 @@
+{
+  "format": "ffxvi-round2-naming-audit/1",
+  "reviewedOn": "2026-10-28",
+  "baselineObservedUnnamedIds": 67,
+  "resolved": 26,
+  "stillUnknown": 41,
+  "retailObservedMainIds": 172,
+  "retailNamedMainIds": 131,
+  "labelsAreNotGameplayEvidence": true,
+  "reviewedSources": [
+    "Pinned Final Fantasy Wiki translations, Journal, Wall of Memories, Fafnir, Patron's Whisper, Joshua Rosfield, weapons and recurring-item pages",
+    "Fandom exact-phrase API searches for all 67 research labels; unsupported/missing pages do not establish a mapping",
+    "Nenkai/ffxvi-nex-layouts at d3ad0627a29af168916ad574dadbca6759e2ac48: Item, EquipItem, UseItem, Skill, SummonMode, ParamGrow",
+    "Nenkai/FF16Tools at b87c2f22a8ea630cb03f7b2198af84c7709a1b0c: no reusable complete item localization dataset",
+    "Nenkai/ffxvi-modding licence endpoint returned 404; no licence found in reviewed revision; CSVs not vendored",
+    "mThund3R/Logos-Unleashed at 6424cb4e60bd31005ef7f0cfb42d4e5360660fc6: MIT vanilla feat restoration references, no item labels"
+  ],
+  "items": [
+    {
+      "id": 110,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 302,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Gnarled Scales",
+      "source": "https://finalfantasy.fandom.com/wiki/Fafnir?oldid=3987229#Final_Fantasy_XVI",
+      "evidence": "FFXVI boss-drop name explicitly lists Gnarled Scales; factual ID join remains unverified on console.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 501,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 505,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 506,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Morganbeard Extract",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+      "evidence": "MIT UseItem layout explicitly associates this item ID with a potency/capacity upgrade. PS5 ownership/activation and effects are unverified; no numerical capacities are supplied.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout"
+    },
+    {
+      "id": 511,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Hanged Man Signboard",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Hanged_Man_Signboard",
+      "evidence": "Museum label for the item researched as The Hanged Man; display alias, not a different item. Factual identifier research, not controlled PS5 verification.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 512,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 513,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 514,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 515,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 516,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 517,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 518,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 535,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Phoenix Feather",
+      "source": "https://finalfantasy.fandom.com/wiki/Joshua_Rosfield?oldid=4047110",
+      "evidence": "FFXVI character account explicitly identifies the Phoenix feather left for Clive. Capitalization normalized; the factual item-ID association remains Inferred, not an observed quest or ownership state.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 538,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Guardians Scarf",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Guardians_Scarf",
+      "evidence": "Exact museum label. Factual identifier research, not controlled PS5 verification.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 539,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Ambrosia's Tack",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Ambrosia's_Tack",
+      "evidence": "Exact museum label. Factual identifier research, not controlled PS5 verification.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 542,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Martelle Apples",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Martelle_Apples",
+      "evidence": "Museum curio ID; separate from the identically named quest-stack candidate 1244. Factual identifier research, not controlled PS5 verification.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 552,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "The Oath",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#The_Oath",
+      "evidence": "Exact museum label. Factual identifier research, not controlled PS5 verification.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 553,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 604,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "A Rose Is a Rose Orchestrion Roll",
+      "source": "https://finalfantasy.fandom.com/wiki/Patron%27s_Whisper?oldid=3965500",
+      "evidence": "Reward table names this roll (source capitalization: A Rose is a Rose). ID join is Inferred; renown rewards are not modified.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 609,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1204,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1217,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1218,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Morganbeard",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#The_Root_of_the_Problem",
+      "evidence": "Named flower requested in the quest; singular form normalized. Factual ID association is Inferred, not a proven quest state.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 1229,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1230,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1231,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Bread and Wine",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#Welcoming_Committee",
+      "evidence": "Quest delivery text identifies bread and wine; title capitalization normalized. Factual ID association is Inferred, not a proven quest state.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 1232,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1233,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1234,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1238,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1244,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Martelle Apples",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Martelle_Apples",
+      "evidence": "Quest-stack candidate with the same published label as curio 542; identities stay separate. Factual identifier research, not controlled PS5 verification.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 1245,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1246,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Unwonted Violet",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#A_Culinary_Pilgrimage",
+      "evidence": "Quest ingredient term appears in plural; singular form normalized. Factual ID association is Inferred, not a proven quest state.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 1249,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1255,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1256,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1263,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1265,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1266,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1267,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Trader's Pass",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#To_Catch_a_Thief",
+      "evidence": "Quest identifies the stolen trader pass; capitalization normalized. Factual ID association is Inferred, not a proven quest state.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 1311,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1315,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1317,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1327,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "The Final Piece",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#Like_Father,_Like_Daughter",
+      "evidence": "Quest describes the final piece found in the orchestrion; display article/capitalization normalized. Factual ID association is Inferred, not a proven quest state.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 1329,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1330,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1332,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1335,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1336,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1337,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1338,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1339,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1340,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1342,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 1343,
+      "status": "Unknown",
+      "confidence": "Unknown",
+      "reason": "No reviewed licence-compatible FF16-specific label evidence supports this join. Unlicensed published identifier CSVs remain research-only; numeric fallback retained."
+    },
+    {
+      "id": 100027,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Rune Blade +1",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "evidence": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100028,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Rune Blade +2",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "evidence": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100204,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Iron Belt +1",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "evidence": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100210,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Dark Sash +1",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "evidence": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100304,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Iron Bracers +1",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "evidence": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100310,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Steel Crowns +1",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "evidence": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100408,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Badge of Might +1",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "evidence": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100409,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Badge of Mettle +1",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "evidence": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100412,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Cleric's Medallion +1",
+      "source": "https://finalfantasy.fandom.com/wiki/Patron%27s_Whisper?oldid=3965500",
+      "evidence": "Exact upgraded accessory name in the reward table; factual ID join remains Inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100416,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "Adamantite Gauntlets",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "evidence": "Source spelling is Adamantite Gauntlet; plural normalized against factual identifier research. Name join is Inferred.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    },
+    {
+      "id": 100442,
+      "status": "Named",
+      "confidence": "Inferred",
+      "name": "The Breath of Fire (Flame of Rebirth)",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "evidence": "Source spelling retained (Flame of Rebirth); identifier research uses Flames of Rebirth. This is an Inferred label alias, not a distinct ability or eligibility claim.",
+      "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids"
+    }
+  ]
+}

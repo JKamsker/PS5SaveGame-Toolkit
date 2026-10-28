@@ -1,0 +1,37 @@
+{
+  "records": [
+    {
+      "id": "39",
+      "name": "Wings of Light",
+      "category": "skill-research",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/Skill.layout",
+      "description": "Explicit upstream skill-ID annotation. No association to a saved rank byte, flag bit or AP cost has been established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "saveIndexMapping": "Unknown"
+      }
+    },
+    {
+      "id": "45",
+      "name": "Ice Age",
+      "category": "skill-research",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/Skill.layout",
+      "description": "Explicit upstream skill-ID annotation. No association to a saved rank byte, flag bit or AP cost has been established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "saveIndexMapping": "Unknown"
+      }
+    },
+    {
+      "id": "49",
+      "name": "Arm of Darkness",
+      "category": "skill-research",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/Skill.layout",
+      "description": "Explicit upstream skill-ID annotation. No association to a saved rank byte, flag bit or AP cost has been established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "saveIndexMapping": "Unknown"
+      }
+    }
+  ]
+}
