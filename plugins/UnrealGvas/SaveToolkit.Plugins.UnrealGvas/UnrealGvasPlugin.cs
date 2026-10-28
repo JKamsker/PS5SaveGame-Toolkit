@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Plugins.UnrealGvas.Gvas;
 
@@ -11,7 +12,12 @@ public sealed class UnrealGvasPlugin : IGamePlugin
         Description = "Lossless Unreal SaveGame property explorer and primitive editor.",
         Games = [new GameTitle("PPSA01288", "Sackboy: A Big Adventure"), new GameTitle("PPSA01603", "Hogwarts Legacy"), new GameTitle("PPSA02199", "STAR WARS Jedi: Fallen Order")],
         Maturity = PluginMaturity.Experimental,
-        References = ["https://github.com/trumank/uesave", "https://github.com/topche-katt/hlsavetool"],
+        References = [
+            "https://github.com/trumank/uesave",
+            "https://github.com/topche-katt/hlsavetool",
+            "https://peteronprogramming.wordpress.com/2024/01/06/reverse-engineering-the-end-of-level-photos-in-sackboy-a-big-adventure/",
+            "https://www.rfc-editor.org/rfc/rfc1950",
+        ],
     };
 
     public ProbeResult Probe(ISaveFile file)
@@ -34,8 +40,11 @@ public sealed class UnrealGvasPlugin : IGamePlugin
     };
 
     public ISaveDocument Open(ISaveFile file)
+        => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         if (file.Length > GvasFile.MaxFileLength) throw new SaveFormatException("GVAS exceeds the 128 MiB safety limit.");
-        return new UnrealGvasDocument(file.RelativePath, GvasEnvelope.Open(file.ReadAllBytes()));
+        return new UnrealGvasDocument(file.RelativePath, GvasEnvelope.Open(file.ReadAllBytes()), references);
     }
 }

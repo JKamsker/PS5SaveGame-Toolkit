@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "id": "unrealgvas.ps5",
+  "version": "1.0.0",
+  "title": "Unreal GVAS PS5 schema evidence",
+  "description": "Versioned, read-only property-name catalogs for the supplied Sackboy and Jedi PS5 generations. These names document serialized storage only; they do not grant game-effect or write safety.",
+  "plugins": [
+    "engine.unreal-gvas"
+  ],
+  "titleIds": [
+    "PPSA01288",
+    "PPSA02199"
+  ],
+  "datasets": [
+    {
+      "id": "unrealgvas_sackboy_fields",
+      "kind": "records",
+      "title": "Sackboy progression property names",
+      "files": [
+        {
+          "path": "sackboy-fields.json",
+          "sha256": "6556c8df228cd0ac7fd505f29bac5e319c37dee575a9e512944e50a36512ed71"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "author": "PS5 Save Game Toolkit contributors",
+        "license": "Project terms; original evidence index",
+        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "retrieved": "2026-10-28",
+        "modifications": "Names and storage observations transcribed from privately retained PPSA01288 PS5 samples; no game text, assets or third-party code embedded."
+      }
+    },
+    {
+      "id": "unrealgvas_sackboy_image_fields",
+      "kind": "records",
+      "title": "Sackboy image metadata property names",
+      "files": [
+        {
+          "path": "sackboy-image-fields.json",
+          "sha256": "91764ea8408fef5d046c6046a794bad7cbf2590a191b5bdd4bfe23a478dd916c"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://peteronprogramming.wordpress.com/2024/01/06/reverse-engineering-the-end-of-level-photos-in-sackboy-a-big-adventure/",
+        "author": "Peter on Programming; PS5 Save Game Toolkit contributors",
+        "license": "MIT for referenced extractor; original PS5 metadata evidence",
+        "licenseUrl": "https://github.com/Donpedro13/GingerBreadImageExtractor/blob/3b26966a04a2b6e20d61962ef6fcb84242bb7a1f/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Only property names observed in supplied PS5 GVAS image sets are catalogued; PC pixel/swizzle claims remain research context."
+      }
+    },
+    {
+      "id": "unrealgvas_jedi_actor_fields",
+      "kind": "records",
+      "title": "Jedi actor-stream property names",
+      "files": [
+        {
+          "path": "jedi-actor-fields.json",
+          "sha256": "6cc22bc5a50ea0ecf89fac16442871886bdb41f5f8bf591b7da8d3c72f4a337d"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "author": "PS5 Save Game Toolkit contributors",
+        "license": "Project terms; original evidence index",
+        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "retrieved": "2026-10-28",
+        "modifications": "Names and storage observations transcribed from privately retained PPSA02199 PS5 samples; actor roles and checksum algorithm are intentionally not asserted."
+      }
+    }
+  ]
+}

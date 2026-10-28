@@ -1,0 +1,8 @@
+{
+  "records": [
+    {"id":"CollectabellsStored","name":"CollectabellsStored","category":"progression","description":"IntProperty observed in both General snapshots; storage verified, legal range and edit effect unknown.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA01288"}},
+    {"id":"TotalCollectabellsCollected","name":"TotalCollectabellsCollected","category":"progression","description":"IntProperty observed alongside CollectabellsStored; storage verified, relationship and edit effect unknown.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA01288"}},
+    {"id":"UnlockedWorlds","name":"UnlockedWorlds","category":"world-progress","description":"Enum array observed with one entry; complete enum set and prerequisites remain unknown.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA01288"}},
+    {"id":"Checksum","name":"Checksum","category":"integrity","description":"UInt32Property present in General; coverage and recomputation algorithm are unresolved, so the document remains read-only.","attributes":{"confidence":"UnknownCoverage","titleId":"PPSA01288"}}
+  ]
+}
