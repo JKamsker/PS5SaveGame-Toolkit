@@ -19,7 +19,7 @@ enabled in this round with explicit rejection warnings; no bulk action is expose
 | F2 reference packs | Used | `unrealgvas.ps5`, `unrealgvas.storage` and `hogwarts.legilimens` are embedded, pinned and attributed in the Sources panel. |
 | F3 rich table cells | Used | F8 rows expose live field cells, text, confidence, descriptions, warnings and provenance; image-cell rendering remains host-owned. |
 | F4 `ReferenceSpec` pickers | Used | Exact table/column-qualified Hogwarts IDs and title storage captions use read-only reference specs. |
-| F5 structural edits | N/A | Generic arrays/maps/sets retain unknown bytes and schemas, but insertion/removal cannot be lossless without stable element identities and a plugin-owned memento; scalar size-region edits remain covered. |
+| F5 structural edits | Added this round | Fully parsed primitive array/map/set nodes expose a bounded remove-last action with snapshot undo/redo, reparsing and size validation; struct/native/opaque containers remain read-only. |
 | F6 planned bulk actions | N/A | No bounded bulk or preset has proven gameplay semantics; adding one would hide unknown checksum/relationship effects. |
 | F7 document groups | N/A | No enabled edit safely owns a coupled companion; Hogwarts primary/backup and the two database images remain independent until owner captures establish roles. |
 | F8 queryable collections | Used | Generic nested properties, Jedi actor observations, Sackboy projections and all Hogwarts tables use bounded search/filter/sort/paging. |
@@ -187,10 +187,10 @@ The Hogwarts round adds all-image integrity/no-op checks, F1 row diff evidence,
 F8 host registration/query bounds, F2/F4 attribution and candidate resolution,
 corruption isolation, and test-only stored-frame GVAS reconstruction. Sample
 tests require the artifacts environment variable in the same command as the run.
-Validated for the completion round: **82 passed, 0 failed, 0 skipped**, including
+Validated for the completion round: **85 passed, 0 failed, 0 skipped**, including
 Jedi/Sackboy warned scalar edits, Hogwarts SQLite/stored-block edit/reopen, all
-Hogwarts regressions, conformance, query bounds/identities and corruption tests;
-F9 spatial validation; API build: **0 warnings, 0 errors**.
+Hogwarts regressions, conformance, query bounds/identities, F5 primitive array/map/set
+remove/reopen/undo, corruption tests and F9 spatial validation; API build: **0 warnings, 0 errors**.
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
@@ -211,9 +211,9 @@ added in this round remain below 300 lines; repository policy is enforced in rev
    version extensions when samples become available.
 5. Solve Sackboy General checksum coverage; decode image texture layouts before
    providing image previews. Atomic Heart now has its own read-only plugin.
-6. Generic structural add/remove/reorder remains disabled until stable collection
-   element identities, required defaults and reversible mementos are proven; current
-   scalar length changes are lossless and covered by the existing size-region tests.
+6. Generic structural insertion, reorder and semantic item creation remain disabled
+   until stable identities, required defaults and game relationships are proven. The
+   bounded primitive-container remove-last action is the only enabled structural edit.
 
 ## Historical overlay handoff (2026-10-28)
 

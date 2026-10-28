@@ -11,11 +11,15 @@ namespace SaveToolkit.Plugins.UnrealGvas;
 internal sealed class GvasQueryableDocument : ISaveDocument, IQueryableDocument
 {
     private readonly UnrealGvasDocument _raw;
-    private readonly GvasNamedViews _views;
+    private GvasNamedViews _views;
+    private readonly UnrealGvasSchema _schema;
+    private readonly IReferenceContext _references;
 
     public GvasQueryableDocument(string path, GvasEnvelope envelope, UnrealGvasSchema schema, IReferenceContext references)
     {
         _raw = new(path, envelope, references);
+        _schema = schema;
+        _references = references;
         _views = new(envelope.File, schema, _raw.ActorStream, references);
     }
 
@@ -27,9 +31,20 @@ internal sealed class GvasQueryableDocument : ISaveDocument, IQueryableDocument
     public IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _raw.ExpandNode(lazyId);
     public FieldValue GetValue(string valueId) => _raw.GetValue(valueId);
     public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) => _raw.ApplyEdits(edits);
-    public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) => _raw.InvokeAction(actionId, parameters);
+    public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
+    {
+        var outcome = _raw.InvokeAction(actionId, parameters);
+        if (outcome.StructureChanged) _views = new GvasNamedViews(_raw.CurrentFile, _schema, _raw.ActorStream, _references);
+        return outcome;
+    }
     public IReadOnlyList<FileOutput> Serialize() => _raw.Serialize();
     public AssetContent? GetAsset(string assetId) => _raw.GetAsset(assetId);
     public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => _raw.ReadBlob(blobId, offset, count);
+    public DocumentMemento RestoreMemento(DocumentMemento memento)
+    {
+        var result = _raw.RestoreMemento(memento);
+        _views = new GvasNamedViews(_raw.CurrentFile, _schema, _raw.ActorStream, _references);
+        return result;
+    }
     public void Dispose() => _raw.Dispose();
 }

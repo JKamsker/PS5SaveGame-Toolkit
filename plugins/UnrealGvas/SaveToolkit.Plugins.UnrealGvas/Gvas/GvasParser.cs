@@ -180,6 +180,7 @@ internal sealed class GvasParser(byte[] bytes)
             if (tag.Type == "MapProperty") children.Add(ReadElement(reader, $"[{i}] Value", tag.ValueType!, null, depth + 1));
         }
         node.Children = children;
+        node.Container = new GvasContainerInfo(tag.Type, tag.InnerType!, tag.ValueType, tag.Type == "ArrayProperty" ? sizeof(int) : 2 * sizeof(int));
         if (innerSize is not null) _sizes.Add(innerSize);
     }
 

@@ -4,6 +4,8 @@ namespace SaveToolkit.Plugins.UnrealGvas.Gvas;
 
 public enum GvasScalarKind { Boolean, Signed, Unsigned, Float, Double, String }
 
+public sealed record GvasContainerInfo(string Kind, string ElementType, string? ValueType, int PrefixBytes);
+
 /// <summary>A scalar retains its exact original encoding until its value changes.</summary>
 public sealed class GvasScalar(GvasScalarKind kind, int offset, int length, object value, bool wide = false,
     byte booleanMask = 1, byte booleanOriginal = 0)
@@ -48,6 +50,7 @@ public sealed class GvasNode(string name, string type, int offset, int length)
     public GvasScalar? Scalar { get; internal set; }
     public IReadOnlyList<GvasNode> Children { get; internal set; } = [];
     public string? Note { get; internal set; }
+    public GvasContainerInfo? Container { get; internal set; }
 }
 
 public sealed record GvasHeader(int SaveVersion, int PackageVersion, int? PackageVersionUe5,
