@@ -1,0 +1,42 @@
+CityHash64.cs is adapted from the Google CityHash algorithm and the supplied
+research toolkit's hashes.py:
+https://github.com/google/cityhash/blob/master/src/city.cc
+
+Copyright (c) 2011 Google, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+Mandarin, DSSS and typed-stream behavior was independently implemented from
+the supplied verified research toolkit and observations of the sample bytes,
+with the following upstream Rust files consulted as algorithm references:
+https://github.com/kvasszn/ree-save-editor
+  src/save/crypto/mandarin.rs
+  src/save/crypto/util.rs
+  src/save/game.rs
+  src/save/types.rs
+  src/sdk/type_map.rs
+No substantial Rust source or complete game-data dumps are distributed here.
+
+Resources/HashNames.json contains a subset of class/field identifier facts
+from that project's assets/pragmata/rszpragmata.json and strings_pragmata.txt,
+filtered to hashes present in the supplied samples. Each identifier is
+independently checked against MurmurHash3, seed 0xffffffff.
+
+AES-OFB test vectors are from NIST SP 800-38A, Appendix F.4.1:
+https://csrc.nist.gov/pubs/sp/800/38/a/final

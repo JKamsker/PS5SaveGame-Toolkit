@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SaveToolkit.Plugins.Pragmata\SaveToolkit.Plugins.Pragmata.csproj" />
+    <ProjectReference Include="..\..\..\src\SaveToolkit.Testing\SaveToolkit.Testing.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <EmbeddedResource Include="../../../docs/research/pragmata/verified_save_map.json" LogicalName="Pragmata.VerifiedSaveMap.json" />
+    <EmbeddedResource Include="EditedQuantityHashes.json" LogicalName="Pragmata.EditedQuantityHashes.json" />
+  </ItemGroup>
+</Project>
