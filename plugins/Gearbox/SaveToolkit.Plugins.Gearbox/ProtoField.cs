@@ -24,9 +24,9 @@ internal sealed class ProtoField(int number, int wireType, ProtoSpec? spec, byte
 
     public byte[] Encode()
     {
-        if (Original.Length == 0 && Value is 0UL or 0U or "") return [];
+        if (Original.Length == 0 && Spec is { Repeated: false } && Value is (0UL or 0U or "")) return [];
         var nested = Message?.Encode();
-        if (_replacement is null && (nested is null || nested.AsSpan().SequenceEqual((byte[])value!)))
+        if (Original.Length > 0 && _replacement is null && (nested is null || nested.AsSpan().SequenceEqual((byte[])value!)))
         {
             return Original;
         }

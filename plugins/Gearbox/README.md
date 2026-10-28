@@ -10,14 +10,14 @@ been removed. Edited files have not been loaded on a console.
 | --- | --- | --- |
 | Character | Editable name; class asset paths; Wonderlands primary/secondary branches | Schema names and sample strings; class display names are not guessed |
 | Level / XP | Editable; BL3 levels 1–72, Wonderlands 1–40; existing recorded-level stat updated | Upstream exact XP tables; all sample XP/stat values agree |
-| Skills | Editable unspent points and tree grade; Wonderlands upward levelling awards points | Schema and upstream behavior: one per level, two at 20, three at 40 |
+| Skills | Editable unspent points/tree grade; F8 stored allocations and 425 named reference skills; F9 allocation/calculator graphs | Stored subobject paths remain raw; calculator names are a separate reference, never joined by order |
 | Currency | Money, eridium / moon orbs | Documented hashes `618814354` / `3679636065` match all character samples |
 | Keys | Golden / skeleton keys; create absent category only on a nonzero edit | Published path/hash algorithm; `2420693941`; all supplied profiles omit this record |
 | Ammo | Editable finite resource-pool amounts | Schema floats and full resource paths; game capacity may clamp them |
 | SDUs | Edit existing known purchased tiers | Pinned upstream tier bounds; conservative capacity policy rejects overflowing reductions |
-| World | Edit existing Mayhem/Chaos levels and Chaos unlocked ceiling; inspect missions/playthroughs | BL3 0–11, TTWL 0–100 editor bounds; unlock challenges/rewards remain unchanged |
+| World | Edit existing Mayhem/Chaos levels and Chaos unlocked ceiling; F8 missions and F9 external-map checklist | BL3 0–11, TTWL 0–100 editor bounds; unlock challenges/rewards remain unchanged; no coordinates/art imported |
 | Inventory | Named, queryable backpack/bank/lost loot; lazy serial/part details, original codes, level, CRC/layout status, raw flags/pickup/equipment indices | Attributed upstream **family** labels, not complete generated item names; level/reroll/Chaos and favourite/junk editing; equipment indices repaired on removal |
-| Reference browser | F2 title-scoped packs, F4 searchable balance/part inspection pickers, F8 balance catalogue | Offline, versioned, attributed zlib editor data; raw fallback for unknown names; inspection makes no save changes |
+| Reference browser | F2 title-scoped packs, F4 inspection and constrained existing-part replacement, F8 catalogues | Offline, versioned, attributed zlib/MIT data; raw fallback; inspection makes no save changes |
 | Profile | Planned bank/lost-loot operations; existing Guardian/Myth edits inside F7 | Unknown mirror precedence and budgets are explicitly warned, never inferred |
 | Coordinated group | Explicit character + profile selection from one title/imported generation/backup status; bank, progression and account mirrors in one writable transaction | F7 ownership/fingerprint/conflict handling; separate PS5 save directories supported; generation numbers alone do not establish gameplay compatibility |
 | Account / character mirrors | Separate BL3 legacy/character/profile Guardian ranks, old/new XP, tokens, raw rewards/perks/enabled flags; TTWL Hero stats, Myth XP/indexed points and last-tree index when present | Independently checked selected wire tags; absent records stay absent; raw assets stay raw; Myth index labels inferred from upstream, no calculated rank or automatic reconciliation; existing raw edits only in F7 |
@@ -60,8 +60,8 @@ renumbered. Versions and counts:
 
 | Pack | Internal database | Index categories / records | Distinct balances | Source name mappings | Balance→part-family mappings | Slot/SDU/ammo labels |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `gearbox.bl3` 1.1.0 | 62 | 48 / 11,453 | 2,803 (2,848 index slots) | 774 | 1,435 | 25 |
-| `gearbox.ttwl` 1.1.0 | 59 | 56 / 13,674 | 2,030 (2,037 index slots) | 375 | 659 | 29 |
+| `gearbox.bl3` 1.2.0 | 62 | 48 / 11,453 | 2,803 (2,848 index slots) | 774 | 1,435 | 25 |
+| `gearbox.ttwl` 1.2.0 | 59 | 56 / 13,674 | 2,030 (2,037 index slots) | 375 | 659 | 29 |
 
 The added `world-labels` datasets contain **1,387 BL3** records (208 missions, 74 maps, 864 travel-to-map
 joins, four classes, 100 room decorations, 37 weapon skins, 100 trinkets) and **459 TTWL** records
@@ -88,6 +88,87 @@ retains the signed seed, checksum, all trailing bits and original serial bytes. 
 bad CRCs, unmapped indices/families, nonzero customizations and unknown tails produce item-local
 diagnostics. They never prevent unrelated currency/progression editing. Header-only items do not
 advertise decoded reroll/Chaos values. Stable document-local row IDs distinguish identical serials.
+
+## Skill graphs, mission checklists and part selection
+
+The Skills tab separates **stored allocations** from **named calculator references**. The save's
+`item_asset_path` identifies opaque Unreal tree subobjects, not a named skill. F8 searches every
+stored allocation, including later pages, by raw path/tree/points/cap. F9 shows positive stored
+points as Unlocked and zero/negative points as Unknown; zero does not prove a skill is available
+or locked. These graphs have no invented prerequisite edges. Stored rank/asset editing and full
+respec remain unavailable: a reliable subobject→skill crosswalk and dependent class/budget model
+have not been established. Existing unspent-points/tree-grade edits remain enabled.
+
+The new MIT `skills` datasets contain **315 BL3** and **110 Wonderlands** skills from pinned
+community calculators: names, plain-text descriptions, calculator tiers and rank caps. BL3 covers
+the trees actually present upstream, including its partial DLC coverage; missing fourth trees
+stay unknown. Class feats, images and executable combat-effect formulas were not imported.
+Reference IDs are calculator slugs, never save IDs. Every reference graph state is Unknown.
+Gate→skill edges mean a calculator's cumulative earlier-tier point requirement, **not** that every
+preceding skill must be bought. These are upstream build facts, not verified PS5/hotfix rules.
+Targets open attributed read-only controls; the text alternative contains the same facts.
+
+Missions now use F8 search/filter/sort across all stored playthroughs. F9 provides an external-map
+checklist with no imported coordinates/art. Found means only stored mission status Complete;
+other statuses remain Unknown in the map legend. No reward/branch/collectible ownership is
+inferred. [Map Genie BL3](https://mapgenie.io/borderlands-3) and
+[Wonderlands](https://mapgenie.io/tiny-tinas-wonderlands) are **external links only**: Map Genie
+attribution is visible in the map, its reuse terms are unverified, and no content was copied.
+Graphs/maps load in 100-record lazy pages with stable path-derived marker/node identities and
+links to their actual fields, including correctly namespaced links inside F7 groups.
+
+Serial index names now display the original **asset object token** with category/index/raw path
+details. These are not localized part names or generated item cards. The F4 part picker can replace
+an existing regular/generic part index only in a fully decoded serial. Eligibility and the writer
+both enforce the immutable pinned category and original database bit width; label overrides cannot
+grant eligibility. It patches only the selected bits and CRC, retaining all other bits, count/order,
+seed and padding. Unknown/customization tails, invalid indices, wrong categories and width overflow
+are rejected atomically. This establishes binary compatibility, **not legal part pools**, required or
+excluded combinations, item stats or DLC ownership. The game may reject/remove edited gear. Console
+validation is pending [#31][owner-validation]; all controls remain Experimental/Inferred and warned.
+
+Ordinary F8 inventory index paging now decodes only the requested page. Searches and semantic sorts
+decode the full relevant container once and reuse per-item results until its serial changes. Item
+lookup and full-query selection use indexed/hash lookups rather than repeated linear membership
+scans. Codec paths avoid redundant envelope/payload copies, reuse decoded envelopes during writes,
+and use an immutable CRC table. Cache invalidation covers failed batches, scalar edits, structure
+changes and undo/redo; consecutive direct SDK edits retain accurate change reports.
+The quality pass also fixed omission of newly created byte-only protobuf records (notably BL3 bank
+imports/deposits) and repeated default values. Serialize now independently checks reopened inventory
+counts against the intended model; transfer/import regressions assert persisted destination counts.
+
+## Framework feature adoption
+
+| Feature | Status | Where / reason |
+| --- | --- | --- |
+| F1 SaveDiff | Used | Gameplay-only production hook, independent test oracle, pinned fixture manifest and actual CLI verification; no identities/sample bytes committed |
+| F2 reference packs | Used; expanded this round | Title-scoped 1.2.0 packs, part token details and 425 MIT skill references; sidecars/notices/README/UI/Sources attribution |
+| F3 rich cells | Used | Confidence-labelled fields and lazy serial/part detail cells; no licensed artwork available, so text/raw fallbacks remain |
+| F4 reference pickers | Added this round | Existing serial-part replacement with category/width eligibility and independent writer checks; browse-only asset/class/mission/skill references and attributed inspection actions |
+| F5 structural history | Used | Import/duplicate/remove and bank moves retain full wire bytes, duplicate identities and counters in snapshots |
+| F6 planning / #27 | Used | Selected/full-filter item levels, import/duplicate/remove and F7 transfers preview changes/skips/warnings; host resolves query scopes |
+| F7 groups | Used; extended this round | Explicit character/profile transactions; graph/map links and query selections are namespaced to their owning member |
+| F8 collections | Used; expanded this round | Backpack/bank/lost loot/balance/world catalogues plus named skills, stored allocations and missions; 200-row query cap and full-set search/filter/sort |
+| F9 graph/map | Added this round | Stored allocation graphs, calculator gate graphs, external-only mission checklist; bounded lazy pages, text alternatives and control links |
+| F10 numbers / nullable / union | Used (integer/float); nullable/union N/A | Int128-backed integer specs retain protobuf integer precision; float32 resource pools use FloatSpec.Single. Protobuf absence is not an explicit null or type union and is preserved, never fabricated |
+| F11 shared codecs | N/A | GVAS feedback-obfuscated protobuf and item bitstreams use neither Kraken/Oodle nor SQLite; no local implementation of those codecs exists |
+| F12 decoder providers / F8 traversal | Added this round | SDK-only `ISaveDecoderProvider` registers `gearbox-evidence`; fixtures use the production hook, independently cross-checked on every sample generation. Host traversal covers F8 views with its shared budgets |
+| F13 inspection / browse / sort | Added this round | Both catalogue actions set `Mutates = false`; read-only reference fields support attributed browse-only pickers, category filters and name/key sorting. Float duration N/A: stored play time is integral seconds, resource floats are ammunition amounts |
+
+## Completion gap audit
+
+| Plan requirements / acceptance | Final disposition |
+| --- | --- |
+| R1, R8 names/parts/skills | Added offline MIT skill data and attributed part-token details. Complete localized cards, opaque skill-subobject joins and DLC legality require a source crosswalk/build corpus; unknowns remain explicit |
+| R3–R7, R9–R12 framework/evidence/editor | Supported implementations retained and verified; constrained existing-part picker, F8/F9 and performance/bookkeeping fixes completed |
+| R13 legal pools/dependent builds | Existing-slot binary edits enabled with warnings; unrestricted construction, class replacement and respec require a reliable compatibility/dependency model and controlled captures (#31) |
+| R2, R15–R17 captures/console/account precedence | Owner-blocked (#31); writes already enabled where a bounded writer exists, with Experimental warnings |
+| R14 redistribution | Applied owner policy; MIT/zlib datasets embedded with notices. Unlicensed/NC artwork and exports are not imported; link-only map sources |
+| R18–R19, R22 BL4 | Owner-blocked (#31): unknown PS5 codec and file role; research-only feasibility evidence retained, no writes |
+| R20 mission/collectible repair | Owner-blocked (#31): named observation/checklist shipped; safe reward/branch recipes require isolated game captures |
+| R21 world maps + requested skill trees | F9 delivered without unlicensed art/coordinates or invented prerequisites; actual location transforms remain unknown |
+| Host-stored reusable loadouts, combat simulation, platform conversion, new slots, premium entitlements | Won't do in this plugin round: no safe format/dependency or host persistence contract; runtime plugin I/O is prohibited |
+| Preservation, malformed input, history, attribution and boundedness acceptance | Sample-backed regressions, independent CRC/bit checks, 1,200-row progression tests, real F1 CLI fixtures and clean API build; console acceptance stays owner-only |
 
 ## File roles and layout
 
@@ -132,7 +213,7 @@ an SDU edit. Ammo capacity, bank-category counters and cloud mirrors are not gue
 
 ## Enabled writes and their evidence
 
-Owner decision on 2026-10-28: **enable writes, keep warnings**. The following **21 write paths/families**
+Owner decision on 2026-10-28: **enable writes, keep warnings**. The following **22 write paths/families**
 are Experimental. Every new writable field is Inferred and warns that it has not been validated on
 console. Unknown integrity is a rejection risk: the game may reject/clamp/remove edited content.
 All outputs are reparsed; known item CRCs are repaired. No additional wrapper integrity algorithm is
@@ -161,11 +242,12 @@ known. Controlled game captures and console acceptance are tracked separately in
 | 19. Existing Myth XP | Inferred | Independent profile/cloud-mirror tags; conservative observed bound | F7 only; rank not computed | Rank/available points and mirror precedence [#31][owner-validation] |
 | 20. Existing Myth last-tree index | Inferred | Known profile scalar; 0–3 policy | F7 only; rotation not recomputed | Next allocation tree [#31][owner-validation] |
 | 21. Existing named Myth allocation | Inferred | Upstream indices/caps; packed/unpacked exact-varint tests | F7 only; other bytes/noncanonical values retained | XP budget, caps, rotation, each tree [#31][owner-validation] |
+| 22. Existing serial part slot | Inferred | Located index in a fully mapped layout; immutable category/width validation; independent sample bit/CRC checks | Original seed/counts/tail unchanged; CRC repaired; output reparsed | Allowed pools, stats, duplicate/excluded parts, DLC and rejection/removal after reload [#31][owner-validation] |
 
 Reroll/Chaos edits require a fully located tail; level patches can preserve an unknown remainder.
 Imports and duplicates require complete pinned layouts; wrong-game, corrupt and unsupported imports
 are rejected. Conflicting favourite+junk flags remain raw and read-only rather than normalized.
-Arbitrary part/balance construction, slot compatibility editing, mission completion/story resets,
+Arbitrary balance/part-count construction, slot compatibility editing, mission completion/story resets,
 class replacement and automatic account reconciliation remain unsupported because their dependent
 structure/legality contracts have not been implemented. No known operation is disabled merely while
 waiting for owner evidence. BL4 remains research-only, excluded from probing and all writes.
@@ -251,7 +333,7 @@ dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/Gearbox/fixtur
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Validated 2026-10-28: **125 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
+Validated 2026-10-28: **148 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
 0 failed, 0 skipped**; API build **0 warnings, 0 errors**. The environment variable was exported in the
 same shell command as each sample-backed test run. Sample-dependent tests still skip when absent.
 
@@ -286,12 +368,20 @@ byte/duplicate-identity snapshot restoration. Write-round tests add F6/F5/F7 tra
 atomic rejection, edited role reopening/export and independent bit/F1 preservation checks. They do
 not establish console acceptance or BL4 codec progress.
 
+Completion tests add independently checked single-part bit/CRC changes, category/width rejection,
+host picker edits and history, attributed skill graphs/maps with reachable F7 targets, 1,200-row
+skill/mission queries and 5,000-item banks for both games. Bank tests measure view/paging allocations
+and elapsed time without timing assertions. New-record tests assert actual persisted import/transfer
+counts after reopening; consecutive direct edits and failed batches verify bookkeeping/cache behavior.
+F12 tests compare the production hook to the independent probe across every primary/backup generation;
+F13 tests verify inspection annotations, browse-only filtering/sorting and rejection of edits.
+
 [`fixtures.json`](fixtures.json) pins archive SHA-256 and observed generation-0/1 XP/money facts.
 These are uncontrolled existing generations, **not** proven before/after game actions or chronology.
-No speculative churn masks are applied. `GearboxEvidenceDecoder` uses F1's `ISaveDecoder` hook in the
-test assembly and exposes only selected gameplay scalars and serial content identities; duplicate
+No speculative churn masks are applied. `GearboxGameplayDecoder` exposes the F12 production hook
+`gearbox-evidence` without a Testing dependency, selecting only gameplay scalars and serial content identities; duplicate
 serials retain multiplicity. A changed serial appears removed/added because durable cross-capture
-item identity is unknown. Tests run the same manifests through both this independent decoder and
+item identity is unknown. Tests run the same manifests through the independent test decoder, production hook and
 the CLI's `PluginViewDecoder`. No sample bytes, decoded payloads or account identifiers are committed.
 
 ## Unknowns and open work
@@ -300,10 +390,10 @@ the CLI's `PluginViewDecoder`. No sample bytes, decoded payloads or account iden
 - Some BL3 PS5 profile tags postdate the reference schema and remain opaque.
 - Controlled game tests are needed for clamping, milestone challenges, low-level unlock dependencies
   and missing progression records. Existing mission/unlock data is preserved.
-- Mission repair, arbitrary part construction/slot compatibility and platform conversion are not implemented.
+- Mission repair, arbitrary part-count/balance construction, slot compatibility and platform conversion are not implemented.
 - Other regions/builds need samples. PPSA01494 is a separate BL4 format and never claimed.
-- Phase 1's inventory/reference/evidence work is delivered. Full cosmetic/skill/mission/challenge
-  crosswalks, localized complete item names and icons remain open. Enabled writes remain Experimental;
+- Inventory/reference/evidence work and bounded F9 observation are delivered. Complete cosmetic,
+  skill-subobject/mission/challenge crosswalks, localized item cards and licensed icons remain open. Enabled writes remain Experimental;
   full gameplay dependency/budget models and console validation remain open.
 - BL4 codec/file-role research and the exact owner checklist are in [BL4 feasibility](BL4-feasibility.md).
 
@@ -328,6 +418,9 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 | TTWL `labels` | [Constants][ttwl-constants] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | Explicit slot/SDU/ammo labels; no capacity policy |
 | BL3 `world-labels` | [Constants][bl3-constants] | CJ Kucera / apocalyptech | [Zlib][bl3-license] | 2026-10-28 | 1,387 explicit mission/map/travel/class/named-cosmetic records; normalized IDs and original IDs retained |
 | TTWL `world-labels` | [Constants][ttwl-constants] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | 459 mission/map/travel/class/Myth/Hero/backstory records; embedded caps used as Inferred editor policies |
+| BL3 `skills` | [BL3Skills 66b0bd0](https://github.com/seigler/bl3skills.com/tree/66b0bd08777452abd05e5d9246c27f2a8096ca13) | Joshua Seigler and contributors | [MIT](https://github.com/seigler/bl3skills.com/blob/66b0bd08777452abd05e5d9246c27f2a8096ca13/LICENSE), retained notice | 2026-10-28 | 315 names/descriptions, calculator tiers/rank caps; no effect code/art or save-ID joins |
+| TTWL `skills` | [Wonderlands calculator d57e7aa](https://github.com/Lothrik/wonderlands-skill-calc/tree/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8) | Joshua Seigler / Lothrik and contributors | [MIT](https://github.com/Lothrik/wonderlands-skill-calc/blob/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8/LICENSE), retained notice | 2026-10-28 | 110 skills, plain-text descriptions, calculator tiers/rank caps; no artwork or save-ID joins |
+| External community map links | [BL3](https://mapgenie.io/borderlands-3), [Wonderlands](https://mapgenie.io/tiny-tinas-wonderlands) | Map Genie | Reuse unverified; **link only** | 2026-10-28 | No art, coordinates, map content or descriptions imported; current host blocks automated access |
 | SDU tiers, item flags and new-record metadata policy | [BL3 constants][bl3-constants], [TTWL constants][ttwl-constants], BL3 `bl3save.py`, TTWL `datalib.py` in the pinned repositories | CJ Kucera / Abram Hindle | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Altered C# definitions/flag handling; capacity formulas are original conservative editor policies |
 | Serial envelope / layout adapter | [BL3][bl3-serial], [TTWL][ttwl-serial] | CJ Kucera / Abram Hindle; upstream credits Baysix | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Altered bounded C# adaptation with exact-bit writes and original-seed CRC repair |
 | `Bl3.tsv`, `Bl3Xp.tsv` | [BL3 editor][bl3-root] | CJ Kucera; schemas credit Rick/Gibbed | [Zlib][bl3-license] | 2026-10-28 | Separate schema facts and exact XP thresholds |
@@ -393,9 +486,10 @@ F7 supplies explicit proposals and immutable inputs (1/3), exclusive ownership/f
 conflict checks (2), candidate staging with full snapshots/rebinding and shared revisions (3/4), and
 all-member role-specific validation/atomic export with explicit backup ownership (5). Its framework
 tests and this plugin's sample-backed tests cover writable adoption, transfer history/export and
-fresh-snapshot restoration. F1/F2/F3/F4/F5/F6/F7/F8 are available; planned coordinated actions use
+fresh-snapshot restoration. F1–F11 are available; planned coordinated actions use
 F6 planning and F7 staging with F5 structural snapshots.
-No outstanding framework request or alternative output API is needed for this round.
+No outstanding framework contract request or alternative output API is needed. F12/F13 are adopted
+after rebasing this worktree onto the merged framework contracts; no plugin-local substitute is used.
 
 ## Owner capture and validation checklist
 
@@ -417,6 +511,14 @@ No outstanding framework request or alternative output API is needed for this ro
 - Serials: capture one enchant/reroll and one favourite/junk toggle separately, with all card fields
   transcribed. Supply legitimate same-family level/Mayhem/Chaos examples and all observed serial
   versions, keeping uncontrolled examples distinct from controlled same-item action pairs.
+- Existing-part picker: on a disposable backed-up item, change one regular part and separately one
+  generic/anointment part within its known category. Record original/replacement raw tokens, exact
+  cards, DLC/hotfix/build, load acceptance, stat changes and any rejection/removal. Re-save/reload and
+  export matching character/profile/backups. Width/category acceptance is not a legal-pool claim.
+- Skill joins: capture no-action controls and exactly one named passive allocation in each relevant
+  class/tree/tier, then a separate respec. Record the displayed name, rank/cap, unspent points and
+  primary/secondary class before/after. These pairs must identify the changed opaque subobject;
+  calculator order or matching rank caps alone are insufficient. Include BL3 fourth-tree/DLC examples.
 - Capture one level gain, one skill allocation/respec, one SDU purchase and one ammo refill, separately.
   Guardian: profile + multiple characters before/after one token/perk. Myth: each indexed allocation,
   rotation and capped stat, with matched profile. These validate the enabled Experimental writes.

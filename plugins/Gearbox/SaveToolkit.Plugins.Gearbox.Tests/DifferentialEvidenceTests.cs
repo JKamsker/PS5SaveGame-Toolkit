@@ -17,7 +17,7 @@ public sealed class DifferentialEvidenceTests
         var set = SampleSaves.Load(title);
         Assert.Null(FixtureVerifier.CheckArchive(fixture.Before!, SampleSaves.FindArchive(title)!));
         Assert.Null(FixtureVerifier.CheckArchive(fixture.After!, SampleSaves.FindArchive(title)!));
-        foreach (var decoder in new ISaveDecoder[] { new GearboxEvidenceDecoder(), new PluginViewDecoder(new GearboxPlugin()) })
+        foreach (var decoder in new ISaveDecoder[] { new GearboxEvidenceDecoder(), Native(), new PluginViewDecoder(new GearboxPlugin()) })
         {
             var result = FixtureVerifier.Verify(fixture, set, set, FixtureVerifier.OptionsFor(fixture, manifest, decoder));
             Assert.True(result.Passed, string.Join("; ", result.Expectations.Where(e => !e.Passed).Select(e => e.Message)));
@@ -31,7 +31,7 @@ public sealed class DifferentialEvidenceTests
     public void EvidenceHook_IsBoundedAndOmitsIdentityPaths(string title)
     {
         var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1");
-        var decoder = new GearboxEvidenceDecoder();
+        var decoder = Native();
         var tree = decoder.Decode(file, new DecodeLimits { MaxValues = 3, MaxValueLength = 8 });
         Assert.True(tree.Truncated);
         Assert.Equal(3, tree.Values.Count);
@@ -40,6 +40,24 @@ public sealed class DifferentialEvidenceTests
         Assert.True(decoder.Decode(file, new DecodeLimits { MaxDepth = 1 }).Truncated);
         Assert.Throws<InvalidDataException>(() => decoder.Decode(file, new DecodeLimits { MaxFileBytes = 1 }));
     }
+
+    [Theory]
+    [InlineData("PPSA01463")]
+    [InlineData("PPSA01493")]
+    public void ProductionHook_AgreesWithIndependentProbeAcrossAllFiles(string title)
+    {
+        var native = Native();
+        var independent = new GearboxEvidenceDecoder();
+        foreach (var file in SampleSaves.Load(title).AllDiskFiles.Where(f => native.CanDecode(f)))
+        {
+            var expected = independent.Decode(file, new());
+            var actual = native.Decode(file, new());
+            Assert.False(actual.Truncated);
+            Assert.Equal(expected.Values.OrderBy(v => v.Path, StringComparer.Ordinal), actual.Values.OrderBy(v => v.Path, StringComparer.Ordinal));
+        }
+    }
+
+    private static HookSaveDecoder Native() => new(Assert.Single(new GearboxPlugin().Decoders));
 
     [Theory]
     [InlineData("PPSA01463")]

@@ -11,6 +11,10 @@ internal sealed class GearboxInventory
     private readonly GearboxDocument _document;
     private readonly Dictionary<string, List<string>> _ids;
     private int _nextId;
+    private ProtoMessage? _indexedRoot;
+    private InventoryEntry[] _entries = [];
+    private Dictionary<string, InventoryEntry> _byId = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (byte[] Bytes, SerialInfo Info)> _serials = new(StringComparer.Ordinal);
 
     public GearboxInventory(GearboxDocument document)
     {
@@ -19,11 +23,30 @@ internal sealed class GearboxInventory
             list => document.Root.All(list).Select(_ => "item-" + _nextId++).ToList(), StringComparer.Ordinal);
     }
 
-    public IEnumerable<InventoryEntry> Entries => _ids.SelectMany(pair => _document.Root.All(pair.Key)
-        .Select((record, index) => new InventoryEntry(pair.Value[index], pair.Key, index, record)));
-    public InventoryEntry Find(string id) => Entries.SingleOrDefault(e => e.Id == id)
-        ?? throw new SaveFormatException("The item identity is no longer present.");
+    public IEnumerable<InventoryEntry> Entries { get { Index(); return _entries; } }
+    public InventoryEntry Find(string id)
+    {
+        Index();
+        return _byId.GetValueOrDefault(id) ?? throw new SaveFormatException("The item identity is no longer present.");
+    }
+
+    private void Index()
+    {
+        if (ReferenceEquals(_indexedRoot, _document.Root)) return;
+        _entries = _ids.SelectMany(pair => _document.Root.All(pair.Key)
+            .Select((record, index) => new InventoryEntry(pair.Value[index], pair.Key, index, record))).ToArray();
+        _byId = _entries.ToDictionary(entry => entry.Id, StringComparer.Ordinal);
+        _indexedRoot = _document.Root;
+    }
     public InventoryIdentity Capture() => new(_ids.ToDictionary(p => p.Key, p => p.Value.ToArray(), StringComparer.Ordinal), _nextId);
+    public SerialInfo Info(string id)
+    {
+        var serial = Find(id).Serial;
+        if (_serials.TryGetValue(id, out var cached) && ReferenceEquals(cached.Bytes, serial)) return cached.Info;
+        var info = new SerialReader(_document.Root.Schema.Wonderlands).Read(serial);
+        _serials[id] = (serial, info);
+        return info;
+    }
     public void Restore(InventoryIdentity identity)
     {
         if (!_ids.Keys.Order().SequenceEqual(identity.Lists.Keys.Order()) ||
@@ -32,6 +55,8 @@ internal sealed class GearboxInventory
             throw new InvalidOperationException("Invalid Gearbox inventory identity snapshot.");
         foreach (var (list, ids) in identity.Lists) _ids[list] = ids.ToList();
         _nextId = identity.NextId;
+        _indexedRoot = null;
+        _serials.Clear();
     }
 
     public void SetSerial(string id, byte[] serial)
@@ -55,6 +80,8 @@ internal sealed class GearboxInventory
         }
         _document.Root.Remove(entry.Field);
         _ids[entry.List].RemoveAt(entry.Index);
+        _serials.Remove(id);
+        _indexedRoot = null;
     }
 
     public string Append(string list, ProtoField source, string? movedId = null)
@@ -87,6 +114,7 @@ internal sealed class GearboxInventory
         root.Add(new ProtoField(root.Schema.Tag(root.Type, list), 2, spec, [], serial, message));
         var id = movedId ?? "item-" + _nextId++;
         _ids[list].Add(id);
+        _indexedRoot = null;
         return id;
     }
 

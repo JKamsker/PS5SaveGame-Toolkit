@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "gearbox.bl3",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Borderlands 3 serial database 62",
   "description": "Pinned d459b28a7e88f1a5ae0f16118272d8a5383b8b04; English family names; console build, DLC and hotfix coverage unknown.",
   "plugins": [
@@ -39,7 +39,7 @@
       "files": [
         {
           "path": "serial-indices.json",
-          "sha256": "b7ed856fe291f7b710d9bc8593f007259bfa576babfd9766ecb47ce269520e3b"
+          "sha256": "8bed974c2a4c93a3263f36d400026d53d1630a3bc8edee840079647fe89e91fc"
         }
       ],
       "attribution": {
@@ -48,7 +48,7 @@
         "license": "Zlib",
         "licenseUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt",
         "retrieved": "2026-10-28",
-        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 62."
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 62. Display labels now use the asset object token; full original paths are retained in attributes and descriptions, never interpreted as localized part names."
       }
     },
     {
@@ -125,6 +125,25 @@
         "licenseUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt",
         "retrieved": "2026-10-28",
         "modifications": "Extracted explicit English mission, map, travel destination and class labels; named room decorations/weapon skins/trinkets. Lowercased asset lookup IDs; retained originalId. map: keys are namespaced. No artwork, gameplay-safe bounds or PS5 build compatibility inferred; source code not executed."
+      }
+    },
+    {
+      "id": "skills",
+      "kind": "records",
+      "title": "Skill calculator reference (save joins unverified)",
+      "files": [
+        {
+          "path": "skills.json",
+          "sha256": "659725cb0c64b68efa502f9a798e1cc8cee1c74da88ff343b3f3b53a896dfcd1"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/seigler/bl3skills.com/tree/66b0bd08777452abd05e5d9246c27f2a8096ca13",
+        "author": "Joshua Seigler and bl3skills.com contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/seigler/bl3skills.com/blob/66b0bd08777452abd05e5d9246c27f2a8096ca13/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted skill names, plain-text descriptions, calculator tiers and rank caps; stripped code/art. Reference-only: no save-subobject ID or gameplay/hotfix correctness claim."
       }
     }
   ]

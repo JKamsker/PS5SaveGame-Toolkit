@@ -20,7 +20,7 @@ public sealed class WorldCatalogTests
         var catalog = references.Catalog(GearboxWorldCatalog.CatalogId)!;
         Assert.Equal(total, catalog.Count);
         Assert.Equal("Zlib", catalog.Dataset.Attribution.License);
-        Assert.Equal("1.1.0", catalog.Pack.Version);
+        Assert.Equal("1.2.0", catalog.Pack.Version);
         Assert.Equal(missions, catalog.Search(new() { Category = "mission" }).Total);
         Assert.Equal(decorations, catalog.Search(new() { Category = "room-decoration" }).Total);
         var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1");
@@ -43,8 +43,8 @@ public sealed class WorldCatalogTests
             var filtered = queryable.Query(collection.Id, new() { Filters = new Dictionary<string, string> { ["category"] = "mission" }, Limit = 200 });
             Assert.Equal(missions, filtered.FilteredCount);
             Assert.All(filtered.Rows, row => Assert.Equal("mission", Assert.IsType<TextNode>(row.Cells["category"]).Text));
-            var knownId = Assert.IsType<TextNode>(page.Rows[0].Cells["id"]).Text;
-            Assert.Contains(queryable.Query(collection.Id, new() { Text = knownId }).Rows, row => Assert.IsType<TextNode>(row.Cells["id"]).Text == knownId);
+            var knownId = Assert.IsType<FieldNode>(page.Rows[0].Cells["id"]).Value.AsString();
+            Assert.Contains(queryable.Query(collection.Id, new() { Text = knownId }).Rows, row => Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsString() == knownId);
             Assert.Throws<ArgumentException>(() => queryable.Query(collection.Id, new() { SortColumn = "not-a-column" }));
             Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         }
@@ -59,7 +59,8 @@ public sealed class WorldCatalogTests
         var container = GearboxContainer.Parse(ContainerTests.Create(wonderlands, false), title, false);
         using var document = new GearboxDocument("1", title, container, container.Decode(), IReferenceContext.Empty);
         var field = document.World.Label("test/mission", "Mission", path, mission: true);
-        Assert.Equal(name + " — " + path, field.Value.AsString());
+        Assert.Equal(path.Split('.')[0].ToLowerInvariant(), field.Value.AsString());
+        Assert.Contains(name + " — " + path, field.Description);
         Assert.Contains("Zlib", field.Description);
         Assert.True(field.Spec.ReadOnly);
         const string unknown = "/Game/Unknown.Asset_C";

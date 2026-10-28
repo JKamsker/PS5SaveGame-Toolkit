@@ -21,7 +21,7 @@
         "generation": 1,
         "sha256": "0860d88d3d18bd8631ea4cc155319f1d4e952a25201b3d6ef271534925794e2c"
       },
-      "decoder": "gearbox",
+      "decoder": "gearbox-evidence",
       "files": [
         "1"
       ],
@@ -69,7 +69,7 @@
         "generation": 1,
         "sha256": "9c00fa05d57897e7a14bec77445b8b72b3736e2ea6204cc1f055b94a386a5a37"
       },
-      "decoder": "gearbox",
+      "decoder": "gearbox-evidence",
       "files": [
         "1"
       ],

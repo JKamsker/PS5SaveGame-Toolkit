@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "gearbox.ttwl",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Tiny Tina's Wonderlands serial database 59",
   "description": "Pinned 1fde90dc43e7f7ee261413d85c366e0a7236dd9b; English family names; console build, DLC and hotfix coverage unknown.",
   "plugins": [
@@ -39,7 +39,7 @@
       "files": [
         {
           "path": "serial-indices.json",
-          "sha256": "94cccceb4fe5e37abfeb5e6665383f3bc112a538110ae7749e94c01249479d77"
+          "sha256": "31ea5ecefa28a8020f74ed5ba5fba6d61bdecfe7ccb4c769aee80b174941f367"
         }
       ],
       "attribution": {
@@ -48,7 +48,7 @@
         "license": "Zlib",
         "licenseUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt",
         "retrieved": "2026-10-28",
-        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 59."
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 59. Display labels now use the asset object token; full original paths are retained in attributes and descriptions, never interpreted as localized part names."
       }
     },
     {
@@ -125,6 +125,25 @@
         "licenseUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt",
         "retrieved": "2026-10-28",
         "modifications": "Extracted explicit English mission, map, travel destination and class labels; Myth array indices, Hero field labels and backstories. Lowercased asset lookup IDs; retained originalId. map: keys are namespaced. No artwork, gameplay-safe bounds or PS5 build compatibility inferred; source code not executed."
+      }
+    },
+    {
+      "id": "skills",
+      "kind": "records",
+      "title": "Skill calculator reference (save joins unverified)",
+      "files": [
+        {
+          "path": "skills.json",
+          "sha256": "0b9927039beb024b1fcbf318de206c901ff2f7b1014a6ecfa120f5176d0eb2a3"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Lothrik/wonderlands-skill-calc/tree/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8",
+        "author": "Joshua Seigler / Lothrik (MaXiMiUS) and contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/Lothrik/wonderlands-skill-calc/blob/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted skill names, plain-text descriptions, calculator tiers and rank caps; stripped code/art. Reference-only: no save-subobject ID or gameplay/hotfix correctness claim."
       }
     }
   ]

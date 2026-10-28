@@ -34,6 +34,7 @@ public sealed class GroupWriteTests
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
         var page = session.QueryCollection("character/inventory_items", new() { Limit = 200 });
+        var originalBankCount = session.QueryCollection("profile/bank_inventory_list", new() { Limit = 1 }).TotalCount;
         ActionPreview? preview = null;
         foreach (var row in page.Rows)
         {
@@ -51,8 +52,10 @@ public sealed class GroupWriteTests
         foreach (var output in changed)
         {
             var source = ((ISaveSet)set).FindFile(output.Key)!;
-            using var reopened = plugin.Open(SerialWriteTests.Overlay(source, output.Value));
+            using var reopened = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(source, output.Value));
             Assert.Equal(output.Value, reopened.Serialize().Single().Content.ToArray());
+            Assert.Equal(source.FileName == "profile" ? originalBankCount + 1 : page.TotalCount - 1, reopened.Inventory.Entries
+                .Count(entry => entry.List == (source.FileName == "profile" ? GearboxInventory.Bank : GearboxInventory.Backpack)));
             SerialWriteTests.AssertUnrelated(GearboxContainer.Parse(source.ReadAllBytes(), title, source.FileName == "profile").Decode(),
                 GearboxContainer.Parse(output.Value, title, source.FileName == "profile").Decode(),
                 source.FileName == "profile" ? "bank_inventory_list" : "inventory_items", "equipped_inventory_list");

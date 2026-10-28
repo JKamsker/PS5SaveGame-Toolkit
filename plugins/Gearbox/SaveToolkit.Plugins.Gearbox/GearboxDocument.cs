@@ -22,9 +22,15 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     private ItemBrowser Items => _items ??= new(this, Root, Profile, _lazy, references);
     private GearboxWorldCatalog? _world;
     internal GearboxWorldCatalog World => _world ??= new(this, references);
-    public IReadOnlyList<QueryableCollection> Collections => [.. Items.Collections, World.Collection];
+    private GearboxSkills? _skills;
+    private GearboxSkills Skills => _skills ??= new(this, _lazy, references);
+    private GearboxMissions? _missions;
+    internal GearboxMissions Missions => _missions ??= new(this, _lazy);
+    public IReadOnlyList<QueryableCollection> Collections => [.. Items.Collections, World.Collection, .. Skills.Collections, Missions.Collection];
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
-        collectionId == GearboxWorldCatalog.CatalogId ? World.Query(query) : Items.Query(collectionId, query);
+        collectionId == GearboxWorldCatalog.CatalogId ? World.Query(query) :
+        collectionId is GearboxSkills.CatalogId or GearboxSkills.AllocationsId ? Skills.Query(collectionId, query) :
+        collectionId == GearboxMissions.CollectionId ? Missions.Query(query) : Items.Query(collectionId, query);
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
         Items.Inspect(actionId, parameters) ?? base.InvokeAction(actionId, parameters);
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
@@ -41,6 +47,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             new Tab(Profile ? "Profile" : "Character", overview.Build()),
             new Tab("Inventory", [.. Items.Build(), .. tables.Inventory()]),
             new Tab("Progression", tables.Progression()),
+            new Tab("Skills", Skills.Build()),
             new Tab("Account / character mirrors", new GearboxAccountViews(this, _lazy).Build()),
             new Tab("World / progression catalogue", [World.Build()]),
             new Tab("Raw", [_lazy.RegisterRaw(() => Root)]),
@@ -50,7 +57,11 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _lazy.Expand(lazyId);
 
     internal FieldNode InspectionField(string id, string label, string value, Confidence confidence, string? source) =>
-        Bind(id, label, new TextSpec { ReadOnly = true }, () => FieldValue.Of(value), null)
+        Bind(id, label, new TextSpec { ReadOnly = true, Multiline = true }, () => FieldValue.Of(value), null)
+            with { Confidence = confidence, Description = source };
+
+    internal FieldNode InspectionReference(string id, string label, string value, string catalog, Confidence confidence, string? source) =>
+        Bind(id, label, new ReferenceSpec(catalog) { ReadOnly = true }, () => FieldValue.Of(value), null)
             with { Confidence = confidence, Description = source };
 
     internal FieldNode ItemNumber(string id, string label, int minimum, int maximum, Func<int> get, Action<int> set) =>
@@ -59,11 +70,16 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
                 ? "Value is outside the supported editor policy." : null, SerialWrites.Warning)
             with { Confidence = Confidence.Inferred, Description = SerialWrites.Warning };
 
+    internal FieldNode PartReference(string id, Func<string> get, Action<string> set, Func<ReferenceRecord, ReferenceEligibility> assess, string source) =>
+        Bind(id, "Serial part", new ReferenceSpec(ItemCatalogs.Indices) { Assess = assess }, () => FieldValue.Of(get()),
+            value => set(value.AsString()), value => value.Kind == FieldValueKind.Text ? null : "Choose a serial part ID.", SerialParts.Warning)
+            with { Confidence = Confidence.Inferred, Description = SerialParts.Warning + source };
+
     internal FieldNode AssetLabel(string id, string label, string path)
     {
         var record = references.Catalog(ItemCatalogs.Labels)?.Find(path) ?? SerialDatabase.For(Root.Schema.Wonderlands).Find(ItemCatalogs.Labels, path);
-        return InspectionField(id, label, record is null ? path : $"{record.Name} — {path}",
-            record is null ? Confidence.Unknown : Confidence.Verified, record?.AttributionText);
+        return InspectionReference(id, label, path, ItemCatalogs.Labels,
+            record is null ? Confidence.Unknown : Confidence.Verified, record is null ? null : record.Name + ". " + record.AttributionText);
     }
 
     internal FieldNode Integer(string id, string label, Func<ProtoMessage> parent, string name,
@@ -152,7 +168,8 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             return result;
         }
         var changes = _readers.Select(p => new ValueChange(p.Key, before[p.Key], p.Value())).Where(c => c.OldValue != c.NewValue).ToArray();
-        if (changes.Length > 0) InvalidateItems();
+        // Scalar edits retain their bindings: direct SDK callers may edit again before rebuilding.
+        if (changes.Length > 0) _items = null;
         return result with { Changes = changes, StructureChanged = changes.Length > 0, Revert = changes.Length > 0 ? snapshot : null };
     }
 
@@ -198,6 +215,9 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         _serialIntegrity.Validate(Inventory, Root.Schema.Wonderlands);
         var output = container.Encode(Root);
         var check = GearboxContainer.Parse(output, titleId, Profile).Decode();
+        foreach (var list in Profile ? new[] { GearboxInventory.Bank, GearboxInventory.LostLoot } : [GearboxInventory.Backpack])
+            if (check.All(list).Count() != Root.All(list).Count())
+                throw new SaveFormatException("Gearbox inventory record count changed during serialization.");
         if (!check.Encode().AsSpan().SequenceEqual(Root.Encode()))
             throw new SaveFormatException("Gearbox output verification failed.");
         return [new FileOutput(relativePath, output)];

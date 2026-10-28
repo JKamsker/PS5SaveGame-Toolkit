@@ -28,13 +28,15 @@ public sealed class ItemBrowserTests
         Assert.Equal(indexCount, references.Catalog("serial-indices")!.Count);
         Assert.All(pack.Datasets, dataset =>
         {
-            Assert.Equal("Zlib", dataset.Attribution.License);
+            Assert.True(dataset.Attribution.License is "Zlib" or "MIT");
             Assert.Contains("2026-10-28", dataset.Attribution.ToShortText());
         });
         var file = Character(title);
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("gearbox-picker", file, plugin, document, references: references);
-        _ = session.BuildView();
+        var view = Assert.IsType<TabsNode>(session.BuildView());
+        Assert.All(view.Tabs.Single(t => t.Title == "Inventory").Children.OfType<ActionNode>()
+            .Where(a => a.ActionId.StartsWith("catalogue/", StringComparison.Ordinal)), action => Assert.False(action.Mutates));
         foreach (var (action, parameter, expectedTotal) in new[] { ("catalogue/inspect", "balance", balanceCount), ("catalogue/inspect-part", "part", indexCount) })
         {
             var candidates = session.SearchReferences(parameter, new ReferenceQuery { Offset = 201, Limit = 3 }, actionId: action);
@@ -62,8 +64,9 @@ public sealed class ItemBrowserTests
     {
         var file = Character(title);
         var plugin = new GearboxPlugin();
-        using var document = plugin.Open(file);
-        using var session = new DocumentSession("gearbox-browser", file, plugin, document);
+        var references = new ReferencePackStore([plugin]).Pin(plugin, title);
+        using var document = plugin.Open(file, references);
+        using var session = new DocumentSession("gearbox-browser", file, plugin, document, references: references);
         _ = session.BuildView();
         var first = session.QueryCollection("inventory_items", new() { Limit = 1 });
         Assert.True(first.TotalCount > 1);
@@ -85,6 +88,16 @@ public sealed class ItemBrowserTests
         Assert.Contains(details.OfType<TextNode>(), node => node.Text.StartsWith("BL3(", StringComparison.Ordinal));
         var raw = details.OfType<FieldNode>().First();
         Assert.True(raw.Spec.ReadOnly);
+        var reference = Assert.IsType<ReferenceSpec>(raw.Spec);
+        Assert.Equal(ItemCatalogs.Balances, reference.CatalogId);
+        var candidates = session.SearchReferences(raw.ValueId, new() { Limit = 4, SortBy = ReferenceSortKey.Name, Descending = true });
+        Assert.Equal(4, candidates.Items.Count);
+        Assert.Contains(ReferenceSortKey.Name, candidates.SortKeys);
+        Assert.Equal(candidates.Items.OrderByDescending(c => c.Label, StringComparer.OrdinalIgnoreCase).Select(c => c.RawId), candidates.Items.Select(c => c.RawId));
+        var categoryPage = session.SearchReferences(raw.ValueId, new() { Category = candidates.Items[0].Category, Limit = 4 });
+        Assert.All(categoryPage.Items, candidate => Assert.Equal(candidates.Items[0].Category, candidate.Category));
+        Assert.NotNull(session.FindReference(raw.ValueId, raw.Value.AsString()).Dataset);
+        Assert.Null(session.FindReference(raw.ValueId, "unknown-current-id").Label);
         Assert.False(session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement("changed"))]).Ok);
         var catalogue = session.QueryCollection("catalogue", new() { Offset = 1000, Limit = 7, SortColumn = "name" });
         Assert.Equal(7, catalogue.Rows.Count);

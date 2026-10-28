@@ -40,6 +40,7 @@ internal sealed class SerialDatabase
                 {
                     Category = r.TryGetProperty("category", out var category) ? category.GetString() : null,
                     Description = r.TryGetProperty("description", out var description) ? description.GetString() : null,
+                    Source = r.TryGetProperty("source", out var source) ? source.GetString() : null,
                     Attributes = r.GetProperty("attributes").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()!, StringComparer.Ordinal),
                     Dataset = info,
                 }).ToDictionary(r => r.Key, StringComparer.Ordinal);
@@ -77,8 +78,13 @@ internal sealed class SerialDatabase
     public SerialAsset Asset(string category, int index)
     {
         var record = Find(ItemCatalogs.Indices, $"{category}:{index.ToString(CultureInfo.InvariantCulture)}");
-        return new(category, index, record?.Name);
+        return new(category, index, record?.Attributes.GetValueOrDefault("asset"));
     }
 }
 
-internal sealed record SerialAsset(string Category, int Index, string? Path);
+internal sealed record SerialAsset(string Category, int Index, string? Path)
+{
+    public int Offset { get; init; }
+    public int Width { get; init; }
+    public string Key => $"{Category}:{Index.ToString(CultureInfo.InvariantCulture)}";
+}

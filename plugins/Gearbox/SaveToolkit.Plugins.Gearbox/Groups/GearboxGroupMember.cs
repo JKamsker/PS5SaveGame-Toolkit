@@ -32,6 +32,16 @@ internal sealed class GearboxGroupMember(string role, GearboxDocument document)
         QueryableTableNode table => table with { CollectionId = Prefix(table.CollectionId) },
         ActionNode action => action with { ActionId = Prefix(action.ActionId) },
         HexNode hex => hex with { BlobId = Prefix(hex.BlobId) },
+        GraphNode graph => graph with { Items = graph.Items.Select(item => item with { Id = Prefix(item.Id), Target = Target(item.Target) }).ToArray(),
+            Edges = graph.Edges.Select(edge => new GraphEdge(Prefix(edge.From), Prefix(edge.To))).ToArray() },
+        MapNode map => map with { Markers = map.Markers.Select(marker => marker with { Id = Prefix(marker.Id), Target = Target(marker.Target) }).ToArray() },
         _ => node,
+    };
+
+    private ViewTarget? Target(ViewTarget? target) => target is null ? null : target with
+    {
+        Id = Prefix(target.Id),
+        Path = ["section:Gearbox character + profile", Role == GearboxGroups.ProfileRole ? "section:Shared profile / bank" : "section:Character progression / backpack",
+            .. target.Path.Select(part => part.StartsWith("section:", StringComparison.Ordinal) ? "section:" + Prefix(part[8..]) : part)],
     };
 }

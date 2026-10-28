@@ -12,6 +12,7 @@ internal sealed class SerialEnvelope
     private const ulong Multiplier = 0x10A860C1;
     private const ulong Modulus = 0xFFFFFFFB;
     private const uint CrcPolynomial = 0xEDB88320;
+    private static readonly uint[] CrcTable = BuildCrcTable();
     private readonly byte[] _header;
     private readonly byte[] _plain;
     public int Version => _header[0];
@@ -27,27 +28,19 @@ internal sealed class SerialEnvelope
         if (wonderlands ? serial[0] != 5 : serial[0] is not (3 or 4))
             throw new SaveFormatException("Unsupported serial version for this game.");
         var seed = BinaryPrimitives.ReadInt32BigEndian(serial[1..5]);
-        var mixed = Xor(serial[5..], seed);
-        var steps = (seed & 31) % mixed.Length;
-        var plain = new byte[mixed.Length];
-        for (var i = 0; i < mixed.Length; i++) plain[(i + steps) % plain.Length] = mixed[i];
+        var plain = new byte[serial.Length - 5];
+        var steps = (seed & 31) % plain.Length;
+        ulong state = unchecked((uint)(seed >> 5));
+        for (var i = 0; i < plain.Length; i++)
+        {
+            var value = serial[5 + i];
+            if (seed != 0) { state = state * Multiplier % Modulus; value ^= (byte)state; }
+            plain[(i + steps) % plain.Length] = value;
+        }
         var result = new SerialEnvelope(serial[..5].ToArray(), plain);
         if (BinaryPrimitives.ReadUInt16BigEndian(plain) != result.Checksum())
             throw new SaveFormatException("Item serial checksum mismatch; bytes preserved read-only.");
         return result;
-    }
-
-    private static byte[] Xor(ReadOnlySpan<byte> input, int seed)
-    {
-        var output = input.ToArray();
-        ulong state = unchecked((uint)(seed >> 5));
-        if (seed == 0) return output;
-        for (var i = 0; i < output.Length; i++)
-        {
-            state = state * Multiplier % Modulus;
-            output[i] ^= (byte)state;
-        }
-        return output;
     }
 
     private ushort Checksum()
@@ -60,24 +53,38 @@ internal sealed class SerialEnvelope
         return (ushort)((crc >> 16) ^ crc);
     }
 
-    private static uint Update(uint crc, byte value)
+    private static uint Update(uint crc, byte value) => (crc >> 8) ^ CrcTable[(crc ^ value) & byte.MaxValue];
+
+    private static uint[] BuildCrcTable()
     {
-        crc ^= value;
-        for (var bit = 0; bit < 8; bit++) crc = (crc >> 1) ^ ((crc & 1) != 0 ? CrcPolynomial : 0);
-        return crc;
+        var table = new uint[256];
+        for (var i = 0; i < table.Length; i++)
+        {
+            var crc = (uint)i;
+            for (var bit = 0; bit < 8; bit++) crc = (crc >> 1) ^ ((crc & 1) != 0 ? CrcPolynomial : 0);
+            table[i] = crc;
+        }
+        return table;
     }
 
     public byte[] EncodeOriginalSeed()
     {
-        var rotated = new byte[_plain.Length];
+        var result = new byte[_header.Length + _plain.Length];
+        _header.CopyTo(result, 0);
         var steps = (Seed & 31) % _plain.Length;
-        for (var i = 0; i < rotated.Length; i++) rotated[i] = _plain[(i + steps) % _plain.Length];
-        return [.. _header, .. Xor(rotated, Seed)];
+        ulong state = unchecked((uint)(Seed >> 5));
+        for (var i = 0; i < _plain.Length; i++)
+        {
+            var value = _plain[(i + steps) % _plain.Length];
+            if (Seed != 0) { state = state * Multiplier % Modulus; value ^= (byte)state; }
+            result[_header.Length + i] = value;
+        }
+        return result;
     }
 
     public byte[] Patch(int offset, int width, int value)
     {
-        if (offset < 0 || width is < 1 or > 16 || offset + width > Payload.Length * 8 || value < 0 || value >= 1 << width)
+        if (offset < 0 || width is < 1 or > 16 || offset > Payload.Length * 8 - width || value < 0 || value >= 1 << width)
             throw new ArgumentOutOfRangeException(nameof(value));
         var changed = new SerialEnvelope(_header.ToArray(), _plain.ToArray());
         for (var bit = 0; bit < width; bit++)

@@ -21,8 +21,8 @@ internal sealed class GearboxWorldCatalog(GearboxDocument document, IReferenceCo
     {
         var key = mission ? path.Split('.')[0].ToLowerInvariant() : path.ToLowerInvariant();
         var record = Find(key);
-        return document.InspectionField(id, label, record is null ? path : $"{record.Name} — {path}",
-            record is null ? Confidence.Unknown : Confidence.Inferred, record?.AttributionText);
+        return document.InspectionReference(id, label, record is null ? path : key, CatalogId,
+            record is null ? Confidence.Unknown : Confidence.Inferred, record is null ? null : $"{record.Name} — {path}. {record.AttributionText}");
     }
 
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
@@ -42,7 +42,8 @@ internal sealed class GearboxWorldCatalog(GearboxDocument document, IReferenceCo
             "label/" + r.Key, new Dictionary<string, ViewNode>
             {
                 ["name"] = document.InspectionField("label/" + r.Key, "Name", r.Name, Confidence.Inferred, r.AttributionText),
-                ["category"] = new TextNode(r.Category ?? "Unknown"), ["id"] = new TextNode(r.Key) { Monospace = true },
+                ["category"] = new TextNode(r.Category ?? "Unknown"),
+                ["id"] = document.InspectionReference("label/" + r.Key + "/id", "Raw lookup ID", r.Key, CatalogId, Confidence.Inferred, r.AttributionText),
             })).ToArray(), Collection.TotalCount, entries.Length, offset, limit);
     }
 

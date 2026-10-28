@@ -24,7 +24,7 @@ internal sealed class GearboxTransferActions(GearboxGroupDocument group)
             var changes = new List<PlannedChange>();
             foreach (var entry in entries)
             {
-                if (!new SerialReader(source.Root.Schema.Wonderlands).Read(entry.Serial).Complete)
+                if (!source.Inventory.Info(entry.Id).Complete)
                     throw new SaveFormatException("Transfers require fully mapped checksum-valid serials; unknown items remain in their original container.");
                 target.Inventory.ValidateDestination(targetList, entry.Field);
                 changes.Add(new(role + "/" + sourceList + "/" + entry.Id, "Move " + entry.Id + " (original serial retained)",
@@ -82,9 +82,10 @@ internal sealed class GearboxTransferActions(GearboxGroupDocument group)
         if (scope.QueryScope is { } query && query.CollectionId != role + "/" + list)
             throw new SaveFormatException("The query belongs to a different source container.");
         var entries = source.Inventory.Entries.Where(e => e.List == list).ToArray();
-        if (scope.RowKeys.Distinct().Count() != scope.RowKeys.Count ||
-            scope.RowKeys.Any(key => !key.StartsWith(prefix, StringComparison.Ordinal) || entries.All(e => prefix + e.Id != key)))
+        var keys = scope.RowKeys.ToHashSet(StringComparer.Ordinal);
+        var known = entries.Select(entry => prefix + entry.Id).ToHashSet(StringComparer.Ordinal);
+        if (keys.Count != scope.RowKeys.Count || !keys.IsSubsetOf(known))
             throw new SaveFormatException("The source selection is stale or belongs to another container.");
-        return entries.Where(e => scope.RowKeys.Contains(prefix + e.Id)).ToArray();
+        return entries.Where(e => keys.Contains(prefix + e.Id)).ToArray();
     }
 }
