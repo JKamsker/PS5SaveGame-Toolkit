@@ -10,7 +10,7 @@ namespace SaveToolkit.Plugins.Insomniac.Tests;
 internal sealed class RiftEvidenceDecoder : ISaveDecoder
 {
     public string Id => "insomniac-evidence";
-    public bool CanDecode(ISaveFile file) => file.FileName == "i29-s.save";
+    public bool CanDecode(ISaveFile file) => file.FileName is "i29-s.save" or "i29-userprefs.save";
 
     public SemanticTree Decode(ISaveFile file, DecodeLimits limits)
     {
@@ -18,6 +18,12 @@ internal sealed class RiftEvidenceDecoder : ISaveDecoder
         var container = Dat1Container.Parse(file.ReadAllBytes());
         var sections = new DdlSections(container);
         var builder = new SemanticTreeBuilder(Id, limits);
+        if (sections.Roots.TryGetValue(DdlSections.PreferencesTag, out var preferences))
+        {
+            foreach (var field in preferences.Values.Where(f => f.Kind == DdlValueKind.Bool && f.Values.Count == 1))
+                builder.Add($"preferences/{field.Name}", field.Kind.ToString(), field.Values[0].ToString());
+            return builder.Build();
+        }
         var campaign = sections.Roots[RiftPlayerView.CampaignTag];
         foreach (var field in campaign.Values.Where(f => f.Name.StartsWith("Career", StringComparison.Ordinal) ||
                      f.Name.StartsWith("Level", StringComparison.Ordinal) || f.Name.StartsWith("QuickSelect", StringComparison.Ordinal) ||

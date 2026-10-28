@@ -1,16 +1,18 @@
 # Ratchet & Clank: Rift Apart (`insomniac`)
 
-Version **0.4.0**, **ReadOnly**, for decrypted **PPSA01474** saves. Phase 1 of
+Version **0.5.0**, **Experimental**, for decrypted **PPSA01474** saves. Phase 1 of
 [#20](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/20) is implemented;
 Round 2 delivers Phase 2's read-only weapons, armour, upgrades, collectibles and
 world views. Controlled ownership/equipment, upgrade-node and precise pickup joins
-remain evidence gates; no unsupported Phase 2 semantics or Phase 3 writes are claimed.
+remain evidence gaps. The write-enable round adds bounded existing scalar edits under
+the owner's “Enable writes. Keep warnings.” decision; console acceptance is unproven.
 The engine family name does not claim Spider-Man, other titles or other regions.
 
 ## Views
 
 - **Player:** career/spent counters, inferred available bolts, play time, challenge
-  flags, gold-bolt options and per-location counters. Career weapon XP is aggregate.
+  flags, gold-bolt options and per-location counters. Career/spent bolts and seven
+  existing gold-bolt switches are editable. Career weapon XP is aggregate and read-only.
 - **Loadout:** four exact quick-select paths using F4 read-only reference fields.
   The attributed F2 catalog supplies twenty English weapon-label candidates,
   including Blackhole Storm for `warprifle`. All twenty paths hash to measured
@@ -42,7 +44,8 @@ The engine family name does not claim Spider-Man, other titles or other regions.
   flags/counters with storage-only confidence and interpretation warnings.
 - **Preferences:** more than 100 scalar fields grouped into audio, controls,
   accessibility, language/subtitles and display/other settings. Numeric menu codes
-  remain numeric; no PC enum ordinals or game-safe limits are assumed.
+  remain read-only; existing scalar booleans are editable (61 keys in this corpus).
+  No PC enum ordinals or game-safe numeric limits are assumed.
 - **Systems:** recursive, bounded, lazy DDL trees for twelve gameplay roots and the
   preference root. Maps use stored field identities; large arrays expand in pages
   of 100 values, and empty collections explicitly show zero entries.
@@ -70,7 +73,7 @@ packed. Strings retain their original metadata and relative payload padding.
 
 Reader limits: depth 32, 32,768 objects, 65,536 fields, 524,288 values and four MiB
 of decoded text per section; 1,024 fields per object and 65,536 bytes per string.
-Unknown bounded inventory payloads remain opaque. No-op serialization reparses the
+Unknown bounded inventory payloads remain opaque. Every serialization reparses the
 DAT1 envelope, supported DDL and inventory framing, then returns an isolated copy.
 See [EVIDENCE.md](EVIDENCE.md) for the measured layouts and F1 comparisons.
 
@@ -90,9 +93,53 @@ See [EVIDENCE.md](EVIDENCE.md) for the measured layouts and F1 comparisons.
 
 ## Integrity and writing
 
-**All writes remain disabled.** There are no setters, mutation actions or export
-bypasses. Conformance and byte-identical round trips do not prove that a console
-will accept an edit. No edited save has been validated in-game.
+**Not validated on console. Integrity coverage is unknown; the game may reject the
+edited save.** Every writable field repeats this warning and retains Inferred
+confidence. No edited save has been validated in-game. Conformance establishes
+toolkit behavior, not game acceptance; only the owner can mark Stable.
+
+Writes patch only descriptor-located existing scalar slots, without resizing or
+changing descriptors, name hashes, strings, unknown payloads or padding. The known
+name CRCs identify unchanged names and therefore need no repair. No save-body
+checksum/signature algorithm is established. Serialize reparses the complete DAT1,
+all supported DDL roots and inventory before returning an isolated copy.
+
+Bolt counters allow 0 through the smaller of their actual unsigned wire capacity
+and the conservative corpus maximum (CareerBolts 1,297,735; SpentBolts 260,875).
+An imported value above that maximum remains inspectable and extends only that
+field's upper bound to its original value. These are observed bounds, not proven
+game caps. Atomic batches validate final CareerBolts >= SpentBolts. Calculated
+available bolts and expanded raw scalar diagnostics update live and participate
+as derived changes; Core undo/redo restores the original bytes.
+
+The seven gold-bolt switches change only their existing bool atoms. They do not
+grant collectibles, satisfy unlock thresholds or alter other progress. A locked
+or inconsistent option may be ignored, normalized or rejected by the game. Boolean
+preferences are independent edits in the preferences file; no cross-file write
+dependency has been identified, so no F7 transaction is fabricated.
+
+XP/weapon XP, ammo, raritanium, upgrade/armour/collectible/quest state and challenge
+conversion remain read-only: mirror/dependency rules, ownership, constructors or
+legal ranges are incomplete, so writing them would risk inconsistent unknown
+structure. Quick-select strings also stay read-only because their stored metadata
+and relocation/size rules have no proven writer. Numeric preferences have no
+prepared, calibrated write policy. No bulk/preset, structural or multi-file action
+was prepared; none is exposed. Future bulk operations must use F6, structural
+operations F5 and actual cross-file dependencies F7.
+
+## Enabled writes and their evidence
+
+All validation items are tracked in [owner issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31);
+the exact protocol remains in [OWNER-CAPTURES.md](OWNER-CAPTURES.md).
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed (with a link to #31) |
+| --- | --- | --- | --- | --- |
+| CareerBolts | Inferred | CC0 schema/name CRC; all 36 primary records; observed UInt16/UInt32 widths; descriptor probe and production edit/reopen/F1/undo tests | Fixed-width only; unrelated bytes unchanged; body integrity unknown; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): baseline, +1 bolt, HUD wallet, purchase, re-save/reload/re-export |
+| SpentBolts | Inferred | Same schema and corpus; observed maximum 260,875; edit/reopen/F1/undo tests; final-balance batch validation | Same unknown integrity; game may reject; accounting semantics not console-calibrated | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one purchase capture, isolated spent-counter edit and wallet/downstream validation |
+| Seven existing gold-bolt option booleans | Inferred | Named one-byte DDL bools; RPG research probe; each production switch edit/reopen/F1/undo tested in early/late samples | Bool only; collectible/unlock state untouched; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): legal in-game toggle then independent edit for each unlocked option; check effect and re-save/reload |
+| Existing scalar boolean preferences (61 keys) | Inferred | Descriptor/name validation in both supplied primary preference records; each edit/reopen/F1/undo tested | Bool only; numeric/string fields untouched; independent integrity unknown; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged preference export, one-setting capture and separate edit/menu/re-save/reload checks |
+
+The observed 70 write controls are listed in [ENABLED-WRITES.md](ENABLED-WRITES.md).
 
 Historical research tested 41,652 CRC/FNV/Murmur section-digest candidates across
 36 primary gameplay records without finding a nondegenerate outside-range match.
@@ -115,13 +162,21 @@ dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Latest sample-backed plugin run: **86 passed, 0 failed, 0 skipped**. All **76** game
+Latest sample-backed plugin run: **94 passed, 0 failed, 0 skipped**. All **76** game
 records round-trip byte-identically, including duplicate generations and backup twins.
 The tests cover all 36 primary inventories, field/name vectors, nested alignment,
 parent bounds/depth/count corruption, unknown payloads, embedded pack hashes/licensing,
 read-only F4 fields, F8 lazy page construction/filtering/numeric sorting/stable IDs,
 Core session page acceptance, all new query bindings, full-mask upgrade/vanity
 boundaries, 20/20 config-path hashes, ordinal corroboration and in-memory write probes.
+New production-write tests exercise every control in both primary preferences,
+both representative gameplay widths, and atomic nine-control batches in all 36
+primary gameplay records. They verify persisted values, single-atom F1 changes,
+every unrelated byte, wrong types/ranges, negative-balance rejection, mixed
+read-only rejection, live diagnostics and real Core single/batch undo/redo.
+Foreign-title DAT1 matches remain read-only.
+Unusual counters above the corpus maxima remain byte-identical on open and can be
+restored after edits; malformed serialized booleans are rejected inside Serialize.
 Sample-dependent
 tests skip when samples are absent.
 
@@ -145,11 +200,12 @@ The Sources panel lists the F2 datasets resolved by the document.
 | `schema.json`: 86 field names and containing types | Neptuwunium / [Rivet CC0 schema, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json) | CC0-1.0, confirmed by the file-specific sidecar; selected names only, omitted runtime offsets/defaults/code |
 | `item-types.json`: five serialized type IDs/names | Same pinned Rivet schema | CC0-1.0; selected type IDs, original uncertainty notes; measured framing independently verified on PS5 |
 | `Resources/PlayerFields.json` | Same pinned Rivet schema; toolkit contributors' labels/groups | CC0 schema facts, original labels; sidecar documents selection and PS5 validation |
+| `ENABLED-WRITES.md`: observed writable storage identities | Independent corpus verification by toolkit contributors; same pinned Rivet CC0 schema for identity research | CC0-1.0 factual names, no user preference values or upstream code; retrieval/modification note alongside the list |
 | `weapons.json`: twenty English name/description candidates | Ratchet & Clank Wiki contributors, [menu transcript revision 403465](https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465) | CC BY-SA 3.0 derived data; short paraphrases and inferred localization aliases; all twenty paths match PS5 tokens; no prices, limits or art |
 | `armor.json`: 57 piece/slot/set candidates and bonus categories | [Armour revision 402364](https://ratchetandclank.fandom.com/wiki/Rift_Apart_armor?oldid=402364), Ratchet & Clank Wiki contributors, plus pinned Rivet CC0 schema | Entire derived dataset CC BY-SA 3.0; selected names and bonus paraphrases with inferred ordinal/set aliases; no bonus percentages or availability claims |
 | `world.json`: twenty location/spybot labels | Neptuwunium / pinned Rivet schema above | CC0-1.0; selected enum labels and ordinal keys, original confidence notes; no pickup coordinates |
 | Asset path identity algorithm research | [ALERT crc64.py, bc90ed9b](https://raw.githubusercontent.com/Tkachov/ALERT/bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb/dat1lib/crc64.py) | GPL research only; independently written bitwise mathematical CRC, no copied lookup table/code. Verified against PS5 inventory tokens; unrelated to integrity |
-| Section strategies / format research | Neptuwunium / [Rivet SaveData, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs) | EUPL-1.2 reference only; no implementation copied or executed |
+| Section strategies / format research | Neptuwunium / [Rivet SaveData, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs) and [save CLI](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.CLI/Utility/RivetSaveCommand.cs) | EUPL-1.2 reference only; no implementation copied or executed. Write-round recheck still does not establish PS5 integrity |
 | Earlier DAT1 and integrity research | [ALERT format wiki](https://github.com/Tkachov/ALERT/wiki/Formats), [RiftRipper](https://github.com/VELD-Dev/riftripper), [NinjaSaves](https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474) | Research only; no source/artwork port or proven integrity routine |
 
 See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and the reference pack's
@@ -183,8 +239,9 @@ churn control. Export decrypted before/after dumps, HUD screenshots and an actio
    Lorbs, CraiggerBears and Zurpstones before expecting location-resolved checklists.
 6. Supply an optional permitted config/localization dump with title/build/locale
    metadata to prove path/hash/name joins. Unknown paths remain usable without it.
-7. Before any write promotion, test an unmodified export, then one fixed-width bolt
-   edit and one existing option toggle separately in a private research harness.
+7. Validate the enabled writes under [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31):
+   test an unmodified export, then career/spent bolt edits and each unlocked option
+   toggle separately through the plugin.
    Record load success, intended effect, subsequent re-save/reimport and downstream
    play. Preferences require their own acceptance pair. Only the owner sets Stable.
 

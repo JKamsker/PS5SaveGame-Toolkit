@@ -36,7 +36,7 @@ internal sealed class RiftPlayerView
     {
         var result = new List<ViewNode>
         {
-            new TextNode("Read-only: gameplay meanings are substantiated, but save integrity and console loading after edits are unverified.")
+            new TextNode(RiftScalarWrites.Warning)
                 { Tone = Tone.Warning },
         };
         if (!HasCampaign) return result;
@@ -86,11 +86,13 @@ internal sealed class RiftPlayerView
         };
         var spec = definition.Name == "RYNOPlansCollected" && field.Spec is IntegerSpec integer
             ? integer with { Format = IntegerFormat.Hex } : field.Spec;
-        return bind($"player/{field.Name}", definition.Label, spec, field.Values[0]) with
+        var node = bind($"player/{field.Name}", definition.Label, spec, field.Values[0]);
+        return node with
         {
-            Confidence = Confidence.Verified,
-            Description = description,
-            Warning = warning,
+            Confidence = node.Spec.ReadOnly ? Confidence.Verified : Confidence.Inferred,
+            Description = node.Spec.ReadOnly ? description : description + " " + RiftScalarWrites.Warning +
+                (node.Spec is IntegerSpec ? " Numeric edits retain the stored width and conservative observed range, not a proven game cap." : ""),
+            Warning = node.Spec.ReadOnly ? warning : RiftScalarWrites.Warning,
         };
     }
 

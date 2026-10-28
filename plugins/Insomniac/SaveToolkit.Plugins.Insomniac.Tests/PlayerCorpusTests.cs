@@ -86,19 +86,19 @@ public sealed class PlayerCorpusTests
     }
 
     [Fact]
-    public void MeaningfulPlayerEditsAreRejectedAtomicallyWithUnchangedOutput()
+    public void MixedWritableAndReadOnlyEditsAreRejectedAtomicallyWithUnchangedOutput()
     {
         var file = Find("i29slot0-s-autosave", 0);
         using var document = new InsomniacPlugin().Open(file);
         _ = document.BuildView();
-        Assert.False(document.CanEdit);
+        Assert.True(document.CanEdit);
         var previous = document.GetValue("player/CareerBolts");
         var outcome = document.ApplyEdits([
             new("player/CareerBolts", FieldValue.Of(999999L)),
-            new("player/InfiniteHealthEnabled", FieldValue.Of(true)),
+            new("player/CareerExp", FieldValue.Of(1L)),
         ]);
         Assert.False(outcome.Succeeded);
-        Assert.Equal(2, outcome.Errors.Count);
+        Assert.Single(outcome.Errors);
         Assert.Empty(outcome.Changes);
         Assert.Equal(previous, document.GetValue("player/CareerBolts"));
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
@@ -111,11 +111,16 @@ public sealed class PlayerCorpusTests
         var player = Assert.IsType<TabsNode>(document.BuildView()).Tabs[0];
         var fields = player.Children.OfType<SectionNode>().SelectMany(s => s.Children).OfType<FieldNode>()
             .Concat(player.Children.OfType<FieldNode>()).ToDictionary(f => f.ValueId);
-        Assert.Equal(Confidence.Verified, fields["player/CareerBolts"].Confidence);
+        Assert.Equal(Confidence.Inferred, fields["player/CareerBolts"].Confidence);
         Assert.Equal(Confidence.Inferred, fields["player/AvailableBolts"].Confidence);
         Assert.Equal(Confidence.Inferred, fields["player/SpybotCount"].Confidence);
         Assert.NotNull(fields["player/CareerRaritanium"].Warning);
-        Assert.All(fields.Values, field => Assert.True(field.Spec.ReadOnly));
+        Assert.All(fields.Values.Where(field => !field.Spec.ReadOnly), field =>
+        {
+            Assert.Equal(Confidence.Inferred, field.Confidence);
+            Assert.Contains("game may reject", field.Warning);
+            Assert.Contains("Not validated on console", field.Description);
+        });
     }
 
     internal static ISaveFile Find(string name, int generation) => SampleSaves.Load("PPSA01474").AllDiskFiles.Single(

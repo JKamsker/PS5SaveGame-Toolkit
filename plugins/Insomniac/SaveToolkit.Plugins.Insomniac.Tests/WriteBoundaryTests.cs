@@ -6,7 +6,7 @@ using SaveToolkit.Testing.Diff;
 namespace SaveToolkit.Plugins.Insomniac.Tests;
 
 /// <summary>Private, in-memory research only. Parser acceptance cannot establish
-/// game integrity or PS5 acceptance. The plugin never exposes these mutations.</summary>
+/// game integrity or PS5 acceptance. Production scalar edits retain this warning.</summary>
 public sealed class WriteBoundaryTests
 {
     [Theory]
@@ -73,6 +73,6 @@ public sealed class WriteBoundaryTests
         using var document = new InsomniacPlugin().Open(candidate);
         Assert.False(document.CanEdit);
         Assert.Equal(patched, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.Equal(PluginMaturity.ReadOnly, new InsomniacPlugin().Info.Maturity);
+        Assert.Equal(PluginMaturity.Experimental, new InsomniacPlugin().Info.Maturity);
     }
 }

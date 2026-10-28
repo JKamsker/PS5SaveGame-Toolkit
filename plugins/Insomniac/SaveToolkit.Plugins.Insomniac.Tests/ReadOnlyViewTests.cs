@@ -88,7 +88,7 @@ public sealed class ReadOnlyViewTests
         Assert.True(fields.Length > 100);
         Assert.All(fields, f =>
         {
-            Assert.True(f.Spec.ReadOnly);
+            Assert.Equal(f.Value.Kind != FieldValueKind.Bool, f.Spec.ReadOnly);
             Assert.IsNotType<EnumSpec>(f.Spec);
             Assert.NotNull(f.Warning);
         });

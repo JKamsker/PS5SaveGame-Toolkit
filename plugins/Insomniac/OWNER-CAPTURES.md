@@ -1,7 +1,10 @@
-# Owner captures and write-acceptance gate (#20, round 2)
+# Owner captures and console validation (#20 / #31)
 
-All production writes remain disabled. These are evidence requests; only the owner
-can establish console acceptance.
+The write-enable round exposes career/spent bolts, seven gold-bolt switches and
+existing boolean preferences as Experimental. Not validated on console: unknown
+integrity means the game may reject the edited save. These captures now track
+confidence and acceptance under [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31),
+not permission to enable those edits. Only the owner can establish acceptance or Stable.
 
 ## Protocol for every experiment
 
@@ -79,31 +82,38 @@ Use F1/SaveDiff for complete byte/decoded changes with generation identities.
     over/reset for weapons, armour/bonuses, collectibles, quests/arena and counters
     to establish lifetime versus current-run semantics.
 
-## Phase 3 acceptance experiments before enabling any write
+## Acceptance experiments for the enabled writes
 
 16. **Baseline:** export unmodified through the toolkit; confirm matching bytes,
     restore with the complete sibling set, load, play, re-save, reimport and reload.
     Record console/build and recovery outcome.
-17. **Bolt candidate:** a private research harness must locate Checkpoint / section
-    D436A987 / CareerBolts through DAT1/DDL descriptors, then add exactly one within
+17. **Bolt edit:** use the plugin's Checkpoint / section D436A987 / CareerBolts
+    control to add exactly one within
     the stored integer width. Early/late autosaves use UInt16/UInt32 respectively.
     Keep SpentBolts and every unrelated byte unchanged; never resize or use an
     absolute offset. Retain complete byte/semantic diffs. Record load, wallet
     (+1 only if career-minus-spent holds), purchases, re-save/reimport and reload.
+    Separately capture one legal purchase and test SpentBolts by one within its
+    observed/type range, keeping CareerBolts fixed and a nonnegative balance.
+    Confirm the wallet and a subsequent purchase; do not combine the two tests.
 18. **Option candidate:** first capture a legal in-game RPG toggle. On a slot with
     at least six gold bolts and RPG unlocked, independently toggle 77F00BE8 /
     RPGEnabled in its existing one-byte bool slot. Keep collectible hashes/counts
     unchanged. Record menu/effect, load, re-save/reimport and second reload.
+    Repeat independently for each other unlocked exposed option: infinite health,
+    infinite ammo, golden weapons, mirror mode, home-run hitter and confetti
+    headshots. Do not infer an unlock from a stored enabled flag.
 19. **Preferences:** independently validate an unchanged export, one in-game setting
     pair and a reviewed single-field candidate with observed type/width. Gameplay
     acceptance does not establish preferences acceptance.
 
-Automated probes run **in memory only**. They establish single-atom parser acceptance
-for bolt/option patches, not complete integrity or PS5 acceptance. CareerExp has an
+Automated probes and production-write tests run **in memory only**. They establish
+single-atom parser acceptance, byte preservation and undo, not complete integrity
+or PS5 acceptance. CareerExp has an
 eight-byte LE mirror in BC60B495; changing only the campaign value still reparses.
 Do not offer XP writes until all dependencies are tested. Acceptance failures need
 complete before/candidate/re-saved diffs, not guessed checksum seeds.
 
-After independent acceptance experiments and integrity review, only specific proven
-paths may move to Experimental with edit/reopen tests. Other writes remain disabled.
-Only the owner may set Stable.
+The owner decision permits the bounded scalar edits with warnings before these
+experiments. Dependency/structure-unsafe edits remain disabled as documented in the
+README. Only the owner may set Stable after independent console acceptance.

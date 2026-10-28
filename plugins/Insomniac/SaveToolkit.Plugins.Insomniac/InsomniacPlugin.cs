@@ -6,11 +6,11 @@ namespace SaveToolkit.Plugins.Insomniac;
 
 public sealed class InsomniacPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.4.0")
+    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.5.0")
     {
-        Description = "Read-only loadout, preferences, world state and lossless DAT1/DDL exploration for Rift Apart saves.",
+        Description = "Experimental bolt, gold-bolt option and boolean preference edits, with read-only arsenal/world inspection. Not console-validated; the game may reject edited saves.",
         Games = [new GameTitle("PPSA01474", "Ratchet & Clank: Rift Apart")],
-        Maturity = PluginMaturity.ReadOnly,
+        Maturity = PluginMaturity.Experimental,
         References =
         [
             DdlSections.SchemaSource,
@@ -26,6 +26,7 @@ public sealed class InsomniacPlugin : IGamePlugin
             "https://github.com/VELD-Dev/riftripper",
             "https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474",
             "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs",
+            "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.CLI/Utility/RivetSaveCommand.cs",
             "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.DDL.RCRA/Types/GameCampaignSave.cs",
         ],
     };
@@ -60,7 +61,8 @@ public sealed class InsomniacPlugin : IGamePlugin
     {
         try
         {
-            return new InsomniacDocument(file.RelativePath, Dat1Container.Parse(file.ReadAllBytes()), file.FileName, references);
+            return new InsomniacDocument(file.RelativePath, Dat1Container.Parse(file.ReadAllBytes()), file.FileName, references,
+                string.Equals(file.Directory.TitleId, "PPSA01474", StringComparison.OrdinalIgnoreCase));
         }
         catch (SaveFormatException)
         {

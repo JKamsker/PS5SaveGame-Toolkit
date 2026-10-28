@@ -109,7 +109,7 @@ public sealed class RoundTwoCorpusTests
         var xp = Assert.IsType<FieldNode>(first.Rows[0].Cells["xp"]);
         Assert.False(document.ApplyEdits([new(xp.ValueId, FieldValue.Of(0L))]).Succeeded);
         Assert.Throws<KeyNotFoundException>(() => document.InvokeAction("max-upgrades", new Dictionary<string, FieldValue>()));
-        Assert.False(document.CanEdit);
+        Assert.True(document.CanEdit);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         Assert.NotEmpty(query.Query("world/objectives", new() { Text = "MIS_ZURK" }).Rows);
     }
@@ -128,7 +128,7 @@ public sealed class RoundTwoCorpusTests
     }
 
     [Fact]
-    public void CoreAcceptsEveryCollectionPageAndKnownWeaponStateWithoutEnablingWrites()
+    public void CoreAcceptsEveryCollectionPageAndKeepsUnprovenWeaponStateReadOnly()
     {
         var plugin = new InsomniacPlugin();
         var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA01474");
@@ -151,6 +151,6 @@ public sealed class RoundTwoCorpusTests
         var bears = Assert.Single(session.QueryCollection("collectibles/awards", new() { Text = "All_CraigBears" }).Rows);
         Assert.Equal(1, Assert.IsType<FieldNode>(bears.Cells["value"]).Value.AsInt64());
         Assert.False(Assert.IsType<FieldNode>(bears.Cells["prize"]).Value.AsBool());
-        Assert.False(document.CanEdit);
+        Assert.True(document.CanEdit);
     }
 }
