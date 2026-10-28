@@ -33,7 +33,8 @@ internal static class CatalogueInspection
             ?? throw new ArgumentException("The selected catalogue item is not in the pinned catalogue.", nameof(parameters));
         return new ActionOutcome
         {
-            Message = $"{record.Name} · {record.Key} · {record.Category ?? "Unknown category"}",
+            Message = $"{record.Name} · {record.Key} · {record.Category ?? "Unknown category"}\n" +
+                $"{record.Description}\n{record.AttributionText}\nInspection only; the save was not changed.",
             Warnings = ["Catalogue metadata is attributed reference material; it does not prove PS5 ownership, availability or gameplay effects."],
         };
     }
