@@ -1,0 +1,122 @@
+using SaveToolkit.Core.References;
+using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
+
+namespace SaveToolkit.Plugins.Insomniac.Tests;
+
+public sealed class ReadOnlyViewTests
+{
+    [Fact]
+    public void EmbeddedDatasetsHaveExactKeysAndCompleteAttribution()
+    {
+        var plugin = new InsomniacPlugin();
+        var store = new ReferencePackStore([plugin]);
+        Assert.Empty(store.LoadErrors);
+        var context = store.Pin(plugin, "PPSA01474");
+        var weapons = context.Catalog("rift-weapons")!;
+        Assert.Equal(3, weapons.Count);
+        Assert.Equal(86, context.Catalog("rift-schema")!.Count);
+        Assert.Equal(5, context.Catalog("rift-item-types")!.Count);
+        foreach (var record in context.Catalog("rift-item-types")!.Search(new()).Items)
+            Assert.Equal(uint.Parse(record.Key, System.Globalization.NumberStyles.HexNumber,
+                System.Globalization.CultureInfo.InvariantCulture), DdlReader.NameHash(System.Text.Encoding.UTF8.GetBytes(record.Name)));
+        foreach (var record in weapons.Search(new()).Items)
+        {
+            Assert.Equal("CC-BY-SA-3.0", record.Dataset.Attribution.License);
+            Assert.Null(record.AssetId);
+            Assert.Null(record.Limit);
+            Assert.Contains("inferred", record.Description, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(record.Source!, plugin.Info.References);
+        }
+        Assert.Null(weapons.Find("configs\\equipment\\wpn_warprifle_item.config"));
+        Assert.Null(store.Pin(plugin, "PPSA00000").Catalog("rift-weapons"));
+    }
+
+    [Fact]
+    public void QuickSelectFieldsUseReadOnlyPickersAndPreserveUnknownPaths()
+    {
+        var plugin = new InsomniacPlugin();
+        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA01474");
+        var file = PlayerCorpusTests.Find("i29slot0-s-autosave", 0);
+        using var document = plugin.Open(file, context);
+        var fields = Tab(document, "Loadout").Children.OfType<FieldNode>().ToArray();
+        Assert.Equal(4, fields.Length);
+        Assert.All(fields, f =>
+        {
+            var spec = Assert.IsType<ReferenceSpec>(f.Spec);
+            Assert.Equal("rift-weapons", spec.CatalogId);
+            Assert.True(spec.AllowCustom);
+            Assert.True(spec.ReadOnly);
+            Assert.Equal(f.Value, document.GetValue(f.ValueId));
+        });
+        var named = fields.Where(f => f.Confidence == Confidence.Inferred).ToArray();
+        Assert.Equal(3, named.Length);
+        Assert.All(named, f => Assert.Contains("CC-BY-SA-3.0", f.Description));
+        var unknown = Assert.Single(fields, f => f.Confidence == Confidence.Unknown);
+        Assert.EndsWith("wpn_warprifle_item.config", unknown.Value.AsString());
+        Assert.False(document.ApplyEdits([new(unknown.ValueId, named[0].Value)]).Succeeded);
+        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+
+        using var noPacks = plugin.Open(file);
+        Assert.All(Tab(noPacks, "Loadout").Children.OfType<FieldNode>(), f => Assert.Equal(Confidence.Unknown, f.Confidence));
+    }
+
+    [Fact]
+    public void PreferencesAreGroupedWithoutInventingNumericMenuLabels()
+    {
+        var file = SampleSaves.Load("PPSA01474").AllDiskFiles.First(f => f.FileName == "i29-userprefs.save");
+        using var document = new InsomniacPlugin().Open(file);
+        var preferences = Tab(document, "Preferences");
+        Assert.Contains(preferences.Children.OfType<SectionNode>(), s => s.Title == "Audio");
+        var fields = preferences.Children.OfType<SectionNode>().SelectMany(s => s.Children).OfType<FieldNode>().ToArray();
+        Assert.True(fields.Length > 100);
+        Assert.All(fields, f =>
+        {
+            Assert.True(f.Spec.ReadOnly);
+            Assert.IsNotType<EnumSpec>(f.Spec);
+            Assert.NotNull(f.Warning);
+        });
+        Assert.Contains(fields, f => f.ValueId == "preferences/MasterVolume");
+    }
+
+    [Fact]
+    public void SystemAndExplorerDetailsExpandWithVisibleContentIncludingEmptyCollections()
+    {
+        using var document = new InsomniacPlugin().Open(PlayerCorpusTests.Find("i29slot0-s-autosave", 1));
+        var tabs = Assert.IsType<TabsNode>(document.BuildView());
+        var systems = Assert.Single(tabs.Tabs, t => t.Title == "Systems");
+        Assert.Equal(12, systems.Children.Count);
+        foreach (var root in systems.Children.Cast<SectionNode>())
+            Assert.NotEmpty(document.ExpandNode(root.LazyId!));
+        var sectionRows = Assert.Single(Assert.Single(tabs.Tabs, t => t.Title == "Sections").Children.OfType<TableNode>()).Rows;
+        foreach (var row in sectionRows)
+        {
+            var explorer = Assert.IsType<SectionNode>(row.Cells["detail"]);
+            Assert.NotEmpty(document.ExpandNode(explorer.LazyId!));
+        }
+        _ = document.ExpandNode("system/77f00be8");
+        var empty = document.ExpandNode("ddl/77f00be8/CollectedBoltHashes");
+        Assert.Contains(empty.OfType<TextNode>(), text => text.Text.Contains("0 entries", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void WorldTablesShowStoredKeysAndHonestConfidence()
+    {
+        using var document = new InsomniacPlugin().Open(PlayerCorpusTests.Find("i29slot0-s-autosave", 0));
+        var tables = Tab(document, "World").Children.OfType<TableNode>().ToArray();
+        var maps = Assert.Single(tables, t => t.Title == "Fog-of-war areas");
+        Assert.Equal(15, maps.Rows.Count);
+        Assert.All(maps.Rows, row =>
+        {
+            Assert.Equal(Confidence.Verified, Assert.IsType<FieldNode>(row.Cells["columns"]).Confidence);
+            Assert.Equal(Confidence.Inferred, Assert.IsType<FieldNode>(row.Cells["bits"]).Confidence);
+        });
+        Assert.NotEmpty(Assert.Single(tables, t => t.Title == "Objective graphs").Rows);
+        Assert.Equal(47, Assert.Single(tables, t => t.Title == "Award records").Rows.Count);
+    }
+
+    private static Tab Tab(ISaveDocument document, string title) =>
+        Assert.Single(Assert.IsType<TabsNode>(document.BuildView()).Tabs, t => t.Title == title);
+}

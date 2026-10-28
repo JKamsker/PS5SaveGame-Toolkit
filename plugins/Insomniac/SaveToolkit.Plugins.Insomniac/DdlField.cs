@@ -5,6 +5,8 @@ namespace SaveToolkit.Plugins.Insomniac;
 internal sealed record DdlField(string Name, DdlValueKind Kind, int Count, int Offset,
     IReadOnlyList<FieldValue> Values)
 {
+    internal IReadOnlyList<DdlObject> Objects { get; init; } = [];
+
     internal FieldSpec Spec => Kind switch
     {
         DdlValueKind.UInt8 => IntegerSpec.UInt8,
@@ -21,3 +23,5 @@ internal sealed record DdlField(string Name, DdlValueKind Kind, int Count, int O
         _ => new TextSpec(),
     };
 }
+
+internal sealed record DdlObject(int Offset, int Size, IReadOnlyDictionary<string, DdlField> Fields);

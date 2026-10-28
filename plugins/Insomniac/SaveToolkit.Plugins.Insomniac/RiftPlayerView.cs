@@ -18,13 +18,13 @@ internal sealed class RiftPlayerView
     private readonly Dictionary<uint, IReadOnlyDictionary<string, DdlField>> _sections = [];
     private readonly IReadOnlyList<PlayerFieldDefinition> _definitions;
 
-    internal RiftPlayerView(Dat1Container container)
+    internal RiftPlayerView(Dat1Container container, DdlSections? sections = null)
     {
         using var stream = typeof(RiftPlayerView).Assembly.GetManifestResourceStream(DefinitionsResource)!;
         _definitions = JsonSerializer.Deserialize<PlayerFieldDefinition[]>(stream)!;
-        foreach (var section in container.Sections.Where(s => s.Tag is CampaignTag or GoldBoltTag or SpeedrunTag))
+        foreach (var section in (sections ?? new DdlSections(container)).Roots.Where(s => s.Key is CampaignTag or GoldBoltTag or SpeedrunTag))
         {
-            if (!_sections.TryAdd(section.Tag, new DdlReader(container, section).Read()))
+            if (!_sections.TryAdd(section.Key, section.Value))
                 throw new SaveFormatException("Duplicate Rift Apart player section.");
         }
         ValidateKnownFields();
@@ -64,31 +64,8 @@ internal sealed class RiftPlayerView
 
         result.Add(new SectionNode("Collectibles", Collectibles(bind)));
         result.Add(LevelTable());
-        result.Add(new TextNode("Health/armor upgrades, weapon ammunition and individual weapon levels remain unidentified. The INVT payload is still opaque. Career weapon XP is an aggregate, and CurrentLevel is a location code.")
+        result.Add(new TextNode("Inventory shows inferred per-record XP/ammo slots; ownership, weapon names, health and level conversions remain unproven. Career weapon XP is an aggregate, and CurrentLevel is a location code.")
             { Tone = Tone.Info });
-        return result;
-    }
-
-    internal IReadOnlyList<ViewNode> RawFields(uint tag, Func<string, string, FieldSpec, FieldValue, FieldNode> bind)
-    {
-        if (!_sections.TryGetValue(tag, out var fields)) return [];
-        var result = new List<ViewNode>();
-        foreach (var field in fields.Values)
-        {
-            var children = field.Values.Select((value, index) => (ViewNode)(bind(
-                $"ddl/{tag:x8}/{field.Name}/{index}", field.Count == 1 ? field.Name : $"{field.Name}[{index}]",
-                field.Spec, value) with
-                {
-                    Confidence = Confidence.Unknown,
-                    Description = $"Stored name hash validated; type {field.Kind}; field starts at 0x{field.Offset:X}. Meaning is not asserted by this raw view.",
-                })).ToArray();
-            result.Add(new SectionNode(field.Name, children)
-            {
-                Badge = $"{field.Kind} · {field.Count}",
-                Description = field.Kind == DdlValueKind.Object ? "Nested objects are retained opaque; inspect the section hex." : null,
-                Collapsed = field.Count != 1,
-            });
-        }
         return result;
     }
 
@@ -97,7 +74,7 @@ internal sealed class RiftPlayerView
         var tag = definition.Group == GoldBoltOptionsGroup ? GoldBoltTag : CampaignTag;
         if (!_sections.TryGetValue(tag, out var fields)) return null;
         var field = fields[definition.Name];
-        var description = $"Stored field {field.Name}; name hash matches; serialized type {field.Kind}.";
+        var description = $"Stored field {field.Name}; name hash matches; serialized type {field.Kind}. {DdlSections.Attribution}";
         var warning = definition.Name switch
         {
             "CareerRaritanium" or "CareerRaritaniumSpend" => "These are separate stored counters. Spending exceeds the career value in late samples; an available balance is not established.",
@@ -154,7 +131,7 @@ internal sealed class RiftPlayerView
         return new TableNode([new("index", "Location index"), .. names.Select(name => new TableColumn(name, name))], rows)
         {
             Title = "Per-location stored counters",
-            Description = "Names and array indices are verified; planet names are unknown. Arrays need not equal lifetime collectible totals.",
+            Description = "Names and array indices are verified; planet names are unknown. Arrays need not equal lifetime collectible totals. " + DdlSections.Attribution,
         };
     }
 

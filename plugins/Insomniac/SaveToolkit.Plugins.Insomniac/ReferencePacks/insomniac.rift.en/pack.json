@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "id": "insomniac.rift.en",
+  "version": "1.0.0",
+  "title": "Rift Apart read-only reference data",
+  "plugins": [
+    "insomniac"
+  ],
+  "titleIds": [
+    "PPSA01474"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "rift-schema",
+      "kind": "records",
+      "title": "Rift Apart schema field names",
+      "files": [
+        {
+          "path": "schema.json",
+          "sha256": "fe5c29d300330a5c85f3294c198341796c78236dbdc293b466c92881d06bdbad"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+        "author": "Neptuwunium / Rivet",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected field names and containing type names only; omitted runtime offsets, defaults and generated code."
+      }
+    },
+    {
+      "id": "rift-weapons",
+      "kind": "records",
+      "title": "Rift Apart weapon label candidates",
+      "files": [
+        {
+          "path": "weapons.json",
+          "sha256": "2d47ce6be409bc3484a9adf66e4423c394d89ec09133b133b94490bdef9c20cb"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript",
+        "author": "Ratchet & Clank Wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected three factual weapon labels/categories; authored short descriptions and inferred path joins from PS5 storage. No game prose, limits or artwork."
+      }
+    },
+    {
+      "id": "rift-item-types",
+      "kind": "records",
+      "title": "Rift Apart serialized item types",
+      "files": [
+        {
+          "path": "item-types.json",
+          "sha256": "d87690c65856f00ccb23b0e5226c270a0b56ad0eeae566463b025ce5aa80b578"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+        "author": "Neptuwunium / Rivet",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected five serialized item type IDs and names; PS5 fixed-mask sizes are independently observed. No generated code or runtime offsets."
+      }
+    }
+  ]
+}

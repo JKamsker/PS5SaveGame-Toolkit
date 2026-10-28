@@ -8,6 +8,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\PlayerFields.json" />
+    <EmbeddedResource Include="ReferencePacks\**\*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" />
     <InternalsVisibleTo Include="SaveToolkit.Plugins.Insomniac.Tests" />
   </ItemGroup>
 </Project>

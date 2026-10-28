@@ -1,0 +1,864 @@
+{
+  "records": [
+    {
+      "id": "Awards",
+      "name": "Awards",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "AwardSystemSaveData"
+      }
+    },
+    {
+      "id": "BaseSave",
+      "name": "BaseSave",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GamePrefSaveCombined"
+      }
+    },
+    {
+      "id": "BoltMultiplier",
+      "name": "BoltMultiplier",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "BoltMultiplierKillsLeft",
+      "name": "BoltMultiplierKillsLeft",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "BoltReplacementType",
+      "name": "BoltReplacementType",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "BotRight",
+      "name": "BotRight",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "FogOfWarSavedMapArea"
+      }
+    },
+    {
+      "id": "CampaignSaveID",
+      "name": "CampaignSaveID",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CareerBolts",
+      "name": "CareerBolts",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CareerExp",
+      "name": "CareerExp",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CareerRaritanium",
+      "name": "CareerRaritanium",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CareerRaritaniumSpend",
+      "name": "CareerRaritaniumSpend",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CareerWeaponExp",
+      "name": "CareerWeaponExp",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CellDimensions",
+      "name": "CellDimensions",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "FogOfWarSavedMapArea"
+      }
+    },
+    {
+      "id": "CharacterId",
+      "name": "CharacterId",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CollectedBoltHashes",
+      "name": "CollectedBoltHashes",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "ColumnCount",
+      "name": "ColumnCount",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "FogOfWarSavedMapArea"
+      }
+    },
+    {
+      "id": "CompletionPercent",
+      "name": "CompletionPercent",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "ConfettiHeadshotEnabled",
+      "name": "ConfettiHeadshotEnabled",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "ControlRemap",
+      "name": "ControlRemap",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CurrentCheckpoint",
+      "name": "CurrentCheckpoint",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CurrentCheckpointId",
+      "name": "CurrentCheckpointId",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CurrentLevel",
+      "name": "CurrentLevel",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CurrentLightingMode",
+      "name": "CurrentLightingMode",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "CurrentLightingModeValid",
+      "name": "CurrentLightingModeValid",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "Difficulty",
+      "name": "Difficulty",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "DimensionCheckpointHash",
+      "name": "DimensionCheckpointHash",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "DimensionLoadSystemSave"
+      }
+    },
+    {
+      "id": "DimensionSaves",
+      "name": "DimensionSaves",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "DimensionLoadSystemSave"
+      }
+    },
+    {
+      "id": "Entitlement5ArmorAwarded",
+      "name": "Entitlement5ArmorAwarded",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "EntitlementCarbonoxAwarded",
+      "name": "EntitlementCarbonoxAwarded",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "EntitlementPSNLinkedAwarded",
+      "name": "EntitlementPSNLinkedAwarded",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "EntitlementPSNRaritaniumToGive",
+      "name": "EntitlementPSNRaritaniumToGive",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "EntitlementPixelizerAwarded",
+      "name": "EntitlementPixelizerAwarded",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "EntitlementRaritaniumAwarded",
+      "name": "EntitlementRaritaniumAwarded",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "EntitlementRaritaniumToGive",
+      "name": "EntitlementRaritaniumToGive",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "FirstOmegaWeaponPurchased",
+      "name": "FirstOmegaWeaponPurchased",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "GameFlags",
+      "name": "GameFlags",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "GameStage",
+      "name": "GameStage",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "GoldWeaponsEnabled",
+      "name": "GoldWeaponsEnabled",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "GraphDataTable",
+      "name": "GraphDataTable",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "ObjectiveSystemSaveBlock"
+      }
+    },
+    {
+      "id": "HammerModelSwapIndex",
+      "name": "HammerModelSwapIndex",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "HammerSkin",
+      "name": "HammerSkin",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "HasRYNODroppedOtherIP",
+      "name": "HasRYNODroppedOtherIP",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "HeadSizeIndex",
+      "name": "HeadSizeIndex",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "HomeRunHitterEnabled",
+      "name": "HomeRunHitterEnabled",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "InfiniteAmmoEnabled",
+      "name": "InfiniteAmmoEnabled",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "InfiniteHealthEnabled",
+      "name": "InfiniteHealthEnabled",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "IsChallengeMode",
+      "name": "IsChallengeMode",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "IsChallengeModeAvailable",
+      "name": "IsChallengeModeAvailable",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "LastSaveTime",
+      "name": "LastSaveTime",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "LevelBolts",
+      "name": "LevelBolts",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "LevelExp",
+      "name": "LevelExp",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "LevelGoldBolts",
+      "name": "LevelGoldBolts",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "LevelRYNOPlans",
+      "name": "LevelRYNOPlans",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "LevelRaritanium",
+      "name": "LevelRaritanium",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "LevelVanityPickups",
+      "name": "LevelVanityPickups",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "LevelWeaponExp",
+      "name": "LevelWeaponExp",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "MirrorModeEnabled",
+      "name": "MirrorModeEnabled",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "NeedsOnlyGadgetsFromLoadout",
+      "name": "NeedsOnlyGadgetsFromLoadout",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "NewItemsViewed",
+      "name": "NewItemsViewed",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "NewMissionsViewed",
+      "name": "NewMissionsViewed",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "PCSave",
+      "name": "PCSave",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GamePrefSaveCombined"
+      }
+    },
+    {
+      "id": "PlaytestHash",
+      "name": "PlaytestHash",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "PlaythroughSegmentId",
+      "name": "PlaythroughSegmentId",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "Playtime",
+      "name": "Playtime",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "QuickSelectWeaponDown",
+      "name": "QuickSelectWeaponDown",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "QuickSelectWeaponLeft",
+      "name": "QuickSelectWeaponLeft",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "QuickSelectWeaponRight",
+      "name": "QuickSelectWeaponRight",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "QuickSelectWeaponUp",
+      "name": "QuickSelectWeaponUp",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "RPGEnabled",
+      "name": "RPGEnabled",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "RYNOPlansCollected",
+      "name": "RYNOPlansCollected",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "RenderModeIndex",
+      "name": "RenderModeIndex",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "RenderModeNameHash",
+      "name": "RenderModeNameHash",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "RevealedCellsBitSet",
+      "name": "RevealedCellsBitSet",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "FogOfWarSavedMapArea"
+      }
+    },
+    {
+      "id": "RowCount",
+      "name": "RowCount",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "FogOfWarSavedMapArea"
+      }
+    },
+    {
+      "id": "RuinTokensCollected",
+      "name": "RuinTokensCollected",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "ShipSkin",
+      "name": "ShipSkin",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "SpentBolts",
+      "name": "SpentBolts",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "SystemData",
+      "name": "SystemData",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "ObjectiveSystemSaveBlock"
+      }
+    },
+    {
+      "id": "TopLeft",
+      "name": "TopLeft",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "FogOfWarSavedMapArea"
+      }
+    },
+    {
+      "id": "TutorialRaritaniumAwarded",
+      "name": "TutorialRaritaniumAwarded",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "UITutorialsComplete",
+      "name": "UITutorialsComplete",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "VanityPickupsCollected",
+      "name": "VanityPickupsCollected",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "VendorWeaponNowInStockShown",
+      "name": "VendorWeaponNowInStockShown",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    },
+    {
+      "id": "WrenchModelSwapIndex",
+      "name": "WrenchModelSwapIndex",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "WrenchSkin",
+      "name": "WrenchSkin",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GoldBoltSaveData"
+      }
+    },
+    {
+      "id": "ZerpStonesCollected",
+      "name": "ZerpStonesCollected",
+      "category": "schema field",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema field name only; PS5 serialized widths and semantic mappings require sample evidence.",
+      "attributes": {
+        "types": "GameCampaignSave"
+      }
+    }
+  ]
+}

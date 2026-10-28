@@ -1,0 +1,25 @@
+{
+  "records": [
+    {
+      "id": "configs\\equipment\\wpn_burstpistol_item.config",
+      "name": "Burst Pistol",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Burst_Pistol",
+      "description": "Blaster. Display-name join inferred from the stored path; shortcut assignment does not establish ownership."
+    },
+    {
+      "id": "configs\\equipment\\wpn_mrfunguy_item.config",
+      "name": "Mr. Fungi",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript",
+      "description": "Deployable ally. Display-name join inferred from the stored path; shortcut assignment does not establish ownership."
+    },
+    {
+      "id": "configs\\equipment\\wpn_warmonger_item.config",
+      "name": "Warmonger",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Warmonger",
+      "description": "Rocket launcher. Display-name join inferred from the stored path; shortcut assignment does not establish ownership."
+    }
+  ]
+}

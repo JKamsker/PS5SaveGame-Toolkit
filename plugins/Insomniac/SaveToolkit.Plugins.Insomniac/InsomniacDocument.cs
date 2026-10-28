@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -13,14 +14,26 @@ internal sealed class InsomniacDocument : BoundSaveDocument
     private readonly string _fileName;
     private readonly Dat1Container _container;
     private readonly RiftPlayerView _player;
+    private readonly DdlSections _sections;
+    private readonly DdlTreeView _tree;
+    private readonly RiftReadOnlyViews _readOnly;
+    private readonly RiftWorldView _world;
+    private readonly InventoryView _inventory;
     private readonly Dictionary<string, Func<IReadOnlyList<ViewNode>>> _lazy = new(StringComparer.Ordinal);
 
-    internal InsomniacDocument(string path, Dat1Container container, string fileName)
+    internal InsomniacDocument(string path, Dat1Container container, string fileName, IReferenceContext references)
     {
         _path = path;
         _fileName = fileName;
         _container = container;
-        _player = new RiftPlayerView(container);
+        _sections = new DdlSections(container);
+        _player = new RiftPlayerView(container, _sections);
+        var schema = references.Catalog("rift-schema");
+        _tree = new DdlTreeView(BindReadOnly, _lazy, schema);
+        _readOnly = new RiftReadOnlyViews(_sections, references.Catalog("rift-weapons"), schema, BindReadOnly);
+        _world = new RiftWorldView(_sections, BindReadOnly);
+        _inventory = new InventoryView(InventoryReader.Read(container),
+            references.Catalog("rift-item-types"), BindReadOnly, _lazy);
     }
 
     public override string Title => _fileName.Equals("i29-userprefs.save", StringComparison.OrdinalIgnoreCase)
@@ -34,6 +47,26 @@ internal sealed class InsomniacDocument : BoundSaveDocument
         _lazy.Clear();
         var tabs = new List<Tab>();
         if (_player.HasCampaign) tabs.Add(new Tab("Player", _player.Build(BindReadOnly)));
+        if (_player.HasCampaign)
+        {
+            tabs.Add(new Tab("Loadout", _readOnly.Loadout()));
+            tabs.Add(new Tab("Inventory", _inventory.Build()));
+            tabs.Add(new Tab("World", _world.Build()));
+            tabs.Add(new Tab("Campaign details", _readOnly.CampaignDetails()));
+        }
+        if (_sections.Roots.ContainsKey(DdlSections.PreferencesTag))
+            tabs.Add(new Tab("Preferences", _readOnly.Preferences()));
+        tabs.Add(new Tab("Systems", _sections.Roots.Select(root =>
+        {
+            var id = $"system/{root.Key:x8}";
+            _lazy[id] = () => _tree.Fields($"ddl/{root.Key:x8}", root.Value);
+            return (ViewNode)new SectionNode(_sections.Label(root.Key), [])
+            {
+                LazyId = id,
+                Badge = $"{root.Value.Count} root fields",
+                Description = DdlSections.Attribution,
+            };
+        }).ToArray()));
         tabs.AddRange([
             new Tab("Overview", [
                 new StatsNode([
@@ -80,7 +113,9 @@ internal sealed class InsomniacDocument : BoundSaveDocument
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
-        _ = new RiftPlayerView(Dat1Container.Parse(_container.Bytes));
+        var reparsed = Dat1Container.Parse(_container.Bytes);
+        _ = new RiftPlayerView(reparsed);
+        _ = InventoryReader.Read(reparsed);
         return [new FileOutput(_path, _container.Bytes.ToArray())];
     }
 
@@ -122,7 +157,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument
             })).ToArray();
 
         return [
-            new TextNode("Campaign, gold bolt and speedrun sections have validated named DDL roots. Other payloads remain opaque; every section retains its original hex explorer.") { Tone = Tone.Info },
+            new TextNode("Validated DDL roots include nested world state and preferences. Expand a row's details to explore its fields and bytes. Opaque payloads retain their original hex explorer.") { Tone = Tone.Info },
             new TableNode(
                 [new("index", "#"), new("tag", "Tag"), new("offset", "Offset"), new("size", "Bytes"), new("detail", "Explorer")],
                 rows)
@@ -149,7 +184,8 @@ internal sealed class InsomniacDocument : BoundSaveDocument
             new TextNode($"Tag 0x{section.Tag:X8}; offset 0x{section.Offset:X}; length {section.Size} bytes.") { Monospace = true },
             new HexNode($"section/{section.Index}/bytes", bytes.Length) { Title = "Section bytes" },
         };
-        var fields = _player.RawFields(section.Tag, BindReadOnly);
+        var fields = _sections.Roots.TryGetValue(section.Tag, out var root)
+            ? _tree.Fields($"ddl/{section.Tag:x8}", root) : [];
         if (fields.Count > 0) result.Add(new SectionNode("Named DDL root fields", fields));
         if (strings.Length > 0)
         {

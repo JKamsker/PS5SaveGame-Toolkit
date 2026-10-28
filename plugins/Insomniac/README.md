@@ -1,199 +1,167 @@
 # Ratchet & Clank: Rift Apart (`insomniac`)
 
-Version **0.2.0**, **ReadOnly**, for decrypted **PPSA01474** saves. Round two adds named
-gameplay fields to the lossless DAT1 explorer. Writing remains disabled: no public PS5
-patch payload was found to establish plain writes, and the checksum investigation has
-not established complete integrity coverage. No edited save has been tested in-game.
+Version **0.3.0**, **ReadOnly**, for decrypted **PPSA01474** saves. Phase 1 of
+[#20](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/20) is implemented;
+Phase 2 has structural inventory/world inspection, with semantic joins still open.
+The engine family name does not claim Spider-Man, other titles or other regions.
 
-## Files and views
+## Views
 
-* `i29-s.save`: gameplay. A **Player** tab shows career/spent bolts, calculated available
-  bolts, career XP, aggregate weapon XP, career raritanium and spending, play time,
-  difficulty code, campaign/challenge flags, gold bolt count, RYNO-plan mask and inferred
-  spybot count, seven gold-bolt options, and per-location counters.
-* `i29-userprefs.save`: preferences; retained as the original read-only DAT1 explorer.
-* Overview, section descriptors, lazy section hex/ASCII explorers and paged whole-file
-  hex remain available. Campaign, gold bolt and speedrun sections additionally expose
-  bounded, named root DDL fields. Nested objects remain opaque.
-* The corpus has 36 primary gameplay records and two primary preference records, plus
-  38 byte-identical backup twins. Repeated zip paths are distinct generations, not
-  replacements. All 76 records retain byte-identical no-op output.
+- **Player:** career/spent counters, inferred available bolts, play time, challenge
+  flags, gold-bolt options and per-location counters. Career weapon XP is aggregate.
+- **Loadout:** four exact quick-select paths using F4 reference fields. An attributed
+  F2 catalog supplies three inferred English labels: Burst Pistol, Mr. Fungi and
+  Warmonger. Unknown paths, including `warprifle`, remain raw. A shortcut does not
+  prove ownership. Read-only reference controls intentionally disable replacement.
+- **Inventory:** 27 sequentially bounded TVNI containers per measured gameplay save,
+  lazy record tables, five schema type joins, GUID/config byte-token candidates,
+  candidate counts and candidate per-weapon XP/checkpoint-ammo/loaded-ammo state.
+  Container tags repeat; no actor, ownership or equipped-state mapping is asserted.
+- **World:** stored objective graph keys, award codenames/progress, gold-bolt hashes
+  and fog-area keys with dimensions, bounds and set-bit counts. No planet/mission
+  names, collectible-location joins, map transform or trophy unlocks are invented.
+- **Campaign details:** character/checkpoint/location codes, multiplier and additional
+  flags/counters with storage-only confidence and interpretation warnings.
+- **Preferences:** more than 100 scalar fields grouped into audio, controls,
+  accessibility, language/subtitles and display/other settings. Numeric menu codes
+  remain numeric; no PC enum ordinals or game-safe limits are assumed.
+- **Systems:** recursive, bounded, lazy DDL trees for twelve gameplay roots and the
+  preference root. Maps use stored field identities; large arrays expand in pages
+  of 100 values, and empty collections explicitly show zero entries.
+- **Overview / Sections / Raw bytes:** DAT1 descriptors, paged hex and bounded ASCII
+  runs. F3 renders section cells as visible row-detail controls. Nested objects now
+  expand into content instead of empty plugin-generated sections.
 
-The plugin depends only on the SDK and performs no filesystem/network I/O. Research
-scripts are separate, explicitly invoked offline tools; they are not loaded by the app.
+The plugin depends only on the SDK and performs no filesystem/network I/O. It reads
+pinned `IReferenceContext` catalogs and works without packs by showing raw IDs.
+Only embedded text data is distributed: no game icons, textures or map art.
 
-## DAT1 and DDL layout
+## Format and confidence
 
-The DAT1 envelope is unchanged from round one:
+The DAT1 envelope uses LE `0x44415431`, header word 8, exact file size and bounded,
+non-overlapping section descriptors. Original descriptor order, string metadata,
+unknown sections, padding and auxiliary records are preserved verbatim.
 
-| Offset | Encoding | Meaning |
-| ---: | --- | --- |
-| `0x00` | u32 LE | `0x44415431` (`1TAD`) |
-| `0x04` | u32 LE | Header word `8`; semantic name unknown |
-| `0x08` | u32 LE | Total file size, equal to EOF |
-| `0x0C` | u16 LE | Descriptor count: 19 gameplay / 1 preferences in this corpus |
-| `0x0E` | u16 LE | Auxiliary-record count; zero in samples |
-| `0x10` | repeated u32 triples | Section tag, absolute file offset, byte size |
-| after descriptors | auxiliary records, strings, padding | Preserved verbatim |
+DDL objects use zero / `0x03150044` / field count / body size headers, named fields
+with seeded CRC32 identifiers, stored numeric widths and UTF-8 strings. Name CRC
+uses reflected `0xEDB88320`, seed `0xEDB88320`, no final inversion. It is a name
+identifier, not a save-body checksum. Names, strings, types, bounds and finite DDL
+numbers are checked. Segment and objective roots preserve their +4/+8 prefixes.
+Nested value boundaries align to four bytes in the file; individual scalars remain
+packed. Strings retain their original metadata and relative payload padding.
 
-Framing validation rejects size/count overflow, invalid magic/version, truncated tables,
-out-of-range/overlapping sections. Descriptor order and all original bytes are retained.
+Reader limits: depth 32, 32,768 objects, 65,536 fields, 524,288 values and four MiB
+of decoded text per section; 1,024 fields per object and 65,536 bytes per string.
+Unknown bounded inventory payloads remain opaque. No-op serialization reparses the
+DAT1 envelope, supported DDL and inventory framing, then returns an isolated copy.
+See [EVIDENCE.md](EVIDENCE.md) for the measured layouts and F1 comparisons.
 
-Rivet's save reader identifies the campaign section as `Checkpoint`; the engine name CRC
-of that string is **`0xD436A987`**. Gold-bolt data is **`0x77F00BE8`**, and the speedrun
-timer is **`0xA787E610`**. The runtime parses these three roots only. See the pinned
-[save reader](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs)
-for section identification and the still-unresolved `INVT` block.
-
-Each DDL object starts with four LE u32 words: zero, `0x03150044`, field count, body
-size. Its body starts with `(name hash, metadata)` pairs, then absolute name-string
-offsets, then consecutive field values. Metadata's high byte selects the stored type;
-bits 4–23 encode the count and bits 0–3 the array kind. Names must point into the DAT1
-string region and match the engine CRC: reflected polynomial **`0xEDB88320`**, seed
-**`0xEDB88320`**, no final inversion. This is a **name identifier**, not a save-body
-checksum. These structures are documented by Rivet's
-[field header](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.DDL/Models/DDLFieldHeader.cs)
-and [DAT1 format notes](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/format/dat1.txt).
-
-Sample-confirmed details matter more than the PC class's declared widths:
-
-* Integers narrow to u8/u16/u32/u64 as needed, and fields reorder between saves.
-  Career raritanium is u8 in early saves and float32 in late saves. `Playtime` is float32
-  here although the published PC schema declares double. There are no fixed absolute
-  gameplay offsets.
-* Strings contain u32 byte length, two opaque hash words (u32/u64), UTF-8 text and a NUL.
-  Their text-plus-NUL storage rounds up to four bytes **relative to the string**, even
-  when its header is unaligned. For example the late autosave's `Version` begins at
-  `0xB1BE` and the next field begins at `0xB1D2`, not `0xB1D0`.
-* Empty `CollectedBoltHashes` is type 19, count zero, one stored zero byte. It means
-  **zero** gold bolts, not a one-element null array.
-* Values and child-object bounds, UTF-8/NULs, booleans, finite numbers, duplicate field
-  names and root padding are checked. Root views are bounded to 1,024 fields and 4,096
-  total values. Nested object contents and opaque sections are not semantically validated.
-
-No extra compression or encryption is needed to read these decrypted containers. Most
-payloads are plaintext DDL or custom binary structures; other sections remain opaque,
-so this does not establish that every section is uncompressed or checksum-free.
-
-## Meaning and confidence
-
-**Verified** means the stored name/hash matches and is corroborated by the published
-[campaign schema](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.DDL.RCRA/Types/GameCampaignSave.cs)
-or [gold-bolt schema](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.DDL.RCRA/Types/GoldBoltSaveData.cs).
-It does not imply an in-game write test.
-
-| Fields | Status / limitations |
+| Display | Confidence and limitation |
 | --- | --- |
-| `CareerBolts`, `SpentBolts`, career XP / weapon XP | Stored counters verified; weapon XP is aggregate |
-| `CareerRaritanium`, `CareerRaritaniumSpend` | Stored counters verified; available raritanium unknown. Late spending 584 exceeds career value 531.199646; both are shown with warnings |
-| `Playtime` | Stored name/value verified; seconds inferred from scale and progression |
-| `Difficulty` | Stored code verified; enum labels unknown (samples contain 0 and 1) |
-| `CurrentLevel` | Location code, **not player level**; planet-name mapping unknown |
-| Challenge flags and seven gold-bolt option booleans | Stored names/types verified; not editable |
-| Gold bolts | Verified entry count of `CollectedBoltHashes`: 0 early, 7 late; matches the sum of per-location gold counters in every primary record |
-| `RYNOPlansCollected` | Verified stored bit mask, not a count: e.g. 553 = `0x229` |
-| Available bolts | **Inferred**: career minus spent; no in-game display comparison |
-| Spybot count | **Inferred**: population count of the RYNO-plan mask; locations unknown |
-| Health/armor upgrades, weapon ammo/individual levels | **Unknown**; not exposed as invented scalars |
+| Named career counters, flags, grid dimensions, DDL names/types | Verified storage identities; this does not establish HUD calibration or write acceptance |
+| Available bolts | Inferred career minus spent; independent in-game comparison still needed |
+| Career raritanium / spending | Separate stored counters; late spending exceeds career total, so no available balance is offered |
+| Difficulty / CurrentLevel | Stored codes only; CurrentLevel is not player level and is zero throughout this corpus |
+| Quick-select names | Inferred path joins; three attributed candidate labels, with unresolved paths visible |
+| Inventory type IDs | Verified against five CC0 schema IDs and name hashes |
+| Inventory GUID/config/count/XP/ammo slots | Inferred fixed-mask schema interpretations, corroborated by changing snapshots; no ownership, level conversion or ammo cap |
+| Raw DDL semantics, mission/planet/collectible joins | Unknown unless separately described; stored bytes remain available |
+| Fog set-bit count | Inferred interpretation of byte population counts, including padding; not an exploration percentage |
 
-Field labels live in an embedded resource. The raw DDL view labels semantics Unknown
-even though its field-name hashes are checked. See [RESEARCH.md](RESEARCH.md) for the
-36-record evidence, alternate branch, exact offsets and integrity results.
+## Integrity and writing
 
-## Integrity and writing decision
+**All writes remain disabled.** There are no setters, mutation actions or export
+bypasses. Conformance and byte-identical round trips do not prove that a console
+will accept an edit. No edited save has been validated in-game.
 
-The public NinjaSaves page describes options but supplies **no code payload**, offsets,
-search anchors, checksum-fix command or algorithm. Searches of the specified SaveWizard
-archive and Apollo database found no Rift Apart/PPSA01474 save patch. Thus the code
-format/target and presence of checksum-fix commands **cannot be determined**; absence
-of a published code is not evidence of plain writes.
+Historical research tested 41,652 CRC/FNV/Murmur section-digest candidates across
+36 primary gameplay records without finding a nondegenerate outside-range match.
+That does not exclude custom seeds, other coverage, mirrored state or signatures.
+Section `BC60B495` follows career XP in every sample; it is not an identified digest.
+Public cheat listings did not supply a proven PS5 patch/checksum implementation.
+See [RESEARCH.md](RESEARCH.md) for the earlier investigation and source links.
 
-The reproducible scan computed **41,652 digest candidates** over all 19 sections in all
-36 primary gameplay records: CRC32 variants, CRC64 ECMA/XZ/GO-ISO, FNV-1/FNV-1a 32/64,
-and Murmur3 x86_32. Each section was checked whole and with common 4/8-byte prefix or
-suffix exclusions. Both byte orders were searched throughout the file outside the
-hashed range. **No nondegenerate matches** were found; 161 zero/all-one candidates were
-excluded. Small timer diffs change only the double, but this does not rule out integrity
-stored elsewhere. The eight-byte `0xBC60B495` section equals career XP in all 36 records.
+## Validation
 
-This rules out only the tested hypotheses. Custom seeds, other coverage, zeroed checksum
-fields, larger hashes, cross-section dependencies and signatures remain open. Without
-plain-write evidence or complete integrity knowledge, maturity stays **ReadOnly**.
-`Serialize()` reparses both the DAT1 envelope and supported DDL roots before returning
-an isolated copy of the original bytes.
-
-## Validation and research commands
+Use the environment assignment and test command in the **same shell invocation**:
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests
-dotnet test --project tests/SaveToolkit.Core.Tests
-python -B plugins/Insomniac/research/hash_algorithms.py
-python -B plugins/Insomniac/research/inspect_integrity.py <absolute-path-to-PPSA01474_saves_dec.zip>
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Plugin tests cover the conformance suite over every distinct sample, all 76 byte-identical
-round trips, five specific gameplay records, both campaigns, the alternate early branch,
-name-hash vectors, changing numeric widths, empty arrays, confidence labels, atomic
-read-only rejection and corrupt DDL/header inputs. Sample-dependent tests skip when
-samples are absent. Research scripts read the zip without extracting or writing data.
+Latest sample-backed plugin run: **64 passed, 0 failed, 0 skipped**. All **76** game
+records round-trip byte-identically, including duplicate generations and backup twins.
+The tests cover all 36 primary inventories, field/name vectors, nested alignment,
+parent bounds/depth/count corruption, unknown payloads, embedded pack hashes/licensing,
+read-only F4 fields, visible lazy details and F1 semantic evidence. Sample-dependent
+tests skip when samples are absent.
 
-Validated: API build with zero warnings/errors; plugin tests **40/40 passed**; framework
-tests **43/43 passed**. With an empty artifacts directory, **14 passed / 26 skipped**.
+API build: **0 warnings / 0 errors**. Core tests: **190 passed, 0 skipped**.
+Existing frontend F3/F4 regression tests:
+**27 passed** across `TableView.test.tsx`, `table/table.test.tsx` and
+`reference/ReferenceControl.test.tsx`. No frontend source was changed.
 
-On the development machine, opening and building the initial view for all 36 primary
-gameplay records measured 5.54 ms median and 49.65 ms maximum (Debug build, including
-the first JIT invocation; archive import excluded).
+F1 evidence tests compare a same-campaign snapshot pair with persistent inventory
+identity candidates and changed XP/ammo candidates, and ZIP generations 0/1 with
+correct backup collapse. They are not controlled one-action experiments. The F1
+adapter is confined to the test project; production retains its SDK-only dependency.
 
-## Sources and licensing
+## Sources and attribution
 
-Research checked 2026-10-28. No downloaded tool was executed, no substantial upstream
-code was copied, and no new runtime package was added. Format facts and hash algorithms
-were implemented independently; attribution is retained here.
+Retrieved/rechecked 2026-10-28. Every embedded dataset has an adjacent source notice,
+manifest attribution, `Info.References` entries and field/section provenance in the UI.
+The Sources panel lists the F2 datasets resolved by the document.
 
-* **Neptuwunium / Rivet**, pinned to `a631c96ed6455f9873a646825d37883f99defa6e`, EUPL-1.2:
-  the links above establish section identities, DDL metadata and gameplay field names.
-  The [DDL reader](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.DDL/DDLSerializer.cs)
-  informed format research; PS5 widths/padding were independently checked, not assumed
-  identical to that reader.
-* **Tkachov / ALERT**, GPL-3.0:
-  [DAT1 reader](https://github.com/Tkachov/ALERT/blob/main/dat1lib/types/dat1.py),
-  [serialized sections](https://github.com/Tkachov/ALERT/blob/main/dat1lib/types/sections/__init__.py),
-  [format wiki](https://github.com/Tkachov/ALERT/wiki/Formats). Framing, string region,
-  DDL structures and integer narrowing; reference only.
-* **VELD-Dev / RiftRipper**, GPL-3.0:
-  [repository](https://github.com/VELD-Dev/riftripper). Round-one asset-format lead;
-  PS5 support unconfirmed and no save-integrity algorithm located.
-* **ROStudios25 / RCRA-Forge**:
-  [repository credits](https://github.com/ROStudios25/RCRA-Forge). Discovery lead
-  pointing to Neptuwunium's Rivet DDL research; no code or assets used.
-* **NinjaSaves**:
-  [PPSA01474 option listing](https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474).
-  Candidate concepts only; no binary patch instructions were available.
-* **sterben-Dev10 / SaveWizard-Resources**, GPL-3.0:
-  [tree at `4c32596`](https://github.com/sterben-Dev10/SaveWizard-Resources/tree/4c32596efde54af7bec390b298265f09c929d94d).
-  Searched code/patch paths and text for title/name; no Rift Apart save code located.
-* **bucanero / Apollo patches**, GPL-3.0:
-  [tree at `273f032`](https://github.com/bucanero/apollo-patches/tree/273f032b4c31c017fed5c1588f209b8faf87ba6c).
-  Searched patch database; no PS5 Rift Apart entry located. PS3/PS4 Ratchet patches do
-  not establish a PS5 format.
-* **CRC RevEng**:
-  [catalogue](https://reveng.sourceforge.io/crc-catalogue/17plus.htm), CRC parameters
-  and `123456789` check vectors used by the offline scan.
-* **Fowler, Noll, Vo et al.**:
-  [FNV specification, draft 25](https://www.ietf.org/archive/id/draft-eastlake-fnv-25.html),
-  algorithm definitions/constants; independently implemented, no source copied.
-* **Austin Appleby / SMHasher**, public domain:
-  [MurmurHash3 reference](https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp),
-  x86_32 algorithm, tail and avalanche used by the offline scan.
+| Dataset / research | Author and source | License / modifications |
+| --- | --- | --- |
+| `schema.json`: 86 field names and containing types | Neptuwunium / [Rivet CC0 schema, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json) | CC0-1.0, confirmed by the file-specific sidecar; selected names only, omitted runtime offsets/defaults/code |
+| `item-types.json`: five serialized type IDs/names | Same pinned Rivet schema | CC0-1.0; selected type IDs, original uncertainty notes; measured framing independently verified on PS5 |
+| `Resources/PlayerFields.json` | Same pinned Rivet schema; toolkit contributors' labels/groups | CC0 schema facts, original labels; sidecar documents selection and PS5 validation |
+| `weapons.json`: three English label candidates | [Burst Pistol](https://ratchetandclank.fandom.com/wiki/Burst_Pistol), [menu transcript](https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript), [Warmonger](https://ratchetandclank.fandom.com/wiki/Warmonger), Ratchet & Clank Wiki contributors | Derived data under CC BY-SA 3.0; selected factual names/categories, original short summaries and inferred PS5 path joins; no game prose, prices, limits or artwork |
+| Section strategies / format research | Neptuwunium / [Rivet SaveData, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs) | EUPL-1.2 reference only; no implementation copied or executed |
+| Earlier DAT1 and integrity research | [ALERT format wiki](https://github.com/Tkachov/ALERT/wiki/Formats), [RiftRipper](https://github.com/VELD-Dev/riftripper), [NinjaSaves](https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474) | Research only; no source/artwork port or proven integrity routine |
 
-## Open work
+See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and the reference pack's
+[data.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.en/data.source.md).
+CC BY-SA data keeps its attribution and share-alike terms; those terms do not relicense
+the plugin code. No EUPL/GPL implementation is incorporated.
 
-Obtain a documented plain-write PS5 patch or controlled pre/post edit pair; identify
-all integrity dependencies; decode the `INVT` inventory structure and health/weapon
-progression; resolve raritanium accounting, difficulty labels and collectible locations;
-validate a fixed-size edit in-game before considering promotion beyond Experimental.
+## Open work and exact owner capture checklist
+
+Phase 1 is delivered. Phase 2 is **partial**: framing/type joins and read-only world
+inspection are delivered; ownership, config/localization identities, legal limits,
+collectible locations and precise maps remain open. Phases 3–5 are not enabled.
+
+For each pair, use one PPSA01474 slot/build and record region, version, normal versus
+Challenge Mode, character and DLC. First capture save/load/save without gameplay as
+churn control. Export decrypted before/after dumps, HUD screenshots and an action log:
+
+1. Earn one known bolt amount, then separately buy one weapon/item. Record wallet
+   balances. For raritanium, separately earn one and purchase one known upgrade,
+   recording displayed balances, cost and the selected grid node.
+2. Acquire one ordinary weapon; then make separate pairs for one XP/level increase,
+   one ammo use and one refill. Record weapon name, level, XP/bar and ammo counts.
+3. Buy one Omega upgrade in Challenge Mode. Capture its name, level, upgrade tree,
+   costs and mode. Do not combine it with a challenge-reset capture.
+4. Collect one armor piece, then separately equip/unequip it. Record character,
+   slot/appearance and collection bonus; these are distinct state changes.
+5. Collect one gold bolt or spybot at a documented planet/location. Repeat for
+   Lorbs, CraiggerBears and Zurpstones before expecting location-resolved checklists.
+6. Supply an optional permitted config/localization dump with title/build/locale
+   metadata to prove path/hash/name joins. Unknown paths remain usable without it.
+7. Before any write promotion, test an unmodified export, then one fixed-width bolt
+   edit and one existing option toggle separately in a private research harness.
+   Record load success, intended effect, subsequent re-save/reimport and downstream
+   play. Preferences require their own acceptance pair. Only the owner sets Stable.
+
+Never commit saves, extracted game assets, account metadata or research patch outputs.
 
 ## SDK requests
 
-None. Existing bindings, warnings, confidence labels and lazy sections support this stage.
+None blocking this release. F2/F4 support the attributed read-only path references;
+F3 renders nested cells and confidence/details. INSOMNIAC-R8/R9 and the old R5 blank
+cell concern are covered for this scope. Accurate maps/graphs still need the
+INSOMNIAC-R10/R12/R18 data and presentation work; no plugin-local substitute or
+structural/bulk edit workflow is introduced.

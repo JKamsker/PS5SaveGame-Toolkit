@@ -1,0 +1,39 @@
+{
+  "records": [
+    {
+      "id": "4e5ce3cb",
+      "name": "GameItemPrius",
+      "category": "serialized item type",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema type identity matches serialized record header; ownership and gameplay semantics require independent validation."
+    },
+    {
+      "id": "388b19bc",
+      "name": "GadgetSwingshotItemPrius",
+      "category": "serialized item type",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema type identity matches serialized record header; ownership and gameplay semantics require independent validation."
+    },
+    {
+      "id": "2f1e071f",
+      "name": "MeleeWeaponItemPrius",
+      "category": "serialized item type",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema type identity matches serialized record header; ownership and gameplay semantics require independent validation."
+    },
+    {
+      "id": "a89e9c3c",
+      "name": "WeaponItemPrius",
+      "category": "serialized item type",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema type identity matches serialized record header; ownership and gameplay semantics require independent validation."
+    },
+    {
+      "id": "f6ad1389",
+      "name": "VanityItemPrius",
+      "category": "serialized item type",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "Schema type identity matches serialized record header; ownership and gameplay semantics require independent validation."
+    }
+  ]
+}
