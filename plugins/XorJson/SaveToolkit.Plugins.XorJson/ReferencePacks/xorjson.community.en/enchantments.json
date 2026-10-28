@@ -1,0 +1,304 @@
+{
+  "records": [
+    {
+      "id": "SW.Enchantment.Arcane",
+      "name": "Artifact Amplifier",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Blowback",
+      "name": "Crash Landing",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Borealis",
+      "name": "Ender Mines",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.BurstBowstring",
+      "name": "Tumbleshot",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.ChainReaction",
+      "name": "Chain Reaction",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Channeling",
+      "name": "Lightning Surge",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.CriticalQuiver",
+      "name": "Critical Quiver",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Dynamo",
+      "name": "Dynamo",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.ExpandedQuiver",
+      "name": "Ender Quiver",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.FireAspect",
+      "name": "Fire Aspect",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.FrostCrescent",
+      "name": "Frost Crescent",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.GravityPulse",
+      "name": "Gravity Pulse",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.HealthSynergy",
+      "name": "Health Synergy",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.LingeringPower",
+      "name": "Power Amplifier",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.MultiPotion",
+      "name": "Bottomless Brew",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.MultiRoll",
+      "name": "Somersault",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Piercing",
+      "name": "Piercing",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.PoisonFog",
+      "name": "Poison Fog",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.PotionBarrier",
+      "name": "Barrier Brew",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.PotionSharing",
+      "name": "Buddy Brew",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Radiance",
+      "name": "Healing Smite",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Ricochet",
+      "name": "Ricochet",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Shockwave",
+      "name": "Shockwave",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.SoulFireAspect",
+      "name": "Soul Blast",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.SoulInfusedPotion",
+      "name": "Ancient Alchemy",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.SpringLoaded",
+      "name": "Springload",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Swirling",
+      "name": "Swirling",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.TempoTheft",
+      "name": "Tempo Theft",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Thundering",
+      "name": "Thundering",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Enchantment.Unstoppable",
+      "name": "Cow Stampede",
+      "category": "Enchantment",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community catalog; PS5 applicability unverified"
+      }
+    }
+  ]
+}

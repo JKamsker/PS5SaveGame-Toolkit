@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "xorjson.community.en",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Dungeons II community identifiers (PS5 unverified)",
   "plugins": [
     "format.json-xor"
@@ -28,7 +28,7 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted curated identifiers, short names and categories only. Omitted tooltip/quest prose, icons, numeric caps and effect tiers. World labels mechanically expanded from IDs; PS5 applicability unverified."
+        "modifications": "Extracted base/unique identifiers, short names, kinds and optional slots only; no numeric caps, tooltip prose or artwork."
       }
     },
     {
@@ -47,7 +47,7 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted curated identifiers, short names and categories only. Omitted tooltip/quest prose, icons, numeric caps and effect tiers. World labels mechanically expanded from IDs; PS5 applicability unverified."
+        "modifications": "Extracted effect identifiers, short names and categories only; no tiers, strengths, limits or tooltip prose."
       }
     },
     {
@@ -57,7 +57,7 @@
       "files": [
         {
           "path": "world.json",
-          "sha256": "e309d87d3cbbf70a5fd70d81ff95f76f1f5bc79e293d8a52114ee278836244e0"
+          "sha256": "fb0b8413b557c2a0fc40a58a06e6dc5884713b928f94a5f3bcdf087ff20be4cb"
         }
       ],
       "attribution": {
@@ -66,7 +66,26 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted curated identifiers, short names and categories only. Omitted tooltip/quest prose, icons, numeric caps and effect tiers. World labels mechanically expanded from IDs; PS5 applicability unverified."
+        "modifications": "Retained world identifiers and mechanically expanded labels; added quest/task identifiers and short labels from names/labels tables. No coordinates, reward logic or numeric limits. All PS5 semantics unverified."
+      }
+    },
+    {
+      "id": "xorjson-enchantments",
+      "kind": "records",
+      "title": "Enchantments (PC community, PS5 unverified)",
+      "files": [
+        {
+          "path": "enchantments.json",
+          "sha256": "8d2ea7bddc3576656dc9ff671d78806be8248bad4a2efd8241a0748d17bd4136"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+        "author": "Ishiaki and mcd2-save-editor contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted enchantment identifiers and short names only; no tiers, strengths, points, limits or tooltip prose."
       }
     }
   ]

@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.XorJson;
 public sealed class XorJsonPlugin : IGamePlugin
 {
     private const int ProbeHeaderBytes = 64;
-    public PluginInfo Info { get; } = new("format.json-xor", "Obfuscated JSON / Dungeons II", "0.2.0")
+    public PluginInfo Info { get; } = new("format.json-xor", "Obfuscated JSON / Dungeons II", "0.3.0")
     {
         Description = "Lossless exact JSON editing and read-only FCharacterSaveV1 inspection with attributed catalogs.",
         Games = [new GameTitle("PPSA16064", "Minecraft Dungeons II")],
@@ -15,6 +15,9 @@ public sealed class XorJsonPlugin : IGamePlugin
         References = ["https://prosperopatches.com/PPSA16064", "https://www.rfc-editor.org/rfc/rfc8259",
             "https://github.com/IshiakiZ/mcd2-save-editor/tree/84ffee67b73e49d5b888e31257ce9767aa8ab826",
             "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
+            "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+            "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/story.py",
+            "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/world.py",
             "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
             "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
             "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/world.json"],
