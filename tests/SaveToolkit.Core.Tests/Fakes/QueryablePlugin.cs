@@ -9,7 +9,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Core.Tests.Fakes;
 
 /// <summary>Large synthetic collection used to exercise bounded query and binding behavior.</summary>
-public sealed class QueryablePlugin : IGamePlugin
+public sealed class QueryablePlugin(string collectionId = "items") : IGamePlugin
 {
     public const int RowCount = 100_000;
     private static readonly byte[] Magic = "QRY1"u8.ToArray();
@@ -33,12 +33,12 @@ public sealed class QueryablePlugin : IGamePlugin
             throw new SaveFormatException("Not a queryable test save.");
         }
 
-        return LastOpened = new QueryableDocument(file);
+        return LastOpened = new QueryableDocument(file, collectionId);
     }
 
     public static byte[] Create() => [.. Magic, 0, 0, 0, 0];
 
-    public sealed class QueryableDocument(ISaveFile file) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
+    public sealed class QueryableDocument(ISaveFile file, string collectionId = "items") : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
     {
         private readonly Dictionary<int, long> _values = Enumerable.Range(0, RowCount).ToDictionary(i => i, i => (long)i);
         public Func<QueryableCollectionPage, QueryableCollectionPage>? TransformPage { get; set; }
@@ -57,10 +57,10 @@ public sealed class QueryablePlugin : IGamePlugin
         public override bool CanEdit => true;
 
         public IReadOnlyList<QueryableCollection> Collections =>
-            [new("items", "Items", Columns, RowCount) { Description = "Synthetic 100k-row collection." }];
+            [new(collectionId, "Items", Columns, RowCount) { Description = "Synthetic 100k-row collection." }];
 
         public override ViewNode BuildView() =>
-            new SectionNode("Large collections", [new QueryableTableNode("items", "Items", Columns, RowCount),
+            new SectionNode("Large collections", [new QueryableTableNode(collectionId, "Items", Columns, RowCount),
                 new ActionNode("increment", "Increment selected") { SupportsPlanning = true }]);
 
         public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)

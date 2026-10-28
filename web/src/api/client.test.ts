@@ -1,5 +1,22 @@
-import { describe, expect, it } from "vitest";
-import { ApiError, isStaleError } from "./client";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { api, ApiError, isStaleError } from "./client";
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe("collection requests", () => {
+  it.each(["gvas/properties", "literal%2Fitems", "inventory/#? + items"])("preserves the opaque ID %s in the query string", async collectionId => {
+    const fetch = vi.fn().mockResolvedValue(new Response("{}", { headers: { "content-type": "application/json" } }));
+    vi.stubGlobal("fetch", fetch);
+    await api.queryCollection("w", "d", collectionId, { q: "Item 050000", offset: 50, limit: 50, sort: "name", descending: true, filters: { type: "item" } }, 3);
+    const url = new URL(fetch.mock.calls[0]![0] as string, "http://localhost");
+    expect(url.pathname).toBe("/api/workspaces/w/documents/d/collections");
+    expect(url.searchParams.get("collectionId")).toBe(collectionId);
+    expect(url.searchParams.get("q")).toBe("Item 050000");
+    expect(url.searchParams.get("offset")).toBe("50");
+    expect(url.searchParams.get("revision")).toBe("3");
+    expect(JSON.parse(url.searchParams.get("filters")!)).toEqual({ type: "item" });
+  });
+});
 
 describe("isStaleError", () => {
   it("recognises the typed 409 stale rejection", () => {

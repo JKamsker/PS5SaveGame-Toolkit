@@ -70,6 +70,9 @@ internal static class WorkspaceEndpoints
         doc.MapGet("", (DocumentRef d) => d.Value.ToDto(d.Workspace));
         doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound());
         doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id));
+        // Opaque IDs may contain slashes, which Kestrel preserves as %2F in route parameters.
+        doc.MapGet("/collections", (HttpRequest request, DocumentRef document, [FromQuery] string collectionId) =>
+            QueryCollection(request, document, collectionId));
         doc.MapGet("/collections/{collectionId}", QueryCollection);
         doc.MapPost("/edits", (DocumentRef d, EditRequest request) =>
             ToResult(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
