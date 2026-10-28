@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Core.Export;
+using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 
@@ -11,6 +12,13 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
+        if (exception is StaleViewException stale)
+        {
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            await context.Response.WriteAsJsonAsync(new ErrorDto(stale.Message, StaleViewException.Code), cancellationToken);
+            return true;
+        }
+
         var (status, message) = exception switch
         {
             KeyNotFoundException e => (StatusCodes.Status404NotFound, e.Message),

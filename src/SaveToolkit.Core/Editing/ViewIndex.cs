@@ -27,6 +27,11 @@ public sealed class ViewIndex
 
     public bool KnowsAsset(string assetId) => _assetIds.Contains(assetId);
 
+    /// <summary>Every value, action and lazy id currently indexed (the ids clients send back).</summary>
+    public IEnumerable<string> BindingIds => _specs.Keys.Concat(_actions.Keys).Concat(_lazyIds);
+
+    public bool KnowsBinding(string id) => _specs.ContainsKey(id) || _actions.ContainsKey(id) || _lazyIds.Contains(id);
+
     public void Clear()
     {
         _specs.Clear();
