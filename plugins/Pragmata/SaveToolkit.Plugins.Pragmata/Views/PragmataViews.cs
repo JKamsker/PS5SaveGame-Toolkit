@@ -32,9 +32,10 @@ internal sealed class PragmataViews
             tabs.Add(new Tab("Gadgets", _evidence.Gadgets()));
             tabs.Add(new Tab("Loadout", _evidence.Family("app.WeaponManager.SaveData", "app.EnhanceManager.SaveData",
                 "app.EquipmentPresetManager.SaveData", "app.CharacterManager.GameSaveData")));
-            tabs.Add(new Tab("Progress", _evidence.Family("app.ChapterManager.SaveData", "app.ObjectiveManager.SaveData",
+            tabs.Add(new Tab("Progress", _evidence.Family("app.ChapterManager.SaveData",
                 "app.GameOccurrenceRecordManager.SaveData", "app.GameOccurrenceEventManager.SaveData", "app.CampaignManager.GameData",
                 "app.DifficultyLevelSystem.SaveData")));
+            tabs.Add(new Tab("Quests", _evidence.Family("app.ObjectiveManager.SaveData")));
             tabs.Add(new Tab("World", _evidence.Family("app.CheckPointManager.SaveData", "app.GimmickManager.SaveData",
                 "app.PropManager.SaveData", "app.EnvironmentSceneManager.SaveData", "app.LightManager.SaveData")));
             tabs.Add(new Tab("Clock", Clock()));

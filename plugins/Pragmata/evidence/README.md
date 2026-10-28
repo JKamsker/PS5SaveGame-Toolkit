@@ -61,6 +61,9 @@ as identity evidence.
 Phase 1 indexing/harness and Phase 2 reference integration/read-only navigation
 are implemented. Causal semantics, actual item dictionaries, mapped locations and
 verified completion totals remain open. Phases 3/4 need controlled captures.
+Round 2 adds F8 evidence/quest panels, six attributed MIT mission-item links and
+F6 review for the existing quantity operation. [Round-2 findings](round2.md)
+separate synthetic storage-preservation evidence from missing causal captures.
 Fixed-size no-op identity is not proof of a lossless structural serializer. F5 is
 available, but no structural operation is exposed and maturity stays Experimental.
 
@@ -79,3 +82,16 @@ available, but no structural operation is exposed and maturity stays Experimenta
   one small existing-quantity edit through the same cycle and confirm the displayed
   effect. Progression/structural tests follow after their mappings/writers exist.
   Only a human may mark a tested subset Stable.
+- For the six mission-opening-condition IDs `558265447`, `1887847758`, `1942031930`,
+  `3036423139`, `3090659029`, `3746788365`, record the displayed item and the three
+  mission unlocks separately; include before/after inventory quantities and mission
+  selectability. Do not assume these are named Training Data without that observation.
+- Supply an attributed ID/name extraction with the exact uint32 ID, internal
+  `app.ObjectIDs` name, `getKindHash` category, localized `getItemData` name/detail,
+  build, locale, platform and source/license. Include a quantity cap only with an
+  observed boundary pair (last accepted pickup/purchase and next rejected/clamped
+  operation), plus the relevant difficulty/mode. Do not substitute reward amounts
+  or storage bounds for caps. Omit account/identity fields and credentials.
+- Validate one existing quantity change through F6 preview/apply, undo, redo,
+  export/re-import and console load/re-save/reload. Check displayed quantity,
+  equipped state, unlock state and sibling system/gameplay files independently.

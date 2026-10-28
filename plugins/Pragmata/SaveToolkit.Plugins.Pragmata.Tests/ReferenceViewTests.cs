@@ -10,6 +10,7 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Plugins.Pragmata.Tests;
 
@@ -37,6 +38,34 @@ public sealed class ReferenceViewTests
         Assert.Equal("CC0-1.0", item.Dataset.Attribution.License);
         Assert.Equal("MIT", context.Catalog("pragmata-identifiers")!.Dataset.Attribution.License);
         Assert.Empty(store.Pin(plugin, "PPSA99999").Packs);
+    }
+
+    [Fact]
+    public void MissionCrossReferencesMatchObservedPs5IdsWithoutInventingNamesOrCaps()
+    {
+        var plugin = new PragmataPlugin();
+        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02530");
+        var catalog = context.Catalog(ReferenceReadouts.ItemEvidenceCatalog)!;
+        Assert.Equal(6, catalog.Count);
+        Assert.Equal("MIT", catalog.Dataset.Attribution.License);
+        Assert.Contains("Egg Targaryen", catalog.Dataset.Attribution.Author, StringComparison.Ordinal);
+        var records = catalog.Search(new ReferenceQuery { Limit = 20 }).Items;
+        Assert.Equal(6, records.Count);
+        foreach (var file in SampleEvidenceTests.Files().Where(file => file.FileName != "data00-1.bin"))
+        {
+            using var document = (PragmataDocument)plugin.Open(file, context);
+            foreach (var record in records)
+            {
+                var item = document.Layout.Items.Single(item => document.Read(item.Find(KnownHashes.ItemId)!).ToString() == record.Key);
+                Assert.Equal("Inferred", record.Attributes["confidence"]);
+                Assert.Equal("Unknown", record.Attributes["nameConfidence"]);
+                Assert.Equal(3, record.Attributes["missionIds"].Split(',').Length);
+                Assert.Null(record.Limit);
+                Assert.Equal(Confidence.Unknown, document.References.ItemField(item.Find(KnownHashes.ItemId)!).Confidence);
+                Assert.Contains(document.References.ItemDetails(uint.Parse(record.Key, System.Globalization.CultureInfo.InvariantCulture)).OfType<TextNode>(),
+                    node => node.Text.Contains("OpenConditionItemID", StringComparison.Ordinal) && node.Text.Contains("Egg Targaryen", StringComparison.Ordinal));
+            }
+        }
     }
 
     [Fact]
@@ -116,10 +145,11 @@ public sealed class ReferenceViewTests
     {
         using var document = EditingTests.Gameplay();
         var tabs = ((TabsNode)document.BuildView()).Tabs;
-        foreach (var title in new[] { "Gadgets", "Loadout", "Progress", "World" })
+        foreach (var title in new[] { "Gadgets", "Loadout", "Progress", "Quests", "World" })
         {
-            var roots = tabs.Single(t => t.Title == title).Children.OfType<SectionNode>().ToArray();
-            Assert.NotEmpty(roots);
+            var children = tabs.Single(t => t.Title == title).Children;
+            var roots = children.OfType<SectionNode>().ToArray();
+            Assert.True(roots.Length > 0 || children.OfType<QueryableTableNode>().Any());
             foreach (var root in roots)
             {
                 var nodes = document.ExpandNode(root.LazyId!);

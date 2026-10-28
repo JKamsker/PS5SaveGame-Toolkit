@@ -1,0 +1,88 @@
+{
+  "records": [
+    {
+      "id": "558265447",
+      "name": "Mission opening-condition reference 0x21467467",
+      "category": "mission-opening-condition",
+      "description": "PC mission data references this exact numeric ID as OpenConditionItemID in 3 mission units. The ID is observed in the PS5 inventory. Its player-facing name, description and legal limit remain Unknown; PS5 gameplay effects are unverified.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "role": "app.MissionUserdata.Unit.OpenConditionItemID",
+        "missionIds": "966624320,1484235688,2471341895",
+        "platform": "PC; PS5 ID overlap only"
+      }
+    },
+    {
+      "id": "1887847758",
+      "name": "Mission opening-condition reference 0x7086454e",
+      "category": "mission-opening-condition",
+      "description": "PC mission data references this exact numeric ID as OpenConditionItemID in 3 mission units. The ID is observed in the PS5 inventory. Its player-facing name, description and legal limit remain Unknown; PS5 gameplay effects are unverified.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "role": "app.MissionUserdata.Unit.OpenConditionItemID",
+        "missionIds": "133647914,2232716945,3337923198",
+        "platform": "PC; PS5 ID overlap only"
+      }
+    },
+    {
+      "id": "1942031930",
+      "name": "Mission opening-condition reference 0x73c10e3a",
+      "category": "mission-opening-condition",
+      "description": "PC mission data references this exact numeric ID as OpenConditionItemID in 3 mission units. The ID is observed in the PS5 inventory. Its player-facing name, description and legal limit remain Unknown; PS5 gameplay effects are unverified.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "role": "app.MissionUserdata.Unit.OpenConditionItemID",
+        "missionIds": "752729783,2952753280,3401612358",
+        "platform": "PC; PS5 ID overlap only"
+      }
+    },
+    {
+      "id": "3036423139",
+      "name": "Mission opening-condition reference 0xb4fc23e3",
+      "category": "mission-opening-condition",
+      "description": "PC mission data references this exact numeric ID as OpenConditionItemID in 3 mission units. The ID is observed in the PS5 inventory. Its player-facing name, description and legal limit remain Unknown; PS5 gameplay effects are unverified.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "role": "app.MissionUserdata.Unit.OpenConditionItemID",
+        "missionIds": "1860065396,2841962320,2923721580",
+        "platform": "PC; PS5 ID overlap only"
+      }
+    },
+    {
+      "id": "3090659029",
+      "name": "Mission opening-condition reference 0xb837b6d5",
+      "category": "mission-opening-condition",
+      "description": "PC mission data references this exact numeric ID as OpenConditionItemID in 3 mission units. The ID is observed in the PS5 inventory. Its player-facing name, description and legal limit remain Unknown; PS5 gameplay effects are unverified.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "role": "app.MissionUserdata.Unit.OpenConditionItemID",
+        "missionIds": "476732919,2888583825,3300274002",
+        "platform": "PC; PS5 ID overlap only"
+      }
+    },
+    {
+      "id": "3746788365",
+      "name": "Mission opening-condition reference 0xdf53740d",
+      "category": "mission-opening-condition",
+      "description": "PC mission data references this exact numeric ID as OpenConditionItemID in 3 mission units. The ID is observed in the PS5 inventory. Its player-facing name, description and legal limit remain Unknown; PS5 gameplay effects are unverified.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "role": "app.MissionUserdata.Unit.OpenConditionItemID",
+        "missionIds": "107707400,1447667506,2690264370",
+        "platform": "PC; PS5 ID overlap only"
+      }
+    }
+  ]
+}

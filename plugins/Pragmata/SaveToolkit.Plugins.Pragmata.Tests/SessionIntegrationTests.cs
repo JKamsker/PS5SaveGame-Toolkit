@@ -36,8 +36,11 @@ public sealed class SessionIntegrationTests
         var file = (DiskSaveFile)SampleEvidenceTests.Files().Single(f => f.FileName == "data000.bin");
         using var session = new DocumentSession("inventory", file, new PragmataPlugin(), document);
         _ = session.BuildView();
-        var result = session.InvokeAction(Views.PragmataViews.QuantityAction,
+        var preview = session.PlanAction(Views.PragmataViews.QuantityAction,
             new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") });
+        Assert.Empty(preview.Plan.Errors);
+        Assert.NotNull(preview.PlanId);
+        var result = session.ApplyActionPlan(preview.PlanId, preview.Revision);
         Assert.True(result.Ok);
         Assert.True(session.State.CanUndo);
         var modified = session.Serialize().Single().Content.ToArray();
