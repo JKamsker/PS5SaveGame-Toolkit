@@ -41,6 +41,17 @@ public sealed class FaithEvidenceTests
     }
 
     [Fact]
+    public void PluginCatalogueUsesDeclaredCategoryAndKeyOrdering()
+    {
+        var context = new SaveToolkit.Core.References.ReferencePackStore([_plugin]).Pin(_plugin, "PPSA10665");
+        var catalog = new FaithCatalog(context);
+        Assert.Equal(["39", "45", "49"], catalog.SkillReferences().Select(record => record.Key));
+        var abilities = catalog.Abilities();
+        Assert.Equal(abilities.OrderBy(record => record.Category, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(record => record.Key, StringComparer.Ordinal).Select(record => record.Key), abilities.Select(record => record.Key));
+    }
+
+    [Fact]
     public void NamesCannotTurnNexSkillIdsIntoSavedRanks()
     {
         var skills = new byte[FaithSchema.SkillLength];
@@ -123,6 +134,7 @@ public sealed class FaithEvidenceTests
         Assert.Contains("No dependent flags", quantity.Warning);
         Assert.IsAssignableFrom<IActionPlanningDocument>(document);
         Assert.Contains(Actions(view), action => action.ActionId == FaithQuantityPlanning.ActionId && action.SupportsPlanning);
+        Assert.Contains(Actions(view), action => action.ActionId == FaithCatalog.LookupActionId && !action.Mutates);
         Assert.False(document.ApplyEdits([new ValueEdit("capacity/506/main/1", FieldValue.Of(0))]).Succeeded);
         var outcome = document.ApplyEdits([new ValueEdit(quantity.ValueId, FieldValue.Of(0))]);
         Assert.True(outcome.Succeeded);

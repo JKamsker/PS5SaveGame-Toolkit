@@ -13,7 +13,10 @@ public sealed class FaithDiffTests
         var fixture = Assert.Single(manifest.Fixtures);
         var archive = SampleSaves.FindArchive("PPSA10665")!;
         Assert.Null(FixtureVerifier.CheckArchive(fixture.Before!, archive));
-        var options = FixtureVerifier.OptionsFor(fixture, manifest, new PluginViewDecoder(new FinalFantasy16Plugin()));
+        var plugin = new FinalFantasy16Plugin();
+        var hook = Assert.Single(Assert.IsAssignableFrom<SaveToolkit.Sdk.Diff.ISaveDecoderProvider>(plugin).Decoders);
+        Assert.Equal("ffxvi", hook.Id);
+        var options = FixtureVerifier.OptionsFor(fixture, manifest, new HookSaveDecoder(hook));
         var result = FixtureVerifier.Verify(fixture, set, set, options);
         Assert.True(result.Passed, string.Join("\n", result.Errors.Concat(result.Expectations.Where(e => !e.Passed).Select(e => e.Message))));
         var file = Assert.Single(result.Report.Files);

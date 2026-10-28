@@ -44,19 +44,19 @@ than confirmed save mappings. See the [requirement/acceptance gap audit](COMPLET
 
 | Feature | Adoption | Where / concrete reason |
 | --- | --- | --- |
-| F1 SaveDiff | Used | Hash-pinned generation fixture, shared PluginViewDecoder and exact allowed-byte-range write tests. No local diff engine. |
+| F1 SaveDiff | Used | Hash-pinned generation fixture, native `ffxvi` F12 hook and exact allowed-byte-range write tests. No local diff engine. |
 | F2 reference packs | Used; added this round | Four packs, immutable standalone fallbacks, Sources panel and provenance; new 48-entry ability pack. |
 | F3 rich cells | Used; added this round | Field confidence, selected-row planned actions and expandable source/storage details in eager/queried rows. No reviewed licensed icons are available. |
-| F4 pickers | Used; added this round | Inventory/gear/shortcut IDs, summon/command/map context, Nex skill and new read-only ability references. Other numeric context is an index/bitset or has no catalogue. Browse-only improvements pending #33. |
+| F4 pickers | Used; added this round | Inventory/gear/shortcut IDs, summon/command/map context, Nex skill and read-only ability references. Read-only IDs publish browse-only ReferenceSpec controls; catalogue searches use category and declared sort keys. Other numeric context is an index/bitset or has no catalogue. |
 | F5 structural undo | N/A | No safe allocator writer: free-list/generation/slot reuse and dependencies are unidentified. Fixed-width edits use value history. |
-| F6 planning / #27 | Used; added this round | Explicit main-stack targets for document, selected rows and resolved whole-query scopes, with exclusions, CRC, skips, warnings and one undo group. |
+| F6 planning / #27 | Used; added this round | Explicit main-stack targets for document, selected rows and resolved whole-query scopes, with exclusions, CRC, skips, warnings and one undo group. The only planned parameter is a numeric quantity; selected item IDs already use ReferenceSpec fields, so no planned-action ID fallback is needed. |
 | F7 groups | N/A | No established gameplay/system coupling or prepared multi-file writer; speculative sibling edits have no substantiated contract. |
 | F8 collections | Added this round | Main inventory reaches 1,200 rows; materialize only requested rich rows. Secondary <=100, gear 18, raw ability bytes 92. |
 | F9 graph/map | Added this round | Lazy spoiler-gated reference progression DAG and link-only candidate location map; text alternatives, provenance and field navigation. |
 | F10 numbers | Used | Exact integer-string wire and integer-duration seconds. ExactNumberSpec/nullable/union are N/A to present fixed-width binary integers/bytes with no lexeme or null/type discriminator. |
 | F11 codecs | N/A | Supported PS5 files are plaintext Faith blocks with CRC; no Kraken/SQLite or PC PNG/XOR/zlib wrapper. |
-| F12 diff traversal | Pending #32 | Not on starting main (`af414ef`). Existing root-scalar fixture remains valid; full F8 traversal/decoder hooks belong to the framework round. |
-| F13 inspect/picker/metadata | Pending #33 | Not on starting main. Legacy nonmutating lookup retained; no local inspect, browse-only or field-metadata substitute. |
+| F12 diff traversal | Used | The `ffxvi` SDK decoder hook emits bounded Faith root, inventory and context evidence independently of UI paging; the existing F1 fixture now has a native hook option. |
+| F13 inspect/picker/metadata | Used | The catalogue lookup is an explicit `Mutates = false` inspect action. Read-only IDs use browse-only ReferenceSpec pickers, and catalogue views use category filtering plus declared key/category sorting. Field-metadata publishing is N/A because the plugin has no separate metadata source beyond its bound views. |
 
 ## Enabled writes and their evidence
 
@@ -302,6 +302,10 @@ F4 bounded identity replacements/nonmutating lookup, literal markup and the shar
 Sample tests explicitly skip when archives are absent; validation requires 0 skipped.
 No sample bytes, extracted saves or downloaded third-party code are committed.
 
+F12/F13 follow-up validation (2026-10-28): **108 passed, 0 failed, 0 skipped** with
+the external artifacts directory exported; the native `ffxvi` hook reproduces the
+F1 fixture and the session inspection test verifies unchanged revision/history.
+
 Write-enable validation (2026-10-28): **92 passed, 0 failed, 0 skipped**, including
 conformance, with `SAVETOOLKIT_ARTIFACTS` exported in the same command:
 
@@ -352,6 +356,14 @@ Additional research: [Nenkai save-format notes](https://nenkai.github.io/ffxvi-m
 and [bbfox PC cheat-table thread](https://opencheattables.com/viewtopic.php?t=1129).
 No unlicensed scripts were copied/executed and runtime offsets were not used as
 PS5 save offsets. No additional signature/MAC is substantiated.
+
+## Licence exclusions
+
+| Source and revision | Licence found | Why it was refused | What was done instead | What would unblock it |
+| --- | --- | --- | --- | --- |
+| [Published FF16 identifier CSVs, `4b5e7eb`](https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids) | none found | no licence | Consulted only as research; raw numeric IDs remain, and separately licensed per-record labels are used only where evidence permits. | An explicit redistribution licence covering the CSV data and derived crosswalks. |
+| [Final Fantasy XVI locations guide](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_locations) (unversioned link) | none found | proprietary game assets | Kept an HTTPS link-only guide and published no art, screenshots, or coordinates; local map labels use the separately noticed MIT dataset. | A rights-cleared map/coordinate dataset with explicit permission to embed it. |
+| FF16 game icons, screenshots, and other extracted media (no standalone revision) | none found | proprietary game assets | No image assets are shipped; views expose text, raw IDs, provenance, and external links only. | Written permission from the rights holder for redistribution in this plugin. |
 
 ## Owner capture and console-validation checklist
 
@@ -424,15 +436,9 @@ on-console acceptance. Only the owner may promote maturity to Stable.
 
 ## SDK requests
 
-No new blocking SDK request. F8/F9 and #27 are consumed directly. Structural and
-multi-file work needs a substantiated format/dependency model, not another API.
-
-Pending central work: F12 (#32) should traverse queried inventory fields in SaveDiff;
-minimal reproduction on starting main: open a >100-row inventory with
-PluginViewDecoder and request `inventory/1100/quantity` from a 1200-row synthetic
-fixture: the F8 field is absent from the semantic tree. Root scalars in the existing
-F1 fixture remain valid. F13 (#33) owns nonmutating inspect/browse-only picker and
-complete field-metadata/review support. Primary quantity/identity bindings are
-registered at document construction so unloaded-row actions and undo work today;
-no framework substitute is added. Owner validation (#31) does not gate the enabled
+No new blocking SDK request. F8/F9/#27, the F12 decoder hook, and F13 inspection/
+browse-only catalogue support are consumed directly. Structural and multi-file work
+still needs a substantiated format/dependency model, not another API. Primary
+quantity/identity bindings are registered at document construction so unloaded-row
+actions and undo work today. Owner validation (#31) does not gate the enabled
 experimental fixed-width writes.
