@@ -9,7 +9,7 @@ public sealed class XorJsonPlugin : IGamePlugin, IDocumentGroupPlugin, ISaveDeco
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new XorJsonDecoder()];
     private const int ProbeHeaderBytes = 64;
-    public PluginInfo Info { get; } = new("format.json-xor", "Obfuscated JSON / Dungeons II", "0.4.0")
+    public PluginInfo Info { get; } = new("format.json-xor", "Obfuscated JSON / Dungeons II", "0.4.1")
     {
         Description = "Lossless exact JSON editing with Experimental settings, FCharacterSaveV1 and character/global transaction writes; console acceptance remains unverified.",
         Games = [new GameTitle("PPSA16064", "Minecraft Dungeons II")],
@@ -22,6 +22,8 @@ public sealed class XorJsonPlugin : IGamePlugin, IDocumentGroupPlugin, ISaveDeco
             "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/world.py",
             "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
             "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+            "https://www.dungeons.tools/2/effects",
+            "https://www.dungeons.tools/privacy",
             "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/world.json"],
     };
 
