@@ -28,6 +28,11 @@ Development: `dotnet run --project src/SaveToolkit.Api` and `cd web; npm run dev
 - **Core**: import, generations and backup pairing, plugin probing, edit validation against the
   plugin's own specs, undo/redo, export with verification.
 - **Api**: thin HTTP layer. **Web**: renders the view protocol.
+- **Codecs**: bounded managed Kraken decoding/stored writes and native SQLite image operations
+  entirely in memory. See [the codec contracts](src/SaveToolkit.Codecs/README.md).
 - **Plugins** (`plugins/`): one per game or engine format. See [docs/PLUGIN_GUIDE.md](docs/PLUGIN_GUIDE.md).
 
 The server binds to 127.0.0.1 and has no authentication; it is meant to run on your own machine.
+
+Licensed under **GPL-3.0-or-later**; see [LICENSE](LICENSE) and [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).
+Upstream components retain their own compatible licences and attribution.

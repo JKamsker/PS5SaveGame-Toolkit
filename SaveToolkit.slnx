@@ -1,0 +1,86 @@
+<Solution>
+  <Folder Name="/plugins/" />
+  <Folder Name="/plugins/AstroPlayroom/">
+    <Project Path="plugins/AstroPlayroom/SaveToolkit.Plugins.AstroPlayroom.Tests/SaveToolkit.Plugins.AstroPlayroom.Tests.csproj" />
+    <Project Path="plugins/AstroPlayroom/SaveToolkit.Plugins.AstroPlayroom/SaveToolkit.Plugins.AstroPlayroom.csproj" />
+  </Folder>
+  <Folder Name="/plugins/AtomicHeart/">
+    <Project Path="plugins/AtomicHeart/SaveToolkit.Plugins.AtomicHeart.Tests/SaveToolkit.Plugins.AtomicHeart.Tests.csproj" />
+    <Project Path="plugins/AtomicHeart/SaveToolkit.Plugins.AtomicHeart/SaveToolkit.Plugins.AtomicHeart.csproj" />
+  </Folder>
+  <Folder Name="/plugins/BaldursGate3/">
+    <Project Path="plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3.Tests/SaveToolkit.Plugins.BaldursGate3.Tests.csproj" />
+    <Project Path="plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3/SaveToolkit.Plugins.BaldursGate3.csproj" />
+  </Folder>
+  <Folder Name="/plugins/Cyberpunk2077/">
+    <Project Path="plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests/SaveToolkit.Plugins.Cyberpunk2077.Tests.csproj" />
+    <Project Path="plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.csproj" />
+  </Folder>
+  <Folder Name="/plugins/EldenRing/">
+    <Project Path="plugins/EldenRing/SaveToolkit.Plugins.EldenRing.Tests/SaveToolkit.Plugins.EldenRing.Tests.csproj" />
+    <Project Path="plugins/EldenRing/SaveToolkit.Plugins.EldenRing/SaveToolkit.Plugins.EldenRing.csproj" />
+  </Folder>
+  <Folder Name="/plugins/FinalFantasy16/">
+    <Project Path="plugins/FinalFantasy16/SaveToolkit.Plugins.FinalFantasy16.Tests/SaveToolkit.Plugins.FinalFantasy16.Tests.csproj" />
+    <Project Path="plugins/FinalFantasy16/SaveToolkit.Plugins.FinalFantasy16/SaveToolkit.Plugins.FinalFantasy16.csproj" />
+  </Folder>
+  <Folder Name="/plugins/FinalFantasy7/">
+    <Project Path="plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.Tests/SaveToolkit.Plugins.FinalFantasy7.Tests.csproj" />
+    <Project Path="plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.csproj" />
+  </Folder>
+  <Folder Name="/plugins/Gearbox/">
+    <Project Path="plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/SaveToolkit.Plugins.Gearbox.Tests.csproj" />
+    <Project Path="plugins/Gearbox/SaveToolkit.Plugins.Gearbox/SaveToolkit.Plugins.Gearbox.csproj" />
+  </Folder>
+  <Folder Name="/plugins/GenericJson/">
+    <Project Path="plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests/SaveToolkit.Plugins.GenericJson.Tests.csproj" />
+    <Project Path="plugins/GenericJson/SaveToolkit.Plugins.GenericJson/SaveToolkit.Plugins.GenericJson.csproj" />
+  </Folder>
+  <Folder Name="/plugins/GodOfWarRagnarok/">
+    <Project Path="plugins/GodOfWarRagnarok/SaveToolkit.Plugins.GodOfWarRagnarok.Tests/SaveToolkit.Plugins.GodOfWarRagnarok.Tests.csproj" />
+    <Project Path="plugins/GodOfWarRagnarok/SaveToolkit.Plugins.GodOfWarRagnarok/SaveToolkit.Plugins.GodOfWarRagnarok.csproj" />
+  </Folder>
+  <Folder Name="/plugins/Insomniac/">
+    <Project Path="plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests/SaveToolkit.Plugins.Insomniac.Tests.csproj" />
+    <Project Path="plugins/Insomniac/SaveToolkit.Plugins.Insomniac/SaveToolkit.Plugins.Insomniac.csproj" />
+  </Folder>
+  <Folder Name="/plugins/Pragmata/">
+    <Project Path="plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests/SaveToolkit.Plugins.Pragmata.Tests.csproj" />
+    <Project Path="plugins/Pragmata/SaveToolkit.Plugins.Pragmata/SaveToolkit.Plugins.Pragmata.csproj" />
+  </Folder>
+  <Folder Name="/plugins/SuckerPunch/">
+    <Project Path="plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch.Tests/SaveToolkit.Plugins.SuckerPunch.Tests.csproj" />
+    <Project Path="plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch/SaveToolkit.Plugins.SuckerPunch.csproj" />
+  </Folder>
+  <Folder Name="/plugins/TalesOfArise/">
+    <Project Path="plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests/SaveToolkit.Plugins.TalesOfArise.Tests.csproj" />
+    <Project Path="plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise/SaveToolkit.Plugins.TalesOfArise.csproj" />
+  </Folder>
+  <Folder Name="/plugins/UnrealGvas/">
+    <Project Path="plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas.Tests/SaveToolkit.Plugins.UnrealGvas.Tests.csproj" />
+    <Project Path="plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas/SaveToolkit.Plugins.UnrealGvas.csproj" />
+  </Folder>
+  <Folder Name="/plugins/Witcher3/">
+    <Project Path="plugins/Witcher3/SaveToolkit.Plugins.Witcher3.Tests/SaveToolkit.Plugins.Witcher3.Tests.csproj" />
+    <Project Path="plugins/Witcher3/SaveToolkit.Plugins.Witcher3/SaveToolkit.Plugins.Witcher3.csproj" />
+  </Folder>
+  <Folder Name="/plugins/XorJson/">
+    <Project Path="plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests/SaveToolkit.Plugins.XorJson.Tests.csproj" />
+    <Project Path="plugins/XorJson/SaveToolkit.Plugins.XorJson/SaveToolkit.Plugins.XorJson.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/SaveToolkit.Api/SaveToolkit.Api.csproj" />
+    <Project Path="src/SaveToolkit.Codecs/SaveToolkit.Codecs.csproj" />
+    <Project Path="src/SaveToolkit.Core/SaveToolkit.Core.csproj" />
+    <Project Path="src/SaveToolkit.Sdk/SaveToolkit.Sdk.csproj" />
+    <Project Path="src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SaveToolkit.Codecs.Tests/SaveToolkit.Codecs.Tests.csproj" />
+    <Project Path="tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj" />
+    <Project Path="tests/SaveToolkit.SaveDiff.Tests/SaveToolkit.SaveDiff.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/SaveToolkit.SaveDiff/SaveToolkit.SaveDiff.csproj" />
+  </Folder>
+</Solution>

@@ -323,9 +323,13 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
 
 ## Hard rules
 
-1. **Depend on `SaveToolkit.Sdk` only.** Never reference Core/Api. NuGet packages are fine when they
-   are fully managed and permissively licensed; add the version to `Directory.Packages.props`.
-   Note third-party code and licences in the plugin README.
+1. **Depend on `SaveToolkit.Sdk`, optionally `SaveToolkit.Codecs`.** Never reference Core/Api.
+   NuGet packages must be fully managed and GPL-compatible; add versions to `Directory.Packages.props`.
+   The owner-approved exception is the shared codecs library's `Microsoft.Data.Sqlite` dependency,
+   including SQLitePCLRaw's bundled native `e_sqlite3`. It uses in-memory deserialize/serialize only,
+   with no temporary files. Use the bounded wrapper; never expose a connection or add plugin I/O.
+   See [the codecs API and limits](../src/SaveToolkit.Codecs/README.md). Note third-party code and
+   licences in the plugin README.
 2. **Never lose data.** Preserve unknown fields, padding, trailing data and metadata you don't understand.
    Prefer in-place, fixed-size patching over re-serialising whole object graphs. If you must
    re-serialise, prove byte-identical no-op round trips on every sample.
@@ -353,7 +357,11 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
 
    Honour licence terms. CC BY-SA data (e.g. most Fandom/wiki.gg wikis) stays under CC BY-SA in its
    derived form. Mark it so in the file header and keep the licence link. Code ports keep the upstream
-   licence notice. If a source has no licence or forbids reuse, do not embed it. Cite it as research only.
+   licence notice. The repository is **GPL-3.0-or-later** (see [LICENSE](../LICENSE)); GPL-compatible
+   code ports are allowed. Retain upstream notices and document modifications in
+   [THIRD-PARTY-NOTICES](../THIRD-PARTY-NOTICES) as well as the plugin README. Flag incompatible
+   combinations before merging, including GPL-2.0-only with Apache-2.0 or this GPLv3 repository.
+   If a source has no licence or forbids reuse, do not embed it. Cite it as research only.
 
 ## Catalog-valued fields and searchable pickers
 
