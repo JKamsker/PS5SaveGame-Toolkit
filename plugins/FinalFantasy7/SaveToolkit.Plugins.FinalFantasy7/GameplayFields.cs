@@ -5,12 +5,12 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.FinalFantasy7;
 
 internal sealed record ScalarField(string Id, string Label, int Offset, IntegerSpec Spec, Confidence Confidence,
-    bool Signed = false, bool Byte = false, string? Warning = null, bool Editable = false);
+    bool Signed = false, bool Byte = false, string? Warning = null, bool Editable = false, Func<Int128, string?>? Validate = null);
 
 /// <summary>Absolute offsets independently checked against the public PC schemas and every supplied PS5 slot.</summary>
-internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceData references)
+internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceData references, ProgressionEdits progression)
 {
-    private readonly MateriaEditPolicy _materiaPolicy = new(bytes, schema);
+    private readonly MateriaEditPolicy _materiaPolicy = new(bytes, schema, progression);
     private readonly QuantityEditPolicy _quantityPolicy = new(bytes, schema);
     public const int InventoryCount = 2048;
     public const int MateriaCount = 1000;
@@ -18,7 +18,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
     private readonly GameplayLayout _layout = GameplayLayout.For(schema);
     private const int RemakeChapterOffset = 0x2E;
     private const string DemoWarning = "PC retail field mapping is inferred for the PS5 demo; no in-game confirmation.";
-    private const string EditWarning = "Experimental in-place edit; keep a backup and do not rely on this until a console load is tested.";
+    private const string EditWarning = WriteWarnings.Experimental;
 
     public int InventoryOffset => _layout.InventoryOffset;
     public int InventoryStride => _layout.InventoryStride;
@@ -30,6 +30,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
     public int Level(int slot) => bytes[_layout.MateriaLevelOffset + slot * GameplayLayout.MateriaStride];
     public int Quantity(int slot) => BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(IdOffset(false, slot) + GameplayLayout.QuantityDelta));
     public IntegerSpec? ApRange(int slot) => _materiaPolicy.Range(slot);
+    public int StarLevel(int slot, uint ap) => _materiaPolicy.Level(slot, ap);
 
     public IReadOnlyList<ViewNode> Summary(Func<ScalarField, FieldNode> bind)
     {
@@ -115,9 +116,11 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
             var editable = range is not null;
             cells["quantity"] = bind(Define($"{key}/ap", "AP", apOffset,
                 range ?? IntegerSpec.UInt32, editable: editable,
-                warning: editable ? $"{EditWarning} AP is restricted to the original star tier; star transitions are disabled."
+                warning: editable ? $"{WriteWarnings.Progression} AP edits update stored stars using the pinned ordinary-materia curve."
                     : "Write disabled: empty, unknown, summon or AP/level mismatch. The original bytes are retained."));
-            cells["level"] = bind(Define($"{key}/level", "Level", levelOffset, IntegerSpec.UInt8, singleByte: true));
+            cells["level"] = bind(Define($"{key}/level", "Stars", levelOffset,
+                IntegerSpec.UInt8 with { Min = 1, Max = _materiaPolicy.MaximumLevel(i) }, singleByte: true,
+                editable: editable, warning: WriteWarnings.Progression + "Changing stars sets AP to that tier threshold."));
         }
         else
         {
@@ -134,14 +137,14 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
 
     private ScalarField Define(string id, string label, int offset, IntegerSpec spec, bool signed = false,
         bool singleByte = false, bool editable = false, string? warning = null) =>
-        new(id, label, offset, spec, MeaningConfidence, signed, singleByte,
-            JoinWarnings(schema.IsDemo ? DemoWarning : null, warning), editable && !schema.IsDemo);
+        new(id, label, offset, spec, editable ? Confidence.Inferred : MeaningConfidence, signed, singleByte,
+            JoinWarnings(schema.IsDemo ? DemoWarning : null, warning), editable);
 
     private static string? JoinWarnings(string? first, string? second) => first is null ? second : second is null ? first : $"{first} {second}";
 
     private string ItemWarning(uint id, bool editable, bool gil) => !editable
-        ? $"Write disabled: {(id == 0 || id == uint.MaxValue ? "empty" : "unmapped, equipment or progression")} row; raw value is retained."
-        : $"{EditWarning} {(gil ? "Gil" : "item quantity")} cap is an editor bound, not a proven game limit.";
+        ? $"Write disabled: {(id == 0 || id == uint.MaxValue ? "empty" : "unmapped, sentinel or instance-bearing equipment")} row; raw value is retained."
+        : $"{EditWarning} {(gil ? "Gil" : "item quantity")} bound is editor policy or the original observed category maximum, not a proven game limit. Progression/acquisition/deck/reward flags are preserved; changing a count does not grant them.";
 
     private int IdOffset(bool materia, int slot) => materia
         ? _layout.MateriaIdOffset + slot * GameplayLayout.MateriaStride

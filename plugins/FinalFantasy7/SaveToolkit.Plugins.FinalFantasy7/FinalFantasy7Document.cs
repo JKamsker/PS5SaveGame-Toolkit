@@ -12,7 +12,9 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
 {
     private const int RecordsPerSection = 32;
     private const int MaximumBlobPage = 64 * 1024;
-    private const string IntegrityWarning = "Experimental editing: no internal checksum or dependent metadata was found in the supplied samples. Console loading is untested; keep a backup.";
+    private const string IntegrityWarning = WriteWarnings.Experimental;
+    private readonly ProgressionEdits _progression = new();
+    private readonly ScalarBindings _bindings;
     private readonly string _path;
     private readonly byte[] _bytes;
     private readonly Ff7Schema _schema;
@@ -30,24 +32,28 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         IReadOnlyList<LinkedRecord> records, IReferenceContext? references = null)
     {
         _path = path;
+        _bindings = new(bytes, Field);
         _bytes = bytes;
         _schema = schema;
         _common = common;
         _records = records;
         _references = new(references ?? IReferenceContext.Empty, schema);
-        _gameplay = new(bytes, schema, _references);
+        _gameplay = new(bytes, schema, _references, _progression);
         _materiaPlanning = new(schema, _gameplay, _references);
         _explorer = new(bytes, records, Bind);
-        _characters = new(schema, _references, Bind);
+        _characters = new(bytes, schema, _references, Bind, _progression);
         _ownedRelations = !common && !schema.IsRemake ? new(bytes, _references) : null;
         if (!common)
         {
             var progress = new ProgressData(bytes, schema, flag => Field($"progress/{flag.Id}/bit", "Stored bit",
-                IntegerSpec.UInt8 with { Min = 0, Max = 1 }, () => FieldValue.Of((long)((_bytes[flag.Offset] >> flag.Bit) & 1))) with
+                IntegerSpec.UInt8 with { Min = 0, Max = 1 }, () => FieldValue.Of((long)((_bytes[flag.Offset] >> flag.Bit) & 1)),
+                value => _bytes[flag.Offset] = (byte)((_bytes[flag.Offset] & ~(1 << flag.Bit)) | (value.AsInt32() << flag.Bit)),
+                value => value.AsInteger() < 0 || value.AsInteger() > 1 ? "Stored bit must be 0 or 1." : null) with
             {
                 Confidence = Confidence.Inferred,
-                Description = $"Absolute byte 0x{flag.Offset:X}, bit {flag.Bit}. {flag.Source}; {EmbeddedCatalogs.Attribution}",
-                Warning = "Read-only candidate; rewards, actors and chapter-reset dependencies are unverified.",
+                Description = $"Absolute byte 0x{flag.Offset:X}, bit {flag.Bit}. {flag.Source}; {EmbeddedCatalogs.Attribution}. " +
+                    WriteWarnings.Progress,
+                Warning = WriteWarnings.Progress,
             });
             _collections = new(_gameplay, _references, Bind, progress);
             if (_ownedRelations is not null)
@@ -60,7 +66,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
     }
 
     public override string Title { get; }
-    public override bool CanEdit => !_common && !_schema.IsDemo;
+    public override bool CanEdit => !_common;
 
     public override ViewNode BuildView() => new TabsNode(
     [
@@ -74,7 +80,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
                 new("Records (including tail)", _records.Count.ToString()),
             ]),
             new TextNode(IntegrityWarning) { Tone = Tone.Warning },
-            new TextNode("Record framing is verified against samples. Gameplay meanings use cited public schemas; demo mappings remain inferred. Remake and retail Rebirth expose experimental gil, item-quantity and materia-AP edits.") { Tone = Tone.Info },
+            new TextNode("Record framing is verified against samples. Gameplay meanings use cited public schemas; demo mappings remain inferred. Remake, retail Rebirth and the demo expose experimental character, owned-weapon, quantity and materia AP/star edits.") { Tone = Tone.Info },
             new SectionNode("Gameplay", _common
                 ? [new TextNode("Common-file settings have no substantiated gameplay mapping. Use the record explorer.")]
                 : _gameplay.Summary(Bind)),
@@ -183,6 +189,22 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         return _bytes.AsMemory(start + (int)offset, Math.Min(count, length - (int)offset)).ToArray();
     }
 
+    public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
+    {
+        if (!CanEdit) return base.ApplyEdits(edits);
+        try
+        {
+            var staged = _progression.Expand(edits, GetValue);
+            return _bindings.HasConflictingAliases(staged)
+                ? EditOutcome.Rejected("edit", "Conflicting aliases address the same bytes.")
+                : base.ApplyEdits(staged);
+        }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or OverflowException or KeyNotFoundException)
+        {
+            return EditOutcome.Rejected("edit", exception.Message);
+        }
+    }
+
     public override IReadOnlyList<FileOutput> Serialize()
     {
         var output = _bytes.ToArray();
@@ -190,46 +212,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         return [new FileOutput(_path, output)];
     }
 
-    private FieldNode Bind(ScalarField scalar)
-    {
-        FieldValue Read() => scalar.Byte ? FieldValue.Of((long)_bytes[scalar.Offset]) :
-            scalar.Signed ? FieldValue.Of((long)BinaryPrimitives.ReadInt32LittleEndian(_bytes.AsSpan(scalar.Offset))) :
-            FieldValue.Of((long)BinaryPrimitives.ReadUInt32LittleEndian(_bytes.AsSpan(scalar.Offset)));
-        var warning = scalar.Warning;
-        if (scalar.Signed && Read().AsInteger() < 0)
-        {
-            warning = "Negative value retained as stored; it may be a sentinel or an unsupported mapping.";
-        }
-
-        Action<FieldValue>? set = scalar.Editable ? value =>
-        {
-            if (scalar.Byte)
-            {
-                _bytes[scalar.Offset] = checked((byte)value.AsUInt32());
-            }
-            else if (scalar.Signed)
-            {
-                BinaryPrimitives.WriteInt32LittleEndian(_bytes.AsSpan(scalar.Offset), checked(value.AsInt32()));
-            }
-            else
-            {
-                BinaryPrimitives.WriteUInt32LittleEndian(_bytes.AsSpan(scalar.Offset), checked(value.AsUInt32()));
-            }
-        } : null;
-        Func<FieldValue, string?>? validate = scalar.Editable ? value =>
-        {
-            var integer = value.AsInteger();
-            return integer < scalar.Spec.Min || integer > scalar.Spec.Max
-                ? $"Value must be between {scalar.Spec.Min} and {scalar.Spec.Max}."
-                : null;
-        } : null;
-        return Field(scalar.Id, scalar.Label, scalar.Spec, Read, set, validate) with
-        {
-            Confidence = scalar.Confidence,
-            Description = $"Absolute offset 0x{scalar.Offset:X}; { (scalar.Byte ? "u8" : scalar.Signed ? "i32 LE" : "u32 LE") }.",
-            Warning = warning,
-        };
-    }
+    private FieldNode Bind(ScalarField scalar) => _bindings.Bind(scalar);
 
     private TableNode RecordTable() => new(
         [new("index", "#"), new("tag", "Tag"), new("offset", "Offset"), new("length", "Span bytes"),

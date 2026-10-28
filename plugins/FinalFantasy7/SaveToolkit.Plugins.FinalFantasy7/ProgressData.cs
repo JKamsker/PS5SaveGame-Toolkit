@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.FinalFantasy7;
 
 internal sealed record ProgressFlag(string Id, string Name, string Region, string Category, int Offset, int Bit, string Source);
 
-/// <summary>Read-only source candidates; shared placeholder addresses are excluded at extraction.</summary>
+/// <summary>Individual source candidates; shared placeholder addresses are excluded at extraction.</summary>
 internal sealed class ProgressData(byte[] bytes, Ff7Schema schema, Func<ProgressFlag, FieldNode> bind)
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
@@ -20,7 +20,7 @@ internal sealed class ProgressData(byte[] bytes, Ff7Schema schema, Func<Progress
          new("value", "Stored bit", IntegerSpec.UInt8), new("address", "Byte / bit"), new("confidence", "Confidence"),
          new("source", "Source")], Flags.Count)
     {
-        Description = "Inferred, read-only public-template mappings. A set bit is not proof of rewards or story completion. " +
+        Description = "Inferred public-template bit edits. " + WriteWarnings.Progress + " " +
             "Repeated upstream placeholders and Intel Entries are excluded. " + EmbeddedCatalogs.Attribution,
     }, Entries);
 

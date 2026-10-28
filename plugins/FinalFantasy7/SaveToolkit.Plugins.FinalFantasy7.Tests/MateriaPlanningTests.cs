@@ -51,11 +51,13 @@ public sealed class MateriaPlanningTests
         var ranges = preview.Plan.Changes.Select(change =>
         {
             var slot = int.Parse(change.ValueId.Split('/')[1], System.Globalization.CultureInfo.InvariantCulture);
-            return (schema.IsRemake ? 0x1848 : 0xBFA70) + slot * 32;
+            var star = change.ValueId.EndsWith("/level", StringComparison.Ordinal);
+            var offset = (star ? schema.IsRemake ? 0x1840 : 0xBFA78 : schema.IsRemake ? 0x1848 : 0xBFA70) + slot * 32;
+            return (Offset: offset, Length: star ? 1 : 4);
         }).ToArray();
         var diff = ByteDiffer.Compare(original, edited, options: new() { MergeGap = 0, MaxRanges = 2000 });
         Assert.True(diff.ChangedBytes > 0);
-        Assert.All(diff.Ranges, range => Assert.Contains(ranges, start => range.Offset >= start && range.End <= start + 4));
+        Assert.All(diff.Ranges, range => Assert.Contains(ranges, allowed => range.Offset >= allowed.Offset && range.End <= allowed.Offset + allowed.Length));
         using var reopened = plugin.Open(MemorySaveSet.SingleFile(file.FileName, edited, title));
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(reopened);
         foreach (var change in preview.Plan.Changes)
@@ -75,16 +77,16 @@ public sealed class MateriaPlanningTests
     }
 
     [Fact]
-    public void PlanningSkipsTierCrossingsForeignRowsAndEmptySelection()
+    public void PlanningIncludesStarCrossingsAndSkipsForeignRowsAndEmptySelection()
     {
         var file = SampleSaves.Load("PPSA08664").AllDiskFiles.First(file => file.FileName == "ff7rebirth000");
         using var document = new FinalFantasy7Plugin().Open(file);
         var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);
         var values = new Dictionary<string, FieldValue> { ["type"] = FieldValue.Of("10020"), ["ap"] = FieldValue.Of(0L) };
         var plan = planner.PlanAction(MateriaPlanning.ActionId, values, new(["materia/0", "inventory/0", "materia/1000"]));
-        Assert.Empty(plan.Changes);
-        Assert.Equal(3, plan.SkippedRows.Count);
-        Assert.Contains(plan.SkippedRows, row => row.Reason.Contains("star tier", StringComparison.Ordinal));
+        Assert.Equal(2, plan.Changes.Count);
+        Assert.Contains(plan.Changes, change => change.Derived && change.ValueId == "materia/0/level");
+        Assert.Equal(2, plan.SkippedRows.Count);
         Assert.Empty(planner.PlanAction(MateriaPlanning.ActionId, values, new([])).Changes);
         Assert.NotEmpty(planner.PlanAction(MateriaPlanning.ActionId, values, new()
         {
@@ -94,7 +96,7 @@ public sealed class MateriaPlanningTests
     }
 
     [Fact]
-    public void DirectEditsRejectStarCrossingsAndSummonsAtomically()
+    public void DirectEditsRejectInvalidApAndSummonsAtomically()
     {
         var file = SampleSaves.Load("PPSA08664").AllDiskFiles.First(file => file.FileName == "ff7rebirth009");
         var bytes = file.ReadAllBytes();
@@ -102,10 +104,9 @@ public sealed class MateriaPlanningTests
         var rows = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("materia/0"))).Rows;
         var titan = rows.Single(row => ((FieldNode)row.Cells["id"]).Value.AsUInt32() == 14011);
         Assert.True(((FieldNode)titan.Cells["quantity"]).Spec.ReadOnly);
-        var ordinary = rows.First(row => row.Cells["quantity"] is FieldNode { Spec.ReadOnly: false } ap &&
-            ((IntegerSpec)ap.Spec).Min > 0);
+        var ordinary = rows.First(row => row.Cells["quantity"] is FieldNode { Spec.ReadOnly: false });
         var apField = (FieldNode)ordinary.Cells["quantity"];
-        var reject = document.ApplyEdits([new(apField.ValueId, FieldValue.Of(((IntegerSpec)apField.Spec).Min - 1))]);
+        var reject = document.ApplyEdits([new(apField.ValueId, FieldValue.Of(-1L))]);
         Assert.False(reject.Succeeded);
         reject = document.ApplyEdits([new(apField.ValueId, apField.Value),
             new(((FieldNode)titan.Cells["quantity"]).ValueId, FieldValue.Of(1L))]);

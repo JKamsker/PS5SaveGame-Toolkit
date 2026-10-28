@@ -10,7 +10,7 @@ public sealed class ProgressTests
     [InlineData("PPSA01911", 69)]
     [InlineData("PPSA08664", 470)]
     [InlineData("PPSA18936", 470)]
-    public void AllPrimarySamplesExposeDistinctReadOnlyBitsAndRoundTrip(string title, int expectedCount)
+    public void AllPrimarySamplesExposeDistinctCandidateBitsAndRoundTrip(string title, int expectedCount)
     {
         var schema = Ff7Schema.ForTitle(title)!;
         foreach (var file in SampleSaves.Load(title).AllDiskFiles.Where(file =>
@@ -33,7 +33,7 @@ public sealed class ProgressTests
                     var bit = int.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture);
                     var field = Assert.IsType<FieldNode>(row.Cells["value"]);
                     Assert.Equal((bytes[byteOffset] >> bit) & 1, field.Value.AsInt32());
-                    Assert.True(field.Spec.ReadOnly);
+                    Assert.False(field.Spec.ReadOnly);
                     Assert.Equal(Confidence.Inferred, field.Confidence);
                     Assert.DoesNotContain("Intel Entries", ((TextNode)row.Cells["category"]).Text, StringComparison.Ordinal);
                 }

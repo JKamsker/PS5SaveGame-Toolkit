@@ -37,7 +37,7 @@ public sealed class SampleFormatTests
             using var document = plugin.Open(file);
             timer.Stop();
             Assert.True(timer.Elapsed < TimeSpan.FromSeconds(2), $"Open exceeded 2s: {file.RelativePath}: {timer.Elapsed}.");
-            Assert.Equal(!common && title != "PPSA18936", document.CanEdit);
+            Assert.Equal(!common, document.CanEdit);
             Assert.True(bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span), file.RelativePath);
         }
     }

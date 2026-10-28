@@ -6,16 +6,16 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.FinalFantasy7;
 
-/// <summary>Plans only the existing AP scalar operation, without changing stored stars or ownership.</summary>
+/// <summary>Plans AP edits and dependent stored-star transitions; ownership is preserved.</summary>
 internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay, ReferenceData references)
 {
     public const string ActionId = "materia/set-ap-within-tier";
 
-    public ActionNode View() => new(ActionId, "Set AP within current star tier")
+    public ActionNode View() => new(ActionId, "Set AP and derived stars")
     {
         SupportsPlanning = true,
         Description = "Choose a materia type, then preview AP changes on selected rows (or all owned copies). " +
-            "Summons, mismatched rows and star transitions are skipped. Console loading remains untested. " + EmbeddedCatalogs.Attribution,
+            "Summons and mismatched rows are skipped. Ordinary stars follow the pinned AP curve. " + WriteWarnings.Experimental + " " + EmbeddedCatalogs.Attribution,
         Parameters =
         [
             new("type", "Materia type", new ReferenceSpec("ff7r-materia")
@@ -38,11 +38,6 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
         if (actionId != ActionId)
         {
             return Error("action", "Unknown FFVII planned action.");
-        }
-
-        if (schema.IsDemo)
-        {
-            return Error("action", "Demo gameplay is read-only.");
         }
 
         if (scope.QueryScope is { } query && (query.CollectionId != "materia" || scope.RowKeys is null))
@@ -84,7 +79,7 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
             var range = gameplay.ApRange(slot);
             var reason = gameplay.TypeId(true, slot) != type ? "Different materia type."
                 : range is null ? "Empty, unknown, summon or AP/level mismatch."
-                : ap < range.Min || ap > range.Max ? "Target AP would cross the original star tier."
+                : ap < range.Min || ap > range.Max ? "Target AP is outside the editor range."
                 : gameplay.Ap(slot) == ap ? "Already has the requested AP." : null;
             if (reason is not null)
             {
@@ -94,12 +89,18 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
 
             changes.Add(new($"{key}/ap", $"{references.Materia(type)} Â· slot {slot} AP",
                 FieldValue.Of((long)gameplay.Ap(slot)), FieldValue.Of((long)ap)));
+            var level = gameplay.StarLevel(slot, ap);
+            if (level != gameplay.Level(slot))
+            {
+                changes.Add(new($"{key}/level", $"{references.Materia(type)} · slot {slot} stars",
+                    FieldValue.Of((long)gameplay.Level(slot)), FieldValue.Of((long)level)) { Derived = true });
+            }
         }
 
         return new()
         {
             Changes = changes, SkippedRows = skipped,
-            Warnings = ["Experimental PS5 edits; console acceptance is untested. Stored stars, gear and ownership are preserved."],
+            Warnings = [WriteWarnings.Progression + "Ordinary stars are updated together with AP. Gear and ownership bytes are preserved."],
         };
     }
 
