@@ -55,6 +55,7 @@ the same repository. This request log also covers sources not listed as exclusio
 | `kvasszn/ree-save-editor` | MIT or GPL-3.0 | [#52](https://github.com/kvasszn/ree-save-editor/issues/52) |
 | `soulsmods/Paramdex` | MIT or GPL-3.0 | [#10](https://github.com/soulsmods/Paramdex/issues/10) |
 | `xcier/GoW-2018-PS4-editor` | MIT or GPL-3.0 | [#2](https://github.com/xcier/GoW-2018-PS4-editor/issues/2) |
+| `mooofin/God-of-War-Ragnarok` | MIT or GPL-3.0 | [#2](https://github.com/mooofin/God-of-War-Ragnarok/issues/2); requested 2026-10-29 after the GodOfWarRagnarok unblock round imported its runtime IDs |
 | `The-Grand-Archives/Elden-Ring-CT-TGA` | MIT or GPL-3.0 | [#158](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA/issues/158); existing request, owner added a +1 |
 
 **Already licensed:** [Wahkah/BG3SE states MIT in its README](https://github.com/Wahkah/BG3SE/blob/main/README.md).
