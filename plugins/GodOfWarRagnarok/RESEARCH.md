@@ -111,3 +111,80 @@ bounded lazy exploration, exact preservation and rejection of known structural c
 SDK did not block implementation. Full nested parsing and safe writing were not established.
 Next work needs controlled PS5 save/UI pairs, serialization call tracing or a stronger public
 grammar before introducing setters on search matches.
+
+## Round 2 — nested framing, names and unkeyed digests
+
+2026-10-28. Clean-room probes read only gameplay files from the original archive in memory.
+No save bytes were copied into the repository. Downloaded source text stayed under the OS temp
+directory and was inspected rather than executed. New tests reproduce the measurements.
+
+### Nested records
+
+The u32 preceding the HERO marker is an enclosing byte length. Starting at the marker, repeatedly
+consume `u64 containerId; u32 resourceCount, idCount, wordCount`, then `16×resourceCount` bytes,
+`8×idCount` bytes and `4×wordCount` bytes. All 76 primary records consume their length exactly,
+yielding five containers with the same identities. HERO and the blacksmith chest retain inferred
+research labels; the other three containers remain unnamed. SAVE0 generation zero has resource
+counts 211/10/8/0/3, 261 hero IDs and 159 index-like words.
+
+A proposed zero-based link from those u32 words to the preceding ID list was falsified by early
+saves. The production parser therefore bounds only their count/range and retains raw values.
+No gear ownership, equipped slot, skill unlock or resource-row relationship is asserted.
+
+The next section is `u16 length; u32 count; count×22 opaque bytes`, exactly consuming `4+22×count`.
+After it, a u16 length encloses `u64 all-ones; u32 1; u32 groupCount` followed by counted groups:
+`u64 groupId; u32 count; count×(u64 ID, four raw bytes)`. All records consume this payload exactly.
+There are five groups with 28/26/27/23/28 records (132 total) in every sample. Observed four-byte
+patterns include `00000100`, `01000100`, `01010100`, `00010100`, `01000000`, `01010000`.
+These look like flags but their semantics are unknown; they are not named quest completion bits.
+Generation-zero SAVE0 wallet end is 0x1D5CC and flag-group end is 0x1DC50.
+
+### Reference expansion
+
+The pinned GPL-3.0 Continue? reader identifies raven resource hashes `482780EFF18ED57E` and
+`28FB73555D08478B` as numeric u64s. Their literal LE bytes occur in counted PS5 hero resource rows
+in 40/76 and 56/76 primary saves. Generic raven-item and gift-counter labels remain Inferred.
+The PC completion formula was not ported or displayed. Controlled PS5 raven/reward captures are
+required before presenting a completed/total count.
+
+The pinned GPL-3.0 Apollo patch adds 36 literal ID/category candidates beyond the original 31
+resources. The source does not name these extra items; the new dataset keeps Unknown names rather
+than aligning them speculatively to wiki lists. No preset value is treated as a legal maximum.
+The new datasets retain their licences, pinned sources and notices, separately from CC BY-SA data.
+Fandom HTML/API requests returned HTTP 403, so no new unpinned wiki content was imported. Research
+did not establish a permissive, build-matched gear/quest hash crosswalk. No unlicensed runtime
+table or 2018 item database was embedded. Source details are in README and the data sidecar.
+
+### Integrity / authentication evidence
+
+`RagnarokAuthentication` adds an original CRC32C implementation using reflected Castagnoli
+polynomial 0x82F63B78, all-ones initial/final XOR, verified by `123456789 → E3069283`.
+Standard-library MD5/SHA-1/SHA-256/SHA-512 calls are verified against the published `abc` vectors.
+MD5/SHA-1 are legacy-identification hypotheses, never authentication mechanisms in this plugin.
+Background specifications: [CRC32C / RFC 3720 appendix B](https://www.rfc-editor.org/rfc/rfc3720#appendix-B),
+[MD5 / RFC 1321](https://www.rfc-editor.org/rfc/rfc1321),
+[SHA / RFC 6234](https://www.rfc-editor.org/rfc/rfc6234). No reference implementation was ported.
+
+Coverage: whole file; file without EOF sentinel; after the initial eight-byte timestamp through
+EOF minus four; after outer header through EOF minus four; after metadata through EOF minus four;
+metadata alone; directory IDs/paired words/secondary arrays; wallet payload; wallet block including
+length; flag-group block including length; hero resource rows (omitted when empty).
+CRC32C compares both byte orders; the other digests compare complete canonical digest bytes.
+Every possible byte-aligned target is searched, including unaligned targets and the final fitting
+offset. The target search is the complete file; a raw match would be a lead, never acceptance.
+
+Across 76 primary generations: **4,956 coverage/encoding comparisons, zero matches** (4,130 digest
+calculations; LE CRC32C reuses its canonical calculation). No keyed hypothesis was testable: no
+key derivation or save authentication routine is established. These finite negatives do not
+exclude truncated digests, custom seeds, zeroed/omitted fields, compressed coverage or keyed
+MACs/signatures. F1 reports stable container/resource/flag paths and named digest coverage, and
+the UI computes the same evidence lazily. Whole-file hash changes alone do not locate authentication.
+
+The original CRC32/Adler32 helper now omits zero-length spans and correctly excludes the final
+sentinel from aligned target comparisons. The historical round-1 20-probe result remains a finite
+historical result; the expanded grammar supplies more bounded spans in round 2.
+
+The updated [owner checklist](OWNER_CHECKLIST.md) includes no-action controls, separate equip/upgrade
+pairs, raven collection versus reward redemption, exact UI/journal states and redacted algorithm
+tracing. The plugin remains ReadOnly with no setters/actions. Complete named gear/quest models,
+character-specific XP, completion states and write authentication remain open.

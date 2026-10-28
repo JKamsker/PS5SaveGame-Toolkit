@@ -1,8 +1,9 @@
 # God of War Ragnarök (`gow-ragnarok`)
 
 **Maturity: ReadOnly.** Opens decrypted PS5 gameplay/history saves and the separate preferences record.
-Provides metadata, an inferred hero wallet, resource ID occurrences, a partial record index, an
-attributed F2 resource catalog, grammar evidence spans and lazy raw word/byte views. Integrity
+Provides metadata, five length-bounded wallet containers, F8 resource/XP/raven counters,
+nested gear/skill ID candidates, 132 grouped raw flag records, attributed F2 catalogs,
+integrity evidence and lazy raw word/byte views. Integrity
 dependencies and the complete serialization grammar remain unresolved. No edits or actions are
 offered. An unsuccessful checksum search does not establish safe writing.
 
@@ -49,13 +50,29 @@ These are measured invariants of the supplied revision, not a complete game sche
 | after words | u32 count then u64 IDs: 10 in every record, each also in the sorted array. |
 | variable | Exactly one u64 `00004895C643225F`, the PC reader's hero-wallet ID. |
 | wallet `+08` | u32 row count, 0–211 in this corpus. |
-| wallet `+0C`, `+10` | Unknown u32s, not treated as trusted lengths/counts. |
+| wallet `+0C`, `+10` | Counts of subsequent u64 IDs and u32 index-like words (roles **Unknown**). |
 | wallet `+14` | Counted 16-byte rows: u64 ID, u32 inferred quantity, u32 unknown metadata. |
 | EOF `-04` | Gameplay `FFFFFFFF`, observed sentinel, **not a checksum**. |
 
-The partial index reports exact spans for these arrays. It does not invent parent/child links or
-record lengths across unparsed gaps. The word preceding the wallet may be a size, but its coverage
-is unproven and it is not used for traversal.
+Round 2 establishes the following additional framing across **all 76 primary gameplay records**:
+
+- The u32 immediately before the hero marker is the byte length of a block containing five
+  consecutive containers. Each is `u64 ID; u32 resourceCount, idCount, wordCount;`
+  `resourceCount × (u64 ID, u32 quantity, u32 metadata); idCount × u64; wordCount × u32`.
+  Every block is consumed exactly. The index-like words are kept raw: early saves disprove a
+  zero-based reference into the adjacent ID list. No equipped/owned relationship is inferred.
+- Next is `u16 byteLength; u32 count; count × 22 opaque bytes`. Its length is exactly `4 + 22×count`.
+- Next is `u16 byteLength; u64 FFFFFFFFFFFFFFFF; u32 1; u32 groupCount`, followed by
+  `groupCount × (u64 group ID; u32 count; count × (u64 ID; four raw bytes))`.
+  All samples have five groups and 132 rows (28/26/27/23/28); the payload consumes its length exactly.
+  Their quest/skill/collectible meanings remain **Unknown**.
+
+In generation-zero SAVE0, the wallet block ends at `1D5CC` and the grouped flags end at `1DC50`.
+The five resource counts are 211/10/8/0/3; the hero has 261 subsequent IDs and 159 index-like words.
+Only HERO and the blacksmith-chest role have research labels, both **Inferred**. Other containers
+keep their raw IDs. These invariants establish structure, not a complete serialization grammar.
+A zero enclosing-length word retains the legacy hero-only fallback (used by minimal fixtures);
+it does not claim nested structures or authentication.
 
 ## Meaning and confidence
 
@@ -84,8 +101,18 @@ Readable metadata and matching resource records establish accessible plaintext s
 absence of embedded compression/encryption. Reconnaissance found no recognized framed codec or
 successful initial zlib candidate. No decryption key or compression transform is applied.
 
-Seed-zero CRC32, Adler32, xxHash32/64 and MurmurHash3 candidates were checked against header/footer
-words and selected directory/wallet spans: no match. Coverage/seed searches were finite. See the
+Standard CRC32/IEEE and Adler32, plus seed-zero xxHash32/64 and MurmurHash3 candidates were checked against header/footer
+words and selected directory/wallet spans: no match. Round 2 adds CRC32C (canonical and LE),
+full MD5, SHA-1, SHA-256 and SHA-512 digests over 11 explicitly named ranges (10 when the hero
+resource list is empty): whole file; without EOF sentinel; after timestamp; after outer header;
+after metadata; metadata alone; directory arrays; wallet block with/without its length;
+grouped flag block with length; hero resources alone. Full digest bytes are searched at **every
+byte alignment**, including the last possible target. Across 76 primary records there are
+**4,956 coverage/encoding comparisons, 0 matches**. This does not rule out truncated digests,
+zeroed/omitted embedded fields, custom seeds, compressed coverage or a keyed MAC/signature.
+No key or authentication routine was found; arbitrary guessed-key HMAC tests are not evidence.
+The lazy Integrity tab and F1 hook expose reproducible digests/ranges without making acceptance claims.
+Coverage/seed searches were finite. See the
 [research log](RESEARCH.md) for methods and negative results.
 
 The parser rejects unsupported headers, known malformed metadata, unsorted IDs, missing secondary
@@ -106,21 +133,25 @@ return copies. The normal UI disables export for read-only documents.
 ## Bounds and tests
 
 Open reads one file, never all 66 slots or siblings. Files are capped at 32 MiB, array counts at
-65,536, resource occurrences at 4,096. No large views are built during Open. Record tables use lazy
-256-row pages. Raw words use 1 KiB pages under 64 KiB lazy groups, with final unaligned bytes
+65,536, resource occurrences at 4,096. No large views are built during Open. The seven F8 collections (`resources`, `xp`, `collectibles`, `nested-ids`, `index-words`,
+`flags`, `directory`) search/filter/sort the complete indexed set, with stable document row IDs,
+exact filters, numeric quantity sorting and at most 200 rows per page. They use offset paging;
+unsupported cursors and columns are rejected. Collection cells are bound only for the requested page. Small diagnostic/secondary tables and legacy helper expansions use lazy 256-row pages. Raw words use 1 KiB pages under 64 KiB lazy groups, with final unaligned bytes
 shown individually. Preferences use 256-byte pages. Hex reads are capped at 64 KiB.
 
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
-dotnet test --project plugins/GodOfWarRagnarok/SaveToolkit.Plugins.GodOfWarRagnarok.Tests
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/GodOfWarRagnarok/SaveToolkit.Plugins.GodOfWarRagnarok.Tests
 dotnet test --project tests/SaveToolkit.Core.Tests
 ```
 
-**37 plugin tests passed; 43 Core tests passed; API build passed with zero warnings/errors.** Coverage:
-read-only conformance, all 156 records, known values, all backup pairs, shrinking generations,
-malformed counts/IDs/text, every synthetic-file truncation, bounded views, edit rejection and copies.
-Each sampled Open is asserted under two seconds. Without samples: **29 pass, 8 skip**, zero failures.
-The conformance edit test is inactive for ReadOnly maturity; no edit round-trip or console test is claimed.
+**Round 2: 55 plugin tests passed, 0 failed, 0 skipped; API build: 0 warnings/errors.**
+The artifact environment variable is exported in the same test command. Coverage includes all 156
+records and byte-identical serialization, all 76 primary nested grammars and serialize/reopen byte
+identity, nested length/count/identity corruption, F8 global search/filter/numeric sort/bindings,
+licensed pack validation/direct-call fallback, F1 generation comparison, published digest vectors
+and all-primary integrity probes. Tests skip when samples are absent; such a run is not validation.
+The conformance edit test is inactive for ReadOnly maturity; no edit round trip or console test is claimed.
 
 Known generation-zero `GOWRSAVE0`: 3,215,266 bytes, play-time word 138,041, counter 1,797,
 Hacksilver wallet word 288,638 at `1BC90`, Rawhide 52, Chaos Flame 0, XP-ID word 84,725.
@@ -138,8 +169,8 @@ These are byte-level regression facts, not proof of player-facing meanings.
 ## Sources
 
 Research date: 2026-10-28. References were read as text; no downloaded editor/trainer was executed.
-No third-party implementation was copied. The embedded dictionary is a small factual ID/name list;
-the community repository does not establish a general code reuse licence.
+No third-party implementation was copied. New community datasets retain their upstream GPL-3.0
+licensing, notices and pinned source revisions; see the attribution table and plugin-local notices.
 
 | Source | Used for |
 | --- | --- |
@@ -164,7 +195,37 @@ art, or copied prose is embedded. The pack preserves share-alike attribution and
 legal limits instead of inventing ranges. The fallback JSON uses the same 31 factual identities
 and is covered by the same attribution.
 
+The additional `gow-ragnarok.community.en` v1.0.0 pack adds **38 records** to the original 31:
+36 PS4 community resource/key-item ID candidates (names deliberately **Unknown**) and two
+raven-related counter identities (PC-to-PS5 role **Inferred**). Thus the three catalogs contain 69
+records; the separate XP fallback remains an original observation with an inferred role. The new
+collectible hashes occur in 40/76 and 56/76 primary PS5 hero wallets respectively. No derived raven
+completion formula or legal maximum is displayed. Missing records remain raw IDs.
+
+| Dataset / role | Pinned source and author | Licence / changes |
+| --- | --- | --- |
+| Original 31 resource names/categories and fallback | [God of War Wiki contributors](https://godofwar.fandom.com/wiki/Resources/GOW_%28Ragnar%C3%B6k%29), retrieved 2026-10-28; existing dataset retained | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); normalized names/categories; IDs cross-checked against cited community resources; no new wiki text imported in round 2. |
+| 36 additional ID candidates | [Apollo patch contributors / bucanero, 273f032b](https://github.com/bucanero/apollo-patches/blob/273f032b4c31c017fed5c1588f209b8faf87ba6c/PS4/CUSA34384.savepatch) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); extracted unique literal search IDs and section categories, omitted writes and preset quantities; no invented item names. |
+| Two raven-related counters | [Alexsander720 / Continue? contributors, 51e19b2a](https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); factual IDs/roles converted to LE byte keys, added PS5 occurrence evidence; no code/formula ported. |
+| Hero / blacksmith-chest research labels | Continue? revision above and [SaveWizard-Resources contributors, 4c32596e](https://github.com/sterben-Dev10/SaveWizard-Resources/blob/4c32596efde54af7bec390b298265f09c929d94d/SaveWizard-Codes/GOW%20Ragnarok%20%5BSaveWizard%5D.txt) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); factual labels only, both inferred; source displayed in container table description. |
+| Nested framing and generic XP candidate | Toolkit contributors, [issue #19](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/19) | Project GPL-3.0-or-later; original byte observations, no third-party implementation copied. |
+
+The new pack has a [data sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.community.en/community.source.md)
+and [GPL text](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.community.en/GPL-3.0.txt).
+[THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md) is plugin-local to respect this worker's scope.
+Attribution reaches `Info.References`, pinned F2 Sources, every F8 source cell, quantity descriptions,
+legacy wallet/anchor tables, container descriptions and direct callers. No additional wiki material
+was embedded: Fandom page/API access returned HTTP 403 and no new pinned revision was obtained.
+No permissively licensed gear/quest hash crosswalk was established. Unlicensed runtime tables,
+2018 editors and asset tools remain research-only sources.
+
+## Owner capture and validation checklist
+
+See [OWNER_CHECKLIST.md](OWNER_CHECKLIST.md) for exact captures, evidence needed for gear/quest
+names, keyed authentication investigation and the console write gate. Full named gear/quests,
+character-specific XP, collectible completion and all writes remain open.
+
 ## SDK requests
 
-None blocking. Existing lazy sections, tables, confidence and hex pages support this explorer.
+None blocking. F1, F2 and F8 support the read model; no plugin-local paging protocol was invented.
 Full grammar/integrity research is the blocker to editing.

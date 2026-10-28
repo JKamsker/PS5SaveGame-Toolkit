@@ -1,0 +1,30 @@
+{
+  "records": [
+    {
+      "id": "7ED58EF1EF802748",
+      "name": "Odin’s Ravens · unexchanged counter (inferred)",
+      "category": "collectible",
+      "description": "PC reader identifies this raven-related resource counter. The exact ID occurs in PS5 counted wallet rows; PS5 game UI semantics and completion formula are unverified.",
+      "limit": null,
+      "source": "https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py",
+      "attributes": {
+        "confidence": "Inferred PC-to-PS5 identity",
+        "hashEncoding": "little-endian bytes as stored",
+        "sampleCoverage": "40/76 primary gameplay records"
+      }
+    },
+    {
+      "id": "8B47085D5573FB28",
+      "name": "Raven Tree gifts · counter (inferred)",
+      "category": "collectible",
+      "description": "PC reader identifies this raven-related resource counter. The exact ID occurs in PS5 counted wallet rows; PS5 game UI semantics and completion formula are unverified.",
+      "limit": null,
+      "source": "https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py",
+      "attributes": {
+        "confidence": "Inferred PC-to-PS5 identity",
+        "hashEncoding": "little-endian bytes as stored",
+        "sampleCoverage": "56/76 primary gameplay records"
+      }
+    }
+  ]
+}

@@ -17,6 +17,7 @@ public sealed class RagnarokDiffHarnessTests
             TitleFilter = "PPSA08330",
             Decoder = new RagnarokDiffDecoder(),
             DecodeLimits = new DecodeLimits { MaxValues = 20_000 },
+            MaxSemanticChanges = 20_000,
             CollapseMirroredBackups = true,
         });
 
@@ -25,5 +26,8 @@ public sealed class RagnarokDiffHarnessTests
         Assert.Contains(report.Files, file => file.Semantic is { Changed: > 0 });
         var changed = report.Files.First(file => file.Semantic is { Changed: > 0 });
         Assert.Contains(changed.Semantic!.Changes, change => change.Path == "metadata/location");
+        Assert.Contains(changed.Semantic.Changes, change => change.Path.StartsWith("wallets/00004895C643225F/resources/", StringComparison.Ordinal));
+        Assert.Contains(changed.Semantic.Changes, change => change.Path.StartsWith("flags/", StringComparison.Ordinal));
+        Assert.Contains(changed.Semantic.Changes, change => change.Path == "integrity/SHA-256/whole-file/digest");
     }
 }
