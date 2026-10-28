@@ -1,5 +1,72 @@
 # PS5 Save Toolkit: cross-plugin requirements roadmap
 
+## Current status — 2026-10-28 (#37)
+
+This status supersedes the historical proposals below. F1–F13 are implemented on local `main`;
+feature availability does not imply every plugin uses every feature, or that an edited save has
+been accepted on PS5. All plugins remain Experimental. See the [current support table](../../README.md#supported-games-and-formats),
+[plugin guide](../PLUGIN_GUIDE.md) and [owner checklist](../OWNER_CHECKLIST.md).
+
+| Feature | Delivered capability | Tracking |
+| --- | --- | --- |
+| F1 | Read-only byte/semantic SaveDiff and fixture manifests | [#2](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/2) |
+| F2 | Pinned embedded/user reference packs, provenance and local assets | [#3](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/3) |
+| F3 | Rich live table cells, details, filtering and selection | [#4](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/4) |
+| F4 | ReferenceSpec, searchable field/action picker and eligibility checks | [#5](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/5) |
+| F5 | Stable identities, structural mementos and mixed undo/redo | [#6](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/6) |
+| F6 | Revision-bound action preview/apply and original/current semantic review | [#7](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/7) |
+| F7 | Explicit multi-file document groups with staged transactions/history/export | [#29](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/29) |
+| F8 | Bounded server-side collection queries and stable row keys | [#10](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/10) |
+| F6 + F8 | Whole-query action selection, unloaded rows and exclusions | [#27](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/27) |
+| F9 | Bounded maps/DAGs, text alternatives and external-link-first data | [#30](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/30) |
+| F10 | Exact numeric lexemes, explicit null and tagged union values | [#9](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/9) |
+| F11 | Managed Kraken decoder/stored writer and in-memory SQLite operations | [#28](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/28) |
+| F12 | Bounded F8 SaveDiff traversal, SDK decoder hooks and CLI discovery/selection | [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32) — implementation delivered; issue still open for review |
+| F13 | Isolated non-mutating inspection, browse-only picker, catalogue filter/sort and float durations | [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33) |
+
+The backend quality pass [#34](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/34) and web quality
+pass [#35](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/35) have also landed. #34 remains open
+for owner review; its reported fixes/tests are delivered, rather than a promise of further unperformed
+review. Issue state and implementation status are distinct.
+
+### Plugin rounds
+
+The reader/reference/view rounds and write-enable round have landed for all 17 plugins. Completion
+rounds are delivered for the 16 rows marked complete below; this means the supported implementation
+subset and documented gap audit, **not every phase exit of the original plan**. Console effects,
+controlled samples, lawful matching data and unsupported dependency writers remain explicit gaps.
+F12/F13 adoption varies by README; a plugin's old starting-main note does not make the framework pending.
+
+| Plugin | Completion-round status / remaining scope |
+| --- | --- |
+| [AstroPlayroom](../../plugins/AstroPlayroom/README.md) | Complete; collectible/world/coin presets, F8/F9 and inspection; bot/structural grammar still unknown |
+| [AtomicHeart](../../plugins/AtomicHeart/README.md) | Complete; populated inventory edits, query batches, evidence graphs/map and decoder/inspection; inner integrity/codec acceptance still unproven |
+| [BaldursGate3](../../plugins/BaldursGate3/README.md) | **Completion round in progress** ([#1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1)); bounded NewAge writes/views are present, authoritative identities and broad structural/story/dependency writers remain implementation limits |
+| [Cyberpunk2077](../../plugins/Cyberpunk2077/README.md) | Complete; stored progression/facts/stacks, broader read-only views and F12/F13; equipment/perk/world transaction writers incomplete |
+| [EldenRing](../../plugins/EldenRing/README.md) | Complete; six existing operations, progress/class references, F8/F9 and F12/F13; broader stats/equipment/world dependencies unmodeled |
+| [FinalFantasy16](../../plugins/FinalFantasy16/README.md) | Complete; fixed-width edits, inventory query actions, ability/location references and F12/F13; allocator and saved ability joins need evidence |
+| [FinalFantasy7](../../plugins/FinalFantasy7/README.md) | Complete; supported variant writes, restock/star presets and F12/F13; full socket/upgrade/reward/structural model remains incomplete |
+| [Gearbox](../../plugins/Gearbox/README.md) | Complete; serial-part editing, structural inventory/F7, skill references and F12/F13; legal pools/account precedence and BL4 evidence remain open |
+| [GenericJson](../../plugins/GenericJson/README.md) | Complete; title adapters, bounded browsing, F9, decoder/inspection; missing title definitions/dependency templates need captures |
+| [GodOfWarRagnarok](../../plugins/GodOfWarRagnarok/README.md) | Complete; counters/time/restore and F9/F12/F13; integrity and gear/story grammar remain unknown |
+| [Insomniac](../../plugins/Insomniac/README.md) | Complete; scalar writes/bolt planning, F8/F9 and F12/F13; inventory identity, upgrade and location joins need captures |
+| [Pragmata](../../plugins/Pragmata/README.md) | Complete; six added write surfaces, retained quantities/clocks, mission references and F12/F13; RSA and structural resizing remain unsupported |
+| [SuckerPunch](../../plugins/SuckerPunch/README.md) | Complete; Tsushima quantities/timer, reference F8/F9 and F12/F13; Yōtei remains read-only without authoritative records |
+| [TalesOfArise](../../plugins/TalesOfArise/README.md) | Complete; existing scalars/consumables and query planning, reference graphs and F12/F13; equipment/CP/growth/progression writers absent |
+| [UnrealGvas](../../plugins/UnrealGvas/README.md) | Complete; warned Jedi/Sackboy scalars, Hogwarts cells and F12/F13; checksums, row-role dependencies and stored-frame acceptance remain unproven |
+| [Witcher3](../../plugins/Witcher3/README.md) | Complete; progression/items/skills/Gwent and repair/refill, F9/F12/F13; structural identity and related-system transactions absent |
+| [XorJson](../../plugins/XorJson/README.md) | Complete; supported offline scalar/structural/F6/F7, F8/F9/F12/F13; gameplay semantics and console effects remain Unknown |
+
+Owner work is consolidated in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+Implemented writes are enabled with warnings; capture requests do not hide a prepared writer behind
+another permission decision. Licence exclusions and missing asset/rights evidence are recorded in
+[the central register](../LICENCE_EXCLUSIONS.md).
+
+## Original plan (historical; retained below)
+
+The following text is the original planning snapshot. Statements such as “Today”, “Proposal” and
+“Decisions needed” describe that snapshot, not current missing framework features or permissions.
+
 Synthesised from 17 per-plugin plans (`docs/plans/<Plugin>.md`) and 353 requirements
 (extracted from the plans), 2026-10-28. Each plugin plan uses issue #1 (Baldur's Gate 3) as the
 quality bar. Counts below are the number of plugins whose plan raised the need, out of 17.

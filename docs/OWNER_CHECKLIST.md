@@ -1,84 +1,87 @@
 # Owner capture and console-validation guide
 
-This is the single handoff for owners who can make controlled PS5 captures. It turns the
-per-plugin requests into one ordered queue. A checked box means that the private before/after
-archives, metadata and console observations exist; it does not by itself authorize a write.
-Only the owner can promote a feature to Stable.
+This consolidates the owner checklists posted on [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31)
+and each linked plugin issue (#1, #11–#26), checked against the current plugin
+READMEs and code on `main` for documentation consolidation (#37), 2026-10-28.
+
+**Supported writes are enabled with warnings, and all plugins remain Experimental.** These checks
+validate effects and persistence; they are not another permission gate for implemented writes.
+Edits are not console-validated and the game may reject, normalize or overwrite them. Yōtei has no
+identified gameplay writer; BL4 is research-only. Other unimplemented structural/dependency writers
+still need engineering after their semantics are established. BG3's completion round is in progress.
+Only the owner can promote a tested feature to Stable.
 
 ## Capture protocol (F1)
 
-Use one native PS5 build, slot and character for a pair. Choose the smallest event that changes one
-thing: buy one item, use one item, gain one level, equip one piece, or collect one object. Do not
-combine a quest step, cutscene, area transition or autosave side effect with the event under study.
+The full [capture protocol and F1/F12 CLI reference](SAMPLES.md#capture-protocol-controlled-beforeafter-pairs)
+define archive naming, metadata, decoder discovery and fixture manifests. For every title/build:
 
-1. Record a no-action control first for each build: save, reload, take no action, save in the same
-   place and export both snapshots. Differences in this pair are churn and need a recorded reason
-   before they can be ignored.
-2. Record the game version (Settings → Information), platform, region, DLC, mods/load order,
-   difficulty or mode, save slot and character. Record the exact event and the values shown by the
-   game before and after. Never put account IDs, PSN names, UIDs, tokens or credentials in a
-   manifest, issue or report.
-3. Export a decrypted dump with the primary and backup files. Name archives
-   TITLE_event_before.zip and TITLE_event_after.zip, for example
-   PPSA01325_collect-one-coin_before.zip. Keep them in the private artifacts directory; never
-   commit or copy save bytes into this repository. If one archive contains repeated snapshots,
-   retain its generations and record which generation is used.
-4. For an event pair, export immediately before, perform exactly one action, save in the same slot,
-   and export immediately after. Record the displayed value transition, screenshots or a
-   transcription, archive SHA-256 values and the capture date.
-5. Check the pair with the read-only SaveDiff tool:
-
-       dotnet run --project tools/SaveToolkit.SaveDiff -- list artifacts/TITLE_saves_dec.zip
-       dotnet run --project tools/SaveToolkit.SaveDiff -- compare before.zip after.zip --semantic auto
-       dotnet run --project tools/SaveToolkit.SaveDiff -- compare artifacts/TITLE_saves_dec.zip artifacts/TITLE_saves_dec.zip --before-gen 0 --after-gen 1 --semantic plugin-id --ignore plugins/Name/fixtures.json
-       dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/Name/fixtures.json --format json
-
-   Use the same archive on both sides when comparing generations. Pair files by title,
-   logical directory, backup flag and path, not by ZIP position. Review changed ranges and semantic
-   paths, backup twins and any truncation. Turn only confirmed changes into expected fixture entries.
-6. Record the pair in a fixture manifest with title ID, game, build, platform, region, slot,
-   character, DLC/mods, event, control status, shown values, archive names and hashes, decoder,
-   files, expected changes and an honest confidence note. savediff verify may skip absent private
-   archives; a skip is not evidence.
-7. Perform the console check for every proposed write: restore a disposable spare-slot copy; load
-   it; verify the intended value and relevant side effects; perform the normal next action that
-   consumes, equips or advances the value; save in the game; exit; reload; verify the value again;
-   export and compare the rewritten files. Record acceptance, clamping, normalization, rejection
-   text, unrelated changes and the build/slot. Repeat a second reload when a checklist asks for it.
-   Preserve the untouched recovery export.
+1. Keep an untouched recovery export and all companion/backup files. Use a disposable spare slot.
+2. Capture a **no-action control**: save/export, load, take no action, save/export in the same place.
+   Include restart/reload where requested. Investigate the differences before recording any churn mask;
+   a primary/backup twin or self-comparison is not a temporal control.
+3. Record title, native build, region, DLC/mods, locale, mode/NG+, slot/character, capture date, one
+   exact action and visible before/after values. Keep account identifiers and credentials out of notes.
+4. For each event below, take a separate immediate before/after pair. A grouped checklist entry means
+   several independent pairs, never one combined gameplay session. Keep archives in the private
+   external artifacts directory as `<TITLE>_<event>_before.zip` / `_after.zip`, with SHA-256 hashes.
+5. For each enabled write, export unchanged and test recovery first; then change one small value,
+   load, check its effect and unrelated state, perform the normal use/buy/equip/progression action,
+   native-save, exit, reload, re-export and compare all affected files against the control. Include a
+   second clean reload where specified. Record clamping, regeneration and rejection as well as success.
+6. For a planned action, review direct/derived values, skips and warnings before apply. Verify one
+   undo/redo step, export/re-import, and console persistence. Test explicit rows, document scope and
+   supported all-matching F8 queries with an excluded unloaded row; empty/fully excluded scopes must
+   change nothing. Apply only scopes that the plugin supports, within its documented bounds.
+7. Use `savediff list-decoders` to select a view or native hook. Review bytes, semantic paths, primary/
+   backup differences and incomplete-input warnings. Confirm event changes before adding fixture
+   expectations or reasoned ignore rules. Missing samples and skipped fixtures are not evidence.
 
 ## Highest value first
 
-These are ordered by the number of existing write families they can unlock for the least play time.
-The title sections retain each plugin's more specific prerequisites.
-
-1. Capture the no-action save/reload/save control for every build and title. It identifies churn
-   once and makes every later diff trustworthy.
-2. Capture one small currency or stack transition (gain, spend, buy, use, sell) and the existing
-   value's console load/save/reload check. This calibrates quantities, caps and the simplest
-   scalar writers.
-3. Capture one existing-item equip/unequip or storage transfer, including the owner, slot and
-   displaced item. These pairs unlock identity and dependency checks for inventories and loadouts.
-4. Capture one XP/level or point transition, then one skill/perk/upgrade transition. Keep each
-   event separate so mirrors, limits and prerequisites are visible.
-5. Capture one named collectible, quest/objective or world unlock. These are slower but unlock
-   progress views only when the changed record and dependent rewards are identified.
-6. Capture full/near-full, duplicate-instance, DLC/NG+/mode and late-game variants only after the
-   small pairs above. They establish boundaries and prevent a write that works only on the
-   starter save.
-7. Run codec/integrity, companion-file, corruption and cross-version experiments only where the
-   title section asks for them. They are gates for safe serialization, not substitutes for a
-   causal gameplay pair.
+1. Capture each title/build's no-action control and unchanged toolkit-export/recovery cycle.
+2. Validate the simplest **already-enabled** currency, stack or setting edit and its normal next use.
+3. Validate the remaining enabled scalar families and reviewed batch scopes listed below.
+4. Capture identity/equipment/transfer, XP/skill and collectible/story events separately to explain
+   missing joins and dependencies. A reference catalogue or set bit alone proves neither ownership nor completion.
+5. Add boundary, duplicate-instance, full-container, later-build, NG+/DLC and regional variants.
+6. Supply version/locale-matched reference data with provenance. Under the owner decision of
+   2026-10-28, import unlicensed community facts/data with full attribution and reimplement unlicensed
+   code from documented behaviour with source credit; no published licence is required for those paths.
+   GPL-2.0-only code, NC/no-redistribution terms and publisher art, icons, screenshots or game-extracted
+   text remain refusals. Consult the [licence exclusions register](LICENCE_EXCLUSIONS.md) for current
+   status and imports in progress. Seek compatible terms for remaining refusals; matching captures
+   and ID joins still need evidence.
 
 ## Title checklists
 
+Within each title: **control → enabled-write validation → further mapping/compatibility captures**.
+Use the shared console cycle above for every write checkbox. The linked plugin files retain exact
+field IDs, bounds and the full gap audit. Research-only entries request captures, not toolkit edits.
+
 ### PPSA18463 — Baldur's Gate 3
 
-Build notes: the supplied PS5 LSMF sample is one independent snapshot with no no-action resave;
+Build notes: the supplied PS5 LSMF sample is one independent snapshot without a recorded no-action resave;
 build, region and gameplay chronology are unknown. Keep the character/slot/build constant.
-[Plugin checklist](../plugins/BaldursGate3/EVIDENCE.md) · [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1)
+[Live-write checklist](../plugins/BaldursGate3/NEWAGE.md) · [broader capture checklist](../plugins/BaldursGate3/EVIDENCE.md) · [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1)
 
-- [ ] Control: save/export, reload without acting, save/export in the same place.
+**Current scope:** Completion round in progress. Enabled: supported LSF primitives, SaveInfo metadata and
+bounded NewAge live candidates; no authoritative party/gold total.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate SaveInfo level, current XP, total XP and LeaderName metadata independently, then a multi-row
+      batch; compare save-menu metadata with the live sheet. The supplied Item list has no direct quantity
+      attribute: provide an explicit positive LSF quantity fixture before testing that conditional writer.
+- [ ] Identify a settled ordinary NewAge stack and owner; lower one supported member quantity,
+      use/trade/rest and inspect unrelated owners. Repeat a multi-contribution member and immediate versus
+      settled rearrangements; no quantity of one or player-gold identity is invented.
+- [ ] Validate current and temporary HP candidates separately, including zero/stored maximum; inspect sheet,
+      combat, death/status, rest and other characters. Reduce each supported effective ability-cache
+      candidate separately, with/without boosting gear; check level-up/respec and regeneration.
+- [ ] Swap two unequipped entries within one container; verify grid order, ownership/equipment/quantities
+      and undo/redo. Include non-sequential CSD ordinals. Lower two quantities and test imported-quantity
+      restoration with explicit/query/excluded/document scopes.
 - [ ] Gain exactly one gold; record the acting character, exact stack and all party gold totals.
 - [ ] Spend exactly one gold in a separate pair.
 - [ ] Consume one healing potion from a settled known stack; record count and HP.
@@ -94,23 +97,35 @@ build, region and gameplay chronology are unknown. Keep the character/slot/build
 - [ ] Capture separate damage/heal/temporary-HP, boosted-gear, learn/prepare-spell,
       level-up/respec, quest accept/complete/fail, approval change, rest/romance and
       recipe/waypoint event pairs.
-- [ ] Provide permitted build/language/module-matched template, stats and LOCA data with a
-      rights manifest; record the icon/commercial and spoiler decisions separately.
-
-Console checks: restore an untouched re-export first and load/resave/re-export it. Test metadata-only
-changes separately. For every future live edit, confirm the effect, unrelated characters, rest/trade/
-combat where relevant, resave, reload and redump, including failures and warnings.
+- [ ] Provide build/language/module-matched community template/stat/ID facts with full attribution,
+      including unlicensed sources under the owner decision. Record source terms; publisher LOCA text,
+      icons and legacy NC prose remain excluded without compatible permission. Record spoiler choices.
 
 ### PPSA01325 — ASTRO's PLAYROOM
 
 Build notes: the sample has two primary memory.dat generations and identical backup twins, but the
 build, region and actions are unknown; no special-bot keys are present. [Plugin checklist](../plugins/AstroPlayroom/README.md) · [issue #11](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/11)
 
-- [ ] No-action save/load/resave control for each build.
+**Current scope:** Enabled: existing coin/play-count/boolean controls and four reviewed presets; unknown
+integrity and pickup dependencies remain.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate coin and play-count edits independently, plus supported Progress/World/ownership/cinematic
+      flags one at a time. Identify the native PlayCount event and actual coin cap; storage bounds are not
+      game limits.
+- [ ] Test artifact, puzzle and prop grants independently, then selected/full/all-matching collect-existing
+      batches. Inspect museum/prizes, cinematics, notifications, rewards, UdsWorkaround and primary/backup
+      diffs after a second clean reload.
+- [ ] Preview Memory Meadow ownership (9 artifacts + 16 internal-prefix puzzles), then repeat with an
+      excluded filtered record. Confirm actual membership; this IsGot-only preset does not repair world
+      completion or rewards.
+- [ ] Test gatcha top-up at 1 and 17 attempts on low balances and with an already higher balance. Confirm
+      max(current, attempts × 100), actual 100-coin cost, random prizes, clamping and persistence; no
+      guaranteed completion budget.
 - [ ] Gain exactly one coin.
 - [ ] Spend exactly 100 coins on one gatcha.
 - [ ] Test coin boundary/clamping behavior and photograph displayed values.
-- [ ] Make one small independent coin edit on a spare save.
 - [ ] Pick up one named artifact; record catalogue, notification and cinematic behavior.
 - [ ] Win one prop/gatcha prize separately.
 - [ ] Clear one normal stage separately.
@@ -128,19 +143,29 @@ build, region and actions are unknown; no special-bot keys are present. [Plugin 
 - [ ] For transfer research, capture both games before and after the actual transfer with
       offline/online context.
 
-Console checks: for each proposed write, load a spare edited save, confirm the intended effect,
-play normally, resave, export, reload a second time and record persistence and linked collection,
-cinematic, notification and UdsWorkaround effects. Only the owner can approve Stable or a bulk
-dependency.
-
 ### PPSA10695 — Atomic Heart
 
 Build notes: this plugin handles the custom SaveExtension format, not standard GVAS. The observed
 codec is Kraken; inner integrity and duplicated state remain unresolved. Use the exact console build,
 region, DLC and slot in every filename. [Plugin checklist](../plugins/AtomicHeart/README.md) · [issue #12](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/12)
 
-- [ ] Label every capture with console build, region, DLC and slot; retain a clean recovery copy.
-- [ ] Idle load/save with no gameplay change.
+**Current scope:** Enabled: populated Amount, constrained existing asset replacement and F6 Amount batches.
+SHA-1 repair does not establish inner integrity or stored-Kraken acceptance.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Arrange independently reviewed decoder agreement for every original compressed Kraken chunk;
+      investigate inner integrity/duplicate state separately. The stored-literal output oracle does not
+      validate original compressed chunks.
+- [ ] Validate one small populated Amount edit and zero separately; check use/spend, travel, output growth,
+      PS5 slot capacity and normalization after restart/reload.
+- [ ] Test one same-category weapon replacement and one ammo replacement using full paths already present in
+      the save. Inspect old/new asset IDs, ItemId, modules, ownership, equipment, capacity and use.
+- [ ] Test selected/full eligible and filtered-all-matching Amount batches with an exclusion; verify
+      unloaded matching rows, excluded rows and unrelated decoded spans. Identify the active region
+      separately from saved/unvisited levels.
+- [ ] Provide a lawful matching-build/locale asset pack for exact resource/consumable/skill/module names,
+      costs, limits, prerequisites, footprints and reward joins; formatted raw IDs are not localization.
 - [ ] Gain one Neuropolymer.
 - [ ] Spend one Neuropolymer separately.
 - [ ] Pick up one material; record exact material and count.
@@ -158,18 +183,27 @@ region, DLC and slot in every filename. [Plugin checklist](../plugins/AtomicHear
 - [ ] Advance one objective.
 - [ ] Add early, open-world, late, NG+ and DLC states before making broad claims.
 
-Codec/console checks: compare all decoded chunks with an independently reviewed decoder before
-enabling writes. If a codec-only stored-frame candidate is separately reviewed, restore it on PS5,
-record growth/capacity, load, inspect inventory, travel, save, restart and reload. For each semantic
-edit, observe the effect, spend/use it, save/restart/reload and compare unrelated spans.
-
 ### PPSA04027 — Cyberpunk 2077
 
 Build notes: the Cyberpunk plugin's sample has no controlled console capture; the early sample has
 no allocated modern perks or installed cyberware. Later PS5 versions/regions/DLC need their own
 evidence. [Plugin checklist](../plugins/Cyberpunk2077/EVIDENCE.md) · [issue #13](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/13)
 
-- [ ] Idle save/reload/save control.
+**Current scope:** Enabled: supported 2.21 binary gameplay writes and GenericJson v136 settings adapters;
+equipment/perk/story dependency writers remain incomplete.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate money, supported stacks, each attribute and each point balance independently. For
+      target/refill batches check ammo/components/consumables, 2.x charge/replenishment behavior, protected
+      rows and quantities already above the opening value.
+- [ ] Validate Level, Street Cred, both current-XP and both stored-threshold fields separately; capture
+      threshold crossings/rewards and whether the game retains or recomputes thresholds. Test one known
+      noncritical existing fact with related callbacks, forward play and stage checks.
+- [ ] For settings, capture static choice/index and scalar changes, dynamic language/HDR choices and native
+      resets separately. Validate paired value/index authority, recorded-default single/selected/all
+      presets, exact menu effects, restart persistence and actual float steps. Keep unsupported versions
+      separate.
 - [ ] Buy exactly one known ammo/component stack; record item, cost and quantity.
 - [ ] Fire/use exactly one unit in a separate pair, including automatic replenishment.
 - [ ] Equip one existing weapon or clothing item; capture before, after equip and after unequip.
@@ -177,10 +211,6 @@ evidence. [Plugin checklist](../plugins/Cyberpunk2077/EVIDENCE.md) · [issue #13
 - [ ] Upgrade one existing item once; record tier, stats and materials.
 - [ ] Install one existing cyberware implant.
 - [ ] Remove that implant separately; record slot, capacity and bonuses.
-- [ ] Validate one supported money value on a spare slot.
-- [ ] Validate one supported stack value on a spare slot.
-- [ ] Validate each supported attribute value separately.
-- [ ] Validate each supported point balance separately.
 - [ ] Obtain two identical-base items; equip each in the same slot and then unequip separately,
       including fists versus weapon/cutscene slots for RightArm.
 - [ ] Attach one named mod/attachment and remove it in a separate pair.
@@ -200,16 +230,28 @@ GenericJson overlay captures for this same title are deduplicated here: one stat
 one scalar change plus reset-to-default, one dynamic language/HDR choice, a restart/resave after
 each, and a second settings version to test value/index authority. [GenericJson checklist](../plugins/GenericJson/README.md) · [issue #18](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/18)
 
-Console checks: restore the spare slot, load, inspect/use/equip, save and reload, then compare
-unrelated inventory and progression. Record the exact build and result before promoting Stable.
-
 ### PPSA03169 — Elden Ring
 
 Build notes: the PS5 payload is memory.dat with ordinary backup twins; application and regulation/
 calibration versions, region and DLC are not established by the sample. Keep one character and
 version per pair. [Plugin checklist](../plugins/EldenRing/Evidence/OWNER_CAPTURES.md) · [issue #14](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/14)
 
-- [ ] No-action control, repeated once, recording elapsed time and unchanged menus.
+**Current scope:** Enabled: six bounded rune/name/quantity/history operations.
+Inventory/equipment/stat/world candidates do not imply further writers.
+
+- [ ] Two no-action controls with elapsed time/unchanged menus, plus unchanged export/recovery; retain
+      primary and backup separately.
+- [ ] Validate held-only rune field and preview separately; inspect slot/menu and both history copies. Test
+      manual history and linked balance/history with no repeated accumulation. History ceiling max(imported,
+      4427) is an editor policy, not a game limit.
+- [ ] Validate mirrored live/menu names with Unicode, a shortening and exactly 16 UTF-16 units; preserve
+      padding and exact undo bytes.
+- [ ] Test each existing positive Rowa Fruit (1–12) and Smithing Stone [1] (1–3) stack in held and nonempty
+      storage. Supply native storage fixtures: present coverage is synthetic. Refill two eligible rows,
+      including a filtered exclusion; these observed ceilings are not legal caps.
+- [ ] Observe Church of Elleh (76100) and The First Step (76101); capture one exact grace/boss/map-fragment
+      event and surface/underground display toggle separately. Record source symbol/raw path; map
+      ownership/reveal/completion meanings remain unconfirmed.
 - [ ] Buy one Throwing Dagger; record count, rune balance and price.
 - [ ] Use one Throwing Dagger; separately use the final N=1→0 item.
 - [ ] Move five Rowa Fruit into storage and record held/storage counts.
@@ -240,36 +282,43 @@ version per pair. [Plugin checklist](../plugins/EldenRing/Evidence/OWNER_CAPTURE
 - [ ] Capture base/DLC blessing changes and a selected quest branch/NG+ transition separately.
 - [ ] Supply full/near-full held/storage and acquisition-history boundaries.
 
-Console checks: validate the existing held-rune edit from a restorable duplicate, including balance,
-slot/menu state and no unexpected effects; save/re-export/reopen and load the re-saved output again.
-Repeat through Review held-rune change and verify preview, undo equality and redo equality. Apply the
-same sequence to every future family.
-
 ### PPSA10665 — Final Fantasy XVI retail
 
 Build notes: retail and demo use different supported schemas and banks; capture normal/Final Fantasy
 NG+, adult/child stage and DLC separately. [Plugin checklist](../plugins/FinalFantasy16/README.md) · [issue #15](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/15)
 
-- [ ] Save/reload/save no-action control.
+**Current scope:** Enabled: supported existing inventory/equipment, raw ability, player/party/time fields
+and reviewed main-stack targets. No allocator/growth/dependency repair is claimed.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate main/secondary quantities and nonzero-ID replacement separately; inspect both banks,
+      duplicate-ID handling, zero-ID quantity behavior, acquire/use/sell and active adult/child/stage roles.
+      Test equipment in each of the three banks, one slot at a time.
+- [ ] Validate raw rank/newFlags/protectFlags one index/bit at a time; capture learn/upgrade/master/reset AP
+      deltas, Eikon/slot and menus to join the 48 named reference abilities to actual saved indices. Reference
+      progression is not saved learned state.
+- [ ] Validate adult/child level and XP separately, then HP/recovery/LB, summon index/learned/revealed
+      bits/IDs, command IDs, shortcuts, party scene/map/member IDs/count and time independently. Inspect
+      ownership, AP, growth, battle, location and sibling dependencies; no teleport guarantee.
+- [ ] Test main-stack target on two rows and populated retail F8 category-filtered results with one excluded
+      unloaded row; inspect CRC/skips, undo/redo and use/save/reload. Test zero matches and fully excluded
+      results separately.
+- [ ] Capture acquire/sell-last/reacquire/slot-reuse/capacity and one obelisk/collectible event separately
+      before allocator or completion writers can be substantiated.
 - [ ] Buy one potion, use one, sell one material and reacquire one allocated zero-stack item,
       each in a separate pair.
-- [ ] Capture each pouch capacity/potency upgrade separately.
 - [ ] Equip one weapon, belt, vambrace and accessory separately, recording all six UI slots.
 - [ ] Include boyhood and stage-replay pairs to identify active banks.
-- [ ] Learn, upgrade, master and reset one skill in separate pairs; record AP and Eikon/slot.
 - [ ] Unlock one Eikon separately from any story transition.
 - [ ] Earn XP without leveling, then cross one level; repeat adult/child and normal/Final Fantasy mode.
 - [ ] Supply matched, legally owned PC binary/XML states with build/locale/DLC if available.
-- [ ] Edit one existing stack quantity on a spare slot, load, verify, spend/use/sell, save, reload
-      and re-export; compare unrelated fields.
-- [ ] Supply licence-compatible labels or observed item-label/acquisition pairs for the 41 Unknown IDs.
+- [ ] Supply attributed community labels, including unlicensed tables under the owner decision, or observed
+      item-label/acquisition pairs for the 41 Unknown IDs; keep publisher-extracted text separate.
 - [ ] Capture one upgrade each for potency/capacity IDs 506, 507, 508 and 509, with both banks,
       displayed capacities/potencies, quest, mode, DLC, stage, zero-stack control and stage replay.
 - [ ] Capture learn, upgrade, master and reset for skill IDs 39, 45 and 49 independently, with
       AP deltas, rank, Eikon assignment, all rank bytes and both flag arrays.
-
-Console checks: restore the edited spare-slot copy, verify UI, spend/use/sell, save, reload and
-re-export. CRC success alone is insufficient; record unrelated changes.
 
 ### PPSA13803 — Final Fantasy XVI demo
 
@@ -277,7 +326,17 @@ Build notes: demo records never inherit the retail extended player schema. Keep 
 console checks separate from PPSA10665. Use the same checklist and record demo stage, mode and bank
 identity explicitly. [Plugin checklist](../plugins/FinalFantasy16/README.md) · [issue #15](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/15)
 
-- [ ] Capture the demo no-action control.
+**Current scope:** Enabled writes use the demo schema and observed bounds; never inherit retail
+extended-player semantics.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Repeat the retail enabled-write cycle only for fields actually exposed by the demo: inventory/gear,
+      ranks/flags, supported player/party context, time and quantity action. Constant observed bounds can
+      leave a field with no alternative value.
+- [ ] Test selected/full/filtered quantity scopes, exclusions, empty results and one-step history
+      independently. Verify demo stage/bank/AP and downstream effects; keep the 48-ability reference names
+      separate from saved-index claims.
 - [ ] Capture one potion buy/use, material sale and zero-stack reacquisition separately.
 - [ ] Capture one weapon, belt, vambrace and accessory equip separately.
 - [ ] Capture one skill learn/upgrade/master/reset and one Eikon unlock separately.
@@ -285,66 +344,106 @@ identity explicitly. [Plugin checklist](../plugins/FinalFantasy16/README.md) · 
 - [ ] Capture the demo-specific 506/507/508/509 capacity/potency transitions with stage and bank.
 - [ ] Capture demo-specific skill IDs 39/45/49 learn/upgrade/master/reset with exact flags.
 
-Console checks: apply the demo spare-slot sequence independently; do not transfer retail meanings or
-claims to the demo.
-
 ### PPSA01911 — Final Fantasy VII Remake / INTERmission
 
 Build notes: Remake main and INTERmission are separate roles under the same title ID. The supplied
 samples show writable gil, occupied quantities and ordinary materia AP, but no PS5 console test.
 [Plugin checklist](../plugins/FinalFantasy7/README.md) · [issue #16](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/16)
 
+**Current scope:** Enabled: Remake/INTERmission mapped HP/MP/XP/level, gil/counts, ordinary materia
+AP/stars, progress bits and two reviewed presets.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate every scalar family separately for main game and INTERmission: battle/MP use, coupled
+      XP/level, gil and mapped non-equipment counts. Ordinary AP/stars need below/at/above threshold and
+      increase/decrease checks on equipped/unequipped copies.
+- [ ] Test restock of existing positive ordinary consumables and materia-star preset with derived AP;
+      inspect skipped rows, scopes, use/abilities and grouped undo. Summon progression needs independent
+      evidence.
+- [ ] Test a single mapped progress bit per available domain; inspect actors/rewards/counters/prerequisites
+      and chapter reset/reversal. Capture Remake upgrade purchase/reset with SP/grid/sockets; progress edits
+      can softlock gameplay.
 - [ ] Capture one XP level-up.
 - [ ] Capture one materia AP star-up.
 - [ ] Capture one gear swap.
 - [ ] Capture one materia move.
-- [ ] Capture an edited save load/reload/resave pair.
 - [ ] Repeat the pairs for Remake main and INTERmission separately, recording chapter/difficulty.
-- [ ] Capture one card acquisition, opponent win, deck change, crafting-rank gain, folio-node
-      purchase, stop repair and World Intel step separately.
 - [ ] Capture capacity/creation/deletion boundaries: buy two identical materia, equip/swap/sell
-      one, acquire/discard one weapon/card and reach a full inventory.
-- [ ] Supply known-state party/gear/materia/card screenshots paired to sample identities.
-
-Console checks: load each edited spare slot, check menus/effect, play a battle, resave, import again
-and reload. Confirm dependent inventory/detail/owner bytes are preserved.
+      one, acquire/discard one weapon and reach a full inventory.
+- [ ] Supply known-state party/gear/materia screenshots paired to sample identities.
 
 ### PPSA08664 — Final Fantasy VII Rebirth retail
 
 Build notes: Rebirth retail has its own linked-record schema and 23 MiB gameplay file; it is not
 interchangeable with Remake or the demo. [Plugin checklist](../plugins/FinalFantasy7/README.md) · [issue #16](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/16)
 
+**Current scope:** Enabled: retail Rebirth mapped scalars, ordinary AP/stars, qualified owned-weapon
+references, counts/progress bits and restock/star presets.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Repeat HP/MP/gil/count and coupled XP/level validation on a retail slot. Test ordinary AP/star
+      thresholds and both presets, including scope exclusions and equipped abilities.
+- [ ] Test one qualified existing owned weapon reference; inspect displaced gear, sockets/capacity,
+      proficiency, folios, ownership and battle effects.
+- [ ] Validate progress bits independently with actors/rewards/counters, chapter reset and reversal. Capture
+      folio purchase/reset per character with SP/prerequisites; crafting recipe/ingredients/result/rank,
+      minigame score/rank/reward, assessment/defeat and relationship events separately. Confirm card IDs
+      012/013 and summon tiers independently.
 - [ ] Capture one XP level-up.
 - [ ] Capture one materia AP star-up.
 - [ ] Capture one gear swap and one materia move separately.
-- [ ] Capture one edited save load/reload/resave pair.
-- [ ] Capture the card, opponent, deck, crafting, folio, stop and World Intel events separately.
+- [ ] Capture card acquisition/opponent/deck changes, stop repair and World Intel events separately.
 - [ ] Capture capacity/creation/deletion and full-inventory boundaries, including duplicate materia.
 - [ ] Supply screenshots for Rebirth guests, past records, summon levels and owned relationships.
-
-Console checks: use a Rebirth spare slot, include a battle, resave and second import/reload, and
-confirm no dependent owner/detail bytes are lost.
 
 ### PPSA18936 — Final Fantasy VII Rebirth demo
 
 Build notes: demo and retail use distinct schema identities despite matching dimensions. Demo
-meanings remain Inferred and gameplay is read-only until its own evidence exists. [Plugin checklist](../plugins/FinalFantasy7/README.md) · [issue #16](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/16)
+meanings remain Inferred; supported writes are enabled with their own warnings. [Plugin checklist](../plugins/FinalFantasy7/README.md) · [issue #16](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/16)
 
+**Current scope:** Enabled: supported demo mappings with Inferred meaning; demo and retail are separate
+schema identities.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Independently validate exposed demo gil/counts, HP/MP/XP/level, ordinary materia AP/stars, qualified
+      weapon references, mapped progress bits and both presets where eligible records exist. Check battle,
+      abilities, sockets, rewards and chapter reset/reversal; never infer absent retail systems.
+- [ ] Test selected/document/query presets only where exposed, with skipped/protected rows, exclusions and
+      one-step undo. Keep summon tier/progression evidence separate.
 - [ ] Capture one XP level-up.
 - [ ] Capture one materia AP star-up.
 - [ ] Capture one gear swap and one materia move separately.
-- [ ] Capture one edited demo save load/reload/resave pair.
 - [ ] Capture demo card/progression events only when they actually exist in the demo.
-
-Console checks: validate the demo independently; no retail mapping or write is inherited from
-PPSA08664.
 
 ### PPSA01463 — Borderlands 3
 
 Build notes: BL3 uses GVAS with engine 4.20.3 and branch OAK; patch, DLC and hotfix completeness
 are unknown, and serial identity must be retained. [Plugin checklist](../plugins/Gearbox/README.md) · [issue #17](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/17)
 
-- [ ] No-action save/reload/save control with character, matching profile and backup.
+**Current scope:** Enabled: BL3 character/item edits, constrained serial parts, structural inventory actions
+and explicit F7 character/profile transactions.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate name/level/XP/points, money/eridium/keys/ammo, SDUs, Mayhem and supported item
+      level/reroll/marks independently. Test selected/full-query level actions and inspect capacities,
+      loot/modifiers and rewards; editor policies are not measured PS5 limits.
+- [ ] Replace one existing regular/generic serial part with a legitimate same-category alternative. Record
+      serial/card/stats and build/DLC/hotfix, including duplicate/excluded-part behavior and
+      rejection/removal; category/width/CRC alone do not prove a legal pool.
+- [ ] Test import/duplicate/remove with first/middle/last, equipped, duplicate and full-container cases.
+      Test F7 deposit/withdraw/lost-loot and scalar batches with matching character/profile/backups; reopen
+      exported files and inspect persisted counts, order, marks, displaced/equipped indices and one
+      whole-group undo.
+- [ ] Validate existing Guardian character/profile ranks, XP, tokens, rewards/perks/enabled flags
+      separately; inspect every mirrored character and budget/precedence. Capture one named skill allocation
+      0→1, another rank and respec for every class/tree, including fourth-tree DLC. Calculator order does
+      not join opaque saved skill IDs.
+- [ ] Capture mission branch/completion/reward/claim separately; the F9 stored checklist does not implement
+      mission repair.
 - [ ] Pick up one item.
 - [ ] Sell/remove one item.
 - [ ] Equip and unequip one item separately.
@@ -356,15 +455,25 @@ are unknown, and serial identity must be retained. [Plugin checklist](../plugins
 - [ ] Gain one level, allocate/respec one skill, purchase one SDU and refill ammo separately.
 - [ ] Capture Guardian profile plus multiple characters around one token/perk.
 
-Console checks: restore a backed-up spare slot, confirm visible effect and unrelated inventory,
-resave, reload and return the dump and observations. Report clamping.
-
 ### PPSA01493 — Tiny Tina's Wonderlands
 
 Build notes: TTWL has a separate schema and XP/leveling policy; current characters are level 12.
 Supply level-40/endgame gear, nonzero rerolls and each Chaos tier. [Plugin checklist](../plugins/Gearbox/README.md) · [issue #17](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/17)
 
-- [ ] No-action control with character, matching profile and backup.
+**Current scope:** Enabled: TTWL character/item and group operations, constrained serial parts, Hero/Myth
+fields and Chaos settings, all with inferred limits.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Repeat the BL3 applicable scalar/item/part/import/duplicate/remove and selected/full-query action
+      checks using TTWL schemas. Add rerolls, item Chaos tier, current Chaos and unlocked ceiling; inspect
+      trials/rewards/loot/caps independently.
+- [ ] Test F7 bank/lost-loot transfers and combined scalar batches with matching character/profile/backups.
+      Verify native persisted counts, unknown item metadata, equipment/order and whole-group undo, including
+      duplicates/full containers.
+- [ ] Validate existing Hero raw/base/bonus values, Myth XP, each indexed allocation/cap and last-tree
+      rotation independently. Capture respec/budget/mirror precedence, primary/secondary class choices and
+      isolated named skill rank/respec pairs; do not infer names from calculator order.
 - [ ] Capture one pickup, sale/removal, equip/unequip, favourite/junk, backpack↔bank move,
       lost-loot claim and reroll separately.
 - [ ] Include duplicate and full/near-full containers and transcribed item cards.
@@ -372,31 +481,41 @@ Supply level-40/endgame gear, nonzero rerolls and each Chaos tier. [Plugin check
 - [ ] Gain one level, allocate/respec one skill, purchase one SDU and refill ammo separately.
 - [ ] Capture each indexed Myth allocation, rotation and capped stat with matched profile.
 
-Console checks: use the same spare-slot load/effect/resave/reload sequence; report clamping and
-unrelated character/profile changes.
-
 ### PPSA01494 — Borderlands 4
 
 Build notes: BL4 is research-only, with one 1,888-byte gbxsavegame.sav occurrence, no backup and
 no established PS5 codec or file role. [BL4 checklist](../plugins/Gearbox/BL4-feasibility.md) · [issue #17](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/17)
 
+**Current scope:** Research-only and excluded from the Gearbox editor; no toolkit gameplay writer exists.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
 - [ ] Supply complete fresh-profile, settings-only-toggle and first-gameplay dumps with every file
       and available backup; record files appearing, vanishing or changing.
-- [ ] Capture a no-action save/reload/save control.
 - [ ] Capture one known money change.
 - [ ] Capture one legitimate item pickup with matching profile/settings files.
 - [ ] Establish an owner-local PS5 derivation route without sharing credentials, keys or secrets.
 - [ ] After role/codec proof, test padding, compression boundaries, trailer lengths, unknown-token
       retention, corruption rejection and byte-identical full-file no-op output.
 
-Console checks: BL4 remains read-only until a separately implemented write family passes load,
-effect, resave, reload and comparison on a backed-up spare slot.
-
 ### PPSA02343 — It Takes Two (EU) settings/profile
 
 Build notes: the sample has three distinct JSON profile generations (3,993/3,522/1,312 bytes)
 with byte-identical backup twins; archive order is not chronology. [Plugin checklist](../plugins/GenericJson/README.md) · [issue #18](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/18)
 
+**Current scope:** Enabled: present string flags/counters, existing chapter/checkpoint strings/tuple and
+reviewed present-flag/counter-zero presets.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate discovery versus played flags and casing, Cody/May wins/scores independently, native
+      units/caps and zero behavior. Test selected/full present-flag and counter-zero presets; absent keys
+      must remain absent.
+- [ ] Validate each chapter/checkpoint string and the existing three-field tuple; inspect Continue, Chapter
+      Select, replay, forward progression and unrelated story/rewards/trophies after restart. No complete
+      unlock/story dependency graph is implemented.
+- [ ] Confirm minigame aliases and checkpoint prerequisites on this build; provide missing-key/acquisition
+      examples before title definitions or insertion templates are expanded.
 - [ ] Record title/region, game build, wrapper/settings version, file roles and one action; retain
       all companions and duplicate/backup occurrences.
 - [ ] Capture a fresh profile.
@@ -408,14 +527,19 @@ with byte-identical backup twins; archive order is not chronology. [Plugin check
 - [ ] Capture incomplete and complete profiles on the same version, preferably from two owners.
 - [ ] Record Continue, Chapter Select and replay behavior without treating archive order as time.
 
-Console checks: restart, resave and re-export every proposed edit; compare unrelated state and
-companions. Do not promise trophy, cross-platform or arbitrary raw-edit compatibility.
-
 ### PPSA07696 — Ridge Racer 2 (PSP classic)
 
 Build notes: GenericJson covers the 1,320-byte imgui_emu_option.json wrapper; DATA.BIN gameplay
 is separate and PS1 preset meanings do not establish PSP values. [Plugin checklist](../plugins/GenericJson/README.md) · [issue #18](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/18)
 
+**Current scope:** Enabled: conservative wrapper primitive edits and restore-imported preset; DATA.BIN
+gameplay is outside GenericJson.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate a supported scalar at a time and restore-imported single/selected/all scopes. Check
+      zero-to-imported domains, zero-only unknown enums, native restart persistence and all
+      companions/DATA.BIN. Imported reset is not a native-default preset.
 - [ ] Capture each filter preset before/after.
 - [ ] Capture each upscale preset before/after.
 - [ ] Capture each anti-aliasing preset before/after.
@@ -423,33 +547,57 @@ is separate and PS1 preset meanings do not establish PSP values. [Plugin checkli
 - [ ] Capture one rewind option.
 - [ ] Record the PSP wrapper build for every pair.
 
-Console checks: restore, restart and re-export to establish numeric enum domains before exposing
-named presets; do not transfer PS1 meanings.
-
 ### PPSA08330 — God of War Ragnarök
 
 Build notes: only PPSA08330 has sample coverage; the plugin catalogs other regional IDs and has no
-Valhalla sample. Nested grammar and integrity remain unproven. [Plugin checklist](../plugins/GodOfWarRagnarok/README.md) · [issue #19](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/19)
+Valhalla sample. Nested grammar and integrity remain unproven. [Plugin checklist](../plugins/GodOfWarRagnarok/OWNER_CHECKLIST.md) · [issue #19](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/19)
 
+**Current scope:** Enabled: existing decoded wallet counters, play time and F6 restore. Integrity remains
+unknown; preferences/gear/story writers are unimplemented.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate a small resource/Hacksilver reduction and use/acquisition, then raw EconomyXP, each raven
+      counter, one unmapped ID and one positive non-hero row independently. Inspect all-character XP/skills,
+      journal/chests/rewards and forward play; zero imports permit only zero.
+- [ ] Reduce play time by one second; check displayed duration and later play. For every trial capture
+      rejection text, native-save, second clean reload and decrypted diff against the control.
+- [ ] Reduce two counters and restore to imported values via selected, document and filtered query/excluded
+      scopes; check one undo/redo step. Reopening establishes new ceilings; restore never exceeds the
+      import.
+- [ ] Provide redacted authentication/derived-byte observations from legal owner-local experiments plus
+      controlled PS5 fields. Identify gear/quest/collectible joins and regional/Valhalla dependencies;
+      unsuccessful checksum searches do not prove acceptance.
 - [ ] Change exactly one Hacksilver/resource quantity.
 - [ ] Change one XP wallet.
 - [ ] Make one gear upgrade.
-- [ ] Change one quest flag.
+- [ ] Capture one native quest transition.
 - [ ] Change one collectible.
-- [ ] Change one user-preferences setting.
+- [ ] Capture one native user-preferences setting change.
 - [ ] Supply one late/Valhalla save and two additional regional PS5 IDs.
 - [ ] Supply paired PS4 and PC saves for the same gameplay state where legally available.
 - [ ] Preserve the originals and record load/reject text and in-game values for every pair.
 
-Console checks: trial any resulting edit only on a restored spare slot, record in-game values and
-rejection text, then save/reload and keep maturity ReadOnly until owner approval.
-
 ### PPSA01474 — Ratchet & Clank: Rift Apart
 
-Build notes: the plugin is ReadOnly for decrypted PPSA01474. Use one recorded build/region, normal
+Build notes: the plugin is Experimental for decrypted PPSA01474. Use one recorded build/region, normal
 and Challenge Mode controls, all sibling files and backup twins. [Plugin checklist](../plugins/Insomniac/OWNER-CAPTURES.md) · [issue #20](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/20)
 
-- [ ] Capture two normal and two Challenge no-action save/load/save controls.
+**Current scope:** Enabled: two bolt counters, seven existing unlocked-option booleans, 61 boolean
+preferences and F6 calculated bolt target.
+
+- [ ] Two normal and two Challenge no-action controls, plus unchanged gameplay/preferences full-set export
+      and recovery.
+- [ ] Capture independent bolt earn/purchase pairs, then validate CareerBolts +1 and SpentBolts ±1
+      separately. Inspect HUD/purchases, final calculated balance and spending history; test F6 target lower
+      by one, zero and a small increase with preview/undo/redo.
+- [ ] Capture each gold-bolt option natively, then edit each existing already-unlocked boolean separately.
+      Include legal RPG behavior with at least six gold bolts; editing an option does not grant
+      collectibles.
+- [ ] Independently export/recover preferences unchanged; capture one native setting and edit one supported
+      boolean at a time, checking menu effect and persistence. Numeric/string preferences remain protected.
+- [ ] Capture exact spybot-bit/planet/pickup joins, upgrade-grid masks/counts/costs/prerequisites and three
+      non-collinear landmarks per proposed map transform. Storage diagrams are not calibrated world maps.
 - [ ] Buy one ordinary weapon absent from the wheel.
 - [ ] Earn XP with only that weapon; cross one level separately.
 - [ ] Fire one shot; refill ammo separately; capture death/checkpoint reload separately.
@@ -466,24 +614,29 @@ and Challenge Mode controls, all sibling files and backup twins. [Plugin checkli
 - [ ] Capture one Lorb, one Zurpstone and one CraiggerBear separately, plus known-complete states.
 - [ ] Finish one pocket dimension and one arena challenge separately.
 - [ ] Create Challenge Mode separately, then resave/reload to record carry-over/reset.
-- [ ] Export unmodified through the toolkit and verify complete sibling-set recovery.
-- [ ] Validate the descriptor-derived CareerBolts +1 candidate at its observed width.
-- [ ] Capture a legal RPG toggle, then validate the existing RPGEnabled one-byte candidate on a
-      slot with at least six gold bolts.
-- [ ] Validate preferences with an unchanged export, one in-game setting pair and one reviewed
-      single-field candidate.
-
-Console checks: use BEFORE/AFTER/AFTER-RELOAD, normal and Challenge controls, HUD/menu evidence,
-full private sibling sets and SaveDiff. Do not offer XP writes until mirror/dependency integrity is
-proven; only specific accepted paths may become Experimental.
 
 ### PPSA02530 — Pragmata
 
 Build notes: all supplied samples are fixed-size DSSS/Mandarin and uncontrolled; no causal runtime
 or console evidence exists. Keep system and gameplay directories together. [Plugin checklist](../plugins/Pragmata/evidence/README.md) · [issue #21](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21)
 
-- [ ] Record title ID, build, region, DLC, difficulty/mode, slot and displayed values.
-- [ ] Capture an unchanged save/re-save control.
+**Current scope:** Enabled: existing ID/quantity/header/clock/Raw edits and primitives in Gadgets, Loadout,
+Progress, Quests and World. RSA trailer is preserved but unverified/unregenerated.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate one small quantity through preview/apply/undo/redo/export/re-import and one existing ID
+      replacement. Inspect equipment/ownership/dependencies and every sibling file; known hash repair does
+      not prove RSA acceptance.
+- [ ] Validate one value per enabled family separately: Gadgets/shortcut use, Loadout weapon/perk/preset,
+      Progress, Quests and World. Check downstream prerequisites, interactions, rewards, normalization and
+      rejection.
+- [ ] Provide a real inventory above 200 rows; test a filtered whole-query quantity action with one excluded
+      row, including unloaded rows and console persistence. Existing large-list software coverage is
+      synthetic.
+- [ ] Join a checkpoint/hatch raw hash to a named location with one unlock pair. For the six existing item
+      IDs linked to 18 mission references, capture selectability, chapter/runtime prerequisites and quantity
+      separately; PC opening-condition data does not establish a full PS5 unlock rule.
 - [ ] Supply three independent before/after pairs for each family below; keep every operation in
       its own pair and identify the visible item/event and exact delta.
 - [ ] Capture one known item pickup, use and purchase separately.
@@ -495,18 +648,24 @@ or console evidence exists. Keep system and gameplay directories together. [Plug
 - [ ] Capture one chapter transition.
 - [ ] Capture one named collectible pickup.
 - [ ] Supply empty/full inventories and difficulty, chapter, cleared and NG+ examples.
-- [ ] Supply licensed ID/name evidence or a user-owned extraction pack.
-
-Console checks: restore/export unchanged, load, resave and reload; then repeat with one small
-existing-quantity edit and verify its displayed effect. Progression/structural tests wait for mappings
-and a writer.
+- [ ] Supply attributed community ID/name evidence, including unlicensed sources under the owner decision;
+      publisher-extracted text/art still requires compatible permission.
 
 ### PPSA02225 — Ghost of Tsushima (Director's Cut)
 
 Build notes: Tsushima uses container versions 47–49 and has existing quantity edits, but none are
 console-tested. Keep campaign/Legends, NG+/Iki, DLC and locale separate. [Plugin checklist](../plugins/SuckerPunch/README.md) · [issue #22](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/22)
 
-- [ ] Unchanged load/save control.
+**Current scope:** Enabled: existing resources/ammo and their count mirrors, reviewed quantity actions and
+the v48/v49 float timer.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate a small resource and ammo edit separately, then a selected/full/filter-excluded multi-target
+      action. Inspect carry caps, paired ammo counts, use/buy and clamping; 32767 is an editor bound, not a
+      capacity.
+- [ ] Test a small supported timer edit while leaving param.sfo SUBTITLE and per-difficulty counters
+      unchanged; inspect both menus and normalization after reload. Do not infer v47 timer support.
 - [ ] Gain one Supplies; pick one flower; sell one Predator Hide, iron, yew wood and wax wood in
       separate pairs.
 - [ ] Fire and pick up one arrow; upgrade one pouch/quiver.
@@ -519,27 +678,36 @@ console-tested. Keep campaign/Legends, NG+/Iki, DLC and locale separate. [Plugin
       one stance; finish one mythic tale; gain one legend rank; take damage; heal—each separately.
 - [ ] Discover one shrine, fox den, hot spring, haiku, bamboo strike, pillar and quest separately
       from completion/reward; record region, journal state and rewards.
-- [ ] Validate one supported quantity edit through load, observe, consume/buy, resave, reload/export.
-
-Console checks: repeat the quantity edit for base, NG+, Iki and Legends before claiming those modes.
-Record clamping/normalization and every changed span.
 
 ### PPSA26344 — Ghost of Yōtei
 
 Build notes: Yōtei is opaque and read-only; supplied files include non-empty and all-zero patterns
 but no authoritative gameplay record or checksum. [Plugin checklist](../plugins/SuckerPunch/README.md) · [issue #22](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/22)
 
+**Current scope:** Read-only: no authoritative gameplay quantity offset or safe writer is identified.
+Unknown checksum alone is not the blocker.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
 - [ ] Capture one nonzero Mon/resource/ammo single-action pair.
 - [ ] Capture manual-save, autosave and memory role controls.
 - [ ] Capture natural nonzero trailing bytes or an owner-controlled integrity/load/resave experiment.
-
-Console checks: resolve checksum coverage and authoritative records before considering any write.
 
 ### PPSA02745 — Tales of Arise
 
 Build notes: base-game slots are the supported evidence source; fields remain Experimental/Inferred.
 Record active artifact effects, DLC and build. [Plugin checklist](../plugins/TalesOfArise/OWNER_CHECKLIST.md) · [issue #23](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/23)
 
+**Current scope:** Enabled: gald, existing active-character level/HP/SP, recognized existing consumables and
+the F6 quantity action.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate gald buy/use, then level/HP/SP separately for each relevant active character; inspect normal
+      progression, effective stats and untouched preview/dependent caches.
+- [ ] Validate recognized consumable IDs 1–13 at quantities 0–15, including zero followed by normal
+      reacquisition. Test the reviewed selected/document/query quantity action and effective native 15/99
+      caps with artifact/DLC state; no insertion or stack-cap override is implemented.
 - [ ] Buy one Apple Gel; consume one separately.
 - [ ] Lose HP in one fight without leveling; heal separately.
 - [ ] Gain SP without spending; purchase one named skill separately.
@@ -552,7 +720,6 @@ Record active artifact effects, DLC and build. [Plugin checklist](../plugins/Tal
       transfer one ability in separate pairs.
 - [ ] Capture empty/full accessory pools and common inventory; obtain a zero-quantity item and
       obtain it again after setting its existing quantity to zero.
-- [ ] Validate 15-stack and effective 99-stack states separately with capacity artifact/DLC state.
 - [ ] Capture later key-item, accessory-material/chest, crafting and acquisition after edited-stack
       save/reload.
 - [ ] Use one identified arte; capture a proficiency threshold and auto-learned arte separately.
@@ -566,16 +733,22 @@ Record active artifact effects, DLC and build. [Plugin checklist](../plugins/Tal
 - [ ] Unlock one campsite and one map/gimmick separately.
 - [ ] Obtain one artifact; toggle its effect; start NG+ with one carry-over option separately.
 
-Console checks: restore an edited spare-slot copy, verify intended and unrelated menus, perform the
-next normal acquisition/crafting/progression event, save, reload and record expected/actual results.
-Supply mid/late and NG+ samples; other builds/regions and Beyond the Dawn need independent evidence.
-
 ### PPSA01603 — Hogwarts Legacy
 
 Build notes: the plugin decodes UE4.27.2/package 524 GVAS and 30 SQLite images; HL0010 stored-frame
-reconstruction grows to 8.79 MB, with no slot-budget or console acceptance claim. [Plugin checklist](../plugins/UnrealGvas/HOGWARTS.md) · [issue #24](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/24)
+reconstruction grows to 8.79 MB, below the 16 MiB editor cap but with no proven PS5 allocation or acceptance. [Plugin checklist](../plugins/UnrealGvas/HOGWARTS.md) · [issue #24](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/24)
 
-- [ ] Unchanged load/re-save control preserving both database images, SaveGameList and companions.
+**Current scope:** Enabled: bounded nonidentity integer/real/text cells in either decoded database image; no
+reward/ownership transaction is inferred.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate unchanged no-op output separately from a stored-frame reconstruction; retain both images,
+      SaveGameList and companions. Record 16 MiB editor cap versus actual PS5 slot allocation, growth,
+      load/restart/reload acceptance and independent re-decoding.
+- [ ] Validate one supported cell per image/type on a spare slot; identify its exact row role and all
+      dependent counters/rewards. Identity/blob/reference cells and metadata-only/partial image pairs remain
+      protected.
 - [ ] Buy one item.
 - [ ] Sell one item.
 - [ ] Earn and spend an exact currency amount separately.
@@ -588,46 +761,70 @@ reconstruction grows to 8.79 MB, with no slot-budget or console acceptance claim
       include houses and ownership states.
 - [ ] Establish effective limits and PS5 stored-output/save allocation.
 
-Console checks: validate unchanged reconstruction, then each approved edit on a backed-up spare
-slot: import, load, observe, save in game, exit, reload, verify, export and integrity/re-decode.
-Retain a byte-identical unmodified path and independently re-decodable output.
-
 ### PPSA02199 — STAR WARS Jedi: Fallen Order
 
 Build notes: Jedi gameplay saves contain zlib actor records and Crc32, but checksum coverage and
 console acceptance are unresolved. [Plugin checklist](../plugins/UnrealGvas/README.md) · [issue #24](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/24)
 
-- [ ] Unchanged resave pair with primary and backup retained independently.
+**Current scope:** Enabled: warned existing gameplay scalars; known checksum fields remain read-only and
+coverage is unresolved.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate one supported scalar at a time on a spare slot, including effect and native
+      resave/reload/re-export. Capture checksum behavior and actor/property relationships; successful
+      reparse does not establish acceptance.
 - [ ] Earn and spend one currency separately.
 - [ ] Capture one skill change.
 - [ ] Capture one world change.
 - [ ] Capture one cosmetic change.
 - [ ] Supply at least three states per hypothesis, with build and action notes.
 
-Console checks: resolve checksum coverage, then load a backed-up spare, observe the intended value
-and side effects, save, exit, reload and restore if needed.
-
 ### PPSA01288 — Sackboy: A Big Adventure
 
 Build notes: General is UE4.25.1 tagged progression with CollectabellsStored and Checksum; image
-sets are opaque compressed textures. General writes remain disabled. [Plugin checklist](../plugins/UnrealGvas/README.md) · [issue #24](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/24)
+sets are opaque compressed textures. General scalar writes are enabled with warnings. [Plugin checklist](../plugins/UnrealGvas/README.md) · [issue #24](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/24)
 
-- [ ] Unchanged resave with General and relevant companions.
+**Current scope:** Enabled: warned General existing scalar writes; known Checksum stays read-only.
+Compressed image sets remain opaque.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate a small supported General scalar edit, inspect Collectabells/menu/world effects,
+      native-save/reload/re-export all companions and report rejection/normalization. Investigate checksum
+      coverage separately; no photo writer is claimed.
 - [ ] Earn one Collectabell and spend one Collectabell separately.
 - [ ] Capture one costume change.
 - [ ] Capture one world change.
 - [ ] Supply at least three states and build/action notes.
 - [ ] Capture one in-game photo and its matching screenshot, recording dimensions, orientation and colors.
 
-Console checks: preserve General, companions and backups; validate checksum and load/reload before
-any write or photo interpretation.
-
 ### PPSA04018 — The Witcher 3 (Complete Edition)
 
 Build notes: supplied PS5 saves use observed SAV3 schema 64/23/163; that tuple is not a known patch,
 and broader current-patch/DLC/NG ownership is unknown. [Plugin checklist](../plugins/Witcher3/EVIDENCE.md) · [issue #25](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/25)
 
-- [ ] Save/reload/save control with title ID, patch, tuple, DLC, NG/NG+, mods and companions.
+**Current scope:** Enabled: original progression/Crowns/quantities plus durability, existing non-core
+ranks/Gwent copies, reviewed repair and imported food/water refill.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate original level/XP/free points/Crowns/stack fields separately; then one damaged sword
+      durability and two-item repair. Inspect combat, unrelated inventory, Crowns/repair rewards and area
+      transitions.
+- [ ] Test non-core rank increase/decrease independently; inspect free/spent/path budgets, prerequisites,
+      slots, modifiers/stats and combat. Test ordinary Gwent duplicate count and leader removal/restoration
+      separately, including deck/match/quest/achievement behavior.
+- [ ] Provide two ordinary unequipped/unslotted/untagged Bread/Bottled water stacks; lower/refill
+      individually and together, then document/query scopes with an exclusion. Verify protected
+      equipped/quest/currency rows and already-higher quantities stay unchanged; inspect consumption/slots
+      and whole-action undo.
+- [ ] Capture mutation research/activation/respec costs, points/mutagens and effects; native skill
+      purchase/equip and prerequisite arrows. For maps capture discovery, travel use, Place-of-Power
+      visit/consume and site completion separately, with native region/names and matching tag resources.
+- [ ] Capture add/delete/split/merge, displaced combat/Roach equipment, stash, sockets/enchants and quest
+      cutoff/branch/objective/reward/world-revisit separately. Safe identity cleanup and related-system
+      writers are unimplemented.
 - [ ] Buy one Bread, consume one Bread, and drop/pick up one ordinary stack separately; include a
       near-cap stack.
 - [ ] Repair one damaged steel sword; record durability and Crowns.
@@ -641,17 +838,26 @@ and broader current-patch/DLC/NG ownership is unknown. [Plugin checklist](../plu
 - [ ] Supply mid/endgame/current-patch, Hearts of Stone/Blood and Wine, NG+, Ciri, large-stash and
       socketed/enchanted-gear samples.
 
-Console checks: restore a spare slot, verify existing level/XP/ability/Crowns/stack edits and
-unrelated inventory/equipment/quests, transition areas, check combat, save natively, reload and
-return the decrypted re-export. Story presets require their own branch/objective and world revisit.
-
 ### PPSA16064 — Minecraft Dungeons II / obfuscated JSON
 
 Build notes: the sample is offline, SoftVersion 2, FormatHash 3777917472; GlobalSaveDataDefault is
-byte-minus-one JSON and the character remains read-only. [Plugin checklist](../plugins/XorJson/README.md) · [issue #26](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/26)
+byte-minus-one JSON; supported offline character and settings edits are enabled with warnings. [Plugin checklist](../plugins/XorJson/README.md) · [issue #26](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/26)
 
-- [ ] Record title/content ID, region, exact build, DLC, offline/online mode, slot and cloud-sync.
-- [ ] Capture no-intentional-change control, a new offline hero and a progressed offline hero,
+**Current scope:** Enabled: shifted-settings and supported offline-character scalars/structures, F6 value
+batches and F7 character/global group edits; external integrity remains Unknown.
+
+- [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
+      companions and backups.
+- [ ] Validate a settings scalar first, then each supported offline hero scalar and one JSON
+      add/remove/replace independently. Check gameplay dependencies, effective ranges,
+      rejection/clamping/repair and unrelated bytes; valid JSON is not a legal game state.
+- [ ] Test F6 selected/document/query value batches, skips/exclusions, empty scope and one-step undo/redo.
+      Test F7 with both role members, full-group undo/export and console reload; same generation does not
+      prove a shared gameplay invariant.
+- [ ] Validate attribute/stack/item/rarity/effect/enchantment actions only on supported existing records,
+      one family at a time; inspect equipment, rewards/world/quest/achievement side effects. Do not broaden
+      offline schema evidence to online or other versions.
+- [ ] Capture a new offline hero and a progressed offline hero,
       retaining SoftVersion/FormatHash.
 - [ ] Capture one currency gain/spend, XP/level gain, item pickup, equip/unequip, rarity/effect
       change, quest step/reward, map/station discovery and master-volume change separately.
@@ -663,19 +869,17 @@ byte-minus-one JSON and the character remains read-only. [Plugin checklist](../p
       stack, generator seed, EquippedSlot, TargetSlotOverride and effects/templates; include the
       same base item in merchant stock, bag and equipped slots.
 - [ ] Capture repeated same-type items, a reorder and equip/unequip to establish seed persistence.
-- [ ] Capture nonempty effect/enchantment rows and quest partial-progress, completion and reward
-      claims separately; record achievement, collection, door, station, fog and actor side effects.
+- [ ] Capture quest partial-progress, completion and reward claims separately; record achievement,
+      collection, door, station, fog and actor side effects.
 - [ ] For character/global coordination, capture both files before/after active-character selection
       and a suspected shared progression action, identifying slot/generation membership.
 
-Console checks: validate a settings scalar first (import, load, verify displayed value, save,
-reload, recapture and compare unrelated fields). Validate each hero action only after its mappings
-and dependencies are established; bulk actions require individual edits, limits, F6 preview,
-atomic apply and one undo.
-
 ## Reporting and handoff
 
-For every checked item, attach the private archive names and hashes, the SaveDiff report path,
-fixture ID, displayed before/after values, build metadata and console result to the plugin's own
-checklist. Keep identity data and saves out of git. If a pair is impossible on the current build,
-leave it unchecked and state why; an uncontrolled snapshot is not a substitute.
+For every checked item, record the private archive names/hashes, SaveDiff report path, fixture ID,
+exact displayed values, build metadata and console result. Post a redacted result on the linked
+plugin issue and [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31); keep saves and
+identity data out of git and public reports. A checked box means evidence exists, not that an entire
+plugin is Stable. If an event is unavailable in a demo/build, leave it unchecked and state why.
+Uncontrolled snapshots, synthetic tests, successful reparsing and unperformed console trials are
+not substitutes for a native capture/load/effect/resave/reload cycle.
