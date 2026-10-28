@@ -323,9 +323,10 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
 
 ## Hard rules
 
-1. **Depend on `SaveToolkit.Sdk` only.** Never reference Core/Api. NuGet packages are fine when they
-   are fully managed and permissively licensed; add the version to `Directory.Packages.props`.
-   Note third-party code and licences in the plugin README.
+1. **Depend on `SaveToolkit.Sdk` only.** Never reference Core/Api. Prefer established libraries over
+   hand-written implementations. NuGet packages are fine, including ones with native components
+   (e.g. `Microsoft.Data.Sqlite`) and GPL-compatible licences. Add the version to
+   `Directory.Packages.props`, and note third-party code and licences in the plugin README.
 2. **Never lose data.** Preserve unknown fields, padding, trailing data and metadata you don't understand.
    Prefer in-place, fixed-size patching over re-serialising whole object graphs. If you must
    re-serialise, prove byte-identical no-op round trips on every sample.
