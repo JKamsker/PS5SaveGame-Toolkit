@@ -102,6 +102,7 @@ export interface DocumentContextValue {
   /** Refetches the view (and bumps `structureVersion`), e.g. after a stale-id rejection. */
   refresh: () => Promise<void>;
   commit: (valueId: string, value: FieldValue) => Promise<boolean>;
+  acceptResult: (result: EditResult) => Promise<void>;
   runAction: (actionId: string, parameters: Record<string, FieldValue>) => Promise<EditResult>;
 }
 

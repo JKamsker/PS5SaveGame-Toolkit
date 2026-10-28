@@ -1,0 +1,10 @@
+.review-dialog { width: min(860px, calc(100vw - 32px)); }
+.review-scroll { overflow: auto; max-height: 420px; }
+.review-table { border-collapse: collapse; width: 100%; text-align: left; font-size: var(--text-sm); }
+.review-table th, .review-table td { padding: var(--space-2); border-bottom: 1px solid var(--rule); vertical-align: top; overflow-wrap: anywhere; }
+.review-table th small { display: block; font-weight: normal; color: var(--ink-soft); }
+.review-actions { display: flex; gap: var(--space-2); }
+.review-field:focus, .review-field:focus-within { outline: 2px solid var(--signal); outline-offset: 3px; }
+.changes-panel { margin-bottom: var(--space-4); }
+
+.review-pager { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2); }

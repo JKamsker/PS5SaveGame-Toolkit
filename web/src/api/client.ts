@@ -28,14 +28,14 @@ export function isStaleError(error: unknown): boolean {
   return typeof body === "object" && body !== null && "code" in body && (body as { code: unknown }).code === "stale";
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, init);
   if (response.status === 204) return undefined as T;
   const isJson = response.headers.get("content-type")?.includes("json") ?? false;
   const body: unknown = isJson ? await response.json() : undefined;
   if (!response.ok) {
     // Edit endpoints return a full EditResult with field errors on 422 (or 409 when stale); callers inspect it.
-    if ((response.status === 422 || response.status === 409) && body && typeof body === "object" && "errors" in body) return body as T;
+    if ((response.status === 422 || response.status === 409) && body && typeof body === "object" && ("errors" in body || "plan" in body)) return body as T;
     const message = body && typeof body === "object" && "error" in body ? String((body as { error: unknown }).error) : response.statusText;
     throw new ApiError(message || `Request failed (${response.status})`, response.status, body);
   }

@@ -1,10 +1,11 @@
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode, type Ref } from "react";
 import type { FieldNode, ImageNode, ViewNode } from "../../../api/protocol";
 import { api } from "../../../api/client";
 import { useDocument } from "../../../state/documentStore";
 import { FieldControl } from "../../fields/FieldControl";
 import { useLiveField } from "../../fields/FieldRow";
 import { ActionButton } from "../ActionButton";
+import { useFieldJump } from "../review/navigation";
 import { CellBadges } from "./CellBadges";
 import { fieldSummary, statsSummary } from "./cellText";
 
@@ -73,9 +74,9 @@ export function TableCell({ node, rowLabel, onOpenDetails }: TableCellProps) {
   }
 }
 
-function Cell({ children, className = "" }: { children: ReactNode; className?: string }) {
+function Cell({ children, className = "", fieldRef }: { children: ReactNode; className?: string; fieldRef?: Ref<HTMLDivElement> }) {
   return (
-    <div className={`table__cell${className}`} role="cell">
+    <div ref={fieldRef} tabIndex={fieldRef ? -1 : undefined} className={`table__cell${className}`} role="cell">
       {children}
     </div>
   );
@@ -115,6 +116,7 @@ function needsDetailsEditor(node: FieldNode): boolean {
 }
 
 function FieldCell({ node, rowLabel, onOpenDetails }: { node: FieldNode; rowLabel: string; onOpenDetails: () => void }) {
+  const fieldRef = useFieldJump(node.valueId);
   const { canEdit } = useDocument();
   const { value, error, modified, commit } = useLiveField(node);
   const [localError, setLocalError] = useState<string>();
@@ -143,7 +145,7 @@ function FieldCell({ node, rowLabel, onOpenDetails }: { node: FieldNode; rowLabe
   }
 
   return (
-    <Cell className={classes}>
+    <Cell className={classes} fieldRef={fieldRef}>
       <span id={labelId} className="visually-hidden">
         {name}
       </span>

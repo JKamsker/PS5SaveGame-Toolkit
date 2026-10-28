@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { EditResult, FieldValue, SaveFileInfo } from "../../api/protocol";
 import { DocumentContext, DocumentStore, useDocumentState, type DocumentContextValue } from "../../state/documentStore";
+import { ChangesPanel } from "./review/ChangesPanel";
+import { ReviewNavigationProvider } from "./review/navigation";
 import { ViewRenderer } from "./ViewRenderer";
 
 interface DocumentEditorProps {
@@ -34,7 +36,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
       if (result.stale) {
         // Nothing changed on the server; the ids we sent belong to a replaced view.
         await refresh();
-        onToast("The document structure changed, so the view was refreshed. Please try again.", true);
+        onToast("The document changed, so the view was refreshed. Please try again.", true);
         return;
       }
       store.apply(result);
@@ -70,6 +72,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
       store,
       structureVersion,
       refresh,
+      acceptResult: handleResult,
       commit: async (valueId: string, value: FieldValue) =>
         (await run(() => api.edit(workspaceId, documentId, [{ valueId, value }], store.state.revision)))?.ok ?? false,
       runAction: async (actionId: string, parameters: Record<string, FieldValue>) =>
@@ -82,7 +85,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
           state: store.state,
         },
     };
-  }, [query.data, store, workspaceId, documentId, structureVersion, refresh, run]);
+  }, [query.data, store, workspaceId, documentId, structureVersion, refresh, run, handleResult]);
 
   if (query.isPending) return <div className="empty">Opening…</div>;
   if (query.isError || !context || !query.data) {
@@ -97,7 +100,8 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
   const doc = query.data;
   return (
     <DocumentContext.Provider value={context}>
-      <article className="editor">
+      <ReviewNavigationProvider>
+        <article className="editor">
         <header className="editor__head">
           <div>
             <h1 className="editor__title">{doc.title}</h1>
@@ -126,8 +130,10 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
           </div>
         </header>
         {!doc.canEdit && <p className="notice notice--Muted">This plugin shows the data but cannot write it.</p>}
+        <ChangesPanel />
         <ViewRenderer node={doc.view} />
-      </article>
+        </article>
+      </ReviewNavigationProvider>
     </DocumentContext.Provider>
   );
 }

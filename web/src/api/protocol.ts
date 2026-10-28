@@ -59,6 +59,7 @@ export interface ImageNode { type: "image"; assetId: string; alt: string }
 export interface ActionNode {
   type: "action";
   actionId: string;
+  supportsPlanning?: boolean;
   label: string;
   description?: string;
   tone?: Tone;
@@ -110,7 +111,7 @@ export interface Workspace { id: string; name: string; createdAt: string; titles
 
 export interface WorkspaceSummary { id: string; name: string; createdAt: string; directoryCount: number; fileCount: number; titleIds: string[] }
 
-/** `revision` increases on every structural change; send it back with edits and actions. */
+/** `revision` increases on every mutation; send it back with edits and actions. */
 export interface DocumentState { canUndo: boolean; canRedo: boolean; isDirty: boolean; revision?: number }
 
 export interface SaveDocument {
@@ -134,7 +135,7 @@ export interface EditResult {
   warnings: string[];
   message?: string;
   structureChanged: boolean;
-  /** The request used a view that a structural change replaced; refetch the document and retry. */
+  /** The request used an old revision or retired view id; refetch the document and retry. */
   stale?: boolean;
   state: DocumentState;
 }
