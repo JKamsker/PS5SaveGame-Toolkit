@@ -13,6 +13,7 @@ internal sealed class FaithCatalog(IReferenceContext references)
     public const string GrowthId = "ffxvi_growth";
     public const string SkillsId = "ffxvi_skills";
     public const string FeatsId = "ffxvi_feats";
+    public const string AbilitiesId = "ffxvi_abilities";
     public const string LookupActionId = "lookup-item";
     public const string LookupParameter = "item";
     public ReferenceRecord? Find(string catalog, int id) => references.Catalog(catalog)?.Find(Key(id)) ?? FaithEmbeddedCatalogs.Find(catalog, Key(id));
@@ -23,6 +24,8 @@ internal sealed class FaithCatalog(IReferenceContext references)
     public static string Describe(ReferenceRecord record) => $"{record.AttributionText} Mapping confidence: Inferred. {record.Description}";
     public IReadOnlyList<ReferenceRecord> SkillReferences() => references.Catalog(SkillsId)?.Search(new ReferenceQuery { Limit = 68 }).Items
         ?? FaithEmbeddedCatalogs.Records(SkillsId, 68);
+    public IReadOnlyList<ReferenceRecord> Abilities() => references.Catalog(AbilitiesId)?.Search(new ReferenceQuery { Limit = 100 }).Items
+        ?? FaithEmbeddedCatalogs.Records(AbilitiesId, 100);
     public static string Key(int id) => id.ToString(CultureInfo.InvariantCulture);
 
     // Remove only documented game presentation tags. Unknown markup remains literal text;

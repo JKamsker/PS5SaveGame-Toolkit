@@ -11,10 +11,57 @@ retains an Inferred/Unknown label and a console-validation warning. System and
 unsupported schemas remain read-only; empty gameplay saves may expose independent
 supported context fields. No-op output preserves every byte.
 
+## Completion round (#15)
+
+Main inventories above 100 rows now use F8 server-backed pages. Search, exact
+column filters and numeric sorting cover every allocated row, with stable slot
+keys and deterministic ties. Smaller banks keep eager tables. F3 expandable
+details retain sources/storage warnings and F4 identities retain their controls.
+F6 previews accept Core-resolved **all matching rows** scopes (#27), including
+unloaded pages and exclusions. Empty selection remains empty. Primary storage
+bindings are independent of paging, including original values needed by undo.
+
+The **Ability reference** tab has a collapsed spoiler section with 48 attributed
+abilities in ten Eikon groups, including Ifrit, Leviathan and Ultima. F9 chains
+show published initial/upgrade/master progression and individual AP annotations
+where sourced. All saved learned/unlocked/mastered states remain **Unknown**.
+Every graph node opens a read-only F4 reference field with sources. These keys
+are reference slugs, not Nex IDs or saved rank indices. The 68 raw rank controls
+and three named Nex IDs remain separate. Missing AP costs remain Unknown.
+
+The F9 location map links the candidate stored map ID to its control and an
+external wiki guide. No artwork, coordinates, visited/completion claims or
+teleportation are supplied. Missing/duplicate/unsupported PartyData produces no
+map. Standalone opening now displays the same map-variant attributes as host packs.
+
+The 234-entry item pack and **131/172 retail, 2/2 demo** observed-ID coverage are
+unchanged. Rechecking pinned wiki memory/item pages and published identifier leads
+did not establish cleared FF16-specific evidence for the remaining 41 IDs.
+Their numeric fallbacks remain. The ability pack adds reference coverage rather
+than confirmed save mappings. See the [requirement/acceptance gap audit](COMPLETION.md).
+
+## Framework feature adoption
+
+| Feature | Adoption | Where / concrete reason |
+| --- | --- | --- |
+| F1 SaveDiff | Used | Hash-pinned generation fixture, shared PluginViewDecoder and exact allowed-byte-range write tests. No local diff engine. |
+| F2 reference packs | Used; added this round | Four packs, immutable standalone fallbacks, Sources panel and provenance; new 48-entry ability pack. |
+| F3 rich cells | Used; added this round | Field confidence, selected-row planned actions and expandable source/storage details in eager/queried rows. No reviewed licensed icons are available. |
+| F4 pickers | Used; added this round | Inventory/gear/shortcut IDs, summon/command/map context, Nex skill and new read-only ability references. Other numeric context is an index/bitset or has no catalogue. Browse-only improvements pending #33. |
+| F5 structural undo | N/A | No safe allocator writer: free-list/generation/slot reuse and dependencies are unidentified. Fixed-width edits use value history. |
+| F6 planning / #27 | Used; added this round | Explicit main-stack targets for document, selected rows and resolved whole-query scopes, with exclusions, CRC, skips, warnings and one undo group. |
+| F7 groups | N/A | No established gameplay/system coupling or prepared multi-file writer; speculative sibling edits have no substantiated contract. |
+| F8 collections | Added this round | Main inventory reaches 1,200 rows; materialize only requested rich rows. Secondary <=100, gear 18, raw ability bytes 92. |
+| F9 graph/map | Added this round | Lazy spoiler-gated reference progression DAG and link-only candidate location map; text alternatives, provenance and field navigation. |
+| F10 numbers | Used | Exact integer-string wire and integer-duration seconds. ExactNumberSpec/nullable/union are N/A to present fixed-width binary integers/bytes with no lexeme or null/type discriminator. |
+| F11 codecs | N/A | Supported PS5 files are plaintext Faith blocks with CRC; no Kraken/SQLite or PC PNG/XOR/zlib wrapper. |
+| F12 diff traversal | Pending #32 | Not on starting main (`af414ef`). Existing root-scalar fixture remains valid; full F8 traversal/decoder hooks belong to the framework round. |
+| F13 inspect/picker/metadata | Pending #33 | Not on starting main. Legacy nonmutating lookup retained; no local inspect, browse-only or field-metadata substitute. |
+
 ## Enabled writes and their evidence
 
-The owner authorized **"Enable writes. Keep warnings."** on 2026-10-28. This round
-enables **15 write families** below, in addition to the inherited manual main-stack
+The owner authorized **"Enable writes. Keep warnings."** on 2026-10-28. The write round
+enabled **15 write families** below, in addition to the inherited manual main-stack
 writer. Fixed-width layout is checked against the attributed MIT Nenkai template
 and actual PS5 samples; gameplay meaning remains unproven. New numeric writes use
 the native type intersected with conservative observed maxima, documented in
@@ -54,6 +101,8 @@ The F6 action requires a preview, lists unchanged/negative rows as skipped, keep
 per-resource/category warnings and shows the derived CRC. Empty selection means
 no rows; null selection means all supported main records. Stale/forged plans,
 foreign/duplicate row keys and invalid targets are rejected without mutation.
+Core resolves filtered query scopes to the complete matching key set, including
+unloaded pages and explicit exclusions; the plugin validates the collection and keys.
 It sets an **explicit stored target**, not a legal-max, refill or activation preset.
 
 Still off for structural safety: add/remove/reorder/free-list edits (slot reuse,
@@ -61,7 +110,8 @@ generation/index rules and dependent references are unknown), secondary ID-zero
 identities (possible sentinel; their fixed-width quantities remain editable), opaque extended palettes, and unmapped progression
 structures. Feat/skill research labels and upgrade diagnostics have no separate
 storage setter. No prepared multi-file writer exists and no cross-file dependency
-has been established; F7 is therefore not used. These are not owner-evidence gates.
+has been established; F7 is therefore not used. Structural safety still requires
+the owner-supplied format/dependency evidence described below; raw writes are enabled.
 
 ## Prior rounds (#15)
 
@@ -76,9 +126,10 @@ superseded by the write-enable round above; unresolved semantic research remains
   original 67 gaps** with attributed Inferred mappings; **41 remain Unknown**.
   The [complete decision ledger](research/round2-naming-audit.json) records every
   original gap and its evidence or rejection reason. This is partial coverage.
-- F4 identity fields preserve the exact raw ID and are read-only. **Look up an
+- F4 identity fields preserve the exact raw ID and are writable where mapped, with
+  warnings and validation described above. **Look up an
   item** opens a searchable catalog picker and returns attributed information
-  without changing save bytes or undo history. No item replacement is enabled.
+  without changing save bytes or undo history.
 - Phase 2 read-only foundation: three separate equipment banks, all 68 rank bytes,
   independent 96-bit new/protect arrays, map/party identifiers, stored summon and
   command IDs, item shortcuts, HP/recovery/limit-break context. The 272-byte common
@@ -95,8 +146,8 @@ superseded by the write-enable round above; unresolved semantic research remains
 - Phase 3 evidence review: explicit per-field legacy manual policy and resource,
   consumable, quest/curio and equipment dependency warnings. The four upgrade IDs
   are named by the MIT UseItem schema, but current numerical capacities, active
-  banks and gameplay activation are unproven. **Contextual caps and F6 bulk
-  actions remain disabled**; naming an upgrade does not authorize a write.
+  banks and gameplay activation are unproven. **Contextual legal caps and refill
+  presets remain unimplemented**; the explicit-quantity F6 action is enabled with warnings.
 
 Phase 1's full-name ambition remains open for the 41 missing observed labels.
 Phase 2's controlled field identification, skill-index mapping, matched growth
@@ -168,7 +219,8 @@ unique/key-item effects and progression dependencies.
 ## Reference data and presentation
 
 `Open(file, IReferenceContext)` resolves `ffxvi_items`, `ffxvi_maps`,
-`ffxvi_summons`, `ffxvi_skills`, `ffxvi_commands` and `ffxvi_feats`. All have
+`ffxvi_summons`, `ffxvi_skills`, `ffxvi_commands`, `ffxvi_feats` and
+`ffxvi_abilities`. All have
 embedded attributed fallbacks. `ffxvi_feats` uses summon-mode keys;
 `ffxvi_commands` uses command keys. Optional external `ffxvi_growth` supplies
 label/context only; no matched growth curves are embedded. A level number does
@@ -186,12 +238,32 @@ Martelle Apples IDs remain separate. Known `<i>` and
 `<color=...>` game presentation tags are removed from imported names; unknown
 markup remains literal text. No text is interpreted as HTML. There are no icons.
 
-Tables are bounded (main at most 1200, secondary at most 100, gear 18, skill arrays
-92 bytes, named skill research at most 68 references, growth 2 branches, capacity
-4 upgrade IDs). Structure expands lazily, at most 64 children and 128 words per leaf;
+Tables are bounded (main pages at most 200 of 1200, eager only at <=100;
+secondary at most 100, gear 18, skill arrays 92 bytes, named Nex skill research at
+most 68 references, ability-reference details 48, growth 2 branches, capacity
+4 upgrade IDs). The spoiler tree is lazy; graph states remain Unknown.
+Structure expands lazily, at most 64 children and 128 words per leaf;
 raw words have Unknown meaning. Hex requests are bounded to 64 KiB.
 
 ## Reproducible evidence and validation
+
+Completion-round validation (2026-10-28): **106 passed, 0 failed, 0 skipped**,
+including conformance and every archive occurrence. `SAVETOOLKIT_ARTIFACTS` was
+exported in the test command; configuration Release. The final API Release build
+passed with **0 warnings, 0 errors**. The shared F1 fixture passed **1/0/0**, all
+four expectations. Independent corpus checks reproduced all **72 CRC/framing**
+and **60 fixed-width preservation** checks; write-range metadata matches exactly.
+
+New coverage includes capacity-1200 inventory paging, numeric sort/ties, long
+localized labels without icons, query refresh after identity edits/undo, complete
+filtered actions over unloaded pages, exclusions, zero matches/full exclusion,
+row caps/stale/invalid scopes, exact CRC and one-step bulk undo/redo. F9 tests
+validate graph structure, all-Unknown states, spoiler laziness, targets, read-only
+F4 references, pack/fallback parity, independent rank bytes and unsupported/unknown
+map schemas. The ability converter is deterministic: **48 records, 10 groups,
+135 graph nodes, 87 edges, 96 individual AP annotations**. C# files remain under
+300 lines; local Markdown links, pack hashes, attribution and staged scope pass.
+These checks do not establish console acceptance.
 
 [corpus-summary.json](research/corpus-summary.json) records archive SHA-256,
 title/role counts and observed block triples, without save bytes. There are 60
@@ -217,6 +289,7 @@ python -I plugins/FinalFantasy16/research/summarize_corpus.py --summary > "$env:
 python -I plugins/FinalFantasy16/research/build_catalog.py
 python -I plugins/FinalFantasy16/research/build_layout_catalog.py '<scratch>/ffxvi-nex-layouts'
 python -I plugins/FinalFantasy16/research/build_feat_catalog.py
+python -I plugins/FinalFantasy16/research/build_ability_catalog.py
 python -I plugins/FinalFantasy16/research/verify_reference_audit.py
 python -I plugins/FinalFantasy16/research/measure_write_ranges.py
 ```
@@ -262,6 +335,8 @@ text; no upstream code/templates were executed. Notices are retained in
 
 | Dataset / code research | Source / revision | Licence / modifications |
 | --- | --- | --- |
+| 48 Eikon ability references / progression / AP annotations | [Base-game navbox, 3770527](https://finalfantasy.fandom.com/wiki/Template:Navbox_abilities_FFXVI?oldid=3770527), [Leviathan, 4005603](https://finalfantasy.fandom.com/wiki/Leviathan_(Final_Fantasy_XVI)?oldid=4005603), [Ultima, 4045298](https://finalfantasy.fandom.com/wiki/Ultima_(Final_Fantasy_XVI)?oldid=4045298); every individual AP/name article pinned in TSV/records | CC BY-SA 3.0; original slug keys/warnings, selected names/groups/stages and individual AP facts, no art or saved-index joins. [Share-alike sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.abilities.en/data.source.md). Missing AP stays Unknown. |
+| External location guide | [Final Fantasy Wiki locations](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_locations) | Link only; no artwork or coordinates imported. Stored map labels retain the separate MIT Nex attribution. |
 | English names/categories and resource labels | [Final Fantasy Wiki translations, 4007473](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473); per-record Gil/Renown/AP revision links | CC BY-SA 3.0; original 205 labels plus sourced base labels for upgraded variants; original factual ID crosswalk and evidence, no prose/art/caps. [Share-alike sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.wiki.en/data.source.md) |
 | Additional curio, quest and material labels | [Fafnir, 3987229](https://finalfantasy.fandom.com/wiki/Fafnir?oldid=3987229), [Wall of Memories, 3968454](https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454), [Journal, 3776380](https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380), [Patron's Whisper, 3965500](https://finalfantasy.fandom.com/wiki/Patron%27s_Whisper?oldid=3965500), [Joshua Rosfield, 4047110](https://finalfantasy.fandom.com/wiki/Joshua_Rosfield?oldid=4047110) | CC BY-SA 3.0; selected labels and documented aliases/normalization; factual ID joins Inferred; same share-alike pack/sidecar |
 | Four potion-upgrade IDs/labels | [Nenkai UseItem.layout, d3ad062](https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout) | MIT (2025 Nenkai); explicit 506–509 annotations incorporated into the CC BY-SA item adaptation with MIT notice retained; no numeric capacities imported |
@@ -328,6 +403,20 @@ filename/slot and exact UI values. First capture a save/reload/save no-action pa
     apply, undo once (original bytes), redo once, export, load, use/sell/spend,
     save/reload and re-export. Separately test zero selection and document scope.
     Report all results to [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+12. For the reference tree, record the displayed name, individual learn/upgrade/
+    master costs and exact AP before/after for one ability per Eikon (include
+    Leviathan/Ultima and demo availability). Supply independent learn/upgrade/
+    master/reset pairs to identify saved indices/flags; no graph state is inferred
+    from a reference name. Capture a single obelisk activation/collectible pickup
+    separately before requesting completion markers or coordinates.
+13. Validate F8 selection on a populated retail inventory: filter a category,
+    select all matching, exclude one unloaded-page row, preview target **1**, verify
+    scope/skips/CRC, apply and undo once, redo and export/load/use/save/reload.
+    Include a zero-match and fully excluded query; both must change nothing.
+14. To establish structural safety, capture buying the first new item, selling its
+    last stack, reacquiring it, a second distinct allocation and a slot-reuse case.
+    Record allocation count, equipment/shortcuts and both banks before/after. Include
+    the capacity boundary if possible; do not combine events in one pair.
 
 Still needed: cleared names for 41 observed IDs; matched skill/command/growth data;
 normal/FF NG+/DLC/legacy/extended coverage; controlled bank/flag semantics and
@@ -335,8 +424,15 @@ on-console acceptance. Only the owner may promote maturity to Stable.
 
 ## SDK requests
 
-None for this round. F1/F2/F4/F6 and existing table/field contracts suffice.
-The bounded eager inventory uses explicit row keys; no F8 query scope is advertised.
-Structural and multi-file work needs a substantiated format/dependency model,
-not another SDK API. Owner validation is tracked in #31 rather than gating the
-enabled experimental fixed-width writes.
+No new blocking SDK request. F8/F9 and #27 are consumed directly. Structural and
+multi-file work needs a substantiated format/dependency model, not another API.
+
+Pending central work: F12 (#32) should traverse queried inventory fields in SaveDiff;
+minimal reproduction on starting main: open a >100-row inventory with
+PluginViewDecoder and request `inventory/1100/quantity` from a 1200-row synthetic
+fixture: the F8 field is absent from the semantic tree. Root scalars in the existing
+F1 fixture remain valid. F13 (#33) owns nonmutating inspect/browse-only picker and
+complete field-metadata/review support. Primary quantity/identity bindings are
+registered at document construction so unloaded-row actions and undo work today;
+no framework substitute is added. Owner validation (#31) does not gate the enabled
+experimental fixed-width writes.

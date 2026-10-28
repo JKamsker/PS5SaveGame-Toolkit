@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -6,6 +7,21 @@ namespace SaveToolkit.Plugins.FinalFantasy16;
 
 internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory, FaithCatalog catalog)
 {
+    public const string CollectionId = "main-inventory";
+    public const int EagerLimit = 100;
+
+    public QueryableCollection Collection => new(CollectionId, "Main allocated records (zero stacks included)", Columns, inventory.Items.Count)
+    {
+        Description = "Search/filter/sort covers every allocated record, including unloaded pages. " +
+            "Select all matching rows to preview explicit quantities with exclusions. Allocation does not prove ownership.",
+    };
+
+    private static readonly QueryableColumn[] Columns = [
+        new("slot", "Storage slot", IntegerSpec.Int32), new("id", "Raw ID / reference", IntegerSpec.Int32),
+        new("name", "Name"), new("category", "Category"), new("quantity", "Stored stack", IntegerSpec.Int32),
+        new("flags", "Raw new-flag word"), new("details", "Evidence"), new("action", "Selected rows"),
+    ];
+
     public IReadOnlyList<ViewNode> Build(Func<FaithItem, string, FieldNode> quantity, Func<string, int, FieldNode> identity) =>
     [
         new TextNode("Existing supported main/secondary records can be patched in place. No records are added or removed. " +
@@ -20,7 +36,10 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
             Parameters = [new FieldNode(FaithCatalog.LookupParameter, "Catalog item",
                 new ReferenceSpec(FaithCatalog.ItemsId), FieldValue.Of("1"))],
         },
-        inventory.IsSupported ? Table(inventory.Items, "inventory", quantity, identity) :
+        inventory.IsSupported ? inventory.Items.Count > EagerLimit
+            ? new QueryableTableNode(Collection.Id, Collection.Title, Collection.Columns, Collection.TotalCount)
+                { Description = Collection.Description }
+            : Table(inventory.Items, "inventory", quantity, identity) :
             new TextNode("Main inventory schema/allocation is unsupported or ambiguous; use Structure/Hex.") { Tone = Tone.Warning },
         new SectionNode("Secondary bank — unconfirmed role, Experimental", [
             new TextNode("This is a separate stored bank. It may contain historical/stage data; it is not identified as current inventory. " +
@@ -30,13 +49,8 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
         ]),
     ];
 
-    private TableNode Table(IReadOnlyList<FaithItem> items, string bank,
-        Func<FaithItem, string, FieldNode> quantity, Func<string, int, FieldNode> identity) => new([
-        new TableColumn("slot", "Storage slot"), new TableColumn("id", "Raw ID / reference"),
-        new TableColumn("name", "Name"), new TableColumn("category", "Category"),
-        new TableColumn("quantity", "Stored stack"), new TableColumn("flags", "Raw new-flag word"),
-        new TableColumn("action", "Selected rows"),
-    ], items.Select(item => new TableRow($"{bank}/{item.Slot}", new Dictionary<string, ViewNode>
+    public TableRow Row(FaithItem item, string bank, Func<FaithItem, string, FieldNode> quantity,
+        Func<string, int, FieldNode> identity) => new($"{bank}/{item.Slot}", new Dictionary<string, ViewNode>
     {
         ["slot"] = new TextNode(FaithCatalog.Key(item.Slot)),
         ["id"] = identity($"{bank}/{item.Slot}/item", item.Id),
@@ -44,8 +58,16 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
         ["category"] = new TextNode(catalog.Category(item.Id)),
         ["quantity"] = quantity(item, bank),
         ["flags"] = new TextNode($"0x{ReadInt(item.Offset + 2 * sizeof(int)):X8}"),
+        ["details"] = new SectionNode("Source and storage", [new TextNode(catalog.Provenance(item.Id)),
+            new TextNode($"Record at 0x{item.Offset:X}; allocation does not establish current ownership. " + FaithWriteMap.Warning)])
+                { Collapsed = true },
         ["action"] = bank == "inventory" ? FaithQuantityPlanning.Action() : new TextNode("No secondary bulk action"),
-    })).ToArray())
+    });
+
+    private TableNode Table(IReadOnlyList<FaithItem> items, string bank,
+        Func<FaithItem, string, FieldNode> quantity, Func<string, int, FieldNode> identity) => new(
+        Columns.Select(column => new TableColumn(column.Key, column.Label)).ToArray(),
+        items.Select(item => Row(item, bank, quantity, identity)).ToArray())
     {
         Title = bank == "inventory" ? "Main allocated records (zero stacks included)" : "Secondary allocated records (unconfirmed role)",
         Description = bank == "inventory" ? "Select main rows, then use a table action to preview their explicit target quantities. " +

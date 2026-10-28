@@ -5,10 +5,11 @@ using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Plugins.FinalFantasy16;
 
-internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
+internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument, IQueryableDocument
 {
     private const string CrcId = "integrity/crc32";
     private const int QuantityOffset = 4;
@@ -35,6 +36,13 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
         _catalog = new FaithCatalog(references);
         _context = new FaithCharacterContext(bytes, container, schema, references);
         _writes = new FaithWriteMap(bytes, container, schema, _inventory);
+        // Register primary storage bindings independently of paging. F6/undo can address unloaded
+        // rows, and the original document can resolve their values without building eager tables.
+        foreach (var item in _inventory.Items)
+        {
+            _ = Quantity(item);
+            _ = ItemIdentity($"inventory/{item.Slot}/item", item.Id);
+        }
     }
 
     public override string Title => $"Final Fantasy XVI{(_schema.IsDemo ? " Demo" : "")} · {_file.FileName}";
@@ -47,11 +55,28 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
             FaithQuantityPlanning.Action(),
             new FaithCapacityContext(_bytes, _inventory, _catalog).Build(BindContextField)]),
         new Tab("Character context", _context.Build(BindContextField, ItemIdentity)),
+        new Tab(FaithAbilityView.TabTitle, [new TextNode("Optional reference tree contains Eikon/DLC spoilers. " +
+            "Names and AP annotations are separate from saved rank bytes; unlock/mastery state remains Unknown."),
+            SectionNode.Lazy(FaithAbilityView.SectionTitle, FaithAbilityView.LazyId, $"{_catalog.Abilities().Count} reference abilities")]),
         new Tab("Structure", _explorer.BuildView()),
         new Tab("Hex", [new HexNode(FaithExplorer.FileBlobId, _bytes.Length) { Title = "Original layout with current edits" }]),
     ]);
 
-    public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _explorer.Expand(lazyId);
+    public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => lazyId == FaithAbilityView.LazyId
+        ? new FaithAbilityView(_catalog).Build(BindContextField) : _explorer.Expand(lazyId);
+
+    public IReadOnlyList<QueryableCollection> Collections => _inventory.IsSupported ? [InventoryView().Collection] : [];
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
+    {
+        if (collectionId != FaithInventoryView.CollectionId || !_inventory.IsSupported)
+            throw new KeyNotFoundException($"Unknown inventory collection '{collectionId}'.");
+        var view = InventoryView();
+        return new FaithInventoryQuery(_bytes, _inventory, _catalog).Query(query,
+            item => view.Row(item, "inventory", Quantity, ItemIdentity), view.Collection);
+    }
+
+    private FaithInventoryView InventoryView() => new(_bytes, _inventory, _catalog);
 
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 

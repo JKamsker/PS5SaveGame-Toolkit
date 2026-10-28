@@ -67,7 +67,8 @@ internal sealed class FaithCharacterContext(byte[] bytes, FaithContainer contain
             new TextNode("A map ID alone does not identify a single asset/sky variant. Changing IDs does not relocate member transforms, " +
                 "reconcile quests or constitute a validated teleport.") { Tone = Tone.Warning },
         };
-        var record = references.Catalog(FaithCatalog.MapsId)?.Find(FaithCatalog.Key(map));
+        if (FaithLocationView.Build(bytes, container, _catalog) is { } location) nodes.Add(location);
+        var record = _catalog.Find(FaithCatalog.MapsId, map);
         if (record is not null)
         {
             foreach (var attribute in record.Attributes)
