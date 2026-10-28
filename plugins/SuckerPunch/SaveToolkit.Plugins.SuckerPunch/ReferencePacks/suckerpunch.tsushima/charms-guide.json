@@ -1,0 +1,1189 @@
+{
+  "records": [
+    {
+      "id": "wiki:charm:charm-of-amaterasu",
+      "name": "Charm of Amaterasu",
+      "category": "defense",
+      "description": "Killing enemies restores a Moderate amount of health. Reward from Golden Summit Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-incineration",
+      "name": "Charm of Incineration",
+      "category": "defense",
+      "description": "Enemies struck by Black Powder Bombs catch on fire and deal Burn damage to nearby foes. Reward for reaching Legend rank: \"The Raging Storm\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-izanami",
+      "name": "Charm of Izanami",
+      "category": "defense",
+      "description": "Iron Will now revives you at 50% of your maximum health. Reward from Marsh Rock Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-mizu-no-kami",
+      "name": "Charm of Mizu-no-Kami",
+      "category": "defense",
+      "description": "Parries, Perfect Parries, and Perfect Dodges are easier to perform. Reward from Spring Falls Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-okuninushi",
+      "name": "Charm of Okuninushi",
+      "category": "defense",
+      "description": "Slowly recover health while out of combat. Reward from Mending Rock Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-mashira-s-protection",
+      "name": "Charm of Mashira's Protection",
+      "category": "defense",
+      "description": "Whenever you heal, your perfect parry and perfect dodge windows are extended for a limited time. Healing costs 1 additional resolve. Reward from visiting Monkey Sanctuaries in Iki Island.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-distraction",
+      "name": "Charm of Distraction",
+      "category": "defense",
+      "description": "When performing Iron Will, wind gusts and hornets will distract and damage enemies. Sold by Baku the Voiceless.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-broken-barriers",
+      "name": "Charm of Broken Barriers",
+      "category": "defense",
+      "description": "Breaking an enemy's defense grants 15% of Resolve. Reward for completing Honor Buried Deep; Reward for completing The Delicate Art of Negotiation.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-fortitude",
+      "name": "Charm of Fortitude",
+      "category": "defense",
+      "description": "20% chance to survive Lethal damage and gain Resolve. Reward for completing The End of Suffering.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-hachiman-s-favor",
+      "name": "Charm of Hachiman's Favor",
+      "category": "defense",
+      "description": "Killing enemies restores a small amount of health. Pre-order bonus only.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-immunity",
+      "name": "Charm of Immunity",
+      "category": "defense",
+      "description": "15% chance for enemy arrows to deal no damage. Reward for completing The Way of the Bow; Reward for completing Flesh and Stone.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-rejuvenation",
+      "name": "Charm of Rejuvenation",
+      "category": "defense",
+      "description": "Slowly recover up to 2 Resolve while in combat. Reward for completing The Tale of Yuna.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-resistance-i",
+      "name": "Charm of Resistance I",
+      "category": "defense",
+      "description": "Reduces all damage by a Minor amount. Reward for completing Lost at Sea; Reward for completing Empty Baskets.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-resistance-ii",
+      "name": "Charm of Resistance II",
+      "category": "defense",
+      "description": "Reduces all damage by a Moderate amount. Reward for completing The Last Warrior Monk; Reward for completing The Blood Sutra.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-resistance-iii",
+      "name": "Charm of Resistance III",
+      "category": "defense",
+      "description": "Reduces all damage by a Major amount. Reward for completing The Guardian of Tsushima.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-unyielding-i",
+      "name": "Charm of Unyielding I",
+      "category": "defense",
+      "description": "Moderately reduces damage taken while at 50% health or less. Reward for completing Incident at Hiyoshi Pass.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-unyielding-ii",
+      "name": "Charm of Unyielding II",
+      "category": "defense",
+      "description": "Majorly reduces damage taken while at 50% health or less. Reward for completing Ghosts in the Fog.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-vitality",
+      "name": "Charm of Vitality",
+      "category": "defense",
+      "description": "Moderate increase to Health. Reward for completing Unfinished Business; Reward for completing Three Actions, Three Illusions; Reward for completing This Threefold World.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-deadly-return",
+      "name": "Charm of Deadly Return",
+      "category": "defense",
+      "description": "Recover ammo for your currently equipped quickfire weapon after using iron will. Reward for completing Caretakers of the Eagle.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-kagu-tsuchi",
+      "name": "Charm of Kagu-Tsuchi",
+      "category": "melee",
+      "description": "Deal bonus damage while at 50% health or less. Reward from Plum Blossom Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-ryuujin",
+      "name": "Charm of Ryuujin",
+      "category": "melee",
+      "description": "Recover 1 Kunai after performing a Perfect Dodge. Reward from Hazy Cliff Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-shinatsuhiko",
+      "name": "Charm of Shinatsuhiko",
+      "category": "melee",
+      "description": "Staggering an enemy prevents interrupted melee attacks for 6 seconds. Reward from Lush Peak Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-susanoo",
+      "name": "Charm of Susanoo",
+      "category": "melee",
+      "description": "Staggered enemies have a 30% chance to be knocked down. Reward from Stone Dragon Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-takemikazuchi",
+      "name": "Charm of Takemikazuchi",
+      "category": "melee",
+      "description": "Killing an enemy increases Melee damage by a Minor amount for a few seconds. Reward from Snowlit Peak Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-nigihayahi-no-mikoto",
+      "name": "Charm of Nigihayahi-no-Mikoto",
+      "category": "melee",
+      "description": "Deal Moderate bonus damage while at full health. Reward from Frost Cliff Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-blazing-flame",
+      "name": "Charm of Blazing Flame",
+      "category": "melee",
+      "description": "The Way of the Flame inflicts additional damage. Heavy attacks spread fire to nearby enemies. Sold by Baku the Voiceless.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "New Game+"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-heavenly-rebuke",
+      "name": "Charm of Heavenly Rebuke",
+      "category": "melee",
+      "description": "On performing Heavenly Strike, there is a chance for lightning to strike a nearby enemy. Sold by Baku the Voiceless.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "New Game+"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-advantage",
+      "name": "Charm of Advantage",
+      "category": "melee",
+      "description": "Ghost Weapons deal 20% more damage. Reward for completing The Cost of Iron; Reward for completing Nattou and the Sake Seller.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-bludgeoning",
+      "name": "Charm of Bludgeoning",
+      "category": "melee",
+      "description": "Moderate increase to Stagger damage. Reward for completing The Thief; Reward for completing The River Children; Reward for completing The Laughing Bandits.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-dual-destruction-i",
+      "name": "Charm of Dual Destruction I",
+      "category": "melee",
+      "description": "Attacks have a 5% chance to deal double damage. Reward for completing The Husband; Reward for completing Whispers in the Woods.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-dual-destruction-ii",
+      "name": "Charm of Dual Destruction II",
+      "category": "melee",
+      "description": "Attacks have a 10% chance to deal double damage. Reward for completing The Conspirator; Reward for completing A Final Request.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-ferocity",
+      "name": "Charm of Ferocity",
+      "category": "melee",
+      "description": "Moderate increase to Melee damage. Reward for completing The Family Man; Reward for completing A Thief of Innocence; Reward for completing The Traitor.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-inari-s-might",
+      "name": "Charm of Inari's Might",
+      "category": "melee",
+      "description": "Increases health and Melee damage by a Minor amount. Reward for honoring 20 Inari shrines.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-charging-bull",
+      "name": "Charm of Charging Bull",
+      "category": "melee",
+      "description": "Increases the power of shoulder charge and sprint strike techniques. Reward for completing A Mother's Law.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-descending-talons",
+      "name": "Charm of Descending Talons",
+      "category": "melee",
+      "description": "Jump attacks can stagger and knock down enemies. Attacking from greater heights yields greater damage. Reward for completing Bloodletting.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-steadfast-fire",
+      "name": "Charm of Steadfast Fire",
+      "category": "melee",
+      "description": "Greatly increases the length of time you can use the Way of the Flame. Sold by Baku the Voiceless.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-azumi-no-isora",
+      "name": "Charm of Azumi-no-Isora",
+      "category": "ranged",
+      "description": "Arrows are silent on impact. Reward from Cloud Ridge Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-izanagi",
+      "name": "Charm of Izanagi",
+      "category": "ranged",
+      "description": "Landing a headshot has a 40% chance to return an arrow. Reward from Winding Mountain Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-sugaru-s-sight",
+      "name": "Charm of Sugaru's Sight",
+      "category": "ranged",
+      "description": "Bows can shoot up to 3 arrows at once if you have enough ammo. Reward from visiting Deer Sanctuaries in Iki Island.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-efficiency",
+      "name": "Charm of Efficiency",
+      "category": "ranged",
+      "description": "15% increase to nocking and reload speeds. Reward for completing The Sensei and the Student; Reward for completing The Terror of Otsuna.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-precision",
+      "name": "Charm of Precision",
+      "category": "ranged",
+      "description": "Moderate increase to arrow damage. Reward for completing The Past Never Passes; Reward for completing Dreams of Conquest; Reward for completing Laid to Rest.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-swift-return",
+      "name": "Charm of Swift Return",
+      "category": "ranged",
+      "description": "Missed standard arrows have a 25% chance of being recovered. Reward for completing The Ghost and the Demon Sensei; Reward for completing Message in Blood.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-yuriko-s-keepsake",
+      "name": "Charm of Yuriko's Keepsake",
+      "category": "ranged",
+      "description": "Arrows have a 15% chance to poison enemies. Reward for completing The Proud Do Not Endure; Reward for completing The Art of Seeing.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-iron-grip",
+      "name": "Charm of Iron Grip",
+      "category": "ranged",
+      "description": "Your aim will never shake or force a shot. Reward for completing A Helping Hand.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-desperate-measures",
+      "name": "Charm of Desperate Measures",
+      "category": "ranged",
+      "description": "If you have no arrows, you can gain one by successfully blocking an arrow. Reward for completing The Impact of Loss.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-terrifying-aim",
+      "name": "Charm of Terrifying Aim",
+      "category": "ranged",
+      "description": "When you kill an enemy with a headshot, there is a 30% chance of terrifying a nearby enemy. Reward for completing the raider's memorial archery challenge in Iki Island.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-concentration",
+      "name": "Charm of Concentration",
+      "category": "ranged",
+      "description": "Increase concentration time. Reward for completing Archery Challenge in Iki Island.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-ikazuchi-no-kami",
+      "name": "Charm of Ikazuchi-no-Kami",
+      "category": "stealth",
+      "description": "Perks and abilities that Terrify are 25% more likely to occur. Reward from Crane Mountain Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-hoori-no-mikoto",
+      "name": "Charm of Hoori-no-Mikoto",
+      "category": "stealth",
+      "description": "Remain hidden when Assassinating enemies from grass. Reward from Turtle Rock Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-toxic-demise",
+      "name": "Charm of Toxic Demise",
+      "category": "stealth",
+      "description": "Wind chimes release poison vapors that kill enemies who pick them up. Reward for reaching legend rank: \"The Phantom Samurai\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-tsukuyomi",
+      "name": "Charm of Tsukuyomi",
+      "category": "stealth",
+      "description": "Assassinated enemies drop additional ammo or supplies. Reward from Scarlet Rock Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-nekoma-s-hunt",
+      "name": "Charm of Nekoma's Hunt",
+      "category": "stealth",
+      "description": "Throw Kunai at a target during chain assassinations to extend your range. Reward from visiting Cat Sanctuaries in Iki Island.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-reflexive-sight",
+      "name": "Charm of Reflexive Sight",
+      "category": "stealth",
+      "description": "Focus on an enemy who has begun to detect you. Reward from Nakajima Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-fire-doctrine",
+      "name": "Charm of Fire Doctrine",
+      "category": "stealth",
+      "description": "Burning an enemy has a 15% chance to Terrify nearby enemies. Reward for completing A Father's Choice; Reward for completing The Cost of Fear.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-hidden-sight",
+      "name": "Charm of Hidden Sight",
+      "category": "stealth",
+      "description": "Enemies stop hunting for you 40% faster. Reward for completing For Tsushima; Reward for completing Silent Death.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-the-lost-mind",
+      "name": "Charm of The Lost Mind",
+      "category": "stealth",
+      "description": "Hallucinating enemies deal 50% more damage to other enemies. Reward for completing The Sister Betrayed; Reward for completing Hidden in Snow.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-shadows",
+      "name": "Charm of Shadows",
+      "category": "stealth",
+      "description": "Reduces enemy detection speed by 10%. Reward for completing The Other Side of Honor; Reward for completing The Black Wolf; Reward for completing The Generosity of Lady Sanjo.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-silence",
+      "name": "Charm of Silence",
+      "category": "stealth",
+      "description": "Reduces enemy detection speed by 15% and increases Resolve gains by a Minor / Moderate / Major amount. Reward for honoring 24 Inari shrines.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-hidden-blades",
+      "name": "Charm of Hidden Blades",
+      "category": "utility",
+      "description": "Throw two additional Kunai. Reward for reaching legend rank: \"The Demon's Blade\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-inari",
+      "name": "Charm of Inari",
+      "category": "utility",
+      "description": "Increases supplies, predator hides, bamboo, and yew wood gained from collecting. Reward from Arrow Peak Shrine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-uneven-standing",
+      "name": "Charm of Uneven Standing",
+      "category": "utility",
+      "description": "Sticky Bombs knock down all affected targets, leaving them vulnerable for longer. Reward for reaching legend rank: \"The Ghost of Tsushima\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-unseen-respite",
+      "name": "Charm of Unseen Respite",
+      "category": "utility",
+      "description": "Smoke bombs restore 25% of your health. Reward for reaching legend rank: \"The Avenging Guardian\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-abundant-reserves",
+      "name": "Charm of Abundant Reserves",
+      "category": "utility",
+      "description": "Gain twice as much ammo from pickups. Reward for reaching legend rank: \"Unwavering Son\" in Iki Island.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-versatile-skills",
+      "name": "Charm of Versatile Skills",
+      "category": "utility",
+      "description": "Double the effects of minor charms, if it is the only minor charm of the same category equipped. Reward for reaching legend rank: \"Legacy Redeemer\" in Iki Island.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-carnage",
+      "name": "Charm of Carnage",
+      "category": "utility",
+      "description": "All combat is much bloodier. Sold by Baku the Voiceless.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "New Game+"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-canine-recruitment",
+      "name": "Charm of Canine Recruitment",
+      "category": "utility",
+      "description": "If you sneak up on a Mongol dog, you can pet it. The dog will then become your ally, stealthing and fighting alongside you. Sold by Baku the Voiceless.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "New Game+"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-ghostly-fury",
+      "name": "Charm of Ghostly Fury",
+      "category": "utility",
+      "description": "When you are damaged, your Ghost Kill Streak loses one kill instead of resetting. You can kill one additional enemy in Ghost Stance. Sold by Baku the Voiceless.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "major",
+        "contentScope": "New Game+"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-divine-healing-i",
+      "name": "Charm of Divine Healing I",
+      "category": "utility",
+      "description": "While at 50% health or less, healing recovers an additional 15% health. Reward for completing A Healer's Touch.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-divine-healing-ii",
+      "name": "Charm of Divine Healing II",
+      "category": "utility",
+      "description": "While at 50% health or less, healing recovers an additional 30% health. Reward for completing The Burden of Theft.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-enduring-affliction",
+      "name": "Charm of Enduring Affliction",
+      "category": "utility",
+      "description": "Status effects last 50% longer and deal 50% more damage. Reward for completing A Debt Repaid.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-fortunate-return",
+      "name": "Charm of Fortunate Return",
+      "category": "utility",
+      "description": "Abilities that use Resolve have a 15% chance to refund 1 Resolve. Reward for completing A Mother's Peace; Reward for completing A Wealthy Man Has All He Needs.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-fortune-i",
+      "name": "Charm of Fortune I",
+      "category": "utility",
+      "description": "Effects with a % chance to occur are 50% more likely to occur. Reward for completing Peace for the Divine.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-fortune-ii",
+      "name": "Charm of Fortune II",
+      "category": "utility",
+      "description": "Effects with a % chance to occur are 50% more likely to occur. Reward for completing Friends in Passing.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-fleet-foraging",
+      "name": "Charm of Fleet Foraging",
+      "category": "utility",
+      "description": "15% chance of quickfire ammo recovery on a melee kill. Reward for completing Troubled Waters.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-resolve-i",
+      "name": "Charm of Resolve I",
+      "category": "utility",
+      "description": "15% increase to Resolve gains. Reward for completing The Value of Sake; Reward for completing The Headman.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-resolve-ii",
+      "name": "Charm of Resolve II",
+      "category": "utility",
+      "description": "25% increase to Resolve gains. Reward for completing The Fool.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-perfect-landing",
+      "name": "Charm of Perfect Landing",
+      "category": "utility",
+      "description": "Gain 2 resolve after successfully performing a safe landing. Reward for completing The Ghost of Iki Island.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-well-being-i",
+      "name": "Charm of Well-Being I",
+      "category": "utility",
+      "description": "Receive an additional 7.5% of health when healing. Reward for completing Servant of the People; Reward for completing A Place to Call Home.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    },
+    {
+      "id": "wiki:charm:charm-of-well-being-ii",
+      "name": "Charm of Well-Being II",
+      "category": "utility",
+      "description": "Receive an additional 15% of health when healing. Reward for completing The Cause of Suffering.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "charmSize": "minor",
+        "contentScope": "See acquisition"
+      }
+    }
+  ]
+}

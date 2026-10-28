@@ -1,0 +1,160 @@
+{
+  "records": [
+    {
+      "id": "wiki:resource:bamboo",
+      "name": "Bamboo",
+      "category": "wood",
+      "description": "Upgrade material used by bowyers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:yew-wood",
+      "name": "Yew Wood",
+      "category": "wood",
+      "description": "Upgrade material used by bowyers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:wax-wood",
+      "name": "Wax Wood",
+      "category": "wood",
+      "description": "Upgrade material used by bowyers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:iron",
+      "name": "Iron",
+      "category": "metal",
+      "description": "Upgrade material used by swordsmiths.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:steel",
+      "name": "Steel",
+      "category": "metal",
+      "description": "Upgrade material used by swordsmiths.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:gold",
+      "name": "Gold",
+      "category": "metal",
+      "description": "Upgrade material used by swordsmiths.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:linen",
+      "name": "Linen",
+      "category": "cloth",
+      "description": "Upgrade material used by armorers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:leather",
+      "name": "Leather",
+      "category": "cloth",
+      "description": "Upgrade material used by armorers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:silk",
+      "name": "Silk",
+      "category": "cloth",
+      "description": "Upgrade material used by armorers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:supplies",
+      "name": "Supplies",
+      "category": "goods",
+      "description": "Used by equipment vendors and trappers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:flowers",
+      "name": "Flowers",
+      "category": "goods",
+      "description": "Traded with merchants.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:resource:predator-hides",
+      "name": "Predator Hides",
+      "category": "goods",
+      "description": "Traded with trappers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    }
+  ]
+}

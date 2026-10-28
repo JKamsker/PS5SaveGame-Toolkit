@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "id": "suckerpunch.tsushima",
-  "version": "1.0.0",
-  "title": "Ghost of Tsushima observed identifier catalog",
-  "description": "Small raw-ID catalog for PS5 Tsushima saves. It names observed identifiers without asserting ownership, equipped state, capacities or write semantics.",
+  "version": "2.0.0",
+  "title": "Ghost of Tsushima attributed names and reference guides",
+  "description": "Evidence-qualified save-ID labels plus unjoined wiki guides. Guide keys are wiki identities, never save IDs or selectable replacements.",
   "plugins": [
     "suckerpunch"
   ],
@@ -18,16 +18,16 @@
       "files": [
         {
           "path": "items.json",
-          "sha256": "dedbc58f9aa2bceb8a647ce747e37b89cda59b4f0cb41beeda6cca1268f1eafb"
+          "sha256": "6595c500d1e4bec5a2fdfc856d1de2f019ffdf85be3dcf65533d52c7665ebc5c"
         }
       ],
       "attribution": {
-        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
-        "author": "PS5 Save Game Toolkit contributors",
-        "license": "Original sample-derived index; project terms",
-        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+        "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Names and raw identifiers were transcribed from privately retained Tsushima evidence; no game text, images or third-party code is embedded."
+        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
       }
     },
     {
@@ -37,16 +37,16 @@
       "files": [
         {
           "path": "equipment.json",
-          "sha256": "6f325309e9ce6b2c45372c54089b26bec74321e1f64e4bcb6725fb0d2a6cbfb6"
+          "sha256": "849e40efd4deef10e43a94ce550f4f921d8c4dd58a74977d3cc33cd105f49960"
         }
       ],
       "attribution": {
-        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
-        "author": "PS5 Save Game Toolkit contributors",
-        "license": "Original sample-derived index; project terms",
-        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+        "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Names and raw identifiers were transcribed from privately retained Tsushima evidence; no game text, images or third-party code is embedded."
+        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
       }
     },
     {
@@ -56,17 +56,132 @@
       "files": [
         {
           "path": "techniques.json",
-          "sha256": "35b94de62a5779038efe19f2e5f4e3f82abeb41b218f1e7fb566de83be1b5986"
+          "sha256": "ab80e9e851923dd4f625b8432bcfc7f1e2f78f71e890abe9e391888364619b0d"
         }
       ],
       "attribution": {
-        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
-        "author": "PS5 Save Game Toolkit contributors",
-        "license": "Original sample-derived index; project terms",
-        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+        "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Names and raw identifiers were transcribed from privately retained Tsushima evidence; no game text, images or third-party code is embedded."
+        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+      }
+    },
+    {
+      "id": "suckerpunch_resource_guide",
+      "kind": "records",
+      "title": "Resource reference guide",
+      "files": [
+        {
+          "path": "resources-guide.json",
+          "sha256": "fb96c31ebe34c385e7c646924fc6af349cda36e3548fbeb2fe928ecf72473bcf"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+        "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+      }
+    },
+    {
+      "id": "suckerpunch_charm_guide",
+      "kind": "records",
+      "title": "Charm reference guide",
+      "files": [
+        {
+          "path": "charms-guide.json",
+          "sha256": "b1b2faa655289225911af7425b1b14242c57ccd3e9516d487c512af52953e468"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+        "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+      }
+    },
+    {
+      "id": "suckerpunch_armor_guide",
+      "kind": "records",
+      "title": "Armor reference guide",
+      "files": [
+        {
+          "path": "armor-guide.json",
+          "sha256": "4146eb8b9fefcd07b707c5fe432e339cc4869b49db51f130d9406e507200b729"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+        "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+      }
+    },
+    {
+      "id": "suckerpunch_sword_guide",
+      "kind": "records",
+      "title": "Sword kit reference guide",
+      "files": [
+        {
+          "path": "sword-kits-guide.json",
+          "sha256": "c464518cd4d3279dffd1f4671e05f52be7cab3ae13e3cb8ab01ed0581ee2cb4d"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+        "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+      }
+    },
+    {
+      "id": "suckerpunch_technique_guide",
+      "kind": "records",
+      "title": "Technique reference guide",
+      "files": [
+        {
+          "path": "techniques-guide.json",
+          "sha256": "696c21db52e77366cd32a717b92162864851b74c80905008ba0d4a0591c6f60b"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+        "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+      }
+    },
+    {
+      "id": "suckerpunch_world_guide",
+      "kind": "records",
+      "title": "Region-scoped shrine reference guide",
+      "files": [
+        {
+          "path": "world-guide.json",
+          "sha256": "ca5ce1d2262c8b79fed0349d48a5b83e58dd32a49b1b0de4a062fe4d5de99fd4"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Shinto_Shrines?oldid=29432",
+        "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
       }
     }
-  ]
+  ],
+  "locale": "en"
 }
