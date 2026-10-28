@@ -23,7 +23,7 @@ public sealed class CharacterCollectionTests
         var tabs = Assert.IsType<TabsNode>(session.BuildView());
         var tables = tabs.Tabs.SelectMany(tab => tab.Children).OfType<QueryableTableNode>().ToArray();
         Assert.Equal(7, tables.Length);
-        Assert.All(tables, table => Assert.Contains("read-only", table.Description!, StringComparison.OrdinalIgnoreCase));
+        Assert.All(tables, table => Assert.Contains("Experimental", table.Description!, StringComparison.OrdinalIgnoreCase));
         var attributes = session.QueryCollection("character/attributes", new());
         Assert.Equal(9, attributes.TotalCount);
         var emeralds = Assert.Single(attributes.Rows, row => CellText(row.Cells["id"]) == "Emeralds");
@@ -35,12 +35,14 @@ public sealed class CharacterCollectionTests
             Assert.Contains("MIT", Assert.IsType<SectionNode>(row.Cells["name"]).Description!);
             var id = Assert.IsType<FieldNode>(row.Cells["id"]);
             Assert.IsType<ReferenceSpec>(id.Spec);
-            Assert.True(id.Spec.ReadOnly);
+            Assert.False(id.Spec.ReadOnly);
             Assert.Equal(Confidence.Inferred, id.Confidence);
-            Assert.False(session.ApplyEdits([new(id.ValueId, JsonSerializer.SerializeToElement("SW.Item.Bow"))]).Ok);
             var details = Assert.IsType<SectionNode>(row.Cells["details"]);
             Assert.NotEmpty(session.Expand(details.LazyId!));
         });
+        var firstId = Assert.IsType<FieldNode>(inventory.Rows[0].Cells["id"]).ValueId;
+        Assert.True(session.ApplyEdits([new(firstId, JsonSerializer.SerializeToElement("SW.Item.Bow"))]).Ok);
+        Assert.True(session.Undo().Ok);
         var quests = session.QueryCollection("character/quests", new() { Filters = new Dictionary<string, string> { ["focused"] = "true" } });
         Assert.Equal(49, quests.TotalCount);
         var focused = Assert.Single(quests.Rows);
@@ -60,7 +62,7 @@ public sealed class CharacterCollectionTests
         {
             var page = session.QueryCollection(collection.Id, new() { Limit = 200 });
             Assert.Equal(page.Rows.Count, page.Rows.Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());
-            Assert.All(page.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>(), field => Assert.True(field.Spec.ReadOnly));
+            Assert.All(page.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>(), field => Assert.False(field.Spec.ReadOnly));
             _ = JsonSerializer.Serialize(page);
         }
         Assert.False(session.State.IsDirty);

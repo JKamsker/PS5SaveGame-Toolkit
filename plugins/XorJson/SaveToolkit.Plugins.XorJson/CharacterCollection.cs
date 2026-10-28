@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.XorJson;
 internal sealed class CharacterCollection(
     string id, string title, string tabTitle, IReadOnlyList<QueryableColumn> columns, IReadOnlyList<CharacterRow> rows)
 {
-    private const string Description = "Read-only values from this save. PC catalog labels are inferred and may differ on PS5. " +
+    private const string Description = "Experimental values from this save. PC catalog labels are inferred and may differ on PS5. " +
         "Search covers all rows; filters match complete column text. Sorting is lexical, including numbers. " +
         "Raw details include unknown fields. Gameplay constraints and reward dependencies remain unverified.";
 

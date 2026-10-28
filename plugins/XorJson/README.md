@@ -1,15 +1,16 @@
 # Obfuscated JSON / Dungeons II (`format.json-xor`)
 
 **Experimental, version 0.3.0.** Lossless token editing for byte-minus-one and
-synthetic XOR-1 JSON, plus a **read-only** Minecraft Dungeons II character view.
+synthetic XOR-1 JSON, plus Experimental existing-token and structural writes for
+the tested offline Minecraft Dungeons II character shape.
 Only an owner can promote console-tested features to Stable.
 
 ## Coverage and evidence
 
 | File / format | Evidence and behavior |
 | --- | --- |
-| `GlobalSaveDataDefault/ue4savegame.dpx.sav` | One 3,978-byte PS5 snapshot. Adding one modulo 256 to every byte produces valid UTF-8 JSON. XOR-1 is invalid. Existing scalar settings remain experimental/editable; structural actions are disabled. |
-| `Character*/ue4savegame.dpx.sav` | One 40,062-byte plain UTF-8 JSON snapshot. Requires an unambiguous object `SerializeMeta.HardFormat=FCharacterSaveV1` and object `CharacterSaveV1`; claimed at Engine score, above generic JSON. Every field is read-only. |
+| `GlobalSaveDataDefault/ue4savegame.dpx.sav` | One 3,978-byte PS5 snapshot. Adding one modulo 256 to every byte produces valid UTF-8 JSON. XOR-1 is invalid. Existing scalar and F5 structural settings writes are Experimental and carry an integrity warning. |
+| `Character*/ue4savegame.dpx.sav` | One 40,062-byte plain UTF-8 JSON snapshot. Requires an unambiguous object `SerializeMeta.HardFormat=FCharacterSaveV1` and object `CharacterSaveV1`; claimed at Engine score, above generic JSON. Existing scalar and F5 structural writes are enabled only for SoftVersion `2`, FormatHash `3777917472`, offline characters. |
 | Character versions | Sample: SoftVersion `2`, FormatHash `3777917472`, offline. Other soft versions/hashes and online/unknown modes get explicit warnings and remain read-only. No PC-version compatibility is asserted. |
 | Other plain JSON | Declined, including unrelated objects, other hard formats and ambiguous character keys. GenericJson remains independent. |
 | Other obfuscated JSON | Format-only detection; full parsing of both candidate transforms rejects ambiguity. Raw add/remove/replace actions are available for these generic documents. XOR-1 has synthetic evidence only. |
@@ -22,6 +23,16 @@ This is a baseline consistency check, not controlled gameplay evidence.
 No compression, checksum field, signature or key is apparent in the decoded
 JSON. Whether external integrity or console-side validation exists is
 **Unknown**. This plugin does not handle PS5 container crypto.
+
+## Enabled writes and their evidence
+
+| write | confidence | evidence | integrity status | owner validation needed |
+| --- | --- | --- | --- | --- |
+| Existing scalar token edits in shifted settings | Unknown | One PS5 settings snapshot plus editor-generated F1 `masterVolume` differential | No checksum observed in decoded JSON; external checks are Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spare-slot import, reload and rewritten-file comparison |
+| Existing scalar token edits in offline `FCharacterSaveV1` | Unknown | One PS5 SoftVersion 2 / FormatHash 3777917472 snapshot; field paths observed, gameplay meaning unproven | No checksum observed in decoded JSON; dependencies and console acceptance Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate each scalar on a disposable offline slot |
+| F5 add/remove/replace for valid JSON objects and arrays | Inferred | Token-preserving serializer, detached snapshots, bounded parse/reopen and undo tests | JSON validity is rechecked; game dependencies and external integrity Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): test one structural operation on a spare slot |
+| F6 planned scalar bulk set | Inferred | Deterministic preview/apply, skipped incompatible rows, bounded values and atomic tests | Same Unknown integrity status; preview and action warnings are retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate individual edits, scope and whole-action undo |
+| F7 character + GlobalSaveDataDefault group edits | Unknown | Same-title, same-generation role validation; staged two-member outputs and memento tests | Each member is reparsed; shared dependencies and external integrity Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): capture paired files and validate atomic reload |
 
 ## Typed paths, exact values and preservation
 
@@ -98,10 +109,11 @@ identities and allocation state. Undo/redo can mix scalar and structural steps;
 retired identities are not reused for a different new record. Whole-section
 lazy IDs stay stable when row counts change, allowing Core to rebind survivors.
 
-**Game settings and all characters expose no structural actions and reject
-direct structural calls.** Inventory add/delete/equip, gameplay scalar edits,
-effect synthesis and quest/world writes need controlled PS5 evidence and spare
-slot acceptance. No caps, reward behavior or integrity repair is guessed.
+Settings and tested offline characters expose warned F5 structural actions. Raw
+operations preserve unknown fields and reject root removal or ambiguous output,
+but they do not prove game dependencies. Inventory add/delete/equip, effect
+synthesis and quest/world semantics remain unproven even when existing tokens can
+be edited. No caps, reward behavior or integrity repair is guessed.
 
 ## Reference catalogs and picker
 
@@ -119,9 +131,11 @@ unmatched values stay raw. Catalog size is not a PS5 coverage claim.
 `Open(file, references)` uses the host's pinned `IReferenceContext`. Item type
 tags publish F4 `ReferenceSpec` fields with `AllowCustom=false`: Core's native
 picker supports search/categories and rejects unknown replacements. Character
-references are read-only, so their picker cannot change gear. Generic obfuscated
-reference fields can use the picker. Existing unknown IDs remain visible and
-preserved; the no-pack path falls back to raw IDs without inventing labels.
+references are writable for the tested offline gate, but picker replacements
+remain Experimental and warn that item dependencies are unverified. Generic
+obfuscated reference fields can use the picker. Existing unknown IDs remain
+visible and preserved; the no-pack path falls back to raw IDs without inventing
+labels.
 Descriptions include per-record attribution; the Sources panel exposes each
 dataset's licence and provenance. No catalog reads trigger network I/O.
 
@@ -130,10 +144,10 @@ transforms, known and unknown original IDs, an escaped original ID, rejected
 unknown replacements, exact token-only output, reopen, undo and redo. These
 prove the generic token editor's behavior. They do not establish that replacing
 a real PS5 inventory ID is safe. Character item replacement, quantities, power,
-rarity, effects, equip and creation remain disabled pending the owner checklist.
-No bulk gameplay action or preset is exposed. Future bulk operations must use
-F6 `IActionPlanningDocument` preview/apply with `SupportsPlanning`, including
-F8 query scopes, exclusions, skipped rows and one atomic undo step.
+rarity, effects, equip and creation remain Experimental and carry the owner
+warning. The generic **Set selected scalar values** action uses F6
+`IActionPlanningDocument` preview/apply, including skipped incompatible rows and
+one atomic undo step; it does not synthesize game-aware presets.
 Catalog-valued edits and their undo/redo request a view rebuild so labels,
 provenance and picker specs follow the current ID.
 
@@ -180,16 +194,15 @@ Tests cover sample no-op, character/version/online gates, named settings,
 F1 exact settings deltas, F10 huge numbers/null/typed paths, malformed/corrupt
 input, atomic size rollback, bounded lazy views, catalog hashes/provenance,
 native reference validation and picker history, F8 full-list search/filter/page
-keys and read-only session gates, F5 detached snapshots, mixed Core undo/redo,
+keys and Experimental session writes/undo, F5 detached snapshots, mixed Core undo/redo,
 stale IDs/revisions, duplicate members, replacement trivia and ambiguous output.
 Sample tests skip only when samples are absent; skipped runs are not validation.
 
-Round 2 removes the overlay workaround, extends the read-only portions of
-phases 2–4, and strengthens the phase-3 catalog/picker foundation. **No full
-phase is declared complete:** controlled captures, legal gameplay ranges,
-populated effect/enchantment cards, reward/dependency validation and console
-acceptance remain open. F7 cross-file integration is deferred, with no local
-transaction substitute.
+This write-enable round keeps the plugin Experimental: controlled captures,
+legal gameplay ranges, populated effect/enchantment cards, reward/dependency
+validation and console acceptance remain open. F7 now stages same-generation
+character/global members atomically; paired-file membership and shared game
+dependencies remain Unknown.
 
 ## Owner capture and console checklist
 
@@ -229,15 +242,14 @@ transaction substitute.
 
 ## SDK requests
 
-- F1/F2/F4/F5/F8/F10 are available and used directly. F6 is the required route for
-  future bulk actions; unsupported gameplay actions remain absent.
+- F1/F2/F4/F5/F8/F10 are available and used directly. F6 is used for the
+  enabled scalar bulk action; unsupported gameplay presets remain absent.
 - The Core overlay regression is fixed on main (`4532481`). The plugin-local
   all-files workaround is removed: F1 supplies only the settings output and
   verifies the untouched character bytes and unchanged-file report.
-- **F7 (#29) merged on main as `7ff21ad`; plugin adoption remains deferred.**
-  The final `IDocumentGroupPlugin.ProposeGroups` / `ValidateGroup` / `OpenGroup`
-  contract and `IGroupedSaveDocument.CaptureMemento` were reviewed from that
-  commit. Future opt-in groups must explicitly bind the
+- **F7 (#29) merged on main as `7ff21ad` and adopted here.** The plugin uses
+  `IDocumentGroupPlugin.ProposeGroups` / `ValidateGroup` / `OpenGroup` and
+  `IGroupedSaveDocument.CaptureMemento` to explicitly bind the
   matching character and global files by title, slot and generation, establish
   one owner per output, fingerprint immutable inputs, validate member schemas
   and cross-file dependencies, stage every output before publishing anything,
@@ -245,8 +257,8 @@ transaction substitute.
   settings stay independently editable. Group models must prefix all member
   identities by role, capture complete immutable multi-member state restorable
   into a fresh instance, and serialize every selected member exactly once.
-  Backups must be explicit members. The remaining blocker is controlled
-  paired-file evidence before proposing membership or shared edits, rather
-  than a missing framework API. No plugin-local coordinator is implemented.
-- No new SDK gap blocks these read views. Game-specific dependency validation,
+  Backups must be explicit members. The group emits warnings because controlled
+  paired-file evidence is still absent; no plugin-local transaction coordinator
+  bypasses Core.
+- No new SDK gap blocks these views or writes. Game-specific dependency validation,
   integrity behavior and PS5 write acceptance still need owner evidence.

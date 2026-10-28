@@ -68,7 +68,7 @@ public sealed class ReferenceCatalogTests
     }
 
     [Fact]
-    public void ObservedInventoryUsesAttributedReadOnlyReferencesAndUnknownIdsStayVisible()
+    public void ObservedInventoryUsesAttributedExperimentalReferencesAndUnknownIdsStayVisible()
     {
         var plugin = new XorJsonPlugin();
         var store = new ReferencePackStore([plugin]);
@@ -80,7 +80,7 @@ public sealed class ReferenceCatalogTests
         Assert.All(items, item =>
         {
             Assert.Equal("xorjson-items", Assert.IsType<ReferenceSpec>(item.Spec).CatalogId);
-            Assert.True(item.Spec.ReadOnly);
+            Assert.False(item.Spec.ReadOnly);
             Assert.Equal(Confidence.Inferred, item.Confidence);
             Assert.Contains("MIT", item.Description!);
             Assert.Contains("PC catalog; PS5 semantics unverified", item.Description!);
