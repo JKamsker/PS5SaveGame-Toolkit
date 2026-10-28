@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from "react";
 import type { ActionNode, FieldValue } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
+import { PlannedActionButton } from "./review/PlannedActionButton";
 import { FieldControl } from "../fields/FieldControl";
 
 interface ActionButtonProps {
@@ -11,7 +12,11 @@ interface ActionButtonProps {
 }
 
 /** Plugin command. Opens a dialog when it has parameters or asks for confirmation. */
-export function ActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
+export function ActionButton(props: ActionButtonProps) {
+  return props.node.supportsPlanning ? <PlannedActionButton {...props} /> : <LegacyActionButton {...props} />;
+}
+
+function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
   const { canEdit, runAction } = useDocument();
   const dialog = useRef<HTMLDialogElement>(null);
   // Unique per instance: the same action may be rendered in several table rows and the detail row.

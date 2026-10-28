@@ -6,6 +6,7 @@ import { useDocument } from "../../state/documentStore";
 import { FieldRow } from "../fields/FieldRow";
 import { ActionButton } from "./ActionButton";
 import { HexView } from "./HexView";
+import { ReviewPath, useFieldJump, useNextReviewPath } from "./review/navigation";
 import { TableView } from "./TableView";
 import { ServerTableView } from "./table/ServerTableView";
 
@@ -27,7 +28,7 @@ export function ViewRenderer({ node }: { node: ViewNode }) {
     case "tabs":
       return <Tabs node={node} />;
     case "field":
-      return <FieldRow node={node} />;
+      return <NavigableField node={node} />;
     case "table":
       return <TableView node={node} />;
     case "queryableTable":
@@ -47,8 +48,18 @@ export function ViewRenderer({ node }: { node: ViewNode }) {
   }
 }
 
+function NavigableField({ node }: { node: Extract<ViewNode, { type: "field" }> }) {
+  const ref = useFieldJump(node.valueId);
+  return <div ref={ref} tabIndex={-1} className="review-field"><FieldRow node={node} /></div>;
+}
+
 function Section({ node }: { node: SectionNode }) {
   const [open, setOpen] = useState(!node.collapsed);
+  const next = useNextReviewPath();
+  const part = `section:${node.lazyId ?? node.title}`;
+  useEffect(() => {
+    if (next === part) setOpen(true);
+  }, [next, part]);
   return (
     <details className="section" open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
       <summary className="section__summary">
@@ -58,7 +69,7 @@ function Section({ node }: { node: SectionNode }) {
       {open && (
         <div className="section__body">
           {node.description && <p className="section__description">{node.description}</p>}
-          {node.lazyId ? <LazyChildren lazyId={node.lazyId} /> : <ViewList nodes={node.children} />}
+          <ReviewPath part={part}>{node.lazyId ? <LazyChildren lazyId={node.lazyId} /> : <ViewList nodes={node.children} />}</ReviewPath>
         </div>
       )}
     </details>
@@ -88,6 +99,11 @@ function LazyChildren({ lazyId }: { lazyId: string }) {
 
 function Tabs({ node }: { node: TabsNode }) {
   const [active, setActive] = useState(0);
+  const next = useNextReviewPath();
+  useEffect(() => {
+    const index = node.tabs.findIndex(tab => next === `tab:${tab.title}`);
+    if (index >= 0) setActive(index);
+  }, [next, node.tabs]);
   const tab = node.tabs[active] ?? node.tabs[0];
   return (
     <div className="tabs">
@@ -100,7 +116,7 @@ function Tabs({ node }: { node: TabsNode }) {
       </div>
       {tab && (
         <div role="tabpanel">
-          <ViewList nodes={tab.children} />
+          <ReviewPath part={`tab:${tab.title}`}><ViewList nodes={tab.children} /></ReviewPath>
         </div>
       )}
     </div>

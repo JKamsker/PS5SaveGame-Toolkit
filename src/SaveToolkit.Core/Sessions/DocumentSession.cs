@@ -21,17 +21,18 @@ public sealed record SessionEditResult
     public bool StructureChanged { get; init; }
 
     /// <summary>
-    /// The request referred to a view a structural change has replaced (old revision or retired id).
+    /// The request used an old document revision or a retired view id.
     /// Nothing changed; the client should refetch the view.
     /// </summary>
     public bool Stale { get; init; }
+    public string? Code => Stale ? "stale" : null;
 
     public required DocumentState State { get; init; }
 }
 
 public sealed record DocumentState(bool CanUndo, bool CanRedo, bool IsDirty)
 {
-    /// <summary>View revision; increases on every structural change. Clients send it back with edits and actions.</summary>
+    /// <summary>Document revision; increases on every mutation, including undo and redo. Clients send it back with edits and actions.</summary>
     public long Revision { get; init; }
 }
 
@@ -48,14 +49,20 @@ public sealed partial class DocumentSession : IDisposable
     private readonly ReferenceFieldService _referenceFields;
     private bool _disposed;
 
-    public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document, DocumentSessionOptions? options = null, ReferenceContext? references = null)
+    public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document,
+        DocumentSessionOptions? options = null, Func<ISaveDocument>? openOriginal = null, ReferenceContext? references = null)
     {
         Id = id;
         File = file;
         Plugin = plugin;
         Document = document;
-        _history = new EditHistory(options ?? DocumentSessionOptions.Default);
-        _referenceFields = new ReferenceFieldService(references ?? ReferenceContext.None);
+        var limits = options ?? DocumentSessionOptions.Default;
+        var referenceContext = references ?? ReferenceContext.None;
+        _history = new EditHistory(limits);
+        _referenceFields = new ReferenceFieldService(referenceContext);
+        _semantic = new SemanticReview(limits.MaxOriginalBytes);
+        // The original is re-opened with the same pinned reference packs so its field identities match the live document.
+        _openOriginal = openOriginal ?? (() => plugin.Open(file, referenceContext));
     }
 
     public string Id { get; }
@@ -128,6 +135,7 @@ public sealed partial class DocumentSession : IDisposable
             return new SessionEditResult { Errors = errors, State = StateUnlocked() };
         }
 
+        EnsureOriginal();
         var outcome = CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);
         if (!outcome.Succeeded)
         {
@@ -138,92 +146,6 @@ public sealed partial class DocumentSession : IDisposable
             ? Record(new MementoStep(revert))
             : outcome.Changes.Count > 0 ? Record(new ValueStep(outcome.Changes)) : [];
         return AfterChange(FromOutcome(outcome), outcome.StructureChanged || outcome.Revert is not null, warnings);
-    });
-
-    /// <param name="actionId">Action id from an indexed <see cref="ActionNode"/>.</param>
-    /// <param name="parameters">Parameter values as sent by the client; missing ones use the published defaults.</param>
-    /// <param name="expectedRevision">The <see cref="DocumentState.Revision"/> the client's view was built at, if known.</param>
-    public SessionEditResult InvokeAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters, long? expectedRevision = null) => Locked(() =>
-    {
-        if (StaleCheck(expectedRevision, [actionId]) is { } stale)
-        {
-            return stale;
-        }
-
-        if (_index.Action(actionId) is not { } action)
-        {
-            return Rejected(actionId, "Unknown action.");
-        }
-
-        if (!Document.CanEdit)
-        {
-            return Rejected(actionId, "This document is read-only.");
-        }
-
-        var values = new Dictionary<string, FieldValue>(StringComparer.Ordinal);
-        var errors = new List<FieldError>();
-        foreach (var p in action.Parameters)
-        {
-            var coerced = parameters.TryGetValue(p.ValueId, out var json)
-                ? FieldValueCoercer.FromJson(json, p.Spec, _referenceFields)
-                : FieldValueCoercer.Normalize(p.Value, p.Spec, allowReadOnly: true, references: _referenceFields);
-            if (coerced.Ok)
-            {
-                values[p.ValueId] = coerced.Value;
-            }
-            else
-            {
-                errors.Add(new FieldError(p.ValueId, coerced.Error!));
-            }
-        }
-
-        if (errors.Count > 0)
-        {
-            return new SessionEditResult { Errors = errors, State = StateUnlocked() };
-        }
-
-        ActionOutcome outcome;
-        try
-        {
-            outcome = Document.InvokeAction(actionId, values);
-        }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
-        {
-            // A failed structural action rolls itself back, which may replace model objects and
-            // drop bindings; re-index quietly (the revision only moves if the ids changed).
-            var revision = _revision;
-            var rebuildWarnings = RebuildIndex(forceNewRevision: false);
-            return Rejected(actionId, $"Action failed: {ex.Message}") with
-            {
-                Warnings = rebuildWarnings,
-                StructureChanged = revision != _revision,
-                State = StateUnlocked(),
-            };
-        }
-
-        IReadOnlyList<string> warnings = [];
-        if (!outcome.Undoable)
-        {
-            ClearHistory();
-        }
-        else if (outcome.Revert is { } revert)
-        {
-            warnings = Record(new MementoStep(revert));
-        }
-        else if (outcome.Changes.Count > 0)
-        {
-            warnings = Record(new ValueStep(outcome.Changes));
-        }
-
-        var result = new SessionEditResult
-        {
-            Changes = outcome.Changes,
-            Warnings = outcome.Warnings,
-            Message = outcome.Message,
-            StructureChanged = outcome.StructureChanged || !outcome.Undoable || outcome.Revert is not null,
-            State = StateUnlocked(),
-        };
-        return AfterChange(result, result.StructureChanged, warnings);
     });
 
     public SessionEditResult Undo() => Locked(() =>

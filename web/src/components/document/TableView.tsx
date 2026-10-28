@@ -1,6 +1,7 @@
 import { memo, useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { TableColumn, TableNode, TableRow } from "../../api/protocol";
+import { ReviewPath, useNextReviewPath } from "./review/navigation";
 import { rowLabel } from "./table/cellText";
 import { RowDetails, rowHasDetails } from "./table/RowDetails";
 import { TableSelectionContext, useRowSelection, type TableSelection } from "./table/selection";
@@ -61,6 +62,19 @@ export function TableView({ node }: { node: TableNode }) {
     [entries],
   );
   const virtualizer = useVirtualizer({ count: entries.length, getScrollElement: () => scroller.current, estimateSize, getItemKey, overscan: 12 });
+  const next = useNextReviewPath();
+  useEffect(() => {
+    const row = node.rows.find(candidate => next === `row:${candidate.key}`);
+    if (!row) return;
+    setQuery("");
+    setFacets({});
+    setExpanded(previous => new Set(previous).add(row.key));
+  }, [next, node.rows]);
+  useEffect(() => {
+    if (!next) return;
+    const index = entries.findIndex(entry => entry.kind === "row" && next === `row:${entry.row.key}`);
+    if (index >= 0) virtualizer.scrollToIndex(index, { align: "center" });
+  }, [next, entries, virtualizer]);
   const template = [CONTROL_COLUMN, ...(hasDetails ? [CONTROL_COLUMN] : []), ...node.columns.map((c) => widths[c.width ?? "Normal"])].join(" ");
   const items = virtualizer.getVirtualItems();
   const padTop = items[0]?.start ?? 0;
@@ -103,7 +117,7 @@ export function TableView({ node }: { node: TableNode }) {
                     data-index={item.index}
                   >
                     <div role="cell" id={detailId} className="table__detail-cell">
-                      <RowDetails row={entry.row} columns={node.columns} />
+                      <ReviewPath part={`row:${entry.row.key}`}><RowDetails row={entry.row} columns={node.columns} /></ReviewPath>
                     </div>
                   </div>
                 );
@@ -213,9 +227,11 @@ const Row = memo(function Row({ row, rowIndex, label, columnKeys, hasDetails, de
           )}
         </div>
       )}
-      {columnKeys.map((key) => (
-        <TableCell key={key} node={row.cells[key]} rowLabel={label} onOpenDetails={openDetails} />
-      ))}
+      <ReviewPath part={`row:${row.key}`}>
+        {columnKeys.map((key) => (
+          <TableCell key={key} node={row.cells[key]} rowLabel={label} onOpenDetails={openDetails} />
+        ))}
+      </ReviewPath>
     </div>
   );
 });

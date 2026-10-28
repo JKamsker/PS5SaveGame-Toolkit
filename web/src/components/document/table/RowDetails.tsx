@@ -1,5 +1,4 @@
 import type { TableColumn, TableRow, ViewNode } from "../../../api/protocol";
-import { FieldRow } from "../../fields/FieldRow";
 import { ViewRenderer } from "../ViewRenderer";
 
 /** Text longer than this is likely truncated in a cell, so the row offers its details. */
@@ -45,7 +44,7 @@ export function RowDetails({ row, columns }: { row: TableRow; columns: readonly 
       {columns.map((column) => {
         const cell = row.cells[column.key];
         if (!cell) return null;
-        if (cell.type === "field") return <FieldRow key={column.key} node={cell} />;
+        if (cell.type === "field") return <ViewRenderer key={column.key} node={cell} />;
         return (
           <div key={column.key} className="row-details__item">
             <div className="row-details__label">{column.label}</div>

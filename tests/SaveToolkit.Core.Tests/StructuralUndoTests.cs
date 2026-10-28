@@ -35,7 +35,8 @@ public sealed class StructuralUndoTests : IDisposable
         var zip = TestZips.Build(("PPSA99998/sdimg_SAVE/roster.dat", Original));
         var ws = _store.Create("roster", [new ImportSource("dump.zip", () => new MemoryStream(zip))]);
         var file = ws.Set.AllDiskFiles.Single();
-        var session = new DocumentSession("doc-test", file, _plugin, _plugin.Open(file), options);
+        var session = new DocumentSession("doc-test", file, _plugin, _plugin.Open(file), options,
+            () => new RosterPlugin.RosterDocument(file.RelativePath, Original));
         _ = session.BuildView();
         return session;
     }
@@ -100,7 +101,7 @@ public sealed class StructuralUndoTests : IDisposable
 
         Assert.Equal(Original, DocumentBytes);
         Assert.False(session.State.IsDirty);
-        Assert.Equal(4, session.State.Revision);
+        Assert.Equal(6, session.State.Revision);
     }
 
     [Fact]
