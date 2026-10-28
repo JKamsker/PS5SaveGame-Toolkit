@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
 public sealed class UnrealGvasConformanceTests : PluginConformanceTests<UnrealGvasPlugin>
 {
-    protected override IReadOnlyList<string> SampleTitleIds => ["PPSA01603", "PPSA02199"];
+    protected override IReadOnlyList<string> SampleTitleIds => ["PPSA01288", "PPSA01603", "PPSA02199"];
     protected override int MaxFilesPerTitle => int.MaxValue;
 
     protected override IReadOnlyList<ValueEdit> ChooseEdits(ISaveDocument document, IReadOnlyList<FieldNode> fields)

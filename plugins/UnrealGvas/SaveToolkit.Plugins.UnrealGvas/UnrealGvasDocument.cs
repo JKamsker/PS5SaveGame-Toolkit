@@ -46,12 +46,18 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
                 ]),
                 new TextNode($"Save class: {header.SaveClass}"),
                 new TextNode($"Branch: {header.EngineBranch}. {_envelope.Label}."),
+                .. ImageSetNotes(header.SaveClass),
                 new TextNode(_readOnlyReason ?? "Experimental. Embedded compressed payloads and unknown native structures are preserved read-only.") { Tone = Tone.Warning },
             ]),
             new Tab("Properties", [Lazy("Property tree", "tree", () => TreePage(file.Properties, 0, "tree"))]),
             new Tab("Search", [Lazy("Top-level primitive properties", "search", () => SearchPage(primitives, 0))]),
         ]);
     }
+
+    private static IReadOnlyList<ViewNode> ImageSetNotes(string saveClass) =>
+        saveClass == "/Script/GingerBread.GingerbreadSaveImageSet"
+        ? [new TextNode("Sackboy image set: tagged GVAS containing Unreal chunk-compressed texture bytes. The supplied images are not PNG/JPEG assets; raw records remain available in Properties.") { Tone = Tone.Info }]
+        : [];
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _lazy.TryGetValue(lazyId, out var load)
         ? load() : throw new KeyNotFoundException($"Unknown GVAS section '{lazyId}'.");

@@ -6,10 +6,10 @@ namespace SaveToolkit.Plugins.UnrealGvas;
 
 public sealed class UnrealGvasPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("engine.unreal-gvas", "Unreal Engine GVAS", "0.1.0")
+    public PluginInfo Info { get; } = new("engine.unreal-gvas", "Unreal Engine GVAS", "0.2.0")
     {
         Description = "Lossless Unreal SaveGame property explorer and primitive editor.",
-        Games = [new GameTitle("PPSA01603", "Hogwarts Legacy"), new GameTitle("PPSA02199", "STAR WARS Jedi: Fallen Order")],
+        Games = [new GameTitle("PPSA01288", "Sackboy: A Big Adventure"), new GameTitle("PPSA01603", "Hogwarts Legacy"), new GameTitle("PPSA02199", "STAR WARS Jedi: Fallen Order")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/trumank/uesave", "https://github.com/topche-katt/hlsavetool"],
     };
@@ -18,12 +18,20 @@ public sealed class UnrealGvasPlugin : IGamePlugin
     {
         try
         {
-            if (file.ReadHeader(4).AsSpan().SequenceEqual("GVAS"u8)) return ProbeResult.Match(ProbeScore.Engine, "Unreal GVAS");
+            if (file.ReadHeader(4).AsSpan().SequenceEqual("GVAS"u8)) return ProbeResult.Match(ProbeScore.Engine, Label(file.Directory.TitleId));
             using var stream = file.OpenRead();
             return GvasEnvelope.Probe(stream) is { } label ? ProbeResult.Match(ProbeScore.Engine, label) : ProbeResult.None;
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or ArgumentException or InvalidOperationException) { return ProbeResult.None; }
     }
+
+    private static string Label(string titleId) => titleId switch
+    {
+        "PPSA01288" => "Sackboy save (Unreal GVAS)",
+        "PPSA01603" => "Hogwarts Legacy save (Unreal GVAS)",
+        "PPSA02199" => "Jedi: Fallen Order save (Unreal GVAS)",
+        _ => "Unreal GVAS",
+    };
 
     public ISaveDocument Open(ISaveFile file)
     {
