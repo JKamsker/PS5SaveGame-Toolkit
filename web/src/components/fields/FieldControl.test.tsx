@@ -70,7 +70,7 @@ describe("nullable and union controls", () => {
   it("keeps explicit null in action parameter forms with a non-null default", () => {
     const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false });
     const context = { workspaceId: "test", documentId: "test", canEdit: true, store, structureVersion: 0,
-      commit: async () => true, runAction: vi.fn() };
+      commit: async () => true, runAction: vi.fn(), refresh: async () => {} };
     const { container } = render(<DocumentContext.Provider value={context}>
       <ActionButton node={{ type: "action", actionId: "run", label: "Run", parameters: [
         { type: "field", valueId: "optional", label: "Optional", spec: { kind: "nullable", inner: { kind: "text" } }, value: "default" },
