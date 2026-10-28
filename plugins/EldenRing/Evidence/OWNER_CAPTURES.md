@@ -33,6 +33,7 @@ do not establish legal stack limits, equip eligibility, upgrade paths or tempora
 | Owned equipment/loadout | Read-only four-representation/quick/pouch joins | Missing profile-summary mirror/empty/unarmed/unlock/modifier writer; changing only displayed joins would leave inconsistent state |
 | Upgrades/affinity/AoW | No complete writer: read-only | Missing compatible PARAM rules and maximum-ever matchmaking-history transaction |
 | Structural/F5 and grouped/F7 | No prepared writer | Free handles, growth/count/acquisition and dependent-reference cleanup unmodeled; only one memory.dat is currently modified; backups remain framework-owned |
+| Progress/maps/classes | 499 source candidates and ten class references, read-only, with F9 maps/character dependency graph | Raw bits are Inferred; marker status remains Unknown. Verify entities/source IDs independently; no quest edges, pools, world writes or legal class minima claimed |
 
 F6 handles held-only runes, linked history and ordinary refill with shared review/group undo.
 The remaining restrictions protect unmodeled dependent structure; owner evidence alone is not their
@@ -108,7 +109,32 @@ only missing ingredient. No local preview substitute or hidden item creation is 
 - [ ] Provide JP/Asia/EU/US and older/current/base/DLC examples with declared versions when available.
   No conversion/repair or cross-platform compatibility is claimed from these reader changes.
 
-## Progress pairs for later phases (ELDENRING-R13)
+## Progress/map validation (ELDENRING-R13/R15/R16)
+
+Completion uses the corrected event start `0x36600` in the one baseline, with 16-byte acquisition
+rows and explicit source byte/bit lookups. This is structural evidence, not a discovery/completion
+certificate. The named F9 candidates deliberately stay Unknown; the UI exposes the raw bit and
+source/event ID separately. Art/coordinates are external links only and require no new reuse permission.
+
+- [ ] `progress-baseline`: on the original character, observe Church of Elleh and The First Step
+  in the game's grace menu. Compare `grace:ChurchofElleh` (source event 76100) and the separately
+  named candidate for event 76101 in the toolkit; record menu observations and raw bits. Do not
+  infer every set bit is a discovered grace from these two checks alone.
+- [ ] `grace-one`: pick one currently unlit grace present in the candidate list; record its exact
+  name/source event, slot, raw bit and in-game menu before/after activating only that grace. Record
+  unavoidable travel/time changes; do not activate another grace in the pair. Compare the field
+  `slots/<slot>/progress/grace:<source-symbol>/raw` against the control pair.
+- [ ] `boss-one`: capture before/after defeating one exact listed boss, recording source symbol/event
+  and observed defeat/reward. Avoid resting at its grace or collecting unrelated items afterward;
+  note unavoidable automatic rewards/unlocks. A grace with a boss's name is not the boss flag.
+- [ ] `fragment-one`: collect exactly one named map fragment; record the inventory key item,
+  source map-control ID, revealed region and raw before/after bit. Compare inventory ownership
+  separately from map visibility. Baseline west Limgrave ownership alone does not establish the flag.
+- [ ] `map-layer-only`: toggle only surface/underground map display and save/export, with no item
+  acquisition, to distinguish `map-control:ShowUnderground` and viewport controls from fragments.
+- [ ] `class-observation`: provide an independently identified class and respec-screen starting
+  minima; compare the raw archetype byte and new class reference. Source starting tuples are not
+  automatically legal minima on every version or a modifier-aware stat model.
 
 - [ ] Separate same-slot pairs for one grace, one summoning pool, one map fragment, one boss and
   one collectible, with the exact entity/menu observed before/after. Do not combine unlocks.
@@ -129,7 +155,9 @@ only missing ingredient. No local preview substitute or hidden item creation is 
   directory view (hash of allocation `0x1960070..0x1BA007F`). Put that key in `gameBuilds`.
   The bundled build-agnostic identity-only pack claims complete pinned-source coverage, not verified
   caps, DLC completeness or verified records on every region/version.
-- [ ] Approve spoiler scope before publishing named quest/boss/progress catalogues. No such catalogue ships.
+- [x] Completion exposes named source candidates as optional spoiler content in **World / progress**,
+  following the owner directive to adopt F9. It does not publish quest branches, named quest prerequisites
+  or verified completion. No further permission decision is required for the attributed MIT subset.
 
 ## Console acceptance (ELDENRING-R1)
 

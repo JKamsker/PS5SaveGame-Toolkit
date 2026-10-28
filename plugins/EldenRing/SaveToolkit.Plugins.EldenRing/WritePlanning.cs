@@ -67,8 +67,9 @@ internal sealed class WritePlanning(byte[] bytes, ParsedSave save, IReadOnlyList
             || !character.Containers.Any(container => InventoryBrowser.Id(slot.Index, container.Id) == query.CollectionId)))
             return Error(RefillId(slot), "Use a server-resolved held/storage query from this character.");
         var selected = scope.RowKeys?.ToHashSet(StringComparer.Ordinal);
+        var knownRows = rows.Select(row => row.Key(slot.Index)).ToHashSet(StringComparer.Ordinal);
         if (selected is not null && (selected.Count != scope.RowKeys!.Count
-            || selected.Any(key => !rows.Any(row => row.Key(slot.Index) == key))))
+            || !selected.IsSubsetOf(knownRows)))
             return Error(RefillId(slot), "Selection contains duplicate, unknown or other-character rows.");
         if (scope.QueryScope is { } scoped && rows.Any(row => selected!.Contains(row.Key(slot.Index))
             && InventoryBrowser.Id(slot.Index, row.Container) != scoped.CollectionId))

@@ -76,6 +76,24 @@ public sealed class SemanticSampleTests
     }
 
     [Fact]
+    public void SampleAcquisitionRowsAreSixteenBytesAndEventRangeMatchesIndependentProbe()
+    {
+        var bytes = WriteTestSupport.Sample().ReadAllBytes();
+        var slot = EldenRingParser.Parse(bytes).Slots[0];
+        var ranges = SemanticReader.Read(bytes, slot).Ranges;
+        var acquired = ranges.Single(range => range.Name == SemanticLayout.AcquisitionRangeName);
+        Assert.Equal(0x1AC53, acquired.Offset);
+        Assert.Equal(73U, EldenRingParser.ReadUInt32(bytes, acquired.Offset));
+        Assert.Equal(8 + 7000 * 16, acquired.Length);
+        var flags = ranges.Single(range => range.Name == SemanticLayout.EventRangeName);
+        Assert.Equal(0x36600, flags.Offset);
+        Assert.Equal(0x1BF99F, flags.Length);
+        Assert.True(ProgressViews.Read(bytes, flags, 0xCBE, 3)); // Source 76100, not a console discovery assertion.
+        Assert.True(ProgressViews.Read(bytes, flags, 0xCBE, 2)); // Source 76101.
+        Assert.False(ProgressViews.Read(bytes, flags, 0xCBE, 1)); // Source 76102.
+    }
+
+    [Fact]
     public void SampleRegulation_DecodesAndValidatesEveryParamDirectoryWithoutChangingAllocation()
     {
         var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat");
@@ -88,7 +106,7 @@ public sealed class SemanticSampleTests
         Assert.Contains(archive.Tables, table => table.Name == "EquipParamGoods.param" && table.Rows == 1808 && table.DataVersion == 3);
         Assert.Contains(archive.Tables, table => table.Name == "EquipParamWeapon.param" && table.Rows == 2973 && table.DataVersion == 6);
         using var document = new EldenRingPlugin().Open(file);
-        Assert.Contains(document.ExpandNode("regulation/metadata"), node => node is TableNode table && table.Rows.Count == 186);
+        Assert.Contains(document.ExpandNode("regulation/metadata"), node => node is QueryableTableNode table && table.TotalCount == 186);
         Assert.True(bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
     }
 }

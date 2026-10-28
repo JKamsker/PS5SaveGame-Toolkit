@@ -13,7 +13,7 @@ public sealed class EvidenceTests
         var manifest = FixtureManifest.Load(Path.Combine(AppContext.BaseDirectory, "Evidence", "fixtures.json"));
         var fixture = Assert.Single(manifest.Fixtures);
         var file = set.AllDiskFiles.First(file => file.FileName == "memory.dat");
-        var options = FixtureVerifier.OptionsFor(fixture, manifest, new EldenRingEvidenceDecoder()) with
+        var options = FixtureVerifier.OptionsFor(fixture, manifest, new HookSaveDecoder(new EldenRingEvidenceDecoder())) with
         {
             Churn = new ChurnFilter(EvidencePrivacy.Masks(file)),
             Bytes = new ByteDiffOptions { ContextBytes = 0, MaxPreviewBytes = 1 },
@@ -33,7 +33,7 @@ public sealed class EvidenceTests
         before.Row("held", "common", 0, 0xB00050F0, 12, 77);
         var after = new SemanticFixture();
         after.Row("held", "common", 9, 0xB00050F0, 13, 77);
-        var decoder = new EldenRingEvidenceDecoder();
+        var decoder = new HookSaveDecoder(new EldenRingEvidenceDecoder());
         var difference = SemanticDiffer.Compare(decoder.Decode(before.Save.File(), new()), decoder.Decode(after.Save.File(), new()));
         var change = Assert.Single(difference.Changes);
         Assert.EndsWith("/quantity", change.Path);
@@ -58,7 +58,7 @@ public sealed class EvidenceTests
         {
             Churn = new ChurnFilter([.. EvidencePrivacy.Masks(beforeFile), .. EvidencePrivacy.Masks(afterFile)]),
             Bytes = new ByteDiffOptions { ContextBytes = 0, MaxPreviewBytes = 1 },
-            Decoder = new EldenRingEvidenceDecoder(),
+            Decoder = new HookSaveDecoder(new EldenRingEvidenceDecoder()),
         });
         var file = Assert.Single(report.Files);
         Assert.Equal(FileDiffStatus.ChurnOnly, file.Status);

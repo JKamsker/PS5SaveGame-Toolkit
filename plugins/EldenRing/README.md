@@ -1,10 +1,12 @@
 # Elden Ring (`eldenring`)
 
-**Experimental**, v0.4.0, for character/profile formats **150/90**. Enables mirrored names,
+**Experimental**, v0.5.0, for character/profile formats **150/90**. Enables mirrored names,
 bounded ordinary-stack quantities, both rune-history mirrors, and shared F6 refill/linked-rune
 actions alongside the existing held-rune edit. New writes are **Inferred**, with explicit warnings:
 there is no console validation and the game may reject edited saves. Owner validation is tracked
 separately in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+Completion adds read-only F9 progress maps and an attribute dependency graph, attributed class/progress
+references, and F8 regulation browsing. All six existing write operations retain their warnings and limits.
 
 ## Titles and file roles
 
@@ -73,7 +75,11 @@ Deeper reads are gated to character format **150**. `ItemMapReader`, `SlotCursor
   The archetype byte is `+B7`, independently tested against the nearby gift byte `+BB`.
 - Equipment representations have a read-only relationship table and independent raw references with
   Inferred labels; no equipment write is enabled. Acquisition/event ranges are bounded candidates,
-  with no boss, quest, grace, completion or NG+ semantics.
+  with no verified boss/grace/completion or any quest/NG+ semantics. Source event candidates are
+  exposed separately in the read-only progress view below.
+- Acquisition history is an eight-byte header plus **7,000 sixteen-byte rows**, not eight-byte rows.
+  Its distinct count is bounded to capacity. Correcting the old stride moves the sampled event range
+  forward 56,000 bytes to `0x36600`; no save bytes are changed by this reader fix.
 
 Sample assertions reproduce PlayerGameData `A2FF`, held inventory `A6A3` (63 common / 2 key rows),
 empty storage `13A5E`, two Scimitars and the shield, Rowa Fruit ×12, Smithing Stone [1] ×3,
@@ -149,6 +155,72 @@ string words beyond file length. Synthetic tests cover these cases.
 This validates directory structure, **not PARAM field layouts, parameter-derived legal caps, FMG text,
 DLC schema compatibility or writer safety**. Those parts of Phase 2 remain open. There is no native code,
 SoulsFormats/Paramdex dependency, unsafe cast, network access or plugin filesystem I/O.
+The 186-table directory now uses F8 search/filter/sort/paging (`regulation/tables`), including numeric
+row-count/size sorts. Its collection is published only after lazy inspection has decoded metadata;
+initial views never decompress regulation. Metadata is cached once per document, without retaining
+the 37 MiB decoded allocation. Unsupported regulation still produces a warning and an empty query.
+
+## Read-only progress maps and character graph (F9)
+
+The separate `eldenring.progress.en` v1.0.0 F2 pack embeds **499** pinned MIT source candidates:
+**314 graces**, **157 bosses** and **28 map controls**, plus **10 starting-class references**.
+Datasets are `eldenring-progress` and `eldenring-classes`. The names, explicit source region/group,
+event ID, sparse relative byte offset and LSB bit are preserved; offsets are **not** `eventId / 8`.
+All source files/hashes, joins, modifications and the full MIT notice accompany the pack in
+[progress.source.md](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.progress.en/progress.source.md).
+The reproducible [importer](Evidence/import-progress-catalog.py) reads reviewed, hash-pinned scratch
+text using `python -I`; it never executes downloaded code. Exact `upstreamName` metadata preserves
+one boss label's trailing space, although F2 trims the displayed name.
+
+**World / progress** is optional spoiler content. Each sampled-format character has an F8 global
+candidate table (`slots/<slot>/progress`) with search, category/region/raw-bit filters and numeric
+event-ID sorting. Lazy regional sections expose F9 maps and linked raw-bit tables, at most **100**
+entries per section. Each marker has a stable character/source identity, Inferred confidence,
+uncertainty/provenance, a text alternative and a field target with its full tab/section/row path.
+The linked eager regional row resolves immediately; it does not rely on finding an unloaded F8 row.
+Malformed/duplicate/oversized imported mappings are rejected with diagnostics; a missing pack retains
+an honest empty collection and raw fallback. Unsampled character layouts do not expose these reads.
+
+Every marker status is **Unknown**, even when its raw source bit is set. Bits are read-only candidate
+observations, not a PS5 discovery/defeat/completion claim. The sample reproduces source bits 76100/76101
+set and 76102 unset at the corrected range; no independent before/after or menu observation exists.
+Map controls include viewport/layer controls and are not all collectible fragments. Inventory ownership,
+historical collection, consumed/sold rewards and boss/quest completion are never equated. Summoning pools,
+quests, DLC, blessings, NG+ resets and mutually exclusive world states remain unmodeled.
+
+Maps link to [Map Genie](https://mapgenie.io/elden-ring/maps/the-lands-between) with host/attribution
+through the shared renderer. No community coordinates, art, tiles or external images are imported;
+markers intentionally have no positions/background. This is an external-reference map with a full
+accessible list, not a fabricated geographic schematic. No plugin network access is added.
+
+The character's F9 **Attribute-to-level dependencies** graph has eight existing attribute-field nodes
+feeding level (`sum − 79`), with field navigation and a complete text alternative. Unknown graph state
+means calculation dependencies rather than unlock progress. No quest prerequisites, upgrade paths or
+modifier/vital derivations are invented. All affected fields are read-only, so no map/graph state can
+become stale after an enabled write or undo.
+
+F4 now also covers class candidates, progress identities and resolved equipment identities, alongside
+inventory and inspection. Raw numeric class/equipment representations remain diagnostic values; semantic
+references retain their exact catalog keys and raw fallback. Starting class values are attributed source
+references, never asserted legal respec minima or used to enable a stat writer.
+
+## Framework feature adoption
+
+| Feature | Status | Where / concrete reason |
+| --- | --- | --- |
+| F1 SaveDiff | Added this round | SDK-only `eldenring-evidence` hook, `Evidence/fixtures.json`, endpoint privacy masks and intended-only byte diffs. Existing paths and privacy allowlist retained; fixtures now use the shared hook adapter. |
+| F2 reference packs | Added this round | Existing 5,770-item MIT pack plus 499 progress and 10 class candidates in a separate versioned pack; hashes, sidecar, MIT notices, Info.References and Sources/UI provenance. |
+| F3 rich cells | Used | Inferred/Unknown field badges, expandable evidence details, refill action cells and optional separately attributed F2 image assets. A real imported one-pixel test asset verifies the image/provenance path; no game art bundled. |
+| F4 reference pickers | Added this round | Class/progress/equipment semantic identities now join inventory and inspection through `ReferenceSpec`; F13 provides browse-only lookup on read-only fields/saves. Immutable raw diagnostics retain their numeric encoding. All current semantic references preserve unknown IDs. |
+| F5 structural undo | N/A | No safe structural writer exists: free-handle allocation, variable GaItem growth, counts/acquisition and dependent equipment cleanup are unproven. Fixed-size scalar edits already have exact undo; arbitrary insertion/removal would corrupt unknown structure. |
+| F6 action planning | Used | Held-only runes, linked rune/history and supported-stack refill; pure previews, warnings/skips, semantic review, stale/tampered-plan rejection, atomic group undo and #27 whole-query selections/exclusions. Respec/loadout presets lack complete dependency writers. |
+| F7 document groups | N/A | Every enabled operation changes one `memory.dat`; there is no independently coupled character/profile partner file. Originally identical backups are mirrored atomically by Core export, not a new plugin-owned group. |
+| F8 queryable tables | Added this round | Existing inventory/storage/5,770-item catalog, new 499-entry progress table and formerly eager 186-table regulation directory. Remaining eager regional/equipment/raw lists are bounded to at most 100 rows. |
+| F9 maps/graphs | Added this round | Lazy regional link-only maps with Unknown states and raw-field targets; attribute-to-level DAG with existing field targets and accessible text alternatives. Spatial validation/protocol/Core navigation and preservation are tested. |
+| F10 exact/nullable/union values | Used | UInt32 fields and UInt64 millisecond durations use exact SDK integer transport. Decimal lexemes/nullable/union specs are N/A: modeled scalars are binary integers or fixed text without tagged/null states; inactive slots omit fields. |
+| F11 shared codecs | N/A | This format uses public AES/DCX/DFLT plus BND/PARAM directories; it has neither Kraken nor SQLite. BCL AES/ZLib remain bounded and preserve original encrypted bytes; no redundant shared-codec route or dependency added. |
+| F12 decoder hooks / F8 traversal | Added this round | Adopted merged #32: `EldenRingPlugin` publishes `eldenring-evidence` through `ISaveDecoderProvider`; shared `HookSaveDecoder` replaces the test-only decoder. Shared view traversal is tested across 203 inventory rows with 17-row pages and explicit truncation. CLI discovery and fixture selection verified. |
+| F13 read-only inspection / browsing | Added this round | Adopted merged #33: `references/inspect` has `Mutates=false` and is published on read-only saves. Shared F4 category filtering/Key–Name–Category sorting and immutable browse-only fields are tested through Core; inspection preserves bytes, revision and undo/redo. Float duration is N/A because saved play time is exact UInt64 milliseconds with existing integer duration formatting. |
 
 ## Writes and integrity
 
@@ -236,15 +308,16 @@ Structural add/remove/transfer remains unavailable: free-handle allocation, vari
 counts/acquisition indices and dependent equipment cleanup are unmodeled, so an arbitrary patch could
 corrupt unknown structure. There is no prepared F5 or F7 writer to enable. Current writes affect one
 `memory.dat`; independent backups retain framework-owned export mirroring. No cross-file transaction
-has been invented. Progress/quest writers likewise have no mapped entities or implementation.
+has been invented. Progress/quest writers lack verified entity semantics and dependency transactions;
+the new source candidate lookups are read-only.
 
 ## Validation
 
-Write-enable round, verified on 2026-10-28: **163 plugin tests passed / 0 failed / 0 skipped** with private
-samples; **252 Core tests passed / 0 failed / 0 skipped**. API build succeeded with zero warnings/errors.
+Completion round, verified on 2026-10-28: **214 plugin tests passed / 0 failed / 0 skipped** with private
+samples; **282 Core tests passed / 0 failed / 0 skipped**. API build succeeded with zero warnings/errors.
 The full-catalog sample initial-view test passes the plan's **under two seconds** target, including
-pack loading and document open. A separate empty-artifacts run passed **138 / 0 failed / 25 skipped**,
-confirming sample-dependent cases skip cleanly; this run does not count as sample validation.
+both embedded packs and document open. Missing-sample behavior is checked separately and never
+substitutes for sample-backed validation.
 
 Run with `SAVETOOLKIT_ARTIFACTS` pointing to the private artifacts folder:
 
@@ -263,6 +336,12 @@ position/ID/handle joins and ambiguity rejection, F6 purity/bounds/staleness/rev
 The write-enable round adds sample-backed mirrored-name/history and two-ID quantity persistence,
 F1 intended-only byte ranges, Unicode/padding/terminator rejection, protected-row rules, live quantity
 filtering, linked derived changes, grouped refill undo, query exclusions and stale/tampered-plan rejection.
+Completion adds independent progress-name/event digests, all map targets through Core, F9 JSON
+round trips, exact sparse-bit/stride vectors, bounded malformed pack/range rejection, class/raw fallback,
+F4 equipment identity protection, optional F2 image attribution and lazy F8 regulation paging/undo.
+F12/F13 tests cover production decoder registration/budgets/privacy, multi-page shared view traversal,
+read-only inspection and native picker filtering/sorting without changes to bytes, revisions or history.
+Repeated handle/selection scans now use lookups/sets; empty edit batches avoid a full-save copy/reparse.
 Sample-dependent cases skip when samples are absent. Current results are recorded in the issue #14
 final implementation comment; no binary sample or extracted regulation is included.
 
@@ -284,6 +363,9 @@ Retrieved/inspected **2026-10-28**. Downloaded code was read as untrusted text, 
 | PS checksum / legacy-count research only | [Hapfel1/er-save-manager, 5974934](https://github.com/Hapfel1/er-save-manager/tree/5974934537feeace982721f82f0fbe69c20c208d) | Restricted/source-available current licence: no code translated, copied, executed or distributed. Facts independently checked against permissive code and sample bytes. |
 | Schema / data research only | [ERDB, e2028a6](https://github.com/EldenRingDatabase/erdb/tree/e2028a6e044b920a471388fb4e1c468b31b64350), [Paramdex](https://github.com/soulsmods/Paramdex), [TGA](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA) | ERDB generator MIT does not license game assets. Paramdex/TGA reuse rights unresolved: no code, schema files, bulk lists, descriptions or artwork imported. |
 | Title identity research | [JP](https://prosperopatches.com/PPSA03169), [Asia](https://prosperopatches.com/PPSA04608), [EU](https://prosperopatches.com/PPSA04609), [US](https://prosperopatches.com/PPSA04610) | Title/region facts only. No assets copied. |
+| Progress names/regions/events: 314 graces, 157 bosses, 28 map controls | [ClayAmore db, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db): `graces.rs`, `map_name.rs`, `bosses.rs`, `maps.rs`, `event_flags.rs`; same-revision `vm/events.rs` / `util/bit.rs` | MIT; explicit sparse joins and original labels/source boss groups; `upstreamName` preserves exact whitespace. Added schema, offsets/bits, provenance and uncertainty; no art/coordinates, pools, quest prerequisites or PS5 completion claims. [Sidecar and hashes](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.progress.en/progress.source.md), separate F2 dataset and full MIT notice. |
+| Ten starting-class names/values | [ClayAmore classes.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs) | MIT; explicit enum IDs and starting-value tuples, separate `eldenring-classes` dataset. No class/respec writes or asserted legal minima. Same sidecar, source hash and full notice. |
+| External map reference | [Map Genie, Elden Ring](https://mapgenie.io/elden-ring/maps/the-lands-between) | Link only; reuse licence unverified. Host and attribution shown through F9; no art, coordinates, labels, descriptions or external resources copied from this site. |
 
 The [plan](../../docs/plans/EldenRing.md) records broader research and provenance exclusions.
 The owner's issue #14 policy approves these MIT name lists and attributed CC BY-SA text. No CC BY-SA
@@ -293,12 +375,14 @@ research-only; none of their datasets, descriptions or artwork is embedded.
 ## Remaining gates and owner captures
 
 Phase 1 reader/evidence infrastructure is implemented; its temporal/console validation gate remains
-open. Phase 2 now includes the complete pinned five-table MIT name catalog, reference plumbing,
-rich browsing and regulation **directory** validation. PARAM field schemas, validated caps, additional
-localizations/descriptions/icons/classes/graces and actual DLC/version coverage remain unfinished.
+open. Phase 2 includes the complete pinned five-table MIT name catalog, ten starting classes,
+reference plumbing, rich browsing and regulation **directory** validation. PARAM field schemas,
+validated caps, additional localizations/descriptions/icons and actual DLC/version coverage remain unfinished.
 Phase 3 now enables the fixed-size name/ordinary-quantity/history operations and F6 refill/linked-rune
-previews above. Phase 4 retains read-only equipment joins; its missing writer dependencies and the
-unmodeled Phase 5/6 structures are described above. No full-phase completion is claimed.
+previews above. Phase 4 retains read-only equipment joins. Phase 5 now has source-only progress
+candidates and F9 map navigation, plus the character calculation DAG; verified statuses, quest edges
+and world/upgrade/equipment writer dependencies remain owner-blocked. Phase 6 allocation/cleanup
+semantics remain unproven. No full Phase 2–6 completion or console acceptance is claimed.
 
 The exact before/after capture and console-validation checklist is in
 [Evidence/OWNER_CAPTURES.md](Evidence/OWNER_CAPTURES.md), tracked in
@@ -308,10 +392,17 @@ requests; console evidence is not a prerequisite for the enabled Experimental wr
 
 ## SDK requests
 
-No shared-code change is needed for the shipped reader, F2 packs, F4 inspection or F8 tables.
-For later work: keep ELDENRING-R22 open for explicitly nonmutating actions on read-only documents;
-currently Core blocks ordinary actions there. Shared F6 is available and used by the rune action;
-no local preview substitute or new SDK request is needed. Unsupported build/loadout presets need the
-missing writer/dependency model described above.
-Catalogue metadata currently exposes search/paging only; an optional native filter/sort query would
-avoid a plugin-side metadata index for very large F8 catalogues. No plugin substitute for F6 was added.
+No blocking SDK request. F9/F8 meet the shipped map/graph/regulation requirements.
+ELDENRING-R22 is resolved through merged [F13 #33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33):
+`Mutates=false` reference inspection works on otherwise valid v150/profile-91 read-only saves,
+while save edits remain rejected. Browse-only F4 controls use native category filtering and declared
+sorting. The F8 catalog metadata index remains for its richer column/detail filters, rather than
+implementing a second picker service.
+
+Merged [F12 #32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32) supplies bounded F8
+view traversal and decoder discovery. `savediff list-decoders` lists `eldenring-evidence`; use
+`savediff compare before.zip after.zip --decoder eldenring-evidence`. The evidence fixture keeps
+the same decoder ID and allowlisted paths. Raw byte reports still need the endpoint privacy masks
+described in [Evidence/README.md](Evidence/README.md). No plugin-local inspect/traversal framework
+was added. Unsupported build/loadout presets require the format dependency evidence described
+above, not another SDK abstraction.

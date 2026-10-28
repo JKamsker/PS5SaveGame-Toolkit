@@ -43,7 +43,7 @@ public sealed class ReferenceTests
         var plugin = new EldenRingPlugin();
         var store = new ReferencePackStore([plugin]);
         Assert.Empty(store.LoadErrors);
-        var pack = Assert.Single(store.Packs);
+        var pack = Assert.Single(store.Packs, pack => pack.Info.Id == "eldenring.names.en");
         Assert.Equal("2.0.0", pack.Info.Version);
         var context = store.Pin(plugin, "PPSA03169");
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("eldenring-items"));
@@ -67,6 +67,7 @@ public sealed class ReferenceTests
         var tabs = Assert.IsType<TabsNode>(document.BuildView());
         var action = Assert.IsType<ActionNode>(tabs.Tabs.Single(tab => tab.Title == "Reference catalog").Children.Last());
         Assert.Equal("eldenring-items", Assert.IsType<ReferenceSpec>(Assert.Single(action.Parameters).Spec).CatalogId);
+        Assert.False(action.Mutates);
         Assert.False(action.Parameters[0].Spec.ReadOnly);
         var result = document.InvokeAction(action.ActionId, new Dictionary<string, FieldValue> { ["item"] = FieldValue.Of("0x400050F0") });
         Assert.Empty(result.Changes);
@@ -94,6 +95,30 @@ public sealed class ReferenceTests
         Assert.Equal(803, browser.Collection.TotalCount);
     }
 
+    [Fact]
+    public void OptionalIconUsesSharedF2AssetsAndRichDetailsWithSeparateAttribution()
+    {
+        var fixture = new SemanticFixture();
+        fixture.Row("held", "common", 0, 0xB00050F0, 12, 1);
+        var plugin = new EldenRingPlugin();
+        var store = new ReferencePackStore([plugin]);
+        var build = Convert.ToHexStringLower(SHA256.HashData(fixture.Save.Bytes.AsSpan(0x1960070, 0x240010)));
+        store.Import(Pack("test.icons", build, "Synthetic Rowa Fruit", includeIcon: true), "icons.zip");
+        using var document = plugin.Open(fixture.Save.File(), store.Pin(plugin, "PPSA03169"));
+        var row = Assert.Single(((IQueryableDocument)document).Query("slots/0/inventory/held", new()).Rows);
+        var details = Assert.IsType<SectionNode>(row.Cells["details"]);
+        var icon = Assert.Single(details.Children.OfType<ImageNode>());
+        Assert.Equal("test.icons:icons/item.png", icon.AssetId);
+        Assert.Equal("Synthetic Rowa Fruit", icon.Alt);
+        var asset = Assert.IsType<AssetContent>(document.GetAsset(icon.AssetId));
+        Assert.Equal("image/png", asset.ContentType);
+        Assert.True(IconBytes().AsSpan().SequenceEqual(asset.Content.Span));
+        Assert.Contains(details.Children, node => node is TextNode text && text.Text.Contains("https://example.org/synthetic/icons", StringComparison.Ordinal));
+        Assert.True(Assert.IsType<ActionNode>(row.Cells["refill"]).SupportsPlanning);
+        Assert.Equal(Confidence.Inferred, Assert.IsType<FieldNode>(row.Cells["item"]).Confidence);
+        WriteTestSupport.EqualBytes(fixture.Save.Bytes, document);
+    }
+
     private sealed class LargeCatalog : IReferenceCatalog
     {
         private readonly ReferenceRecord[] _records;
@@ -109,30 +134,43 @@ public sealed class ReferenceTests
         public ReferencePage Search(ReferenceQuery query) => new(_records.Skip(query.Offset).Take(query.Limit).ToArray(), Count, query.Offset);
     }
 
-    private static byte[] Pack(string id, string build, string name)
+    private static byte[] Pack(string id, string build, string name, bool includeIcon = false)
     {
-        var records = JsonSerializer.SerializeToUtf8Bytes(new { records = new[] { new { id = "0x400050F0", name, category = "goods" } } });
+        var records = JsonSerializer.SerializeToUtf8Bytes(new { records = new[]
+            { new { id = "0x400050F0", name, category = "goods", assetId = includeIcon ? "icons/item.png" : null } } });
+        var datasets = new List<object>
+        {
+            new
+            {
+                id = "eldenring-items", kind = "records", title = "Synthetic identities",
+                files = new[] { new { path = "items.json", sha256 = Convert.ToHexStringLower(SHA256.HashData(records)) } },
+                attribution = new { sourceUrl = "https://example.org/synthetic", author = "Test authors", license = "CC0-1.0",
+                    licenseUrl = "https://creativecommons.org/publicdomain/zero/1.0/", retrieved = "2026-10-28", modifications = "Synthetic test data" },
+            },
+        };
+        if (includeIcon) datasets.Add(new
+        {
+            id = "icons", kind = "assets", title = "Synthetic icon",
+            files = new[] { new { path = "icons/item.png", sha256 = Convert.ToHexStringLower(SHA256.HashData(IconBytes())) } },
+            attribution = new { sourceUrl = "https://example.org/synthetic/icons", author = "Test authors", license = "CC0-1.0",
+                licenseUrl = "https://creativecommons.org/publicdomain/zero/1.0/", retrieved = "2026-10-28", modifications = "One-pixel test placeholder; no game artwork" },
+        });
         var manifest = new
         {
             schema = 1, id, version = "9.0.0", title = "Synthetic test pack", plugins = new[] { "eldenring" },
             titleIds = new[] { "PPSA03169" }, gameBuilds = new[] { build }, locale = "en",
-            datasets = new[]
-            {
-                new
-                {
-                    id = "eldenring-items", kind = "records", title = "Synthetic identities",
-                    files = new[] { new { path = "items.json", sha256 = Convert.ToHexStringLower(SHA256.HashData(records)) } },
-                    attribution = new { sourceUrl = "https://example.org/synthetic", author = "Test authors", license = "CC0-1.0",
-                        licenseUrl = "https://creativecommons.org/publicdomain/zero/1.0/", retrieved = "2026-10-28", modifications = "Synthetic test data" },
-                },
-            },
+            datasets,
         };
         using var stream = new MemoryStream();
         using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true))
         {
             using (var entry = zip.CreateEntry("pack.json").Open()) entry.Write(JsonSerializer.SerializeToUtf8Bytes(manifest));
             using (var entry = zip.CreateEntry("items.json").Open()) entry.Write(records);
+            if (includeIcon) { using var entry = zip.CreateEntry("icons/item.png").Open(); entry.Write(IconBytes()); }
         }
         return stream.ToArray();
     }
+
+    private static byte[] IconBytes() => Convert.FromBase64String(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aSAAAAABJRU5ErkJggg==");
 }

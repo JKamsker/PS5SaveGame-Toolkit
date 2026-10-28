@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "id": "eldenring.progress.en",
+  "version": "1.0.0",
+  "title": "Elden Ring: inferred base-game progress and classes (English)",
+  "description": "Pinned MIT candidate lookups, not verified PS5 progress. No map coordinates/art or quest graph.",
+  "plugins": [
+    "eldenring"
+  ],
+  "titleIds": [],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "eldenring-progress",
+      "kind": "records",
+      "title": "eldenring-progress",
+      "files": [
+        {
+          "path": "progress.json",
+          "sha256": "8da32914fcbdf9fc560e1b3719ba011ab6058c7db9ce59c696b9372dba13b4db"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db",
+        "author": "ClayAmore / ER-Save-Editor contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/LICENSE-MIT",
+        "retrieved": "2026-10-28",
+        "modifications": "Parsed graces.rs, map_name.rs, bosses.rs, maps.rs and event_flags.rs as text; preserved names and source IDs; joined explicit event offsets/bits and region labels. Added schema/provenance and PS5 uncertainty. No coordinates, artwork, quest prerequisites or legal caps."
+      }
+    },
+    {
+      "id": "eldenring-classes",
+      "kind": "records",
+      "title": "eldenring-classes",
+      "files": [
+        {
+          "path": "classes.json",
+          "sha256": "2be8a55cce6185c8fe8fd88ba8269199987cc05052737a4236f4002edcc4fdbe"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db",
+        "author": "ClayAmore / ER-Save-Editor contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/LICENSE-MIT",
+        "retrieved": "2026-10-28",
+        "modifications": "Parsed classes.rs as text; preserved names and source IDs; joined explicit event offsets/bits and region labels. Added schema/provenance and PS5 uncertainty. No coordinates, artwork, quest prerequisites or legal caps."
+      }
+    }
+  ]
+}

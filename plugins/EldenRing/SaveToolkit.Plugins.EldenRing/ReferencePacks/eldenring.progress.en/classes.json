@@ -1,0 +1,224 @@
+{
+  "records": [
+    {
+      "id": "0",
+      "name": "Vagabond",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Vagabond",
+        "schema": "eldenring-class-candidate/1",
+        "level": "9",
+        "vigor": "15",
+        "mind": "10",
+        "endurance": "11",
+        "strength": "14",
+        "dexterity": "13",
+        "intelligence": "9",
+        "faith": "9",
+        "arcane": "7"
+      }
+    },
+    {
+      "id": "1",
+      "name": "Warrior",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Warrior",
+        "schema": "eldenring-class-candidate/1",
+        "level": "8",
+        "vigor": "11",
+        "mind": "12",
+        "endurance": "11",
+        "strength": "10",
+        "dexterity": "16",
+        "intelligence": "10",
+        "faith": "8",
+        "arcane": "9"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Hero",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Hero",
+        "schema": "eldenring-class-candidate/1",
+        "vigor": "14",
+        "mind": "9",
+        "endurance": "12",
+        "strength": "16",
+        "dexterity": "9",
+        "intelligence": "7",
+        "faith": "8",
+        "arcane": "11",
+        "level": "7"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Bandit",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Bandit",
+        "schema": "eldenring-class-candidate/1",
+        "level": "5",
+        "vigor": "10",
+        "mind": "11",
+        "endurance": "10",
+        "strength": "9",
+        "dexterity": "13",
+        "intelligence": "9",
+        "faith": "8",
+        "arcane": "14"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Astrologer",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Astrologer",
+        "schema": "eldenring-class-candidate/1",
+        "level": "6",
+        "vigor": "9",
+        "mind": "15",
+        "endurance": "9",
+        "strength": "8",
+        "dexterity": "12",
+        "intelligence": "16",
+        "faith": "7",
+        "arcane": "9"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Prophet",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Prophet",
+        "schema": "eldenring-class-candidate/1",
+        "level": "7",
+        "vigor": "10",
+        "mind": "14",
+        "endurance": "8",
+        "strength": "11",
+        "dexterity": "10",
+        "intelligence": "7",
+        "faith": "16",
+        "arcane": "10"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Confessor",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Confessor",
+        "schema": "eldenring-class-candidate/1",
+        "level": "10",
+        "vigor": "10",
+        "mind": "13",
+        "endurance": "10",
+        "strength": "12",
+        "dexterity": "12",
+        "intelligence": "9",
+        "faith": "14",
+        "arcane": "9"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Samurai",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Samurai",
+        "schema": "eldenring-class-candidate/1",
+        "level": "9",
+        "vigor": "12",
+        "mind": "11",
+        "endurance": "13",
+        "strength": "12",
+        "dexterity": "15",
+        "intelligence": "9",
+        "faith": "8",
+        "arcane": "8"
+      }
+    },
+    {
+      "id": "8",
+      "name": "Prisoner",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Prisoner",
+        "schema": "eldenring-class-candidate/1",
+        "level": "9",
+        "vigor": "11",
+        "mind": "12",
+        "endurance": "11",
+        "strength": "11",
+        "dexterity": "14",
+        "intelligence": "14",
+        "faith": "6",
+        "arcane": "9"
+      }
+    },
+    {
+      "id": "9",
+      "name": "Wretch",
+      "category": "class",
+      "description": "Inferred source candidate only, not verified PS5 progress, discovery, completion or legal class minima. Base-game pinned tables; no summoning-pool, DLC, NG+ or quest-state coverage.",
+      "source": "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+      "attributes": {
+        "sourceRevision": "014107f0ca1cff867b5f7565cb79d6684f9b35df",
+        "sourceSha256": "9be056a27423f4745e86c1393c631c5b56d7a0c994b520ead06c8dce92702181",
+        "upstreamName": "Wretch",
+        "schema": "eldenring-class-candidate/1",
+        "level": "1",
+        "vigor": "10",
+        "mind": "10",
+        "endurance": "10",
+        "strength": "10",
+        "dexterity": "10",
+        "intelligence": "10",
+        "faith": "10",
+        "arcane": "10"
+      }
+    }
+  ]
+}
