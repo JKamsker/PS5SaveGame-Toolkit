@@ -16,6 +16,8 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
     private CatalogViews? _catalogs;
     private SavedWorldViews? _world;
     private WriteFields? _writeFields;
+    private MapViews? _maps;
+    private MapViews Maps => _maps ??= new MapViews(tree, container.Payload, directory.Names, Field);
     private WriteFields Writes => _writeFields ??= new WriteFields(Field);
     private RepairPlanning Repair => new(_player?.Inventory?.Items ?? [], CanEdit);
     private InventoryViews Inventory => _inventory ??= new InventoryViews(_player?.Inventory?.Items ?? [],
@@ -28,17 +30,19 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         references.Catalog("items", ReferenceBuild));
     public override string Title => "The Witcher 3 · SAV3";
     public override bool CanEdit => _player is not null;
-    public IReadOnlyList<QueryableCollection> Collections => [Inventory.Collection, .. Catalogs.Collections, .. World.Collections];
+    public IReadOnlyList<QueryableCollection> Collections => [Inventory.Collection, .. Catalogs.Collections, .. World.Collections, Maps.Collection, .. Features.Collections];
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId == InventoryViews.CollectionId
         ? Inventory.Query(query) : Catalogs.HandlesCollection(collectionId) ? Catalogs.Query(collectionId, query)
-        : World.HandlesCollection(collectionId) ? World.Query(collectionId, query)
+        : collectionId.StartsWith(AbilityCollections.Prefix, StringComparison.Ordinal) ? Features.Query(collectionId, query)
+        : collectionId == MapViews.CollectionId ? Maps.Query(query) : World.HandlesCollection(collectionId) ? World.Query(collectionId, query)
         : throw new KeyNotFoundException($"Unknown collection '{collectionId}'.");
     public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) => actionId == InventoryViews.LookupActionId
         ? Inventory.Inspect(parameters) : Catalogs.HandlesAction(actionId) ? Catalogs.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        Repair.Plan(actionId, parameters, scope);
+        actionId == RefillPlanning.ActionId ? new RefillPlanning(_player?.Inventory?.Items ?? [], CanEdit).Plan(parameters, scope)
+            : Repair.Plan(actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
@@ -46,11 +50,17 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         if (expected.Errors.Count > 0) { return new EditOutcome { Errors = expected.Errors, Warnings = expected.Warnings }; }
         if (!RepairPlanning.Matches(expected, plan))
         {
-            return EditOutcome.Rejected(actionId, "The repair preview is stale or has been modified. Review a new preview.");
+            return EditOutcome.Rejected(actionId, "The inventory preview is stale or has been modified. Review a new preview.");
         }
 
-        foreach (var item in _player?.Inventory?.Items ?? []) { _ = Writes.Durability(item); }
+        foreach (var item in _player?.Inventory?.Items ?? []) { _ = Writes.Durability(item); _ = ItemField(item); }
         return ApplyEdits(expected.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray()) with { Warnings = expected.Warnings };
+    }
+
+    public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
+    {
+        var outcome = base.ApplyEdits(edits);
+        return outcome with { StructureChanged = outcome.Succeeded && outcome.Changes.Any(c => c.ValueId.StartsWith("abilities/skills/", StringComparison.Ordinal)) };
     }
 
     public override ViewNode BuildView()
@@ -79,6 +89,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         new Tab("Abilities and Gwent", Features.Build()),
         new Tab("Reference catalogs", Catalogs.Build()),
         new Tab("Recipes, journal and facts", World.Build()),
+        new Tab("Map tags", Maps.Build()),
         new Tab("Variable tree", ChildPage(-1, 0)),
         new Tab("Names", [SectionNode.Lazy("MANU name dictionary", "names/0", directory.Names.Count.ToString())]),
         new Tab("Container", [SectionNode.Lazy("LZ4 chunk table", "chunks"),
@@ -89,8 +100,9 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        if (lazyId.StartsWith("map-view/", StringComparison.Ordinal) || lazyId.StartsWith("map-details/", StringComparison.Ordinal)) { return Maps.Expand(lazyId); }
         if (World.HandlesExpansion(lazyId)) { return World.Expand(lazyId); }
-        if (lazyId.StartsWith("ability/", StringComparison.Ordinal) || lazyId.StartsWith("gwent/", StringComparison.Ordinal))
+        if (lazyId.StartsWith("ability/", StringComparison.Ordinal) || lazyId.StartsWith("ability-graph/", StringComparison.Ordinal) || lazyId.StartsWith("gwent/", StringComparison.Ordinal))
         {
             return Features.Expand(lazyId);
         }
@@ -148,7 +160,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
 
     private FieldNode ItemField(InventoryItem item) => Field(item.ValueId, item.Name, new IntegerSpec(1, ushort.MaxValue),
         () => FieldValue.Of(item.Quantity), v => item.Quantity = checked((ushort)v.AsInteger()),
-        v => v.AsInteger() < 1 || v.AsInteger() > ushort.MaxValue ? "Stored quantity must be in 1..65,535." : null) with {
+        v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 1 || v.AsInteger() > ushort.MaxValue ? "Stored quantity must be in 1..65,535." : null) with {
         Confidence = Confidence.Inferred,
         Description = $"Native CInventoryComponent record {item.Id}; stored item name, uint16 quantity. " + WriteFields.ConsoleWarning,
         Warning = "Stack limits and quest/equipment dependencies are unknown. Changing quantities may affect gameplay." };

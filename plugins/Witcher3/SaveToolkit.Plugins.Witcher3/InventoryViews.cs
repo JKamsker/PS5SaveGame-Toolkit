@@ -31,7 +31,7 @@ internal sealed class InventoryViews(
         new TextNode($"{items.Count(i => catalog?.Find(i.Name) is null)} of {items.Count} records have no catalog match. " +
             "Saved durability in 0..100 is editable; -1 and unsupported ranges remain read-only. Legal stack caps are unknown."),
         new TextNode(WriteFields.DurabilityWarning) { Tone = Tone.Warning },
-        .. (durability is null ? Array.Empty<ViewNode>() : [RepairPlanning.Action]),
+        .. (durability is null ? Array.Empty<ViewNode>() : [RepairPlanning.Action, RefillPlanning.Action]),
         new QueryableTableNode(CollectionId, Collection.Title, Columns, items.Count) { Description = Collection.Description },
         new ActionNode(LookupActionId, "Look up catalog item") {
             Description = "Browse attributed reference data. This lookup does not replace, create or equip an item.",

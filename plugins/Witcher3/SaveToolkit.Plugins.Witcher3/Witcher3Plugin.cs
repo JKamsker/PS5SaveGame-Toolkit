@@ -6,9 +6,9 @@ namespace SaveToolkit.Plugins.Witcher3;
 
 public sealed class Witcher3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.5.0")
+    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.6.0")
     {
-        Description = "Attributed catalogs, preserving progression/quantity/durability/skill/Gwent edits and reviewed bulk repair. Experimental; not console-validated.",
+        Description = "Attributed catalogs, native skill/mutation graphs and map-tag lists, preserving edits and reviewed repair/refill. Experimental; not console-validated.",
         Games = [new GameTitle("PPSA04018", "The Witcher 3: Wild Hunt - Complete Edition")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/Atvaark/W3SavegameEditor", "https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md",
@@ -22,7 +22,8 @@ public sealed class Witcher3Plugin : IGamePlugin
             "https://github.com/vishalgupta-git/GwentTracker/tree/d8eab8c25c409be42a0ea7b43b901a43dfefed18/data",
             "https://github.com/vishalgupta-git/GwentTracker/blob/d8eab8c25c409be42a0ea7b43b901a43dfefed18/src/lib/save/parse.ts",
             "https://github.com/dodojesuslol/w3-quest-tracker/blob/6078f8f64a1ede3a304452bfe3cff710ae1d554e/docs/save-format.md",
-            "https://github.com/aschleg/witcher-3-enemy-scaling-and-other-changes/blob/66684cbe57eb20286f9ce65e551a4a0313543592/mod/gameplay/abilities/geralt_skills.xml"],
+            "https://github.com/aschleg/witcher-3-enemy-scaling-and-other-changes/blob/66684cbe57eb20286f9ce65e551a4a0313543592/mod/gameplay/abilities/geralt_skills.xml",
+            MapViews.SourceUrl],
     };
 
     public ProbeResult Probe(ISaveFile file) => file.Directory.TitleId == "PPSA04018" &&

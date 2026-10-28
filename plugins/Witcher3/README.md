@@ -1,6 +1,6 @@
 # The Witcher 3: Wild Hunt – Complete Edition (`witcher3`)
 
-Title: **PPSA04018**. Version: **0.5.0**. Maturity: **Experimental**.
+Title: **PPSA04018**. Version: **0.6.0**. Maturity: **Experimental**.
 Supports player level, unspent XP, available ability points, Crowns, inventory quantity/durability,
 non-core skill rank and existing Gwent collection-count edits for the
 supplied PS5 SAV3 schema **64 / 23 / 163**. The preserving writer passes edit conformance and sample
@@ -14,7 +14,27 @@ full-catalog browsing, named saved ability/card joins, community Gwent acquisiti
 read-only recipes, journal paths and facts. See [CATALOG.md](CATALOG.md) for coverage and licensing;
 [EVIDENCE.md](EVIDENCE.md) records sample evidence and remaining implementation limits. The Phase 1 rich-read slice
 is implemented for supplied fixtures; broader compatibility metadata still needs owner captures.
-Phases 2–4 remain partial. The write-enable round adds the bounded writes and F6 repair action below.
+Phases 2–4 remain partial. Completion adds F9 skill/mutation graphs and native map-tag lists, F8
+ability/map queries, F4 ability identity references and F6 ordinary-stack refill. The requirement and
+acceptance audit is in [COMPLETION.md](COMPLETION.md); remaining evidence is tracked in #31.
+
+## Framework feature adoption
+
+| Feature | Status | Adoption / concrete scope |
+| --- | --- | --- |
+| F1 SaveDiff | Used | `WitcherSemanticDecoder` implements the shared `ISaveDecoder`; native F1 tests audit intended semantic paths and unrelated bytes on every sample. CLI discovery awaits F12. |
+| F2 reference packs | Used | Two pinned packs: 4,011 item references, 107 abilities/mutations and 225 Gwent indices; per-record attribution and Sources panel. |
+| F3 rich cells | Used | Inventory/ability/catalog detail sections, inferred-mapping badges, field confidence/warnings and provenance. No unlicensed icons embedded. |
+| F4 reference pickers | Added this round | Ability identity fields now use read-only `ReferenceSpec("abilities")` with raw fallback; existing item/ability/Gwent catalog inspection parameters use reference pickers. All writable rank/count fields are numbers, not identities. Item/card replacement has no safe writer. Browse-only presentation awaits F13. |
+| F5 structural history | N/A | No safe item/skill creation, deletion, reordering or identity/reference/ownership cleanup writer exists. Scalar omitted-zero property insertion is replayable by value ID; it does not create a gameplay record. Controlled ownership captures are in #31. |
+| F6 planned actions | Added this round | Repair plus imported-quantity refill; document, explicit row and Core-resolved #27 F8 query scopes, exclusions/warnings, stale/forged revalidation and one undo step. |
+| F7 document groups | N/A | Only selected `.sav` changes. Same-stem `.req` is an invariant content list, not a coupled gameplay/checksum file; no demonstrated cross-file edit invariant. Core handles identical backup mirroring. |
+| F8 queryable lists | Added this round | Existing full inventory/catalog/recipe/fact/journal queries plus every ability array and native map tags, with full-list search/filter/sort and bounded pages. Lazy details remain for reliable F9 navigation to unloaded data. |
+| F9 graph/map nodes | Added this round | 102 saved skill definitions, 13 mutation definitions/11 native prerequisite edges, and counted known/discovered/disabled map tags. Text alternatives, attributed raw fallbacks, stable linked fields, bounded nodes and external map links. |
+| F10 exact/nullable/union | N/A | This binary schema stores fixed integer/float32/float64 values, not exact JSON number lexemes or polymorphic scalars. Omitted default zero is neither explicit null nor a union; using those specs would invent storage states. Existing integer specs retain exact widths. |
+| F11 shared codecs | N/A | SNFH uses raw LZ4, already handled by K4os.Compression.LZ4. SaveToolkit.Codecs' Kraken/SQLite wrappers cannot decode this format; no local Kraken/SQLite implementation exists. |
+| F12 | Pending #32 | SaveDiff F8 traversal and plugin decoder-hook discovery were absent from the starting main; retain the shared-engine test hook, do not build a substitute. |
+| F13 | Pending #33 | Non-mutating inspection actions, browse-only picker, catalog filter/sort and float duration were absent from starting main; existing inspection actions remain documented limitations. |
 
 ## Enabled writes and their evidence
 
@@ -30,9 +50,11 @@ the gameplay effect, reward accounting, achievement behavior or persistence afte
 | Non-core existing skill rank | Inferred | Player-owned counted SSkill array, saved `level`/`maxLevel`; converter/native core identities. Bound 0..saved maxLevel. Omitted rank zero is inserted using existing dictionary names. | Original properties retained; changed array length and containing PORP/BLCK/SS/directory pointers repaired; reparse and verify every skill property's bytes. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): rank up/down, check free/spent/path points, slots, prerequisite UI, modifiers/stats and combat; native save/reload/re-export. No purchase/refund/respec logic runs. |
 | Existing Gwent ordinary/leader copies | Inferred | Typed cardIndex/numCopies pairs before the deck boundary; MIT tracker and 27 indices / 35 copies in all eight records. Ordinary 0..3, leaders 0..1, widened only to preserve an already larger original count. | Exactly four body bytes per pair; LZ4 framing rebuilt; reparse and compare every card identity/group/count. Deck bytes remain unchanged. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): duplicate count and leader removal/restoration, collection/deck/gameplay/quest/achievement checks, save/reload/re-export. Counts can invalidate a deck; tracker targets are not legal caps. |
 | Repair existing items (F6 bulk) | Inferred | Same durability encoding; preview lists each old/new value and skipped sentinel/unsupported/already-100 row. Document, explicit-row and resolved F8 query scopes. | One atomic edit/undo group; pure preview, apply-time revalidation, no direct invocation; only intended float ranges change. No money or repair rewards change. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): bulk repair two damaged items, check unrelated inventory/Crowns/achievements, native save/reload/re-export. |
+| Refill ordinary food/water to imported quantity (F6 bulk) | Inferred | Exact observed native IDs `Bread` / `Bottled water`, unequipped, unslotted and untagged only. Target is each instance's imported quantity; already higher values are preserved. No claimed legal cap. | Original fixed-width quantity writer; exact byte/F1 intended ranges, reparse, no-op/undo identity and F6 plan revalidation. Unknown game dependencies remain warned. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): lower then refill an existing eligible stack, test selected/full/filter-with-exclusion scope and two eligible stacks together; inspect food slots, consumption, quantities, money/quests/rewards and native save/reload/re-export. |
 | Existing level / XP / free ability points / Crowns / quantities (retained) | Inferred | Existing preserving writer, player IdTag, saved level definitions and native inventory widths. | Existing edit conformance, relocation/reparse and exact no-op/undo checks remain. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): original spare-slot validation checklist in EVIDENCE.md. Level-up/stack dependencies remain warned. |
 
-The first four rows are **four newly enabled write capabilities**. Core skills and definition/sentinel
+The first four rows shipped in the write round; refill is **one additional write capability** this
+completion round. Core skills and definition/sentinel
 records remain intact. A missing zero property inside an existing skill is a scalar edit with a stable
 identity; it does not add a skill or inventory record. Two rank pages can be edited together with
 progression dictionary growth, durability and Gwent counts, then undone together.
@@ -179,15 +201,16 @@ stable ID, so the two views cannot diverge.
 Tabs provide overview, player progression, inventory, abilities/Gwent, reference catalogs, saved
 recipes/journal/facts, variable tree, MANU dictionary and container details. F8 inventory queries search the complete model by label, native ID, category,
 slot and instance ID, with exact name/ID/category/slot/equipped filters, numeric quantity/durability
-sorting and deterministic instance-ID tie breaks. Pages contain at most 200 rows; raw/ability/Gwent
-lists page 64 ability/Gwent entries or 128 raw entries. Chunk tables are bounded to 4096 rows. Existing quantity IDs remain
+sorting and deterministic instance-ID tie breaks. Queries contain at most 200 rows; linked ability/Gwent
+details page 64 entries and raw details 128 entries. Chunk tables are bounded to 4096 rows. Existing quantity IDs remain
 `inventory/<instance>/quantity`, including the Crowns summary; raw explorer IDs use input offsets.
 
 F3 detail cells show raw durability (including -1), saved flags/slot, unknown prefix data, raw
 attribute values/type bytes and tags. Categories and labels do not establish safe write limits or
 ordinary equipment: internal appearance and scabbard records remain visible. F4's **Look up catalog
 item** picker browses the pinned `items` catalog and returns attributed descriptions without modifying
-the save. Replacement, equipping, add/remove and refill actions are absent; reviewed repair is available.
+the save. Replacement, equipping and add/remove are absent. Reviewed repair and conservative ordinary
+food/water refill are available through F6.
 
 F2 embeds `witcher3.catalog.en` (CC BY-SA 3.0 items/abilities) and `witcher3.gwent.en` (MIT cards).
 The item catalog contains 3,670 explicit native keys and 341 additional wiki references with unpublished
@@ -235,6 +258,21 @@ or timestamp becomes quest completion. Some bounded wide-name payloads contain c
 surrogates: their bytes are retained and displayed through explicit hash identities. Their meaning
 is Unknown. Later saves have 183 nonzero opaque words. No fact or journal write is enabled.
 Optional reader failures show independent warnings and preserve the existing explorer/writer.
+
+F9 skill graphs show saved branches, costs and current ranks. Rank zero is Unknown, not Locked;
+core definitions remain Unknown even with stored rank one. Positive editable ranks are displayed as
+Unlocked stored ranks, without claiming equipped/usable status. No skill prerequisite is guessed
+from tier/position. Mutation arrows follow exact counted `requiredMutations` arrays; all research
+states remain Unknown. Malformed/cyclic/unsupported graphs warn and leave encoded-property views.
+Rank edits and undo/redo mark the structure changed so diagram state refreshes.
+
+The Map tags tab reads the unique native common map manager's exact counted membership blocks.
+Discovered tags are Found in the limited sense of stored discovery; known-only/disabled-only tags
+are Unknown. No absent tag is Missing. No completion, Place-of-Power point, fast-travel entitlement,
+friendly location, region or coordinates are invented. Graph/map targets open direct lazy detail
+pages, including unloaded late rows; no F8 search-by-ID workaround is needed. Nodes split at 512
+items and queries at 200 rows. Maps link to attributed community regional maps; NC art/coordinates
+and third-party marker data are not imported. [Spatial provenance](SaveToolkit.Plugins.Witcher3/SpatialViews.source.md).
 
 The raw explorer and encoded-property details remain read-only and show the **input image**, while
 curated Player/Inventory/rank/Gwent fields and Gwent catalog counts show pending edits.
@@ -288,6 +326,12 @@ Tests cover:
 
 Missing samples skip via `SampleSaves`; all synthetic tests remain runnable. No sample data is committed.
 
+Completion-round validation: **99 passed, 0 failed, 0 skipped**, with artifacts exported in the
+same command and all eight save records exercised. API build: **0 warnings / 0 errors**. Includes
+F9 validation/navigation/refresh, mutation prerequisite corruption, 4,096-skill and 1,650-tag bounds,
+F8 queries, refill exact-byte/F1/reopen/history/scoping/rejection tests, direct type/range rejection
+and tagged parent-boundary regressions. No console acceptance is claimed.
+
 Validation for the write-enable round: **88 passed, 0 failed, 0 skipped**, including all eight saves,
 edit/reopen/F1/byte-preservation checks, invalid inputs, session undo/redo, omitted-rank insertion,
 mixed writes/dictionary relocation, and bulk repair preview/apply/group undo. API build:
@@ -326,6 +370,7 @@ text; no downloaded editor/script was run. The plugin is independently written b
 | SAV3 framing/primitive layout adaptation | [Atvaark/W3SavegameEditor](https://github.com/Atvaark/W3SavegameEditor/tree/cff905189d565606aed9058b2804eb4c5ee9f540/W3SavegameEditor.Core) | MIT, [notice](W3SavegameEditor-LICENSE.txt) | Bounded parser and preserving writer; stored names have save-native provenance. |
 | Native inventory/tagged property research and layout adaptation | [cahian converter](https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter/tree/7ae8b6fe71c4b36e571246ad25629d03c7ec8219/w3save) | MIT, [notice](SaveConverter-LICENSE.txt) | Independently bounded PS5 readers; retained raw attributes/flags/prefixes; no PC schema conversion. |
 | Raw LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT, existing managed package | No copied source or reference dataset. |
+| Native spatial projections and external regional maps | Native saved definitions/map-tag blocks; [witcher3map](https://legacy.witcher3map.com/), untamed0 and contributors | Original projection code GPL-3.0-or-later; existing friendly labels retain CC BY-SA 3.0. Community map is CC BY-NC-SA, **link only**; art belongs to CD PROJEKT RED. [Sidecar](SaveToolkit.Plugins.Witcher3/SpatialViews.source.md) | No map art, coordinates, community marker data or code imported. Source attribution in graph descriptions, field descriptions and every map/source link; upstream in Info.References. |
 
 The following research sources add context; game script mirrors are research-only and are not
 redistributed. Their repositories' tool licenses do not grant rights to CD PROJEKT game assets.
@@ -360,9 +405,11 @@ redistributed. Their repositories' tool licenses do not grant rights to CD PROJE
 
 ## SDK requests
 
-No blocking SDK request for the shipped scope: F2, F3, F4 and F8 are used directly. R6–R9 from the
-older plan are no longer blockers for these reads. F5/F6 remain available for later evidence-backed
-structural/bulk edits; no plugin-local substitute was added.
+No blocking SDK request for the shipped scope: F2/F3/F4/F6/F8/F9 are used directly. R6–R9 and
+R20/R21 from the older plan no longer block supported presentations. F5 needs a safe native
+structural writer, and F7 has no proven coupled-file invariant. No plugin-local framework substitute
+was added. F12 is pending [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32) and F13
+is pending [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33).
 
 Nonblocking F1 tooling request: the CLI's `PluginViewDecoder` visits eager fields/lazy sections but
 does not enumerate F8 queryable collections or register plugin-specific decoder hooks. This round's

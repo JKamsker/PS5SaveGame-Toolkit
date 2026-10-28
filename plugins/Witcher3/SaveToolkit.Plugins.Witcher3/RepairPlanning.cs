@@ -1,4 +1,3 @@
-using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -16,27 +15,13 @@ internal sealed class RepairPlanning(IReadOnlyList<InventoryItem> items, bool ca
     public ActionPlan Plan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
         if (actionId != ActionId) { throw new KeyNotFoundException($"Unknown planned action '{actionId}'."); }
-        var errors = new List<FieldError>();
-        if (!canEdit) { errors.Add(new(ActionId, "Unsupported player schema; this document is read-only.")); }
-        if (parameters.Count != 0) { errors.Add(new(ActionId, "Repair has no parameters.")); }
-        if (scope.QueryScope is { } query && (query.CollectionId != InventoryViews.CollectionId || scope.RowKeys is null))
-        {
-            errors.Add(new(ActionId, "A query scope must resolve to player-inventory row keys before planning."));
-        }
-
-        var byKey = items.ToDictionary(i => i.Id.ToString(CultureInfo.InvariantCulture), StringComparer.Ordinal);
-        var keys = scope.RowKeys ?? items.Select(i => i.Id.ToString(CultureInfo.InvariantCulture)).ToArray();
-        if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Count || keys.Any(k => !byKey.ContainsKey(k)))
-        {
-            errors.Add(new(ActionId, "Selection contains duplicate or unknown inventory instances."));
-        }
-
+        var (selected, errors) = InventoryActionSelection.Resolve(ActionId, items, canEdit, parameters, scope);
         if (errors.Count > 0) { return new ActionPlan { Errors = errors, Warnings = [WriteFields.DurabilityWarning] }; }
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
-        foreach (var key in keys)
+        foreach (var item in selected)
         {
-            var item = byKey[key];
+            var key = InventoryActionSelection.Key(item);
             if (!item.CanEditDurability)
             {
                 skipped.Add(new(key, "Sentinel or unsupported durability range; record is preserved."));

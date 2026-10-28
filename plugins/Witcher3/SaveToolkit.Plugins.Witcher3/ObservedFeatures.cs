@@ -2,13 +2,14 @@ using System.Security.Cryptography;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Plugins.Witcher3;
 
 /// <summary>Optional readers fail independently, preserving the raw explorer and original-image writer.</summary>
 internal sealed class ObservedFeatures
 {
-    private const int PageSize = 64;
+    internal const int PageSize = 64;
     private readonly byte[] _data;
     private readonly IReadOnlyList<string> _names;
     private readonly IReferenceCatalog? _abilities;
@@ -22,6 +23,9 @@ internal sealed class ObservedFeatures
     public SkillRanks? SkillEdits { get; }
     public IReadOnlyList<GwentCopies> CopyEdits { get; } = [];
     public IReadOnlyList<string> Warnings { get; }
+    private AbilityCollections AbilityTables => new(Abilities, _abilities, SkillEdits, AbilityRow);
+    public IReadOnlyList<QueryableCollection> Collections => AbilityTables.Collections;
+    public QueryableCollectionPage Query(string id, QueryableCollectionQuery query) => AbilityTables.Query(id, query);
 
     public ObservedFeatures(PlayerData? player, Sav3Tree tree, byte[] data, IReadOnlyList<string> names,
         IReferenceCatalog? abilities = null, IReferenceCatalog? gwent = null, WriteFields? writeFields = null)
@@ -61,7 +65,11 @@ internal sealed class ObservedFeatures
             "Default/sentinel records are retained. Localization keys and icon paths are identifiers, not bundled game text or artwork."),
         new TextNode(WriteFields.SkillWarning + " " + WriteFields.GwentWarning) { Tone = Tone.Warning },
         .. Warnings.Select(w => new TextNode(w) { Tone = Tone.Warning }),
-        .. Abilities.Select(a => SectionNode.Lazy(a.Name, $"ability/{a.Name}/0", a.Entries.Count.ToString())),
+        SectionNode.Lazy("Skill definition graph", "ability-graph/skills"),
+        SectionNode.Lazy("Mutation prerequisite graph", "ability-graph/mutations"),
+        .. AbilityTables.Build(),
+        .. Abilities.SelectMany(a => Enumerable.Range(0, Math.Max(1, (a.Entries.Count + PageSize - 1) / PageSize))
+            .Select(page => SectionNode.Lazy($"{a.Name}: linked details {page + 1}", $"ability/{a.Name}/{page * PageSize}", a.Entries.Count.ToString()))),
         .. (Cards is null ? new ViewNode[] { new TextNode("No supported Gwent collection was decoded.") } : [
             new StatsNode([new Stat("Gwent indices", Cards.Count.ToString()), new Stat("Saved copies", Cards.Sum(c => (long)c.Copies).ToString())]),
             SectionNode.Lazy("Gwent collection (native indices)", "gwent/0", Cards.Count.ToString()),
@@ -72,18 +80,16 @@ internal sealed class ObservedFeatures
 
     public IReadOnlyList<ViewNode> Expand(string lazyId)
     {
+        if (lazyId is "ability-graph/skills" or "ability-graph/mutations")
+        {
+            return new AbilityGraphs(Abilities, _names, _abilities, SkillEdits).Build(lazyId["ability-graph/".Length..]);
+        }
         var parts = lazyId.Split('/');
         if (parts.Length == 3 && parts[0] == "ability" && int.TryParse(parts[2], out var start) &&
             Abilities.SingleOrDefault(a => a.Name == parts[1]) is { } array && start >= 0 && start <= array.Entries.Count)
         {
             return [new TableNode([new("id", "Saved identity"), new("name", "Reference name"), new("rank", "Stored rank"), new("properties", "Input properties (read-only)")],
-                array.Entries.Skip(start).Take(PageSize).Select(entry => new TableRow(entry.Id, new Dictionary<string, ViewNode> {
-                    ["id"] = new TextNode(entry.Id),
-                    ["name"] = ReferenceCell(_abilities?.Find(entry.Id), entry.Id),
-                    ["rank"] = array.Name == "skills" && SkillEdits?.Ranks.SingleOrDefault(r => r.Entry.Id == entry.Id) is { } rank && _writeFields is not null
-                        ? _writeFields.Rank(rank) : new TextNode("Definition / read-only"),
-                    ["properties"] = new SectionNode("Encoded properties", entry.Record.Properties.Select(p => (ViewNode)new TextNode($"{p.Name}: {Value(p)}")).ToArray()) { Collapsed = true },
-                })).ToArray()) { Title = array.Name }, .. Next($"ability/{array.Name}", start, array.Entries.Count)];
+                array.Entries.Skip(start).Take(PageSize).Select(entry => AbilityRow(array, entry)).ToArray()) { Title = array.Name }];
         }
 
         if (parts.Length == 2 && parts[0] == "gwent" && int.TryParse(parts[1], out start) && Cards is { } cards && start >= 0 && start <= cards.Count)
@@ -117,6 +123,14 @@ internal sealed class ObservedFeatures
         ? new TextNode($"{raw} (unmapped; source: save-native identity)")
         : new SectionNode(record.Name, [new TextNode(record.Category ?? "Reference"), new TextNode(record.Description ?? ""),
             new TextNode(record.AttributionText)]) { Collapsed = true, Badge = "Inferred mapping" };
+
+    private TableRow AbilityRow(AbilityArray array, AbilityEntry entry) => new(entry.Id, new Dictionary<string, ViewNode> {
+        ["id"] = _writeFields is null ? new TextNode(entry.Id) : _writeFields.Identity(array.Name, entry, _abilities?.Find(entry.Id)),
+        ["name"] = ReferenceCell(_abilities?.Find(entry.Id), entry.Id),
+        ["rank"] = array.Name == "skills" && SkillEdits?.Find(entry.Id) is { } rank && _writeFields is not null
+            ? _writeFields.Rank(rank) : new TextNode("Definition / read-only"),
+        ["properties"] = new SectionNode("Encoded properties", entry.Record.Properties.Select(p => (ViewNode)new TextNode($"{p.Name}: {Value(p)}")).ToArray()) { Collapsed = true },
+    });
 
     private string Value(TaggedProperty property)
     {
