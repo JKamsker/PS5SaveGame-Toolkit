@@ -20,4 +20,23 @@ internal static class FieldTags
     public const int String = 15;
     public const int Struct = 16;
     public const int Class = 17;
+
+    public static string ShortName(int type) => type switch
+    {
+        Enum => "enum",
+        Boolean => "bool",
+        Int8 => "i8",
+        UInt8 => "u8",
+        Int16 => "i16",
+        UInt16 => "u16",
+        Int32 => "i32",
+        UInt32 => "u32",
+        Int64 => "i64",
+        UInt64 => "u64",
+        Float32 => "f32",
+        Float64 => "f64",
+        Char8 => "char8",
+        Char16 => "char16",
+        _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Not a primitive field type."),
+    };
 }

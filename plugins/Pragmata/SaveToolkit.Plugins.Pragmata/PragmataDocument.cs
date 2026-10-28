@@ -24,7 +24,9 @@ internal sealed class PragmataDocument : ISaveDocument
 
     public SaveLayout Layout { get; }
     public bool CanEdit => true;
-    public string Title => Layout.Header is null ? "Pragmata · System data" : $"Pragmata · Slot {Read(Layout.Detail.Find(KnownHashes.Slot)!)}";
+    public string Title => Layout.Header is { } header
+        ? FormattableString.Invariant($"Pragmata · Slot {Read(Layout.Detail.Find(KnownHashes.Slot)!)} · {HoursPlayed(header):F1} h")
+        : "Pragmata · System data";
 
     public PragmataDocument(string relativePath, ReadOnlySpan<byte> original)
     {
@@ -50,6 +52,9 @@ internal sealed class PragmataDocument : ISaveDocument
 
     internal string PreviewOrValue(SaveNode node) => node.IsPrimitive ? Read(node).ToString() : Preview(node);
 
+    internal double HoursPlayed(SaveNode header) => (double)Read(header.Find(KnownHashes.Playtime)!).AsUInt64() /
+        (MicrosecondsPerSecond * TimeSpan.SecondsPerHour);
+
     internal FieldNode Field(SaveNode node, bool raw = false)
     {
         var id = raw ? $"raw/{node.Path}" : node.Path;
@@ -63,10 +68,7 @@ internal sealed class PragmataDocument : ISaveDocument
         return new FieldNode(id, HashNames.Label(node.Hash), spec, Read(node))
         {
             Confidence = IsTimer(node) ? Confidence.Inferred : HashNames.All.ContainsKey(node.Hash) ? Confidence.Verified : Confidence.Unknown,
-            Description = $"{node.Path} · type {node.Type} · plaintext 0x{node.Offset:x} · {node.Size} bytes" +
-                (HashNames.All.ContainsKey(node.Hash) ? ". Name confirmed by MurmurHash3; game effects are untested." : "") +
-                (IsTimer(node) ? " Microsecond units inferred; playtime = elapsed − demo − pause." : ""),
-            Warning = EditWarning,
+            Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x}",
         };
     }
 

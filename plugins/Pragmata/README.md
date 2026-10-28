@@ -19,6 +19,20 @@ test has been performed; only a human should promote this plugin to Stable.
 - Fixed-size patching preserves unknown fields, padding, unused encrypted
   capacity, ElGamal pairs, unknown metadata bytes and the RSA/key trailer.
 
+The slot rail labels gameplay saves by the normalized directory name:
+`SAVESERVICE-LINE-0-<n>Slot` or `SAVESERVICE-LINE-0-0` becomes
+“Gameplay save, slot N”. `data00-1.bin` is labelled “System data”; unrecognized
+directory names fall back to “Gameplay save”. Probe still reads only the 16-byte
+DSSS header and never decrypts. Backup twins use the same normalized names.
+After opening, gameplay titles include the parsed slot and inferred playtime in
+hours, e.g. “Pragmata · Slot 0 · 25.7 h”.
+
+Each tab starts with one experimental notice. Field descriptions retain compact
+provenance (`path · u32 @0x50`, with plaintext offsets); confidence conveys name
+verification separately. Inventory-specific risks and clock guidance remain in
+their tabs. The overview integrity stat reads “Verified”, with hash block counts
+and embedded key/IV verification details in its hint.
+
 No new NuGet dependencies. Production code depends only on `SaveToolkit.Sdk`
 and .NET libraries, and does no filesystem/network I/O. Embedded identifier data
 is immutable and shared; mutable state is isolated per document.
@@ -138,7 +152,8 @@ Upstream dumps resolve additional names beyond the earlier map, including
 proof of legal values or game behavior. `_MainSlot` is not labelled money,
 `_LapCount` is not equated to NG+, and difficulty/inheritance IDs have no invented
 friendly labels. Other field controls use Verified for confirmed names and
-Unknown for unnamed hashes; all carry the experimental game-effects warning.
+Unknown for unnamed hashes; the experimental game-effects warning appears once
+at the top of each tab, rather than on every field.
 
 Item names, ID meanings, legal stack limits, unlock dependencies, many field
 semantics, unknown metadata and console compatibility remain unverified. The
@@ -191,9 +206,14 @@ A local Release measurement of open plus initial view was approximately 36–185
 per supplied file, including integrity checks and parsing. This is hardware
 dependent and is not a timing assertion in CI.
 
-Recorded validation: API build succeeded with zero warnings/errors; **52 plugin
-tests passed**, **42 Core tests passed**. An independent run with an empty
-sample directory passed 27 pure tests and skipped all 25 sample-based tests.
+Round 2 tests also check cheap probe labels, malformed directory-name fallbacks,
+backup/snapshot labels against parsed slot values, one experimental notice per
+tab, compact field and lazy Raw provenance, integrity hints, and current playtime
+titles under a locale that normally uses a decimal comma.
+
+Recorded Round 2 validation: API build succeeded with zero warnings/errors;
+**74 plugin tests passed**, **43 Core tests passed**. An independent run with an
+empty sample directory passed 44 pure tests and skipped all 30 sample-based tests.
 The identifier-generation script reproduced all 413 resource entries exactly.
 
 Builds run the plugin-local code-size check: warn above 300 C# lines and fail
