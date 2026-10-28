@@ -32,6 +32,20 @@ Development: `dotnet run --project src/SaveToolkit.Api` and `cd web; npm run dev
   entirely in memory. See [the codec contracts](src/SaveToolkit.Codecs/README.md).
 - **Plugins** (`plugins/`): one per game or engine format. See [docs/PLUGIN_GUIDE.md](docs/PLUGIN_GUIDE.md).
 
+Session plugin calls are serialized. Closing a workspace disposes its documents and rejects later
+session/group opens through retained workspace references. Export verifies plugin output by reopening
+it; plugins remain responsible for atomic edits, format integrity and byte-identical no-op round trips.
+
+Run the complete backend suite with decrypted samples available:
+
+```powershell
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/path/to/artifacts'
+./scripts/test.ps1
+```
+
+The script builds the API and plugins, then runs every framework and plugin test project. Missing
+samples cause tests to skip; verify that each summary reports zero skipped for a complete run.
+
 The server binds to 127.0.0.1 and has no authentication; it is meant to run on your own machine.
 
 Licensed under **GPL-3.0-or-later**; see [LICENSE](LICENSE) and [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).

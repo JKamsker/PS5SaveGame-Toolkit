@@ -2,7 +2,7 @@ using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Testing;
 
-/// <summary>Tiny in-memory save set for unit tests and synthetic probe inputs.</summary>
+/// <summary>Tiny in-memory save set for unit tests and synthetic probe inputs; owns a copy of each input file.</summary>
 public sealed class MemorySaveSet : ISaveSet
 {
     private readonly List<ISaveDirectory> _directories = [];
@@ -29,7 +29,7 @@ public sealed class MemorySaveSet : ISaveSet
             Name = name;
             IsBackup = backup;
             RawName = (backup ? "sdimg_sce_bu_" : "sdimg_") + name;
-            var all = files.Select((kv, i) => (ISaveFile)new MemoryFile(this, $"{id}f{i}", kv.Key, kv.Value)).ToList();
+            var all = files.Select((kv, i) => (ISaveFile)new MemoryFile(this, $"{id}f{i}", kv.Key, kv.Value.ToArray())).ToList();
             Files = all.Where(f => !f.PathInDirectory.StartsWith("sce_sys/", StringComparison.OrdinalIgnoreCase)).ToList();
             SystemFiles = all.Except(Files).ToList();
             ParamSfo = files.TryGetValue("sce_sys/param.sfo", out var sfo) ? ParamSfo.TryParse(sfo) : null;

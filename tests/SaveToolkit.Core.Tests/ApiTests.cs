@@ -51,6 +51,27 @@ public sealed class ApiTests(WebApplicationFactory<Program> factory) : IClassFix
         Assert.Contains("Workspace not found", body.GetProperty("error").GetString(), StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(long.MinValue)]
+    public async Task ReadBlob_NegativeOffset_Returns400WithErrorEnvelope(long offset)
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var workspace = await UploadAsync();
+        var workspaceId = workspace.GetProperty("id").GetString();
+        var fileId = workspace.GetProperty("titles")[0].GetProperty("directories")[0].GetProperty("files")[0].GetProperty("id").GetString();
+        using var opened = await _client.PostAsJsonAsync($"/api/workspaces/{workspaceId}/files/{fileId}/open", new { }, ct);
+        var document = await opened.Content.ReadFromJsonAsync<JsonElement>(ct);
+        var documentId = document.GetProperty("id").GetString();
+
+        using var response = await _client.GetAsync(new Uri(
+            $"/api/workspaces/{workspaceId}/documents/{documentId}/blobs?id=content&offset={offset}&count=1", UriKind.Relative), ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+        Assert.Contains("Offset", body.GetProperty("error").GetString(), StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task Edit_OnReadOnlyDocument_Returns422()
     {

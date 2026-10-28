@@ -80,7 +80,9 @@ internal static class WorkspaceEndpoints
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
             d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content.ToArray(), asset.ContentType) : Results.NotFound());
         doc.MapGet("/blobs", (DocumentRef d, [FromQuery] string id, [FromQuery] long offset, [FromQuery] int count) =>
-            Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)).ToArray(), "application/octet-stream"));
+            offset < 0
+                ? (IResult)Results.BadRequest(new ErrorDto("Offset cannot be negative."))
+                : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)).ToArray(), "application/octet-stream"));
         doc.MapGet("/download", (DocumentRef d) =>
         {
             var session = d.Value;
