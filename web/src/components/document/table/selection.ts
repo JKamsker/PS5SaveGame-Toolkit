@@ -85,20 +85,17 @@ export function useQueryableSelection(rows: readonly TableRow[], collectionId: s
   const toggle = useCallback((key: string) => {
     setSelected((previous) => {
       const next = new Set(previous);
-      if (scope) {
-        if (next.has(key)) next.delete(key);
-        else next.add(key);
-      } else if (next.has(key)) next.delete(key);
+      if (next.has(key)) next.delete(key);
       else next.add(key);
       return next;
     });
-  }, [scope]);
+  }, []);
   const setMany = useCallback((keys: readonly string[], value: boolean) => {
     setSelected((previous) => {
       const next = new Set(previous);
       for (const key of keys) {
-        if (value) next.delete(key);
-        else if (scope) next.add(key);
+        // A query-wide selection stores exclusions; an explicit selection stores inclusions.
+        if (scope ? !value : value) next.add(key);
         else next.delete(key);
       }
       return next;
