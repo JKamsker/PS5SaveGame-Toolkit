@@ -24,8 +24,8 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
   /** Refetches the view after a structural change; the new view data creates a fresh value cache. */
   const { refetch } = query;
   const refresh = useCallback(async () => {
-    await refetch();
-    setStructureVersion((v) => v + 1);
+    // Only move lazy sections to the new view once it actually arrived (avoids refetch loops).
+    if ((await refetch()).isSuccess) setStructureVersion((v) => v + 1);
   }, [refetch]);
 
   const handleResult = useCallback(

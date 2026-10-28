@@ -42,7 +42,8 @@ internal sealed record MementoStep(DocumentMemento Memento) : HistoryStep
 /// </summary>
 internal sealed record HistoryEntry(IReadOnlyList<HistoryStep> Steps)
 {
-    public long SizeBytes => Steps.Sum(s => s.SizeBytes);
+    /// <summary>Fixed at creation so the history's byte accounting cannot drift.</summary>
+    public long SizeBytes { get; } = Steps.Sum(s => s.SizeBytes);
 }
 
 /// <summary>Undo and redo stacks with count and memory limits. Not thread-safe; the session serialises access.</summary>

@@ -156,6 +156,34 @@ public sealed class StructuralUndoTests : IDisposable
     }
 
     [Fact]
+    public void LazyBindings_OfARemovedRecord_ComeBackWithUndo()
+    {
+        using var session = Open();
+        _ = session.Expand("details/1");
+        AssertOk(session.ApplyEdits([new IncomingEdit("member/1/level", Json("\"40\""))]));
+        AssertOk(session.InvokeAction("remove", Param("member", "\"1\"")));
+
+        AssertOk(session.Undo());
+        AssertOk(session.Undo());
+
+        Assert.Equal(Original, DocumentBytes);
+        AssertOk(session.Redo());
+        AssertOk(session.ApplyEdits([new IncomingEdit("member/1/level", Json("\"41\""))]));
+    }
+
+    [Fact]
+    public void UndoAndRedo_AreRejectedInsideAGroup()
+    {
+        using var session = Open();
+        AssertOk(session.ApplyEdits([new IncomingEdit("member/1/name", Json("\"x\""))]));
+
+        var group = session.RunGroup(s => s.Undo());
+
+        Assert.False(group.Ok);
+        Assert.True(session.State.CanUndo);
+    }
+
+    [Fact]
     public void FailedStructuralAction_ChangesNothing()
     {
         using var session = Open();

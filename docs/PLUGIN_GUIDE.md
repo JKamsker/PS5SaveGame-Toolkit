@@ -110,6 +110,8 @@ Make them undoable with a **revert token** instead:
 3. **Restore exactly.** `RestoreMemento` (implemented by `BoundSaveDocument` on top of the two hooks)
    must bring back the same bytes **and** the same ids. Core replays later value edits by id after a
    structural undo/redo. Undoing everything must serialise to the original bytes exactly; test it.
+   Tokens are reused (undo → redo → undo), so `LoadSnapshot` must **copy** from the token and never
+   adopt its state object as the live model.
 4. **Report an honest size.** `SizeBytes` counts against the session's history budget
    (`DocumentSessionOptions.MaxSnapshotBytes`, 256 MiB by default). Core evicts the oldest history
    first. A single change larger than the budget is applied without undo, and the user is told.

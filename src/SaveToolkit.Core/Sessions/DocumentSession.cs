@@ -41,7 +41,7 @@ public sealed record DocumentState(bool CanUndo, bool CanRedo, bool IsDirty)
 public sealed partial class DocumentSession : IDisposable
 {
     private readonly Lock _gate = new();
-    private readonly ViewIndex _index = new();
+    private ViewIndex _index = new();
     private readonly EditHistory _history;
     private bool _disposed;
 
@@ -187,8 +187,14 @@ public sealed partial class DocumentSession : IDisposable
         {
             // A failed structural action rolls itself back, which may replace model objects and
             // drop bindings; re-index quietly (the revision only moves if the ids changed).
+            var revision = _revision;
             var rebuildWarnings = RebuildIndex(forceNewRevision: false);
-            return Rejected(actionId, $"Action failed: {ex.Message}") with { Warnings = rebuildWarnings, State = StateUnlocked() };
+            return Rejected(actionId, $"Action failed: {ex.Message}") with
+            {
+                Warnings = rebuildWarnings,
+                StructureChanged = revision != _revision,
+                State = StateUnlocked(),
+            };
         }
 
         IReadOnlyList<string> warnings = [];
@@ -217,10 +223,14 @@ public sealed partial class DocumentSession : IDisposable
     });
 
     public SessionEditResult Undo() => Locked(() =>
-        _history.NextUndo is { } entry ? Step(entry, undo: true) : Rejected(string.Empty, "Nothing to undo."));
+        _group is not null ? Rejected(string.Empty, "Undo is not available inside a grouped operation.")
+        : _history.NextUndo is { } entry ? Step(entry, undo: true)
+        : Rejected(string.Empty, "Nothing to undo."));
 
     public SessionEditResult Redo() => Locked(() =>
-        _history.NextRedo is { } entry ? Step(entry, undo: false) : Rejected(string.Empty, "Nothing to redo."));
+        _group is not null ? Rejected(string.Empty, "Redo is not available inside a grouped operation.")
+        : _history.NextRedo is { } entry ? Step(entry, undo: false)
+        : Rejected(string.Empty, "Nothing to redo."));
 
     /// <summary>
     /// New file contents; empty when the document equals the original (never edited, or everything undone).

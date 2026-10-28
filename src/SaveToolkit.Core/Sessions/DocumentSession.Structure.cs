@@ -1,3 +1,4 @@
+using SaveToolkit.Core.Editing;
 using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Core.Sessions;
@@ -62,7 +63,16 @@ public sealed partial class DocumentSession
 
     private SessionEditResult RollBackGroup(List<HistoryStep> steps)
     {
-        if (_groupBroken || steps.Count == 0)
+        if (_groupBroken)
+        {
+            return new SessionEditResult
+            {
+                Warnings = ["The operation failed after a step that cannot be undone; its earlier changes remain applied."],
+                State = StateUnlocked(),
+            };
+        }
+
+        if (steps.Count == 0)
         {
             return new SessionEditResult { State = StateUnlocked() };
         }
@@ -126,7 +136,15 @@ public sealed partial class DocumentSession
         var run = Replay(entry.Steps, undo);
         if (!run.Outcome.Succeeded)
         {
-            return AfterChange(FromOutcome(run.Outcome), run.NeedsRebuild, []);
+            IReadOnlyList<string> notice = [];
+            if (run.RollbackFailed)
+            {
+                // The document is somewhere between both states; history no longer describes it.
+                _history.Clear(irreversible: true);
+                notice = ["The step failed part-way and could not be fully reverted; undo history was cleared."];
+            }
+
+            return AfterChange(FromOutcome(run.Outcome), run.NeedsRebuild, notice);
         }
 
         var inverse = new HistoryEntry(run.Swapped);
@@ -159,12 +177,15 @@ public sealed partial class DocumentSession
             Track(step);
             if (!step.Outcome.Succeeded)
             {
+                var rollbackFailed = false;
                 for (var k = done.Count - 1; k >= 0; k--)
                 {
-                    Track(ApplyStep(swapped[done[k]], !undo));
+                    var back = ApplyStep(swapped[done[k]], !undo);
+                    Track(back);
+                    rollbackFailed |= !back.Outcome.Succeeded;
                 }
 
-                return new ReplayRun(step.Outcome with { StructureChanged = structural }, swapped, needsRebuild);
+                return new ReplayRun(step.Outcome with { StructureChanged = structural }, swapped, needsRebuild, rollbackFailed);
             }
 
             swapped[i] = step.Inverse;
@@ -173,7 +194,7 @@ public sealed partial class DocumentSession
             warnings.AddRange(step.Outcome.Warnings);
         }
 
-        return new ReplayRun(new EditOutcome { Changes = changes, Warnings = warnings, StructureChanged = structural }, swapped, needsRebuild);
+        return new ReplayRun(new EditOutcome { Changes = changes, Warnings = warnings, StructureChanged = structural }, swapped, needsRebuild, RollbackFailed: false);
     }
 
     private StepResult ApplyStep(HistoryStep step, bool undo)
@@ -208,23 +229,28 @@ public sealed partial class DocumentSession
     /// </summary>
     private IReadOnlyList<string> RebuildIndex(bool forceNewRevision = true)
     {
-        var before = _index.BindingIds.ToHashSet(StringComparer.Ordinal);
-        var wasExpanded = _expanded;
-        _index.Clear();
-        _expanded = new HashSet<string>(StringComparer.Ordinal);
-
-        IReadOnlyList<string> warnings = [];
+        var fresh = new ViewIndex();
+        HashSet<string> expanded;
         try
         {
-            _index.Add(Document.BuildView());
-            ReExpand(wasExpanded);
+            fresh.Add(Document.BuildView());
+            expanded = ReExpand(fresh, _expanded);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            warnings = [$"The view could not be rebuilt: {ex.Message}"];
+            // Keep the previous index rather than retiring live ids; clients refetch on the new revision.
+            if (forceNewRevision)
+            {
+                _revision++;
+            }
+
+            return [$"The view could not be rebuilt: {ex.Message}"];
         }
 
-        var now = _index.BindingIds.ToHashSet(StringComparer.Ordinal);
+        var before = _index.BindingIds.ToHashSet(StringComparer.Ordinal);
+        var now = fresh.BindingIds.ToHashSet(StringComparer.Ordinal);
+        _index = fresh;
+        _expanded = expanded;
         if (forceNewRevision || !before.SetEquals(now))
         {
             _revision++;
@@ -239,28 +265,42 @@ public sealed partial class DocumentSession
 
         _retired.UnionWith(before);
         _retired.ExceptWith(now);
-        return warnings;
+        return [];
     }
 
-    private void ReExpand(HashSet<string> lazyIds)
+    /// <summary>
+    /// Expands every previously opened lazy section that exists in <paramref name="index"/> (nested ones
+    /// included). Sections that vanished stay remembered, so they are re-expanded if an undo brings their
+    /// record back; values in them may be replayed by later history steps.
+    /// </summary>
+    private HashSet<string> ReExpand(ViewIndex index, HashSet<string> lazyIds)
     {
         var pending = new HashSet<string>(lazyIds, StringComparer.Ordinal);
+        var expanded = new HashSet<string>(StringComparer.Ordinal);
         var progress = true;
         while (progress && pending.Count > 0)
         {
             progress = false;
-            foreach (var lazyId in pending.Where(_index.KnowsLazy).ToList())
+            foreach (var lazyId in pending.Where(index.KnowsLazy).ToList())
             {
-                _index.AddAll(Document.ExpandNode(lazyId));
-                _expanded.Add(lazyId);
+                index.AddAll(Document.ExpandNode(lazyId));
+                expanded.Add(lazyId);
                 pending.Remove(lazyId);
                 progress = true;
             }
         }
+
+        if (expanded.Count + pending.Count <= MaxRetiredIds)
+        {
+            expanded.UnionWith(pending);
+        }
+
+        return expanded;
     }
 
     private sealed record StepResult(EditOutcome Outcome, HistoryStep Inverse, bool Rebuilt);
 
     /// <param name="NeedsRebuild">A structural change happened after the last index rebuild.</param>
-    private sealed record ReplayRun(EditOutcome Outcome, IReadOnlyList<HistoryStep> Swapped, bool NeedsRebuild);
+    /// <param name="RollbackFailed">A step failed and the steps before it could not all be reverted.</param>
+    private sealed record ReplayRun(EditOutcome Outcome, IReadOnlyList<HistoryStep> Swapped, bool NeedsRebuild, bool RollbackFailed);
 }
