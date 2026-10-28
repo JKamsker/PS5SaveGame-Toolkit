@@ -92,7 +92,20 @@ document** (the browser caches values by id, undo replays by id). Path-like ids 
    keep all state in the document. No static mutable state, no file system, no network.
 7. **Maturity.** `ReadOnly` until the conformance suite passes with edits; then `Experimental`.
    Only a human sets `Stable` after a successful in-game test.
-8. **Reference data** (hash → name tables, item lists) goes into embedded resources inside the plugin.
+8. **Reference data** (hash → name tables, item lists, descriptions, icons) goes into embedded resources
+   inside the plugin, or into a reference pack once the framework supports them (see `docs/plans/ROADMAP.md`, F2).
+9. **Attribute every reference at every place it shows up.** You may embed data from wikis, datamines and
+   community tools, but each dataset needs full attribution in each of these places:
+   - **Next to the data:** a header in the resource file, or a `*.source.md` sidecar. It gives the source
+     URL, author or project, licence (with link), retrieval date, and what you changed or extracted.
+   - **Plugin README:** a `## Sources and attribution` table with one row per dataset or code port.
+   - **`IGamePlugin.Info.References`:** the upstream URLs.
+   - **The UI:** the provenance or attribution text of every name, description or icon you show. Put it in
+     the field `Description`, or in reference-pack metadata once that exists.
+
+   Honour licence terms. CC BY-SA data (e.g. most Fandom/wiki.gg wikis) stays under CC BY-SA in its
+   derived form. Mark it so in the file header and keep the licence link. Code ports keep the upstream
+   licence notice. If a source has no licence or forbids reuse, do not embed it. Cite it as research only.
 
 ## Tests
 
