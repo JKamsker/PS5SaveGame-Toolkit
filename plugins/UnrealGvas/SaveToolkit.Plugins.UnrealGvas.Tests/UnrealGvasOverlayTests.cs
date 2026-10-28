@@ -16,9 +16,9 @@ public sealed class UnrealGvasOverlayTests
         var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA01288");
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("unrealgvas_sackboy_fields"));
 
-        Assert.Equal("1.0.0", catalog.Pack.Version);
+        Assert.Equal("1.1.0", catalog.Pack.Version);
         Assert.Equal(ReferencePackOrigin.Embedded, catalog.Pack.Origin);
-        Assert.Equal(4, catalog.Count);
+        Assert.Equal(24, catalog.Count);
         Assert.Null(catalog.Find("CollectabellsStored")!.Limit);
         Assert.Contains("PS5 Save Game Toolkit", catalog.Find("Checksum")!.AttributionText);
     }
@@ -56,7 +56,7 @@ public sealed class UnrealGvasOverlayTests
         Assert.False(document.CanEdit);
         var schema = Assert.Single(Assert.IsType<TabsNode>(document.BuildView()).Tabs, tab => tab.Title == "Schema");
         var table = Assert.Single(schema.Children.OfType<TableNode>());
-        Assert.Contains(table.Rows, row => row.Key == "CollectabellsStored");
-        Assert.Contains(table.Rows, row => row.Key == "Checksum");
+        Assert.Contains(table.Rows, row => row.Cells["property"] is FieldNode field && field.Value.AsString() == "CollectabellsStored");
+        Assert.Contains(table.Rows, row => row.Cells["property"] is FieldNode field && field.Value.AsString() == "Checksum");
     }
 }

@@ -9,48 +9,52 @@ internal static class JediActorScanner
 {
     private const int MaxDepth = 32;
     private const int MaxStringLength = GvasFile.MaxStringLength;
+    private const int MaxObservedNames = 2_000;
+    private const int MaxObservedNameLength = 256;
 
     public static IReadOnlyList<GvasNode> Scan(ReadOnlySpan<byte> bytes)
     {
-        var nodes = ReadRange(bytes, 0, bytes.Length, 0);
+        var remaining = GvasFile.MaxNodes;
+        var nodes = ReadRange(bytes, 0, bytes.Length, 0, ref remaining);
         return nodes.Count == 0 ? ScanKnownNames(bytes) : nodes;
     }
 
-    private static IReadOnlyList<GvasNode> ScanKnownNames(ReadOnlySpan<byte> bytes)
+    public static IReadOnlyList<GvasNode> ScanKnownNames(ReadOnlySpan<byte> bytes)
     {
         var nodes = new List<GvasNode>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        for (var offset = 0; offset <= bytes.Length - 5 && nodes.Count < 2_000; offset++)
+        for (var offset = 0; offset <= bytes.Length - 5 && nodes.Count < MaxObservedNames; offset++)
         {
             var length = BinaryPrimitives.ReadInt32LittleEndian(bytes[offset..]);
-            if (length is <= 1 or > 256 || offset + 4 + length > bytes.Length || bytes[offset + 4 + length - 1] != 0) continue;
+            if (length is <= 1 or > MaxObservedNameLength || offset + 4 + length > bytes.Length || bytes[offset + 4 + length - 1] != 0) continue;
+            if (bytes.Slice(offset + 4, length - 1).ContainsAnyExceptInRange((byte)32, (byte)126)) continue;
             var name = Encoding.UTF8.GetString(bytes.Slice(offset + 4, length - 1));
-            if (name is "None" or "ArrayProperty" or "StructProperty" || !seen.Add(name)) continue;
+            if (name is "None" or "ArrayProperty" or "StructProperty") continue;
             nodes.Add(new GvasNode(name, "ObservedFString", offset + 4, length)
             {
-                Note = "Name observed in the bounded actor stream scanner; surrounding property schema is not asserted."
+                Note = $"Observed FString at decoded offset 0x{offset:X}; surrounding schema and game meaning are Unknown. Scan stops at {MaxObservedNames} observations."
             });
         }
         return nodes;
     }
 
-    private static List<GvasNode> ReadRange(ReadOnlySpan<byte> bytes, int start, int end, int depth)
+    private static List<GvasNode> ReadRange(ReadOnlySpan<byte> bytes, int start, int end, int depth, ref int remaining)
     {
         var nodes = new List<GvasNode>();
         if (depth > MaxDepth) return nodes;
         var position = start;
-        while (position < end && nodes.Count < GvasFile.MaxNodes)
+        while (position < end && remaining > 0)
         {
             if (!TryTag(bytes, position, end, out var tag)) break;
             if (tag.IsNone) break;
             if (tag.Next <= position || tag.PayloadEnd > end) break;
             var node = new GvasNode(tag.Name, tag.Type, tag.PayloadStart, tag.Size);
+            remaining--;
             if (tag.Scalar is not null) node.Scalar = tag.Scalar;
             else if (depth < MaxDepth && tag.Type is "StructProperty" or "ArrayProperty" or "SetProperty" or "MapProperty")
             {
                 var childStart = tag.Type == "ArrayProperty" && tag.PayloadEnd - tag.PayloadStart >= 4
                     ? tag.PayloadStart + 4 : tag.PayloadStart;
-                node.Children = ReadRange(bytes, childStart, tag.PayloadEnd, depth + 1);
+                node.Children = ReadRange(bytes, childStart, tag.PayloadEnd, depth + 1, ref remaining);
                 if (node.Children.Count == 0) node.Note = "Custom actor payload; child schema is incomplete and bytes remain opaque.";
             }
             else if (tag.Type is not "BoolProperty")

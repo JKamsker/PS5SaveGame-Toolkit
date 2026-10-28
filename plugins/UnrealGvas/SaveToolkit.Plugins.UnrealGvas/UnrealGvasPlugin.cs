@@ -8,13 +8,20 @@ namespace SaveToolkit.Plugins.UnrealGvas;
 
 public sealed class UnrealGvasPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("engine.unreal-gvas", "Unreal Engine GVAS", "0.3.0")
+    public PluginInfo Info { get; } = new("engine.unreal-gvas", "Unreal Engine GVAS", "0.4.0")
     {
         Description = "Lossless Unreal SaveGame property explorer and primitive editor.",
         Games = [new GameTitle("PPSA01288", "Sackboy: A Big Adventure"), new GameTitle("PPSA01603", "Hogwarts Legacy"), new GameTitle("PPSA02199", "STAR WARS Jedi: Fallen Order")],
         Maturity = PluginMaturity.Experimental,
         References = [
             "https://github.com/trumank/uesave",
+            "https://github.com/trumank/uesave/tree/1917a22ab69e9a4045e613d9d7f39a49fe00bd46",
+            "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+            "https://github.com/Donpedro13/GingerBreadImageExtractor/tree/3b26966a04a2b6e20d61962ef6fcb84242bb7a1f",
+            "https://reveng.sourceforge.io/crc-catalogue/17plus.htm",
+            "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels",
+            "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29",
+            "https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/",
             "https://github.com/topche-katt/hlsavetool",
             "https://peteronprogramming.wordpress.com/2024/01/06/reverse-engineering-the-end-of-level-photos-in-sackboy-a-big-adventure/",
             "https://www.rfc-editor.org/rfc/rfc1950",
@@ -50,10 +57,11 @@ public sealed class UnrealGvasPlugin : IGamePlugin
     {
         if (file.Length > GvasFile.MaxFileLength) throw new SaveFormatException("GVAS exceeds the 128 MiB safety limit.");
         var envelope = GvasEnvelope.Open(file.ReadAllBytes());
-        return UnrealGvasSchema.Detect(envelope.File).Kind == UnrealGvasSchemaKind.HogwartsMetadata
-            ? new HogwartsDocument(file.RelativePath, envelope, references)
-            : new UnrealGvasDocument(file.RelativePath, envelope, references,
-                file.Directory.TitleId == "PPSA01603" || envelope.File.Header.SaveClass == HogwartsImage.SaveClass
-                    ? HogwartsDocument.ReadOnlyReason : null);
+        var schema = UnrealGvasSchema.Detect(envelope.File);
+        if (schema.Kind == UnrealGvasSchemaKind.HogwartsMetadata)
+            return new HogwartsDocument(file.RelativePath, envelope, references);
+        if (file.Directory.TitleId == "PPSA01603" || envelope.File.Header.SaveClass == HogwartsImage.SaveClass)
+            return new UnrealGvasDocument(file.RelativePath, envelope, references, HogwartsDocument.ReadOnlyReason);
+        return new GvasQueryableDocument(file.RelativePath, envelope, schema, references);
     }
 }

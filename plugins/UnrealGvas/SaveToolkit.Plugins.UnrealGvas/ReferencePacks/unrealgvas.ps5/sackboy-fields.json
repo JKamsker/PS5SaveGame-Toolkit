@@ -1,8 +1,268 @@
 {
   "records": [
-    {"id":"CollectabellsStored","name":"CollectabellsStored","category":"progression","description":"IntProperty observed in both General snapshots; storage verified, legal range and edit effect unknown.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA01288"}},
-    {"id":"TotalCollectabellsCollected","name":"TotalCollectabellsCollected","category":"progression","description":"IntProperty observed alongside CollectabellsStored; storage verified, relationship and edit effect unknown.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA01288"}},
-    {"id":"UnlockedWorlds","name":"UnlockedWorlds","category":"world-progress","description":"Enum array observed with one entry; complete enum set and prerequisites remain unknown.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA01288"}},
-    {"id":"Checksum","name":"Checksum","category":"integrity","description":"UInt32Property present in General; coverage and recomputation algorithm are unresolved, so the document remains read-only.","attributes":{"confidence":"UnknownCoverage","titleId":"PPSA01288"}}
+    {
+      "id": "CollectabellsStored",
+      "name": "Stored Collectabells",
+      "category": "progression",
+      "description": "IntProperty observed in both General snapshots; storage verified, legal range and edit effect unknown.",
+      "attributes": {
+        "confidence": "VerifiedStorage",
+        "titleId": "PPSA01288"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "TotalCollectabellsCollected",
+      "name": "Lifetime Collectabells counter",
+      "category": "progression",
+      "description": "IntProperty observed alongside CollectabellsStored; storage verified, relationship and edit effect unknown.",
+      "attributes": {
+        "confidence": "VerifiedStorage",
+        "titleId": "PPSA01288"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "UnlockedWorlds",
+      "name": "Saved world unlock entries",
+      "category": "world-progress",
+      "description": "Enum array observed with one entry; complete enum set and prerequisites remain unknown.",
+      "attributes": {
+        "confidence": "VerifiedStorage",
+        "titleId": "PPSA01288"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "Checksum",
+      "name": "Unresolved integrity field",
+      "category": "integrity",
+      "description": "UInt32Property present in General; coverage and recomputation algorithm are unresolved, so the document remains read-only.",
+      "attributes": {
+        "confidence": "UnknownCoverage",
+        "titleId": "PPSA01288"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "CostumeSaveData",
+      "name": "Costume save records",
+      "category": "costumes",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+    },
+    {
+      "id": "CostumeWardrobe",
+      "name": "Saved wardrobe",
+      "category": "costumes",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+    },
+    {
+      "id": "EquippedCostumeData",
+      "name": "Equipped costume records",
+      "category": "costumes",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+    },
+    {
+      "id": "CostumeItemName",
+      "name": "Raw costume item ID",
+      "category": "costumes",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+    },
+    {
+      "id": "CostumeItemTintColourName",
+      "name": "Raw costume tint ID",
+      "category": "costumes",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+    },
+    {
+      "id": "UnlockedCostumeAndColourData",
+      "name": "Costume and colour unlock payload",
+      "category": "costumes",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+    },
+    {
+      "id": "unlockedEmotes",
+      "name": "Saved emote entries",
+      "category": "emotes",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "SavedBoundEmotes",
+      "name": "Emote bindings",
+      "category": "emotes",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "LevelData",
+      "name": "Saved level records",
+      "category": "world-progress",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "WorldID",
+      "name": "Raw world ID",
+      "category": "world-progress",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "LevelID",
+      "name": "Raw level ID",
+      "category": "world-progress",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "LevelState",
+      "name": "Saved level state",
+      "category": "world-progress",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "ZoneData",
+      "name": "Saved zone records",
+      "category": "world-progress",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "CollectedPrizeBubbleIDs",
+      "name": "Saved prize bubble IDs",
+      "category": "collectibles",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "CollectedMemoryOrbIDs",
+      "name": "Saved memory orb IDs",
+      "category": "collectibles",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "HiScore",
+      "name": "Saved high score",
+      "category": "world-progress",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "BestCompletionTime",
+      "name": "Saved completion time",
+      "category": "world-progress",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "AchievementActionCountMap",
+      "name": "Achievement action counters",
+      "category": "progression",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "TotalSecondsPlayed",
+      "name": "Saved play-time counter",
+      "category": "progression",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    },
+    {
+      "id": "UnlockedStickers",
+      "name": "Saved sticker entries",
+      "category": "collectibles",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels"
+    }
   ]
 }

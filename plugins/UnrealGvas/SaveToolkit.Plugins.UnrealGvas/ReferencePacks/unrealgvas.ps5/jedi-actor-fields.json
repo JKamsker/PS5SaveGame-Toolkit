@@ -1,8 +1,132 @@
 {
   "records": [
-    {"id":"CompressedActorRecords","name":"CompressedActorRecords","category":"actor-stream","description":"Byte array containing zlib-compressed headerless ActorRecords properties.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA02199"}},
-    {"id":"UncompressedActorRecordsSize","name":"UncompressedActorRecordsSize","category":"actor-stream","description":"Declared decoded actor stream size; both supplied gameplay generations match the decoded byte count.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA02199"}},
-    {"id":"Crc32","name":"Crc32","category":"integrity","description":"Stored UInt32 integrity field; common CRC32 and CRC32C candidate ranges do not reproduce it.","attributes":{"confidence":"UnknownCoverage","titleId":"PPSA02199"}},
-    {"id":"ActorRecords","name":"ActorRecords","category":"actor-stream","description":"Headerless tagged actor-record root observed after zlib decompression; actor roles and gameplay semantics are not inferred.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA02199"}}
+    {
+      "id": "CompressedActorRecords",
+      "name": "CompressedActorRecords",
+      "category": "actor-stream",
+      "description": "Byte array containing zlib-compressed headerless ActorRecords properties.",
+      "attributes": {
+        "confidence": "VerifiedStorage",
+        "titleId": "PPSA02199"
+      }
+    },
+    {
+      "id": "UncompressedActorRecordsSize",
+      "name": "UncompressedActorRecordsSize",
+      "category": "actor-stream",
+      "description": "Declared decoded actor stream size; both supplied gameplay generations match the decoded byte count.",
+      "attributes": {
+        "confidence": "VerifiedStorage",
+        "titleId": "PPSA02199"
+      }
+    },
+    {
+      "id": "Crc32",
+      "name": "Crc32",
+      "category": "integrity",
+      "description": "Stored UInt32 integrity field; common CRC32 and CRC32C candidate ranges do not reproduce it.",
+      "attributes": {
+        "confidence": "UnknownCoverage",
+        "titleId": "PPSA02199"
+      }
+    },
+    {
+      "id": "ActorRecords",
+      "name": "ActorRecords",
+      "category": "actor-stream",
+      "description": "Headerless tagged actor-record root observed after zlib decompression; actor roles and gameplay semantics are not inferred.",
+      "attributes": {
+        "confidence": "VerifiedStorage",
+        "titleId": "PPSA02199"
+      }
+    },
+    {
+      "id": "PlayerStartRecord",
+      "name": "Saved player start",
+      "category": "journey-state",
+      "description": "Observed PS5 serialized property; caption inferred from its name. Completion scale, timestamps, progression dependencies and runtime effects are unverified. Independent backup states are not synchronized.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/"
+    },
+    {
+      "id": "PlanetName",
+      "name": "Raw planet name",
+      "category": "journey-state",
+      "description": "Observed PS5 serialized property; caption inferred from its name. Completion scale, timestamps, progression dependencies and runtime effects are unverified. Independent backup states are not synchronized.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/"
+    },
+    {
+      "id": "PlayerStartName",
+      "name": "Raw player start name",
+      "category": "journey-state",
+      "description": "Observed PS5 serialized property; caption inferred from its name. Completion scale, timestamps, progression dependencies and runtime effects are unverified. Independent backup states are not synchronized.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/"
+    },
+    {
+      "id": "InitialStreamingAreas",
+      "name": "Saved streaming areas",
+      "category": "journey-state",
+      "description": "Observed PS5 serialized property; caption inferred from its name. Completion scale, timestamps, progression dependencies and runtime effects are unverified. Independent backup states are not synchronized.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/"
+    },
+    {
+      "id": "MetaData",
+      "name": "Journey metadata",
+      "category": "journey-state",
+      "description": "Observed PS5 serialized property; caption inferred from its name. Completion scale, timestamps, progression dependencies and runtime effects are unverified. Independent backup states are not synchronized.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/"
+    },
+    {
+      "id": "PlanetRegion",
+      "name": "Saved planet region text",
+      "category": "journey-state",
+      "description": "Observed PS5 serialized property; caption inferred from its name. Completion scale, timestamps, progression dependencies and runtime effects are unverified. Independent backup states are not synchronized.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/"
+    },
+    {
+      "id": "PercentComplete",
+      "name": "Saved completion scalar",
+      "category": "journey-state",
+      "description": "Observed PS5 serialized property; caption inferred from its name. Completion scale, timestamps, progression dependencies and runtime effects are unverified. Independent backup states are not synchronized.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/"
+    },
+    {
+      "id": "TimeSaved",
+      "name": "Save timestamp storage",
+      "category": "journey-state",
+      "description": "Observed PS5 serialized property; caption inferred from its name. Completion scale, timestamps, progression dependencies and runtime effects are unverified. Independent backup states are not synchronized.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/"
+    }
   ]
 }

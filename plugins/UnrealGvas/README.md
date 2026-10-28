@@ -6,6 +6,11 @@ access, additional packages, or native DLLs. Hogwarts database inspection uses
 the shared [Codecs](../../src/SaveToolkit.Codecs/README.md) library, including its
 bundled native in-memory SQLite dependency.
 
+Round-2 non-Hogwarts work adds F8 named/nested property views, attributed storage
+catalogs, corrected Jedi actor decoding and extended checksum evidence. See
+[round-2 evidence and exact owner checklist](ROUND2.md). Jedi/Sackboy gameplay
+writes remain disabled; no new bulk action is eligible for F6 preview/apply yet.
+
 ## Sample coverage and file roles
 
 Observations apply to the supplied archives, not every release of each title.
@@ -96,9 +101,15 @@ Probe declines them instead of inferring format from a filename.
 
 Overview shows header facts, writability and the selected version/class/property
 signature schema. Sackboy General and image sets expose read-only schema tables
-with attributed catalog pickers; Jedi gameplay saves expose a bounded actor-stream
-index after zlib decoding. Properties uses lazy sections with 100-node pages;
-Search contains paged tables of top-level primitives. Hogwarts adds independent
+with attributed catalog references. F8 indexes all nested generic properties
+without lazy expansion, with text search, exact filters and deterministic text
+sort/paging. Sackboy adds Progression, Costumes and emotes, World and levels, and
+Settings groups. Jedi adds Journey state, Settings and Actors, separating tagged
+data from unverified FString observations. Actor decoding starts at the complete
+ActorRecords FString length; it is not an outer array-count prefix. Properties
+uses lazy sections with 100-node pages; Search contains top-level primitives.
+The Schema actor summary is bounded to 100 rows; full actor collections use F8.
+Hogwarts adds independent
 Character, Inventory, Progression and Collections F8 tables for each image; every
 other table is available lazily. The pinned MIT Legilimens F2 catalog supplies 699
 collectible location records, with exact table/column-qualified F4 reference fields.
@@ -134,7 +145,8 @@ The Hogwarts round adds all-image integrity/no-op checks, F1 row diff evidence,
 F8 host registration/query bounds, F2/F4 attribution and candidate resolution,
 corruption isolation, and test-only stored-frame GVAS reconstruction. Sample
 tests require the artifacts environment variable in the same command as the run.
-Validated for this round: **62 passed, 0 failed, 0 skipped**, including conformance;
+Validated for the non-Hogwarts round 2: **79 passed, 0 failed, 0 skipped**, including
+all Hogwarts regressions, conformance, query bounds/identities and corruption tests;
 API build: **0 warnings, 0 errors**.
 
 ```powershell
@@ -157,7 +169,7 @@ added in this round remain below 300 lines; repository policy is enforced in rev
 5. Solve Sackboy General checksum coverage; decode image texture layouts before
    providing image previews. Atomic Heart now has its own read-only plugin.
 
-## Round 3 implementation evidence (2026-10-28)
+## Historical overlay handoff (2026-10-28)
 
 The schema selector matches positive save-class, engine-build and property-signature
 evidence before adding a title tab; unmatched files retain the generic view. The
@@ -166,8 +178,8 @@ bounded serialized-FString index for custom actor structs, preserving unknown by
 and never enabling edits. The Sackboy tab surfaces the verified storage names and
 values, while its checksum and image metadata remain explicitly unknown or inferred.
 
-The embedded `unrealgvas.ps5` F2 pack is version `1.0.0`, title-scoped to PPSA01288
-and PPSA02199, and repeats attribution for each dataset. It intentionally carries
+The first overlay handoff introduced `unrealgvas.ps5` F2 v1.0.0; round 2 extends it
+to v1.1.0, title-scoped to PPSA01288 and PPSA02199. It repeats attribution for each dataset and carries
 no limits, icons, localization or private sample bytes. The UI attaches a
 `ReferenceSpec` to each read-only catalog property so F4 can resolve the raw name
 without changing the stored value.
@@ -180,6 +192,12 @@ Jedi/Sackboy functionality. No codec or SQLite implementation is duplicated here
 See [HOGWARTS.md](HOGWARTS.md) for the complete current boundary and evidence.
 
 ## Round 2 evidence (2026-10-28)
+
+The newer non-Hogwarts roadmap round is documented in [ROUND2.md](ROUND2.md).
+Its coverage matrix adds 12 Sackboy / 25 Jedi named ranges and 592 derived-seed
+CRC hypotheses, with independent Python cross-checks. Both distinct Sackboy
+snapshots store `2E0726BB`; invariant ranges are explicitly inconclusive.
+The older observations below remain valid but are not checksum-repair proof.
 
 Sackboy General has two distinct supplied snapshots: both `CollectabellsStored`
 and `TotalCollectabellsCollected` read 445 in one and 322 in the other. These are verified
@@ -249,14 +267,19 @@ upstream code was copied and no downloaded program was executed.
 | Hogwarts framing and schema research | [hl-savetools e568dedc](https://github.com/producedbytmsh/hl-savetools/tree/e568dedcda2611f54cc793e6d0237c749ae25094), producedbytmsh; MIT; retrieved 2026-10-28 | Independently implemented bounded framing; PS5 lengths/schema checked. No inherited PC mirror, state/reward or no-checksum claims. Navigation descriptions cite research and label meaning Inferred. |
 | Shared Kraken / SQLite | [SaveToolkit.Codecs](../../src/SaveToolkit.Codecs/README.md), toolkit contributors and attributed upstream authors; GPL-3.0-or-later decoder, MIT Microsoft.Data.Sqlite, Apache-2.0 SQLitePCLRaw, public-domain SQLite | Referenced, not ported/duplicated. Root LICENSE/THIRD-PARTY-NOTICES retain shared dependencies' notices. In-memory native SQLite only; no proprietary decoder. |
 | PS5 schema captions / F1 identity evidence | Toolkit contributors, GPL-3.0-or-later; privately retained sample observations, 2026-10-28 | Original navigation text and storage observations, no extracted sample records committed. Table descriptions cite provenance and expose schema fingerprints; raw labels remain when catalog joins fail. |
-| Sackboy progression and Jedi actor property catalogs | [Toolkit original evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit), contributors; original evidence index, 2026-10-28 | Existing `unrealgvas.ps5` v1.0.0 unchanged; per-dataset provenance and F4 descriptions retained. |
+| Sackboy progression/costume/world and Jedi actor/journey captions | [Toolkit original evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit), contributors; GPL-3.0-or-later, 2026-10-28 | `unrealgvas.ps5` v1.1.0 has 24 Sackboy and 12 Jedi entries. Original captions inferred from observed serialized names; no game-ID joins, limits, media or private values. [Sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.ps5/SOURCES.md), dataset manifest, F4 descriptions, per-F8-row source and Sources panel carry provenance. |
+| Jedi settings storage captions | [Toolkit original evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit), contributors; GPL-3.0-or-later, 2026-10-28 | Six original display/input/override captions in `unrealgvas.ps5` v1.1.0, read-only named projections over canonical raw fields. Same sidecar/manifest/UI provenance; effective ranges and gameplay effects unverified. |
+| Generic serialized GVAS type captions | [uesave 1917a22](https://github.com/trumank/uesave/tree/1917a22ab69e9a4045e613d9d7f39a49fe00bd46), Truman Kilen / contributors; MIT upstream reference, GPL-3.0-or-later original captions; 2026-10-28 | `unrealgvas.storage` v1.0.0: 17 type identifiers and independently authored explanations; no implementation port. Full [MIT notice](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.storage/LICENSE.txt), [source sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.storage/property-types.source.md), normalized hashes, Info.References, per-row attribution and Sources panel. Applies to generic GVAS without a known title. |
+| External gameplay guides / unclear-license schema leads | [Imagisphere levels](https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels), [Imagisphere shop](https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29), [PowerPyx Jedi guide](https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/), [SackboyWorldUnlocker](https://github.com/MsKrypt1/SackboyWorldUnlocker), [GingerBread scaffold](https://github.com/LBPHaxMods/GingerBread/tree/2cf1351e8992ca07d7d7474be454c6476f8ebde2); respective authors, research only | Rule 9 external-link route: source/details links only. No prose, game lists, prices, code, icons or media imported; no wiki revision or game-ID match is falsely asserted. No new CC BY-SA adaptation bundled. |
 | Sackboy image metadata catalog | [Peter on Programming](https://peteronprogramming.wordpress.com/2024/01/06/reverse-engineering-the-end-of-level-photos-in-sackboy-a-big-adventure/); [MIT extractor 3b26966](https://github.com/Donpedro13/GingerBreadImageExtractor/tree/3b26966a04a2b6e20d61962ef6fcb84242bb7a1f), original PS5 evidence, 2026-10-28 | Existing field-name-only dataset unchanged; metadata evidence is separate from unverified PS5 pixels/swizzle. |
 
 ## SDK requests
 
 No new SDK request is required for this round. The implementation uses the existing
 `IReferenceContext`, embedded-pack loader, `ReferenceSpec`, lazy sections and bounded
-tables. The former read-only-download request is stale: the current API already
+F8 collections. Any future eligible bulk action must use F6 `IActionPlanningDocument`
+and `SupportsPlanning`, including complete F8 query scopes; none is enabled by
+unproven checksums or guessed gameplay bounds. The former read-only-download request is stale: the current API already
 permits original-file download when editing is disabled. A canonical field-reference
 node and richer image cells remain useful future framework improvements, but this
 plugin does not duplicate them locally. Hogwarts uses F8 and the shared Codecs

@@ -1,0 +1,64 @@
+{
+  "records": [
+    {
+      "id": "HDRBrightness",
+      "name": "HDR brightness",
+      "category": "display",
+      "description": "Serialized property and type observed in the supplied Jedi PS5 settings. Caption inferred from its name; enum choices, effective ranges and console behavior are unverified. Read-only projection over canonical raw fields.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      }
+    },
+    {
+      "id": "FullscreenMode",
+      "name": "Fullscreen mode value",
+      "category": "display",
+      "description": "Serialized property and type observed in the supplied Jedi PS5 settings. Caption inferred from its name; enum choices, effective ranges and console behavior are unverified. Read-only projection over canonical raw fields.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      }
+    },
+    {
+      "id": "ActionRemappings",
+      "name": "Saved action bindings",
+      "category": "input",
+      "description": "Serialized property and type observed in the supplied Jedi PS5 settings. Caption inferred from its name; enum choices, effective ranges and console behavior are unverified. Read-only projection over canonical raw fields.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      }
+    },
+    {
+      "id": "OverrideCustomSettingsInt",
+      "name": "Integer setting overrides",
+      "category": "overrides",
+      "description": "Serialized property and type observed in the supplied Jedi PS5 settings. Caption inferred from its name; enum choices, effective ranges and console behavior are unverified. Read-only projection over canonical raw fields.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      }
+    },
+    {
+      "id": "OverrideCustomSettingsBool",
+      "name": "Boolean setting overrides",
+      "category": "overrides",
+      "description": "Serialized property and type observed in the supplied Jedi PS5 settings. Caption inferred from its name; enum choices, effective ranges and console behavior are unverified. Read-only projection over canonical raw fields.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      }
+    },
+    {
+      "id": "OverrideCustomSettingsString",
+      "name": "Text setting overrides",
+      "category": "overrides",
+      "description": "Serialized property and type observed in the supplied Jedi PS5 settings. Caption inferred from its name; enum choices, effective ranges and console behavior are unverified. Read-only projection over canonical raw fields.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      }
+    }
+  ]
+}

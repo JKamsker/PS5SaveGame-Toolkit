@@ -46,6 +46,10 @@ public sealed class JediChecksumResearchTests
             Assert.Equal(expectedSize, plain.Length);
             Assert.Equal((Int128)expectedSize, properties.Single(n => n.Name == "UncompressedActorRecordsSize").Scalar!.Value);
             Assert.True(plain.AsSpan(4).StartsWith("ActorRecords\0"u8));
+            // The leading Int32 belongs to the FString, not a separate actor count.
+            var headerless = GvasFile.ParseHeaderless(plain, parsed.Header);
+            Assert.Contains(headerless.Properties, node => node.Name == "ActorRecords");
+            Assert.True(GvasFile.Descendants(headerless.Properties).Count() > 1_000);
 
             var zeroed = bytes.ToArray();
             zeroed.AsSpan(crc.Offset, 4).Clear();
