@@ -105,9 +105,14 @@ internal sealed record PackBuilder
     {
         ["id"] = id,
         ["kind"] = kind,
-        ["files"] = new JsonArray([.. files.Select(f => (JsonNode)new JsonObject { ["path"] = f.Path, ["sha256"] = Sha256(f.Content) })]),
+        ["files"] = new JsonArray([.. files.Select(f => (JsonNode)new JsonObject { ["path"] = f.Path, ["sha256"] = Sha256(kind == "records" ? LfOnly(f.Content) : f.Content) })]),
         ["attribution"] = Attribution(),
     };
+
+    // The loader hashes record files with CRLF normalised to LF, so the expected hash must not depend
+    // on how git checked out the raw string literals in these tests.
+    private static byte[] LfOnly(byte[] content) =>
+        Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(content).Replace("\r\n", "\n", StringComparison.Ordinal));
 
     private static void Write(ZipArchive zip, string path, byte[] content)
     {
