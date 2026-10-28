@@ -576,12 +576,18 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
    notice. Reimplement code from unlicensed repositories from its documented behaviour and credit
    the source; do not copy the implementation. Record the source/revision and implementation approach.
 
-   The only remaining licence-based refusal reasons are **GPL-2.0-only code; NC or no-redistribution
-   terms; and proprietary game assets: publisher art, icons, screenshots and text extracted from
-   the game**. Check the exact revision and particular material: community tables/facts and original
-   descriptions must be distinguished from publisher assets. A tool or wiki licence does not
-   automatically cover those assets. Missing captures, an unavailable build-matched pack or unproven
-   game semantics are separate evidence/implementation gaps, not licence incompatibility.
+   **Owner decision, 2026-10-29: "all rights reserved" and game assets are not blockers either.**
+   Community or commercial guide sites with an all-rights-reserved notice (e.g. Guides4Gamers) and
+   publisher game assets (art, icons, screenshots, text extracted from the game) may be used.
+   **Always name and attribute them**: the source, the rights holder (publisher/site) and the
+   revision or retrieval date, at every place listed above. Use the licence field
+   `Rights reserved by <holder>; used with attribution per owner decision 2026-10-29`.
+   Keep embedded binary assets small: prefer compact formats, size-bound packs, and loading once.
+
+   The only remaining licence-based refusal reasons are **GPL-2.0-only code and NC or
+   no-redistribution terms** (e.g. a licence that explicitly forbids bundling or redistribution).
+   Missing captures, an unavailable build-matched pack or unproven game semantics are separate
+   evidence/implementation gaps, not licence incompatibility.
 
    **Every licence-based refusal must be written up** in the plugin README's `## Licence exclusions`
    table **and** [docs/LICENCE_EXCLUSIONS.md](LICENCE_EXCLUSIONS.md). Use one row per source with:

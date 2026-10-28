@@ -9,29 +9,38 @@ licence field. This includes community sources previously excluded solely for an
 notice. Reimplement code from unlicensed repositories from documented behaviour, crediting the source.
 This records the owner's reuse decision; it does not claim that an upstream licence was published.
 
-The only remaining licence-based refusal reasons are **GPL-2.0-only code; NC or no-redistribution
-terms; and proprietary game assets: publisher art, icons, screenshots and text extracted from the
-game**. Mixed sources are assessed per material: community facts may be imported while publisher
-assets remain refused. No reviewed record identifies a specific GPL-2.0-only source refusal.
+## Owner policy — 2026-10-29
+
+**"All rights reserved" sites and publisher game assets are not blockers either** ("noone cares;
+mention them and all good"). Guide sites with an all-rights-reserved notice (e.g. Guides4Gamers for
+Insomniac) and publisher assets (art, icons, screenshots, text extracted from the game) may be used,
+always named and attributed with source, rights holder and revision/date. Licence field:
+`Rights reserved by <holder>; used with attribution per owner decision 2026-10-29`.
+
+The only remaining licence-based refusal reasons are **GPL-2.0-only code and NC or
+no-redistribution terms** (e.g. Hapfel1/er-save-manager's source-available licence, which forbids
+bundling). Rows below that were refused only as publisher assets or all-rights-reserved material are
+**unblocked by the 2026-10-29 decision**; plugins may import them in later rounds.
+No reviewed record identifies a specific GPL-2.0-only source refusal.
 Every remaining refusal still needs a row here and in the plugin README's `## Licence exclusions`
 table, as required by [plugin-guide rule 9](PLUGIN_GUIDE.md#hard-rules).
 
-### Import rounds in progress
+### Import rounds (2026-10-28 decision)
 
-These rounds are running under the owner decision; this is not a claim that their imports or
-reimplementations have landed. Existing NC/no-redistribution and publisher-asset refusals remain.
+All rounds below are merged on `main`; see each plugin README's `## Licence exclusions` and
+`## Sources and attribution` for exactly what was imported.
 
 | Plugin | Status |
 | --- | --- |
-| [FinalFantasy16](../plugins/FinalFantasy16/README.md) | import in progress |
-| [GodOfWarRagnarok](../plugins/GodOfWarRagnarok/README.md) | import in progress |
-| [Pragmata](../plugins/Pragmata/README.md) | import in progress |
-| [Gearbox](../plugins/Gearbox/README.md) | import in progress |
-| [XorJson](../plugins/XorJson/README.md) | import in progress |
-| [EldenRing](../plugins/EldenRing/README.md) | import in progress |
-| [TalesOfArise](../plugins/TalesOfArise/README.md) | import in progress |
-| [Insomniac](../plugins/Insomniac/README.md) | import in progress |
-| [BaldursGate3](../plugins/BaldursGate3/README.md) | import in progress — completion round 2 |
+| [FinalFantasy16](../plugins/FinalFantasy16/README.md) | imported (Nenkai ID tables) |
+| [GodOfWarRagnarok](../plugins/GodOfWarRagnarok/README.md) | imported (runtime IDs, crosswalk) |
+| [Pragmata](../plugins/Pragmata/README.md) | imported (REE Save Editor datasets) |
+| [Gearbox](../plugins/Gearbox/README.md) | imported (community labels, part descriptions) |
+| [XorJson](../plugins/XorJson/README.md) | imported (dungeons.tools effect summaries) |
+| [EldenRing](../plugins/EldenRing/README.md) | imported (TGA, Paramdex, ER-Save-Lib; compacted) |
+| [TalesOfArise](../plugins/TalesOfArise/README.md) | imported (consumable IDs, status mappings) |
+| [Insomniac](../plugins/Insomniac/README.md) | imported (Guides4Gamers markers; site states "All rights reserved", used with attribution per 2026-10-29 decision) |
+| [BaldursGate3](../plugins/BaldursGate3/README.md) | completion round 2 merged |
 
 ## Upstream licence requests
 
