@@ -40,9 +40,14 @@ Round-2 conversion verified exact set equality for all pinned base/unique item
 IDs and retained every pinned quest name, task label and task ID. Downloads and
 the authored conversion script stayed under the system temporary directory;
 the generated data is validated by the F2 manifest hashes and conformance test.
-Pack version 1.1.0 retains the upstream revision above. No CC BY-SA wiki content
+Pack version 1.2.0 retains the upstream revision above. No CC BY-SA wiki content
 is included: direct page/licence retrieval returned HTTP 403 on 2026-10-28.
 
 Per-dataset attribution and normalized-file SHA-256 hashes are in `pack.json`.
 Source links are also in plugin Info.References, README, and displayed field
 provenance. The F2 Sources panel exposes licence/author/modification metadata.
+
+
+## Completion additions
+
+`attributes.json` and `rarities.json` are derived from the same pinned MIT `hero.py` mapping. Attribute bounds are conservative PC community observations, marked Inferred and never presented as PS5 legal limits. `world.json` retains only quest follows relationships as prerequisite metadata; coordinates, rewards and artwork are excluded.

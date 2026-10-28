@@ -17,9 +17,10 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     private readonly CharacterProfile? _character;
     private readonly JsonEditModel _model;
     private readonly bool _allowStructure;
-    private const string BulkActionId = "json/bulk-set";
     internal const string WriteWarning = "Experimental write: no checksum or console reload has been verified. The game may reject, repair, or clamp this save; keep a backup and validate on a spare slot.";
-    private readonly IReadOnlyList<CharacterCollection> _collections;
+    private IReadOnlyList<CharacterCollection>? _collections;
+    private readonly JsonActionPlanner _planner;
+    private IReadOnlyList<CharacterCollection> Projections => _collections ??= JsonCollections.Build(_model.Root, _references, _character is not null);
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
 
     public JsonSaveDocument(string name, string path, JsonTokenTree tree, JsonEncoding encoding, IReferenceContext references)
@@ -31,7 +32,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         _character = CharacterProfile.Read(tree);
         _model = new(tree);
         _allowStructure = true;
-        _collections = _character is null ? [] : CharacterCollections.Build(_model.Root, references);
+        _planner = new JsonActionPlanner(_model, references, () => CanEdit);
     }
 
     public override string Title => _name;
@@ -39,10 +40,10 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     internal bool IsCharacter => _character is not null;
     internal bool IsGlobalSettings => _model.Root.Member("blobs") is { Kind: System.Text.Json.JsonTokenType.StartArray };
     internal DocumentMemento CaptureDocumentMemento() => CaptureSnapshot()!;
-    public IReadOnlyList<QueryableCollection> Collections => _collections.Select(collection => collection.Metadata).ToArray();
+    public IReadOnlyList<QueryableCollection> Collections => Projections.Select(collection => collection.Metadata).ToArray();
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
-        (_collections.SingleOrDefault(collection => collection.Metadata.Id == collectionId)
+        (Projections.SingleOrDefault(collection => collection.Metadata.Id == collectionId)
             ?? throw new KeyNotFoundException("Unknown character collection.")).Query(query, NodeView);
 
     public override ViewNode BuildView()
@@ -54,13 +55,16 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
             new TextNode(_encoding.Label),
             new TextNode(_character?.Warning ?? "Experimental raw settings edits. Game-specific constraints and console acceptance are unknown.") { Tone = Tone.Warning },
         };
-        if (CanEdit) overview.Add(BulkAction());
+        overview.Add(new ActionNode("json/inspect", "Inspect format and integrity") { Mutates = false });
+        if (CanEdit) overview.AddRange(_planner.Actions(_character is not null));
         var tabs = new List<Tab>
         {
             new("Overview", overview),
         };
         if (_character is null) tabs.Add(new("JSON", [NodeView(_model.Root)]));
-        else tabs.AddRange(CharacterViews.Build(_model.Root, NodeView, _collections));
+        else tabs.AddRange(CharacterViews.Build(_model.Root, NodeView, Projections.Where(c => c.TabTitle != "Raw").ToArray()));
+        if (_character is not null) tabs[3] = tabs[3] with { Children = [.. tabs[3].Children, CharacterSpatialViews.Quests(_model.Root, _references, NodeView)] };
+        if (_character is not null) tabs[4] = tabs[4] with { Children = [.. tabs[4].Children, CharacterMapView.Build(_model.Root, _references, NodeView)] };
         return new TabsNode(tabs);
     }
 
@@ -70,12 +74,18 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         if (range.Count <= PageSize)
         {
             var children = range.Parent.Children.Skip(range.Start).Take(range.Count).Select(NodeView).ToList();
+            if (range.Start == 0 && range.Count == range.Parent.Children.Count &&
+                Projections.FirstOrDefault(c => c.Metadata.Id == JsonCollections.Id(range.Parent)) is { } queryable)
+                children.Insert(0, queryable.View());
             if (_allowStructure && range.Start == 0 && range.Count == range.Parent.Children.Count)
                 return [new SectionNode("Structural actions", StructureActions(range.Parent).ToArray()), new SectionNode("Values", children)];
             return children;
         }
         var pages = new List<ViewNode>();
         if (_allowStructure) pages.AddRange(StructureActions(range.Parent));
+        if (range.Start == 0 && range.Count == range.Parent.Children.Count &&
+            Projections.FirstOrDefault(c => c.Metadata.Id == JsonCollections.Id(range.Parent)) is { } paged)
+            pages.Add(paged.View());
         // Reserve room for the bounded action controls as well as pages.
         var pageSlots = PageSize - pages.Count;
         var chunk = Math.Max(PageSize, (range.Count + pageSlots - 1) / pageSlots);
@@ -93,10 +103,12 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         var plain = JsonTokenWriter.Write(_model.Root);
         var result = _encoding.Transform(plain, false);
         var decoded = JsonEncoding.Decode(result);
-        var expected = _model.Nodes;
-        if (decoded.Encoding != _encoding || decoded.Tree.Nodes.Count != expected.Count)
+        if (_character is not null && CharacterProfile.Read(decoded.Tree) != _character)
+            throw new SaveFormatException("Character format, version and offline mode must remain unchanged.");
+        var expected = JsonEditModel.Walk(_model.Root).ToArray();
+        if (decoded.Encoding != _encoding || decoded.Tree.Nodes.Count != expected.Length)
             throw new SaveFormatException("Edited JSON changed its encoding or structure unexpectedly.");
-        for (var i = 0; i < expected.Count; i++)
+        for (var i = 0; i < expected.Length; i++)
         {
             var before = expected[i];
             var after = decoded.Tree.Nodes[i];
@@ -109,16 +121,20 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
+        if (!CanEdit) return EditOutcome.Rejected("document", "Writes are disabled for this character version or online mode.");
+        foreach (var edit in edits)
+        {
+            if (!JsonActions.TryFind(_model, edit.ValueId, out var node) || node.IsContainer)
+                return EditOutcome.Rejected(edit.ValueId, "Unknown or retired scalar value.");
+            _ = NodeView(node); // Register primary bindings even for unloaded F8 rows and history replay.
+        }
         var outcome = base.ApplyEdits(edits);
         if (!outcome.Succeeded || edits.Count == 0) return outcome;
         try
         {
             _ = Serialize();
-            var changes = outcome.Changes.ToLookup(change => change.ValueId);
-            // Catalog replacements change displayed provenance/specs; Core must refresh them on edit and history replay.
-            return outcome with { Warnings = [WriteWarning], StructureChanged = _model.Nodes.Any(node => changes[node.ValueId].Any(change =>
-                change.OldValue != change.NewValue && (CharacterViews.CatalogFor(node, change.OldValue) is not null ||
-                    CharacterViews.CatalogFor(node, change.NewValue) is not null))) };
+            _collections = null;
+            return outcome with { Warnings = [WriteWarning], StructureChanged = outcome.Changes.Any(c => c.OldValue != c.NewValue) };
         }
         catch (Exception ex) when (ex is SaveFormatException or ArgumentException)
         {
@@ -130,7 +146,9 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
-        if (actionId == BulkActionId)
+        if (actionId == "json/inspect")
+            return new ActionOutcome { Message = $"{_encoding.Label}; {_model.Nodes.Count} values. No checksum is observed in the JSON; external integrity remains unknown.", Warnings = [WriteWarning] };
+        if (JsonActions.IsPlanned(actionId))
             throw new InvalidOperationException("Bulk writes require an F6 preview and apply.");
         if (!CanEdit) throw new SaveFormatException("Writes are disabled for this character version or online mode.");
         if (!_allowStructure) throw new SaveFormatException("Structural writes are disabled for this document.");
@@ -143,47 +161,18 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         {
             _model.Change(parts[1], id, Parameter("json"), Parameter("key"));
             _ = Serialize(); // A transaction must also retain an unambiguous encoding and round-trip values.
+            _collections = null;
         }, "JSON structure changed. Review the export before use.") with { Warnings = [WriteWarning] };
     }
 
-    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
-    {
-        if (actionId != BulkActionId) return new ActionPlan { Errors = [new FieldError(actionId, "Unknown planned action.")] };
-        if (!CanEdit) return new ActionPlan { Errors = [new FieldError(actionId, "This document is read-only for its character version or online mode.")] };
-        var value = ParseScalar(parameters);
-        if (value.Error is not null) return new ActionPlan { Errors = [new FieldError("value", value.Error)] };
-        var scalar = value.Value!.Value;
-        var ids = scope.RowKeys ?? _model.Nodes.Where(n => !n.IsContainer).Select(n => n.ValueId).ToArray();
-        var changes = new List<PlannedChange>();
-        var skipped = new List<SkippedActionRow>();
-        foreach (var id in ids)
-        {
-            if (!TryFindValue(id, out var node))
-            {
-                skipped.Add(new(id, "Unknown or non-scalar value."));
-                continue;
-            }
-            var error = node.Validate(scalar);
-            if (error is not null)
-            {
-                skipped.Add(new(id, error));
-                continue;
-            }
-            changes.Add(new PlannedChange(id, node.TypedPath, node.Current, scalar));
-        }
-        return new ActionPlan
-        {
-            Changes = changes,
-            SkippedRows = skipped,
-            Warnings = [WriteWarning, "Bulk values are applied only to selected scalar tokens; cross-field game rules are unknown."],
-        };
-    }
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        _planner.Plan(actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
         var fresh = PlanAction(actionId, parameters, scope);
         if (fresh.Errors.Count > 0) return new EditOutcome { Errors = fresh.Errors };
-        if (fresh.Changes.Count != plan.Changes.Count || fresh.Changes.Select((change, index) => change != plan.Changes[index]).Any(mismatch => mismatch))
+        if (!fresh.Changes.SequenceEqual(plan.Changes) || !fresh.SkippedRows.SequenceEqual(plan.SkippedRows) || !fresh.Warnings.SequenceEqual(plan.Warnings))
             return EditOutcome.Rejected(actionId, "The planned values are stale; preview the action again.");
         var result = ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray());
         return result with { Warnings = [.. result.Warnings, .. fresh.Warnings] };
@@ -199,6 +188,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     {
         _model.Restore(((SnapshotMemento<JsonModelSnapshot>)snapshot).State);
         _ranges.Clear();
+        _collections = null;
     }
 
     private ViewNode NodeView(JsonValueToken node)
@@ -213,13 +203,14 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         var spec = node.Spec!;
         ReferenceRecord? record = null;
         var catalogId = CharacterViews.CatalogFor(node);
-        if (catalogId is not null && node.Scalar.Kind == FieldValueKind.Text)
+        if (catalogId is not null && _references.Catalog(catalogId) is not null && node.Scalar.Kind == FieldValueKind.Text)
         {
             spec = new ReferenceSpec(catalogId) { AllowCustom = false, ReadOnly = !CanEdit };
             record = _references.Catalog(catalogId)?.Find(node.Scalar.AsString());
         }
-        var field = Field(node.ValueId, node.Label, spec, () => node.Current,
-            CanEdit && !spec.ReadOnly ? value => node.Current = value : null, node.Validate) with
+        var field = Field(node.ValueId, node.Label, spec, () => _model.Find(node.Index).Current,
+            CanEdit && !spec.ReadOnly ? value => _model.Find(node.Index).Current = value : null,
+            value => JsonActions.Validate(node, value, _references)) with
         {
             Confidence = record is null ? Confidence.Unknown : Confidence.Inferred,
             Warning = node.Warning ?? (_character is not null ? CharacterWriteWarning : WriteWarning),
@@ -255,38 +246,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         return SectionNode.Lazy(label, id, count.ToString(CultureInfo.InvariantCulture));
     }
 
-    private ActionNode BulkAction() => new(BulkActionId, "Set selected scalar values")
-    {
-        SupportsPlanning = true,
-        Tone = Tone.Warning,
-        Confirm = WriteWarning,
-        Description = "F6 preview/apply is required. Select value IDs in the raw JSON view or apply to the whole document; incompatible and non-scalar rows are skipped.",
-        Parameters = [new FieldNode("value", "JSON scalar", new TextSpec { MaxLength = JsonTokenTree.MaxBytes }, FieldValue.Of("null"))],
-    };
-
-    private static string CharacterWriteWarning => "Experimental character write. Field meaning is inferred from the PS5 FCharacterSaveV1 sample and has not been validated on console; no checksum or dependency behavior is known.";
-
-    private (FieldValue? Value, string? Error) ParseScalar(IReadOnlyDictionary<string, FieldValue> parameters)
-    {
-        if (!parameters.TryGetValue("value", out var raw) || raw.Kind != FieldValueKind.Text)
-            return (null, "Provide one JSON scalar literal in the value parameter.");
-        try
-        {
-            var tree = JsonTokenTree.Parse(System.Text.Encoding.UTF8.GetBytes(raw.AsString()));
-            var node = tree.Nodes[0];
-            return node.IsContainer ? (null, "Bulk writes accept one scalar JSON literal, not an object or array.") : (node.Current, null);
-        }
-        catch (SaveFormatException) { return (null, "The value parameter is not a valid JSON scalar literal."); }
-    }
-
-    private bool TryFindValue(string id, out JsonValueToken node)
-    {
-        node = null!;
-        if (!id.StartsWith("value/", StringComparison.Ordinal) || !int.TryParse(id[6..], NumberStyles.None, CultureInfo.InvariantCulture, out var index))
-            return false;
-        try { node = _model.Find(index); return !node.IsContainer; }
-        catch (KeyNotFoundException) { return false; }
-    }
+    private static string CharacterWriteWarning => "Experimental character write. Field meaning is inferred from the PS5 FCharacterSaveV1 sample and has not been validated on console; the game may reject, repair or clamp the save. No checksum or dependency behavior is known.";
 
     private sealed record ChildRange(JsonValueToken Parent, int Start, int Count);
 }

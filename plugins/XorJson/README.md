@@ -1,6 +1,6 @@
 # Obfuscated JSON / Dungeons II (`format.json-xor`)
 
-**Experimental, version 0.3.0.** Lossless token editing for byte-minus-one and
+**Experimental, version 0.4.0.** Lossless token editing for byte-minus-one and
 synthetic XOR-1 JSON, plus Experimental existing-token and structural writes for
 the tested offline Minecraft Dungeons II character shape.
 Only an owner can promote console-tested features to Stable.
@@ -33,6 +33,26 @@ JSON. Whether external integrity or console-side validation exists is
 | F5 add/remove/replace for valid JSON objects and arrays | Inferred | Token-preserving serializer, detached snapshots, bounded parse/reopen and undo tests | JSON validity is rechecked; game dependencies and external integrity Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): test one structural operation on a spare slot |
 | F6 planned scalar bulk set | Inferred | Deterministic preview/apply, skipped incompatible rows, bounded values and atomic tests | Same Unknown integrity status; preview and action warnings are retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate individual edits, scope and whole-action undo |
 | F7 character + GlobalSaveDataDefault group edits | Unknown | Same-title, same-generation role validation; staged two-member outputs and memento tests | Each member is reparsed; shared dependencies and external integrity Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): capture paired files and validate atomic reload |
+
+## Framework feature adoption
+
+| Feature | Status and location | Evidence / reason |
+| --- | --- | --- |
+| F1 SaveDiff | Used: `XorJsonDecoder` and sample ledger tests | Production SDK hook now shares the bounded token parser; no-op and settings delta tests run against external samples. |
+| F2 reference packs | Used: `ReferencePacks/xorjson.community.en` | MIT identifiers, attributes, rarity, items, effects and quest relationships carry hashes and per-record attribution. |
+| F3 rich table cells | Used: F8 character collections | Inventory labels include attributed details and confidence; raw details stay lazy. |
+| F4 ReferenceSpec | Used: item, effect, enchantment, world, attribute and rarity IDs | Existing-value picker and planned-action parameters use native catalog validation, category filtering and declared sorting. |
+| F5 structural edits | Used: `JsonEditModel` / detached mementos | Generic object/array add, remove and replace preserve unknown members and support undo/redo; output is reparsed. |
+| F6 planned actions | Added this round: `JsonActionPlanner` | Scalar, attribute, stack, item and rarity actions preview changes/skips/warnings and accept F8 selected/query scopes through Core. |
+| F7 document groups | Used: character + GlobalSaveDataDefault | Same-generation role validation, role-prefixed IDs, complete mementos and staged multi-file serialization. |
+| F8 queryable tables | Used and extended this round | Seven character collections plus automatic server-backed tables for raw arrays with 100+ rows. |
+| F9 graphs / maps | Added this round: `CharacterSpatialViews` / `CharacterMapView` | Quest follows relationships are a bounded attributed DAG; locations are unpositioned/link-first with text alternatives. |
+| F10 exact numbers | Used: token parser and `ExactNumberSpec` | Numeric lexemes, nulls, duplicate members and unchanged spelling survive edits. |
+| F11 shared codecs | N/A | XorJson is UTF-8 JSON with byte transforms; it has no Kraken, SQLite or Oodle payload. |
+| F12 decoder hook | Added this round: `XorJsonDecoder` | `ISaveDecoderProvider` exposes `xorjson.tokens`; F1 tests use `HookSaveDecoder`, with depth/value/byte bounds. |
+| F13 inspection / browse picker | Used | `json/inspect` is explicitly non-mutating; catalog pickers inherit browse search/category/sort from Core. |
+
+The pack sidecar and this README both document the pinned MIT source revision, modifications, hashes and PS5 uncertainty. No proprietary artwork, coordinates, tooltip prose or unlicensed wiki text is embedded.
 
 ## Typed paths, exact values and preservation
 
@@ -117,8 +137,8 @@ be edited. No caps, reward behavior or integrity repair is guessed.
 
 ## Reference catalogs and picker
 
-The embedded F2 pack `xorjson.community.en` version 1.1.0 contains **328 item**,
-**60 effect**, **30 enchantment** and **1,346 world/quest/task** records. Catalog
+The embedded F2 pack `xorjson.community.en` version 1.2.0 contains **328 item**,
+**60 effect**, **30 enchantment**, **9 attribute**, **5 rarity** and **1,346 world/quest/task** records. Catalog
 IDs are `xorjson-items`, `xorjson-effects`, `xorjson-enchantments` and
 `xorjson-world`. This covers every base/unique item ID, effect/enchantment ID,
 quest ID/task ID, 42 short quest names and 502 short task labels in the pinned
@@ -145,7 +165,9 @@ unknown replacements, exact token-only output, reopen, undo and redo. These
 prove the generic token editor's behavior. They do not establish that replacing
 a real PS5 inventory ID is safe. Character item replacement, quantities, power,
 rarity, effects, equip and creation remain Experimental and carry the owner
-warning. The generic **Set selected scalar values** action uses F6
+warning. New F6 attribute, stack, item-ID and rarity plans only alter existing
+tokens, skip merchant/special rows and report unverified PC bounds/dependencies.
+The generic **Set selected scalar values** action uses F6
 `IActionPlanningDocument` preview/apply, including skipped incompatible rows and
 one atomic undo step; it does not synthesize game-aware presets.
 Catalog-valued edits and their undo/redo request a view rebuild so labels,
@@ -242,7 +264,7 @@ dependencies remain Unknown.
 
 ## SDK requests
 
-- F1/F2/F4/F5/F8/F10 are available and used directly. F6 is used for the
+- F1/F2/F3/F4/F5/F8/F9/F10/F12/F13 are used directly. F6 is used for the
   enabled scalar bulk action; unsupported gameplay presets remain absent.
 - The Core overlay regression is fixed on main (`4532481`). The plugin-local
   all-files workaround is removed: F1 supplies only the settings output and

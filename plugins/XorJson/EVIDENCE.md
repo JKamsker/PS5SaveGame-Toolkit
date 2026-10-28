@@ -71,7 +71,7 @@ inferred even though existing scalar cells are now writable:
 | Collected records | 3 | Two item tags and one hint record; no inferred collection completeness. |
 
 The MIT source remains pinned to
-`84ffee67b73e49d5b888e31257ce9767aa8ab826`. Pack 1.1.0 adds 30 enchantment IDs
+`84ffee67b73e49d5b888e31257ce9767aa8ab826`. Pack 1.2.0 adds 30 enchantment IDs
 and 926 task IDs to the existing data, with 42 short quest names and 502 short
 task labels. Every pinned base/unique item ID, quest name and task label was
 checked against the generated data. Only 2/49 PS5 quest IDs and 37/425 PS5 task

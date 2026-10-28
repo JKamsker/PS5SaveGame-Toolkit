@@ -29,7 +29,7 @@ internal sealed class XorJsonGroupMember(string role, JsonSaveDocument document)
         CollectionId = Prefix(page.CollectionId),
         Rows = page.Rows.Select(row => row with
         {
-            Key = Prefix(page.CollectionId + "/" + row.Key),
+            Key = Prefix(row.Key),
             Cells = row.Cells.ToDictionary(pair => pair.Key,
                 pair => Node(pair.Value, page.CollectionId + "/" + row.Key + "/" + pair.Key), StringComparer.Ordinal),
         }).ToArray(),
@@ -60,9 +60,17 @@ internal sealed class XorJsonGroupMember(string role, JsonSaveDocument document)
             }).ToArray(),
         },
         ActionNode action => action with { ActionId = Prefix(action.ActionId) },
+        GraphNode graph => graph with { Items = graph.Items.Select(item => item with { Target = Target(item.Target) }).ToArray() },
+        MapNode map => map with { Markers = map.Markers.Select(marker => marker with { Target = Target(marker.Target) }).ToArray() },
         HexNode hex => hex with { BlobId = Prefix(hex.BlobId) },
         _ => node,
     };
 
     public void Dispose() => Document.Dispose();
+
+    private ViewTarget? Target(ViewTarget? target) => target is null ? null : target with
+    {
+        Id = Prefix(target.Id),
+        Path = ["section:XorJson character + global", "section:" + Role, .. target.Path],
+    };
 }
