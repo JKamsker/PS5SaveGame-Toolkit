@@ -15,6 +15,7 @@ namespace SaveToolkit.Sdk.Values;
 [JsonDerivedType(typeof(EnumSpec), "enum")]
 [JsonDerivedType(typeof(FlagsSpec), "flags")]
 [JsonDerivedType(typeof(DateTimeSpec), "datetime")]
+[JsonDerivedType(typeof(ReferenceSpec), "reference")]
 public abstract record FieldSpec
 {
     public bool ReadOnly { get; init; }

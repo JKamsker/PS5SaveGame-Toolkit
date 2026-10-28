@@ -1,7 +1,9 @@
 using System.Text.Json;
 using SaveToolkit.Core.Editing;
+using SaveToolkit.Core.References;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -43,15 +45,17 @@ public sealed partial class DocumentSession : IDisposable
     private readonly Lock _gate = new();
     private ViewIndex _index = new();
     private readonly EditHistory _history;
+    private readonly ReferenceFieldService _referenceFields;
     private bool _disposed;
 
-    public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document, DocumentSessionOptions? options = null)
+    public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document, DocumentSessionOptions? options = null, ReferenceContext? references = null)
     {
         Id = id;
         File = file;
         Plugin = plugin;
         Document = document;
         _history = new EditHistory(options ?? DocumentSessionOptions.Default);
+        _referenceFields = new ReferenceFieldService(references ?? ReferenceContext.None);
     }
 
     public string Id { get; }
@@ -108,7 +112,7 @@ public sealed partial class DocumentSession : IDisposable
                 continue;
             }
 
-            var coerced = FieldValueCoercer.FromJson(edit.Value, spec);
+            var coerced = FieldValueCoercer.FromJson(edit.Value, spec, _referenceFields);
             if (coerced.Ok)
             {
                 edits.Add(new ValueEdit(edit.ValueId, coerced.Value));
@@ -161,8 +165,8 @@ public sealed partial class DocumentSession : IDisposable
         foreach (var p in action.Parameters)
         {
             var coerced = parameters.TryGetValue(p.ValueId, out var json)
-                ? FieldValueCoercer.FromJson(json, p.Spec)
-                : FieldValueCoercer.Normalize(p.Value, p.Spec, allowReadOnly: true);
+                ? FieldValueCoercer.FromJson(json, p.Spec, _referenceFields)
+                : FieldValueCoercer.Normalize(p.Value, p.Spec, allowReadOnly: true, references: _referenceFields);
             if (coerced.Ok)
             {
                 values[p.ValueId] = coerced.Value;
@@ -239,6 +243,25 @@ public sealed partial class DocumentSession : IDisposable
     public IReadOnlyList<FileOutput> Serialize() => Locked(() => StateUnlocked().IsDirty ? Document.Serialize() : []);
 
     public AssetContent? GetAsset(string assetId) => Locked(() => _index.KnowsAsset(assetId) ? Document.GetAsset(assetId) : null);
+
+    /// <summary>Field-specific candidates, using the same catalog and policy as edits.</summary>
+    public ReferenceCandidatePage SearchReferences(string valueId, ReferenceQuery query, long? revision = null, string? actionId = null) =>
+        Locked(() => _referenceFields.Search(ReferenceField(valueId, revision, actionId), query, _revision));
+
+    /// <summary>Resolves any exact raw id, including an unknown current value, without changing the document.</summary>
+    public ReferenceCandidate FindReference(string valueId, string rawId, long? revision = null, string? actionId = null) =>
+        Locked(() => _referenceFields.Find(ReferenceField(valueId, revision, actionId), rawId));
+
+    private ReferenceSpec ReferenceField(string valueId, long? revision, string? actionId)
+    {
+        if ((revision is { } expected && expected != _revision) || _retired.Contains(actionId ?? valueId))
+        {
+            throw new StaleViewException();
+        }
+
+        var spec = actionId is null ? _index.Spec(valueId) : _index.Action(actionId)?.Parameters.FirstOrDefault(p => p.ValueId == valueId)?.Spec;
+        return spec as ReferenceSpec ?? throw new KeyNotFoundException($"Unknown reference field '{valueId}'.");
+    }
 
     public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => Locked(() =>
         _index.KnowsBlob(blobId) ? Document.ReadBlob(blobId, offset, count) : throw new KeyNotFoundException($"Unknown blob '{blobId}'."));

@@ -22,6 +22,7 @@ public sealed class ItemsPlugin : IGamePlugin
     public PluginInfo Info { get; } = new("test.items", "Items test format", "1.0.0")
     {
         Games = [new GameTitle(TitleId, "Items Game")],
+        References = ["https://github.com/JKamsker/PS5SaveGame-Toolkit"],
     };
 
     public ProbeResult Probe(ISaveFile file) =>
@@ -63,6 +64,14 @@ public sealed class ItemsPlugin : IGamePlugin
     {
         public override string Title => "Items";
 
+        private static ReferenceSpec ItemSpec => new("items")
+        {
+            // Synthetic example: this inventory slot accepts consumables, not equipment.
+            Assess = candidate => candidate.Category == "weapon"
+                ? new ReferenceEligibility { Eligible = false, Reasons = ["This slot only accepts consumables."] }
+                : new ReferenceEligibility(),
+        };
+
         public override ViewNode BuildView()
         {
             var count = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(5));
@@ -74,7 +83,34 @@ public sealed class ItemsPlugin : IGamePlugin
                 {
                     Tone = Tone.Muted,
                 },
+                new ActionNode("replace-first", "Replace first item")
+                {
+                    Parameters = [new FieldNode("replacement", "Replacement", ItemSpec, FieldValue.Of("1001"))],
+                },
             ]);
+        }
+
+        public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
+        {
+            var result = base.ApplyEdits(edits);
+            // Names and quantity limits depend on the chosen id; rebuild their specs after replacement.
+            return result with { StructureChanged = result.Changes.Any(c => c.ValueId.EndsWith("/id", StringComparison.Ordinal)) };
+        }
+
+        public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
+        {
+            if (actionId != "replace-first")
+            {
+                throw new KeyNotFoundException(actionId);
+            }
+
+            var result = ApplyEdits([new ValueEdit("items/0/id", parameters["replacement"])]);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(string.Join(" ", result.Errors.Select(e => e.Message)));
+            }
+
+            return new ActionOutcome { Changes = result.Changes, StructureChanged = result.StructureChanged };
         }
 
         public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
@@ -97,7 +133,12 @@ public sealed class ItemsPlugin : IGamePlugin
 
             var cells = new Dictionary<string, ViewNode>
             {
-                ["item"] = new TextNode(record?.Name ?? $"#{id}"),
+                ["item"] = Field($"items/{index}/id", "Item", ItemSpec,
+                    () => FieldValue.Of(BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(at)).ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                    v => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(at), uint.Parse(v.AsString(), System.Globalization.CultureInfo.InvariantCulture))) with
+                {
+                    Description = record?.AttributionText,
+                },
                 ["quantity"] = quantity,
                 ["icon"] = record?.AssetId is { } asset ? new ImageNode(asset, record.Name) : new TextNode(string.Empty),
             };

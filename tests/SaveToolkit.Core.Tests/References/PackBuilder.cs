@@ -105,7 +105,12 @@ internal sealed record PackBuilder
     {
         ["id"] = id,
         ["kind"] = kind,
-        ["files"] = new JsonArray([.. files.Select(f => (JsonNode)new JsonObject { ["path"] = f.Path, ["sha256"] = Sha256(f.Content) })]),
+        // Record hashes follow F2's LF canonicalisation, including raw strings compiled from CRLF files.
+        ["files"] = new JsonArray([.. files.Select(f => (JsonNode)new JsonObject
+        {
+            ["path"] = f.Path,
+            ["sha256"] = Sha256(kind == "records" ? Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(f.Content).Replace("\r\n", "\n", StringComparison.Ordinal)) : f.Content),
+        })]),
         ["attribution"] = Attribution(),
     };
 

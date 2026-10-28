@@ -77,7 +77,7 @@ public sealed class Workspace : IDisposable
             // Reference packs are pinned per document: packs imported later only affect documents opened later.
             var references = _packs?.Pin(plugin, file.Directory.TitleId) ?? ReferenceContext.None;
             var document = plugin.Open(file, references);
-            var session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document);
+            var session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document, references: references);
             _references[session.Id] = references;
             _documents[session.Id] = session;
             return session;

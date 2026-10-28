@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using SaveToolkit.Core;
 using SaveToolkit.Core.Editing;
+using SaveToolkit.Core.References;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
@@ -117,7 +118,11 @@ public abstract partial class PluginConformanceTests<TPlugin>
             {
                 var current = document.GetValue(field.ValueId);
                 Assert.True(current == field.Value, $"{file.RelativePath}: GetValue('{field.ValueId}') = {current}, but the view showed {field.Value}.");
-                var check = FieldValueCoercer.Normalize(field.Value, field.Spec, allowReadOnly: true);
+                // Existing ids may be unknown or no longer eligible. A view must preserve those,
+                // while incoming replacements are checked against the catalog below.
+                var check = field.Spec is ReferenceSpec
+                    ? new FieldValueCoercer.Result(field.Value, field.Value.Kind == FieldValueKind.Text ? null : "Reference ids must be text.")
+                    : FieldValueCoercer.Normalize(field.Value, field.Spec, allowReadOnly: true);
                 Assert.True(check.Ok, $"{file.RelativePath}: field '{field.ValueId}' value {field.Value} violates its own spec: {check.Error}");
             }
         }
@@ -150,7 +155,7 @@ public abstract partial class PluginConformanceTests<TPlugin>
         var tested = 0;
         foreach (var file in AllSelectedFiles())
         {
-            using var document = Open(file);
+            using var document = Open(file, out var referenceFields);
             var fields = Walk(document, file);
             var edits = ChooseEdits(document, fields);
             if (edits.Count == 0)
@@ -161,7 +166,7 @@ public abstract partial class PluginConformanceTests<TPlugin>
             var specs = fields.ToDictionary(f => f.ValueId, f => f.Spec);
             foreach (var edit in edits)
             {
-                var check = FieldValueCoercer.Normalize(edit.Value, specs[edit.ValueId]);
+                var check = FieldValueCoercer.Normalize(edit.Value, specs[edit.ValueId], references: referenceFields);
                 Assert.True(check.Ok, $"Chosen edit for '{edit.ValueId}' is invalid: {check.Error}");
             }
 
@@ -200,11 +205,15 @@ public abstract partial class PluginConformanceTests<TPlugin>
         Assert.True(any, "No sample files selected.");
     }
 
-    protected ISaveDocument Open(ISaveFile file)
+    protected ISaveDocument Open(ISaveFile file) => Open(file, out _);
+
+    private ISaveDocument Open(ISaveFile file, out ReferenceFieldService referenceFields)
     {
+        var references = (ReferenceContext)ReferencesFor(file);
+        referenceFields = new ReferenceFieldService(references);
         try
         {
-            return Plugin.Open(file, ReferencesFor(file));
+            return Plugin.Open(file, references);
         }
         catch (Exception ex)
         {
