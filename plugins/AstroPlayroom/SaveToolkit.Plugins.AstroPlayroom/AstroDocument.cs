@@ -3,10 +3,11 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Plugins.AstroPlayroom;
 
-internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
+internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument, IQueryableDocument
 {
     private const int PageSize = 64;
     private const string EditWarning = AstroWriteWarnings.Experimental + " " + AstroWriteWarnings.Integrity;
@@ -19,6 +20,8 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
     private readonly AstroSchema _schema;
     private readonly AstroCollectionBrowser _collections;
     private readonly AstroReferences _references;
+    private readonly AstroLocations _locations;
+    private readonly AstroSpatialViews _spatial;
 
     public AstroDocument(string path, AstroAllocation allocation, IReferenceContext references)
     {
@@ -29,8 +32,10 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
         _schema = new AstroSchema(allocation);
         _schema.Inventory(_fields);
         _references = new AstroReferences(references, _schema.Fingerprint);
-        _collections = new AstroCollectionBrowser(_schema, _references, Current, CatalogueLabel,
-            () => _fields.SingleOrDefault(f => f.Path == "PreInstall/Common/NumCoin") is { } coins
+        _locations = new AstroLocations(_schema, _references);
+        _spatial = new AstroSpatialViews(_schema, _fields, _references, _locations, Current);
+        _collections = new AstroCollectionBrowser(_schema, _locations, Current, CatalogueLabel,
+            () => AstroFields.Coins(_fields) is { } coins
                 ? Current(coins).AsInt64() : null);
         Register(allocation.Root);
         foreach (var field in _fields)
@@ -40,6 +45,11 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
     }
 
     public override string Title => "ASTRO's PLAYROOM";
+
+    public IReadOnlyList<QueryableCollection> Collections => _collections.Queryable.Collections;
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        _collections.Queryable.Query(collectionId, query);
 
     public override ViewNode BuildView() => new TabsNode([
         new Tab("Overview", [
@@ -53,6 +63,7 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
         ]),
         new Tab("Progress", [AstroProgressSummary.Build(_fields, _references, Current), Table("Progress", "World")]),
         new Tab("Collectibles", _collections.Build()),
+        new Tab("Maps", _spatial.Build()),
         new Tab("Schema", [_schema.Report()]),
         new Tab("Raw", [
             new TextNode($"Opaque bytes after the root: {_allocation.Terminator - _allocation.RootEnd}. Preserved on export."),
@@ -61,6 +72,7 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        if (lazyId.StartsWith(AstroSpatialViews.LazyPrefix, StringComparison.Ordinal)) return _spatial.Expand(lazyId);
         // Page the immediate children as well as the depth: even hostile wide trees stay bounded.
         var split = lazyId.LastIndexOf('|');
         var id = split < 0 ? lazyId : lazyId[..split];
@@ -89,11 +101,11 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        AstroPlanning.Plan(actionId, parameters, scope, _schema, _fields, Current);
+        AstroPlanning.Plan(actionId, parameters, scope, _schema, _fields, Current, _locations);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters,
         ActionScope scope, ActionPlan plan) =>
-        AstroPlanning.Apply(actionId, parameters, scope, plan, _schema, _fields, Current, ApplyEdits);
+        AstroPlanning.Apply(actionId, parameters, scope, plan, _schema, _fields, Current, _locations, ApplyEdits);
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {

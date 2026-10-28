@@ -30,7 +30,8 @@ libraries. Entity spellings are shown literally and preserved. DTDs, processing 
 CDATA are unsupported and rejected inside the root rather than rewritten incorrectly.
 
 Raw sections load lazily and page at 64 immediate entries plus a continuation. Parsing is bounded
-to 64 levels, 4,096 elements and 4,096 values; each curated table stays below 5,000 rows. Value IDs
+to 64 levels, 4,096 elements and 4,096 values. Collections over 100 records use server-backed F8
+tables (200 rows maximum per request); F9 maps page at 64 markers. Value IDs
 use tag names and sibling occurrence numbers, never byte offsets, so length-changing edits retain
 their IDs. Empty elements remain visible as tree sections without inventing a text value.
 
@@ -84,6 +85,57 @@ undo or redo the plugin requests a view refresh so ownership filters, section to
 reflect current values. F6 planning exposes reviewed coin and collect-existing actions, with explicit
 old/new values, skipped rows and warnings before apply. Each apply is one undo/redo group.
 
+## Framework feature adoption
+
+| Feature | Status | Concrete use or reason |
+| --- | --- | --- |
+| F1 SaveDiff | Used | `fixtures.json`, PluginViewDecoder and sample tests reproduce all 94 observed primitive transitions, byte changes and identical backups. Independent text oracles cover ownership output. |
+| F2 reference packs | Used | Offline schema-qualified English catalogue, per-record/dataset attribution, Sources panel and pinned context; no plugin I/O. |
+| F3 rich cells | Used | Read-only name/confidence fields, provenance/details and selected-row planned action. No game images: no cleared icon dataset was established. |
+| F4 reference picker | N/A (framework blocker) | Adoption attempted and Core eligibility verified, but F6's browser dialog disables ReferenceSpec parameters: see SDK requests below. Ship a small attributed EnumSpec world-choice fallback. Saved ownership/progress fields are booleans, not replaceable IDs. |
+| F5 structural undo | N/A | Writer patches existing primitive spans only. Record creation/removal/reorder lacks a known game grammar/dependency repair; this round adds no structural writer. Existing batches use ordinary grouped value history. |
+| F6 planned actions / #27 | Added this round | Existing coins/collect-all plus candidate-world ownership and bounded gatcha-budget top-up presets. Core resolves all-matching F8 scopes and exclusions; preview/apply/one-step undo/redo are tested. |
+| F7 document groups | N/A | One gameplay allocation; no distinct coupled file/invariant identified. Identical backups are handled by same-generation framework export mirroring, not an independently editable partner document. |
+| F8 queryable tables | Added this round | Combined 164-record collection, whole-save search/exact filters/deterministic sort/paging, stable keys and rich cells. Individual groups switch to F8 above 100 records. |
+| F9 maps / graphs | Added this round | Lazy level schematic plus no-coordinate collectible maps and accessible marker lists; every supported marker links to an existing field/row. No prerequisite graph: no skill/perk tree or proven prerequisite edge exists in this format. |
+| F10 exact values | Used | SDK integer transport preserves exact signed values with `IntegerSpec`/`FieldValue.Integer`; boolean flags use BoolSpec. There are no JSON numeric lexemes, nullable values or union discriminators requiring the additional specs. |
+| F11 shared codecs | N/A | The observed 1 MiB payload is uncompressed readable UTF-8; no Kraken/Oodle/SQLite content or local codec exists to replace. |
+| F12 | Pending #32 | SaveDiff F8 traversal/decoder hooks were not on main at round start; retain observed eager group coverage and existing F1 tests. No local traversal substitute. |
+| F13 | Pending #33 | Inspect actions, browse-only picker, catalogue filters/sort and float duration were not on main at round start; no local substitutes. |
+
+## Spatial navigation and candidate-world presets
+
+The Maps tab uses F9: an **original list-order level schematic**, with no game art, route, adjacency
+or prerequisite claim; and separate artifact/puzzle/prop lists with **no physical coordinates**.
+Marker Found/Missing means only the associated saved boolean. Missing/ambiguous ownership is Unknown.
+Every map has a text alternative and an always-available searchable/filterable marker list. Original
+schematic provenance and CC BY-SA catalogue attribution are shown beside the map/in marker details.
+PowerPyx is an attributed external guide link; no guide prose, media or coordinates are imported.
+Unknown oversized paths remain available in Raw instead of violating F9 publication limits.
+For groups above 100 rows, map navigation opens the exact lazy Raw ownership field rather than an
+unloaded F8 row. Maps/counts/query statuses refresh after edits, planned actions and undo/redo.
+
+The All saved collectibles section queries the complete save, including unloaded rows. Search across
+names/raw keys, combine exact status/world/category filters, sort, then select all matching with
+explicit exclusions before reviewing the ownership action. Small per-type tables remain convenient
+for the observed 50/96/18 records. All joins use the same duplicate-safe, schema-qualified catalogue.
+
+`collectibles/collect-world` offers an attributed candidate-world choice and F6 preview (EnumSpec
+fallback pending the F4/F6 browser fix below). It changes
+only existing missing ownership fields whose catalogue world matches (or whose inferred stage has
+that parent world); explicit table/query selections intersect that set. Unmapped/outside-world
+records and already-owned rows appear as skips. No cinematic, notification, clear/reward/UDS/trophy
+state is derived. This is an ownership-only preset, **not a complete-world guarantee**. Memory Meadow
+has 9 artifact + 16 internal-prefix puzzle records in both supplied snapshots; all 25 are initially
+missing and are tested through exact-byte oracle, serialization/reopen and grouped undo/redo.
+
+`common/top-up-gatcha` computes max(current coins, attempts × 100); it never repeatedly adds a budget
+or reduces a higher balance. Gage/PowerPyx reports the factual 100-coin cost (external research link,
+no guide prose/media copied). Attempts are restricted to **0–17**, keeping the calculated target at
+most 1700 within the sample-observed 0–1749 range. This is a conservative experimental policy, not
+a proven coin cap; actual cost/acceptance still need #31 validation. Random prizes cannot guarantee
+completion. The F6 preview/outcome retains integrity/console warnings and the exact coin change.
+
 ## Enabled writes and their evidence
 
 The owner enabled gated writes on 2026-10-28: **"Enable writes. Keep warnings."** Controlled captures
@@ -94,7 +146,9 @@ Serialization reparses the output and checks all primitive values; this does not
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
-| **New:** `collectibles/collect-all`: set missing existing `Artifact/*/IsGot`, `Puzzle/*/IsGot`, `Prop/*/IsGot` to true, document-wide or selected rows | Inferred | Existing boolean spans; mixed-event samples show 3/9/1 ownership transitions. Tests apply 164 flags in generation 0 and 151 in generation 1, reopen, verify exact untouched bytes with F1, and undo/redo the whole batch. | Unknown game integrity; output reparsed, all other primitives and opaque suffix preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): independent artifact/puzzle/prop grants and full/selected batches; museum, notifications, cinematic/reward behavior, resave and second reload. |
+| `collectibles/collect-all`: set missing existing `Artifact/*/IsGot`, `Puzzle/*/IsGot`, `Prop/*/IsGot` to true, document-wide, selected rows or all matching query rows | Inferred | Existing boolean spans; mixed-event samples show 3/9/1 ownership transitions. Tests apply 164 flags in generation 0 and 151 in generation 1, reopen, verify exact untouched bytes with F1, and undo/redo the whole batch. Query exclusions are tested. | Unknown game integrity; output reparsed, all other primitives and opaque suffix preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): independent artifact/puzzle/prop grants and full/selected/query batches; museum, notifications, cinematic/reward behavior, resave and second reload. |
+| **Added this round:** `collectibles/collect-world`, existing mapped ownership only | Inferred | Same existing-span writer; schema-qualified world/stage joins. Tests grant only the 25 Memory Meadow records and preserve every unrelated byte; query/explicit exclusions and grouped undo/redo covered. | Same unknown game integrity; no derived dependency repair. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): verify candidate-world membership and selected/query preset effects, museum/puzzles, rewards/cinematics/notifications, gameplay/resave/second reload. |
+| **Added this round:** `common/top-up-gatcha`, existing coin span only | Inferred | Gage/PowerPyx reports 100 coins per attempt; independent bounded arithmetic for 0–17 attempts. All four samples verify exact unrelated-byte preservation/reopen; Core one-step undo/redo and invalid/overflow-sized request rejection pass. | Same unknown integrity; only NumCoin changes, higher balances preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spare-slot top-up, actual per-attempt cost, spend/resave/reload, cap/clamping and unrelated flags. |
 | Existing individual ownership/cinematic/Progress/World booleans | Inferred | Literal saved names and booleans; flags vary independently between samples. No dependency relationship is proven. | Same unverified integrity; no inserted fields or guessed repairs. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): each flag's effect, dependencies and persistence. |
 | Existing `Common/NumCoin` field and F6 `common/set-coins` | Verified name; Inferred gameplay range/effects | Observed 0/1749, preserving serializer tests. Bounds 0…2,147,483,647 are signed-storage policy; only 0…1749 is observed, not a proven game cap. | Same unverified integrity; reparsed after edit. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): gain/spend, cap/clamp, independent edit and persistence. |
 | Existing `Common/PlayCount` | Verified name; Unknown increment semantics | Observed 1/2; nonnegative signed-storage bound, not a verified gameplay limit. | Same unverified integrity; reparsed after edit. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): event semantics, accepted values and persistence. |
@@ -104,7 +158,7 @@ collectible. To collect a subset, select rows in one table (including through it
 filters), open any row's **Record details**, then use its action to preview that table's selection.
 Hidden selected rows remain included; an empty selection changes nothing. Plans label each raw
 group/key and old/new `IsGot`, skip already-owned or missing/ambiguous/nonboolean ownership fields,
-and reject unknown/duplicate selection keys, unexpected parameters and unsupported query scopes.
+and reject unknown/duplicate selection keys, unexpected parameters and unresolved/foreign query scopes.
 The action also works without a coin field or reference pack; it never relies on candidate aliases.
 
 Only missing `IsGot` becomes true. There are **no derived writes**: cinematic, notification,
@@ -179,6 +233,24 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-To
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project tests/SaveToolkit.Core.Tests -- --filter-class '*Export*'
 ```
 
+Completion-round validation (2026-10-28): **71 plugin tests passed, 0 failed, 0 skipped**; **11 Core
+export tests passed, 0 failed, 0 skipped**; API build **0 warnings/0 errors**. Adds F9 exact marker
+coverage/states/targets/attribution, 550-record lazy-map/F8 fallback bounds, nonboolean/duplicate-field
+robustness, whole-query selection/exclusions, world-preset exact-byte oracle and grouped undo/redo.
+Budget tests cover all sample records, exact coin-only bytes, zero/enough-balance no-ops, invalid and
+Int128-overflow-sized inputs, no repeated award, reparse and one-step history.
+The F4/F6 browser blocker below was found with the real frontend and recorded centrally; the small
+EnumSpec fallback retains working world selection. Earlier validation follows for historical context.
+
+Focused browser verification used this branch's v0.4.0 API and the existing production frontend,
+without rebuilding or changing web files. Confirmed 51 schematic world-flag markers; external guide
+host/attribution and `noopener noreferrer`; artifact text-list jump opens Collectibles and focuses
+the exact Artifact/ps1 row without editing. The world preset previews 25 changes/139 skips; apply
+and one-step undo/redo refresh 13/164 ↔ 38/164 totals. F8 searches all rows and reports 16 Memory
+Meadow puzzle records; all-query selection across 164 records with one exclusion previews 150
+changes/13 skips on generation 1. No console/network errors or external resource requests were
+observed. Temporary browser tab/server were closed; only memory.dat entries were imported.
+
 Write-enable round validation (2026-10-28): **57 plugin tests passed, 0 failed, 0 skipped**; **11 Core
 session/export tests passed, 0 failed, 0 skipped**; API build succeeded with **0 warnings/0 errors**.
 New write tests cover all four records, exact ownership-only output including necessary text
@@ -216,7 +288,8 @@ were 1.4–20.4 ms per sample; these are local observations, not a benchmark gua
 | Prop raw-key aliases (`astro_collectibles`) | Original Toolkit aliases; [PlayStation Labo](https://astrosplayroom.fandom.com/wiki/PlayStation_Labo), wiki contributors, provides context only; retrieved 2026-10-28 | Pack adaptation remains CC BY-SA 3.0; readable literal keys only, no prize identity claim. |
 | World/stage candidates (`astro_worlds`) | [Artefacts](https://astro-bot-series.fandom.com/wiki/Artefacts), Astro Bot Wiki contributors; [CPU Plaza](https://astrosplayroom.fandom.com/wiki/CPU_Plaza), Astro's Playroom Wiki contributors; retrieved 2026-10-28 | CC BY-SA 3.0; selected names/order, original inferred raw-path joins, no walkthrough prose or art. |
 | Licence provenance | [Fandom Help:Licensing](https://community.fandom.com/wiki/Help:Licensing), Fandom contributors; retrieved 2026-10-28 | Research only: default text licence is CC BY-SA 3.0; media rights are separate. |
-| Gameplay guide comparison | [PowerPyx collectible guide](https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/) | Research only, no reuse grant established; counts/naming discrepancy checked, no prose/images embedded. |
+| Gameplay guide comparison / gatcha arithmetic | [PowerPyx collectible guide](https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/), Gage, 2020-11-17, rechecked 2026-10-28 | External research, no reuse grant established; counts/naming discrepancy checked and factual 100-coin cost independently represented. Original bounded arithmetic, no guide prose/images embedded; `AstroGatchaPlanning.source.md` records scope. |
+| Original schematic positions | [Toolkit contributors](https://github.com/JKamsker/PS5SaveGame-Toolkit/tree/main/plugins/AstroPlayroom), created 2026-10-28 | [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html), original eight-column list layout; no physical coordinates/adjacency or game media. Sidecar: `AstroSpatialViews.source.md`; full provenance in MapNode and Info.References. Existing catalogue names retain CC BY-SA 3.0. |
 
 Per-record source URLs, retrieval/access limitations, modification notices and share-alike terms are
 also in the pack's `data.source.md`/`pack.json` and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md),
@@ -254,13 +327,24 @@ and a fresh integrity investigation before curated support. The opaque suffix's 
 
 ## Remaining phases and exact owner checklist
 
-Phase 1 is complete. Round 2 added candidate internal-stage aliases, completion summaries and F6
-planning. The write-enable round completes Phase 3's prepared collect-all/selected ownership action
-with warnings. Phase 2's controlled mapping and console validation remain tracked in #31; they no
-longer gate existing-span writes. Phase 4 exposes schema diagnostics/absence only; bot support needs
-newer structures. Phase 5's gameplay completion/dependency presets, diagram and human console
-acceptance remain open. There is no verified complete-world/dependency preset to enable. Maturity
-stays Experimental. No SDK request is needed; F1/F2/F3/F6 cover the implemented work.
+Phase 1 and the implementable Phase 3/5 work are complete: named catalogue, candidate-stage/world
+joins, completion summaries, selected/query/document ownership planning, candidate-world ownership
+preset, bounded gatcha-budget preset, original F9 schematic/navigation, F8 bounds and release hardening. Phase 2's controlled mapping
+and console acceptance remain tracked in #31; they do not gate existing-span writes. Phase 4 exposes
+schema diagnostics/absence only; bot support requires newer structures. Physical puzzle-location
+mapping, proven gameplay dependency/completion guarantees, coin-cap validation and human acceptance remain
+owner-blocked. Maturity stays Experimental. F4/F6 browser compatibility needs the central fix below;
+F12/F13 remain pending #32/#33, with no plugin-local substitute.
+
+| Requirements | Completion disposition |
+| --- | --- |
+| AP-R1, AP-R4, AP-R5, AP-R6 | Owner-blocked (#31): controlled pickup/clear/coin/bot/update/transfer captures and console persistence; no guessed missing-state insertion. |
+| AP-R2, AP-R3 | Done: F1 fixtures, attributed schema-qualified catalogue and candidate aliases; owner still verifies physical locations/identities. |
+| AP-R7, AP-R17 | Rights route resolved: original schematic, cleared CC BY-SA names and link-only guide; catalogue screenshots/locations remain owner-blocked. |
+| AP-R8–AP-R13 | Done with existing F3/F6/F8/F9: rich details, world/status filtering, live refresh, named changes/skips/warnings and Core all-query scopes. F4 parameter compatibility uses documented fallback. |
+| AP-R14, AP-R15 | F2 pinned context used; additional optional image/localization ingestion not pursued because there is no cleared icon/localization dataset to ingest. |
+| AP-R16 | Done: preservation, malformed schemas, per-action atomicity/undo, independent byte oracle, F1, conformance and Core export regression checks. |
+| AP-R18 | Done: original level schematic and externally linked collectible lists; physical coordinates stay absent pending owner mapping. No invented prerequisites/graph edges. |
 
 For each pair, record title, exact game build, region, slot, DLC, date, before/after displayed values
 and the one action taken. Export decrypted before/after archives (including primary and backup) to
@@ -300,7 +384,28 @@ the private artifacts folder; never include account identifiers in manifests or 
     notifications, cinematics/rewards and any side effects. Play normally, resave, export primary+
     backup, and reload a second time. Diff all primitive paths, suffix and byte ranges; compare with
     a no-action control. Report rejection as well as successful persistence in #31.
+13. Preview Memory Meadow's candidate-world preset (9 artifact + 16 internal-prefix puzzle records
+    in this schema), verify every included/skipped record against the museum and stage counts, then
+    repeat with a filtered all-matching selection excluding one record. Confirm cinematic, clear,
+    notification, reward and UDS behavior, play normally, resave/re-export primary+backup and load a
+    second time. Report normalization/rejection/unrelated effects alongside successful persistence.
+14. On a spare low-balance slot, preview one gatcha attempt (target at least 100 coins) and separately
+    17 attempts (target at least 1700). Confirm the actual cost per roll, random-prize behavior and
+    no balance reduction when already above the target. Spend normally, resave/re-export, reload a
+    second time and record persistence, cap/clamping or rejection. Do not interpret the budget as a
+    guaranteed collectible count.
 
 ## SDK requests
 
-None. Existing lazy sections, bindings, byte outputs and framework backup mirroring are sufficient.
+**F4 reference picker in an F6 planned action is disabled in the browser.** Reproduced against main
+and its existing production frontend on 2026-10-28. Minimal reproduction: publish an ActionNode with
+`SupportsPlanning = true` and parameter `new FieldNode("world", "World", new ReferenceSpec("astro_worlds"),
+FieldValue.Of("World/COOLING_SYSTEM"))`; open the action dialog. The trigger shows the raw ID and is
+disabled, so it cannot select another candidate. Core `SearchReferences("world", ..., actionId: ...)`
+works with attribution/eligibility and rejects bad IDs; this is a browser binding problem.
+`web/src/components/document/review/PlannedActionButton.tsx` passes neither `valueId={p.valueId}` nor
+`actionId={node.actionId}` to FieldControl; ReferenceControl disables when `valueId` is absent. Legacy
+ActionButton already passes both. The orchestrator should add those props and a planned-reference
+browser regression test centrally. This plugin uses a bounded EnumSpec fallback; no framework file
+was edited. Once the central fix lands, replace that small fallback with ReferenceSpec and its
+eligibility restriction to worlds with existing mapped records.

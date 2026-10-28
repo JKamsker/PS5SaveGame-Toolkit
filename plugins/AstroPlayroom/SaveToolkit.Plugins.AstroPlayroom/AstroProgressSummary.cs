@@ -9,9 +9,10 @@ internal static class AstroProgressSummary
     public static SectionNode Build(IReadOnlyList<AstroField> fields, AstroReferences references,
         Func<AstroField, FieldValue> current)
     {
-        var world = fields.Where(f => f.Group == "World" && f.Label == "IsCleared").ToArray();
-        var visited = fields.Count(f => f.Group == "World" && f.Label == "IsVisited");
-        var visitedTrue = fields.Count(f => f.Group == "World" && f.Label == "IsVisited" && current(f).AsBool());
+        var world = fields.Where(f => f.Group == "World" && f.Label == "IsCleared" && f.Spec is BoolSpec).ToArray();
+        var visitedFlags = fields.Where(f => f.Group == "World" && f.Label == "IsVisited" && f.Spec is BoolSpec).ToArray();
+        var visited = visitedFlags.Length;
+        var visitedTrue = visitedFlags.Count(f => current(f).AsBool());
         var progress = fields.Where(f => f.Group == "Progress" && f.Spec is BoolSpec).ToArray();
         var progressTrue = progress.Count(f => current(f).AsBool());
         var clearedTrue = world.Count(f => current(f).AsBool());
