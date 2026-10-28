@@ -40,8 +40,10 @@ public sealed class OverlaySaveSet : ISaveSet
         public IReadOnlyList<ISaveFile> Files { get; }
         public IReadOnlyList<ISaveFile> SystemFiles { get; }
 
+        // The explicit nullable type matters: `? content : null` would type the conditional as
+        // ReadOnlyMemory<byte> and turn null into an empty override, hiding every untouched file.
         private OverlayFile Wrap(ISaveFile file, IReadOnlyDictionary<string, ReadOnlyMemory<byte>> overrides) =>
-            new(this, file, overrides.TryGetValue(file.RelativePath, out var content) ? content : null);
+            new(this, file, overrides.TryGetValue(file.RelativePath, out var content) ? content : (ReadOnlyMemory<byte>?)null);
     }
 
     private sealed class OverlayFile(ISaveDirectory directory, ISaveFile inner, ReadOnlyMemory<byte>? content) : ISaveFile
