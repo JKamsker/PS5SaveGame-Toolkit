@@ -52,11 +52,14 @@ Do not record account identifiers, PSN names or credentials in shared notes.
 - [ ] Record a DLC title/arte separately from base-game learning; catalog presence
   does not establish entitlement, learnability or Beyond the Dawn save support.
 
-No purchase, refund, respec, unlock-all, equipment swap, refill or preset action is
-enabled this round. Any future bulk mutation must implement the SDK's **F6 planning**
-contract (`IActionPlanningDocument`, `SupportsPlanning`): show changes, costs,
-dependencies, skipped unsupported/key/story rows and warnings; revalidate at apply;
-undo the whole batch as one step. F8 query selections must use Core's resolved scope.
+No purchase, refund, respec, unlock-all, equipment swap, restore, preset or structural
+action is enabled this round. The bounded `inventory/set-quantity` action is enabled for
+existing recognised rows only; it must keep its F6 preview, skipped-row warnings,
+apply-time revalidation and one grouped undo. Any future bulk mutation must implement the
+SDK's **F6 planning** contract (`IActionPlanningDocument`, `SupportsPlanning`): show
+changes, costs, dependencies, skipped unsupported/key/story rows and warnings; revalidate
+at apply; undo the whole batch as one step. F8 query selections must use Core's resolved
+scope.
 
 ## Progress: separate flags and rewards
 

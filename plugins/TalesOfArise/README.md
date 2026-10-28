@@ -28,7 +28,8 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
   per-record source links and attributed facts/descriptions. Coverage is every named
   row in the listed sources; symbolic keys do not claim PS5 identity or DLC support.
   The 13 existing numeric consumable mappings remain Inferred; only Apple Gel has
-  the current PS5 acquisition observation. Inventory IDs stay read-only references.
+  the current PS5 acquisition observation. Inventory IDs stay read-only references;
+  recognised existing quantities have bounded writes described below.
 - F8 catalog pages search facts/prerequisites as well as names/IDs, filter category,
   character and title, and sort deterministically across the **whole** catalog.
   Pages contain at most 200 rows; filtering does not truncate after the first 200.
@@ -41,8 +42,8 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
 - Progress views combine 128 recipe/fish/artifact guide records with separate raw
   section evidence for owls, quests/scenario, fishing, camps/maps, PartyProfile and
   ItemManager. They do not infer ownership, learned/cooked, caught/rewarded, found/
-  reported/rewarded, effect toggles or completion percentages. No new writes or bulk
-  actions are enabled; future bulk actions must use F6 planning.
+  reported/rewarded, effect toggles or completion percentages. The only bulk action is
+  the bounded existing-row quantity action, which uses F6 planning and grouped undo.
 - Records section-relative evidence in `Resources/EvidenceLedger.csv`. `AriseDiff` aligns
   decrypted bodies by schema ID and reports relative changed offsets, so shuffled physical
   addresses do not become false field evidence. No new gameplay meaning is promoted by this ledger.
@@ -50,6 +51,25 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
 `SystemSaveData.sav` is a separate **4,096-byte opaque system blob**. It is not claimed,
 decrypted or rewritten; the framework's raw viewer remains available. Each document
 only returns its own file, without silently changing the console backup twin.
+
+## Enabled writes and their evidence
+
+All rows below remain **Experimental** and retain visible warnings. The PS5 field
+meanings are **Inferred** unless stated otherwise; the owner must complete the linked
+[owner validation tracking issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31)
+before promoting any feature or plugin to Stable.
+
+| write | confidence | evidence | integrity status | owner validation needed |
+| --- | --- | --- | --- | --- |
+| PartyProfile gald (`party/gald`) | Inferred | Body `+0x18` matches the cited PS4 mapping; fixed-width samples and atomic edit/reopen tests. All supplied samples are zero, so no in-game value change is proven. | Known ciphertext SHA1 is recomputed; AES/XOR re-encryption reparses and compares plaintext. | Buy and consume one item, then save/reload and test normal acquisition; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
+| Existing active-character level, current HP and SP (six fixed status blocks) | Inferred | Body offsets match the cited PS4/PC layout and sample values; edit/reopen and unrelated-byte preservation tests. Level dependencies and effective stats are intentionally untouched. | Known ciphertext SHA1 is recomputed and self-checked; load-screen preview and dependent caches are preserved. | Load a spare edited slot, verify menus, perform a normal level/HP/SP event, save/reload; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
+| Existing recognised consumable quantity (IDs 1–13, 0–15) | Inferred | 13 legacy numeric mappings; Apple Gel is observed once in slot 002. Fixed record offsets, flags/IDs/order preservation, range rejection and edit/reopen tests. | Known ciphertext SHA1 is recomputed and self-checked; no records, IDs, flags or padding are changed. | Buy/use an item, test zero and later acquisition, and validate normal/effective stack caps; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
+| `inventory/set-quantity` F6 action over selected or document-scoped existing recognised rows | Inferred | Deterministic preview, skipped unsupported rows, bounded target 0–15, apply-time revalidation and one grouped undo. No record creation or grant behavior. | Same known SHA1/AES self-check as scalar edits; the game may reject inferred semantics. | Restore a spare slot, apply a preview, verify the effect and later acquisition after reload; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
+
+Equipment replacement, item insertion/removal, structural changes, HP/CP restore,
+growth/XP edits, skill/title/arte writes and progression/completion mutations remain
+disabled because enabling them could corrupt unproven identity or dependency state even
+with a warning.
 
 ## Container layout and reconciled offsets
 
@@ -129,7 +149,7 @@ offset discrepancy above.
 | same | `0x10` | Experience, uint32 | Read-only; PS4 source ID +`0x1C` |
 | same | `0x30` | SP, uint32 | Editable 0–999,999; PS4 source ID +`0x3C`; consistent PC layout |
 | same | `0x50` | Base HP, uint32 | Read-only; PS4 source ID +`0x5C` |
-| SaveData_ItemManager | `i * 16` | Stack quantity byte | Editable only for existing IDs 1–13, 0–15 |
+| SaveData_ItemManager | `i * 16` | Stack quantity byte | Editable only for existing IDs 1–13, 0–15; F6 can set selected/document-scoped recognised rows |
 | same | `i * 16 + 1` | Flags byte | Raw, preserved |
 | same | `i * 16 + 2` | Item ID, uint16 | Read-only; 934-record scan from cited PS4 patch |
 
@@ -200,10 +220,10 @@ pairs, and no console-qualified new writes. Phases 3–6 remain gated by that ev
 
 Follow [the exact owner capture/qualification checklist](OWNER_CHECKLIST.md) before
 enabling quantity-category expansion, equipment swaps, character growth/CP operations,
-skill purchases/refunds, structural inventory or progression actions. No refill,
-restore-all, unlock-all, completion, preset or structural mutation is exposed. Future
-bulk actions must use `IActionPlanningDocument`/`SupportsPlanning`, Core-resolved F8
-selection, apply-time revalidation and one undo group.
+skill purchases/refunds, structural inventory or progression actions. The existing-row
+quantity action is the only enabled bulk operation; restore-all, unlock-all, completion,
+preset and structural mutations remain unavailable. Bulk actions use
+`IActionPlanningDocument`/`SupportsPlanning`, apply-time revalidation and one undo group.
 
 ## Open questions
 
