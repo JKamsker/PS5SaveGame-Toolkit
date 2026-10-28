@@ -1,2 +1,0 @@
-#!/bin/sh
-exec pwsh -NoLogo -NoProfile -File plugins/BaldursGate3/scripts/check-source-size.ps1

@@ -126,11 +126,7 @@ public abstract partial class PluginConformanceTests<TPlugin>
     [Fact]
     public void Serialize_WithoutEdits_IsByteIdentical()
     {
-        if (!IsWritable)
-        {
-            return;
-        }
-
+        // Applies to read-only plugins too: whatever Serialize returns must not alter the data.
         foreach (var file in AllSelectedFiles())
         {
             using var document = Open(file);

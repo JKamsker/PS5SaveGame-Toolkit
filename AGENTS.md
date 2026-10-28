@@ -48,6 +48,8 @@ Tests use the MTP runner (`global.json`), so pass `--project`. Warnings are erro
   corruption rejection). Tests must skip, not fail, when samples are absent.
 - C#: nullable enabled, file-scoped namespaces, `sealed` by default, small files (<400 lines),
   no `dynamic`, no reflection tricks, no unsafe code unless justified in a comment.
+- Do not add repo tooling: no git hooks, build targets, `Directory.Build.*` files, lint scripts or
+  `.gitattributes` in plugin folders. File size and style are checked in review.
 - Git: conventional commits (`feat(pragmata): ...`). Commit on your branch only; never push.
   Never commit anything from `artifacts/` or extracted sample data.
 
