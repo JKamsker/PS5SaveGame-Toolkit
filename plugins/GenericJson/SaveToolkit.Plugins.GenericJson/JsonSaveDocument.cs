@@ -4,29 +4,34 @@ using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.GenericJson;
 
-internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
+internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
-    private const int PageSize = 128;
+    internal const int PageSize = 128;
     private readonly object _snapshotOwner = new();
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
     private JsonTokenTree _tree = tree;
     private readonly JsonSearch _search = new(tree);
+    private readonly JsonReferenceChoices _references = new(references);
     private JsonSemanticActions _semantic = new(file, tree);
 
     public override string Title => file.FileName;
-    public IReadOnlyList<QueryableCollection> Collections => [JsonSearch.Metadata(_tree.Nodes.Count)];
+    public IReadOnlyList<QueryableCollection> Collections => [JsonSearch.Metadata(_tree.Nodes.Count),
+        .. _tree.Nodes.Where(n => n.Kind == JsonTokenType.StartArray && n.Children.Count > JsonSearch.ArrayTableThreshold)
+            .Select(n => JsonSearch.Metadata(n.Children.Count, JsonSearch.ArrayPrefix + n.Index))];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
         collectionId == JsonSearch.CollectionId ? _search.Query(_tree.Nodes[0], query, ScalarField, NodeView)
-            : throw new KeyNotFoundException("Unknown JSON collection.");
+            : JsonSearch.Array(_tree, collectionId) is { } array ? _search.Query(array, query, ScalarField, NodeView, collectionId)
+            : throw new KeyNotFoundException("Unknown or retired JSON collection.");
 
     public override ViewNode BuildView()
     {
         var overlay = JsonOverlay.Match(file, _tree);
-        _semantic = new(file, _tree);
+        _semantic = new(file, _tree, _references);
         var tabs = new List<Tab>
         {
             new("Overview", [
@@ -34,6 +39,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
                 new TextNode("Generic JSON workbench. Raw edits and explicit scalar type choices do not establish game compatibility.") { Tone = Tone.Warning },
                 new TextNode("The Changes panel compares all exposed fields with the original, including collapsed content. Child-order fields describe structure; use undo for additions, removals and reordering. Framework resource limits can make review incomplete."),
                 JsonResetActions.View(),
+                JsonInspection.View(),
             ]),
             new("JSON", [NodeView(_tree.Nodes[0])]),
             new("Search", [new QueryableTableNode(JsonSearch.CollectionId, "Whole-tree search", JsonSearch.Columns, _tree.Nodes.Count)
@@ -45,7 +51,8 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
             tabs.Add(new(overlay.Title, [new TextNode(overlay.Evidence) { Tone = Tone.Warning }, new TextNode(JsonOverlay.Provenance),
                 new TextNode(JsonSemanticActions.Warning) { Tone = Tone.Warning },
                 new SectionNode("Title presets (existing values only)", _semantic.Presets()),
-                .. JsonOverlayViews.Build(overlay, (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true), _semantic.ForNode)]));
+                .. overlay.IsProfile ? new ViewNode[] { JsonProfileMap.Build(overlay) } : [],
+                .. JsonOverlayViews.Build(overlay, (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true), SemanticControls)]));
         return new TabsNode(tabs);
     }
 
@@ -68,6 +75,9 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
 
     public override IReadOnlyList<FileOutput> Serialize() => [new(file.RelativePath, JsonTreeWriter.Write(_tree))];
 
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        actionId == JsonInspection.ActionId && parameters.Count == 0 ? JsonInspection.Run(_tree) : base.InvokeAction(actionId, parameters);
+
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
         // Core can replay an older value step after structural undo without reloading its search page.
@@ -83,12 +93,13 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
             _ = base.ApplyEdits(outcome.Changes.Reverse().Select(c => new ValueEdit(c.ValueId, c.OldValue)).ToArray());
             return EditOutcome.Rejected(edits[0].ValueId, "Edit exceeds JSON limits or failed token round-trip validation.");
         }
-        return outcome with { StructureChanged = outcome.Changes.Any(c => JsonScalar.TypeOf(c.OldValue) != JsonScalar.TypeOf(c.NewValue)) };
+        return outcome with { StructureChanged = _semantic.IsMatched || JsonOverlay.Match(file, _tree) is not null
+            || outcome.Changes.Any(c => JsonScalar.TypeOf(c.OldValue) != JsonScalar.TypeOf(c.NewValue)) };
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
         actionId == JsonResetActions.ActionId ? JsonResetActions.Plan(_tree, scope)
-        : actionId.StartsWith(JsonSemanticActions.Prefix, StringComparison.Ordinal) ? new JsonSemanticActions(file, _tree).Plan(_tree, actionId, parameters, scope)
+        : actionId.StartsWith(JsonSemanticActions.Prefix, StringComparison.Ordinal) ? new JsonSemanticActions(file, _tree, _references).Plan(_tree, actionId, parameters, scope)
         : JsonStructureActions.Plan(_tree, actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
@@ -135,6 +146,10 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
                 Confidence = Confidence.Verified,
             }]) { Collapsed = true },
             LazyRange("Entries", node, 0, node.Children.Count),
+            .. node.Kind == JsonTokenType.StartArray && node.Children.Count > JsonSearch.ArrayTableThreshold
+                ? new ViewNode[] { new QueryableTableNode(JsonSearch.ArrayPrefix + node.Index, "Browse array entries", JsonSearch.Columns, node.Children.Count)
+                    { Description = "Direct array children with server-side search, filters, sorting and selection. Raw lazy navigation remains available." } }
+                : [],
             .. node.Kind == JsonTokenType.StartArray ? JsonArrayActions.View(node) : JsonObjectActions.View(node),
         ]) { Description = JsonPaths.ForNode(node) };
     }
@@ -160,7 +175,12 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
     }
 
     private ViewNode OverlayNode(JsonValueToken node) => JsonOverlayViews.Create(node,
-        (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true), _semantic.ForNode);
+        (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true), SemanticControls);
+
+    private IReadOnlyList<ViewNode> SemanticControls(JsonValueToken node) => _semantic.ForNode(node).Select(view => view is FieldNode field
+        ? Field(field.ValueId, field.Label, field.Spec, () => FieldValue.Of(node.Original.ToString())) with
+            { Confidence = field.Confidence, Description = field.Description }
+        : view).ToArray();
 
     private sealed record ChildRange(JsonValueToken Parent, int Start, int Count, bool Overlay);
     private sealed record Snapshot(object Owner, JsonTokenTree Tree);

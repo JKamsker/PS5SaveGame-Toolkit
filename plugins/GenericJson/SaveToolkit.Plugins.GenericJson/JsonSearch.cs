@@ -9,6 +9,9 @@ internal sealed class JsonSearch(JsonTokenTree imported)
 {
     private const int MaxSortedMatches = 10_000;
     internal const string CollectionId = "json-tree";
+    internal const int ArrayTableThreshold = 100;
+    internal const string ArrayPrefix = "json-array-";
+    private const int MaxDisplayLiteral = 4096;
     private readonly IReadOnlyDictionary<int, string> _structures = imported.Nodes.Where(n => n.IsContainer)
         .ToDictionary(n => n.Index, n => JsonStructureActions.StructureValue(n).AsString());
     public static IReadOnlyList<QueryableColumn> Columns { get; } = [
@@ -21,7 +24,8 @@ internal sealed class JsonSearch(JsonTokenTree imported)
         new("reset", "Reset imported values"),
     ];
 
-    public static QueryableCollection Metadata(int count) => new(CollectionId, "Whole-tree search", Columns, count)
+    public static QueryableCollection Metadata(int count, string id = CollectionId) => new(id,
+        id == CollectionId ? "Whole-tree search" : "Array entries", Columns, count)
     {
         Description = "Search keys, friendly labels, paths, value IDs and live values, including collapsed content. Open details to navigate or edit. "
             + "JSON type and comparison (unchanged, modified, added) filters match exactly. Subtree identity includes descendants. "
@@ -29,7 +33,7 @@ internal sealed class JsonSearch(JsonTokenTree imported)
     };
 
     public QueryableCollectionPage Query(JsonValueToken root, QueryableCollectionQuery query,
-        Func<JsonValueToken, string, ViewNode> field, Func<JsonValueToken, ViewNode> navigate)
+        Func<JsonValueToken, string, ViewNode> field, Func<JsonValueToken, ViewNode> navigate, string collectionId = CollectionId)
     {
         Validate(query);
         var offset = Math.Max(0, query.Offset);
@@ -37,20 +41,32 @@ internal sealed class JsonSearch(JsonTokenTree imported)
         var rows = new List<(JsonValueToken Node, string Path)>();
         long total = 0, filtered = 0;
         var sort = query.SortColumn is not null || query.Descending;
-        foreach (var entry in JsonPaths.Walk(root))
+        var entries = collectionId == CollectionId ? JsonPaths.Walk(root)
+            : root.Children.Select(node => (Node: node, Path: JsonPaths.ForNode(node)));
+        if (collectionId != CollectionId && !sort && string.IsNullOrEmpty(query.Text) && query.Filters.Count == 0)
         {
-            total++;
-            if (!Matches(entry.Node, entry.Path, query)) continue;
-            if (sort || filtered >= offset && filtered - offset < limit) rows.Add(entry);
-            filtered++;
-            if (sort && rows.Count > MaxSortedMatches)
-                throw new ArgumentException("Narrow the search to at most 10,000 matches before sorting.");
+            total = filtered = root.Children.Count;
+            rows.AddRange(root.Children.Skip(offset).Take(limit).Select(node => (node, JsonPaths.ForNode(node))));
+        }
+        else
+        {
+            foreach (var entry in entries)
+            {
+                total++;
+                if (!Matches(entry.Node, entry.Path, query)) continue;
+                if (sort || filtered >= offset && filtered - offset < limit) rows.Add(entry);
+                filtered++;
+                if (sort && rows.Count > MaxSortedMatches)
+                    throw new ArgumentException("Narrow the search to at most 10,000 matches before sorting.");
+            }
         }
         if (query.SortColumn is { } column)
         {
+            // Compute expensive scalar/structure literals once per match, not once per comparison.
+            var keys = rows.ToDictionary(row => row.Node.Index, row => SortValue(row.Node, row.Path, column));
             rows.Sort((a, b) =>
             {
-                var comparison = string.CompareOrdinal(SortValue(a.Node, a.Path, column), SortValue(b.Node, b.Path, column));
+                var comparison = string.CompareOrdinal(keys[a.Node.Index], keys[b.Node.Index]);
                 if (comparison == 0) comparison = a.Node.Index.CompareTo(b.Node.Index);
                 return query.Descending ? -comparison : comparison;
             });
@@ -62,15 +78,24 @@ internal sealed class JsonSearch(JsonTokenTree imported)
                 ["path"] = new TextNode(entry.Path) { Monospace = true },
                 ["type"] = new TextNode(Type(entry.Node)),
                 ["state"] = new TextNode(State(entry.Node)),
-                ["original"] = new TextNode(Original(entry.Node)) { Monospace = true },
+                ["original"] = new TextNode(Clip(Original(entry.Node))) { Monospace = true },
                 ["within"] = new TextNode(entry.Node.ValueId) { Monospace = true },
                 ["value"] = entry.Node.IsContainer ? new SectionNode($"{entry.Node.Children.Count} entries — open subtree", [navigate(entry.Node)])
                     { Collapsed = true, Description = entry.Path }
                     : new SectionNode(Preview(entry.Node), [field(entry.Node, entry.Path)]),
                 ["reset"] = JsonResetActions.View(),
             })).ToArray();
-        return new(CollectionId, Columns, page, total, filtered, offset, limit);
+        return new(collectionId, Columns, page, total, filtered, offset, limit);
     }
+
+    public static bool ValidScope(JsonTokenTree tree, string id) => id == CollectionId || Array(tree, id) is not null;
+
+    public static JsonValueToken? Array(JsonTokenTree tree, string id) => id.StartsWith(ArrayPrefix, StringComparison.Ordinal)
+        && tree.FindValue("value/" + id[ArrayPrefix.Length..]) is { Kind: JsonTokenType.StartArray } node
+        && node.Children.Count > ArrayTableThreshold ? node : null;
+
+    private static string Clip(string text) => text.Length <= MaxDisplayLiteral ? text
+        : text[..MaxDisplayLiteral] + "… (complete value in raw JSON)";
 
     private bool Matches(JsonValueToken node, string path, QueryableCollectionQuery query)
     {

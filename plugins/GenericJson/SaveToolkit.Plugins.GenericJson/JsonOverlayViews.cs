@@ -57,7 +57,8 @@ internal static class JsonOverlayViews
             children.Add(lazy("Recorded choices (raw JSON)", values));
         }
         else children.Add(new TextNode("No recorded choice list; any dynamic choices remain unknown.") { Tone = Tone.Muted });
-        children.Add(lazy("All recorded metadata", option));
+        // Complete metadata remains in the raw JSON tab. Republishing the same choice lazy range
+        // here would create duplicate traversal paths and make Core's original-value review incomplete.
         return new SectionNode(JsonLabels.Friendly(name), children)
         {
             Collapsed = true, Description = $"Raw option {name}; {JsonPaths.ForNode(option)}. {JsonOverlay.Provenance}",
@@ -86,7 +87,7 @@ internal static class JsonOverlayViews
         };
     }
 
-    private static (string Game, string Field) GameAndField(string label)
+    internal static (string Game, string Field) GameAndField(string label)
     {
         var dot = label.IndexOf('.');
         var name = label[(dot + 1)..];

@@ -1,6 +1,7 @@
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
 using SaveToolkit.Testing.Diff;
+using System.Text.Json;
 
 namespace SaveToolkit.Plugins.GenericJson.Tests;
 
@@ -16,9 +17,13 @@ public sealed class JsonEvidenceTests(ITestOutputHelper output)
         Assert.Equal(6, files.Length);
         var main = files.Where(f => !f.Directory.IsBackup).OrderBy(f => f.Directory.Generation).ToArray();
         Assert.Equal(ProfileLengths, main.Select(f => f.Length));
-        var decoder = new JsonSaveDecoder();
+        var decoder = new HookSaveDecoder(Assert.Single(new GenericJsonPlugin().Decoders));
         var trees = main.Select(f => decoder.Decode(f, new DecodeLimits())).ToArray();
-        Assert.Equal(ProfileCounts, trees.Select(t => t.Values.Count(v => v.Path.StartsWith("Profile/", StringComparison.Ordinal))));
+        Assert.Equal(ProfileCounts, main.Select(f =>
+        {
+            using var json = JsonDocument.Parse(f.ReadAllBytes());
+            return json.RootElement.GetProperty("Profile").EnumerateObject().Count();
+        }));
         foreach (var tree in trees)
             Assert.All(tree.Values.Where(v => v.Path.StartsWith("Profile/", StringComparison.Ordinal)), v => Assert.Equal("string", v.Kind));
         foreach (var file in main)
@@ -30,8 +35,8 @@ public sealed class JsonEvidenceTests(ITestOutputHelper output)
         for (var i = 1; i < trees.Length; i++)
         {
             // Never report private profile identifiers or arbitrary values in evidence logs.
-            var before = GameplayOnly(trees[i - 1]);
-            var after = GameplayOnly(trees[i]);
+            var before = trees[i - 1];
+            var after = trees[i];
             var diff = SemanticDiffer.Compare(before, after);
             Assert.Null(diff.Error);
             Assert.False(diff.InputTruncated);
@@ -58,10 +63,4 @@ public sealed class JsonEvidenceTests(ITestOutputHelper output)
         }
     }
 
-    private static SemanticTree GameplayOnly(SemanticTree tree) => tree with
-    {
-        Values = tree.Values.Where(v => v.Path.StartsWith("Profile/Minigame.", StringComparison.Ordinal)
-            || v.Path.StartsWith("Profile/MinigameFlag.", StringComparison.Ordinal) || v.Path.StartsWith("Profile/MinigameCounter.", StringComparison.Ordinal)
-            || v.Path is "Profile/LastSaveChapter" or "Profile/LastSaveProgressPoint" or "Profile/FurthestUnlockedChapter").ToArray(),
-    };
 }

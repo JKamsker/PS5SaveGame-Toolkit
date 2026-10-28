@@ -33,4 +33,17 @@ public sealed class JsonOverlayTests
         Assert.True(document.ApplyEdits([new(field.ValueId, field.Value)]).Succeeded);
         Assert.Equal(4, Assert.IsType<TabsNode>(document.BuildView()).Tabs.Count);
     }
+
+    [Fact]
+    public void SameTypeVersionEditRefreshesOverlayMatchingAndUndo()
+    {
+        using var fixture = new JsonSessionFixture("{\"version\":137,\"data\":[]}", title: "PPSA04027", fileName: "settings.json");
+        var version = fixture.Fields().Single(f => f.Label == "version");
+        var edited = fixture.Edit(version.ValueId, JsonEditingTests.Number("136"));
+        Assert.True(edited.Ok);
+        Assert.True(edited.StructureChanged);
+        Assert.Equal(4, Assert.IsType<TabsNode>(fixture.Session.BuildView()).Tabs.Count);
+        Assert.True(fixture.Session.Undo().Ok);
+        Assert.Equal(3, Assert.IsType<TabsNode>(fixture.Session.BuildView()).Tabs.Count);
+    }
 }

@@ -1,0 +1,8 @@
+{
+  "records": [
+    { "id": "Story", "name": "Story", "category": "Difficulty", "description": "Recorded v136 difficulty ID. Display localization and game behavior are unverified." },
+    { "id": "Easy", "name": "Easy", "category": "Difficulty", "description": "Recorded v136 difficulty ID. Display localization and game behavior are unverified." },
+    { "id": "Hard", "name": "Hard", "category": "Difficulty", "description": "Recorded v136 difficulty ID. Display localization and game behavior are unverified." },
+    { "id": "VeryHard", "name": "Very Hard", "category": "Difficulty", "description": "Recorded v136 difficulty ID; label splits the raw words. Display localization and game behavior are unverified." }
+  ]
+}
