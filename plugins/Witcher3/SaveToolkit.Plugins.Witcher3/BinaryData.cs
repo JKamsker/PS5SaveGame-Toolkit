@@ -25,6 +25,20 @@ internal static class BinaryData
     public static ushort UInt16(ReadOnlySpan<byte> data, int offset) =>
         BinaryPrimitives.ReadUInt16LittleEndian(Slice(data, offset, sizeof(ushort)));
 
+    public static byte[] EncodeInt32(int value)
+    {
+        var bytes = new byte[sizeof(int)];
+        BinaryPrimitives.WriteInt32LittleEndian(bytes, value);
+        return bytes;
+    }
+
+    public static byte[] EncodeUInt16(ushort value)
+    {
+        var bytes = new byte[sizeof(ushort)];
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes, value);
+        return bytes;
+    }
+
     public static string Ascii(ReadOnlySpan<byte> data)
     {
         if (data.ContainsAnyExceptInRange((byte)0x20, (byte)0x7E))

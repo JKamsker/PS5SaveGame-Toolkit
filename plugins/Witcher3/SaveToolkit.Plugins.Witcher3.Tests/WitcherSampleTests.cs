@@ -48,7 +48,7 @@ public sealed class WitcherSampleTests(ITestOutputHelper output)
             Assert.IsType<TabsNode>(document.BuildView());
             timer.Stop();
             output.WriteLine($"{file.FileName}: open + initial view {timer.Elapsed.TotalMilliseconds:F1} ms, {tree.Nodes.Count} explorer nodes");
-            Assert.False(document.CanEdit);
+            Assert.True(document.CanEdit);
             Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         }
     }
@@ -96,7 +96,8 @@ public sealed class WitcherSampleTests(ITestOutputHelper output)
             if (node is FieldNode field)
             {
                 fields++;
-                Assert.True(field.Spec.ReadOnly);
+                Assert.True(field.Spec.ReadOnly || field.ValueId.StartsWith("player/", StringComparison.Ordinal) ||
+                    field.ValueId.StartsWith("inventory/", StringComparison.Ordinal));
                 Assert.Equal(field.Value, document.GetValue(field.ValueId));
             }
 
