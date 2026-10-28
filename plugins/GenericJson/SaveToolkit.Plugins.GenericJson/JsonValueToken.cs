@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk.Values;
 
@@ -7,11 +5,21 @@ namespace SaveToolkit.Plugins.GenericJson;
 
 internal sealed class JsonValueToken(int index, string label, JsonTokenType kind, int offset, int length)
 {
-    public int Index { get; } = index;
-    public string Label { get; } = label;
+    public int Index { get; set; } = index;
+    public string Label { get; set; } = label;
     public JsonTokenType Kind { get; } = kind;
     public int Offset { get; } = offset;
-    public int Length { get; } = length;
+    public int Length { get; set; } = length;
+    public int MemberOffset { get; set; } = offset;
+    public byte[] Source { get; set; } = [];
+    public ReadOnlyMemory<byte> Leading { get; set; }
+    public ReadOnlyMemory<byte> Trailing { get; set; }
+    public ReadOnlyMemory<byte> SeparatorBefore { get; set; }
+    public ReadOnlyMemory<byte> DefaultSeparator { get; set; }
+    public JsonValueToken? Parent { get; set; }
+    public int Position { get; set; }
+    public int Occurrence { get; set; } = 1;
+    public bool Imported { get; set; } = true;
     public List<JsonValueToken> Children { get; } = [];
     public FieldSpec? Spec { get; set; }
     public FieldValue Original { get; set; }
@@ -20,53 +28,20 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     public bool IsContainer => Kind is JsonTokenType.StartObject or JsonTokenType.StartArray;
     public string ValueId => $"value/{Index}";
 
-    public string? Validate(FieldValue value)
+    public string? Validate(FieldValue value) => Spec?.ReadOnly == true ? "Field is read-only." : JsonScalar.Validate(value);
+
+    public byte[] Encode() => JsonScalar.Encode(Current);
+
+    public JsonValueToken Clone(JsonValueToken? parent = null)
     {
-        if (value.Kind != Original.Kind)
+        var clone = new JsonValueToken(Index, Label, Kind, Offset, Length)
         {
-            return "JSON value types cannot be changed.";
-        }
-
-        if (value.Kind == FieldValueKind.Float && !double.IsFinite(value.AsDouble()))
-        {
-            return "JSON numbers must be finite.";
-        }
-
-        if (value.Kind == FieldValueKind.Text)
-        {
-            var text = value.AsString();
-            for (var i = 0; i < text.Length; i++)
-            {
-                if (char.IsSurrogate(text[i]) && (!char.IsHighSurrogate(text[i]) || ++i >= text.Length || !char.IsLowSurrogate(text[i])))
-                {
-                    return "Text contains an unpaired Unicode surrogate.";
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public byte[] Encode()
-    {
-        if (Current.Kind == FieldValueKind.Text)
-        {
-            return JsonSerializer.SerializeToUtf8Bytes(Current.AsString());
-        }
-
-        var text = Current.Kind switch
-        {
-            FieldValueKind.Bool => Current.AsBool() ? "true" : "false",
-            FieldValueKind.Integer => Current.AsInteger().ToString(CultureInfo.InvariantCulture),
-            FieldValueKind.Float => Current.AsDouble().ToString("R", CultureInfo.InvariantCulture),
-            _ => throw new InvalidOperationException("Unsupported JSON field type."),
+            MemberOffset = MemberOffset, Source = Source, Leading = Leading, Trailing = Trailing,
+            SeparatorBefore = SeparatorBefore, DefaultSeparator = DefaultSeparator, Parent = parent,
+            Imported = Imported, Spec = Spec, Original = Original, Current = Current, Warning = Warning,
+            Position = Position, Occurrence = Occurrence,
         };
-        // Keep float tokens distinguishable from integral source tokens after reopening.
-        if (Current.Kind == FieldValueKind.Float && !text.Contains('.') && !text.Contains('E') && !text.Contains('e'))
-        {
-            text += ".0";
-        }
-
-        return Encoding.UTF8.GetBytes(text);
+        clone.Children.AddRange(Children.Select(child => child.Clone(clone)));
+        return clone;
     }
 }

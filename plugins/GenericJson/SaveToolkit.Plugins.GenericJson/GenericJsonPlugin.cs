@@ -12,7 +12,8 @@ public sealed class GenericJsonPlugin : IGamePlugin
         Description = "UTF-8 JSON token editor; preserves untouched bytes and formatting.",
         Games = [],
         Maturity = PluginMaturity.Experimental,
-        References = ["https://www.rfc-editor.org/rfc/rfc8259", "https://learn.microsoft.com/dotnet/api/system.text.json.utf8jsonreader"],
+        References = ["https://www.rfc-editor.org/rfc/rfc8259", "https://learn.microsoft.com/dotnet/api/system.text.json.utf8jsonreader",
+            "https://prosperopatches.com/PPSA02343", "https://github.com/andshrew/PlayStation-PS1HD"],
     };
 
     public ProbeResult Probe(ISaveFile file)
@@ -59,6 +60,7 @@ public sealed class GenericJsonPlugin : IGamePlugin
         }
 
         var bytes = file.ReadAllBytes();
-        return new JsonSaveDocument(file.FileName, file.RelativePath, bytes, JsonTokenTree.Parse(bytes));
+        var tree = JsonTokenTree.Parse(bytes);
+        return new JsonSaveDocument(file, tree);
     }
 }
