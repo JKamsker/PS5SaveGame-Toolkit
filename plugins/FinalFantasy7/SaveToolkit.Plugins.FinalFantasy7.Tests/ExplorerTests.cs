@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -107,10 +108,14 @@ public sealed class ExplorerTests
         Assert.Equal(name, Assert.IsType<TextNode>(inventory.Rows[itemSlot].Cells["name"]).Text);
         Assert.All(inventory.Rows.SelectMany(r => r.Cells.Values).OfType<FieldNode>()
             .Where(f => f.ValueId.EndsWith("/id", StringComparison.Ordinal)), f => Assert.True(f.Spec.ReadOnly));
+        Assert.All(inventory.Rows.SelectMany(r => r.Cells.Values).OfType<FieldNode>()
+            .Where(f => f.ValueId.EndsWith("/id", StringComparison.Ordinal)), field =>
+            Assert.IsType<ReferenceSpec>(field.Spec));
         foreach (var row in inventory.Rows)
         {
             var quantity = Assert.IsType<FieldNode>(row.Cells["quantity"]);
-            var id = Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsUInt32();
+            var idField = Assert.IsType<FieldNode>(row.Cells["id"]);
+            var id = uint.Parse(idField.Value.AsString(), CultureInfo.InvariantCulture);
             var source = EmbeddedCatalogs.Records(schema, "ff7r-items").FirstOrDefault(record => record.Key == id.ToString());
             var expectedReadOnly = id != (schema.IsRemake ? 20U : 1U) &&
                 (source is null || source.Name.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase) ||

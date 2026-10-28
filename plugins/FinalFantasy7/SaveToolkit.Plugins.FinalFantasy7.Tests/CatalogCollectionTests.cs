@@ -135,6 +135,15 @@ public sealed class CatalogCollectionTests
         Assert.Equal(145, cards.TotalCount);
         Assert.Contains(cards.Rows, row => long.Parse(((TextNode)row.Cells["quantity"]).Text, CultureInfo.InvariantCulture) > 0);
         Assert.DoesNotContain(cards.Rows, row => ((TextNode)row.Cells["name"]).Text.StartsWith("QB Booster", StringComparison.Ordinal));
+        var filtered = queryable.Query("catalog-items", new()
+        {
+            Filters = new Dictionary<string, string> { ["category"] = "Items" },
+            SortColumn = "name", Limit = 20,
+        });
+        Assert.NotEmpty(filtered.Rows);
+        Assert.All(filtered.Rows, row => Assert.Equal("Items", ((TextNode)row.Cells["category"]).Text));
+        Assert.Equal(filtered.Rows.OrderBy(row => ((TextNode)row.Cells["name"]).Text, StringComparer.OrdinalIgnoreCase)
+            .Select(row => row.Key), filtered.Rows.Select(row => row.Key));
         Assert.Throws<ArgumentException>(() => queryable.Query("inventory", new() { SortColumn = "bogus" }));
         Assert.Throws<ArgumentException>(() => queryable.Query("inventory", new() { Limit = 201 }));
         Assert.Throws<ArgumentException>(() => queryable.Query("inventory", new() { Cursor = "unrecognized" }));

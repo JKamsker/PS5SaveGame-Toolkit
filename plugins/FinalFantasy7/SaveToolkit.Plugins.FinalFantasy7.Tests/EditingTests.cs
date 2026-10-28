@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -17,9 +18,9 @@ public sealed class EditingTests
         using var document = new FinalFantasy7Plugin().Open(source);
         var inventory = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("inventory/1")));
         var materia = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("materia/0")));
-        var empty = inventory.Rows.First(row => Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsUInt32() == uint.MaxValue);
+        var empty = inventory.Rows.First(row => uint.Parse(Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsString(), CultureInfo.InvariantCulture) == uint.MaxValue);
         Assert.True(Assert.IsType<FieldNode>(empty.Cells["quantity"]).Spec.ReadOnly);
-        var titan = materia.Rows.First(row => Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsUInt32() == 14_011);
+        var titan = materia.Rows.First(row => uint.Parse(Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsString(), CultureInfo.InvariantCulture) == 14_011);
         Assert.True(Assert.IsType<FieldNode>(titan.Cells["quantity"]).Spec.ReadOnly);
         Assert.Equal("Unknown ID 0xFFFFFFFF", ItemNames.Lookup(schema, false, uint.MaxValue));
     }

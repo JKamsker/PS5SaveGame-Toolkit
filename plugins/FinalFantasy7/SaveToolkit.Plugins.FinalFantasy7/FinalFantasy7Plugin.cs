@@ -1,11 +1,14 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Plugins.FinalFantasy7;
 
-public sealed class FinalFantasy7Plugin : IGamePlugin
+public sealed class FinalFantasy7Plugin : IGamePlugin, ISaveDecoderProvider
 {
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new FinalFantasy7EvidenceDecoder()];
+
     public PluginInfo Info { get; } = new("ff7r", "Final Fantasy VII Remake / Rebirth", "0.5.0")
     {
         Description = "Experimental linked-record editor with attributed catalogs, queryable inventories/progress, regional maps, read-only folio/socket graphs and previewed restock/AP/star actions.",

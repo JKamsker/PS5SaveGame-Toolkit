@@ -4,7 +4,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.FinalFantasy7;
 
-internal sealed record ScalarField(string Id, string Label, int Offset, IntegerSpec Spec, Confidence Confidence,
+internal sealed record ScalarField(string Id, string Label, int Offset, FieldSpec Spec, Confidence Confidence,
     bool Signed = false, bool Byte = false, string? Warning = null, bool Editable = false, Func<Int128, string?>? Validate = null);
 
 /// <summary>Absolute offsets independently checked against the public PC schemas and every supplied PS5 slot.</summary>
@@ -107,7 +107,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
         {
             ["slot"] = new TextNode(i.ToString()),
             ["name"] = new TextNode(id is 0 or uint.MaxValue ? "Empty" : materia ? references.Materia(id) : references.Item(id)),
-            ["id"] = bind(Define($"{key}/id", "Item ID", idOffset, IntegerSpec.UInt32 with { Format = IntegerFormat.Hex })),
+            ["id"] = bind(DefineReference($"{key}/id", "Item ID", idOffset, materia ? "ff7r-materia" : "ff7r-items")),
         };
         if (materia)
         {
@@ -140,6 +140,10 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
         bool singleByte = false, bool editable = false, string? warning = null) =>
         new(id, label, offset, spec, editable ? Confidence.Inferred : MeaningConfidence, signed, singleByte,
             JoinWarnings(schema.IsDemo ? DemoWarning : null, warning), editable);
+
+    private ScalarField DefineReference(string id, string label, int offset, string catalogId) =>
+        new(id, label, offset, new ReferenceSpec(catalogId) { ReadOnly = true }, MeaningConfidence,
+            Warning: "Read-only raw type ID; browse the attributed catalogue for known names. " + EmbeddedCatalogs.Attribution);
 
     private static string? JoinWarnings(string? first, string? second) => first is null ? second : second is null ? first : $"{first} {second}";
 

@@ -102,7 +102,7 @@ public sealed class MateriaPlanningTests
         var bytes = file.ReadAllBytes();
         using var document = new FinalFantasy7Plugin().Open(file);
         var rows = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("materia/0"))).Rows;
-        var titan = rows.Single(row => ((FieldNode)row.Cells["id"]).Value.AsUInt32() == 14011);
+        var titan = rows.Single(row => uint.Parse(((FieldNode)row.Cells["id"]).Value.AsString()) == 14011);
         Assert.True(((FieldNode)titan.Cells["quantity"]).Spec.ReadOnly);
         var ordinary = rows.First(row => row.Cells["quantity"] is FieldNode { Spec.ReadOnly: false });
         var apField = (FieldNode)ordinary.Cells["quantity"];
