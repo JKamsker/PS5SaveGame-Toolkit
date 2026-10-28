@@ -78,7 +78,7 @@ internal static class PartyView
             }
         }
 
-        nodes.Add(new TextNode("Gold quantity is unavailable: a live inventory quantity mapping has not been verified for this save. Unlisted origins retain their raw IDs."));
+        nodes.Add(new TextNode("A player-owned gold total is unavailable: Live NewAge exposes explicit stack-member quantities across all owners without a party ownership join. Unlisted origins retain their raw IDs."));
         return nodes;
 
         ViewNode Name(JsonElement character, int index)
@@ -104,7 +104,8 @@ internal static class PartyView
             var value = Property(character, name);
             if (value.ValueKind != JsonValueKind.String) return new TextNode("Unavailable");
             var text = value.GetString()!;
-            return bindSummary($"party/{index}/{name}", name, FieldValue.Of(text.Length <= MaxDisplayText ? text : text[..MaxDisplayText] + "…"));
+            var field = bindSummary($"party/{index}/{name}", name, FieldValue.Of(text.Length <= MaxDisplayText ? text : text[..MaxDisplayText] + "…"));
+            return name == "Origin" ? field with { Spec = new ReferenceSpec(Bg3References.Origins) { ReadOnly = true, AllowCustom = true } } : field;
         }
     }
 

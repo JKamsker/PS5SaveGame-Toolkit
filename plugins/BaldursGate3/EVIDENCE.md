@@ -1,6 +1,73 @@
 # BG3 evidence corpus and owner validation
 
-## Write-enable round (0.5.0)
+## Completion round (0.6.0)
+
+This section supersedes historical read-only/live-writer limitations below. The
+owner directive remains **Enable writes. Keep warnings.** The supported live-storage
+paths are enabled; no implemented write waits for a console test. [NEWAGE.md](NEWAGE.md)
+is the current detailed layout, bounds and owner-check record. All new meanings
+remain Unknown and the plugin stays Experimental.
+
+Shipped: independent bounded ownerlist candidates, explicit stack/member amounts,
+current container entries, PS5 Health/Stats profiles, class selections and spell
+books. The sample census is 38 groups / 39 member quantities; 638 entries / 239
+nonempty containers; 380 Health rows; 256 Stats rows; 256 class selections;
+291 books / 2,242 spell occurrences. These are **storage counts, not party totals**.
+Creator/template candidates preserve repeated EntityId provenance and avoid class,
+transform, largest-book or adjacent-entity identity guesses.
+
+Enabled five new write kinds plus two actions: existing member quantity, current
+HP candidate, temporary HP candidate, effective ability-cache family, and two-key
+container reorder; F6 imported-quantity restoration reuses the quantity writer,
+and the reorder uses F6 planning/F5 scoped mementos. Current/temporary HP and each
+ability have independent bounds. No base-score, respec or current-party guarantee.
+Every field/action documents absent console validation, unknown inner integrity /
+dependencies and possible game rejection. Known outer digest repair remains on.
+
+Final verification: **191 passed, 0 failed, 0 skipped** with the actual sample
+environment exported in the test command. An empty artifacts directory gives
+**161 passed, 30 skipped, 0 failed**. API build: zero warnings/errors. F1 fixture
+verification: one baseline, two unchanged files, identical backup pair and zero
+changed bytes. All changes remain within this plugin; no sample data is committed.
+
+### Updated gap audit (plan and all issue handoffs)
+
+| Plan requirements / acceptance area | Classification | Result / remaining limit |
+| --- | --- | --- |
+| P1 / R12: directory, bounds, EntityId occurrences, heaps/strings, ownerlists | Do now: shipped supported PS5 profiles | Dynamic directory retained; bounded explicit references and owner candidates added. Arbitrary archetype shifts/enum pools remain unimplemented; unsupported families have raw diagnostics. |
+| P1/P3 / R1/R10/R11/R15: authoritative party/body/stats/spell/owner joins, duplicate builds, bags and transient stacks | Owner-blocked calibration plus unimplemented general joins | Existing snapshot has no native event/control ground truth; supported storage stays Unknown. Full identity/recursive-inventory acceptance is not claimed. Exact captures remain in #31/NEWAGE.md. |
+| P2 / R4/R6/R7/R8/R18: framework data injection, cells, pickers, paging | Do now: used | F2/F3/F4/F8 adopted; current-template references stay read-only because replacement effects are unmodeled. F12/F13 pending #32/#33. |
+| P2 / R3/R19/R20/R21: matching multilingual/module data, full descriptions/art/icons and offline asset conversion | Owner-blocked matching data/rights | Existing permitted attributed subset retained. No matching source pack/artwork is present; no giant extracted dataset or speculative icon conversion is embedded. Existing permission to use clearly licensed data is honored. |
+| P4 / R1/R12/R14/R15: existing stack quantities | Do now: shipped | Explicit NewStack→member/entry references, positive sums, fixed u32 patches and intended-byte tests. Player gold ownership/target-total distribution remains unavailable; world/trader gold is not merged. |
+| P5: character values/spells | Do now: supported subset shipped | Current/temp HP and effective ability-cache candidates enabled. Classes and spell presence inspectable. Base/derived authority, boosts, learned/prepared/source joins and dependent progression writes remain unresolved. |
+| P6 / R5/R16/R17/R22: F5/F6 inventory transactions | Do now: fixed-shape reorder/restoration shipped | Two-key swap preserves all allocation/references and has scoped structural undo. F6 quantity restoration supports #27 query scopes/exclusions. |
+| P6: allocate/delete/transfer/equip/split/merge | Won't do in this completion implementation | Safe cross-resource entity allocation, relocation, stack/ownership/equipment-effect repair is not modeled. Guessing would alter unknown structure. A two-key reorder does not establish those algorithms; no unsupported generic action is exposed. |
+| P7: quest/approval/romance/waypoint mutations | Won't do in this completion implementation | No event/state-machine/dependency writer; markers/presence do not prove effective state. Event captures and native validation remain in #31. |
+| R2/R10/R11: PS5 acceptance and edge-case captures | Owner-blocked #31 | Untouched/metadata/new live edit cases must be tested independently. Exact checklist is in NEWAGE.md, plus the historical broader capture list below. |
+| R9 / optional F9 | Do now: spell presence graphs shipped | Unknown state, no invented prerequisite edges, raw-ID controls/text alternatives. Map not applicable without discovery/coordinate semantics and data. |
+| R13: reuse unclear-license implementations | Won't do | Format research only; independent implementation and existing MIT notices. No downloaded parser/solver/executable copied or run. |
+| R14: evidence manifest | Do now: retained | Sole baseline self-comparison; no event/control pair or churn mask fabricated. ByteDiff assertions cover intended new write ranges; generic F8 decoder traversal awaits F12. |
+| Acceptance: scope, corruption/bounds, missing refs, exact no-op/undo, writes/reopen, source sizes, docs | Do now: software verification | Synthetic and real-sample tests cover each new family, wrong scopes/values, preservation and Core history; final results recorded in README/handoff. |
+| Acceptance: native load/effect, authoritative identities/gold/journal, Act 3 breadth and timing | Owner-blocked, full phase exits not claimed | Need controlled native PS5 captures, matching data and larger supported fixtures. A single tutorial snapshot cannot establish these. |
+
+The full seven-phase roadmap is **not complete**. Remaining general decoders and
+dependency writers are explicitly implementation limits; they are not relabeled
+as “waiting for console permission.” Only the supported bounded storage subset
+and its software acceptance are completed this round.
+
+### Owner validation added to #31
+
+Follow all seven checks in [NEWAGE.md](NEWAGE.md#exact-owner-validation-31): an
+untouched/no-action control; identified settled stack and multi-contribution
+quantity edits; independent damage/heal/temp HP; each effective ability with and
+without boost gear; two ordinary unequipped entries' map-key reorder; F6 selected /
+filtered-excluded / document restoration and grouped undo; native resave/reload /
+decrypted redump and unrelated-character/owner checks. Record build/ruleset/mods,
+source rows and visible before/after outcomes, excluding account identifiers.
+Historical metadata and broader transfer/equipment/spell/story captures below
+remain requested. Only the owner may mark Stable.
+
+## Historical write-enable round (0.5.0)
 
 The owner's 2026-10-28 decision supersedes the old evidence gates: **Enable writes.
 Keep warnings.** [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31)

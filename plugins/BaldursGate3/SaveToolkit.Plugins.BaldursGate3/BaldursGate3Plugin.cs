@@ -6,9 +6,9 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 
 public sealed class BaldursGate3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.5.0")
+    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.6.0")
     {
-        Description = "Experimental primitive/party-metadata editor with console warnings, read-only NewAge/story inspection, attributed BG3 catalogs and verified v18 checksums.",
+        Description = "Experimental NewAge HP/ability/stack storage and metadata editing, planned inventory reorder/quantity restoration, spell graphs, attributed catalogs and verified v18 checksums. Console validation pending.",
         Games = [new GameTitle("PPSA18463", "Baldur's Gate 3")],
         Maturity = PluginMaturity.Experimental,
         References =

@@ -10,7 +10,7 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 
 internal sealed record DocumentEntry(string Name, byte[] Bytes, LarianResource? Resource);
 
-internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocument
+internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private readonly string _path;
     private readonly byte[] _original;
@@ -23,6 +23,8 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
     private readonly SavedItemInspection _items;
     private readonly ReferenceCatalogView _catalogs;
     private readonly StoryInspection _story;
+    private readonly LsmfLiveWorkspace _live;
+    private readonly LsmfLiveActions _actions;
     private readonly PartySummaryEdits? _summary;
     private readonly SavedQuantityEdits _quantities;
     private readonly Dictionary<string, byte[]> _edits = new(StringComparer.Ordinal);
@@ -41,9 +43,12 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
         _items = new SavedItemInspection(entries, _references, BindInspection, BindQuantity, ReadQuantity);
         _catalogs = new ReferenceCatalogView(_references);
         _story = new StoryInspection(entries);
+        _live = new LsmfLiveWorkspace(entries, BindLive, BindInspection, BindSlot);
+        _actions = new LsmfLiveActions(_live, BindLive, ApplyEdits);
         _summary = PartySummaryEdits.Create(entries);
         CanEdit = (package is null || package.Version == 18) &&
-            (entries.Any(e => e.Resource?.Attributes.Any(AttributeEncoder.CanWrite) == true) || _summary?.HasFields == true);
+            (entries.Any(e => e.Resource?.Attributes.Any(AttributeEncoder.CanWrite) == true) || _summary?.HasFields == true ||
+                _live.Sources.Any(source => source.Numbers.Count > 0));
         Title = $"Baldur's Gate 3 · {file.FileName}";
     }
 
@@ -62,12 +67,12 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
             foreach (var entry in package.Entries)
             {
                 var content = package.Extract(entry);
-                entries.Add(new DocumentEntry(entry.Name, content, ReadResource(entry.Name, content, budget)));
+                entries.Add(new DocumentEntry(entry.Name, content, Bg3Serialization.ReadResource(entry.Name, content, budget)));
             }
         }
         else
         {
-            var resource = ReadResource(file.FileName, bytes, budget) ?? throw new SaveFormatException("Expected an LSPK, LSOF or LSX file.");
+            var resource = Bg3Serialization.ReadResource(file.FileName, bytes, budget) ?? throw new SaveFormatException("Expected an LSPK, LSOF or LSX file.");
             entries.Add(new DocumentEntry(file.FileName, bytes, resource));
         }
 
@@ -86,7 +91,7 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
                 new Stat("Original bytes", _original.Length.ToString("N0")),
             ]),
             new TextNode(CanEdit
-                ? "Experimental primitive and party-summary metadata editing. Not validated on console; the game may reject edited saves. NewAge remains read-only."
+                ? "Experimental primitive, party-summary and bounded live NewAge editing. Not validated on console; the game may reject edited saves. See Live NewAge for storage/identity warnings."
                 : "Read-only resource. Writing is supported for LSF primitives and LSPK v18 only.") { Tone = Tone.Info },
             .. PackageMetadata(),
             .. _explorer.EntryList(_package),
@@ -95,6 +100,7 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
         new Tab("Inventory", _items.Build()),
         new Tab("Catalogs", _catalogs.Build()),
         new Tab("NewAge", _lsmf.Build()),
+        new Tab("Live NewAge", _live.Build()),
         new Tab("Story", _story.Build()),
         new Tab("Resources", _explorer.ResourceList()),
         new Tab("Raw", [new HexNode("original", _original.Length) { Title = "Original file (unchanged)" }]),
@@ -102,6 +108,7 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => lazyId switch
     {
+        _ when lazyId.StartsWith("live/", StringComparison.Ordinal) => _live.Expand(lazyId),
         _ when lazyId.StartsWith(LsmfInspection.Prefix, StringComparison.Ordinal) => _lsmf.Expand(lazyId),
         _ when lazyId.StartsWith(SavedItemInspection.Prefix, StringComparison.Ordinal) => _items.Expand(lazyId),
         _ when lazyId.StartsWith(StoryInspection.Prefix, StringComparison.Ordinal) => _story.Expand(lazyId),
@@ -109,58 +116,45 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
     };
 
     public IReadOnlyList<QueryableCollection> Collections =>
-        [.. _catalogs.Collections, _items.Collection];
+        [.. _catalogs.Collections, _items.Collection, .. _live.Collections];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        collectionId.StartsWith("live/", StringComparison.Ordinal) ? _live.Query(collectionId, query) :
         collectionId == _items.Collection.Id ? _items.Query(query) : _catalogs.Query(collectionId, query, BindInspection);
 
-    public override IReadOnlyList<FileOutput> Serialize()
-    {
-        if (_edits.Count == 0 && _summary?.HasEdits != true)
-        {
-            return [new FileOutput(_path, _original.ToArray())];
-        }
+    public override IReadOnlyList<FileOutput> Serialize() =>
+        Bg3Serialization.Write(_path, _original, _package, _entries, _edits, _summary, _live);
 
-        var changed = new Dictionary<string, byte[]>(StringComparer.Ordinal);
-        if (_summary?.HasEdits == true) changed.Add(_summary.EntryName, _summary.Write());
-        for (var i = 0; i < _entries.Count; i++)
-        {
-            var prefix = $"resource/{i}/attribute/";
-            var replacements = _edits.Where(pair => pair.Key.StartsWith(prefix, StringComparison.Ordinal))
-                .ToDictionary(pair => int.Parse(pair.Key.AsSpan(prefix.Length), CultureInfo.InvariantCulture), pair => pair.Value);
-            if (replacements.Count > 0)
-            {
-                changed.Add(_entries[i].Name, LsfWriter.Write(_entries[i].Bytes, replacements));
-            }
-        }
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        _actions.Plan(actionId, parameters, scope);
 
-        var bytes = _package is null ? changed[_entries[0].Name] : LspkWriter.Write(_original, changed);
-        // Re-parse all resources with a shared budget, as on Open, before handing bytes to the framework.
-        var budget = new ResourceBudget();
-        if (_package is null)
-        {
-            _ = LsfReader.Read(bytes, budget);
-        }
-        else
-        {
-            var reopened = LspkPackage.Read(bytes);
-            foreach (var entry in reopened.Entries)
-            {
-                _ = ReadResource(entry.Name, reopened.Extract(entry), budget);
-            }
-        }
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
+        CanEdit ? _actions.Apply(actionId, parameters, scope) : EditOutcome.Rejected(actionId, "This package version is read-only.");
 
-        return [new FileOutput(_path, bytes)];
-    }
+    public override DocumentMemento RestoreMemento(DocumentMemento memento) => _actions.RestoreMemento(memento);
+
+    private FieldNode BindLive(LsmfLiveSource source, LsmfNumber number) =>
+        Field(source.Id(number), number.Label, new IntegerSpec(number.Min, number.Max), () => FieldValue.Of(source.Get(number)),
+            CanEdit ? next => source.Set(number, next) : null) with
+        {
+            Confidence = Confidence.Unknown,
+            Description = $"{number.Family} source row {number.Row}; fixed-width PS5 storage. Range {number.Min}–{number.Max}, bounded by imported storage values. " + LsmfLiveSource.Warning,
+            Warning = LsmfLiveSource.Warning,
+        };
+
+    private FieldNode BindSlot(LsmfLiveSource source, LsmfSlot slot) =>
+        Field(source.Prefix + "/" + slot.Key + "/key", "Container map key candidate", IntegerSpec.UInt16,
+            () => FieldValue.Of(source.Slot(slot))) with
+        {
+            Confidence = Confidence.Unknown,
+            Description = "Exact stored u16 map key; grid semantics have not been validated on console. " + LsmfLiveSource.Warning,
+        };
 
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
     {
         var bytes = blobId == "original" ? _original.AsMemory() : _explorer.Blob(blobId);
         if (offset < 0 || offset > bytes.Length || count < 0)
-        {
             throw new ArgumentOutOfRangeException(nameof(offset), "Invalid BG3 blob range.");
-        }
-
         return bytes.Slice((int)offset, Math.Min(count, bytes.Length - (int)offset));
     }
 
@@ -248,7 +242,8 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
     }
 
     private FieldNode BindInspection(string id, string label, FieldValue value) =>
-        Field(id, label, value.Kind == FieldValueKind.Integer ? IntegerSpec.Int64 : new TextSpec(), () => value) with
+        Field(id, label, value.Kind == FieldValueKind.Integer
+            ? value.AsInteger() > long.MaxValue ? IntegerSpec.UInt64 : IntegerSpec.Int64 : new TextSpec(), () => value) with
         {
             Confidence = Confidence.Inferred,
             Description = "Original saved structure only. Gameplay meaning and joins have not been established with controlled PS5 captures.",
@@ -263,13 +258,4 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
         }
     }
 
-    private static LarianResource? ReadResource(string name, byte[] bytes, ResourceBudget budget)
-    {
-        if (name.EndsWith(".lsf", StringComparison.OrdinalIgnoreCase))
-        {
-            return LsfReader.Read(bytes, budget);
-        }
-
-        return name.EndsWith(".lsx", StringComparison.OrdinalIgnoreCase) ? LsxReader.Read(bytes, budget) : null;
-    }
 }
