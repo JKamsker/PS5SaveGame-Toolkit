@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+repo_root=$(git rev-parse --show-toplevel)
+pwsh -NoProfile -File "$repo_root/plugins/SuckerPunch/scripts/check-source-length.ps1" -Staged
