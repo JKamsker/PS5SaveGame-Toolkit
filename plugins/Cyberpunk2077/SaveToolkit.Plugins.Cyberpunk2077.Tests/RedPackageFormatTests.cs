@@ -6,6 +6,29 @@ namespace SaveToolkit.Plugins.Cyberpunk2077.Tests;
 public sealed class RedPackageFormatTests
 {
     [Fact]
+    public void AppendingNamesPreservesIndicesOpaqueChunksAndPadding()
+    {
+        var bytes = Fixture();
+        var original = new RedPackage(bytes, true);
+        var appended = original.WithNames(["currentExp", "expToLevel", "currentExp", "Int32"]);
+        Assert.Equal(original.Names.Concat(["currentExp", "expToLevel"]), appended.Names);
+        Assert.Equal(original.Types, appended.Types);
+        foreach (var index in Enumerable.Range(0, original.Types.Count))
+            Assert.Equal(original.Chunk(index).Rebuild(new Dictionary<string, byte[]>()),
+                appended.Chunk(index).Rebuild(new Dictionary<string, byte[]>()));
+        for (var index = 0; index < original.Names.Count; index++)
+            Assert.Equal(original.NameIndex(original.Names[index]), appended.NameIndex(original.Names[index]));
+        Assert.Same(appended, appended.WithNames(["currentExp"]));
+        Assert.Throws<SaveFormatException>(() => original.WithNames(["bad\nname"]));
+        Assert.Throws<SaveFormatException>(() => original.WithNames([new string('x', 255)]));
+        var chunk = appended.Chunk(0);
+        var reopened = new RedPackage(appended.Rebuild(0, chunk.Rebuild(new Dictionary<string, byte[]> { ["currentExp"] = [7, 0, 0, 0] })), true);
+        Assert.Equal(7, reopened.Chunk(0).Int("currentExp"));
+        Assert.Equal(chunk.Raw(chunk.Require("opaque", "Blob")), reopened.Chunk(0).Raw(reopened.Chunk(0).Require("opaque", "Blob")));
+        Assert.Equal(bytes, original.Rebuild(0, original.Chunk(0).Rebuild(new Dictionary<string, byte[]>())));
+    }
+
+    [Fact]
     public void AddingOmittedIntRetainsUnknownDataPaddingNamesAndFollowingChunk()
     {
         var bytes = Fixture();

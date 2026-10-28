@@ -23,10 +23,21 @@ internal sealed class DevelopmentInspection
             new("status", "Stored state / evidence")], rows,
             "All stored proficiencies, modern perk groups, legacy perk areas and point budgets. Omitted enum properties use the researched zero default. " +
             "Legacy area unlock bits are not post-2.0 perk allocations. Stored ranks never establish prerequisites, effects, Relic entitlement or legal budgets. " +
-            "No perk allocation, respec, XP transitions or bulk actions are enabled.", (row, column) =>
-                column == "unspent" && row.Values["kind"] == "Point budget" &&
-                progression?.Points.SingleOrDefault(point => point.Type == row.Values["group"]) is { } balance
-                    ? balance.Value.ToString(CultureInfo.InvariantCulture) : row.Values.GetValueOrDefault(column, ""));
+            "Raw Level/Street Cred values can be edited in Player development with warnings; no automatic rewards, perk allocation or respec.", (row, column) =>
+            {
+                if (column == "unspent" && row.Values["kind"] == "Point budget" &&
+                    progression?.Points.SingleOrDefault(point => point.Type == row.Values["group"]) is { } balance)
+                    return balance.Value.ToString(CultureInfo.InvariantCulture);
+                if (row.Values["kind"] == "Proficiency" && progression?.Proficiencies.SingleOrDefault(p => p.Type == row.Values["name"]) is { } proficiency)
+                    return column switch
+                    {
+                        "rank" => proficiency.Level.ToString(CultureInfo.InvariantCulture),
+                        "xp" => proficiency.Experience.ToString(CultureInfo.InvariantCulture),
+                        "status" => $"Stored threshold {proficiency.Threshold}; rewards and transitions unknown.",
+                        _ => row.Values.GetValueOrDefault(column, ""),
+                    };
+                return row.Values.GetValueOrDefault(column, "");
+            });
     }
     public string? Warning { get; }
     public InspectionTable Table { get; }

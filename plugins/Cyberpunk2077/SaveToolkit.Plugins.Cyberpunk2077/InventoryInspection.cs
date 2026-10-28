@@ -19,10 +19,12 @@ internal sealed class InventoryInspection
     private readonly InspectionCollection<InventoryItem> _collection;
     private readonly EquipmentData? _equipment;
     private readonly ItemDetailInspection _details;
+    private readonly Func<IReadOnlyList<ViewNode>> _actions;
 
     public InventoryInspection(IReadOnlyList<InventoryItem> items, CsavContainer container, CsavTree tree,
         CyberpunkReferences references, ItemNames baseline, byte[] edited, Func<InventoryItem, FieldNode> quantity,
-        Func<string, string, FieldSpec, string, FieldNode> readField, EquipmentData? equipment = null)
+        Func<string, string, FieldSpec, string, FieldNode> readField, EquipmentData? equipment = null,
+        Func<IReadOnlyList<ViewNode>>? actions = null)
     {
         _items = items;
         _container = container;
@@ -32,10 +34,12 @@ internal sealed class InventoryInspection
         _quantity = quantity;
         _readField = readField;
         _equipment = equipment;
+        _actions = actions ?? (() => []);
         _details = new ItemDetailInspection(container, tree, references);
         QueryableColumn[] columns = [new("node", "Instance / raw bytes"), new("container", "Container ID", IntegerSpec.UInt64),
             new("id", "Item name / identifier"), new("category", "Catalog category"), new("hash", "TweakDB ID"),
-            new("quantity", "Quantity", IntegerSpec.UInt32), new("equipped", "Owner-1 loadout"), new("flags", "Stored item flags"), new("details", "Evidence and details")];
+            new("quantity", "Quantity", IntegerSpec.UInt32), new("equipped", "Owner-1 loadout"), new("flags", "Stored item flags"), new("details", "Evidence and details"),
+            new("actions", "Supported stack actions")];
         _collection = new(new QueryableCollection(CollectionId, "Inventory", columns, items.Count)
         {
             Description = "Search covers every item and its full saved identity. Exact filters: container, category, id, hash, quantity, node. " +
@@ -53,6 +57,7 @@ internal sealed class InventoryInspection
             ["flags"] = _details.Flags,
             // Details are searchable without constructing rich cells or registering all fields.
             ["details"] = Identity,
+            ["actions"] = _ => "",
         }, Row, item => CyberpunkReferences.ItemKey(item.TweakId) + " " +
             (_references.Item(item.TweakId)?.Attributes.GetValueOrDefault("internalName") ?? _references.Item(item.TweakId)?.Name ?? _baseline.Find(item.TweakId)?.Name));
     }
@@ -63,7 +68,7 @@ internal sealed class InventoryInspection
 
     public IReadOnlyList<ViewNode> Build() => _items.Count == 0
         ? [new TextNode("Inventory schema is unsupported or empty; inspect the raw inventory node. No item replacements are enabled.")]
-        : [new TextNode(Metadata.Description!), _items.Count > EagerLimit ? _collection.View()
+        : [new TextNode(Metadata.Description!), .. _actions(), _items.Count > EagerLimit ? _collection.View()
             : SectionNode.Lazy("Inventory items", "inventory/0/0", _items.Count.ToString(CultureInfo.InvariantCulture))];
 
     public IReadOnlyList<ViewNode> Page(int start) => [new TableNode(
@@ -115,6 +120,7 @@ internal sealed class InventoryInspection
             ["equipped"] = new SectionNode(EquipmentState(item), [new TextNode(ScriptableReader.Source)]),
             ["flags"] = new SectionNode(_details.Flags(item), [new TextNode(ExtendedItemReader.Source)]),
             ["details"] = new SectionNode("Inspect instance", details) { Collapsed = true, Description = attribution },
+            ["actions"] = new SectionNode("Preview selected stacks", _actions()),
         });
     }
 }

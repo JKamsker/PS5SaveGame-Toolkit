@@ -11,7 +11,8 @@ internal sealed class FactInspection
     private readonly InspectionCollection<FactRow> _collection;
 
     public FactInspection(IReadOnlyDictionary<int, IReadOnlyList<SaveFact>> tables, CyberpunkReferences references,
-        Func<string, string, FieldSpec, string, FieldNode> readField, Func<string, uint, FieldNode> valueField)
+        Func<string, string, FieldSpec, string, FieldNode> readField, Func<string, uint, FieldNode> valueField,
+        Func<int, int, uint>? currentValue = null)
     {
         var rows = tables.SelectMany(table => table.Value.Select((fact, index) => new FactRow(table.Key, index, fact))).ToArray();
         string Name(FactRow row)
@@ -37,22 +38,23 @@ internal sealed class FactInspection
                         ? "Canonical name has significant leading/trailing whitespace; the exact string is retained." : null,
                 },
                 ["value"] = valueField(key, row.Fact.Value) with { Confidence = Confidence.Unknown,
-                    Description = attribution, Warning = "Raw uint32; a named/debug/absent fact does not establish quest completion or a safe edit." },
+                    Description = attribution + " Based on the parsed parallel uint32 value plane. " + WriteSafety.Warning,
+                    Warning = "Raw uint32; quest stages, callbacks and related facts are not updated. " + WriteSafety.Warning },
             });
         }
 
-        _collection = new(new QueryableCollection(CollectionId, "Saved facts (read-only)", [
+        _collection = new(new QueryableCollection(CollectionId, "Saved facts (raw experimental edits)", [
             new("table", "Table node", IntegerSpec.UInt32), new("hash", "FNV-1a/32 hash"),
             new("name", "Fact identifier"), new("value", "Raw value", IntegerSpec.UInt32)], rows.Length)
         {
             Description = "Search covers every saved fact, including canonical whitespace. Exact filters: table, hash, name, value. " +
-                "Names are community identifiers, not localized quest descriptions. Semantics and completion remain unknown; all values are read-only.",
+                "Names are community identifiers, not localized quest descriptions. Semantics and completion remain unknown. " + WriteSafety.Warning,
         }, rows, row => $"facts/{row.Table}/{row.Index}", new Dictionary<string, Func<FactRow, string>>
         {
             ["table"] = row => row.Table.ToString(CultureInfo.InvariantCulture),
             ["hash"] = row => $"0x{row.Fact.Hash:X8}",
             ["name"] = Name,
-            ["value"] = row => row.Fact.Value.ToString(CultureInfo.InvariantCulture),
+            ["value"] = row => (currentValue?.Invoke(row.Table, row.Index) ?? row.Fact.Value).ToString(CultureInfo.InvariantCulture),
         }, BuildRow, row => row.Fact.Hash.ToString(CultureInfo.InvariantCulture));
     }
 

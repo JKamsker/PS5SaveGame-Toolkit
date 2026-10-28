@@ -1,7 +1,8 @@
 # Cyberpunk 2077 (`cyberpunk2077`)
 
-Title: **PPSA04027**. Plugin **0.4.0**, maturity: **Experimental**. Existing writers cover five player attributes,
-unspent attribute/perk/relic points, and named player ammo/consumable stack quantities. Edits are
+Title: **PPSA04027**. Plugin **0.5.0**, maturity: **Experimental**. Writers cover five player attributes,
+unspent attribute/perk/relic points, money, named player stacks, raw Level/Street Cred/XP/thresholds,
+existing raw fact values, and F6 planned stack actions. Edits are
 restricted to **save 265 / game 2210 / archive 195** (the supplied PS5 2.21 save). Scriptable progression
 also requires **RED package 4 / flags 0 / sections 6**. Unsupported versions show a reason and retain
 the applicable read-only explorers. No console load has been tested; only a human can set Stable.
@@ -13,14 +14,68 @@ catalogs retain **5,248 item / 19,357 fact / 105 vehicle / 232 travel identifier
 A separate CC BY-SA 3.0 pack adds **15 friendly base-record labels** from six pinned wiki revisions.
 The inventory identifies **22/22** current items; **1,129/2,750** saved fact entries resolve to names.
 The merged facts view has **20,978 rows**, preserving unknown saved hashes and catalog-only facts.
-All new views are read-only. Gameplay effects, slot eligibility/capacity, exact quest completion
-and every new write category still require controlled captures and console evidence.
+Equipment, cyberware, perk, garage, travel and journal views remain read-only. Gameplay effects,
+slot eligibility/capacity and exact quest completion still need controlled captures and console evidence.
 See [REFERENCES.md](REFERENCES.md) and [EVIDENCE.md](EVIDENCE.md) for contracts and exact next steps.
 
-**Deliberately incomplete goal:** level, street cred and their current XP are decoded but read-only.
-The sample omits `expToLevel`, `maxLevel` and `currentExp`; no PS5 2.21 transition table has been
-verified. A displayed-level patch alone does not establish correct level-up rewards/unlocks. The UI
-explains why these edits are refused. Quest facts remain read-only.
+**Write-enable round:** the owner's decision is “Enable writes. Keep warnings.” Raw stored values are
+now editable without waiting for console evidence. This does not implement a level-up transaction or
+quest-completion recipe. The sample omits `expToLevel`, `maxLevel` and `currentExp`; no PS5 2.21 XP
+curve, reward/unlock rules or opaque integrity checks are verified. The game may reject, ignore or
+reinterpret edited saves. Fields and action previews keep these warnings; validation is tracked in
+[owner issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+
+## Enabled writes and their evidence
+
+Nine new write capabilities ship: six progression scalars, existing raw saved-fact values, and two
+planned actions. On the supplied save this exposes six progression fields and 2,750 fact values.
+No fact records, inventory instances or perk allocations are created or deleted.
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
+| --- | --- | --- | --- | --- |
+| Stored Level | Inferred | Owner-1 `SProficiency.currentLevel`; sample level 1; pinned WolvenKit schema | Reparsed; matching forced stat updated; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): load/effect/re-save/reload, rewards/unlocks |
+| Stored Street Cred | Inferred | Distinct StreetCred record, sample 1; same schema | Reparsed; matching forced stat updated when present; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): shown cred, rewards/unlocks, reload |
+| Level current XP | Inferred | Zero-default `currentExp`, schema and independent inserted-property tests | RED names/properties/offsets repaired; reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): XP display and one threshold crossing |
+| Street Cred current XP | Inferred | Zero-default `currentExp`, same schema/tests | RED names/properties/offsets repaired; reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): XP display and one cred threshold |
+| Level stored XP threshold | Inferred | Zero-default `expToLevel`; schema, no proven curve | RED names/properties/offsets repaired; reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): whether game retains/recomputes threshold |
+| Street Cred stored XP threshold | Inferred | Zero-default `expToLevel`; schema, no proven curve | RED names/properties/offsets repaired; reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): threshold and cred reward behavior |
+| Existing raw fact values | Unknown | Validated packed count + uint32 value plane; source framing and exact payload tests | Four-byte patch only; hashes/order/count unchanged; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one known fact, related stage/callback/forward play |
+| Set supported stack quantities | Inferred | Existing quantity writer and 36-entry reviewed allowlist | F6 prevalidation; exact selected payload patches; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): quantities, charge behavior, re-save/reload |
+| Refill stacks to opening quantities | Inferred | Original observed quantities in the opened save; never reduces stacks | F6 prevalidation; exact selected payload patches; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): ammo/use/replenishment and reload |
+
+All fields say “Not validated on console”; raw fact semantics remain Unknown. CSAV has no known
+container checksum/signature, but integrity algorithms inside opaque data or console wrappers are
+unknown, so **the game may reject the edited save**. The serializer re-decompresses and reparses
+its output, including intended progression values and existing stat mirrors. No game keys or
+credentials are needed or read.
+
+Progression storage is signed Int32. Level/Street Cred policy ranges are 1..60 / 1..50; XP and
+threshold policies are 0..100,000. Original values outside those ranges remain representable for
+preservation/undo. These are editor bounds, not proven PS5 game rules; the corpus observes level/cred
+1 and omitted XP/threshold zero. Raw facts stay within uint32 and the observed corpus maximum
+(at least 1), preserving every original value. Unknown signed fact meanings are not reinterpreted.
+An unreadable forced-stat buffer or an existing conflicting level mirror refuses that level setter
+instead of guessing which copy is authoritative; XP/threshold setters remain independent.
+
+Both stack actions use F6 preview/apply with named old/new quantities, skipped rows and integrity/
+console warnings; apply is one undo step. Money and unsupported structures are excluded. Null
+selection means document scope; an empty selection affects nothing. F8 query selections include
+unloaded matches and explicit exclusions. Refill uses opening quantities rather than guessed game
+caps; set-target retains the existing 999,999 editor policy. No catalog metadata broadens permission.
+
+### Writes still disabled for structural safety
+
+- Inventory split/merge/add/remove, replacement IDs, flags, attachments and equipped-item changes
+  have no complete mutation path for duplicate prefixes, IDs, links, instance counters and dependent
+  stat/effect references. Enabling a partial patch could leave dangling references or lose opaque data.
+- Perk allocation/refund, build presets and cyberware changes lack the required effect-package,
+  capacity and dependent-record mutation path. A raw rank/slot toggle would bypass those records.
+- Garage/travel acquisition and quest presets lack creation/reference repair for their omitted arrays
+  and callback/event state. Existing fact-value edits do not promise those operations.
+- Other skills, legacy ranks, wider schema versions and `user.gls` have no prepared writer. No F5
+  structural or F7 multi-file transaction was held back in #13; none is invented for these formats.
+
+These limits concern missing structural/dependency writers, not waiting for owner validation.
 
 ## File roles and scope
 
@@ -104,7 +159,8 @@ are verified; the game's 2.x charge/replenishment behavior after loading is unte
 size must agree exactly. The F2 fact catalog verifies exact FNV-1a/32 canonical names, including nine
 whitespace-sensitive strings. Hash mismatches retain raw IDs; duplicate catalog keys are rejected.
 Names have Inferred semantic confidence: a debug/absent/named fact does not establish completion.
-All values remain read-only; no generic fact edits or quest-unlock actions are offered.
+Existing raw values are editable in Saved facts with Unknown confidence and explicit warnings;
+catalog-only facts stay absent. No fact insertion, hash changes or quest-unlock presets are offered.
 
 ## Read-only equipment, extended items and world state
 
@@ -195,9 +251,10 @@ Money, named stack quantities and attribute/stat pairs use fixed-size patches. T
 representable. These are editor policies, **not verified engine limits**. Attributes use the upstream
 3..20 range, extended to retain an existing out-of-range value. Values are validated atomically.
 
-Point edits rebuild only the affected development-point records, their array, the containing player
-class and package chunk descriptors. Existing opaque fields/chunks, name pools, root IDs and class
-padding are retained. Package length, containing node size, subsequent virtual node offsets, chunk
+Point/progression edits rebuild only their affected records/arrays, containing player class and
+package descriptors. Existing opaque fields/chunks, root IDs and class padding are retained.
+Omitted XP/threshold names are appended without renumbering existing name indices; all original
+name bytes/padding and chunk bodies remain intact. Package length, containing node size, subsequent virtual node offsets, chunk
 expanded/stored lengths, chunk file offsets and the final directory pointer are repaired. No items,
 chunks or CSAV nodes are inserted. Node IDs and links are unchanged.
 
@@ -205,15 +262,16 @@ No-op serialization returns the original bytes, including after undo. Changed ch
 with K4os raw LZ4. Unchanged compressed chunks, reserved bytes and inter-chunk gaps are retained.
 Fixed-size patches retain expanded chunk boundaries; growth is assigned at the end of the replaced
 node. Serialization re-decompresses and compares the complete intended payload, revalidates the
-node tree/inventory/facts, re-parses progression and checks edited points/attributes and stat mirrors.
-The raw payload viewer shows fixed patches at original offsets; omitted point properties materialize
-in the exported package, as its label explains.
+node tree/inventory/facts, re-parses progression and checks edited points/attributes/proficiencies and stat mirrors.
+The raw payload viewer shows fixed patches at original offsets; point/proficiency property and name
+insertions materialize in the exported package. Live development/fact queries show staged values.
 
 The supplied decrypted file needs no further encryption. The cited CSAV readers/writers define no
 container checksum/signature; there is no known container checksum to recompute. TweakDB CRCs identify
 names, not save integrity. Unknown internal bytes are preserved. Structural correctness and edit/reopen
 preservation are tested; game acceptance and undocumented semantic dependencies remain untested.
-This is why maturity remains Experimental.
+Unknown opaque integrity algorithms may cause the game to reject edited saves; this warning appears
+in writable field descriptions, action descriptions, previews and action outcomes. Maturity stays Experimental.
 
 ## Views and tests
 
@@ -243,7 +301,13 @@ codec-vector tests remain. Hash vectors cover CRC32/TweakDBID and FNV-1a/64.
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests
 ```
 
-Validation for roadmap round 2: **107 passed, 0 failed, 0 skipped** with private samples. With an empty sample directory:
+Validation for write-enable round: **125 passed, 0 failed, 0 skipped** with private samples; API build:
+**0 warnings / 0 errors**. Added coverage for all six progression setters, omitted-name insertion,
+already-materialized scalar four-byte patches, unrelated opaque properties/chunks, mixed point/attribute/
+proficiency growth, live queries, every nonempty saved fact plane, exact F1 byte ranges, invalid values,
+F6 selection/exclusions/unloaded query matches/empty scope/stale plans, and one-step action undo/redo.
+
+Historical roadmap round 2: **107 passed, 0 failed, 0 skipped** with private samples. With an empty sample directory:
 **45 passed / 62 skipped**, zero failures (absence behavior only). API build: zero warnings/errors. Retained pack validity,
 all-record hash verification, exact canonical whitespace, conflicting-ID rejection, pinned local
 build/fallback tests, attributed sample joins, host F4 inspection/undo, live query edit/undo,
@@ -255,8 +319,8 @@ complete bounded paging, wiki attribution/revision/hash joins, local-label prece
 
 ## Open problems
 
-- Verify PS5 2.21 level/XP transition thresholds, rewards and unlock dependencies before enabling
-  level/street-cred/XP edits. Stored values alone and an upstream GUI setter are insufficient evidence.
+- Validate the enabled raw Level/Street Cred/XP/threshold edits on PS5 2.21; capture transition curves,
+  rewards/unlocks and whether stored thresholds are retained or recomputed. Raw setters do not calculate these.
 - Verify extended/unknown items, other schema/package versions, other regions and later-game samples.
 - Validate component records in an actual PS5 sample, consumable charge behavior and all new edits
   by loading on a console. Establish separate global/profile integrity before editing `user.gls`.
@@ -273,6 +337,8 @@ and every named field/details view. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOT
 
 | Dataset / reference | Pinned source / author | Licence / retrieval / changes |
 | --- | --- | --- |
+| Stored progression write schema | [WolvenKit SProficiency](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SProficiency.cs), WolvenKit contributors | GPL-3.0, rechecked 2026-10-28; format research only, independently written scalar/name-pool writer; no source/data copied. |
+| Existing fact write framing | [PixelRick FactsTable](https://github.com/PixelRick/CyberpunkSaveEditor/blob/3afe7428e9f26165e371ea7a3ee2cfd4ee4f1062/source/redx/csav/nodes/questSystem/FactsDB/FactsTable.h), PixelRick contributors | MIT, rechecked 2026-10-28; count/hash/value-plane research only; independent fixed patches retain order and all unknown hashes. |
 | Baseline 36-name allowlist | [items.bin](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/items.bin), [ItemClasses.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/ItemClasses.json), DeweySalt / Deweh and contributors | [MIT](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/LICENSE), 2026-10-28; selected names/categories, verified hashes; preserved as write gate. Sidecar: `Resources/ItemNames.source.md`. |
 | F2 `items` (5,248) | Same pinned items.bin + ItemClasses.json, DeweySalt / Deweh and contributors | MIT, 2026-10-28; exact hash join, retained baseline, decimal-string keys and coverage annotations; no gameplay limits. |
 | F2 `facts` (19,357) | [Facts.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/Facts.json), same authors | MIT, 2026-10-28; exact canonical strings retained separately, FNV-1a/32 verified, raw identifier category. |
@@ -350,4 +416,4 @@ is attributed to CP2077SaveEditor (MIT); its notice is retained in [CP2077SaveEd
 - Core blocks every action on `CanEdit == false`, including read-only F4 catalog inspection actions.
   Those actions are omitted on read-only documents; safe names/raw explorers remain available.
   A read-only inspection capability would avoid conflating browsing with permission to change saves.
-- No local substitute was added for F6/F8 whole-query bulk planning (#27). No new bulk writes ship.
+- Stack actions use shared F6/F8 whole-query planning (#27); no plugin-local transaction/preview substitute.
