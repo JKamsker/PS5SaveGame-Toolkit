@@ -6,9 +6,9 @@ namespace SaveToolkit.Plugins.EldenRing;
 
 public sealed class EldenRingPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.3.0")
+    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.4.0")
     {
-        Description = "PlayStation profiles, inferred inventory/storage and equipment browsing, attributed references, and bounded rune editing.",
+        Description = "Experimental mirrored names, bounded runes/history and ordinary-stack edits with F6 refill/review; attributed inventory and equipment browsing.",
         Games =
         [
             new GameTitle("PPSA03169", "Elden Ring") { Region = "JP" },
@@ -27,7 +27,10 @@ public sealed class EldenRingPlugin : IGamePlugin
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/equipment.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/playstation/user_data_10.rs",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/14",
+            "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31",
             "https://github.com/Hapfel1/er-save-manager",
             "https://soulsmodding.com/doku.php?id=format:sl2",
             "https://prosperopatches.com/PPSA03169",

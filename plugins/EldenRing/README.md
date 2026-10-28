@@ -1,8 +1,10 @@
 # Elden Ring (`eldenring`)
 
-**Experimental**, v0.3.0. The only gameplay write is the existing bounded held-rune edit
-for character/profile formats **150/90**. There is no console reload evidence. New inventory,
-storage, equipment, class, vitals and regulation views are read-only and **Inferred/Unknown**.
+**Experimental**, v0.4.0, for character/profile formats **150/90**. Enables mirrored names,
+bounded ordinary-stack quantities, both rune-history mirrors, and shared F6 refill/linked-rune
+actions alongside the existing held-rune edit. New writes are **Inferred**, with explicit warnings:
+there is no console validation and the game may reject edited saves. Owner validation is tracked
+separately in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 
 ## Titles and file roles
 
@@ -23,7 +25,8 @@ by the semantic reader or evidence decoder. No sample bytes are shipped.
 
 Little-endian unless stated otherwise. Every unknown byte, inactive character, padding region,
 encrypted regulation allocation and appended tail is preserved in the original allocation.
-Serialization patches only held runes, reparses character/profile invariants and returns a copy.
+Serialization patches only explicitly supported fixed-size fields, reparses character/profile and
+semantic-container invariants, and returns a copy. Failed batches restore the complete pre-edit bytes.
 
 | Offset / size (hex) | Role |
 | --- | --- |
@@ -120,7 +123,8 @@ F8 publishes server-backed held/storage tables per active sampled character and 
 table. Search, exact column filters and deterministic sorts run over the complete collection before
 paging (maximum 200 rows, stable keys, numeric quantity/index/handle sorts). The catalog lazily indexes
 bounded record metadata, at most the framework's 250,000-record ceiling; it never eagerly creates view
-nodes for the entire pack. Whole-filtered selection remains owned by F8; no plugin bulk action exists.
+nodes for the entire pack. Whole-filtered selection remains owned by F8; refill actions in table cells
+use F6's resolved row keys, exclusions and revision checks, including rows not yet loaded by the UI.
 
 F4 `ReferenceSpec` fields show exact canonical IDs and attributed names. Inventory references are
 read-only. **Inspect an item reference** uses the shared searchable picker and returns provenance
@@ -152,10 +156,40 @@ The PS wrapper has no PC per-slot/profile MD5: ClayAmore's PS writer concatenate
 common slots and user-data blocks directly, while its PC wrapper adds MD5. This agrees with sampled
 boundaries; independent restricted-source research corroborates the format but contributed no code.
 
-Held runes alone may change, capped at `min(existing lifetime total, 999999999)`, patching exactly four
-bytes. Both history copies remain unchanged. Unknown versions are read-only. All other new fields are
-read-only until controlled captures establish identity, mirrors, limits and side effects, followed by
-owner console reload/resave validation. Only the owner may promote maturity to Stable.
+The owner's 2026-10-28 decision, **“Enable writes. Keep warnings.”**, replaces the prior evidence gate.
+Unknown character/profile versions remain read-only because their writable layouts are not modeled.
+No additional integrity algorithm is known for this PS wrapper. Every writable field/action and F6
+preview warns that unknown integrity/dependency rules may cause game rejection. No checksum is invented,
+and the regulation bytes remain unchanged. Only the owner may promote maturity to Stable.
+
+## Enabled writes and their evidence
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
+| --- | --- | --- | --- | --- |
+| Held runes (existing field/F6 action) | Inferred write semantics | Pinned ClayAmore layout; sample 1147 held / 4427 history | One u32; final held <= history and 999999999; parser/semantic reparse; unknown rules may cause rejection | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): load, balance, resave/reopen/reload |
+| Live/menu name | Inferred | Two source-guided UTF-16LE buffers, sample mirror agreement; Unicode/16-unit/padding regressions | Both buffers and terminators updated; strict surrogate/control validation; original trailing bytes retained; exact undo; unknown rules may cause rejection | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): Unicode, shortening and 16-unit names in both menus |
+| Existing ordinary-stack quantity, held/storage | Inferred | Direct goods rows, Rowa Fruit `0x400050F0` observed 12; Smithing Stone [1] `0x40002774` observed 3; storage layout source-guided/synthetic only | One u32, minimum 1, observed ceilings 12/3; handles/counts/acquisition preserved; legal caps/integrity unverified and game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): consume/refill each ID; nonempty storage; legal caps |
+| Manual lifetime-history total | Inferred | Player `+68`, menu `+2A`, sample agreement at 4427 | Both u32 mirrors updated; must cover held runes; ceiling max(imported history, 4427); no per-save accumulation; unknown rules may cause rejection | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): earn/spend/death/recovery/loss and menu persistence |
+| F6 linked rune/history increase | Inferred | Same fixed offsets/invariants; sample-derived lower-history transition, no controlled gameplay pair | Preview lists held balance and derived history; history only raised to cover requested balance; both copies; atomic/group undo; unknown rules may cause rejection | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): balance above prior history, load/resave/reload |
+| F6 refill supported stacks | Inferred | Same finite two-ID allowlist and observed ceilings | Preview lists old/new values, skipped rows and warnings; scopes/exclusions checked; one atomic undo unit; unknown rules may cause rejection | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): two-row refill, filtered selection and undo/redo export |
+
+Names accept 1–16 UTF-16 code units, including valid surrogate pairs; whitespace-only names, embedded
+NUL/control characters and unpaired surrogates are rejected. Each mirror retains its own original
+trailing bytes after the new terminator. Reconstructing from those original buffers makes even
+longer → shorter → undo sequences byte-identical without erasing unexplained padding.
+
+Quantity eligibility requires an existing positive common-array direct-goods row, unique handle in
+that container, matching declared counts, one of the two IDs, and an imported quantity within its
+observed ceiling. Technical array capacity is never used as a stack cap. Zero, larger imported stacks,
+key/story/container-managed items, unknown IDs and ambiguous/residual rows remain protected because
+their write would require unmodeled removal/dependency handling. These ceilings are conservative
+sample observations, **not legal carry/storage limits**. Storage coverage is synthetic; no nonempty
+private storage snapshot exists. No transfer, insertion, removal or automatic equipment change occurs.
+
+Manual history and linked writes are bounded by the larger of imported history and the sample's
+4427, with held balances additionally capped at 999999999. A direct balance above current history
+rejects atomically; use the linked preview to raise both copies. Existing held-only F6 behavior keeps
+the current-history cap and never changes history. Serialization itself never increases totals.
 
 ### Phase 3: shared F6 review for held runes
 
@@ -168,9 +202,11 @@ invocation is rejected; row/query scopes cannot accidentally target another char
 create no undo step. The sample regression proves exactly the existing four-byte patch, preserves
 HP **504/504/476**, both history mirrors and all regulation/unknown bytes, and restores exact bytes on undo.
 
-This completes review integration for the existing edit only. Quantity caps/containers, live/menu
-name padding, class minima and modifier-aware vitals, linked history increases and new stat/stack
-presets remain unproven and disabled. A byte-identical no-op does not establish those dependencies.
+F6 also exposes **Review linked rune/history increase** and **Refill supported ordinary stacks**.
+Both reject direct invocation, revalidate complete changes/warnings/skips on apply, bind unopened
+fields for undo and use shared semantic review. Refill supports document scope, explicit row selection
+and F8 whole-query selection; an empty selection changes nothing. Skipped rows explain protected
+entries and stacks already at the observed ceiling. No plugin-local preview/history substitute exists.
 
 ### Phase 4: existing equipment relationship checks
 
@@ -189,19 +225,26 @@ separate handles/record keys; the first has position `0x182`, physical record 2 
 Missing/ambiguous/zero-quantity/wrong-category references and mirror disagreements remain visible,
 unaltered and protected. Independent raw representations and unknown words remain inspectable.
 
-Agreement in one snapshot does not prove every write dependency, active-selector/empty/unarmed
-rules, talisman/memory unlocks, stat effects or maximum-ever matchmaking history. Equip, upgrade,
-affinity/AoW and loadout preset apply remain disabled. No speculative F6 loadout action is published;
-future supported presets must use shared F6, as the rune action now does. The exact next captures
-are in [Evidence/OWNER_CAPTURES.md](Evidence/OWNER_CAPTURES.md).
+Equipment/loadout writes remain unavailable because the reader does not yet model the additional
+profile-summary equipment copies, empty/unarmed encoding, slot capacity and modifier updates. Changing
+only the displayed joins would leave inconsistent mirrors. Upgrade/affinity/AoW changes lack compatible
+PARAM rules and maximum-ever upgrade-history modeling. Attributes/respec have no correct modifier-aware
+vital transaction: resetting the sample's **504/504/476** HP to one base value would destroy saved state.
+These are missing writer/dependency implementations, not a wait for owner evidence alone.
+
+Structural add/remove/transfer remains unavailable: free-handle allocation, variable map growth,
+counts/acquisition indices and dependent equipment cleanup are unmodeled, so an arbitrary patch could
+corrupt unknown structure. There is no prepared F5 or F7 writer to enable. Current writes affect one
+`memory.dat`; independent backups retain framework-owned export mirroring. No cross-file transaction
+has been invented. Progress/quest writers likewise have no mapped entities or implementation.
 
 ## Validation
 
-Round 2, verified on 2026-10-28: **130 plugin tests passed / 0 failed / 0 skipped** with private
-samples; **216 Core tests passed / 0 failed / 0 skipped**. API build succeeded with zero warnings/errors.
+Write-enable round, verified on 2026-10-28: **163 plugin tests passed / 0 failed / 0 skipped** with private
+samples; **252 Core tests passed / 0 failed / 0 skipped**. API build succeeded with zero warnings/errors.
 The full-catalog sample initial-view test passes the plan's **under two seconds** target, including
-pack loading and document open. Round-1 sample-absence behavior remains
-covered by the shared sample loader; no absent-sample run counts as round-2 validation.
+pack loading and document open. A separate empty-artifacts run passed **138 / 0 failed / 25 skipped**,
+confirming sample-dependent cases skip cleanly; this run does not count as sample validation.
 
 Run with `SAVETOOLKIT_ARTIFACTS` pointing to the private artifacts folder:
 
@@ -217,6 +260,9 @@ F2 pack validity and exact compatibility selection, F4 session routing/undo pres
 paging/search/filter/sort, bounded DCX/BND/PARAM rejection and real regulation directories.
 Round 2 adds complete-source catalog digests/provenance, all 5,770 paged identities, equipment
 position/ID/handle joins and ambiguity rejection, F6 purity/bounds/staleness/review and exact undo.
+The write-enable round adds sample-backed mirrored-name/history and two-ID quantity persistence,
+F1 intended-only byte ranges, Unicode/padding/terminator rejection, protected-row rules, live quantity
+filtering, linked derived changes, grouped refill undo, query exclusions and stale/tampered-plan rejection.
 Sample-dependent cases skip when samples are absent. Current results are recorded in the issue #14
 final implementation comment; no binary sample or extracted regulation is included.
 
@@ -234,6 +280,7 @@ Retrieved/inspected **2026-10-28**. Downloaded code was read as untrusted text, 
 | Talisman names/IDs: 117 rows | [ClayAmore / ER-Save-Editor, accessory_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs) | MIT; all literal pairs, talisman prefix and unchanged names; no slot eligibility implied. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/accessory-names.source.md). |
 | Ash of War names/IDs: 218 rows | [ClayAmore / ER-Save-Editor, aow_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs) | MIT; all literal pairs, ash prefix and unchanged names, including tests; no compatibility inferred. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/aow-names.source.md). |
 | Read-only equipment relationship checks | [ClayAmore / ER-Save-Editor, vm/equipment.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/equipment.rs) and same-revision `save/common/save_slot.rs` | MIT; adapted position/handle/ID relationships with explicit uniqueness/category checks; no writer, unsafe indexing or repair ported. Same full MIT notice. |
+| Fixed-size write layout/evidence | [ClayAmore / ER-Save-Editor, save_slot.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs), [PlayStation user_data_10.rs](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/playstation/user_data_10.rs) and local [baseline measurements](Evidence/README.md) | MIT layout facts; original bounded in-place name/history/quantity writers and F6 plans, strict Unicode, preserved padding, staged rollback and sample-observed ceilings. No new game data or external implementation is embedded. Full notice retained. |
 | PS checksum / legacy-count research only | [Hapfel1/er-save-manager, 5974934](https://github.com/Hapfel1/er-save-manager/tree/5974934537feeace982721f82f0fbe69c20c208d) | Restricted/source-available current licence: no code translated, copied, executed or distributed. Facts independently checked against permissive code and sample bytes. |
 | Schema / data research only | [ERDB, e2028a6](https://github.com/EldenRingDatabase/erdb/tree/e2028a6e044b920a471388fb4e1c468b31b64350), [Paramdex](https://github.com/soulsmods/Paramdex), [TGA](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA) | ERDB generator MIT does not license game assets. Paramdex/TGA reuse rights unresolved: no code, schema files, bulk lists, descriptions or artwork imported. |
 | Title identity research | [JP](https://prosperopatches.com/PPSA03169), [Asia](https://prosperopatches.com/PPSA04608), [EU](https://prosperopatches.com/PPSA04609), [US](https://prosperopatches.com/PPSA04610) | Title/region facts only. No assets copied. |
@@ -249,18 +296,22 @@ Phase 1 reader/evidence infrastructure is implemented; its temporal/console vali
 open. Phase 2 now includes the complete pinned five-table MIT name catalog, reference plumbing,
 rich browsing and regulation **directory** validation. PARAM field schemas, validated caps, additional
 localizations/descriptions/icons/classes/graces and actual DLC/version coverage remain unfinished.
-Phase 3 adds F6 review of the existing rune write; Phase 4 adds read-only equipment joins. All other
-Phase 3/4 writes and all Phase 5/6 writers remain gated by the capture checklist.
+Phase 3 now enables the fixed-size name/ordinary-quantity/history operations and F6 refill/linked-rune
+previews above. Phase 4 retains read-only equipment joins; its missing writer dependencies and the
+unmodeled Phase 5/6 structures are described above. No full-phase completion is claimed.
 
 The exact before/after capture and console-validation checklist is in
-[Evidence/OWNER_CAPTURES.md](Evidence/OWNER_CAPTURES.md). Independent control pairs, nonempty storage,
-owned-instance equip/upgrade pairs, stat-modifier pairs and build/region/DLC observations are required.
+[Evidence/OWNER_CAPTURES.md](Evidence/OWNER_CAPTURES.md), tracked in
+[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). Independent control pairs, nonempty storage,
+owned-instance equip/upgrade pairs, stat-modifier pairs and build/region/DLC observations remain validation
+requests; console evidence is not a prerequisite for the enabled Experimental writes.
 
 ## SDK requests
 
 No shared-code change is needed for the shipped reader, F2 packs, F4 inspection or F8 tables.
 For later work: keep ELDENRING-R22 open for explicitly nonmutating actions on read-only documents;
 currently Core blocks ordinary actions there. Shared F6 is available and used by the rune action;
-no local preview substitute or new SDK request is needed. Presets remain evidence-gated.
+no local preview substitute or new SDK request is needed. Unsupported build/loadout presets need the
+missing writer/dependency model described above.
 Catalogue metadata currently exposes search/paging only; an optional native filter/sort query would
 avoid a plugin-side metadata index for very large F8 catalogues. No plugin substitute for F6 was added.

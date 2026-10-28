@@ -59,10 +59,23 @@ held handles, category conflicts, zero quantity and mirror disagreement stay vis
 Synthetic tests change each gear mirror independently and retain all bytes. Raw equipment fields
 stay read-only; the 17 unassigned candidates are not proof of general empty/unarmed encodings.
 
-F6 now previews/applies the **existing** held-rune operation. Sample-backed session tests prove pure
+Round 2 added F6 preview/apply for the **existing** held-rune operation. Sample-backed session tests prove pure
 preview, the existing four-byte delta, unchanged `504/504/476` HP and history, one-step exact undo/redo,
 semantic review and stale-plan rejection. It does not establish new history semantics or any other
-write family. See [OWNER_CAPTURES.md](OWNER_CAPTURES.md) for the Phase 3/4 decision matrix and pairs.
+write family.
+
+The **write-enable round** follows the owner's separate authorization to enable fixed-size writes
+with warnings. `NameWriteTests`, `QuantityWriteTests`, `HistoryWriteTests` and `RefillPlanningTests`
+verify live/menu names, both history copies, positive ordinary quantities, linked F6 history and F6
+refill. F1 `ByteDiffer` asserts only intended ranges change; complete-byte equality proves unknown
+regions and tails remain intact. Real-sample edits are serialized and reopened, with session undo/redo,
+grouped bulk history, filtered-query exclusions and stale/tampered-plan rejection. A lower-history
+copy of the sample exercises linked increase; this is explicitly **sample-derived**, not an independently
+captured earn/spend event. Nonempty storage remains synthetic-only. Observed quantities 12/3 and
+history 4427 are conservative edit ceilings, never claimed legal game caps. New name/history semantics
+remain Inferred and warnings state that unknown integrity/dependency rules may cause game rejection.
+Console validation is tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+See [OWNER_CAPTURES.md](OWNER_CAPTURES.md) for current capability decisions and exact validation steps.
 
 ## F1 reproduction
 
@@ -122,12 +135,14 @@ read FMG descriptions or enable writes. Unsupported regulation variants produce 
 preserve the allocation. Synthetic malformed-input tests cover headers, codec, sizes, decompression
 budget, zlib corruption, directory counts/offsets/names and PARAM schema/body/name bounds.
 
-## Gates
+## Implementation and validation status
 
 - Phase 1 infrastructure: implemented. Temporal/console proof remains owner-dependent.
 - Phase 2: complete pinned MIT item/weapon/armor/talisman/AoW names, packs, F4 inspection, F8
   browsing and directory-only regulation decode implemented. Versioned field schemas, item caps,
   classes/graces, upgrade compatibility, localized descriptions/icons and DLC coverage remain open.
-- Phase 3: F6 review for the existing rune edit implemented. New quantities/name/stat/history writes
-  remain disabled. Phase 4: read-only equipment joins implemented; equip/upgrades/loadout apply disabled.
-- Phases 5–6: no new gameplay writes. See [OWNER_CAPTURES.md](OWNER_CAPTURES.md).
+- Phase 3: fixed-size names, positive ordinary quantities, manual history mirrors, F6 held-only/linked
+  runes and refill are enabled with warnings. Modifier-aware attribute/respec writers remain unimplemented.
+- Phase 4: read-only equipment joins; complete profile/equipment/upgrade/history transactions remain unimplemented.
+- Phases 5–6: no entity/event mappings or allocation/cleanup writer. No prepared F5/F7 write exists.
+  See [OWNER_CAPTURES.md](OWNER_CAPTURES.md); evidence no longer gates the enabled Experimental operations.

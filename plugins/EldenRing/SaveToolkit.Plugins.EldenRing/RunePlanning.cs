@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.EldenRing;
 internal sealed class RunePlanning(byte[] bytes, ParsedSave save)
 {
     private const string Parameter = "runes";
-    public const string Warning = "Experimental; no console reload validation. Only held runes change. "
+    public const string Warning = ValueWrites.Warning + " Only held runes change. "
         + "Lifetime history and its profile copy, equipment, vitals and regulation remain unchanged.";
 
     public CharacterSlot Slot(string actionId) => save.Slots.FirstOrDefault(slot => slot.Active && ActionId(slot) == actionId)

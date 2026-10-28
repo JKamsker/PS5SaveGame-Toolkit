@@ -9,6 +9,12 @@ The adaptation adds bounds, output budgets and snapshot-specific BND flag/PARAM 
 it excludes unsafe PARAM field casting, restricted/unlicensed databases, descriptions and game artwork.
 That project offers MIT and Apache-2.0 licences; the MIT option is used for this adaptation.
 
+The write-enable round also uses the same `src/save/common/save_slot.rs` and PlayStation
+`src/save/playstation/user_data_10.rs` layout facts for original bounded, in-place name/history/quantity
+writers. It adds strict Unicode validation, preservation of each original name tail, both history
+mirrors, conservative sample-observed ceilings, atomic rollback and shared F6 refill/linked previews.
+These modifications do not copy gameplay PARAM tables or claim console acceptance/legal caps.
+
 The complete literal name/ID pairs from `src/db/weapon_name.rs`, `item_name.rs`, `armor_name.rs`,
 `accessory_name.rs` and `aow_name.rs` at the same revision are redistributed under MIT in
 `ReferencePacks/eldenring.names.en`. Names are unchanged; IDs are category-qualified; empty/test/

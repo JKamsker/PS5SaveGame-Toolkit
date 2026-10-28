@@ -61,8 +61,6 @@ public sealed class EditingTests
     [Theory]
     [InlineData("slots/0/level")]
     [InlineData("slots/0/attributes/vigor")]
-    [InlineData("slots/0/rune-memory")]
-    [InlineData("slots/0/name")]
     [InlineData("slots/0/equipment/ChrAsm2/0")]
     [InlineData("slots/0/unknown")]
     public void DependentAndUnknownFields_CannotBeEdited(string id)

@@ -127,7 +127,7 @@ public sealed class SemanticReaderTests
         var query = new QueryableCollectionQuery { SortColumn = "quantity", Descending = true, Limit = 2 };
         var page = queryable.Query("slots/0/inventory/held", query);
         Assert.Equal(251, page.FilteredCount);
-        Assert.Equal(["300", "249"], page.Rows.Select(row => Assert.IsType<TextNode>(row.Cells["quantity"]).Text));
+        Assert.Equal([300U, 249U], page.Rows.Select(row => Assert.IsType<FieldNode>(row.Cells["quantity"]).Value.AsUInt32()));
         var next = queryable.Query("slots/0/inventory/held", query with { Offset = 2 });
         Assert.Empty(page.Rows.Select(row => row.Key).Intersect(next.Rows.Select(row => row.Key)));
         var filtered = queryable.Query("slots/0/inventory/held", query with { Filters = new Dictionary<string, string> { ["group"] = "key" } });
