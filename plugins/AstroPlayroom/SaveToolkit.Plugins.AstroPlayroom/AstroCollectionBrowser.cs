@@ -12,11 +12,11 @@ internal sealed class AstroCollectionBrowser(
     Func<long?> coins)
 {
     public IReadOnlyList<ViewNode> Build() => [
-        new TextNode("Read-only catalogue. Ownership means the saved IsGot flag; names and locations are candidates, not console-validated mappings. Use table search and status/category filters to find missing records."),
+        new TextNode("Catalogue labels are read-only. Ownership means the saved IsGot flag; names and locations are candidates, not console-validated mappings. Search/filter to find missing records, then preview the ownership action before applying."),
         BuildSummary(),
         Group("Artifact", "Artifacts"), Group("Puzzle", "Puzzle pieces"), Group("Prop", "Props"),
-        .. (coins() is { } value ? AstroPlanning.Views(value) : Array.Empty<ActionNode>()),
-        new TextNode("Collection actions require F6 planning. All collectible rows are currently skipped because controlled captures have not established ownership, cinematic, notification and UDS dependencies. No completion or trophy guarantee is made.") { Tone = Tone.Warning }
+        .. AstroPlanning.Views(coins()),
+        new TextNode(AstroWriteWarnings.Experimental + " " + AstroWriteWarnings.Collection + " " + AstroWriteWarnings.Integrity) { Tone = Tone.Warning }
     ];
 
     private SectionNode BuildSummary()
@@ -104,7 +104,8 @@ internal sealed class AstroCollectionBrowser(
                         ? $"Candidate world key: {worldKey}. Identity and pickup location remain Inferred."
                         : "No piece-location mapping supplied."),
                 new TextNode(provenance),
-                new TextNode("This view cannot grant/revoke items. Existing experimental flag controls are in Raw; changing a flag does not validate rewards, cinematics, notifications or trophies.") { Tone = Tone.Warning }
+                new TextNode("Select rows in this table, then review the selection below. An empty selection changes nothing. Individual experimental flag controls remain in Raw.") { Tone = Tone.Warning },
+                AstroPlanning.CollectionAction()
             ])
         });
     }

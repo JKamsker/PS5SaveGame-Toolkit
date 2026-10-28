@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.AstroPlayroom;
 
 public sealed class AstroPlayroomPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("astro-playroom", "ASTRO's PLAYROOM", "0.2.0")
+    public PluginInfo Info { get; } = new("astro-playroom", "ASTRO's PLAYROOM", "0.3.0")
     {
         Description = "Preserving editor for the decrypted 1 MiB PreInstall save allocation.",
         Games = [new GameTitle("PPSA01325", "ASTRO's PLAYROOM")],

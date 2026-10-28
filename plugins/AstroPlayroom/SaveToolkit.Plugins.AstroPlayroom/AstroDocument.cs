@@ -9,7 +9,7 @@ namespace SaveToolkit.Plugins.AstroPlayroom;
 internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
 {
     private const int PageSize = 64;
-    private const string EditWarning = "Experimental: game limits and linked progress effects are unverified. No console reload has been tested.";
+    private const string EditWarning = AstroWriteWarnings.Experimental + " " + AstroWriteWarnings.Integrity;
     private readonly string _path;
     private readonly AstroAllocation _allocation;
     private readonly IReadOnlyList<AstroField> _fields;
@@ -122,7 +122,11 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
         var outcome = base.ApplyEdits(edits);
         // F3 status filters, section totals and details are view metadata. Rebuild on edits and
         // value-history replay so none of these snapshots can disagree with the live raw flags.
-        return outcome with { StructureChanged = outcome.Succeeded && outcome.Changes.Any(c => c.OldValue != c.NewValue) };
+        return outcome with
+        {
+            StructureChanged = outcome.Succeeded && outcome.Changes.Any(c => c.OldValue != c.NewValue),
+            Warnings = outcome.Succeeded && edits.Count > 0 ? [EditWarning] : outcome.Warnings
+        };
     }
 
     public override IReadOnlyList<FileOutput> Serialize()

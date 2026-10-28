@@ -56,8 +56,8 @@ their IDs. Empty elements remain visible as tree sections without inventing a te
 
 The Collectibles tab has separate Artifact, Puzzle and Prop sections. Each shows actual saved-record
 and ownership totals, mapped/unmapped counts, F3 confidence badges, searchable raw keys, candidate
-world/category and status filters, and expandable provenance/flag details. Names/statuses in this
-read-first catalogue cannot edit a save. Existing experimental flag controls remain in Raw.
+world/category and status filters, and expandable provenance/flag details. Catalogue labels/statuses
+remain read-only; reviewed ownership actions are described below. Individual flag controls remain in Raw.
 Mapped means an **Inferred candidate identity or internal-stage alias**. All 50 artifacts have
 candidate names and all 96 puzzles have candidate internal-stage names, but physical piece locations
 remain unresolved; prop identities remain **0/18**. Raw keys are always retained.
@@ -81,8 +81,39 @@ It is **not** a claimed patch/version detector. See [EVIDENCE.md](EVIDENCE.md).
 Several puzzle prefixes contain five/three entries rather than four/four. Those exact groups survive
 unchanged, with no guessed physical piece order or mural position. After a raw edit,
 undo or redo the plugin requests a view refresh so ownership filters, section totals and detail text
-reflect current values. F6 planning exposes a reviewed coin action and a collect-all preview that
-skips every collectible row; no collectible ownership write is enabled.
+reflect current values. F6 planning exposes reviewed coin and collect-existing actions, with explicit
+old/new values, skipped rows and warnings before apply. Each apply is one undo/redo group.
+
+## Enabled writes and their evidence
+
+The owner enabled gated writes on 2026-10-28: **"Enable writes. Keep warnings."** Controlled captures
+and console acceptance are tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+The plugin remains **Experimental**. No edited save has been validated on console. Integrity is
+unverified: no game checksum/signature algorithm is known, so **the game may reject an edited save**.
+Serialization reparses the output and checks all primitive values; this does not prove game acceptance.
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
+| --- | --- | --- | --- | --- |
+| **New:** `collectibles/collect-all`: set missing existing `Artifact/*/IsGot`, `Puzzle/*/IsGot`, `Prop/*/IsGot` to true, document-wide or selected rows | Inferred | Existing boolean spans; mixed-event samples show 3/9/1 ownership transitions. Tests apply 164 flags in generation 0 and 151 in generation 1, reopen, verify exact untouched bytes with F1, and undo/redo the whole batch. | Unknown game integrity; output reparsed, all other primitives and opaque suffix preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): independent artifact/puzzle/prop grants and full/selected batches; museum, notifications, cinematic/reward behavior, resave and second reload. |
+| Existing individual ownership/cinematic/Progress/World booleans | Inferred | Literal saved names and booleans; flags vary independently between samples. No dependency relationship is proven. | Same unverified integrity; no inserted fields or guessed repairs. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): each flag's effect, dependencies and persistence. |
+| Existing `Common/NumCoin` field and F6 `common/set-coins` | Verified name; Inferred gameplay range/effects | Observed 0/1749, preserving serializer tests. Bounds 0…2,147,483,647 are signed-storage policy; only 0…1749 is observed, not a proven game cap. | Same unverified integrity; reparsed after edit. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): gain/spend, cap/clamp, independent edit and persistence. |
+| Existing `Common/PlayCount` | Verified name; Unknown increment semantics | Observed 1/2; nonnegative signed-storage bound, not a verified gameplay limit. | Same unverified integrity; reparsed after edit. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): event semantics, accepted values and persistence. |
+
+Use **Collect existing records (review before apply)** below the tables for every existing
+collectible. To collect a subset, select rows in one table (including through its category/status
+filters), open any row's **Record details**, then use its action to preview that table's selection.
+Hidden selected rows remain included; an empty selection changes nothing. Plans label each raw
+group/key and old/new `IsGot`, skip already-owned or missing/ambiguous/nonboolean ownership fields,
+and reject unknown/duplicate selection keys, unexpected parameters and unsupported query scopes.
+The action also works without a coin field or reference pack; it never relies on candidate aliases.
+
+Only missing `IsGot` becomes true. There are **no derived writes**: cinematic, notification,
+Progress/World, UDS, coins and play-count values remain unchanged. The preview/outcome warns that
+pickup dependencies and rewards are unverified and makes no completion or trophy guarantee.
+Individual grant/revoke/cinematic edits remain available in Raw with warnings. Special-bot insertion,
+record add/remove and cross-title transactions remain unsupported: the newer structures/record grammar
+are unknown, so creating them would risk corrupting unknown data. There was no prepared F5/F7 write
+to enable; identical same-generation backups continue to use framework export mirroring.
 
 Only existing supported integer/boolean text spans are writable. Every other byte, including
 indentation, quotes, comments, unknown values and the opaque suffix, is copied verbatim. If the
@@ -148,8 +179,18 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-To
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project tests/SaveToolkit.Core.Tests -- --filter-class '*Export*'
 ```
 
-Roadmap round validation (2026-10-28): **44 plugin tests passed, 0 failed, 0 skipped**; **11 Core
+Write-enable round validation (2026-10-28): **57 plugin tests passed, 0 failed, 0 skipped**; **11 Core
 session/export tests passed, 0 failed, 0 skipped**; API build succeeded with **0 warnings/0 errors**.
+New write tests cover all four records, exact ownership-only output including necessary text
+displacement/zero fill, F1 byte/semantic diffs, per-type selection, skipped rows, invalid boolean
+values/parameters/scopes, stale/tampered plan rejection and one-step bulk undo/redo with live counts.
+Focused browser validation against this branch's API and the existing production UI verified the
+generation-1 preview (151 changes/13 skips and all warnings), apply to 164/164, one-step undo/redo,
+then an Artifact/ps1 selected-row preview/apply (one change, unchanged false cinematic flag).
+The export plan staged the primary plus its matching same-generation backup. No browser console
+errors occurred. This round did not rebuild or modify the frontend.
+Earlier roadmap validation covered 44 tests; round 2 covered 48. The following UI observations are
+from the earlier roadmap round, not a new production web build:
 New tests cover pack validity/attribution and exact key coverage, both generations and both twins,
 schema/value separation, unknown-schema/build fallback, duplicate/ambiguous records, 5/3 puzzle
 groups, F1's complete observed changes, and actual Core session edit/undo/redo view refresh.
@@ -192,6 +233,8 @@ Additional format research (no implementation copied):
   first-person reports of editing newer `memory.dat` Common/Armadillo flags with a text editor,
   updating the backup, and successfully reloading. Anecdotal supporting evidence only; none of
   those flags or proposed values were copied into these older samples.
+  The write-round web search rechecked this first-person report on 2026-10-28; it supplies no
+  collectible dependency or checksum algorithm. No new external data/code was embedded this round.
 - [zlib manual, checksum functions](https://zlib.net/manual.html#Checksum): candidate CRC32 and
   Adler-32 conventions for the integrity investigation; also cross-checked with Python standard
   library `zlib` in scratch analysis. No zlib package is needed by the plugin.
@@ -211,14 +254,13 @@ and a fresh integrity investigation before curated support. The opaque suffix's 
 
 ## Remaining phases and exact owner checklist
 
-Phase 1 is complete. Round 2 adds candidate internal-stage aliases, completion summaries and an F6
-planning surface. Phase 2 has reproducible F1 observational evidence but still needs controlled
-captures and console testing. Phase 3's read-only F3 browser is implemented; the coin planning action
-is the only enabled write path, while collect-all and collectible actions preview skipped rows and
-remain blocked by the dependency evidence below. Phase 4 exposes
-schema diagnostics/absence only; bot support needs newer saves. Phase 5's completion presets, diagram
-and console acceptance remain open. Maturity stays Experimental. No further SDK request is needed:
-F1/F2/F3/F6 already provide the required framework capabilities; the blocker is evidence.
+Phase 1 is complete. Round 2 added candidate internal-stage aliases, completion summaries and F6
+planning. The write-enable round completes Phase 3's prepared collect-all/selected ownership action
+with warnings. Phase 2's controlled mapping and console validation remain tracked in #31; they no
+longer gate existing-span writes. Phase 4 exposes schema diagnostics/absence only; bot support needs
+newer structures. Phase 5's gameplay completion/dependency presets, diagram and human console
+acceptance remain open. There is no verified complete-world/dependency preset to enable. Maturity
+stays Experimental. No SDK request is needed; F1/F2/F3/F6 cover the implemented work.
 
 For each pair, record title, exact game build, region, slot, DLC, date, before/after displayed values
 and the one action taken. Export decrypted before/after archives (including primary and backup) to
@@ -237,23 +279,27 @@ the private artifacts folder; never include account identifiers in manifests or 
 6. Supply old/new update pairs from the same profile and newer-build pairs before/after event
    eligibility, each of four bot discoveries/rescues and each added-artifact acquisition. For
    transfer research, provide both games before/after the actual transfer with offline/online context.
-7. For each proposed new write: load the spare edited save on PS5, confirm the intended effect,
+7. For each enabled write: load the spare edited save on PS5, confirm the intended effect,
    perform ordinary gameplay, resave, export again, reload a second time and record persistence
    plus any unintended linked effects. Only the owner may approve Stable or safe bulk dependencies.
 8. For the F6 coin action, capture one save with the displayed coin value before and after one known
    coin gain or spend, then compare `Common/NumCoin` and every changed primitive/byte range. Repeat
    the same event on a second slot and reload after ordinary gameplay; record cap/clamp behavior.
-9. For a future artifact batch, capture exactly one named artifact pickup per pair. Record the exact
+9. For the enabled artifact batch, capture exactly one named artifact pickup per pair. Record the exact
    `Artifact/<id>/IsGot` and `IsCinematicsPlayed` values, `Progress` notifications, `UdsWorkaround`,
    `NumCoin` and `PlayCount`, plus all unrelated changed paths. Repeat one pickup on a separate slot.
-10. For a future puzzle batch, repeat item 9 for one piece in each boundary pair
+10. For the enabled puzzle batch, repeat item 9 for one piece in each boundary pair
     (Renderforest/Teraflop Treetops, Raytrace Ruins/Mt. Motherboard, Bot Beach/Springy Spa and
     Gusty Gateway/Fastlane Fields). Include the physical location and in-game piece count; do not
     use the saved ordinal as a location claim.
-11. For a future prop or per-world preset, capture exactly one gatcha prize and one stage clear,
-    respectively, with the same full linked-field list. Capture a boss clear separately. A batch
-    remains disabled until each proposed derived change repeats byte-for-byte and persists after a
-    clean second load.
+11. For the enabled prop batch and future per-world dependency research, capture exactly one gatcha prize and one stage clear,
+    respectively, with the same full linked-field list. Capture a boss clear separately. Existing
+    ownership batches are enabled with warnings; future derived changes require their own evidence.
+12. On separate spare saves, apply one artifact, one puzzle and one prop grant, then a selected-row
+    batch and the document-wide collect-existing batch. Record in-game museum/puzzle/prize status,
+    notifications, cinematics/rewards and any side effects. Play normally, resave, export primary+
+    backup, and reload a second time. Diff all primitive paths, suffix and byte ranges; compare with
+    a no-action control. Report rejection as well as successful persistence in #31.
 
 ## SDK requests
 
