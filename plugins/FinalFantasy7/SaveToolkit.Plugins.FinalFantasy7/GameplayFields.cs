@@ -5,7 +5,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.FinalFantasy7;
 
 internal sealed record ScalarField(string Id, string Label, int Offset, IntegerSpec Spec, Confidence Confidence,
-    bool Signed = false, bool Byte = false, string? Warning = null);
+    bool Signed = false, bool Byte = false, string? Warning = null, bool Editable = false);
 
 /// <summary>Absolute offsets independently checked against the public PC schemas and every supplied PS5 slot.</summary>
 internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
@@ -31,6 +31,10 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
     private const uint RemakeGilId = 20;
     private const uint RebirthGilId = 1;
     private const string DemoWarning = "PC retail field mapping is inferred for the PS5 demo; no in-game confirmation.";
+    private const string EditWarning = "Experimental in-place edit; keep a backup and do not rely on this until a console load is tested.";
+    private const int MaximumQuantity = 9_999;
+    private const int MaximumGil = 9_999_999;
+    private const int MaximumAp = 999_999;
 
     public int InventoryOffset => schema.IsRemake ? RemakeInventoryOffset : RebirthInventoryOffset;
     public int InventoryStride => schema.IsRemake ? RemakeInventoryStride : RebirthInventoryStride;
@@ -49,7 +53,8 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
         if (gilSlots.Length == 1)
         {
             nodes.Add(bind(Define("game/gil", "Gil", InventoryOffset + gilSlots[0] * InventoryStride + QuantityOffset,
-                IntegerSpec.Int32, signed: true)));
+                IntegerSpec.Int32 with { Min = 0, Max = MaximumGil }, signed: true,
+                editable: true, warning: $"{EditWarning} Value limited to 0–{MaximumGil:N0}.")));
         }
         else
         {
@@ -99,12 +104,18 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
             {
                 var apOffset = (schema.IsRemake ? RemakeMateriaApOffset : RebirthMateriaApOffset) + i * MateriaStride;
                 var levelOffset = (schema.IsRemake ? RemakeMateriaLevelOffset : RebirthMateriaLevelOffset) + i * MateriaStride;
-                cells["quantity"] = bind(Define($"{key}/ap", "AP", apOffset, IntegerSpec.UInt32));
+                cells["quantity"] = bind(Define($"{key}/ap", "AP", apOffset,
+                    IntegerSpec.UInt32 with { Min = 0, Max = MaximumAp }, editable: true,
+                    warning: $"{EditWarning} Value limited to 0–{MaximumAp:N0}."));
                 cells["level"] = bind(Define($"{key}/level", "Level", levelOffset, IntegerSpec.UInt8, singleByte: true));
             }
             else
             {
-                cells["quantity"] = bind(Define($"{key}/quantity", "Quantity", idOffset + QuantityOffset, IntegerSpec.Int32, signed: true));
+                var isGil = id == (schema.IsRemake ? RemakeGilId : RebirthGilId);
+                var maximum = isGil ? MaximumGil : MaximumQuantity;
+                cells["quantity"] = bind(Define($"{key}/quantity", "Quantity", idOffset + QuantityOffset,
+                    IntegerSpec.Int32 with { Min = 0, Max = maximum }, signed: true, editable: true,
+                    warning: $"{EditWarning} Value limited to 0–{maximum:N0}."));
             }
 
             rows.Add(new TableRow(key, cells));
@@ -123,8 +134,12 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
         };
     }
 
-    private ScalarField Define(string id, string label, int offset, IntegerSpec spec, bool signed = false, bool singleByte = false) =>
-        new(id, label, offset, spec, MeaningConfidence, signed, singleByte, schema.IsDemo ? DemoWarning : null);
+    private ScalarField Define(string id, string label, int offset, IntegerSpec spec, bool signed = false,
+        bool singleByte = false, bool editable = false, string? warning = null) =>
+        new(id, label, offset, spec, MeaningConfidence, signed, singleByte,
+            JoinWarnings(schema.IsDemo ? DemoWarning : null, warning), editable && !schema.IsDemo);
+
+    private static string? JoinWarnings(string? first, string? second) => first is null ? second : second is null ? first : $"{first} {second}";
 
     private uint U32(int offset) => BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset));
 }

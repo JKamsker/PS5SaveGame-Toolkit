@@ -9,6 +9,6 @@ public sealed class FinalFantasy7ConformanceTests : PluginConformanceTests<Final
 {
     protected override IReadOnlyList<string> SampleTitleIds => ["PPSA01911", "PPSA08664", "PPSA18936"];
 
-    // There are deliberately no writable fields while PS5 integrity remains unknown.
-    protected override IReadOnlyList<ValueEdit> ChooseEdits(ISaveDocument document, IReadOnlyList<FieldNode> fields) => [];
+    protected override IReadOnlyList<ValueEdit> ChooseEdits(ISaveDocument document, IReadOnlyList<FieldNode> fields) =>
+        base.ChooseEdits(document, fields);
 }

@@ -1,8 +1,10 @@
 # Final Fantasy VII Remake / Rebirth (`ff7r`)
 
-**Maturity: ReadOnly.** A bounded PS5 linked-record explorer with researched gil, play time,
-Remake chapter ID, inventory and materia/AP views. Integrity dependencies are not established;
-editing and UI export are disabled. No console loading or editing test has been performed.
+**Maturity: Experimental.** A bounded PS5 linked-record explorer with in-place edits for researched
+gil, item quantities and materia AP on Remake and retail Rebirth. The supplied decrypted samples show
+no internal checksum or dependent metadata, and public editors/Save Wizard codes patch these values
+directly. Demo gameplay remains read-only because its field meanings are inferred. No console loading
+test has been performed; keep backups and treat every edit as untested.
 
 ## Supported titles and files
 
@@ -95,7 +97,9 @@ flag semantics are `Unknown`. Record offsets, allocation boundaries and declared
 Gil is exposed only if exactly one matching entry exists. Unknown names remain `Unknown ID 0x...`;
 no game-specific dictionary is shared across Remake/Rebirth. Empty slots and negative sentinel values
 remain visible; negative quantities receive a warning. No arbitrary gameplay limits are imposed on
-read-only values. Item/materia names are embedded reference data from the MIT-licensed source below.
+read-only values. On writable schemas, gil is limited to 0–9,999,999, ordinary item quantities to
+0–9,999, and materia AP to 0–999,999. These are conservative editor bounds, not proven game caps.
+Item/materia names are embedded reference data from the MIT-licensed source below.
 
 Examples asserted by tests (primary files):
 
@@ -117,15 +121,32 @@ No decryption or decompression is needed to expose these structures. No `GVAS` s
 in any of the 55 supplied FFVII payload entries. These are custom linked records, not a demonstrated
 Unreal tagged-property stream. Unknown bodies may still contain compressed/custom structures.
 
-Neither the inspected Remake writer nor the inspected game-tools templates provide a PS5 integrity
-algorithm. A limited CRC32 experiment compared header words `+0x08` and `+0x0C` to CRC32 over
-`record+0x10..next` and `record+0x28..next` for populated records: **zero of 14,976 candidates matched**. These words are
-mostly lengths, flags or zeros; failure does not establish that checksums are absent elsewhere.
-No key, per-file/per-record checksum, signature or dependent metadata update is asserted.
+The Round 2 search is recorded in [`research/integrity_search.py`](research/integrity_search.py). It
+tests each record body, record including its content header, the file through the tail, and the full
+file against reflected and non-reflected CRC-32/CRC-32C/CRC-64 variants (init/xorout 0 and all ones),
+Adler-32, FNV-1a 32/64, xxHash 32/64, MurmurHash3, byte/word sums, and truncated MD5/SHA-1. Every
+4/8-byte word in record envelopes, content headers and tails is checked, including whole-file ranges
+with the candidate word omitted. The three 1,056-byte common files produced **2,738 candidates and
+zero matches each**; the same script is reproducible for every archive entry.
 
-Consequently there are no setters/actions. `Serialize()` copies the complete original buffer,
-revalidates the copy with the same walker, and returns byte-identical data. This proves preservation
-and framing, not integrity of arbitrary body bytes. Unrecognized data is never rebuilt or dropped.
+The stronger differential evidence covers all primary gameplay snapshots. In the paired demo saves
+`ff7rebirth000` → `ff7rebirth001`, 800 bytes changed in record bodies and **zero bytes changed in any
+record envelope, 24-byte content header or terminal tail**. The test
+`DemoSnapshotDiffs_DoNotChangeRecordMetadata` asserts this directly. Remake backup twins are byte
+identical. No header/tail word changed in response to a gameplay change, so there is no observed
+per-record or whole-file checksum field to update. This cannot rule out an undocumented encrypted
+outer container or a dependency in an unobserved save state.
+
+Independent public evidence points the same way: the [Save Wizard FFVII Remake code listing](https://github.com/sterben-Dev10/SaveWizard-Resources/blob/main/SaveWizard-Codes/FFVII-Remake%20Codes%20%5BSaveWizard%5D.txt)
+writes gil, inventory and materia/AP addresses directly and documents no checksum-fix operation;
+the [Remake](https://game-tools-collection.com/final-fantasy-vii-remake/save-editor) and
+[Rebirth](https://game-tools-collection.com/final-fantasy-vii-rebirth/save-editor) editors likewise
+write fixed fields in PC saves. These are not proof of PS5 console acceptance, but are consistent with
+the sample differential result.
+
+Writable fields are patched in place and `Serialize()` re-walks the complete output before returning
+it. Unknown bytes, padding, trailing data and all unedited records remain byte-for-byte unchanged.
+The plugin does not claim that a modified file will load on a console until that is tested.
 
 ## Bounded views and performance
 
@@ -157,8 +178,8 @@ Research date: 2026-10-28. Read upstream code as untrusted text; no downloaded c
 5. Confirmed empty slots, MLSD/NVSD groups, Rebirth flags and the nonzero common tail pointer.
    Compared public field offsets to all primary slots, including INTERmission and both demo saves.
 6. Tested bounds, cycles, tags/lengths/versions, tail variants, no-op preservation, lazy navigation,
-   read-only atomic rejection and buffer isolation. Arbitrary body corruption cannot be detected
-   while integrity remains unknown.
+   writable edit round trips, atomic range rejection, undo restoration and buffer isolation. Arbitrary
+   body corruption remains outside the structural walker's guarantees.
 
 Reproduce aggregate measurements without extracting any samples:
 
@@ -170,16 +191,18 @@ dotnet test --project plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.Te
 Sample-dependent tests skip when their title archive is missing. Synthetic common-format and explorer
 tests run without samples. The conformance suite retains its six-files-per-title default; the dedicated
 format test walks and no-op serializes **all** matching sample files, including backup/generation files.
-Edit conformance intentionally has no edit because maturity and every published field are read-only.
+Edit conformance nudges a writable field on selected Remake and retail Rebirth samples; dedicated
+tests verify in-place byte scope, round-trip reopening, undo-by-old-value and atomic range rejection.
 
-Final local validation: **42/42 plugin tests**, **42/42 Core tests**, no skipped tests with the supplied
+Final local validation: **45/45 plugin tests**, **43/43 Core tests**, no skipped tests with the supplied
 archives, and the API build passed with zero warnings/errors. All 55 sample entries round-tripped;
 every measured sample Open call stayed below the two-second test bound.
 
 ## Open problems
 
-- Prove every PS5 integrity dependency before enabling even a single quantity edit.
-- Confirm retail meanings/ranges and demo mappings against controlled in-game changes; no Stable claim.
+- Confirm that edited files load on a PS5 and establish real in-game value limits; no Stable claim.
+- Confirm retail meanings/ranges and demo mappings against controlled in-game changes. Demo remains
+  read-only until its offsets are independently confirmed.
 - Map Rebirth chapter/difficulty/party, common settings and MLSD/NVSD semantics.
 - Decode deeper record structures from evidence; no generic Unreal property parser is assumed.
 - Validate additional patches/regions/sizes explicitly; current gates intentionally accept only the
@@ -187,9 +210,7 @@ every measured sample Open call stayed below the two-second test bound.
 
 ## SDK requests
 
-None required for this read-only delivery. The existing lazy sections, field confidence and paged blob
-API support the full explorer. A server-paged table API could improve future searches across all slots,
-but bounded lazy pages work with the current contract.
+None required. The existing lazy sections, field confidence and paged blob API support bounded editing.
 
 ## Sources and licensing
 
@@ -213,3 +234,6 @@ but bounded lazy pages work with the current contract.
 - [Nexus Rebirth editor](https://www.nexusmods.com/finalfantasy7rebirth/mods/2072) and its
   [web version](https://ff-7-rebirth-save-editor.vercel.app/): gameplay capability research lead only;
   implementation licence/PS5 compatibility unverified, no code reused.
+- [Save Wizard FAQ](https://www.savewizard.net/faqs/): documents that Save Wizard supports PS4 saves on
+  PS5, while native PS5 saves are outside its supported scope; this is why its direct-write codes are
+  supporting evidence for the decrypted layout only, not a console-load guarantee.
