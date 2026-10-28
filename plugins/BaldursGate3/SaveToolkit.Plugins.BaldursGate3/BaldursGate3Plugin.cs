@@ -5,11 +5,11 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 
 public sealed class BaldursGate3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.1.0")
+    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.2.0")
     {
-        Description = "Read-only LSPK package and LSOF/LSX resource explorer.",
+        Description = "LSPK/LSOF/LSX explorer with experimental LSF primitive editing and verified v18 package checksums.",
         Games = [new GameTitle("PPSA18463", "Baldur's Gate 3")],
-        Maturity = PluginMaturity.ReadOnly,
+        Maturity = PluginMaturity.Experimental,
         References =
         [
             "https://github.com/Norbyte/lslib",

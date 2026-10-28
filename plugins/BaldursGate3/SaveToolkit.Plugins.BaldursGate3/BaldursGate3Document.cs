@@ -1,5 +1,7 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.BaldursGate3;
@@ -13,6 +15,7 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
     private readonly LspkPackage? _package;
     private readonly IReadOnlyList<DocumentEntry> _entries;
     private readonly ResourceExplorer _explorer;
+    private readonly Dictionary<string, byte[]> _edits = new(StringComparer.Ordinal);
 
     private BaldursGate3Document(ISaveFile file, byte[] bytes, LspkPackage? package, List<DocumentEntry> entries)
     {
@@ -21,11 +24,12 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
         _package = package;
         _entries = entries;
         _explorer = new ResourceExplorer(entries, Bind);
+        CanEdit = (package is null || package.Version == 18) && entries.Any(e => e.Resource?.Attributes.Any(AttributeEncoder.CanWrite) == true);
         Title = $"Baldur's Gate 3 · {file.FileName}";
     }
 
     public override string Title { get; }
-    public override bool CanEdit => false;
+    public override bool CanEdit { get; }
 
     internal static BaldursGate3Document Open(ISaveFile file)
     {
@@ -62,18 +66,56 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
                 new Stat("Resources", _entries.Count(e => e.Resource is not null).ToString()),
                 new Stat("Original bytes", _original.Length.ToString("N0")),
             ]),
-            new TextNode("Read-only explorer. Package integrity and live character component editing are not verified.") { Tone = Tone.Info },
+            new TextNode(CanEdit
+                ? "Experimental primitive editing. Edits have not been tested in game. Live character components remain opaque."
+                : "Read-only resource. Writing is supported for LSF primitives and LSPK v18 only.") { Tone = Tone.Info },
             .. PackageMetadata(),
             .. _explorer.EntryList(_package),
         ]),
+        new Tab("Party", PartyView.Build(_entries, Bind, BindSummary)),
         new Tab("Resources", _explorer.ResourceList()),
         new Tab("Raw", [new HexNode("original", _original.Length) { Title = "Original file (unchanged)" }]),
     ]);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _explorer.Expand(lazyId, _package);
 
-    // Always preserve original bytes, including unknown metadata, padding, XML spelling and trailing data.
-    public override IReadOnlyList<FileOutput> Serialize() => [new FileOutput(_path, _original.ToArray())];
+    public override IReadOnlyList<FileOutput> Serialize()
+    {
+        if (_edits.Count == 0)
+        {
+            return [new FileOutput(_path, _original.ToArray())];
+        }
+
+        var changed = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+        for (var i = 0; i < _entries.Count; i++)
+        {
+            var prefix = $"resource/{i}/attribute/";
+            var replacements = _edits.Where(pair => pair.Key.StartsWith(prefix, StringComparison.Ordinal))
+                .ToDictionary(pair => int.Parse(pair.Key.AsSpan(prefix.Length), CultureInfo.InvariantCulture), pair => pair.Value);
+            if (replacements.Count > 0)
+            {
+                changed.Add(_entries[i].Name, LsfWriter.Write(_entries[i].Bytes, replacements));
+            }
+        }
+
+        var bytes = _package is null ? changed[_entries[0].Name] : LspkWriter.Write(_original, changed);
+        // Re-parse all resources with a shared budget, as on Open, before handing bytes to the framework.
+        var budget = new ResourceBudget();
+        if (_package is null)
+        {
+            _ = LsfReader.Read(bytes, budget);
+        }
+        else
+        {
+            var reopened = LspkPackage.Read(bytes);
+            foreach (var entry in reopened.Entries)
+            {
+                _ = ReadResource(entry.Name, reopened.Extract(entry), budget);
+            }
+        }
+
+        return [new FileOutput(_path, bytes)];
+    }
 
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
     {
@@ -99,20 +141,50 @@ internal sealed class BaldursGate3Document : BoundSaveDocument
     private FieldNode Bind(string id, string label, ResourceAttribute attribute)
     {
         var value = AttributeDecoder.Read(attribute);
-        return Field(id, label, AttributeDecoder.Spec(value, attribute.Type), () => value) with
+        var editable = CanEdit && AttributeEncoder.CanWrite(attribute);
+        var spec = AttributeDecoder.Spec(value, attribute.Type);
+        if (editable && spec is TextSpec text)
+        {
+            spec = text with { MaxLength = AttributeEncoder.MaxTextLength };
+        }
+
+        return Field(id, label, spec,
+            () => _edits.TryGetValue(id, out var data) ? AttributeDecoder.Read(attribute with { Data = data }) : value,
+            editable ? next => SetValue(id, attribute, next) : null) with
         {
             Confidence = Confidence.Unknown,
             Description = $"Stored type: {attribute.Type}. Raw field meaning is not validated against game behavior.",
             Warning = attribute.Type is LarianAttributeType.Float or LarianAttributeType.Double && value.Kind == Sdk.Values.FieldValueKind.Text
-                ? "Non-finite floating-point value; displayed as text and preserved unchanged." : null,
+                ? "Non-finite floating-point value; displayed as text and preserved unchanged."
+                : editable ? "Raw primitive: changing identifiers or inconsistent gameplay values may prevent loading. No in-game validation." : null,
         };
     }
+
+    private void SetValue(string id, ResourceAttribute attribute, FieldValue value)
+    {
+        var data = AttributeEncoder.Write(attribute, value);
+        if (data.AsSpan().SequenceEqual(attribute.Data.Span))
+        {
+            _edits.Remove(id);
+        }
+        else
+        {
+            _edits[id] = data;
+        }
+    }
+
+    private FieldNode BindSummary(string id, string label, FieldValue value) =>
+        Field(id, label, value.Kind == FieldValueKind.Integer ? IntegerSpec.Int64 : new TextSpec(), () => value) with
+        {
+            Confidence = Confidence.Inferred,
+            Description = "SaveInfo.json party summary; not a writable live character stat.",
+        };
 
     private IEnumerable<ViewNode> PackageMetadata()
     {
         if (_package is not null)
         {
-            yield return new TextNode($"Header digest (unverified): {_package.HeaderDigest}") { Monospace = true };
+            yield return new TextNode($"Original header digest ({(_package.Version == 18 ? "verified" : "unverified legacy format")}): {_package.HeaderDigest}") { Monospace = true };
             yield return new TextNode($"Package flags: 0x{_package.Flags:X2}. All payloads decompressed and resource tables validated.");
         }
     }

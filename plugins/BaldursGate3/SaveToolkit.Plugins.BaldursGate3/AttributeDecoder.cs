@@ -151,7 +151,7 @@ internal static class AttributeDecoder
         _ = BinaryData.Utf8.GetCharCount(bytes);
     }
 
-    private static bool IsString(LarianAttributeType type) => type is
+    internal static bool IsString(LarianAttributeType type) => type is
         LarianAttributeType.String or LarianAttributeType.Path or LarianAttributeType.FixedString or
         LarianAttributeType.LSString or LarianAttributeType.WString or LarianAttributeType.LSWString;
 

@@ -74,7 +74,7 @@ public sealed class ExplorerTests
     }
 
     [Fact]
-    public void ReadOnlyEditsAreRejectedAndNoOpIsByteIdentical()
+    public void PrimitiveEditsAreBoundAndNoOpIsByteIdentical()
     {
         var file = MemorySaveSet.SingleFile("test.lsf", ResourceFixture.Create(), "PPSA18463");
         using var document = new BaldursGate3Plugin().Open(file);
@@ -82,15 +82,15 @@ public sealed class ExplorerTests
         Assert.Equal(3, fields.Length);
         Assert.All(fields, field =>
         {
-            Assert.True(field.Spec.ReadOnly);
+            Assert.False(field.Spec.ReadOnly);
             Assert.Equal(Confidence.Unknown, field.Confidence);
             Assert.Equal(field.Value, document.GetValue(field.ValueId));
         });
         var counter = Assert.Single(fields, field => field.Label.StartsWith("Counter", StringComparison.Ordinal));
-        Assert.False(document.ApplyEdits([new ValueEdit(counter.ValueId, FieldValue.Of(99L))]).Succeeded);
-        Assert.Equal(7, document.GetValue(counter.ValueId).AsInt32());
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.False(document.CanEdit);
+        Assert.True(document.ApplyEdits([new ValueEdit(counter.ValueId, FieldValue.Of(99L))]).Succeeded);
+        Assert.Equal(99, document.GetValue(counter.ValueId).AsInt32());
+        Assert.True(document.CanEdit);
     }
 
     [Fact]
