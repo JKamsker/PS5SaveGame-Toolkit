@@ -75,8 +75,9 @@ samples; the fixture explicitly checks its absence rather than inventing a value
 
 Several UDS counters change alongside collection/progression flags, but these
 mixed-event saves cannot prove cause, direction or the minimal safe batch.
-**No new grant/revoke, per-world or collect-all writes are justified.** F6's preview
-infrastructure is available, but it cannot supply missing gameplay evidence.
+**No new grant/revoke, per-world or collect-all writes are justified.** F6 now exposes a reviewed
+coin action (the `NumCoin` storage transition is proven) and a collect-all preview that reports every
+selected row as skipped; it cannot supply missing gameplay evidence or enable collectible writes.
 
 ## Reference mappings and unresolved locations
 
@@ -85,8 +86,9 @@ worlds; these joins use readable saved IDs, not controlled pickups. `ds3` is
 explicitly ambiguous between wiki DualShock 3 and guide SIXAXIS naming. Check all
 50 labels against the owner's catalogue before calling them verified.
 
-All 96 puzzle aliases remain Unknown for physical location. Each retains its
-internal prefix/ordinal. Known non-bijective groups:
+All 96 puzzle aliases now have an **Inferred candidate internal-stage** mapping via their saved
+prefix and a schema-qualified `stageKey`; their physical location and ordinal remain Unknown.
+Known non-bijective groups:
 
 | Raw groups | Saved counts |
 | --- | --- |
@@ -96,7 +98,8 @@ internal prefix/ordinal. Known non-bijective groups:
 | `memory_weather` / `memory_ball1` | 5 / 3 |
 
 These are not verified physical-stage inventories. Public guides' four-piece stage
-counts do not justify moving the fifth record into the following prefix group.
+counts do not justify moving the fifth record into the following prefix group. Candidate-stage
+labels are useful for grouping and completion summaries only.
 All 18 prop aliases are original readable raw-key labels with Unknown identity,
 not verified gatcha scenes. The UI reports their unresolved mapping counts.
 

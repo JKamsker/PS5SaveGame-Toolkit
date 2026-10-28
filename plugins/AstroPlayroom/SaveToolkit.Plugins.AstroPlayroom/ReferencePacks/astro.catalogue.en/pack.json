@@ -15,11 +15,11 @@
     {
       "id": "astro_collectibles",
       "kind": "records",
-      "title": "Saved collectibles: 50 candidate artifacts and 114 unresolved aliases",
+      "title": "Saved collectibles: 50 candidate artifacts, 96 candidate stage aliases and 18 unresolved prop aliases",
       "files": [
         {
           "path": "collectibles.json",
-          "sha256": "e857b6ac37e35cb0820f615ae7a0fe26915b833eeaf7b28d107193c587eb7562"
+          "sha256": "33689b4166dd12e316e3d74e64c023c0fad162fea1835b9b9a005a630f05dbbe"
         }
       ],
       "attribution": {
@@ -28,7 +28,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Selected factual hardware/world names; independently joined exact saved keys as Inferred candidates; authored raw-key puzzle/prop aliases and uncertainty notes. No game flavor text, walkthrough prose or media copied. Adaptation remains CC BY-SA 3.0."
+        "modifications": "Selected factual hardware/world names; independently joined exact saved keys as Inferred candidates; authored candidate internal-stage mappings for puzzle aliases, raw-key prop aliases and uncertainty notes. No game flavor text, walkthrough prose or media copied. Adaptation remains CC BY-SA 3.0."
       }
     },
     {
@@ -47,7 +47,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Selected factual hardware/world names; independently joined exact saved keys as Inferred candidates; authored raw-key puzzle/prop aliases and uncertainty notes. No game flavor text, walkthrough prose or media copied. Adaptation remains CC BY-SA 3.0."
+        "modifications": "Selected factual hardware/world names; independently joined exact saved keys as Inferred candidates; authored candidate internal-stage mappings for puzzle aliases, raw-key prop aliases and uncertainty notes. No game flavor text, walkthrough prose or media copied. Adaptation remains CC BY-SA 3.0."
       }
     }
   ]

@@ -22,8 +22,9 @@ Sources (every record also carries its individual source/context URL):
   and ordering. World-key joins are inferred; internal/test worlds are not mapped.
 - [CPU Plaza](https://astrosplayroom.fandom.com/wiki/CPU_Plaza): world name only.
 - [Puzzle Pieces](https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces): concept
-  context only. All 96 labels are original literal saved-key labels. No physical
-  piece number, mural position, cross-game unlock rule or location is imported.
+  context and stage naming only. The 96 aliases retain their literal saved keys and map
+  only to inferred internal stage groups (`stageKey`); no physical piece number, mural
+  position, cross-game unlock rule or location is imported.
 - [PlayStation Labo](https://astrosplayroom.fandom.com/wiki/PlayStation_Labo): museum
   context only. All 18 prop aliases are original readable saved-key labels, not
   wiki-backed prize identities. Their mappings remain Unknown.
@@ -37,13 +38,14 @@ SHA-256 hashes, normalized to LF by F2.
 Scope: English, PPSA01325; exact structural fingerprint
 `e412d790cf868baf5dd17d332fd3e025032588a34eb569e1a85487f98e55eb40`.
 Game build is unknown, so the pack is build-agnostic but each alias is schema
-qualified. Exactly 50 candidate artifact identities, 96 unresolved puzzle aliases,
-18 unresolved prop aliases and 22 inferred world/stage aliases are supplied.
+qualified. Exactly 50 candidate artifact identities, 96 candidate internal-stage puzzle aliases,
+18 unresolved prop aliases and 22 inferred world/stage aliases are supplied. Candidate-stage
+mappings are Inferred and do not establish a physical location.
 Private-save bytes are not embedded. Schema keys are evidence metadata, separate
 from the wiki's licence and from gameplay verification.
 
 Modifications: selected factual names/categories; manually joined artifact names
-and world keys to readable saved identifiers; authored original uncertainty notes;
-kept each puzzle prefix and ordinal verbatim instead of forcing physical 4/4 stage
-groups. No screenshots, icons, maps, walkthrough prose, executable code, game
+and candidate world keys to readable saved identifiers; authored original uncertainty notes;
+kept each puzzle prefix and ordinal verbatim, added an inferred `stageKey` for the
+internal prefix, and did not force physical 4/4 stage groups. No screenshots, icons, maps, walkthrough prose, executable code, game
 descriptions, limits, special-bot values or post-launch records are bundled.

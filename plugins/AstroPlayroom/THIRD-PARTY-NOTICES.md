@@ -15,5 +15,7 @@ The Sources panel and catalogue row details expose attribution offline.
 
 No wiki descriptive prose, game-authored flavor text, artwork, icons, screenshots,
 maps, community editor source or third-party parser implementation was copied.
-Puzzle/prop names are original raw-key aliases, explicitly unresolved. The licence
+Artifact aliases include Inferred candidate world keys where the observed catalogue has a matching
+world path. Puzzle aliases include only Inferred internal-stage `stageKey` joins; physical locations and
+ordinals remain unresolved. Prop names are original raw-key aliases, explicitly unresolved. The licence
 of the data adaptation does not relicense the independently implemented plugin code.
