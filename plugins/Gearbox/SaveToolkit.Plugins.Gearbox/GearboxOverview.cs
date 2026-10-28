@@ -31,12 +31,12 @@ internal sealed class GearboxOverview(GearboxDocument document)
         var nameLimit = root.Integer("name_character_limit");
         nodes.Add(document.Text("character/name", "Character name", () => document.Root, "preferred_character_name", true,
             nameLimit is > 0 and <= MaximumStoredNameLimit ? (int)nameLimit : DefaultNameLimit));
-        nodes.Add(document.Text("character/class", "Class asset", () => document.Root.Child("player_class_data")!, "player_class_path"));
+        nodes.Add(document.World.Label("character/class", "Class", root.Child("player_class_data")?.Text("player_class_path") ?? string.Empty));
         if (root.Schema.Wonderlands && root.Child("ability_data")?.Child("dual_class_save_data") is not null)
         {
             Func<ProtoMessage> dual = () => document.Root.Child("ability_data")!.Child("dual_class_save_data")!;
-            nodes.Add(document.Text("character/primary-class", "Primary class branch", dual, "primary_branch_path"));
-            nodes.Add(document.Text("character/secondary-class", "Secondary class branch", dual, "slotted_secondary_branch_path"));
+            nodes.Add(document.World.Label("character/primary-class", "Primary class branch", dual().Text("primary_branch_path")));
+            nodes.Add(document.World.Label("character/secondary-class", "Secondary class branch", dual().Text("slotted_secondary_branch_path")));
         }
         nodes.Add(document.Level());
         nodes.Add(document.Experience());

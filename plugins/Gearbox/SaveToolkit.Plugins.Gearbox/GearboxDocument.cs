@@ -14,8 +14,11 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     private readonly GearboxLazyViews _lazy = new();
     private ItemBrowser? _items;
     private ItemBrowser Items => _items ??= new(this, Root, Profile, _lazy, references);
-    public IReadOnlyList<QueryableCollection> Collections => Items.Collections;
-    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => Items.Query(collectionId, query);
+    private GearboxWorldCatalog? _world;
+    internal GearboxWorldCatalog World => _world ??= new(this, references);
+    public IReadOnlyList<QueryableCollection> Collections => [.. Items.Collections, World.Collection];
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        collectionId == GearboxWorldCatalog.CatalogId ? World.Query(query) : Items.Query(collectionId, query);
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
         Items.Inspect(actionId, parameters) ?? base.InvokeAction(actionId, parameters);
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
@@ -31,6 +34,8 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             new Tab(Profile ? "Profile" : "Character", overview.Build()),
             new Tab("Inventory", [.. Items.Build(), .. tables.Inventory()]),
             new Tab("Progression", tables.Progression()),
+            new Tab("Account / character mirrors", new GearboxAccountViews(this, _lazy).Build()),
+            new Tab("World / progression catalogue", [World.Build()]),
             new Tab("Raw", [_lazy.RegisterRaw(() => Root)]),
         ]);
     }

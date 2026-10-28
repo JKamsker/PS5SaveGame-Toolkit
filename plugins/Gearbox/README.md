@@ -19,6 +19,9 @@ been removed. Edited files have not been loaded on a console.
 | Inventory | Named, queryable backpack/bank/lost loot; lazy serial/part details, original codes, level, CRC/layout status, raw flags/pickup/equipment indices | Attributed upstream **family** labels, not complete generated item names; serials/flags/slots stay read-only |
 | Reference browser | F2 title-scoped packs, F4 searchable balance/part inspection pickers, F8 balance catalogue | Offline, versioned, attributed zlib editor data; raw fallback for unknown names; inspection makes no save changes |
 | Profile | Read bank/lost-loot counts; BL3 guardian rank/XP; Wonderlands myth XP when present | Schema; no rank/reward editing |
+| Coordinated group | Explicit character + profile selection from one title/imported generation/backup status; bank, progression and account mirrors in one read-only owner | F7 ownership/fingerprint/conflict handling; separate PS5 save directories supported; generation numbers alone do not establish gameplay compatibility |
+| Account / character mirrors | Separate BL3 legacy/character/profile Guardian ranks, old/new XP, tokens, raw rewards/perks/enabled flags; TTWL Hero stats, Myth XP/indexed points and last-tree index when present | Independently checked selected wire tags; absent records stay absent; raw assets stay raw; Myth index labels inferred from upstream, no calculated rank or reconciliation |
+| World / progression labels | Searchable English missions/maps/travel destinations/classes, BL3 named decorations/skins/trinkets, TTWL Myth/Hero/backstories | 1,846 additional attributed zlib records; no artwork, unlock/repair actions or capacity rules |
 | Raw | Lazy schema-labelled tree; unknown tags and bytes shown as opaque data | Unknown meanings remain unknown; account-like metadata is hidden |
 
 Curated field meanings use `Confidence.Verified` because they are named in cited schemas/upstream
@@ -56,8 +59,21 @@ renumbered. Versions and counts:
 
 | Pack | Internal database | Index categories / records | Distinct balances | Source name mappings | Balance→part-family mappings | Slot/SDU/ammo labels |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `gearbox.bl3` 1.0.0 | 62 | 48 / 11,453 | 2,803 (2,848 index slots) | 774 | 1,435 | 25 |
-| `gearbox.ttwl` 1.0.0 | 59 | 56 / 13,674 | 2,030 (2,037 index slots) | 375 | 659 | 29 |
+| `gearbox.bl3` 1.1.0 | 62 | 48 / 11,453 | 2,803 (2,848 index slots) | 774 | 1,435 | 25 |
+| `gearbox.ttwl` 1.1.0 | 59 | 56 / 13,674 | 2,030 (2,037 index slots) | 375 | 659 | 29 |
+
+The added `world-labels` datasets contain **1,387 BL3** records (208 missions, 74 maps, 864 travel-to-map
+joins, four classes, 100 room decorations, 37 weapon skins, 100 trinkets) and **459 TTWL** records
+(90 missions, 20 maps, 299 travel-to-map joins, seven classes, 28 Myth indices, six Hero fields, nine
+backstories). Only explicitly named upstream records were extracted. Travel labels describe the
+destination **map**, not a station name. Mission lookup removes the object/class suffix and lowercases
+the asset path; records retain `originalId`. Other asset keys are lowercased; map keys use `map:`.
+Unknown IDs remain raw. Class/mission label joins and Myth array meanings are `Inferred`; source
+names/caps are not verified PS5 gameplay rules. The upstream zero Myth cap means uncapped there and
+is retained as an attribute, never applied as an editable-field limit. F2 overrides can label pinned
+keys; they cannot alter the serial database or introduce writable rules. The F8 label browser covers
+the pinned key set, applying attributed host labels when available; additional override-only keys are
+not enumerated. Every displayed label carries its record attribution, including raw fallback handling.
 
 Game patch, DLC/hotfix state and completeness are **unknown**; internal serial database versions are
 not PS5 build numbers. Every dataset has attribution and a hash in `pack.json`, plus a source sidecar
@@ -75,7 +91,44 @@ advertise decoded reroll/Chaos values. Stable document-local row IDs distinguish
 
 `profile` is the profile; positive numeric filenames such as `1` are character slots. Probe requires
 the supported title ID, file role and `GVAS` magic. Open validates branch/class/version as well.
-Only the opened file is returned; console backups are separate documents, not silently rewritten.
+Ordinary single-file documents return only their opened file. Explicit F7 groups return both selected
+members exactly once. Console backups are separate selections, never silently rewritten.
+
+## Coordinated read-only groups
+
+Use **Choose related files** to inspect exact character/profile paths before **Open group**. Discovery
+searches the imported set for supported root-level filenames with the same title, generation and
+backup status; PS5 stores `1` and `profile` in separate save directories. Starting from a profile offers
+each character explicitly. Multiple profile candidates become distinct, visibly unverified alternatives;
+none is silently preferred. Missing/unsupported partners report errors. More than 32 alternatives asks
+for a narrower import. No account identifiers are inspected to guess relationships.
+
+The group exclusively owns both paths through F7. Competing member/group sessions and dirty member
+replacement are rejected; the host may explicitly replace a clean member. Character progression,
+backpack, bank/lost loot, profile SDUs and separate account/character mirrors share one editor. All
+fields are read-only, including lazy/query cells. Direct edits/actions are also rejected. Close the
+group to return to the existing independent scalar editor or its catalogue inspection actions.
+
+The group snapshot copies every selected byte/path/title and restores independent member models.
+Because structural writes are disabled, wire-record order is immutable: deterministic per-member
+item IDs reproduce duplicate identities in fresh instances, with no insertion counters or opaque
+cursors. Before enabling structural writes, snapshots **must** additionally retain explicit movable
+item identities and allocation counters rather than re-derive them from changed positions. Host
+rebinding restores expanded views and queried pages. Standalone output reopens validate each role;
+group validation proves exact no-op bytes, not capacity or mirror compatibility.
+
+| Coordinated write family | Round-2 gate | Required route once proven |
+| --- | --- | --- |
+| Backpack↔bank / lost-loot transfer | Disabled: F1 has no controlled move/claim pair, proven capacities or index/pickup-order fixups | F6 deterministic preview/apply inside F7; F5 complete group snapshots preserving movable duplicate identities |
+| Item add/remove/duplicate/equip | Disabled: no controlled pickup/sale/equip pair or proven legal template/capacity rules | F5 reversible structure plus F6 preview; F7 when profile is affected |
+| Existing serial edits/replacement | Disabled: CRC/header/inverse proof is syntax evidence; no controlled dependency/legality/console proof | F6 preview, bounded serial validation and checksum repair; F5 snapshot for replacement; F7 for coordinated files |
+| Guardian/Myth reconciliation | Disabled: direction of character/profile reconciliation, allocation budgets/rotation/caps unproven | F6 review of both mirrors inside one F7 transaction |
+
+Neither F7 availability nor identical serial round trips waives these evidence gates. The existing
+archive fixtures are uncontrolled observations (`control: false`, action/build unknown), so **no new
+write family qualifies** this round. There are no dummy enabled actions, plugin-local transaction or
+preview substitutes. Single-file scalar editing retains its previous Experimental scope. BL4 remains
+research-only and unclaimed.
 
 GVAS framing, little-endian:
 
@@ -155,7 +208,7 @@ dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/Gearbox/fixtur
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Validated 2026-10-28: **80 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
+Validated 2026-10-28: **98 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
 0 failed, 0 skipped**; API build **0 warnings, 0 errors**. The environment variable was exported in the
 same shell command as each sample-backed test run. Sample-dependent tests still skip when absent.
 
@@ -180,6 +233,14 @@ CRC corruption, truncation, wrong game, newer databases, unknown customizations/
 full-collection queries beyond the first page, read-only rich details, attributed pickers and clean
 inspection. Currency edits preserve every serial and unrelated top-level wire record, then undo to
 exact original bytes.
+
+Round-2 tests additionally cover all 12 primary/backup character+profile pairs across both titles,
+role/generation/title/backup/import-set rejection, explicit multiple-partner alternatives, host
+ownership/dirty conflicts and clean replacement, JSON/group view identities, attributed title-pinned
+catalog queries, independent gameplay-only Guardian/Hero/Myth wire checks, mixed packed/unpacked Myth
+arrays, bounded continuation pages/unknown indices, read-only enforcement, unchanged complete ZIP
+export, and fresh-instance byte/duplicate-identity snapshot restoration. These do not claim an executed
+Gearbox write transaction, undo of a transfer, console acceptance or BL4 codec progress.
 
 [`fixtures.json`](fixtures.json) pins archive SHA-256 and observed generation-0/1 XP/money facts.
 These are uncontrolled existing generations, **not** proven before/after game actions or chronology.
@@ -221,6 +282,8 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 | TTWL `balances` | [Resources][ttwl-res] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | Joined family labels; normalized/deduplicated balance paths; raw fallback |
 | TTWL `part-families` | [Resources][ttwl-res] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | Exact balance→part-category crosswalk |
 | TTWL `labels` | [Constants][ttwl-constants] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | Explicit slot/SDU/ammo labels; no capacity policy |
+| BL3 `world-labels` | [Constants][bl3-constants] | CJ Kucera / apocalyptech | [Zlib][bl3-license] | 2026-10-28 | 1,387 explicit mission/map/travel/class/named-cosmetic records; normalized IDs and original IDs retained |
+| TTWL `world-labels` | [Constants][ttwl-constants] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | 459 mission/map/travel/class/Myth/Hero/backstory records; raw upstream caps are attributes only |
 | Serial envelope / layout adapter | [BL3][bl3-serial], [TTWL][ttwl-serial] | CJ Kucera / Abram Hindle; upstream credits Baysix | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Bounded read-only C# adaptation; no serial mutation |
 | `Bl3.tsv`, `Bl3Xp.tsv` | [BL3 editor][bl3-root] | CJ Kucera; schemas credit Rick/Gibbed | [Zlib][bl3-license] | 2026-10-28 | Separate schema facts and exact XP thresholds |
 | `Wonderlands.tsv`, `WonderlandsXp.tsv` | [TTWL editor][ttwl-root] | CJ Kucera / Abram Hindle; schemas credit Rick/Gibbed | [Zlib][ttwl-license] | 2026-10-28 | Separate schema facts and exact XP thresholds |
@@ -265,8 +328,9 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 
 ## SDK requests
 
-**GEARBOX-R4 / F7: coordinated character + profile transaction ownership** is still required for bank
-transfers, shared Guardian state and account/character progression reconciliation. Exact host contract:
+**GEARBOX-R4 / F7: delivered by #29; adopted for read-only groups in round 2.** The merged final comment,
+SDK and plugin guide were checked against all five original requirements below. No host-contract gap
+was found; the audit is reported on #29. Bank writes remain blocked by game evidence, not F7.
 
 1. Explicitly select a supported title, character path and matching profile path from the **same imported
    generation**; report unsupported/missing/ambiguous partners before opening an owning transaction.
@@ -280,24 +344,41 @@ transfers, shared Guardian state and account/character progression reconciliatio
    in its correct role, reject overlaps and publish/export the set atomically. Define backup ownership
    explicitly; do not silently overwrite independent backup sessions.
 
-`Serialize()` can already return multiple files; an additional output API is unnecessary. Independent
-document sessions lack coordinated ownership, conflict handling and history. This round returns only
-the opened file and enables no transfers or structural serial writes. F1/F2/F3/F4/F5/F8 are available;
-no plugin-local substitute for host transactions was added.
+F7 supplies explicit proposals and immutable inputs (1/3), exclusive ownership/fingerprint and dirty
+conflict checks (2), candidate staging with full snapshots/rebinding and shared revisions (3/4), and
+all-member role-specific validation/atomic export with explicit backup ownership (5). Its framework
+tests cover successful/rejected multi-member writes/history; this plugin's tests exercise read-only
+adoption and fresh-snapshot restoration. F1/F2/F3/F4/F5/F6/F7/F8 are now available. Future enabled
+coordinated writes must use F6 planning and F7 staging, with F5 structural snapshots where needed.
+No outstanding framework request or alternative output API is needed for this round.
 
 ## Owner capture and validation checklist
 
 - For each BL3/TTWL capture, record PS5 game version, region, DLC/hotfix state, slot and a transcribed
   item card; include the character, matching profile and backup from each snapshot. Do not include
   credentials or account-derived codec material in reports.
+- Export all affected character/profile directories together immediately before and after each action,
+  with matching backups. State which files form one gameplay capture; occurrence/generation numbers
+  alone do not prove a match. For profile-wide operations include every character that can supply a mirror.
 - Capture a no-action save/reload/save pair, then separate before/after pairs for **one** pickup,
   sale/removal, equip/unequip, favourite/junk toggle, backpack↔bank move, lost-loot claim and
   enchantment/reroll. Include duplicates and full/near-full containers; isolate each action.
+- Bank/structure: capture one backpack→bank move and a separate bank→backpack move, then one lost-loot
+  claim. Repeat with two byte-identical items, empty/near-full/full destination and equipped/un-equipped
+  source items; record the exact slot, capacity, order, equipped slots and card/count before/after.
+  For sale/removal, isolate first/middle/last inventory positions and verify surviving equipment indices.
 - Include BL3 starter guns/cosmetic pickups/legacy serial versions, and TTWL level-40/endgame gear
   with nonzero rerolls and each observed Chaos tier. Current TTWL characters are level 12.
+- Serials: capture one enchant/reroll and one favourite/junk toggle separately, with all card fields
+  transcribed. Supply legitimate same-family level/Mayhem/Chaos examples and all observed serial
+  versions, keeping uncontrolled examples distinct from controlled same-item action pairs.
 - Capture one level gain, one skill allocation/respec, one SDU purchase and one ammo refill, separately.
   Guardian: profile + multiple characters before/after one token/perk. Myth: each indexed allocation,
   rotation and capped stat, with matched profile. These are later write-phase prerequisites.
+- Guardian: capture a no-action load of each affected character after spending exactly one profile
+  token or enabling one perk, returning profile + every character after each load to establish mirror
+  precedence. Myth: start at level 40, capture one allocation in each tree, one rotation boundary and
+  one capped-stat boundary; record XP, displayed rank, available points and selected stat on both sides.
 - On a backed-up spare slot, validate each enabled write family independently: restore, load, confirm
   intended visible effect and unrelated inventory, re-save, reload, then return the new dump plus
   observations. Report game clamping. Only the owner can promote maturity to Stable.
