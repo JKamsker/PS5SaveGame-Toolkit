@@ -6,14 +6,23 @@ namespace SaveToolkit.Plugins.Witcher3;
 
 public sealed class Witcher3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.3.0")
+    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.4.0")
     {
-        Description = "Attributed inventory browsing, read-only abilities/Gwent, and Experimental preserving progression/quantity edits.",
+        Description = "Attributed item/ability/Gwent catalogs, read-only recipes/journal/facts, and Experimental preserving progression/quantity edits.",
         Games = [new GameTitle("PPSA04018", "The Witcher 3: Wild Hunt - Complete Edition")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/Atvaark/W3SavegameEditor", "https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md",
             "https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter",
-            "https://witcher.fandom.com/wiki/Category:The_Witcher_3_items", "https://www.fandom.com/licensing"],
+            "https://witcher.fandom.com/wiki/Category:The_Witcher_3_items", "https://www.fandom.com/licensing",
+            "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+            "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+            "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+            "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+            "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+            "https://github.com/vishalgupta-git/GwentTracker/tree/d8eab8c25c409be42a0ea7b43b901a43dfefed18/data",
+            "https://github.com/vishalgupta-git/GwentTracker/blob/d8eab8c25c409be42a0ea7b43b901a43dfefed18/src/lib/save/parse.ts",
+            "https://github.com/dodojesuslol/w3-quest-tracker/blob/6078f8f64a1ede3a304452bfe3cff710ae1d554e/docs/save-format.md",
+            "https://github.com/aschleg/witcher-3-enemy-scaling-and-other-changes/blob/66684cbe57eb20286f9ce65e551a4a0313543592/mod/gameplay/abilities/geralt_skills.xml"],
     };
 
     public ProbeResult Probe(ISaveFile file) => file.Directory.TitleId == "PPSA04018" &&

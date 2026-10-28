@@ -58,11 +58,12 @@ public sealed class WitcherInventoryViewTests
         var context = store.Pin(plugin, "PPSA04018");
         var catalog = context.Catalog("items")!;
         var page = catalog.Search(new SaveToolkit.Sdk.References.ReferenceQuery { Limit = 200 });
-        Assert.Equal(18, page.Total);
+        Assert.Equal(4011, page.Total);
         Assert.All(page.Items, record => {
             Assert.False(string.IsNullOrWhiteSpace(record.Description));
             Assert.False(string.IsNullOrWhiteSpace(record.Category));
             Assert.StartsWith("https://witcher.fandom.com/wiki/", record.Source!, StringComparison.Ordinal);
+            Assert.Contains("?oldid=", record.Source!, StringComparison.Ordinal);
             Assert.Equal("CC-BY-SA-3.0", record.Dataset.Attribution.License);
             Assert.Null(record.Limit);
             Assert.Null(record.AssetId);

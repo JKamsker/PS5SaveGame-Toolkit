@@ -13,18 +13,26 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
     private readonly PlayerData? _player = PlayerData.Read(container, directory, tree);
     private InventoryViews? _inventory;
     private ObservedFeatures? _features;
+    private CatalogViews? _catalogs;
+    private SavedWorldViews? _world;
     private InventoryViews Inventory => _inventory ??= new InventoryViews(_player?.Inventory?.Items ?? [],
         references.Catalog(InventoryViews.CatalogId, ReferenceBuild), ItemField, references.AssetProvenance);
     private string ReferenceBuild => $"sav3-{BinaryData.Int32(container.Payload, 4)}.{BinaryData.Int32(container.Payload, 8)}.{BinaryData.Int32(container.Payload, 12)}";
-    private ObservedFeatures Features => _features ??= new ObservedFeatures(_player, tree, container.Payload, directory.Names);
+    private ObservedFeatures Features => _features ??= new ObservedFeatures(_player, tree, container.Payload, directory.Names,
+        references.Catalog("abilities", ReferenceBuild), references.Catalog("gwent", ReferenceBuild));
+    private CatalogViews Catalogs => _catalogs ??= new CatalogViews(references, ReferenceBuild, () => Features.Cards);
+    private SavedWorldViews World => _world ??= new SavedWorldViews(new SavedWorldData(_player, tree, container.Payload, directory.Names),
+        references.Catalog("items", ReferenceBuild));
     public override string Title => "The Witcher 3 · SAV3";
     public override bool CanEdit => _player is not null;
-    public IReadOnlyList<QueryableCollection> Collections => [Inventory.Collection];
+    public IReadOnlyList<QueryableCollection> Collections => [Inventory.Collection, .. Catalogs.Collections, .. World.Collections];
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId == InventoryViews.CollectionId
-        ? Inventory.Query(query) : throw new KeyNotFoundException($"Unknown collection '{collectionId}'.");
+        ? Inventory.Query(query) : Catalogs.HandlesCollection(collectionId) ? Catalogs.Query(collectionId, query)
+        : World.HandlesCollection(collectionId) ? World.Query(collectionId, query)
+        : throw new KeyNotFoundException($"Unknown collection '{collectionId}'.");
     public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) => actionId == InventoryViews.LookupActionId
-        ? Inventory.Inspect(parameters) : base.InvokeAction(actionId, parameters);
+        ? Inventory.Inspect(parameters) : Catalogs.HandlesAction(actionId) ? Catalogs.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
 
     public override ViewNode BuildView()
     {
@@ -50,6 +58,8 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         new Tab("Player", PlayerFields()),
         new Tab("Inventory", Inventory.Build()),
         new Tab("Abilities and Gwent", Features.Build()),
+        new Tab("Reference catalogs", Catalogs.Build()),
+        new Tab("Recipes, journal and facts", World.Build()),
         new Tab("Variable tree", ChildPage(-1, 0)),
         new Tab("Names", [SectionNode.Lazy("MANU name dictionary", "names/0", directory.Names.Count.ToString())]),
         new Tab("Container", [SectionNode.Lazy("LZ4 chunk table", "chunks"),
@@ -60,6 +70,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        if (World.HandlesExpansion(lazyId)) { return World.Expand(lazyId); }
         if (lazyId.StartsWith("ability/", StringComparison.Ordinal) || lazyId.StartsWith("gwent/", StringComparison.Ordinal))
         {
             return Features.Expand(lazyId);

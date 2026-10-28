@@ -1,0 +1,1906 @@
+{
+  "records": [
+    {
+      "id": "S_Sword_1",
+      "name": "Fast Attack",
+      "category": "Combat",
+      "description": "Basic quick sword attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_1",
+        "savedEnum": "S_Sword_1",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s21",
+      "name": "Muscle Memory",
+      "category": "Combat",
+      "description": "Improves damage from fast sword attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s21",
+        "savedEnum": "S_Sword_s21",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s17",
+      "name": "Precise Blows",
+      "category": "Combat",
+      "description": "Improves critical hits with fast sword attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s17",
+        "savedEnum": "S_Sword_s17",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s01",
+      "name": "Whirl",
+      "category": "Combat",
+      "description": "A sustained spinning sword attack against nearby enemies. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s1",
+        "savedEnum": "S_Sword_s01",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s05",
+      "name": "Crippling Strikes",
+      "category": "Combat",
+      "description": "Adds bleeding to fast sword attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s5",
+        "savedEnum": "S_Sword_s05",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_2",
+      "name": "Strong Attack",
+      "category": "Combat",
+      "description": "Basic powerful sword attacks against armor. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_2",
+        "savedEnum": "S_Sword_2",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s04",
+      "name": "Strength Training",
+      "category": "Combat",
+      "description": "Improves damage from strong sword attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s4",
+        "savedEnum": "S_Sword_s04",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s08",
+      "name": "Crushing Blows",
+      "category": "Combat",
+      "description": "Improves critical hits with strong sword attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s8",
+        "savedEnum": "S_Sword_s08",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s02",
+      "name": "Rend",
+      "category": "Combat",
+      "description": "A charged attack that spends Stamina for greater damage. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s2",
+        "savedEnum": "S_Sword_s02",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s06",
+      "name": "Sunder Armor",
+      "category": "Combat",
+      "description": "Weakens an opponent's protection through strong attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s6",
+        "savedEnum": "S_Sword_s06",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_3",
+      "name": "Defense",
+      "category": "Combat",
+      "description": "Basic defensive sword techniques. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_3",
+        "savedEnum": "S_Sword_3",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s10",
+      "name": "Arrow Deflection",
+      "category": "Combat",
+      "description": "Uses timed parries against incoming arrows. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s10",
+        "savedEnum": "S_Sword_s10",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s09",
+      "name": "Fleet Footed",
+      "category": "Combat",
+      "description": "Reduces harm received during a dodge. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s9",
+        "savedEnum": "S_Sword_s09",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s11",
+      "name": "Counterattack",
+      "category": "Combat",
+      "description": "Rewards successful counterattacks with stronger follow-up attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s11",
+        "savedEnum": "S_Sword_s11",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s03",
+      "name": "Deadly Precision",
+      "category": "Combat",
+      "description": "Adrenaline can enable instant kills against susceptible opponents. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s3",
+        "savedEnum": "S_Sword_s03",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_4",
+      "name": "Marksmanship",
+      "category": "Combat",
+      "description": "Basic use of a handheld crossbow. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_4",
+        "savedEnum": "S_Sword_4",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s13",
+      "name": "Lightning Reflexes",
+      "category": "Combat",
+      "description": "Slows time while aiming a crossbow. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s13",
+        "savedEnum": "S_Sword_s13",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s15",
+      "name": "Cold Blood",
+      "category": "Combat",
+      "description": "Crossbow hits generate Adrenaline. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s15",
+        "savedEnum": "S_Sword_s15",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s07",
+      "name": "Anatomical Knowledge",
+      "category": "Combat",
+      "description": "Improves crossbow critical-hit chance. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s7",
+        "savedEnum": "S_Sword_s07",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s12",
+      "name": "Crippling Shot",
+      "category": "Combat",
+      "description": "Crossbow critical hits can suppress monster abilities. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s12",
+        "savedEnum": "S_Sword_s12",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_5",
+      "name": "Battle Trance",
+      "category": "Combat",
+      "description": "Combat generates Adrenaline that strengthens weapon attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_5",
+        "savedEnum": "S_Sword_5",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s16",
+      "name": "Resolve",
+      "category": "Combat",
+      "description": "Reduces Adrenaline lost when taking damage. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s16",
+        "savedEnum": "S_Sword_s16",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s18",
+      "name": "Undying",
+      "category": "Combat",
+      "description": "Spends Adrenaline to recover from otherwise lethal damage. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s18",
+        "savedEnum": "S_Sword_s18",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s20",
+      "name": "Razor Focus",
+      "category": "Combat",
+      "description": "Provides and improves Adrenaline generation during combat. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s20",
+        "savedEnum": "S_Sword_s20",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Sword_s19",
+      "name": "Flood of Anger",
+      "category": "Combat",
+      "description": "Spends Adrenaline to empower a cast Sign. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Combat?oldid=649876",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81045",
+        "revision": "649876",
+        "revisionTimestamp": "2026-10-03T04:19:01Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "sword_s19",
+        "savedEnum": "S_Sword_s19",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_1",
+      "name": "Aard Sign",
+      "category": "Signs",
+      "description": "A telekinetic Sign for staggering opponents. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_1",
+        "savedEnum": "S_Magic_1",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s20",
+      "name": "Far-Reaching Aard",
+      "category": "Signs",
+      "description": "Extends the reach of Aard. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s20",
+        "savedEnum": "S_Magic_s20",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s01",
+      "name": "Aard Sweep",
+      "category": "Signs",
+      "description": "An alternate Aard attack covering a surrounding area. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s1",
+        "savedEnum": "S_Magic_s01",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s12",
+      "name": "Aard Intensity",
+      "category": "Signs",
+      "description": "Strengthens Aard through Sign intensity. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s12",
+        "savedEnum": "S_Magic_s12",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s06",
+      "name": "Shock Wave",
+      "category": "Signs",
+      "description": "Adds direct damage to Aard. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s6",
+        "savedEnum": "S_Magic_s06",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_2",
+      "name": "Igni Sign",
+      "category": "Signs",
+      "description": "A fire Sign for damaging opponents. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_2",
+        "savedEnum": "S_Magic_2",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s08",
+      "name": "Melt Armor",
+      "category": "Signs",
+      "description": "Igni weakens enemy armor. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s8",
+        "savedEnum": "S_Magic_s08",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s02",
+      "name": "Firestream",
+      "category": "Signs",
+      "description": "An alternate sustained stream of Igni fire. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s2",
+        "savedEnum": "S_Magic_s02",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s07",
+      "name": "Igni Intensity",
+      "category": "Signs",
+      "description": "Strengthens Igni through Sign intensity. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s7",
+        "savedEnum": "S_Magic_s07",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s09",
+      "name": "Pyromaniac",
+      "category": "Signs",
+      "description": "Improves Igni's chance to burn opponents. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s9",
+        "savedEnum": "S_Magic_s09",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_3",
+      "name": "Yrden Sign",
+      "category": "Signs",
+      "description": "A magical trap that slows enemies. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_3",
+        "savedEnum": "S_Magic_3",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s10",
+      "name": "Sustained Glyphs",
+      "category": "Signs",
+      "description": "Extends Yrden trap duration and deployment. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s10",
+        "savedEnum": "S_Magic_s10",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s03",
+      "name": "Magic Trap",
+      "category": "Signs",
+      "description": "An alternate Yrden trap that attacks and slows enemies. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s3",
+        "savedEnum": "S_Magic_s03",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s16",
+      "name": "Yrden Intensity",
+      "category": "Signs",
+      "description": "Strengthens Yrden through Sign intensity. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s16",
+        "savedEnum": "S_Magic_s16",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s11",
+      "name": "Supercharged Glyphs",
+      "category": "Signs",
+      "description": "Yrden traps inflict continuing damage. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s11",
+        "savedEnum": "S_Magic_s11",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_4",
+      "name": "Quen Sign",
+      "category": "Signs",
+      "description": "A protective magical shield. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_4",
+        "savedEnum": "S_Magic_4",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s13",
+      "name": "Exploding Shield",
+      "category": "Signs",
+      "description": "A breaking Quen shield pushes opponents away. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s13",
+        "savedEnum": "S_Magic_s13",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s04",
+      "name": "Active Shield",
+      "category": "Signs",
+      "description": "An alternate maintained Quen shield with healing effects. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s4",
+        "savedEnum": "S_Magic_s04",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s15",
+      "name": "Quen Intensity",
+      "category": "Signs",
+      "description": "Strengthens Quen through Sign intensity. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s15",
+        "savedEnum": "S_Magic_s15",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s14",
+      "name": "Quen Discharge",
+      "category": "Signs",
+      "description": "Reflects some absorbed damage at the attacker. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s14",
+        "savedEnum": "S_Magic_s14",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_5",
+      "name": "Axii Sign",
+      "category": "Signs",
+      "description": "A Sign that temporarily influences an opponent's mind. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_5",
+        "savedEnum": "S_Magic_5",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s17",
+      "name": "Delusion",
+      "category": "Signs",
+      "description": "Improves Axii during combat and dialogue. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s17",
+        "savedEnum": "S_Magic_s17",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s05",
+      "name": "Puppet",
+      "category": "Signs",
+      "description": "Temporarily turns an Axii target into an ally. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s5",
+        "savedEnum": "S_Magic_s05",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s18",
+      "name": "Axii Intensity",
+      "category": "Signs",
+      "description": "Strengthens Axii through Sign intensity. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s18",
+        "savedEnum": "S_Magic_s18",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Magic_s19",
+      "name": "Domination",
+      "category": "Signs",
+      "description": "Allows Axii to influence two opponents. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Signs?oldid=649877",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81052",
+        "revision": "649877",
+        "revisionTimestamp": "2026-10-03T04:19:12Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "magic_s19",
+        "savedEnum": "S_Magic_s19",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_1",
+      "name": "Brewing",
+      "category": "Alchemy",
+      "description": "Basic preparation and use of witcher potions. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_1",
+        "savedEnum": "S_Alchemy_1",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s01",
+      "name": "Heightened Tolerance",
+      "category": "Alchemy",
+      "description": "Raises the overdose threshold for potion Toxicity. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s1",
+        "savedEnum": "S_Alchemy_s01",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s02",
+      "name": "Refreshment",
+      "category": "Alchemy",
+      "description": "Drinking potions also restores Vitality. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s2",
+        "savedEnum": "S_Alchemy_s02",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s03",
+      "name": "Delayed Recovery",
+      "category": "Alchemy",
+      "description": "Keeps potion effects active while Toxicity remains high. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s3",
+        "savedEnum": "S_Alchemy_s03",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s04",
+      "name": "Side Effects",
+      "category": "Alchemy",
+      "description": "A consumed potion can trigger another potion effect. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s4",
+        "savedEnum": "S_Alchemy_s04",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_2",
+      "name": "Oil Preparation",
+      "category": "Alchemy",
+      "description": "Basic preparation of oils for swords. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_2",
+        "savedEnum": "S_Alchemy_2",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s12",
+      "name": "Poisoned Blades",
+      "category": "Alchemy",
+      "description": "Applied oils can poison the targets they affect. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s12",
+        "savedEnum": "S_Alchemy_s12",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s05",
+      "name": "Protective Coating",
+      "category": "Alchemy",
+      "description": "The right oil adds protection against its targeted monsters. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s5",
+        "savedEnum": "S_Alchemy_s05",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s06",
+      "name": "Fixative",
+      "category": "Alchemy",
+      "description": "Improves the persistence and application of blade oils. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s6",
+        "savedEnum": "S_Alchemy_s06",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s07",
+      "name": "Hunter Instinct",
+      "category": "Alchemy",
+      "description": "Oil targeting and high Adrenaline improve critical damage. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s7",
+        "savedEnum": "S_Alchemy_s07",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_3",
+      "name": "Bomb Creation",
+      "category": "Alchemy",
+      "description": "Basic preparation of throwable bombs. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_3",
+        "savedEnum": "S_Alchemy_3",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s09",
+      "name": "Steady Aim",
+      "category": "Alchemy",
+      "description": "Slows time while aiming bombs. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s9",
+        "savedEnum": "S_Alchemy_s09",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s10",
+      "name": "Pyrotechnics",
+      "category": "Alchemy",
+      "description": "Adds damage to bomb effects. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s10",
+        "savedEnum": "S_Alchemy_s10",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s08",
+      "name": "Efficiency",
+      "category": "Alchemy",
+      "description": "Increases the number of bombs held in slots. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s8",
+        "savedEnum": "S_Alchemy_s08",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s11",
+      "name": "Cluster Bombs",
+      "category": "Alchemy",
+      "description": "Bombs split into additional explosive fragments. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s11",
+        "savedEnum": "S_Alchemy_s11",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_4",
+      "name": "Mutation",
+      "category": "Alchemy",
+      "description": "Basic use of mutagens extracted from monsters. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_4",
+        "savedEnum": "S_Alchemy_4",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s18",
+      "name": "Acquired Tolerance",
+      "category": "Alchemy",
+      "description": "Known alchemy formulas improve Toxicity tolerance. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s18",
+        "savedEnum": "S_Alchemy_s18",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s13",
+      "name": "Tissue Transmutation",
+      "category": "Alchemy",
+      "description": "Decoctions also increase maximum Vitality. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s13",
+        "savedEnum": "S_Alchemy_s13",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s19",
+      "name": "Synergy",
+      "category": "Alchemy",
+      "description": "Improves bonuses supplied by slotted mutagens. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s19",
+        "savedEnum": "S_Alchemy_s19",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s14",
+      "name": "Adaptation",
+      "category": "Alchemy",
+      "description": "Extends the duration of mutagen decoctions. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s14",
+        "savedEnum": "S_Alchemy_s14",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_5",
+      "name": "Trial of the Grasses",
+      "category": "Alchemy",
+      "description": "Basic tolerance for witcher potion Toxicity. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_5",
+        "savedEnum": "S_Alchemy_5",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s16",
+      "name": "Frenzy",
+      "category": "Alchemy",
+      "description": "Potion Toxicity can slow time during enemy counterattacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s16",
+        "savedEnum": "S_Alchemy_s16",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s20",
+      "name": "Endure Pain",
+      "category": "Alchemy",
+      "description": "High Toxicity can increase maximum Vitality. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s20",
+        "savedEnum": "S_Alchemy_s20",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s15",
+      "name": "Fast Metabolism",
+      "category": "Alchemy",
+      "description": "Speeds up the loss of Toxicity over time. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s15",
+        "savedEnum": "S_Alchemy_s15",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Alchemy_s17",
+      "name": "Killing Spree",
+      "category": "Alchemy",
+      "description": "Kills while intoxicated improve critical-hit chance. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/Alchemy?oldid=649878",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81053",
+        "revision": "649878",
+        "revisionTimestamp": "2026-10-03T04:19:29Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "alchemy_s17",
+        "savedEnum": "S_Alchemy_s17",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_01",
+      "name": "Sun and Stars",
+      "category": "General",
+      "description": "Provides regeneration that depends on day, night and combat. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_1",
+        "savedEnum": "S_Perk_01",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_02",
+      "name": "Steady Shot",
+      "category": "General",
+      "description": "Improves crossbow damage. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_2",
+        "savedEnum": "S_Perk_02",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_13",
+      "name": "Metabolism Boosts",
+      "category": "General",
+      "description": "Spends Adrenaline to reduce potion Toxicity costs. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_13",
+        "savedEnum": "S_Perk_13",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_14",
+      "name": "Gorged on Power",
+      "category": "General",
+      "description": "Maintains a single Place of Power bonus. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_14",
+        "savedEnum": "S_Perk_14",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_04",
+      "name": "Survival Instinct",
+      "category": "General",
+      "description": "Increases maximum Vitality. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_4",
+        "savedEnum": "S_Perk_04",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_09",
+      "name": "Rage Management",
+      "category": "General",
+      "description": "Allows Signs to consume Adrenaline when Stamina is insufficient. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_9",
+        "savedEnum": "S_Perk_09",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_17",
+      "name": "Trick Shot",
+      "category": "General",
+      "description": "Provides an extra crossbow shot before reloading. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_17",
+        "savedEnum": "S_Perk_17",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_15",
+      "name": "Gourmet",
+      "category": "General",
+      "description": "Extends Vitality regeneration from food. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_15",
+        "savedEnum": "S_Perk_15",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_05",
+      "name": "Cat School Techniques",
+      "category": "General",
+      "description": "Light armor improves fast attacks and critical damage. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_5",
+        "savedEnum": "S_Perk_05",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_10",
+      "name": "Adrenaline Burst",
+      "category": "General",
+      "description": "Improves Adrenaline generation and adds generation from Signs. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_10",
+        "savedEnum": "S_Perk_10",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_18",
+      "name": "Advanced Pyrotechnics",
+      "category": "General",
+      "description": "Bomb damage also generates Adrenaline. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_18",
+        "savedEnum": "S_Perk_18",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_16",
+      "name": "In Combat's Fires",
+      "category": "General",
+      "description": "Protects against one's own bomb and special-bolt effects. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_16",
+        "savedEnum": "S_Perk_16",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_06",
+      "name": "Griffin School Techniques",
+      "category": "General",
+      "description": "Medium armor improves Sign intensity and Stamina regeneration. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_6",
+        "savedEnum": "S_Perk_06",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_11",
+      "name": "Focus",
+      "category": "General",
+      "description": "Adrenaline improves weapon damage and Sign intensity. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_11",
+        "savedEnum": "S_Perk_11",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_19",
+      "name": "Battle Frenzy",
+      "category": "General",
+      "description": "Changes Battle Trance to improve critical-hit chance. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_19",
+        "savedEnum": "S_Perk_19",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_20",
+      "name": "Heavy Artillery",
+      "category": "General",
+      "description": "Exchanges bomb capacity for greater bomb damage. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_20",
+        "savedEnum": "S_Perk_20",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_07",
+      "name": "Bear School Techniques",
+      "category": "General",
+      "description": "Heavy armor improves Vitality and strong attacks. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_7",
+        "savedEnum": "S_Perk_07",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_12",
+      "name": "Metabolic Control",
+      "category": "General",
+      "description": "Increases maximum Toxicity. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_12",
+        "savedEnum": "S_Perk_12",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_22",
+      "name": "Strong Back",
+      "category": "General",
+      "description": "Increases the weight Geralt can carry. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_22",
+        "savedEnum": "S_Perk_22",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "S_Perk_21",
+      "name": "Attack is the Best Defense",
+      "category": "General",
+      "description": "Defensive actions can generate Adrenaline. Pre-overhaul reference; exact numerical effects and gameplay dependencies remain unverified on PS5.",
+      "source": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)/General?oldid=649879",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "81054",
+        "revision": "649879",
+        "revisionTimestamp": "2026-10-03T04:19:35Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "abilityName": "perk_21",
+        "savedEnum": "S_Perk_21",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Native ability name, subpath and tier corroborated against saved definition; display meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation4",
+      "name": "Toxic Blood",
+      "category": "Blood and Wine mutation",
+      "description": "Damages melee attackers in proportion to Toxicity. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation10",
+      "name": "Euphoria",
+      "category": "Blood and Wine mutation",
+      "description": "Toxicity improves sword damage and Sign intensity. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation5",
+      "name": "Mutated Skin",
+      "category": "Blood and Wine mutation",
+      "description": "Adrenaline reduces incoming damage. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation9",
+      "name": "Cat Eyes",
+      "category": "Blood and Wine mutation",
+      "description": "Improves crossbow attacks and their effects. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation12",
+      "name": "Metamorphosis",
+      "category": "Blood and Wine mutation",
+      "description": "Critical effects can activate decoctions. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation8",
+      "name": "Deadly Counter",
+      "category": "Blood and Wine mutation",
+      "description": "Improves sword attacks and finishing counterattacks. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation3",
+      "name": "Bloodbath",
+      "category": "Blood and Wine mutation",
+      "description": "Successive sword attacks increase attack power. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation7",
+      "name": "Adrenaline Rush",
+      "category": "Blood and Wine mutation",
+      "description": "Nearby enemies temporarily influence attack and Sign bonuses. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation11",
+      "name": "Second Life",
+      "category": "Blood and Wine mutation",
+      "description": "Provides recovery from lethal damage with a cooldown. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation2",
+      "name": "Magic Sensibilities",
+      "category": "Blood and Wine mutation",
+      "description": "Allows Signs to inflict critical hits. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation6",
+      "name": "Piercing Cold",
+      "category": "Blood and Wine mutation",
+      "description": "Adds freezing effects to Aard. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    },
+    {
+      "id": "EPMT_Mutation1",
+      "name": "Conductors of Magic",
+      "category": "Blood and Wine mutation",
+      "description": "Suitable drawn swords strengthen Sign damage. Research, prerequisites and costs are read-only reference concepts.",
+      "source": "https://witcher.fandom.com/wiki/Mutations_(Blood_and_Wine)?oldid=617694",
+      "attributes": {
+        "mappingConfidence": "Inferred",
+        "pageId": "67958",
+        "revision": "617694",
+        "revisionTimestamp": "2024-03-14T21:29:55Z",
+        "scope": "Community cross-build label; no PS5 gameplay constraints",
+        "schema": "sav3-64.23.163",
+        "joinEvidence": "Wiki mutation icon number matches the native saved mutation type and icon reference; meaning inferred"
+      }
+    }
+  ]
+}
