@@ -217,6 +217,54 @@ move actions.
    derived form. Mark it so in the file header and keep the licence link. Code ports keep the upstream
    licence notice. If a source has no licence or forbids reuse, do not embed it. Cite it as research only.
 
+## Catalog-valued fields and searchable pickers
+
+Use `new ReferenceSpec("items")` for a catalog-backed choice instead of embedding a large `EnumSpec`.
+The `FieldNode.Value` is the **exact raw id as text** (not a JavaScript number); convert it to the save's
+native representation only inside your getter/setter. Resolve the catalog with `references.Catalog`
+when opening, including the game's build when known, so host lookups use the same pinned dataset.
+
+```csharp
+var spec = new ReferenceSpec("items")
+{
+    AllowCustom = false,
+    Assess = record => record.Category == "weapon" && !canEquipWeapons
+        ? new ReferenceEligibility { Eligible = false, Reasons = ["This slot accepts consumables only."] }
+        : new ReferenceEligibility(),
+};
+```
+
+`Assess` is optional server-only plugin policy (`JsonIgnore`), called under the document session lock.
+It must be cheap, deterministic, and perform no I/O. `Available` describes availability in this
+build/save, `Eligible` describes suitability for the field, and `Reasons` explains restrictions.
+The host publishes the results and rechecks them on edits and action parameters. `AllowCustom`
+permits unknown ids; it does not bypass restrictions on known records. Plugins still validate native
+id ranges and other save invariants. Mark changes `StructureChanged` when replacement changes field
+specs, descriptions or other view metadata, so undo/redo rebuilds the view too.
+
+An existing unknown or ineligible id is preserved, displayed as its raw text, and may be replaced.
+It is never silently converted to the first candidate. Unknown incoming ids are rejected unless
+`AllowCustom` is enabled; a missing pack therefore allows replacements only with that opt-in.
+Undo can restore an original unknown or ineligible value without treating it as a new selection.
+
+The browser shares one picker between field rows, table cells and action parameters. It supports
+name/id search, categories, pages, arrow/Home/End navigation, Enter to choose, Escape/Cancel to
+preserve the current value, exact raw-id preview, and catalog/icon attribution in the detail preview.
+Labels, descriptions, categories, asset ids and provenance travel as `ReferenceCandidate` responses,
+keeping the spec/view small. Supply the current record's `AttributionText` as the field description
+when displaying catalog names elsewhere (rule 9).
+
+Per-document field-aware API (only previously published fields/parameters are queryable):
+
+- `GET .../reference-fields/candidates?valueId=...&q=...&category=...&offset=0&limit=30&revision=0`
+- `GET .../reference-fields/record?valueId=...&rawId=...&revision=0`
+
+For action parameters also pass `actionId`. Paging clamps offset to zero and limit to 1–200.
+Candidate pages include the view revision. Pass it with subsequent queries/edits; stale queries return
+HTTP 409 with `code: "stale"`. Exact lookup returns unknown ids with no label/dataset and an explicit
+eligibility reason. F2's catalog-wide endpoints remain unchanged. The attributed embedded test pack
+and `tests/SaveToolkit.Core.Tests/Fakes/ItemsPlugin.cs` demonstrate the complete contract.
+
 ## Reference packs
 
 A reference pack is a folder (or zip) of names, categories, limits, descriptions and icons, with

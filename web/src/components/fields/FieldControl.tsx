@@ -3,6 +3,7 @@ import type { FieldSpec, FieldValue } from "../../api/protocol";
 import { displayValue, parseDraft, sameValue, toDraft } from "../../lib/values";
 import { EnumControl } from "./EnumControl";
 import { NullableControl, UnionControl } from "./VariantControl";
+import { ReferenceControl } from "./reference/ReferenceControl";
 
 export interface FieldControlProps {
   id: string;
@@ -15,11 +16,15 @@ export interface FieldControlProps {
   /** Reports local validation problems while typing. */
   onLocalError?: (message: string | undefined) => void;
   labelledBy?: string;
+  /** Published binding used for field-specific candidate queries (not the DOM id). */
+  valueId?: string;
+  actionId?: string;
 }
 
 /** Picks a control from the spec. Plugins never choose widgets; this mapping is the only place that does. */
 export function FieldControl(props: FieldControlProps) {
   const { spec, value, disabled } = props;
+  if (spec.kind === "reference") return <ReferenceControl {...props} spec={spec} />;
   if (spec.readOnly || disabled) {
     return <span className={spec.kind === "integer" && spec.format === "Hex" ? "readonly-value mono" : "readonly-value"}>{displayValue(spec, value)}</span>;
   }

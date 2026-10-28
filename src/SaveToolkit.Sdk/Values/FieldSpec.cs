@@ -18,6 +18,7 @@ namespace SaveToolkit.Sdk.Values;
 [JsonDerivedType(typeof(ExactNumberSpec), "exactNumber")]
 [JsonDerivedType(typeof(NullableSpec), "nullable")]
 [JsonDerivedType(typeof(UnionSpec), "union")]
+[JsonDerivedType(typeof(ReferenceSpec), "reference")]
 public abstract record FieldSpec
 {
     public bool ReadOnly { get; init; }

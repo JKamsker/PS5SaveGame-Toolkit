@@ -37,7 +37,9 @@ export interface NullableSpec extends SpecBase { kind: "nullable"; inner: FieldS
 export interface UnionOption { id: string; label: string; spec: FieldSpec }
 export interface UnionSpec extends SpecBase { kind: "union"; options: UnionOption[] }
 
-export type FieldSpec = BoolSpec | IntegerSpec | FloatSpec | TextSpec | EnumSpec | FlagsSpec | DateTimeSpec | ExactNumberSpec | NullableSpec | UnionSpec;
+export interface ReferenceSpec extends SpecBase { kind: "reference"; catalogId: string; allowCustom?: boolean }
+
+export type FieldSpec = BoolSpec | IntegerSpec | FloatSpec | TextSpec | EnumSpec | FlagsSpec | DateTimeSpec | ExactNumberSpec | NullableSpec | UnionSpec | ReferenceSpec;
 
 export type Confidence = "Verified" | "Inferred" | "Unknown";
 export type Tone = "Normal" | "Muted" | "Info" | "Success" | "Warning" | "Danger";
@@ -235,4 +237,26 @@ export interface ReferencePage {
   offset: number;
   limit: number;
   categories: string[];
+}
+
+export interface ReferenceEligibility { available: boolean; eligible: boolean; reasons: string[]; selectable: boolean }
+export interface ReferenceCandidate {
+  rawId: string;
+  label?: string;
+  description?: string;
+  category?: string;
+  assetId?: string;
+  source?: string;
+  dataset?: ReferenceDatasetInfo;
+  assetDataset?: ReferenceDatasetInfo;
+  eligibility: ReferenceEligibility;
+}
+export interface ReferenceCandidatePage {
+  catalogId: string;
+  items: ReferenceCandidate[];
+  total: number;
+  offset: number;
+  limit: number;
+  categories: string[];
+  revision: number;
 }

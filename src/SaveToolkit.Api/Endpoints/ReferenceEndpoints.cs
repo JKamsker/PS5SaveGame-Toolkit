@@ -22,6 +22,7 @@ internal static class ReferenceEndpoints
             IsCrossSite(request) ? CrossSiteRejected() : store.Remove(packId) ? Results.NoContent() : Results.NotFound());
 
         var doc = app.MapGroup("/api/workspaces/{workspaceId}/documents/{documentId}");
+        doc.MapReferenceFieldApi();
         doc.MapGet("/sources", (DocumentRef d) =>
             new DocumentSourcesDto([.. d.Workspace.References(d.Value.Id).Datasets().Select(s => s.ToDto())]));
         doc.MapGet("/references/{catalogId}", Search);

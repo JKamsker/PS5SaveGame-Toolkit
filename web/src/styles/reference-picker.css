@@ -1,0 +1,23 @@
+.reference-trigger { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dialog.reference-picker { width: min(850px, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: hidden; }
+.dialog.reference-picker[open] { display: flex; flex-direction: column; }
+.reference-picker .dialog__body { min-height: 0; overflow: auto; }
+.reference-picker .dialog__footer { flex-shrink: 0; }
+.reference-filters, .reference-raw, .reference-paging { display: flex; gap: .75rem; align-items: end; margin-block: .75rem; }
+.reference-filters label, .reference-raw label { display: grid; gap: .35rem; flex: 1; min-width: 0; }
+.reference-picker__content { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.reference-options { height: 280px; overflow: auto; border: 1px solid var(--rule); border-radius: 6px; }
+.reference-option { display: flex; gap: .65rem; padding: .65rem; cursor: pointer; border: 2px solid transparent; }
+.reference-option small { display: block; opacity: .75; overflow-wrap: anywhere; }
+.reference-option--active { border-color: var(--signal); background: var(--signal-soft); }
+.reference-option[aria-disabled="true"] { opacity: .65; }
+.reference-icon { object-fit: contain; flex-shrink: 0; }
+.reference-icon--empty { display: inline-grid; place-items: center; width: 32px; height: 32px; }
+.reference-preview { overflow-wrap: anywhere; }
+.reference-preview h3 { margin-block: .5rem; }
+.reference-attribution { font-size: .8rem; margin-top: .8rem; }
+.reference-attribution p { margin-block: .3rem; }
+@media (max-width: 600px) {
+  .reference-picker__content { grid-template-columns: 1fr; }
+  .reference-filters { flex-direction: column; align-items: stretch; }
+}

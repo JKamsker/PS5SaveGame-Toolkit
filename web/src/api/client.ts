@@ -8,6 +8,8 @@ import type {
   ReferencePackInfo,
   ReferencePacks,
   ReferencePage,
+  ReferenceCandidate,
+  ReferenceCandidatePage,
   SaveDocument,
   TitleInfo,
   ViewNode,
@@ -121,6 +123,10 @@ export const api = {
   },
   referenceAssetUrl: (wsId: string, docId: string, assetId: string) =>
     `/api${doc(wsId, docId)}/reference-assets?id=${encodeURIComponent(assetId)}`,
+  referenceCandidates: (wsId: string, docId: string, query: { valueId: string; actionId?: string; q?: string; category?: string; offset?: number; limit?: number; revision?: number }) =>
+    request<ReferenceCandidatePage>(`${doc(wsId, docId)}/reference-fields/candidates?${referenceParams(query)}`),
+  referenceCandidate: (wsId: string, docId: string, query: { valueId: string; rawId: string; actionId?: string; revision?: number }) =>
+    request<ReferenceCandidate>(`${doc(wsId, docId)}/reference-fields/record?${referenceParams(query)}`),
   referencePacks: () => request<ReferencePacks>("/reference-packs"),
   importReferencePack: (file: File) => {
     const form = new FormData();
@@ -142,3 +148,7 @@ export const api = {
     return { blob: await response.blob(), name };
   },
 };
+
+function referenceParams(query: Record<string, string | number | undefined>): string {
+  return new URLSearchParams(Object.entries(query).filter((entry) => entry[1] !== undefined).map(([key, value]) => [key, String(value)])).toString();
+}

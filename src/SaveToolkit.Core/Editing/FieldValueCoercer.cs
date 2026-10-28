@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Core.Editing;
@@ -16,7 +17,7 @@ public static class FieldValueCoercer
         public bool Ok => Error is null;
     }
 
-    public static Result FromJson(JsonElement json, FieldSpec spec)
+    public static Result FromJson(JsonElement json, FieldSpec spec, ReferenceFieldService? references = null)
     {
         if (spec.ReadOnly) return Fail("Field is read-only.");
         if (spec is NullableSpec nullable && json.ValueKind != JsonValueKind.Null)
@@ -48,10 +49,10 @@ public static class FieldValueCoercer
             JsonValueKind.Number => FieldValue.Of(json.GetDouble()),
             _ => FieldValue.Null,
         };
-        return Normalize(raw, spec);
+        return Normalize(raw, spec, references: references);
     }
 
-    public static Result Normalize(FieldValue raw, FieldSpec spec, bool allowReadOnly = false)
+    public static Result Normalize(FieldValue raw, FieldSpec spec, bool allowReadOnly = false, ReferenceFieldService? references = null)
     {
         if (spec.ReadOnly && !allowReadOnly)
         {
@@ -65,6 +66,7 @@ public static class FieldValueCoercer
             FloatSpec s => Float(raw, s),
             TextSpec s => Text(raw, s),
             EnumSpec s => Enum(raw, s),
+            ReferenceSpec s => (references ?? new ReferenceFieldService(ReferenceContext.None)).Validate(raw, s),
             FlagsSpec s => Integer(raw, 0, s.BitWidth >= 127 ? Int128.MaxValue : (Int128.One << s.BitWidth) - 1),
             DateTimeSpec s => DateTimeValue(raw, s),
             ExactNumberSpec s => ExactNumber(raw, s),

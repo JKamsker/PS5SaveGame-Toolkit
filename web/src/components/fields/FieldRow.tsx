@@ -28,6 +28,7 @@ export function FieldRow({ node }: { node: FieldNode }) {
       </label>
       <FieldControl
         id={id}
+        valueId={node.valueId}
         labelledBy={labelId}
         spec={node.spec}
         value={value}

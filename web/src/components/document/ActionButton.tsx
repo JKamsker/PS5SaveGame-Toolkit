@@ -78,6 +78,8 @@ export function ActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
                   </label>
                   <FieldControl
                     id={`${idPrefix}-${p.valueId}`}
+                    valueId={p.valueId}
+                    actionId={node.actionId}
                     spec={{ ...p.spec, readOnly: false }}
                     value={Object.hasOwn(values, p.valueId) ? values[p.valueId]! : p.value}
                     onCommit={(v) => {
