@@ -16,7 +16,8 @@ been removed. Edited files have not been loaded on a console.
 | Ammo | Editable finite resource-pool amounts | Schema floats and full resource paths; game capacity may clamp them |
 | SDUs | Read purchased levels and full asset paths | Schema; no upgrade/capacity editing |
 | World | Read missions/statuses, playthrough indices/completion, Mayhem/Chaos and unlocked Chaos | Separate game schemas; no mission/difficulty/unlock editing |
-| Inventory | Read item counts, indices, serial lengths, flags, pickup order, equipped-slot mappings | Opaque item serials are never edited; no invented item names |
+| Inventory | Named, queryable backpack/bank/lost loot; lazy serial/part details, original codes, level, CRC/layout status, raw flags/pickup/equipment indices | Attributed upstream **family** labels, not complete generated item names; serials/flags/slots stay read-only |
+| Reference browser | F2 title-scoped packs, F4 searchable balance/part inspection pickers, F8 balance catalogue | Offline, versioned, attributed zlib editor data; raw fallback for unknown names; inspection makes no save changes |
 | Profile | Read bank/lost-loot counts; BL3 guardian rank/XP; Wonderlands myth XP when present | Schema; no rank/reward editing |
 | Raw | Lazy schema-labelled tree; unknown tags and bytes shown as opaque data | Unknown meanings remain unknown; account-like metadata is hidden |
 
@@ -32,6 +33,43 @@ skills and does not remove unspent points. Repeated down/up levelling in Wonderl
 award extra points; review the explicit points field. BL3's level-one tree is enabled when raised
 above level one. Missing level statistics/ability messages are not fabricated. Warnings describe
 these limits in the UI.
+
+## Item browser and versioned data
+
+The read-only inventory uses F8 queries over the complete container for search, exact category filters,
+numeric level/index sorting and paging (at most 200 rows). F3 rows show a confidence-labelled family
+name, raw part-family key and lazy details. Details include original `BL3(...)` codes (both games use
+this wrapper), balance/inventory/manufacturer paths, raw parts, flags, pickup order, reroll count and
+Wonderlands' raw Chaos tier when the entire known layout parses. No exact rarity, combat statistics,
+localized full names or legal part combinations are inferred. No game artwork is bundled.
+
+F4's **Inspect catalogue entry** and **Inspect serial index / part** actions browse F2 catalogues with
+provenance. They are inspection actions with no changes, undo steps or dirty state. Unknown candidate
+IDs are rejected by the host. Balance name packs must declare the matching internal database version;
+incompatible labels fall back to the pinned data. With no host packs, ordinary inventory/catalogue
+views still use the same embedded records. Pickers require the host F2 context.
+
+The binary layout always uses the pinned embedded database; name overrides cannot redefine bit widths.
+The packs contain all original serial indices, including duplicate asset paths, and all historic width
+transitions. The keyed balance catalogue collapses duplicate normalized paths; indices are never
+renumbered. Versions and counts:
+
+| Pack | Internal database | Index categories / records | Distinct balances | Source name mappings | Balance→part-family mappings | Slot/SDU/ammo labels |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `gearbox.bl3` 1.0.0 | 62 | 48 / 11,453 | 2,803 (2,848 index slots) | 774 | 1,435 | 25 |
+| `gearbox.ttwl` 1.0.0 | 59 | 56 / 13,674 | 2,030 (2,037 index slots) | 375 | 659 | 29 |
+
+Game patch, DLC/hotfix state and completeness are **unknown**; internal serial database versions are
+not PS5 build numbers. Every dataset has attribution and a hash in `pack.json`, plus a source sidecar
+with pinned source revision, original compressed-file SHA-256 and conversion notes. NC bl3data/wldata
+exports and unlicensed artwork were not imported. The data shipped in the zlib editor revisions is
+used under those distributions' terms; underlying game asset identifiers remain Gearbox/2K game facts.
+
+The serial envelope is capped at 4,096 bytes; bit reads and part/additional counts are bounded. It
+retains the signed seed, checksum, all trailing bits and original serial bytes. Unsupported versions,
+bad CRCs, unmapped indices/families, nonzero customizations and unknown tails produce item-local
+diagnostics. They never prevent unrelated currency/progression editing. Header-only items do not
+advertise decoded reroll/Chaos values. Stable document-local row IDs distinguish identical serials.
 
 ## File roles and layout
 
@@ -65,7 +103,7 @@ at `i` for the first 32 bytes or ciphertext at `i−32`. Encoding uses already p
 as feedback. This is rolling XOR obfuscation, with no compression/authentication. No additional
 wrapper checksum is present in the cited format or observed samples. **Well-formed scalar/unknown
 field corruption can go undetected.** Item serials have independent encoding/checksums and remain
-untouched.
+untouched by edits. A separate bounded reader now validates and displays them.
 
 Google.Protobuf managed coded streams parse/rewrite wire records without reflection, generated
 classes, protoc or Grpc.Tools. Embedded TSV resources contain factual names/numbers/types/cardinality
@@ -111,19 +149,45 @@ Samples/decoded payloads were inspected only in external scratch storage and are
 ## Validation
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 dotnet test --project plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests
-dotnet test --project tests/SaveToolkit.Core.Tests
+dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/Gearbox/fixtures.json --artifacts $env:SAVETOOLKIT_ARTIFACTS
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Validated: API build, zero warnings/errors; **47 Gearbox tests passed**; **42 framework tests passed**.
-With samples unavailable: **24 passed, 23 skipped, zero failures**.
+Validated 2026-10-28: **80 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
+0 failed, 0 skipped**; API build **0 warnings, 0 errors**. The environment variable was exported in the
+same shell command as each sample-backed test run. Sample-dependent tests still skip when absent.
 
-Tests include conformance with meaningful currency/key edits, every generation/twin, independent
+Tests include conformance with meaningful currency/key edits, valid F2 packs and fixture archive hashes,
+every generation/twin, independent
 feedback-window vectors, known values, money/level/key reopen, Wonderlands extra points, framework
 undo/redo byte restoration, atomic rejection, preservation of every real-sample unknown record,
 noncanonical encodings/nested lengths, UTF-16 GVAS strings, header/tail preservation, malformed
-payload/framing rejection and invalid names. Sample-dependent tests use `SampleSaves` to skip.
+payload/framing rejection and invalid names. Independent test-only GVAS/feedback/wire and integer/bit
+serial probes reproduce these **primary-file occurrences** (backups tested separately, not counted twice):
+
+| Evidence | BL3 | Wonderlands |
+| --- | ---: | ---: |
+| CRC / header / original-seed inverse | 93 / 93 | 68 / 68 |
+| Known family labels | 83 / 93 | 51 / 68 |
+| Complete known part layout / zero padding | 85 / 93 | 51 / 68 |
+
+Unmapped labels and part families remain explicit gaps, primarily cosmetic pickups; no names were
+invented to improve coverage. Synthetic vectors cover seeds 0/−1/int32 extrema, legacy v3 envelopes,
+CRC corruption, truncation, wrong game, newer databases, unknown customizations/tails, bad indices and
+1,000 checksum-valid random payloads. Browser tests cover duplicate identities, unknown serials,
+full-collection queries beyond the first page, read-only rich details, attributed pickers and clean
+inspection. Currency edits preserve every serial and unrelated top-level wire record, then undo to
+exact original bytes.
+
+[`fixtures.json`](fixtures.json) pins archive SHA-256 and observed generation-0/1 XP/money facts.
+These are uncontrolled existing generations, **not** proven before/after game actions or chronology.
+No speculative churn masks are applied. `GearboxEvidenceDecoder` uses F1's `ISaveDecoder` hook in the
+test assembly and exposes only selected gameplay scalars and serial content identities; duplicate
+serials retain multiplicity. A changed serial appears removed/added because durable cross-capture
+item identity is unknown. Tests run the same manifests through both this independent decoder and
+the CLI's `PluginViewDecoder`. No sample bytes, decoded payloads or account identifiers are committed.
 
 ## Unknowns and open work
 
@@ -133,12 +197,45 @@ payload/framing rejection and invalid names. Sample-dependent tests use `SampleS
   and missing progression records. Existing mission/unlock data is preserved.
 - Item/rank/reward/difficulty/mission editing and platform conversion are not implemented.
 - Other regions/builds need samples. PPSA01494 is a separate BL4 format and never claimed.
+- Phase 1's inventory/reference/evidence work is delivered. Full cosmetic/skill/mission/challenge
+  crosswalks, localized complete item names and icons remain open. Later write phases remain gated
+  on controlled captures and console validation, including the existing Wonderlands levelling-budget policy.
+- BL4 codec/file-role research and the exact owner checklist are in [BL4 feasibility](BL4-feasibility.md).
 
-## Sources and licences
+## Sources and attribution
 
 Research date: 2026-10-28. Downloaded source was read as untrusted text, never executed. Implementation
 code is independently written; reference resources contain schema/numeric facts. Notices are retained
-under [Notices](Notices/).
+under [Notices](Notices/). Serial envelope/layout code is explicitly marked as an altered C# adaptation
+of the pinned zlib `datalib.py` implementations. No downloaded implementation was executed.
+
+| Dataset / code port | Pinned source | Author | Licence | Retrieved | Modification |
+| --- | --- | --- | --- | --- | --- |
+| BL3 `serial-widths` | [Resources][bl3-res] | CJ Kucera | [Zlib][bl3-license] | 2026-10-28 | All category/version bit widths → F2 records |
+| BL3 `serial-indices` | [Resources][bl3-res] | CJ Kucera | [Zlib][bl3-license] | 2026-10-28 | All 1-based indices/asset paths retained |
+| BL3 `balances` | [Resources][bl3-res] | CJ Kucera | [Zlib][bl3-license] | 2026-10-28 | Joined family labels; normalized/deduplicated balance paths; raw fallback |
+| BL3 `part-families` | [Resources][bl3-res] | CJ Kucera | [Zlib][bl3-license] | 2026-10-28 | Exact balance→part-category crosswalk |
+| BL3 `labels` | [Constants][bl3-constants] | CJ Kucera | [Zlib][bl3-license] | 2026-10-28 | Explicit slot/SDU/ammo labels; no capacity policy |
+| TTWL `serial-widths` | [Resources][ttwl-res] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | All category/version bit widths → F2 records |
+| TTWL `serial-indices` | [Resources][ttwl-res] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | All 1-based indices/asset paths retained |
+| TTWL `balances` | [Resources][ttwl-res] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | Joined family labels; normalized/deduplicated balance paths; raw fallback |
+| TTWL `part-families` | [Resources][ttwl-res] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | Exact balance→part-category crosswalk |
+| TTWL `labels` | [Constants][ttwl-constants] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | Explicit slot/SDU/ammo labels; no capacity policy |
+| Serial envelope / layout adapter | [BL3][bl3-serial], [TTWL][ttwl-serial] | CJ Kucera / Abram Hindle; upstream credits Baysix | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Bounded read-only C# adaptation; no serial mutation |
+| `Bl3.tsv`, `Bl3Xp.tsv` | [BL3 editor][bl3-root] | CJ Kucera; schemas credit Rick/Gibbed | [Zlib][bl3-license] | 2026-10-28 | Separate schema facts and exact XP thresholds |
+| `Wonderlands.tsv`, `WonderlandsXp.tsv` | [TTWL editor][ttwl-root] | CJ Kucera / Abram Hindle; schemas credit Rick/Gibbed | [Zlib][ttwl-license] | 2026-10-28 | Separate schema facts and exact XP thresholds |
+| PS4 feedback masks | [Gibbed crypt files](https://github.com/FromDarkHell/BL3SaveEditor/tree/c044e6d6f1fd78b259f2147119fbe2cdbbc7a3ee/BL3Tools/Decryption) | Rick/Gibbed | Zlib, retained notice | 2026-10-28 | Independent managed feedback implementation / test probe |
+
+[bl3-root]: https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04
+[ttwl-root]: https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b
+[bl3-res]: https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/resources
+[ttwl-res]: https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/resources
+[bl3-constants]: https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/__init__.py
+[ttwl-constants]: https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/__init__.py
+[bl3-serial]: https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/datalib.py
+[ttwl-serial]: https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/datalib.py
+[bl3-license]: https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt
+[ttwl-license]: https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt
 
 - [apocalyptech/bl3-cli-saveedit, d459b28](https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04):
   `bl3save.py`, `bl3profile.py`, `__init__.py`, `protobufs/Oak{Save,Profile,Shared}.proto`: framing,
@@ -168,5 +265,40 @@ under [Notices](Notices/).
 
 ## SDK requests
 
-None. `BoundSaveDocument` is extended locally with clone-based transactions and complete derived-value
-reporting for coupled progression edits.
+**GEARBOX-R4 / F7: coordinated character + profile transaction ownership** is still required for bank
+transfers, shared Guardian state and account/character progression reconciliation. Exact host contract:
+
+1. Explicitly select a supported title, character path and matching profile path from the **same imported
+   generation**; report unsupported/missing/ambiguous partners before opening an owning transaction.
+2. Acquire one owner and version/fingerprint locks over all affected imported paths, detect other dirty
+   sessions and reject overlapping writers. Never pick a sibling generation or resolve a dirty conflict silently.
+3. Let the plugin validate all container/serial relationships and capacities against one immutable input
+   set, then stage all changes atomically. A failure must publish no changes to either live document.
+4. Record one undo/redo unit restoring bytes **and stable duplicate identities** across both documents.
+   Reconcile queries/lazy pages and invalidate stale revisions together.
+5. Preflight every `FileOutput` against the locked fingerprints, re-open **each** character/profile output
+   in its correct role, reject overlaps and publish/export the set atomically. Define backup ownership
+   explicitly; do not silently overwrite independent backup sessions.
+
+`Serialize()` can already return multiple files; an additional output API is unnecessary. Independent
+document sessions lack coordinated ownership, conflict handling and history. This round returns only
+the opened file and enables no transfers or structural serial writes. F1/F2/F3/F4/F5/F8 are available;
+no plugin-local substitute for host transactions was added.
+
+## Owner capture and validation checklist
+
+- For each BL3/TTWL capture, record PS5 game version, region, DLC/hotfix state, slot and a transcribed
+  item card; include the character, matching profile and backup from each snapshot. Do not include
+  credentials or account-derived codec material in reports.
+- Capture a no-action save/reload/save pair, then separate before/after pairs for **one** pickup,
+  sale/removal, equip/unequip, favourite/junk toggle, backpack↔bank move, lost-loot claim and
+  enchantment/reroll. Include duplicates and full/near-full containers; isolate each action.
+- Include BL3 starter guns/cosmetic pickups/legacy serial versions, and TTWL level-40/endgame gear
+  with nonzero rerolls and each observed Chaos tier. Current TTWL characters are level 12.
+- Capture one level gain, one skill allocation/respec, one SDU purchase and one ammo refill, separately.
+  Guardian: profile + multiple characters before/after one token/perk. Myth: each indexed allocation,
+  rotation and capped stat, with matched profile. These are later write-phase prerequisites.
+- On a backed-up spare slot, validate each enabled write family independently: restore, load, confirm
+  intended visible effect and unrelated inventory, re-save, reload, then return the new dump plus
+  observations. Report game clamping. Only the owner can promote maturity to Stable.
+- For BL4 use the separate [file-role/codec capture checklist](BL4-feasibility.md). No BL4 writes.

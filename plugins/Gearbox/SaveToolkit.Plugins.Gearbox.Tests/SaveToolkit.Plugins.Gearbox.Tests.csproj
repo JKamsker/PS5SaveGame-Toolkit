@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
+    <EmbeddedResource Include="../fixtures.json" LogicalName="gearbox.fixtures.json" />
   </ItemGroup>
 </Project>

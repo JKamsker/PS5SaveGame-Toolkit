@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "id": "gearbox.bl3",
+  "version": "1.0.0",
+  "title": "Borderlands 3 serial database 62",
+  "description": "Pinned d459b28a7e88f1a5ae0f16118272d8a5383b8b04; English family names; console build, DLC and hotfix coverage unknown.",
+  "plugins": [
+    "gearbox"
+  ],
+  "titleIds": [
+    "PPSA01463"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "serial-widths",
+      "kind": "records",
+      "title": "serial-widths",
+      "files": [
+        {
+          "path": "serial-widths.json",
+          "sha256": "48427ad30aa8633a5acfb088e364326e3f77308598fdcc5fe13b0037c0caf9c7"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/resources",
+        "author": "CJ Kucera / apocalyptech",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 62."
+      }
+    },
+    {
+      "id": "serial-indices",
+      "kind": "records",
+      "title": "serial-indices",
+      "files": [
+        {
+          "path": "serial-indices.json",
+          "sha256": "b7ed856fe291f7b710d9bc8593f007259bfa576babfd9766ecb47ce269520e3b"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/resources",
+        "author": "CJ Kucera / apocalyptech",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 62."
+      }
+    },
+    {
+      "id": "part-families",
+      "kind": "records",
+      "title": "part-families",
+      "files": [
+        {
+          "path": "part-families.json",
+          "sha256": "1a817819d2444ba81de55b8fdc2f7fa5db262bf38b47547cf4f1195565ee6ed5"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/resources",
+        "author": "CJ Kucera / apocalyptech",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 62."
+      }
+    },
+    {
+      "id": "balances",
+      "kind": "records",
+      "title": "balances",
+      "files": [
+        {
+          "path": "balances.json",
+          "sha256": "eb5379297ebf326310d12d2cd1d2d20b1c4e3fae10671d545390e81427187bed"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/resources",
+        "author": "CJ Kucera / apocalyptech",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 62."
+      }
+    },
+    {
+      "id": "labels",
+      "kind": "records",
+      "title": "Slot, SDU and ammo labels",
+      "files": [
+        {
+          "path": "labels.json",
+          "sha256": "e62a093be3b639021983ef34a473933a7cb5ac6857c7224772600def3a5bb310"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://raw.githubusercontent.com/apocalyptech/bl3-cli-saveedit/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/__init__.py",
+        "author": "CJ Kucera / apocalyptech",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted only explicit slot/SDU/ammo asset-to-label pairs; no upstream capacity limits applied."
+      }
+    }
+  ]
+}
