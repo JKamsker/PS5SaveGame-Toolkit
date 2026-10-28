@@ -8,6 +8,10 @@ re-opening the output, and exported in the same folder layout (including the con
 The toolkit does not decrypt or re-sign PS5 save containers; use your save manager for that.
 Always keep a backup and test edits on a spare slot.
 
+Game support: 18 plugins covering 24 of the 33 sample titles, among them Pragmata, Baldur's Gate 3,
+Cyberpunk 2077, The Witcher 3, Elden Ring, FF VII Remake/Rebirth, FF XVI, Borderlands 3, Ghost of Tsushima
+and Tales of Arise. See [docs/PLUGINS.md](docs/PLUGINS.md) for what each one can edit.
+
 ## Run
 
 ```powershell
