@@ -1,25 +1,49 @@
 # Generic JSON (`format.json`)
 
-An exact UTF-8 JSON workbench with read-only, sample-backed title overlays. **Experimental**: sample conformance, host sessions and browser round-trips are tested; console acceptance is untested. Raw syntax edits make no game-safety claim. `Info.Games` remains empty because detection is format-based.
+An exact UTF-8 JSON workbench with sample-backed title views and previewed existing-value adapters. **Experimental**: console acceptance is untested. The 2026-10-28 owner decision, “Enable writes. Keep warnings,” replaces the earlier evidence gates; validation is tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). `Info.Games` remains empty because detection is format-based. Generic JSON editing is unchanged.
 
 ## Coverage and evidence
 
 | Title / role | Observed coverage | Interpretation |
 | --- | --- | --- |
-| PPSA04027 / Cyberpunk 2077 | `settings.json`, 45,415 bytes, version 136; 28 groups / 149 options; `metadata.9.json`, 2,610 bytes | Read-only friendly group/option labels, recorded types/bounds/defaults/choices and exact index/value consistency. Binary `sav.dat` / `user.gls` are separate formats. Metadata uses the raw workbench. |
-| PPSA07696 / Ridge Racer 2 PSP classic | `imgui_emu_option.json`, 1,320 bytes; `cubic_A = -0.5` | Read-only wrapper configuration groups. `DATA.BIN` gameplay is separate. PS1 preset documentation does not prove PSP enum meanings. |
-| PPSA02343 / It Takes Two (EU) | Three primary `ue4savegame.dpx.sav` generations, 3,993 / 3,522 / 1,312 bytes, plus byte-identical backup twins | String-valued `Profile` alongside `CloudSettings` / `LocalSettings`. Read-only grouped `Minigame.*`, `MinigameFlag.*`, `MinigameCounter.*` and chapter/checkpoint keys; absent keys stay absent. |
+| PPSA04027 / Cyberpunk 2077 | `settings.json`, 45,415 bytes, version 136; 28 groups / 149 options; `metadata.9.json`, 2,610 bytes | File-derived metadata, bounded scalar editing, paired choice/index adapters and recorded-default resets. Binary `sav.dat` / `user.gls` are separate formats. Slot metadata uses the raw workbench. |
+| PPSA07696 / Ridge Racer 2 PSP classic | `imgui_emu_option.json`, 1,320 bytes; `cubic_A = -0.5` | Bounded wrapper primitives and imported-value reset. `DATA.BIN` gameplay is separate. PS1 preset documentation does not prove PSP enum meanings. |
+| PPSA02343 / It Takes Two (EU) | Three primary `ue4savegame.dpx.sav` generations, 3,993 / 3,522 / 1,312 bytes, plus byte-identical backup twins | String-preserving adapters for present `Minigame.*`, `MinigameFlag.*`, `MinigameCounter.*` and chapter/checkpoint keys, including present-key presets. Absent keys stay absent. |
 | Other titles / filenames | Complete valid UTF-8 JSON, including root scalars/null | Generic workbench only. A title ID or `.sav` extension does not establish JSON or Unreal GVAS. |
 
 Byte-level shapes, lengths and no-op preservation are tested observations. Gameplay meanings and write dependencies remain **Inferred/Unknown**. Matchers require the title, file role and expected shape; Cyberpunk also requires numeric version 136. Ambiguous required keys, incompatible scalar types and unsupported versions fall back to generic JSON. Overlays are rematched after edits and undo.
 
 F1 `JsonSaveDecoder` / `SemanticDiffer` tests compare the three It Takes Two primary generations, restricting output to aggregate changes in minigame/chapter/checkpoint path families. All six primary/backup occurrences round-trip identically. Archive order is not chronology: these snapshots do not prove a transition, counter unit, flag meaning or dependency. No identity values or private save payloads are committed/logged.
 
-Friendly labels use original word splitting of keys already in the live document, not an external localization/alias dictionary. Raw names, occurrence paths and quoted JSON string values remain visible with provenance. Cyberpunk metadata is descriptive: a matching `values[index]` does not prove which paired writes the game accepts. Dynamic choices without recorded lists remain unknown. It Takes Two flag casing (`true` / `True`) and score strings are displayed without normalization; no identity, EULA or telemetry fields are added to its gameplay overlay. Complete minigame aliases and chapter/checkpoint graphs remain owner-gated.
+Friendly labels use original word splitting of keys already in the live document, not an external localization/alias dictionary. Raw names, occurrence paths and quoted JSON string values remain visible with provenance. A matching Cyberpunk `values[index]` does not prove which paired writes the game accepts. Dynamic choices without recorded lists remain unknown. It Takes Two flag casing and score strings retain their storage types; no identity, EULA or telemetry fields enter its gameplay actions. Complete minigame aliases and chapter/checkpoint graphs remain unimplemented.
+
+## Enabled writes and their evidence
+
+All **11 write families** below use F6 preview/apply, including the single-field adapters. Every preview and successful outcome carries: **“Not validated on console. External integrity and game dependencies are unknown; the game may reject or overwrite the edited save.”** Parameter controls retain Inferred/Unknown confidence and file-derived provenance. A preview is pure; apply revalidates it, patches existing raw value IDs and creates one undo group. No alias bindings, replacement history or local transaction protocol were added.
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed ([#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31)) |
+| --- | --- | --- | --- | --- |
+| Cyberpunk scalar bool/number/text | Inferred | v136 file-recorded type/min/max/step; sample-backed adapter edits | JSON reparsed; external integrity unknown | Change one option, verify menu effect, restart/resave/reload/export |
+| Cyberpunk recorded choice + derived index | Inferred | 24 sample choice lists with matching value/index; occurrence IDs preserve group/name distinctions | Both tokens patched atomically and reparsed; external integrity unknown | Determine value/index authority and overwrite behavior |
+| Cyberpunk dynamic raw text + explicit index | Unknown | Existing type and imported text length/index only; no fabricated choice list | JSON reparsed; external integrity and choice availability unknown | Capture valid language/HDR choices and index domains |
+| Cyberpunk per-option/bulk recorded defaults | Inferred | 144 options record a scalar default or default index; unsupported/malformed defaults are skipped | Paired indices included; JSON reparsed; external integrity unknown | Compare toolkit defaults with native menu reset on this build |
+| It Takes Two present string booleans | Inferred | Gameplay key families; `true`/`True` observed; per-field lower/title/upper style preserved | JSON string storage retained and reparsed; external integrity unknown | Discover/play separately; verify casing and actual effect |
+| It Takes Two present string counters | Inferred | Digit strings; family maximum 67 across the supplied generations | JSON strings retained and reparsed; units/limits/external integrity unknown | Separate Cody/May wins/scores; verify units/caps and zero behavior |
+| It Takes Two chapter/checkpoint strings and explicit three-field tuple | Inferred | Existing `FurthestUnlockedChapter`, `LastSaveChapter`, `LastSaveProgressPoint`; PC editor corroborates names only | Existing strings patched as one group; progression dependencies/external integrity unknown | Continue, Chapter Select, replay and forward progression after restart |
+| It Takes Two present-flag preset (true/false) | Inferred | Same existing boolean adapters; no missing key insertion | One F6 undo group; JSON reparsed; story dependencies/external integrity unknown | Selected/full present flags; rewards/availability and unrelated story state |
+| It Takes Two counter-zero preset | Inferred | Same existing counter adapters; zero is an explicit unverified target | One F6 undo group; JSON reparsed; external integrity unknown | Zero each score/win type separately and verify native resave behavior |
+| Ridge Racer wrapper primitive edits | Unknown | Imported types/values only; no PS1 enum meanings transferred | JSON reparsed; no DATA.BIN changes; external integrity unknown | Filter/upscale/AA/controller/rewind effects on exact PSP wrapper build |
+| Ridge Racer restore-imported preset | Unknown | Exact imported scalar values; this is not a game-default/visual preset | One F6 undo group; original spellings restored; external integrity unknown | Native wrapper restart/resave and compare all companions |
+
+Cyberpunk integer settings enforce integral values, min/max and recorded steps relative to minimum, allowing recorded endpoints. Float min/max remain exact; float steps are advisory because PS5 metadata such as `0.0099999997` does not divide its own defaults/endpoints exactly. Decimal arithmetic is used only after an exact equality check prevents rounding; JSON number lexemes are never converted through binary floating point. Edited metadata is not silently accepted as a new schema. Dynamic text uses at most the imported length (hard ceiling 4,096); explicit indices use `0..imported index` and carry an Unknown warning.
+
+Profile counters use `0..max(imported count, 67)` within Int32, a conservative observed family range, **not a proven score/win cap**. Other text adapters use at most the imported length (hard ceiling 4,096). Wrapper numbers range between zero and the imported number; an imported integer remains integral. Zero-valued unknown enums therefore have a single-value semantic range. Numeric-looking wrapper strings use `0..imported count`, independently of the profile counter range. Raw workbench controls retain their existing broader syntax-only behavior.
+
+Defaults/flag/counter/imported-wrapper presets support document scope, selected F8 raw value rows and resolved “all matching” queries. Empty selection means no edits; noneligible rows are listed as skipped. A selected Cyberpunk value also changes its paired index as a derived effect. The chapter tuple requires all three existing, unique fields and document scope. It does not validate a story graph or invent companion state. Single-field/default actions also require document scope. Title previews are limited to 5,000 changed/skipped fields; larger coverage requires a bounded selection.
 
 ## Exact values and preservation
 
-All editable scalars use F10 `NullableSpec(UnionSpec)` with explicit exact-number, string and boolean choices. A present null, an absent property and an empty string remain distinct. Multiline strings are supported. Unknown fields remain available through the raw workbench with `Confidence.Unknown` and a game-dependency warning.
+Raw workbench scalars use F10 `NullableSpec(UnionSpec)` with explicit exact-number, string and boolean choices. A present null, an absent property and an empty string remain distinct. Multiline strings are supported. Unknown fields remain available through the raw workbench with `Confidence.Unknown` and a game-dependency warning. Title action parameters use the appropriate scalar/enum spec and preserve the underlying JSON type.
 
 Numbers retain the exact lexeme, including small integers, negative zero, exponent spelling, long decimals and values beyond Int128/double. There is no conversion through JavaScript `Number`. Tagged wire values distinguish numbers from numeric-looking strings. SDK bounds are 16,384 lexeme characters and absolute exponent 1,000,000,000; larger valid tokens remain verbatim read-only. These are resource bounds, not game-specific numeric limits.
 
@@ -49,13 +73,13 @@ Planning clones the tree and validates the prospective serialization without cha
 
 Both insertion forms offer explicit null/string/number/boolean/object/array templates. They never copy a neighboring row or fabricate absent gameplay flags. **Custom JSON** preserves the supplied literal. **Generate from explicit local schema** accepts a user-supplied, local-only subset described in [TEMPLATE_SCHEMA.md](TEMPLATE_SCHEMA.md). Custom/type templates can also be validated against the supplied schema. Generation emits required object members and minimum array entries, using explicit defaults or empty values of the selected type; optional members remain absent. Schema defaults are used only in this explicit generation action, not while validating or editing existing saves. Unsupported keywords and external references reject instead of being silently ignored.
 
-Template schemas apply only to the inserted fragment during preview/apply. They are not inferred title schemas, persistent document constraints or evidence of game-safe values. Cross-container moves, complete JSON Schema, built-in title insertion schemas and game presets remain unimplemented.
+Template schemas apply only to the inserted fragment during preview/apply. They are not inferred title schemas, persistent document constraints or evidence of game-safe values. Cross-container moves, complete JSON Schema and built-in title insertion schemas remain unimplemented. Present-value presets above do not create absent game keys.
 
 ## Companion files and F7
 
 F7 document groups (#29, merged as `7ff21ad`) were reviewed. No current GenericJson title has proven coordinated JSON writes, so this plugin remains a single-file document and emits only its opened file. Cyberpunk settings, slot metadata and binary gameplay coexist but have no established cross-file write dependency. It Takes Two's `Profile`, `CloudSettings` and `LocalSettings` are sections of one file, not separate companions. Ridge Racer's wrapper options and binary `DATA.BIN` have different roles without a proven coordinated edit. Identical backup twins alone are not evidence for a new group; ordinary export mirroring remains the host's responsibility.
 
-Before F7 adoption, the owner must supply same-title/same-generation controlled pairs retaining every companion, identify the invariant requiring coordinated changes, and demonstrate failure/success of separate/atomic changes on spare saves. Future groups must pin exact file roles and fingerprints, reject ambiguous/missing partners and explicitly include backups if they are owned. See [OWNER_CHECKLIST.md](OWNER_CHECKLIST.md).
+The write-enable round reviewed these roles again: none of its enabled writes needs a clearly coupled companion, so no F7 group is declared. This is an absent invariant/group implementation, not a console-evidence gate on the enabled edits. A future group must identify the cross-file invariant, pin exact file roles and fingerprints, reject ambiguous/missing partners and explicitly include backups if owned. See [OWNER_CHECKLIST.md](OWNER_CHECKLIST.md).
 
 ## Resource bounds
 
@@ -71,6 +95,8 @@ Before F7 adoption, the owner must supply same-title/same-generation controlled 
 | Changes panel | Core traversal/resource limits apply (currently 100,000 visited view nodes and depth 128, plus its configured baseline byte budget). Large/deep review may be incomplete even though full-tree search still works. |
 
 ## Validation
+
+Write-enable validation, 2026-10-28: **180 passed, 0 failed, 0 skipped** with private artifacts configured; API build **0 warnings, 0 errors**. Every supplied primary/backup generation exercises editable semantic adapters through the host's F6 plan/apply, serialize/reopen and undo/redo. Tests independently patch only planned source tokens, then use F1 `ByteDiffer` to require identical output, proving unrelated bytes remain intact. Presets include real sample defaults, present flags, counter zero, explicit progress tuples and imported-wrapper restoration. Single-value conservative ranges remain unchanged rather than inventing alternatives. Synthetic regressions cover invalid bounds/steps, exact decimal arithmetic, approximate float defaults, malformed metadata/overflow, duplicate keys, dynamic pairs, stale previews, wrong scopes/types, selected/all-matching/empty selections and bounded coverage. Existing generic F5/F10 conformance remains green. No new browser or PS5 console validation is claimed for this write-enable round.
 
 Run sample-backed tests with the environment variable in the **same shell command**:
 
@@ -91,11 +117,11 @@ Round-2 browser validation used only synthetic BOM-prefixed JSON. The normal obj
 | --- | --- |
 | 1: read-only interpretation | Title/role/shape matching, richer file-derived option metadata, word-split names, grouped profile flags/counters, provenance, F1 comparison and all sample/twin coverage shipped. Complete localization/alias/checkpoint catalogues remain open. |
 | 2: exact JSON workbench | F10 exact lexemes, nullable/union controls, authoritative validation, wire/session/browser checks shipped. |
-| 3: existing-value editing and review | F8 search with imported comparison, exact subtree scopes and lazy navigation; F6 review/revert/reset and object-name review shipped. Title-specific coupled enum/default/flag/progression edits remain disabled pending evidence. |
+| 3: existing-value editing and review | F8 search/review plus enabled title scalar, paired choice/index, string-preserving flag/counter and chapter/checkpoint adapters. Warnings remain; owner validation is tracked in #31. |
 | 4: reversible structure | Previewed array insert/remove/move/duplicate, object insert/remove/rename, explicit local-schema/type templates and mixed history shipped. Built-in title schemas and cross-container moves remain open. |
-| 5: presets / complete reference packs | Deferred: no proven dependency matrix, complete checkpoint corpus or console validation. |
+| 5: presets / complete reference packs | F6 recorded-default, present-flag, counter-zero, explicit progress tuple and imported-wrapper presets shipped. Complete reference catalogues, absent-key creation and named visual/unlock-all presets lack definitions/dependency repair and remain unimplemented. |
 
-Owner capture checklist before semantic writes or compatibility claims:
+Owner capture checklist for validating enabled writes and future compatibility claims (no longer a write gate):
 
 1. Record title/region, game build, wrapper/settings version, exact file roles and action for every pair. Export immediately before and after **one** change; retain all companions and duplicate/backup occurrences privately. Record unchanged control captures to identify churn.
 2. Cyberpunk: capture one static enum change; one scalar change and reset-to-default; one dynamic language/HDR choice. Restart, resave and re-export each. Include a second settings version to test schema fallback and determine `value`/`index` authority.
@@ -125,6 +151,6 @@ No third-party reference dataset is bundled, so there is no adapted CC BY-SA/MIT
 
 ## SDK requests
 
-F10, F5, F8 and F6 are consumed directly; no plugin-local substitute history, query or diff protocol was added. F7 is available but adoption remains evidence-gated as documented above.
+F10, F5, F8 and F6 are consumed directly; no plugin-local substitute history, query or diff protocol was added. F7 is available but no clearly coupled companion write is identified, as documented above.
 
 - **Resolved:** tagged ExactNumber/Union review rendering, reported in [issue #18](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/18#issuecomment-6479348148), was fixed by `03b66b7` with shared tests. This round verified exact preview rendering in the browser and removed the obsolete Overview warning. No new blocking SDK request was found.

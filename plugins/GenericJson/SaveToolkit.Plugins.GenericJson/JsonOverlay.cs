@@ -3,7 +3,7 @@ using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Plugins.GenericJson;
 
-/// <summary>Conservative, read-only interpretations. No third-party name dictionary is embedded.</summary>
+/// <summary>Conservative title/role/shape matching. No third-party name dictionary is embedded.</summary>
 internal sealed record JsonOverlay(string Title, string Evidence, IReadOnlyList<JsonValueToken> Groups)
 {
     internal const string Provenance = "Names, types, bounds and values come from this imported save; friendly labels split raw words only. Interpretation is inferred, not console validated. No external name dictionary is embedded.";

@@ -14,6 +14,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
     private JsonTokenTree _tree = tree;
     private readonly JsonSearch _search = new(tree);
+    private JsonSemanticActions _semantic = new(file, tree);
 
     public override string Title => file.FileName;
     public IReadOnlyList<QueryableCollection> Collections => [JsonSearch.Metadata(_tree.Nodes.Count)];
@@ -25,6 +26,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
     public override ViewNode BuildView()
     {
         var overlay = JsonOverlay.Match(file, _tree);
+        _semantic = new(file, _tree);
         var tabs = new List<Tab>
         {
             new("Overview", [
@@ -41,7 +43,9 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
         };
         if (overlay is not null)
             tabs.Add(new(overlay.Title, [new TextNode(overlay.Evidence) { Tone = Tone.Warning }, new TextNode(JsonOverlay.Provenance),
-                .. JsonOverlayViews.Build(overlay, (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true))]));
+                new TextNode(JsonSemanticActions.Warning) { Tone = Tone.Warning },
+                new SectionNode("Title presets (existing values only)", _semantic.Presets()),
+                .. JsonOverlayViews.Build(overlay, (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true), _semantic.ForNode)]));
         return new TabsNode(tabs);
     }
 
@@ -83,13 +87,20 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        actionId == JsonResetActions.ActionId ? JsonResetActions.Plan(_tree, scope) : JsonStructureActions.Plan(_tree, actionId, parameters, scope);
+        actionId == JsonResetActions.ActionId ? JsonResetActions.Plan(_tree, scope)
+        : actionId.StartsWith(JsonSemanticActions.Prefix, StringComparison.Ordinal) ? new JsonSemanticActions(file, _tree).Plan(_tree, actionId, parameters, scope)
+        : JsonStructureActions.Plan(_tree, actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
         var fresh = PlanAction(actionId, parameters, scope);
         if (fresh.Errors.Count > 0) return new() { Errors = fresh.Errors };
         if (!fresh.Changes.SequenceEqual(plan.Changes)) return EditOutcome.Rejected(actionId, "The preview no longer matches this document.");
+        if (actionId.StartsWith(JsonSemanticActions.Prefix, StringComparison.Ordinal))
+        {
+            var edited = ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray());
+            return edited with { Warnings = fresh.Warnings, StructureChanged = edited.Succeeded };
+        }
         if (actionId == JsonResetActions.ActionId)
             return ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray());
         var result = Structural(() =>
@@ -149,7 +160,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree) : Bou
     }
 
     private ViewNode OverlayNode(JsonValueToken node) => JsonOverlayViews.Create(node,
-        (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true));
+        (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true), _semantic.ForNode);
 
     private sealed record ChildRange(JsonValueToken Parent, int Start, int Count, bool Overlay);
     private sealed record Snapshot(object Owner, JsonTokenTree Tree);

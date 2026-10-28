@@ -7,9 +7,9 @@ public sealed class GenericJsonPlugin : IGamePlugin
 {
     private const int ProbeHeaderBytes = 64;
 
-    public PluginInfo Info { get; } = new("format.json", "Generic JSON", "0.1.0")
+    public PluginInfo Info { get; } = new("format.json", "Generic JSON", "0.2.0")
     {
-        Description = "UTF-8 JSON token editor; preserves untouched bytes and formatting.",
+        Description = "UTF-8 JSON token editor with warning-labelled, previewed title adapters; preserves untouched bytes and formatting.",
         Games = [],
         Maturity = PluginMaturity.Experimental,
         References = ["https://www.rfc-editor.org/rfc/rfc8259", "https://learn.microsoft.com/dotnet/api/system.text.json.utf8jsonreader",
