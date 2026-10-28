@@ -18,9 +18,10 @@
   --modified-soft: #fff1dc;
   --danger: #c33340;
   --danger-soft: #fde8ea;
-  --verified: #1d8a58;
-  --inferred: #a86b00;
-  --unknown: #7b8696;
+  /* Small confidence text must remain legible on plain, selected and modified rows. */
+  --verified: #176b43;
+  --inferred: #805100;
+  --unknown: #596677;
   --info: #2a6fb0;
   --shadow-lift: 0 1px 2px rgb(24 32 44 / 0.08), 0 8px 24px -12px rgb(24 32 44 / 0.35);
 
