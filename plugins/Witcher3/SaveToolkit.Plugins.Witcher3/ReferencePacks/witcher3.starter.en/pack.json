@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "id": "witcher3.starter.en",
+  "version": "1.0.0",
+  "title": "Witcher 3 reviewed starter item labels (English)",
+  "plugins": [
+    "witcher3"
+  ],
+  "titleIds": [
+    "PPSA04018"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "items",
+      "kind": "records",
+      "title": "Reviewed item names, categories and annotations",
+      "files": [
+        {
+          "sha256": "606bfc7eeff22823a8620774cee045eed6b37b80b22816bd45ed2de0e9b694c1",
+          "path": "items.json"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://witcher.fandom.com/wiki/Category:The_Witcher_3_items",
+        "author": "Witcher Wiki contributors; PS5 Save Game Toolkit contributors (selection and annotations)",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected 18 exact native IDs and factual labels/categories from the linked pages; wrote concise descriptions and uncertainty annotations. No icons, game scripts, flavor text, numerical effects or stack limits copied."
+      }
+    }
+  ]
+}

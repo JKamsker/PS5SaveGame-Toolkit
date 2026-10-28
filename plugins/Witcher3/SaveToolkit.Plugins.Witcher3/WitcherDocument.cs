@@ -1,17 +1,40 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Plugins.Witcher3;
 
-internal sealed class WitcherDocument(string path, WitcherContainer container, Sav3Directory directory, Sav3Tree tree) : BoundSaveDocument
+internal sealed class WitcherDocument(string path, WitcherContainer container, Sav3Directory directory, Sav3Tree tree,
+    IReferenceContext references) : BoundSaveDocument, IQueryableDocument
 {
     private const int PageSize = 128;
     private readonly PlayerData? _player = PlayerData.Read(container, directory, tree);
+    private InventoryViews? _inventory;
+    private ObservedFeatures? _features;
+    private InventoryViews Inventory => _inventory ??= new InventoryViews(_player?.Inventory?.Items ?? [],
+        references.Catalog(InventoryViews.CatalogId, ReferenceBuild), ItemField, references.AssetProvenance);
+    private string ReferenceBuild => $"sav3-{BinaryData.Int32(container.Payload, 4)}.{BinaryData.Int32(container.Payload, 8)}.{BinaryData.Int32(container.Payload, 12)}";
+    private ObservedFeatures Features => _features ??= new ObservedFeatures(_player, tree, container.Payload, directory.Names);
     public override string Title => "The Witcher 3 · SAV3";
     public override bool CanEdit => _player is not null;
+    public IReadOnlyList<QueryableCollection> Collections => [Inventory.Collection];
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId == InventoryViews.CollectionId
+        ? Inventory.Query(query) : throw new KeyNotFoundException($"Unknown collection '{collectionId}'.");
+    public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) => actionId == InventoryViews.LookupActionId
+        ? Inventory.Inspect(parameters) : base.InvokeAction(actionId, parameters);
 
-    public override ViewNode BuildView() => new TabsNode([
+    public override ViewNode BuildView()
+    {
+        // Preserve direct scalar bindings for the existing small-inventory editing API. Large lists bind on query.
+        if (_player?.Inventory is { Items.Count: <= PageSize } small)
+        {
+            foreach (var item in small.Items) { _ = ItemField(item); }
+        }
+
+        return new TabsNode([
         new Tab("Overview", [
             new StatsNode([new Stat("LZ4 chunks", container.Chunks.Count.ToString()),
                 new Stat("Expanded bytes", container.Payload.Length.ToString()),
@@ -25,27 +48,29 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
             Field("header/2", "SAV3 version word 3", IntegerSpec.Int32, () => FieldValue.Of((long)BinaryData.Int32(container.Payload, 12))) with { Confidence = Confidence.Unknown },
             .. SummaryFields()]),
         new Tab("Player", PlayerFields()),
-        new Tab("Inventory", InventoryPage(0)),
+        new Tab("Inventory", Inventory.Build()),
+        new Tab("Abilities and Gwent", Features.Build()),
         new Tab("Variable tree", ChildPage(-1, 0)),
         new Tab("Names", [SectionNode.Lazy("MANU name dictionary", "names/0", directory.Names.Count.ToString())]),
         new Tab("Container", [SectionNode.Lazy("LZ4 chunk table", "chunks"),
             new HexNode("original", container.Original.Length) { Title = "Original SNFH container" },
             new HexNode("payload", container.Payload.Length) { Title = "Expanded SAV3 payload" },
             new TextNode($"Internal offsets include the {container.HeaderSize}-byte container header; explorer payload offsets start at SAV3.")])]);
+    }
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        if (lazyId.StartsWith("ability/", StringComparison.Ordinal) || lazyId.StartsWith("gwent/", StringComparison.Ordinal))
+        {
+            return Features.Expand(lazyId);
+        }
+
         if (lazyId == "chunks")
         {
             return [ChunkTable()];
         }
 
         var parts = lazyId.Split('/');
-        if (parts.Length == 2 && parts[0] == "inventory" && int.TryParse(parts[1], out var inventoryStart) && inventoryStart >= 0)
-        {
-            return InventoryPage(inventoryStart);
-        }
-
         if (parts.Length == 2 && parts[0] == "names" && int.TryParse(parts[1], out var start) && start >= 0 && start <= directory.Names.Count)
         {
             return [NamesTable(start), .. NextPage("Names", "names", start, directory.Names.Count)];
@@ -120,30 +145,11 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
     }
 
     private FieldNode ItemField(InventoryItem item) => Field(item.ValueId, item.Name, new IntegerSpec(1, ushort.MaxValue),
-        () => FieldValue.Of(item.Quantity), v => item.Quantity = checked((ushort)v.AsInteger())) with {
+        () => FieldValue.Of(item.Quantity), v => item.Quantity = checked((ushort)v.AsInteger()),
+        v => v.AsInteger() < 1 || v.AsInteger() > ushort.MaxValue ? "Stored quantity must be in 1..65,535." : null) with {
         Confidence = Confidence.Inferred,
         Description = $"Native CInventoryComponent record {item.Id}; stored item name, uint16 quantity.",
         Warning = "Stack limits and quest/equipment dependencies are unknown. Changing quantities may affect gameplay." };
-
-    private IReadOnlyList<ViewNode> InventoryPage(int start)
-    {
-        if (_player?.Inventory is not { } inventory)
-        {
-            return [new TextNode("No supported player inventory layout was decoded.")];
-        }
-
-        if (start > inventory.Items.Count)
-        {
-            throw new KeyNotFoundException("Inventory page exceeds the item list.");
-        }
-
-        return [new TableNode([new("name", "Stored item name"), new("quantity", "Quantity"), new("equipped", "Equipped")],
-            inventory.Items.Skip(start).Take(PageSize).Select(item => new TableRow(item.Id.ToString(), new Dictionary<string, ViewNode> {
-                ["name"] = new TextNode(item.Name), ["quantity"] = ItemField(item),
-                ["equipped"] = new TextNode(item.Equipped ? "Yes (inferred)" : "No (inferred)"),
-            })).ToArray()) { Title = $"Player inventory · {inventory.Items.Count} records" },
-            .. NextPage("Inventory", "inventory", start, inventory.Items.Count)];
-    }
 
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
     {

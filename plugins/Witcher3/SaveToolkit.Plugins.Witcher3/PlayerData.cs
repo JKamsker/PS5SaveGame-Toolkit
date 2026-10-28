@@ -4,6 +4,8 @@ namespace SaveToolkit.Plugins.Witcher3;
 
 internal sealed record PlayerData(PlayerProgress Progress, PlayerInventory? Inventory)
 {
+    public string EntityId { get; init; } = "";
+    public Sav3Node? AbilityManager { get; init; }
     public static PlayerData? Read(WitcherContainer container, Sav3Directory directory, Sav3Tree tree)
     {
         var data = container.Payload;
@@ -63,7 +65,11 @@ internal sealed record PlayerData(PlayerProgress Progress, PlayerInventory? Inve
         var progress = new PlayerProgress(managers[0], data, directory.Names);
         var tails = roots.Where(n => n.Tag == "Opaque" && n.Offset + n.Size == archive.Offset + archive.Size).ToArray();
         var inventory = tails.Length == 1 ? PlayerInventory.Read(tails[0], data, directory.Names) : null;
-        return new PlayerData(progress, inventory);
+        var abilities = Children(entities[0]).Where(n => n.Tag == "PORP" && n.Name == "abilityManager" && n.Type == "handle:W3AbilityManager").ToArray();
+        return new PlayerData(progress, inventory) {
+            EntityId = Convert.ToHexString(playerId.Span),
+            AbilityManager = abilities.Length == 1 ? abilities[0] : null,
+        };
 
         IEnumerable<Sav3Node> Children(Sav3Node node) => node.Children.Select(id => tree.Nodes[id]);
     }
@@ -84,6 +90,19 @@ internal sealed record PlayerData(PlayerProgress Progress, PlayerInventory? Inve
             .SequenceEqual(reopened.Inventory.Items.Select(i => (i.Id, i.Name, i.Quantity)))))
         {
             throw new SaveFormatException("Edited player inventory did not survive serialization.");
+        }
+
+        if (Inventory is not null)
+        {
+            foreach (var (before, after) in Inventory.Items.Zip(reopened.Inventory!.Items))
+            {
+                if (before.Flags != after.Flags || before.Durability != after.Durability || before.Slot != after.Slot ||
+                    before.OpaquePrefix != after.OpaquePrefix || !before.PrefixNames.SequenceEqual(after.PrefixNames) ||
+                    !before.Tags.SequenceEqual(after.Tags) || !before.Attributes.SequenceEqual(after.Attributes))
+                {
+                    throw new SaveFormatException("Unedited inventory metadata changed during serialization.");
+                }
+            }
         }
     }
 }
