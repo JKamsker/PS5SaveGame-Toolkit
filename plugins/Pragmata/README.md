@@ -9,11 +9,16 @@ test has been performed; only a human should promote this plugin to Stable.
 - Gameplay overview: slot, console-local save date, hours played, cleared flag,
   difficulty hash and editable fixed-size header fields.
 - Inventory: existing item IDs in hex and decimal, int32 quantities, equipped
-  marker, and an atomic “Set quantity of all items to N” action. F2 reference packs
+  marker, and an F6 preview/apply quantity action for selected or all existing rows. F2 reference packs
   supply attributed names/descriptions/icons through read-only F4 reference fields
   and F3 detail cells. The embedded item catalog labels all 90 IDs unmapped.
-- Bounded read-only Gadgets, Loadout, Progress and World tabs, grouped by the
-  hash-confirmed section classes. Stored record counts are not completion totals.
+- Bounded read-only Gadgets, Loadout, Progress, Quests and World tabs, grouped by
+  hash-confirmed section classes. F8 queries search/filter/sort evidence arrays
+  before paging; the largest sampled world list has 6,988–6,989 records. Stored
+  record counts are not completion totals. Details retain read-only fields and attribution.
+- Six observed inventory IDs cross-reference an MIT PC mission dataset's
+  `OpenConditionItemID` fields. This **Inferred** role is shown separately from
+  the still-Unknown player-facing names and limits; no PS5 unlock behavior is claimed.
 - A developer-only F1 decoder and differential harness, plus a versioned section/ID
   manifest. Canonical paths align reordered sections and uniquely keyed records.
   See [evidence and exact owner capture checklist](evidence/README.md).
@@ -168,30 +173,43 @@ Item names, ID meanings, legal stack limits, unlock dependencies, many field
 semantics, unknown metadata and console compatibility remain unverified. The
 reviewed enum dump did not yield a confirmed item dictionary. Quantities retain
 the full signed int32 storage range with a warning; bulk N is nonnegative int32.
-The bulk action changes existing entries, including zero-count entries, without
-adding records or setting unlock flags.
+The F6 action changes existing entries, including zero-count entries, without
+adding records or setting unlock flags. The preview lists raw-ID old/new values,
+aliases, skips and warnings. Explicit empty selection changes nothing; unknown,
+duplicate or non-inventory keys and duplicate item IDs reject the entire action.
+Direct invocation is rejected. Unexposed target quantity pages must be expanded
+before planning so the complete apply remains one undo step. No new editable
+gameplay family, legal-max preset or structural operation is introduced in roadmap round 2.
 
 Regenerate the pack from a reviewed local copy of the pinned MIT schema:
 
 ```powershell
-python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz <MIT-rszpragmata.json>
+python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz <MIT-rszpragmata.json> --missions <MIT-missionuserdata.user.3.json>
 ```
 
 The generator validates source SHA-256
 `67e5ed72e0e9efff0287214ad36737a8959d799aa1510b6b76591731a21f4df2`,
-reads only the reviewed schema, current known-hash subset and evidence manifest,
+also validates the pinned mission-data SHA-256 (see the pack sidecar), and reads
+only the reviewed JSON inputs, current known-hash subset and evidence manifest,
 and does not download/execute upstream code or read saves. HashNames is the
 reviewed observed-hash allowlist; adding new hashes requires reviewing that subset.
 
-The embedded `pragmata.evidence.en` v1.0.0 pack contains `pragmata-identifiers`
+The embedded `pragmata.evidence.en` v1.1.0 pack contains `pragmata-identifiers`
 (408 MIT names), `pragmata-sections` (27 MIT-derived group labels) and
-`pragmata-items` (90 CC0 original unmapped-ID descriptions). User packs can supply
+`pragmata-items` (90 CC0 original unmapped-ID descriptions) and `pragmata-item-evidence`
+(six MIT mission-opening-condition cross-references). User packs can supply
 names/descriptions/icons under another pack ID; item keys are invariant decimal
 uint32 strings. Identifier and section keys are eight-digit lower-case hex.
 See [pack provenance and import contract](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/data.source.md).
 F4 reference fields remain read-only, imported labels are at most Inferred, and
 reference limits do not become edit caps. No artwork or copyrighted game descriptions
 are embedded. Counts in the new family tabs denote records, not completion totals.
+Evidence row keys use fixed plaintext offsets, which remain stable under this
+size-preserving editor and across page/filter/sort changes. They identify physical
+records, not proven gameplay identities. Search covers raw IDs, types and up to
+12 direct stored fields per record; nested arrays are queried separately, and text
+payloads remain in details. GUIDs are fingerprinted in query summaries. Sorting is
+ordinal text with a stable row-key tie-break; queries use offsets, not cursors.
 
 ## Validation and development
 
@@ -240,6 +258,17 @@ decode limits, manifest coverage, pack hashes/licensing, user-pack override and
 provenance, read-only batch rejection, bounded family views, and framework undo/redo
 of raw item-ID edits with read-only reference aliases.
 
+Roadmap round 2: **99 plugin tests passed, 0 failed, 0 skipped** with the artifact
+environment in the test command; API build passed with zero warnings/errors.
+Added all-sample query/read-only/no-op checks, complete pagination of the large
+world collection, exact filters, deterministic sort and reorder-stable row keys,
+query-bound rejection, attributed mission-ID cross-references, F6 pure previews,
+selection/skip/preflight/stale/tampered-plan rejection and one-step framework undo.
+F1 verifies the bulk operation in all eleven gameplay saves: only inventory quantity
+semantic paths and plaintext storage change; reopening and reversal preserve exact
+original bytes. These are synthetic preservation experiments, not causal in-game
+captures. Detailed remaining requirements: [round-2 research and evidence](evidence/round2.md).
+
 Builds run the plugin-local code-size check: warn above 300 C# lines and fail
 above 500 unless a reviewed justification exists in `code-size-exemptions.json`.
 All current C# files are below 300 lines. The same pre-commit hook can be used
@@ -253,16 +282,15 @@ git -c core.hooksPath=plugins/Pragmata/.githooks -c user.name="Codex Worker" -c 
 
 Optional: publish field specs independently of eager/lazy view nodes. Core undo
 filters changes against specs already indexed from exposed views. All 90 sample
-quantities are eager, so bulk undo works normally. For inventories above 200,
-the plugin warns to expand every quantity page first to retain undo; otherwise
-the action explicitly returns `Undoable = false`. Internal bindings alone cannot
-safely promise framework undo. No framework change was required for these samples.
+quantities are eager. For inventories above 200, F6 preflight now rejects unexposed
+target quantity pages instead of applying without undo. Internal bindings alone
+cannot safely promise framework undo. No framework change was required.
 
 F1's stock CLI resolves plugin IDs through `PluginViewDecoder`; it has no external
 decoder-assembly registration option. The plugin-local research executable consumes
 `ISaveDecoder` directly through the shared F1 engine, so there is no production plugin
 dependency on Testing and no duplicate diff engine. Optional future request: discover
-external decoder hooks in the stock CLI. F2/F3/F4/F5 required no framework changes.
+external decoder hooks in the stock CLI. F2/F3/F4/F5/F6/F8 required no framework changes.
 
 ## Sources and attribution
 
@@ -270,11 +298,20 @@ external decoder hooks in the stock CLI. F2/F3/F4/F5 required no framework chang
 | --- | --- | --- |
 | HashNames; `pragmata-identifiers`; section names / declared types | [Pinned RE_RSZ schema](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json), alphazolam / praydog, [MIT](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/LICENSE) | 2026-10-28; observed hash subset; name hashing, group labels, type cross-index. Full notice in THIRD_PARTY_NOTICES.txt. |
 | Item ID placeholders / sample observation statistics | [Issue #21](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21), Save Toolkit contributors, [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) for original descriptions / computed facts | 2026-10-28; no gameplay name mapping; GUIDs fingerprinted; no sample payloads. |
+| `pragmata-item-evidence`: six inventory/mission opening-condition links | [Pinned mission JSON](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json), Egg Targaryen / dzxrly; [MIT](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/LICENSE) | 2026-10-28; exact numeric `OpenConditionItemID`/mission-ID pairs cross-indexed with observed PS5 item IDs. Inferred role; names/limits Unknown. Full notice embedded beside the dataset. |
 | CityHash64 algorithm adaptation | [Google CityHash](https://github.com/google/cityhash), Google, MIT | Existing port; full notice in THIRD_PARTY_NOTICES.txt. |
 | AES-OFB vectors | [NIST SP 800-38A](https://csrc.nist.gov/pubs/sp/800/38/a/final), NIST, US government publication | Existing F.4.1 test vectors. |
 | DSSS / Mandarin / typed-stream observations | [Supplied verified research](../../docs/research/pragmata/README.txt), owner-supplied format evidence | Existing independently implemented crypto/format; no upstream editor code embedded. |
 
 Research-only sources (no unlicensed datasets embedded):
+
+- [neuro-pragmata runtime inventory/object-name resolvers](https://github.com/vaultic13/neuro-pragmata/tree/ae2ee572410e353ceae19bdc23f83f71687267dd/autorun/pragmata/bindings), Vaultic,
+  [MIT](https://github.com/vaultic13/neuro-pragmata/blob/ae2ee572410e353ceae19bdc23f83f71687267dd/LICENSE), retrieved 2026-10-28:
+  identifies `app.ObjectIDs`, `getKindHash` and localized `GuiDataManager.getItemData`
+  as owner capture leads; no runtime table, code or localized text is copied.
+- [Pragmata Wiki item category](https://pragmata.fandom.com/wiki/Category%3AItems)
+  and [Lunafilament](https://pragmata.fandom.com/wiki/Lunafilament), community CC BY-SA
+  text, retrieved 2026-10-28: no save-ID linkage found; no article text or media embedded.
 
 - [Verified format](../../docs/research/pragmata/FORMAT.txt),
   [research README](../../docs/research/pragmata/README.txt), `pragmata_save.py`,

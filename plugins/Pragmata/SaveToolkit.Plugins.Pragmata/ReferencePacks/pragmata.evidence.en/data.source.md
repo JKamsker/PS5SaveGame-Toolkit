@@ -1,4 +1,4 @@
-# Pragmata reference pack 1.0.0
+# Pragmata reference pack 1.1.0
 
 `pragmata-identifiers.json` and `pragmata-sections.json` derive from
 [alphazolam RE_RSZ, revision 871a1d5c4c7b81c60c966d73ee63f4c4413ab56e](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json).
@@ -15,8 +15,24 @@ Source: [issue #21 / the plugin evidence manifest](https://github.com/JKamsker/P
 Retrieved/generated: 2026-10-28. Modifications: decimal ID keys, hex placeholder
 names, explicit Unknown confidence; no player-facing names or guessed limits.
 
+`pragmata-item-evidence.json` derives from [PRAGMATA-MaximumTimeLimit mission JSON,
+revision cfa68e987bf126daa3ce62d589ac2b7ef05abf2b](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json).
+Author: Egg Targaryen / dzxrly; Save Toolkit contributors (PS5 cross-index and descriptions).
+License: [MIT](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/LICENSE),
+full notice in `LICENSE.Mission.MIT.txt`. Retrieved: 2026-10-28. Source SHA-256:
+`f51e68117901a9bdf0ea24ae0154962e327499fc0986d4561ddb641bf0489fc7`.
+Modifications: selected six exact numeric `OpenConditionItemID` values that occur
+in the observed PS5 inventory and their 18 mission ID hashes (three per item).
+Added original context descriptions and a `mission-opening-condition` source-role
+category; no localized names, descriptions, game artwork or time-limit edits copied.
+The numeric cross-reference is verified against the source and all eleven PS5
+inventories. Its gameplay interpretation is **Inferred**: the PC build/platform
+equivalence and PS5 effects are unverified. Player-facing names and stack limits
+remain **Unknown**. Mission reward/clear counts are never used as inventory limits.
+This MIT dataset remains separate from the CC0 item placeholders.
+
 Regenerate with `python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz
-<reviewed-MIT-schema.json>`. The source SHA-256 is checked; record-file hashes are
+<reviewed-MIT-schema.json> --missions <reviewed-MIT-mission.json>`. Both source SHA-256 values are checked; record-file hashes are
 recomputed with LF newlines. Pack version must change when semantic content changes.
 
 External F2 packs can supply names/descriptions/icons under catalog `pragmata-items`

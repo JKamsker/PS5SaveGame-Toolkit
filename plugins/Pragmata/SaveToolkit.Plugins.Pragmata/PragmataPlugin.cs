@@ -12,13 +12,16 @@ public sealed class PragmataPlugin : IGamePlugin
     private const string SlotDirectorySuffix = "Slot";
     private const string GameplaySaveLabel = "Gameplay save";
 
-    public PluginInfo Info { get; } = new("pragmata", "Pragmata", "0.2.0")
+    public PluginInfo Info { get; } = new("pragmata", "Pragmata", "0.3.0")
     {
-        Description = "DSSS/Mandarin editor with attributed inventory references, read-only progression views, synchronized clocks and a lazy typed explorer.",
+        Description = "DSSS/Mandarin editor with attributed inventory references, queryable read-only quests/world records, planned quantity edits and synchronized clocks.",
         Games = [new GameTitle("PPSA02530", "Pragmata")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/kvasszn/ree-save-editor", "https://github.com/google/cityhash",
-            Format.HashNames.Source, "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21"],
+            Format.HashNames.Source, "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21",
+            "https://github.com/vaultic13/neuro-pragmata/tree/ae2ee572410e353ceae19bdc23f83f71687267dd",
+            "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/tree/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b",
+            "https://pragmata.fandom.com/wiki/Category%3AItems"],
     };
 
     public ProbeResult Probe(ISaveFile file)

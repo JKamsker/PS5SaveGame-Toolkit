@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text;
 using SaveToolkit.Plugins.Pragmata.Crypto;
 using SaveToolkit.Plugins.Pragmata.Editing;
@@ -7,10 +8,11 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Plugins.Pragmata;
 
-internal sealed class PragmataDocument : ISaveDocument
+internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     internal const string EditWarning = "Experimental: valid game ranges and console loading have not been tested.";
     private const int MaximumStringPreviewBytes = 2048;
@@ -19,12 +21,15 @@ internal sealed class PragmataDocument : ISaveDocument
     private readonly string _relativePath;
     private readonly DsssContainer _container;
     private readonly Dictionary<string, SaveNode> _bindings = new(StringComparer.Ordinal);
-    private readonly HashSet<SaveNode> _exposedNodes = [];
     private readonly PragmataViews _views;
+    private readonly QuantityActions _quantityActions;
     private byte[] _plaintext;
 
     public SaveLayout Layout { get; }
     internal ReferenceReadouts References { get; }
+    internal EvidenceCollections Evidence { get; }
+    public IReadOnlyList<QueryableCollection> Collections => Evidence.Metadata;
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => Evidence.Query(collectionId, query);
     public bool CanEdit => true;
     public string Title => Layout.Header is { } header
         ? FormattableString.Invariant($"Pragmata · Slot {Read(Layout.Detail.Find(KnownHashes.Slot)!)} · {HoursPlayed(header):F1} h")
@@ -37,6 +42,8 @@ internal sealed class PragmataDocument : ISaveDocument
         _plaintext = _container.Plaintext.ToArray();
         Layout = new SaveLayout(_plaintext);
         References = new ReferenceReadouts(this, references ?? IReferenceContext.Empty);
+        Evidence = new EvidenceCollections(this);
+        _quantityActions = new QuantityActions(this);
         _views = new PragmataViews(this, _container.BlockCount);
     }
 
@@ -57,6 +64,8 @@ internal sealed class PragmataDocument : ISaveDocument
         : Convert.ToHexString(_plaintext.AsSpan(node.Offset, Math.Min(node.Size, MaximumStructPreviewBytes))) + (node.Size > MaximumStructPreviewBytes ? "…" : "");
 
     internal string PreviewOrValue(SaveNode node) => node.IsPrimitive ? Read(node).ToString() : Preview(node);
+    internal string Fingerprint(SaveNode node) => "opaque-sha256:" + Convert.ToHexStringLower(SHA256.HashData(_plaintext.AsSpan(node.Offset, node.Size)));
+    internal bool HasPrimaryBinding(SaveNode node) => _bindings.ContainsKey(node.Path);
 
     internal double HoursPlayed(SaveNode header) => (double)Read(header.Find(KnownHashes.Playtime)!).AsUInt64() /
         (MicrosecondsPerSecond * TimeSpan.SecondsPerHour);
@@ -65,7 +74,6 @@ internal sealed class PragmataDocument : ISaveDocument
     {
         var id = raw ? $"raw/{node.Path}" : node.Path;
         _bindings[id] = node;
-        _exposedNodes.Add(node);
         var spec = PrimitiveCodec.Spec(node);
         if (IsTimer(node) && spec is IntegerSpec timer)
             spec = timer with { Format = IntegerFormat.Duration, UnitsPerSecond = MicrosecondsPerSecond, Unit = "µs" };
@@ -100,10 +108,8 @@ internal sealed class PragmataDocument : ISaveDocument
 
         // Clock values must be addressable for undo even if the caller has only expanded Raw.
         foreach (var timer in proposed.Keys.Where(IsTimer)) _ = Field(timer);
-        var changes = _bindings.Where(b => proposed.TryGetValue(b.Value, out var next) && Read(b.Value) != next)
-            .Select(b => new ValueChange(b.Key, Read(b.Value), proposed[b.Value]))
-            .Concat(References.Changes(proposed)).ToArray();
-        if (changes.Length == 0) return new EditOutcome();
+        var changes = ChangesFor(proposed);
+        if (changes.Count == 0) return new EditOutcome();
 
         // Stage bytes so a failed batch cannot partially mutate the document.
         var staged = _plaintext.ToArray();
@@ -113,31 +119,19 @@ internal sealed class PragmataDocument : ISaveDocument
         return new EditOutcome { Changes = changes, Warnings = [EditWarning], StructureChanged = true };
     }
 
-    public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
-    {
-        if (actionId != PragmataViews.QuantityAction || Layout.Inventory is null)
-            throw new KeyNotFoundException($"Unknown Pragmata action '{actionId}'.");
-        if (parameters.Count != 1 || !parameters.TryGetValue("quantity", out var value) ||
-            value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 || value.AsInteger() > int.MaxValue)
-            throw new ArgumentException("Quantity must be an integer between 0 and 2147483647.", nameof(parameters));
+    internal IReadOnlyList<ValueChange> ChangesFor(IReadOnlyDictionary<SaveNode, FieldValue> proposed) =>
+        _bindings.Where(b => proposed.TryGetValue(b.Value, out var next) && Read(b.Value) != next)
+            .Select(b => new ValueChange(b.Key, Read(b.Value), proposed[b.Value]))
+            .Concat(References.Changes(proposed)).ToArray();
 
-        var undoable = Layout.Items.All(item => _exposedNodes.Contains(item.Find(KnownHashes.Quantity)!));
-        var edits = Layout.Items.Select(item =>
-        {
-            var node = item.Find(KnownHashes.Quantity)!;
-            _bindings[node.Path] = node;
-            return new ValueEdit(node.Path, value);
-        }).ToArray();
-        var outcome = ApplyEdits(edits);
-        if (!outcome.Succeeded) throw new InvalidOperationException(outcome.Errors[0].Message);
-        undoable |= outcome.Changes.Count == 0;
-        return new ActionOutcome
-        {
-            Changes = outcome.Changes, Warnings = undoable ? [EditWarning] : [EditWarning, "Some quantities were not exposed in a view; this bulk action clears undo history."],
-            StructureChanged = outcome.StructureChanged, Undoable = undoable,
-            Message = $"Set {Layout.Items.Count} existing item quantities to {value}.",
-        };
-    }
+    public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        throw new InvalidOperationException("Pragmata bulk actions require a preview before applying.");
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        _quantityActions.Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
+        _quantityActions.Apply(actionId, parameters, scope, plan);
 
     public IReadOnlyList<FileOutput> Serialize()
     {

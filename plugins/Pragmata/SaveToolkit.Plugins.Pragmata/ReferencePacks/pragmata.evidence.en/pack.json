@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "pragmata.evidence.en",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Pragmata observed identifiers (not a gameplay dictionary)",
   "plugins": [
     "pragmata"
@@ -67,6 +67,25 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
         "retrieved": "2026-10-28",
         "modifications": "Selected observed hashes; verified spelling; original group labels and explicit unknown-ID descriptions. No game text or artwork."
+      }
+    },
+    {
+      "id": "pragmata-item-evidence",
+      "kind": "records",
+      "title": "pragmata-item-evidence",
+      "files": [
+        {
+          "path": "pragmata-item-evidence.json",
+          "sha256": "cdf3c22a24b303514b4842941dbee84124c6e157f84dd8e416da3dd0facf4dea"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+        "author": "Egg Targaryen / dzxrly; Save Toolkit contributors (PS5 cross-index)",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected exact numeric OpenConditionItemID links and mission IDs; cross-indexed PS5 inventory observations. No localized text or artwork."
       }
     }
   ]

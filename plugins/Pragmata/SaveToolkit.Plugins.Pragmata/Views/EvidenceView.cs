@@ -11,8 +11,20 @@ internal sealed class EvidenceView(PragmataDocument document, LazyPages pages)
         .Where(n => HashNames.All.GetValueOrDefault(n.Hash) is "_Gadgets" or "_ShortcutSlot")
         .Select(Node)];
 
-    public IReadOnlyList<ViewNode> Family(params string[] classNames) => [Notice(), .. document.Layout.Sections
-        .Where(n => classNames.Contains(HashNames.All.GetValueOrDefault(n.ClassHash), StringComparer.Ordinal)).Select(Section)];
+    public IReadOnlyList<ViewNode> Family(params string[] classNames)
+    {
+        var sections = document.Layout.Sections
+            .Where(n => classNames.Contains(HashNames.All.GetValueOrDefault(n.ClassHash), StringComparer.Ordinal)).ToArray();
+        var counts = sections.SelectMany(section => section.Children.Where(n => n.Type == FieldTags.Array).Select(array =>
+            new Stat($"{document.References.Section(section.ClassHash)?.Name ?? HashNames.Label(section.ClassHash)} / {HashNames.Label(array.Hash)}",
+                array.Children.Count.ToString(CultureInfo.InvariantCulture))
+            {
+                Hint = $"Stored records only; completion and quest names Unknown. " +
+                    $"{document.References.Section(section.ClassHash)?.AttributionText ?? HashNames.Provenance(section.ClassHash)} " +
+                    document.References.IdentifierSource(array.Hash),
+            })).ToArray();
+        return [Notice(), new StatsNode(counts), .. sections.Select(Section)];
+    }
 
     private static TextNode Notice() => new("Read-only evidence view. Names identify stored types; gameplay meanings, completion totals and legal values are unconfirmed. Counts are stored records, not game completion.") { Tone = Tone.Info };
 
@@ -28,8 +40,8 @@ internal sealed class EvidenceView(PragmataDocument document, LazyPages pages)
     private ViewNode Node(SaveNode node)
     {
         if (node.Type == FieldTags.Array)
-            return pages.Section($"evidence/{node.Path}", HashNames.Label(node.Hash), node.Children.Count,
-                (start, count) => [Table(node, start, count)]) with { Description = HashNames.Provenance(node.Hash) };
+            return document.Evidence.Table(node, child => child.Type == FieldTags.Class
+                ? Container(child, HashNames.Label(child.ClassHash)) : Node(child));
         if (node.Type == FieldTags.Class)
             return Container(node, $"{HashNames.Label(node.Hash)} · {HashNames.Label(node.ClassHash)}");
         if (!node.IsPrimitive)
@@ -46,15 +58,4 @@ internal sealed class EvidenceView(PragmataDocument document, LazyPages pages)
         Description = $"{HashNames.Provenance(node.Hash)} Class: {HashNames.Provenance(node.ClassHash)}",
     };
 
-    private TableNode Table(SaveNode array, int start, int count) => new(
-        [new("record", "Stored record"), new("details", "Read-only fields / details")],
-        array.Children.Skip(start).Take(count).Select(node => new TableRow(node.Path, new Dictionary<string, ViewNode>
-        {
-            ["record"] = new TextNode(node.Index.ToString(CultureInfo.InvariantCulture)),
-            ["details"] = node.Type == FieldTags.Class
-                ? Container(node, HashNames.Label(node.ClassHash)) : Node(node),
-        })).ToArray())
-    {
-        Title = HashNames.Label(array.Hash), Description = $"{HashNames.Provenance(array.Hash)} Positional records have no proven gameplay identity.",
-    };
 }

@@ -51,8 +51,10 @@ public sealed class EditingTests
         var original = document.Serialize().Single().Content.ToArray();
         var ids = document.Layout.Items.Select(item => document.Read(item.Find(KnownHashes.ItemId)!)).ToArray();
         var equipped = document.Read(document.Layout.Inventory!.Find(KnownHashes.EquippedItem)!);
-        var outcome = document.InvokeAction(PragmataViews.QuantityAction, new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(17L) });
-        Assert.True(outcome.Undoable);
+        var parameters = new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(17L) };
+        var plan = document.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope());
+        var outcome = document.ApplyActionPlan(PragmataViews.QuantityAction, parameters, new ActionScope(), plan);
+        Assert.True(outcome.Succeeded);
         Assert.NotEmpty(outcome.Warnings);
         using var reopened = new PragmataDocument("data000.bin", document.Serialize().Single().Content.Span);
         Assert.All(reopened.Layout.Items, item => Assert.Equal(17, reopened.Read(item.Find(KnownHashes.Quantity)!).AsInt32()));
@@ -69,8 +71,9 @@ public sealed class EditingTests
     {
         using var document = Gameplay();
         var before = document.Serialize().Single().Content.ToArray();
-        Assert.Throws<ArgumentException>(() => document.InvokeAction(PragmataViews.QuantityAction,
-            new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(quantity) }));
+        var plan = document.PlanAction(PragmataViews.QuantityAction,
+            new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(quantity) }, new ActionScope());
+        Assert.NotEmpty(plan.Errors);
         Assert.Equal(before, document.Serialize().Single().Content.ToArray());
     }
 
@@ -94,19 +97,19 @@ public sealed class EditingTests
     }
 
     [Fact]
-    public void BulkEditsOfUnexposedQuantitiesDoNotPromiseFrameworkUndo()
+    public void BulkEditsOfUnexposedQuantitiesAreRejectedInsteadOfLosingUndo()
     {
         var file = SampleEvidenceTests.Files().Single(f => f.FileName == "data000.bin");
         using var document = new PragmataDocument(file.RelativePath, file.ReadAllBytes());
         foreach (var quantity in new[] { 1L, 2L })
         {
-            var outcome = document.InvokeAction(PragmataViews.QuantityAction,
-                new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(quantity) });
-            Assert.False(outcome.Undoable);
+            var plan = document.PlanAction(PragmataViews.QuantityAction,
+                new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(quantity) }, new ActionScope());
+            Assert.NotEmpty(plan.Errors);
         }
         _ = document.BuildView();
-        Assert.True(document.InvokeAction(PragmataViews.QuantityAction,
-            new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(3L) }).Undoable);
+        Assert.Empty(document.PlanAction(PragmataViews.QuantityAction,
+            new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(3L) }, new ActionScope()).Errors);
     }
 
     internal static PragmataDocument Gameplay()

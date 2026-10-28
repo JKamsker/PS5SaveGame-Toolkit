@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.Pragmata.Tests;
 public sealed class PresentationTests
 {
     [Theory]
-    [InlineData("data000.bin", 8)]
+    [InlineData("data000.bin", 9)]
     [InlineData("data00-1.bin", 2)]
     public void EachTabStartsWithOneExperimentalNoticeAndIntegrityDetailsStayInHint(string fileName, int tabCount)
     {

@@ -11,9 +11,11 @@ namespace SaveToolkit.Plugins.Pragmata.Views;
 internal sealed class ReferenceReadouts
 {
     internal const string ItemsCatalog = "pragmata-items";
+    internal const string ItemEvidenceCatalog = "pragmata-item-evidence";
     private readonly PragmataDocument _document;
     private readonly IReferenceContext _context;
     private readonly IReferenceCatalog? _items;
+    private readonly IReferenceCatalog? _itemEvidence;
     private readonly IReferenceCatalog? _sections;
     private readonly IReferenceCatalog? _identifiers;
     private readonly Dictionary<string, (SaveNode Node, bool Reference)> _bindings = new(StringComparer.Ordinal);
@@ -23,11 +25,13 @@ internal sealed class ReferenceReadouts
         _document = document;
         _context = context;
         _items = context.Catalog(ItemsCatalog);
+        _itemEvidence = context.Catalog(ItemEvidenceCatalog);
         _sections = context.Catalog("pragmata-sections");
         _identifiers = context.Catalog("pragmata-identifiers");
     }
 
     public ReferenceRecord? Item(uint id) => _items?.Find(id.ToString(CultureInfo.InvariantCulture));
+    public ReferenceRecord? ItemEvidence(uint id) => _itemEvidence?.Find(id.ToString(CultureInfo.InvariantCulture));
     public ReferenceRecord? Section(uint hash) => _sections?.Find($"{hash:x8}");
     public string IdentifierSource(uint hash)
     {
@@ -49,7 +53,8 @@ internal sealed class ReferenceReadouts
         {
             Confidence = record is null || record.Attributes.GetValueOrDefault("confidence") == "Unknown" ? Confidence.Unknown : Confidence.Inferred,
             Description = $"Raw ID 0x{raw:x8} / {raw}. {record?.Description ?? "No ID mapping available."} " +
-                $"{record?.AttributionText ?? "Observed save value; no external name source."} Gameplay effects and legal limits are unverified.",
+                $"{record?.AttributionText ?? "Observed save value; no external name source."} Gameplay effects and legal limits are unverified. " +
+                EvidenceText(raw),
         };
     }
 
@@ -71,6 +76,8 @@ internal sealed class ReferenceReadouts
             new TextNode(record?.Description ?? "Player-facing mapping unavailable."),
             new TextNode($"Category: {record?.Category ?? "unknown"}; legal limit: {record?.Limit?.ToString(CultureInfo.InvariantCulture) ?? "unknown"}. Reference data does not authorize writes."),
             new TextNode(record?.AttributionText ?? "Source: observed save ID; no name dictionary.") };
+        if (ItemEvidence(id) is { } evidence)
+            result.Add(new TextNode($"Inferred source role: {evidence.Category}. {EvidenceText(id)}"));
         if (record?.AssetId is { } asset && _context.AssetProvenance(asset) is { } provenance)
         {
             result.Add(new ImageNode(asset, record.Name));
@@ -78,6 +85,10 @@ internal sealed class ReferenceReadouts
         }
         return result;
     }
+
+    private string EvidenceText(uint id) => ItemEvidence(id) is { } evidence
+        ? $"{evidence.Description} Mission IDs: {evidence.Attributes.GetValueOrDefault("missionIds") ?? "Unknown"}. {evidence.AttributionText}"
+        : "";
 
     public IEnumerable<ValueChange> Changes(IReadOnlyDictionary<SaveNode, FieldValue> proposed) =>
         _bindings.Where(b => proposed.TryGetValue(b.Value.Node, out var next) && _document.Read(b.Value.Node) != next)
