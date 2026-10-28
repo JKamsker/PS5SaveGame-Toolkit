@@ -4,7 +4,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Sdk;
 
 /// <summary>
-/// An opened save file. Created by <see cref="IGamePlugin.Open"/> and owned by the framework, which
+/// An opened save file. Created by <see cref="IGamePlugin.Open(Saves.ISaveFile, References.IReferenceContext)"/> and owned by the framework, which
 /// serialises all calls (no concurrent access) and disposes it when the session ends.
 /// </summary>
 public interface ISaveDocument : IDisposable

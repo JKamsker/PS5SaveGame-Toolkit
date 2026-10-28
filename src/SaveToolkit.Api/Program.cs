@@ -3,6 +3,7 @@ using SaveToolkit.Api.Endpoints;
 using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core;
 using SaveToolkit.Core.Plugins;
+using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 
 const long maxUpload = 8L * 1024 * 1024 * 1024;
@@ -21,7 +22,19 @@ var dataRoot = builder.Configuration["Toolkit:DataRoot"] is { Length: > 0 } conf
     ? configured
     : Path.Combine(Path.GetTempPath(), "SaveToolkit", "workspaces");
 builder.Services.AddSingleton(_ => PluginCatalog.Discover());
-builder.Services.AddSingleton(sp => new WorkspaceStore(sp.GetRequiredService<PluginCatalog>(), new WorkspaceStoreOptions { DataRoot = dataRoot }));
+var packRoot = builder.Configuration["Toolkit:PackRoot"] is { Length: > 0 } packs
+    ? packs
+    : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SaveToolkit", "reference-packs");
+var locales = builder.Configuration["Toolkit:Locales"] is { Length: > 0 } l
+    ? l.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    : ["en"];
+builder.Services.AddSingleton(sp => new ReferencePackStore(
+    sp.GetRequiredService<PluginCatalog>().Plugins,
+    new ReferencePackOptions { StorageRoot = packRoot, PreferredLocales = locales }));
+builder.Services.AddSingleton(sp => new WorkspaceStore(
+    sp.GetRequiredService<PluginCatalog>(),
+    new WorkspaceStoreOptions { DataRoot = dataRoot },
+    sp.GetRequiredService<ReferencePackStore>()));
 builder.Services.AddSingleton(sp => new WorkspaceSessions(sp.GetRequiredService<WorkspaceStore>()));
 builder.Services.AddHostedService<WorkspaceSweeper>();
 builder.Services.AddExceptionHandler<ToolkitExceptionHandler>();
@@ -33,6 +46,7 @@ app.UseExceptionHandler();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapToolkitApi();
+app.MapReferenceApi();
 app.MapFallbackToFile("index.html");
 
 app.Run();

@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { EditResult, FieldValue, SaveFileInfo } from "../../api/protocol";
 import { DocumentContext, DocumentStore, useDocumentState, type DocumentContextValue } from "../../state/documentStore";
+import { SourcesPanel } from "./SourcesPanel";
 import { ViewRenderer } from "./ViewRenderer";
 
 interface DocumentEditorProps {
@@ -125,6 +126,13 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
             )}
           </div>
         </header>
+        <SourcesPanel
+          workspaceId={workspaceId}
+          documentId={documentId}
+          pluginReferences={doc.plugin.references}
+          refreshKey={structureVersion}
+          onToast={onToast}
+        />
         {!doc.canEdit && <p className="notice notice--Muted">This plugin shows the data but cannot write it.</p>}
         <ViewRenderer node={doc.view} />
       </article>

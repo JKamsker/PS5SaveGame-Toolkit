@@ -144,3 +144,83 @@ export interface TitleInfo { titleId: string; name: string; support: "None" | "V
 export type ExportScope = "ChangedFiles" | "ChangedDirectories" | "Everything";
 
 export interface ExportPlan { files: { relativePath: string; length: number; reason: string }[]; changedCount: number }
+
+// ---- Reference packs (src/SaveToolkit.Sdk/References, src/SaveToolkit.Api/Contracts/ReferenceDtos.cs) ----
+
+export type ReferencePackOrigin = "Embedded" | "User";
+export type ReferenceDatasetKind = "Records" | "Assets";
+
+/** Who made a dataset and under which terms; shown wherever its data appears. */
+export interface ReferenceAttribution {
+  sourceUrl: string;
+  author: string;
+  license: string;
+  licenseUrl: string;
+  /** ISO date (yyyy-MM-dd). */
+  retrieved: string;
+  modifications: string;
+}
+
+export interface ReferenceDatasetInfo {
+  packId: string;
+  id: string;
+  kind: ReferenceDatasetKind;
+  attribution: ReferenceAttribution;
+  title?: string;
+  itemCount: number;
+}
+
+export interface ReferencePackInfo {
+  id: string;
+  version: string;
+  title: string;
+  origin: ReferencePackOrigin;
+  description?: string;
+  pluginIds: string[];
+  titleIds: string[];
+  gameBuilds: string[];
+  locale?: string;
+  datasets: ReferenceDatasetInfo[];
+}
+
+export interface ReferencePacks { packs: ReferencePackInfo[]; errors: { origin: string; message: string }[] }
+
+/** One dataset pinned to an open document; `used` once the plugin resolved it. */
+export interface DocumentSource {
+  packId: string;
+  packTitle: string;
+  packVersion: string;
+  origin: ReferencePackOrigin;
+  locale?: string;
+  datasetId: string;
+  kind: ReferenceDatasetKind;
+  title?: string;
+  itemCount: number;
+  attribution: ReferenceAttribution;
+  used: boolean;
+}
+
+export interface DocumentSources { datasets: DocumentSource[] }
+
+export interface ReferenceRecord {
+  key: string;
+  name: string;
+  category?: string;
+  limit?: number;
+  description?: string;
+  assetId?: string;
+  source?: string;
+  attributes?: Record<string, string>;
+  packId: string;
+  datasetId: string;
+}
+
+export interface ReferencePage {
+  catalogId: string;
+  packId: string;
+  items: ReferenceRecord[];
+  total: number;
+  offset: number;
+  limit: number;
+  categories: string[];
+}

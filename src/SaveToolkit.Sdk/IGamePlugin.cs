@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Sdk;
@@ -21,6 +22,14 @@ public interface IGamePlugin
     /// Parses the file. Throw <see cref="SaveFormatException"/> with a user-facing message for invalid data.
     /// </summary>
     ISaveDocument Open(ISaveFile file);
+
+    /// <summary>
+    /// Parses the file with reference data (names, limits, icons) pinned for this document. The framework
+    /// always calls this overload; the default ignores <paramref name="references"/>, so plugins that only
+    /// implement <see cref="Open(ISaveFile)"/> keep working. Plugins that use reference packs implement this
+    /// and let <see cref="Open(ISaveFile)"/> forward with <see cref="IReferenceContext.Empty"/>.
+    /// </summary>
+    ISaveDocument Open(ISaveFile file, IReferenceContext references) => Open(file);
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<PluginMaturity>))]

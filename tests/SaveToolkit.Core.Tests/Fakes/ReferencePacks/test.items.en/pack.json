@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "id": "test.items.en",
+  "version": "1.0.0",
+  "title": "Items Game reference data (test fixture)",
+  "description": "Embedded pack used by the framework tests to demonstrate reference packs end to end.",
+  "plugins": ["test.items"],
+  "titleIds": ["PPSA99998"],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "items",
+      "kind": "records",
+      "title": "Item names and limits",
+      "files": [{ "path": "items.json", "sha256": "ca8c89fbf7ff2d5e3d9c356a0264da1f55c06f64dadd5476c132c6ba9d0088b8" }],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "author": "PS5 Save Game Toolkit contributors",
+        "license": "Original test fixture, no third-party content",
+        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "retrieved": "2026-10-28",
+        "modifications": "None; written for the framework tests."
+      }
+    },
+    {
+      "id": "icons",
+      "kind": "assets",
+      "title": "Item icons",
+      "files": [
+        { "path": "icons/potion.png", "sha256": "917658620acea886480c64215af47b5f700962bedc616d76136a42613da5ae40" },
+        { "path": "icons/ether.png", "sha256": "a5b0fdfca6069fb11e4809514719895e4a504f57c916e89eea040b8ef36af735" }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "author": "PS5 Save Game Toolkit contributors",
+        "license": "Original test fixture, no third-party content",
+        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "retrieved": "2026-10-28",
+        "modifications": "None; generated 16x16 placeholder squares."
+      }
+    }
+  ]
+}

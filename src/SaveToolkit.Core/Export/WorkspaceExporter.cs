@@ -64,7 +64,7 @@ public static class WorkspaceExporter
             }
         }
 
-        Verify(set, dirty, overrides);
+        Verify(workspace, dirty, overrides);
 
         if (options.MirrorBackups)
         {
@@ -100,20 +100,20 @@ public static class WorkspaceExporter
         }
     }
 
-    private static void Verify(DiskSaveSet set, IReadOnlyList<DocumentSession> dirty, Dictionary<string, ReadOnlyMemory<byte>> overrides)
+    private static void Verify(Workspace workspace, IReadOnlyList<DocumentSession> dirty, Dictionary<string, ReadOnlyMemory<byte>> overrides)
     {
         if (overrides.Count == 0)
         {
             return;
         }
 
-        var overlay = new OverlaySaveSet(set, overrides);
+        var overlay = new OverlaySaveSet(workspace.Set, overrides);
         foreach (var session in dirty)
         {
             var reopened = ((ISaveSet)overlay).FindFile(session.File.RelativePath)!;
             try
             {
-                using var doc = session.Plugin.Open(reopened);
+                using var doc = session.Plugin.Open(reopened, workspace.References(session.Id));
                 _ = doc.BuildView();
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
