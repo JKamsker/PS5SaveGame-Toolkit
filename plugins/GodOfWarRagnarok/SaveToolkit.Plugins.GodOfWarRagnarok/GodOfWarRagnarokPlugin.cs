@@ -1,5 +1,6 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
@@ -16,6 +17,8 @@ public sealed class GodOfWarRagnarokPlugin : IGamePlugin
             "https://github.com/sterben-Dev10/SaveWizard-Resources",
             "https://github.com/Alexsander720/continue/blob/main/plugin/py_modules/ddsaves/god_of_war_ragnarok.py",
             "https://bucanero.github.io/apollo-lib/savewizard.html",
+            "https://godofwar.fandom.com/wiki/Resources/GOW_%28Ragnar%C3%B6k%29",
+            "https://www.fandom.com/licensing",
         ],
     };
 
@@ -33,6 +36,9 @@ public sealed class GodOfWarRagnarokPlugin : IGamePlugin
     }
 
     public ISaveDocument Open(ISaveFile file)
+        => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         if (!Probe(file).IsMatch || file.Length > RagnarokFormat.MaximumFileSize)
         {
@@ -42,6 +48,6 @@ public sealed class GodOfWarRagnarokPlugin : IGamePlugin
         var bytes = file.ReadAllBytes();
         var preferences = file.FileName.Equals("userpreferences", StringComparison.OrdinalIgnoreCase);
         var index = RagnarokRecordIndex.Parse(bytes, preferences);
-        return new RagnarokDocument(file.RelativePath, file.FileName, bytes, index);
+        return new RagnarokDocument(file.RelativePath, file.FileName, bytes, index, new RagnarokReferences(references));
     }
 }

@@ -1,9 +1,10 @@
 # God of War Ragnarök (`gow-ragnarok`)
 
 **Maturity: ReadOnly.** Opens decrypted PS5 gameplay/history saves and the separate preferences record.
-Provides metadata, an inferred hero wallet, resource ID occurrences, a partial record index, and lazy
-raw word/byte views. Integrity dependencies and the complete serialization grammar remain unresolved.
-No edits or actions are offered. An unsuccessful checksum search does not establish safe writing.
+Provides metadata, an inferred hero wallet, resource ID occurrences, a partial record index, an
+attributed F2 resource catalog, grammar evidence spans and lazy raw word/byte views. Integrity
+dependencies and the complete serialization grammar remain unresolved. No edits or actions are
+offered. An unsuccessful checksum search does not establish safe writing.
 
 ## Titles and file roles
 
@@ -58,10 +59,11 @@ is unproven and it is not used for traversal.
 
 ## Meaning and confidence
 
-The embedded `Resources/ResourceNames.json` contains 18 Ragnarök resource names from exact eight-byte
-search IDs in the community codes: Hacksilver, Rawhide, Chaos/Gale Flames, six dews and eight Valhalla
-items. XP is an additional **inferred Ragnarök role** transferred from the 2018 editor's `EconomyXP`
-ID. No network or filesystem access is performed by the plugin.
+The embedded `ReferencePacks/gow-ragnarok.ps5.en` pack is version `1.0.0` and contains 31 factual
+hash/name/category records. It records `limit: null` deliberately: no source or controlled capture
+proves a legal game maximum. The old `Resources/ResourceNames.json` remains a direct-call fallback
+with the same 31 factual IDs when Core has not pinned the pack. XP is an additional **inferred Ragnarök role** transferred from the
+2018 editor's `EconomyXP` ID. No network or filesystem access is performed by the plugin.
 
 Ragnarök name-to-ID correspondences are substantiated by the source and exact sample matches where
 present. Wallet ownership, quantities, time, counter and timestamp meaning stay **Inferred** because
@@ -89,6 +91,12 @@ words and selected directory/wallet spans: no match. Coverage/seed searches were
 The parser rejects unsupported headers, known malformed metadata, unsorted IDs, missing secondary
 IDs, invalid array counts, missing/duplicate wallet markers and missing observed EOF sentinels.
 **It cannot detect arbitrary corruption in opaque data or authenticate a save.**
+
+`RagnarokGrammar` is a clean-room F1 evidence harness. It emits observed header/metadata/array/wallet
+spans, preserved opaque gaps, stable directory/wallet hash candidates, fitting opaque u32 length
+candidates and recognized compression signatures. Length and compression candidates are explicitly
+marked unproven; the harness never traverses them or rewrites them. `RagnarokDiffDecoder` feeds those
+values to `SaveSetDiffer` for generation-to-generation semantic reports.
 
 `CanEdit` is false. Every field is read-only, edits are rejected atomically by `BoundSaveDocument`,
 and unknown actions are rejected. `Serialize()` re-parses the original buffer and returns an isolated
@@ -144,6 +152,17 @@ the community repository does not establish a general code reuse licence.
 | [Codes Prince console editor](https://codesprince.com/2022/12/06/ps4-ps5-save-editor-for-gow-ragnarok/), [PC editor](https://codesprince.com/2024/09/24/pc-editor-for-gow-ragnarok/) | Separate platform/version support; no public parser/integrity algorithm obtained. |
 | [GOWTool](https://github.com/kainotoa/GOWTool), [smpack](https://github.com/iArtorias/smpack) | Asset/WAD leads; no proof that asset hashing or WTOC/LZ4 applies to saves. |
 | [Regional catalogue](https://sharpemu.app/game/PPSA08329/), [PPSA08329](https://prosperopatches.com/PPSA08329), [PPSA08330](https://prosperopatches.com/PPSA08330), [PPSA08331](https://prosperopatches.com/PPSA08331), [PPSA08332](https://prosperopatches.com/PPSA08332), [PPSA08334](https://prosperopatches.com/PPSA08334) | Title identity/IDs; not save compatibility. |
+
+## Sources and attribution
+
+The embedded pack's dataset is attributed in `ReferencePacks/gow-ragnarok.ps5.en/pack.json` and in
+each record's `source` field. Names and broad categories are adapted from [God of War Wiki resource
+entries](https://godofwar.fandom.com/wiki/Resources/GOW_%28Ragnar%C3%B6k%29), licensed CC-BY-SA-3.0
+under [Fandom's licensing terms](https://www.fandom.com/licensing). Hash bytes were normalized from
+the cited community resource table and checked against PPSA08330 occurrences; no trainer code, game
+art, or copied prose is embedded. The pack preserves share-alike attribution and states unknown
+legal limits instead of inventing ranges. The fallback JSON uses the same 31 factual identities
+and is covered by the same attribution.
 
 ## SDK requests
 
