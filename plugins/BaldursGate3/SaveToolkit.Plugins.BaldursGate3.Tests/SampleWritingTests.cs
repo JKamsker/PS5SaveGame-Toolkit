@@ -110,7 +110,10 @@ public sealed class SampleWritingTests(ITestOutputHelper output)
             var level = Assert.IsType<FieldNode>(row.Cells["level"]);
             var current = Assert.IsType<FieldNode>(row.Cells["currentXp"]);
             var total = Assert.IsType<FieldNode>(row.Cells["totalXp"]);
-            Assert.True(level.Spec.ReadOnly);
+            Assert.False(level.Spec.ReadOnly);
+            Assert.False(current.Spec.ReadOnly);
+            Assert.False(total.Spec.ReadOnly);
+            Assert.Contains("Not validated on console", level.Warning, StringComparison.Ordinal);
             Assert.Equal(Confidence.Inferred, level.Confidence);
             output.WriteLine($"Party: level {level.Value}, current XP {current.Value}, total XP {total.Value}");
             Assert.Equal(1, level.Value.AsInt32());

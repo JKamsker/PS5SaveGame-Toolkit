@@ -25,7 +25,7 @@ public sealed class PartyViewTests
     }
 
     [Fact]
-    public void PartyRowsAreBoundedAndNeverExposeSummaryEdits()
+    public void PartyRowsAreBoundedAndOnlyExistingNumbersExposeSummaryEdits()
     {
         var characters = string.Join(',', Enumerable.Repeat("{\"Origin\":\"Generic\",\"Level\":1,\"Experience Points (Current level)\":30,\"Experience Points (Total)\":30}", 129));
         var json = Encoding.UTF8.GetBytes("{\"Active Party\":{\"Characters\":[" + characters + "]}}");
@@ -35,10 +35,11 @@ public sealed class PartyViewTests
         Assert.Equal(128, table.Rows.Count);
         Assert.All(table.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>(), field =>
         {
-            Assert.True(field.Spec.ReadOnly);
+            Assert.Equal(field.Value.Kind != FieldValueKind.Integer, field.Spec.ReadOnly);
             Assert.Equal(field.Label == "Origin label" ? Confidence.Unknown : Confidence.Inferred, field.Confidence);
             Assert.Equal(field.Value, document.GetValue(field.ValueId));
             Assert.False(document.ApplyEdits([new ValueEdit(field.ValueId, FieldValue.Of(99L))]).Succeeded);
+            if (!field.Spec.ReadOnly) Assert.Contains("Not validated on console", field.Warning, StringComparison.Ordinal);
         });
     }
 

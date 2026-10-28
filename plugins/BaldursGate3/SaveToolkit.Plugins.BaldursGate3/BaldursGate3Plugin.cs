@@ -6,9 +6,9 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 
 public sealed class BaldursGate3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.4.0")
+    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.5.0")
     {
-        Description = "LSPK/LSOF/LSX editor with bounded read-only NewAge/story inspection, attributed BG3 catalogs and verified v18 checksums.",
+        Description = "Experimental primitive/party-metadata editor with console warnings, read-only NewAge/story inspection, attributed BG3 catalogs and verified v18 checksums.",
         Games = [new GameTitle("PPSA18463", "Baldur's Gate 3")],
         Maturity = PluginMaturity.Experimental,
         References =
@@ -35,6 +35,7 @@ public sealed class BaldursGate3Plugin : IGamePlugin
             "https://bg3.wiki/w/index.php?title=Fire_Bolt&oldid=373237",
             "https://bg3.wiki/wiki/bg3wiki:Copyrights",
             "https://github.com/Hawk-on/bg3-save-editor/blob/master/FIELD_MAPPING.md",
+            "https://bg3.wiki/wiki/Experience",
             "https://github.com/Wahkah/BG3SE",
             "https://github.com/Serofix-code/bg3-save-editor",
         ],

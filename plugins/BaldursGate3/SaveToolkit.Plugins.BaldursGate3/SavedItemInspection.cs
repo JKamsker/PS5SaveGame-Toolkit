@@ -14,20 +14,30 @@ internal sealed class SavedItemInspection
     private readonly Lazy<IReadOnlyList<Item>> _items;
     private readonly Bg3References _references;
     private readonly Func<string, string, FieldValue, FieldNode> _bind;
+    private readonly Func<int, int, FieldNode?>? _bindQuantity;
+    private readonly Func<int, int, Int128?>? _readQuantity;
 
     internal SavedItemInspection(IReadOnlyList<DocumentEntry> entries, Bg3References references,
-        Func<string, string, FieldValue, FieldNode> bind)
+        Func<string, string, FieldValue, FieldNode> bind, Func<int, int, FieldNode?>? bindQuantity = null,
+        Func<int, int, Int128?>? readQuantity = null)
     {
         _items = new(() => Read(entries));
         _references = references;
         _bind = bind;
+        _bindQuantity = bindQuantity;
+        _readQuantity = readQuantity;
     }
 
-    internal IReadOnlyList<ViewNode> Build() =>
-    [
-        new TextNode("Original saved Item nodes from Globals.lsf, including world/trader items. Ownership, equipment and quantity are unresolved; no party gold total is calculated. Reference names are candidates from an exact template GUID lookup.") { Tone = Tone.Info },
-        SectionNode.Lazy("Browse saved items (all owners)", Prefix + "all"),
-    ];
+    internal IReadOnlyList<ViewNode> Build()
+    {
+        var collection = Collection;
+        return
+        [
+            new TextNode("Saved Item nodes from Globals.lsf, including world/trader items. Explicit numeric quantity candidates can be edited experimentally; live ownership, equipment and NewAge stacks remain unresolved. No party gold total is calculated. Not validated on console; edited saves may be rejected.") { Tone = Tone.Warning },
+            new QueryableTableNode(collection.Id, collection.Title, collection.Columns, collection.TotalCount) { Description = collection.Description },
+            SectionNode.Lazy("Browse saved items with provenance (all owners)", Prefix + "all"),
+        ];
+    }
 
     internal QueryableCollection Collection => new(
         "bg3.saved-items", "Saved item occurrences",
@@ -35,7 +45,8 @@ internal sealed class SavedItemInspection
             new QueryableColumn("name", "Candidate name") { Width = ColumnWidth.Wide },
             new QueryableColumn("template", "CurrentTemplate") { Width = ColumnWidth.Wide },
             new QueryableColumn("stats", "Stats ID"),
-            new QueryableColumn("ownership", "Owner / quantity") { Width = ColumnWidth.Wide },
+            new QueryableColumn("ownership", "Original owner / quantity") { Width = ColumnWidth.Wide },
+            new QueryableColumn("quantity", "Explicit quantity candidate"),
         ], _items.Value.Count)
     {
         Description = "All original Globals.lsf Item nodes, including world and trader items. Ownership and quantity are shown only when an explicit LSF attribute is present; no positional join is inferred.",
@@ -56,6 +67,7 @@ internal sealed class SavedItemInspection
             "template" => query.Descending ? filtered.OrderByDescending(item => item.Template, StringComparer.Ordinal) : filtered.OrderBy(item => item.Template, StringComparer.Ordinal),
             "stats" => query.Descending ? filtered.OrderByDescending(item => item.Stats, StringComparer.Ordinal) : filtered.OrderBy(item => item.Stats, StringComparer.Ordinal),
             "ownership" => query.Descending ? filtered.OrderByDescending(item => Ownership(item), StringComparer.Ordinal) : filtered.OrderBy(item => Ownership(item), StringComparer.Ordinal),
+            "quantity" => query.Descending ? filtered.OrderByDescending(item => _readQuantity?.Invoke(item.Entry, item.Node)) : filtered.OrderBy(item => _readQuantity?.Invoke(item.Entry, item.Node)),
             _ => throw new ArgumentException($"Unknown BG3 saved-item sort column '{query.SortColumn}'.", nameof(query)),
         };
         var total = ordered.LongCount();
@@ -88,7 +100,7 @@ internal sealed class SavedItemInspection
         if (count > ResourceExplorer.PageSize)
             return ResourceExplorer.Pages("Saved items", Prefix.TrimEnd('/'), count, start);
         return [new TableNode([new("name", "Candidate name"), new("template", "CurrentTemplate"), new("stats", "Stats ID"),
-            new("provenance", "Occurrence provenance"), new("ownership", "Owner / quantity")],
+            new("provenance", "Occurrence provenance"), new("ownership", "Original owner / quantity"), new("quantity", "Explicit quantity candidate")],
             ResourceExplorer.Range(start, count, items.Count).Select(index => Row(items[index])).ToArray())
         {
             Title = "Original saved items — all owners",
@@ -107,6 +119,7 @@ internal sealed class SavedItemInspection
             ["stats"] = _bind($"{item.Key}/stats", "Stats ID", FieldValue.Of(item.Stats)),
             ["provenance"] = new TextNode($"Globals entry {item.Entry}, node {item.Node}; template occurrence {item.Occurrence}"),
             ["ownership"] = new TextNode(Ownership(item)),
+            ["quantity"] = (ViewNode?)_bindQuantity?.Invoke(item.Entry, item.Node) ?? new TextNode("Unavailable: no unambiguous positive integer quantity attribute. Inspect raw resources for other primitives."),
         });
     }
 

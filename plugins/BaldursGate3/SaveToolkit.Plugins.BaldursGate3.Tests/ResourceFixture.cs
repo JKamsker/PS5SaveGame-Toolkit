@@ -5,9 +5,10 @@ namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 internal static class ResourceFixture
 {
     // Two nodes, interleaved attributes. Owner tags deliberately differ from node indices.
-    internal static byte[] Create(uint version = 7, bool adjacency = false, byte compression = 0, bool framed = true, uint? metadata = null)
+    internal static byte[] Create(uint version = 7, bool adjacency = false, byte compression = 0, bool framed = true, uint? metadata = null,
+        bool itemQuantity = false)
     {
-        string[] names = ["Root", "Child", "Counter", "Message", "Flag"];
+        string[] names = itemQuantity ? ["Items", "Item", "Quantity", "Message", "Flag"] : ["Root", "Child", "Counter", "Message", "Flag"];
         var strings = Write(writer =>
         {
             writer.Write(1u); // one hash bucket
@@ -21,8 +22,8 @@ internal static class ResourceFixture
         });
         var nodes = Write(writer =>
         {
-            Node(0, -1, 0);
-            Node(1, 0, 1);
+            Node(0, -1, itemQuantity ? 1 : 0);
+            Node(1, 0, itemQuantity ? 0 : 1);
             void Node(uint name, int parent, int firstAttribute)
             {
                 writer.Write(name);

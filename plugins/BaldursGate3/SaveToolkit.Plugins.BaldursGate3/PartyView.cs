@@ -8,11 +8,7 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 /// <summary>SaveInfo's sourced summary is deliberately separate from live LSMF character state.</summary>
 internal static class PartyView
 {
-    private const int MaxSummaryBytes = 1024 * 1024;
-    private const int MaxCharacters = 128;
     private const int MaxDisplayText = 2048;
-    private const string CurrentXp = "Experience Points (Current level)";
-    private const string TotalXp = "Experience Points (Total)";
 
     internal static IReadOnlyList<ViewNode> Build(IReadOnlyList<DocumentEntry> entries,
         Func<string, string, ResourceAttribute, FieldNode> bindAttribute,
@@ -20,7 +16,7 @@ internal static class PartyView
     {
         var nodes = new List<ViewNode>
         {
-            new TextNode("Saved party summary. Level and XP are read-only metadata; live character stats are stored separately in NewAge.") { Tone = Tone.Info },
+            new TextNode("Experimental saved-party metadata edits. Level and XP change only this summary; live character stats are stored separately in NewAge. Not validated on console; edited saves may be rejected.") { Tone = Tone.Warning },
         };
         for (var e = 0; e < entries.Count; e++)
         {
@@ -45,7 +41,7 @@ internal static class PartyView
         }
 
         var summary = entries.FirstOrDefault(e => e.Name.Equals("SaveInfo.json", StringComparison.OrdinalIgnoreCase));
-        if (summary is null || summary.Bytes.Length > MaxSummaryBytes)
+        if (summary is null || summary.Bytes.Length > PartySummaryEdits.MaxSummaryBytes)
         {
             nodes.Add(new TextNode("No supported SaveInfo.json party summary is available."));
         }
@@ -57,21 +53,21 @@ internal static class PartyView
                 var party = Property(Property(json.RootElement, "Active Party"), "Characters");
                 if (party.ValueKind == JsonValueKind.Array)
                 {
-                    var rows = party.EnumerateArray().Take(MaxCharacters).Select((character, index) => new TableRow(
+                    var rows = party.EnumerateArray().Take(PartySummaryEdits.MaxCharacters).Select((character, index) => new TableRow(
                         index.ToString(CultureInfo.InvariantCulture), new Dictionary<string, ViewNode>
                         {
                             ["name"] = Name(character, index),
                             ["origin"] = Text(character, "Origin", index),
                             ["level"] = Number(character, "Level", index),
-                            ["currentXp"] = Number(character, CurrentXp, index),
-                            ["totalXp"] = Number(character, TotalXp, index),
+                            ["currentXp"] = Number(character, PartySummaryEdits.CurrentXp, index),
+                            ["totalXp"] = Number(character, PartySummaryEdits.TotalXp, index),
                         })).ToArray();
                     nodes.Add(new StatsNode([new Stat("Active characters", party.GetArrayLength().ToString(CultureInfo.InvariantCulture))]));
                     nodes.Add(new TableNode([new("name", "Origin label"), new("origin", "Raw origin"), new("level", "Level"),
                         new("currentXp", "XP (current level)"), new("totalXp", "XP (total)")], rows)
                     {
                         Title = "Active party",
-                        Description = "Original SaveInfo.json snapshot. Sourced origin labels are not live character names; each label carries its attribution. At most 128 rows are shown.",
+                        Description = "SaveInfo.json metadata only. Existing level/XP tokens are editable in v18 packages within conservative limits. Sourced origin labels carry attribution. At most 128 rows are shown.",
                     });
                 }
                 else nodes.Add(new TextNode("SaveInfo.json has no supported Active Party / Characters array."));
