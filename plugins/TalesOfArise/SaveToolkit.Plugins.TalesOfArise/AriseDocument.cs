@@ -26,8 +26,11 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     private readonly AriseReferences _references = new(references);
     private AriseInventoryActions? _inventoryActions;
     private AriseReadOnlyViews? _readOnlyViews;
+    private AriseSpatialViews? _spatialViews;
     private bool _inventoryBindingsReady;
     private AriseReadOnlyViews ReadOnlyViews => _readOnlyViews ??= new(save, _references);
+
+    private AriseSpatialViews SpatialViews => _spatialViews ??= new(_references);
 
     private AriseInventoryActions InventoryActions => _inventoryActions ??= new(this);
 
@@ -62,8 +65,8 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             ]),
             new Tab("Catalogs", _references.BuildView()),
             new Tab("Character sheets", ReadOnlyViews.CharacterView(ReadOnlyNumber)),
-            new Tab("Artes and skills", ReadOnlyViews.BuildView()),
-            new Tab("Progress", ReadOnlyViews.ProgressView()),
+            new Tab("Artes and skills", [.. ReadOnlyViews.BuildView(), .. SpatialViews.Graphs]),
+            new Tab("Progress", [.. ReadOnlyViews.ProgressView(), .. SpatialViews.Maps]),
             new Tab("Explorer",
             [
                 new TextNode("Decrypted sections and primitive words are read-only. Offsets are relative to the gameplay block at file offset 0x32058."),
@@ -74,13 +77,18 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
         ]);
     }
 
-    public IReadOnlyList<QueryableCollection> Collections => [.. _references.Collections, .. ReadOnlyViews.Collections];
+    public IReadOnlyList<QueryableCollection> Collections => [.. _references.Collections, .. ReadOnlyViews.Collections, AriseInventoryQuery.Metadata(ReadInventoryRows().Count)];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
     {
         if (ReadOnlyViews.Handles(collectionId))
         {
             return ReadOnlyViews.Query(collectionId, query, ReadOnlyNumber);
+        }
+
+        if (collectionId == AriseInventoryQuery.CollectionId)
+        {
+            return AriseInventoryQuery.Query(this, query);
         }
 
         var page = _references.Query(collectionId, query);
@@ -149,7 +157,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                 continue;
             }
 
-            rows.Add(new(relative / ItemRecordSize, offset, id, save.Payload[offset], AriseSchema.ConsumableName(id)));
+            rows.Add(new(relative / ItemRecordSize, offset, id, save.Payload[offset], save.Payload[offset + ItemFlagsOffset], AriseSchema.ConsumableName(id)));
         }
 
         return rows;
@@ -207,47 +215,57 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     {
         _inventoryBindingsReady = true;
         var rows = new List<TableRow>();
-        foreach (var row in ReadInventoryRows())
-        {
-            var offset = row.Offset;
-            var id = row.Id;
-            var supportedName = row.Name;
-            var reference = _references.Items?.Find(id.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            var name = reference?.Name ?? supportedName;
-            var attribution = reference?.AttributionText ?? ConsumableAttribution;
-            var valueId = $"inventory/{row.Index}/quantity";
-            var idField = Field($"inventory/{row.Index}/id", $"0x{id:X4}",
-                new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true, AllowCustom = true },
-                () => FieldValue.Of(id.ToString())) with
-                {
-                    Confidence = name is null ? Confidence.Unknown : Confidence.Inferred,
-                    Description = name is null
-                        ? "Unknown item/equipment identity; raw numeric ID is preserved."
-                        : $"{name}; raw numeric ID is preserved. {attribution}",
-                };
-            var spec = new IntegerSpec(0, Math.Max(ConsumableStackLimit, (int)save.Payload[offset]));
-            var canWrite = supportedName is not null && save.Payload[offset] <= ConsumableStackLimit;
-            var quantity = Field(valueId, "Quantity", spec,
-                () => FieldValue.Of((long)save.Payload[offset]),
-                canWrite ? v => save.Payload[offset] = checked((byte)v.AsUInt32()) : null,
-                v => v.AsInteger() < 0 || v.AsInteger() > ConsumableStackLimit ? $"Consumable quantities must be between 0 and {ConsumableStackLimit}." : null)
-                with { Confidence = Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
-            rows.Add(new TableRow(valueId, new Dictionary<string, ViewNode>
-            {
-                ["id"] = idField,
-                ["name"] = Field($"inventory/{row.Index}/name", "Item", new TextSpec(),
-                    () => FieldValue.Of(name ?? "Unknown item / equipment"))
-                    with { Description = name is null ? "Unknown numeric identity; no name join is assumed." : attribution, Confidence = name is null ? Confidence.Unknown : Confidence.Inferred },
-                ["quantity"] = quantity,
-                ["flags"] = new TextNode($"0x{save.Payload[offset + ItemFlagsOffset]:X2}"),
-            }));
-        }
+        rows.AddRange(ReadInventoryRows().Select(BuildInventoryRow));
 
-        return new TableNode([new("id", "ID"), new("name", "Item"), new("quantity", "Quantity"), new("flags", "Raw flags")], rows)
+        return new TableNode([new("id", "ID"), new("name", "Item"), new("quantity", "Quantity"), new("flags", "Raw flags"), new("inspect", "Inspect")], rows)
         {
             Title = "Existing inventory records",
             Description = "Only the recognised fixed-slot consumable quantity fields are writable. Unknown IDs and equipment remain preserved.",
         };
+    }
+
+    internal TableRow BuildInventoryRow(AriseInventoryRow row)
+    {
+        var offset = row.Offset;
+        var id = row.Id;
+        var reference = _references.Items?.Find(id.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        var name = reference?.Name ?? row.Name;
+        var attribution = reference?.AttributionText ?? ConsumableAttribution;
+        var valueId = AriseInventoryActions.RowKey(row);
+        var idField = Field($"inventory/{row.Index}/id", $"0x{id:X4}",
+            new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true, AllowCustom = true },
+            () => FieldValue.Of(id.ToString())) with
+            {
+                Confidence = name is null ? Confidence.Unknown : Confidence.Inferred,
+                Description = name is null
+                    ? "Unknown item/equipment identity; raw numeric ID is preserved."
+                    : $"{name}; raw numeric ID is preserved. {attribution}",
+            };
+        var spec = new IntegerSpec(0, Math.Max(ConsumableStackLimit, (int)save.Payload[offset]));
+        var canWrite = row.Name is not null && save.Payload[offset] <= ConsumableStackLimit;
+        var quantity = Field(valueId, "Quantity", spec,
+            () => FieldValue.Of((long)save.Payload[offset]),
+            canWrite ? v => save.Payload[offset] = checked((byte)v.AsUInt32()) : null,
+            v => v.AsInteger() < 0 || v.AsInteger() > ConsumableStackLimit ? $"Consumable quantities must be between 0 and {ConsumableStackLimit}." : null)
+            with { Confidence = Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
+        var cells = new Dictionary<string, ViewNode>
+        {
+            ["id"] = idField,
+            ["name"] = Field($"inventory/{row.Index}/name", "Item", new TextSpec(),
+                () => FieldValue.Of(name ?? "Unknown item / equipment"))
+                with { Description = name is null ? "Unknown numeric identity; no name join is assumed." : attribution, Confidence = name is null ? Confidence.Unknown : Confidence.Inferred },
+            ["quantity"] = quantity,
+            ["flags"] = new TextNode($"0x{save.Payload[offset + ItemFlagsOffset]:X2}"),
+            ["inspect"] = reference is null
+                ? new TextNode("—")
+                : new ActionNode($"references/inspect/{AriseReferences.ItemsCatalogId}", "Inspect")
+                {
+                    Tone = Tone.Info,
+                    Description = attribution,
+                    Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true }, FieldValue.Of(id.ToString()))],
+                },
+        };
+        return new TableRow(valueId, cells);
     }
 
     private FieldNode Number(string id, string label, int offset, uint maximum, bool writable = true, uint minimum = 0)

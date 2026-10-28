@@ -44,6 +44,14 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
   ItemManager. They do not infer ownership, learned/cooked, caught/rewarded, found/
   reported/rewarded, effect toggles or completion percentages. The only bulk action is
   the bounded existing-row quantity action, which uses F6 planning and grouped undo.
+- F9 adds six bounded skill-panel graphs and six arte-prerequisite graphs. It also adds
+  an original schematic progress map with attributed external links for 128 guide rows
+  plus owl, camp and map domains. Coordinates are plugin-authored grouping positions,
+  never claimed in-game coordinates; every saved state remains Unknown.
+- Inventory is also exposed through an F8 queryable collection. Core can resolve a
+  filtered inventory query into stable fixed-slot row keys for the F6 quantity preview;
+  query pages keep quantity cells read-only so only the expanded editor owns writable
+  bindings.
 - Records section-relative evidence in `Resources/EvidenceLedger.csv`. `AriseDiff` aligns
   decrypted bodies by schema ID and reports relative changed offsets, so shuffled physical
   addresses do not become false field evidence. No new gameplay meaning is promoted by this ledger.
@@ -51,6 +59,24 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
 `SystemSaveData.sav` is a separate **4,096-byte opaque system blob**. It is not claimed,
 decrypted or rewritten; the framework's raw viewer remains available. Each document
 only returns its own file, without silently changing the console backup twin.
+
+## Framework feature adoption
+
+| Feature | Status | Concrete adoption or reason |
+| --- | --- | --- |
+| F1 SaveDiff | Used | `AriseDiff` aligns decrypted sections by schema ID and relative offsets; twin and slot tests prove the alignment. The shared `PluginViewDecoder` can traverse the plugin without plugin I/O; private sample bytes stay outside git. |
+| F2 reference packs | Used | The embedded `talesofarise.catalog` v2 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. |
+| F3 rich table cells | Added this round | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. No image cells are included because no icon licence is cleared. |
+| F4 reference pickers | Used | Inventory ID fields and all catalog identity columns use `ReferenceSpec`, preserve unknown numeric IDs and allow custom fallback. |
+| F5 structural edits | N/A | No safe add/remove/reorder writer exists: allocation, inverse records and acquisition invariants are unproven, so fixed-slot scalar writes remain the only structural-safe scope. |
+| F6 planned actions | Used | `inventory/set-quantity` previews changes, skips unsupported rows, revalidates at apply and records one undo group. Core-resolved F8 query scopes are accepted and tested. |
+| F7 document groups | N/A | `SystemSaveData.sav` is opaque and the console backup twin has no proven independent ownership contract; this plugin intentionally edits one selected gameplay file only. |
+| F8 queryable collections | Used | Catalogs page and sort all 2,157 records; the inventory collection supplies stable fixed-slot rows for search and query-scoped planning. |
+| F9 maps and graphs | Added this round | Skill-panel and arte prerequisite DAGs plus an external-link-first schematic map use bounded `GraphNode`/`MapNode` views, text alternatives, stable targets and spatial validation. |
+| F10 exact numbers / nullable unions | N/A | The supported PS5 schema is fixed-width integers and bytes; it contains no JSON numeric lexemes or nullable/union fields requiring F10. |
+| F11 shared codecs | N/A | Tales of Arise uses its measured AES/XOR/SHA1 format; it has no Kraken or SQLite payload, so `SaveToolkit.Codecs` does not apply. |
+| F12 SaveDiff F8 traversal and decoder hooks | Pending #32 | The framework feature is not on `main` in this round; no plugin-local substitute is added. |
+| F13 inspect/picker/filter and float-duration improvements | Pending #33 | The framework feature is not on `main` in this round; current read-only actions and integer duration remain on existing contracts. |
 
 ## Enabled writes and their evidence
 
@@ -282,6 +308,7 @@ and UI descriptions/provenance. Dataset attribution appears in the Sources panel
 | `Characters.csv` | Six short names plus unmapped placeholders; existing index mapping remains Inferred | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Characters.source.md) |
 | `Consumables.csv` | 13 legacy inferred numeric mappings; no newly established IDs | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Consumables.source.md) |
 | `Sections.csv` | Published section labels plus independently measured schema facts; GPL-3.0 format research, no code port | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Sections.source.md) |
+| F9 schematic coordinates and external map links | Original plugin-authored grouping positions; no game art or coordinates copied | [Repository licence](https://github.com/JKamsker/PS5SaveGame-Toolkit), [Tales of Arise guide index](https://aselia.fandom.com/wiki/Tales_of_Arise), [Owls](https://aselia.fandom.com/wiki/ToA_-_Owls), [Camps](https://aselia.fandom.com/wiki/ToA_-_Camps); map art remains external-only and Aselia text remains CC BY-SA 3.0 |
 
 The [data sidecar](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/data.source.md)
 lists all **62 immutable revision URLs**, author/licence/date/modifications and coverage

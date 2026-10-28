@@ -42,7 +42,7 @@ internal sealed class AriseReferences(IReferenceContext context)
     public ActionOutcome Inspect(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
         var id = actionId[InspectPrefix.Length..];
-        var catalog = Catalog(id);
+        var catalog = CatalogOrThrow(id);
         if (!parameters.TryGetValue("record", out var value) || value.Kind != FieldValueKind.Text ||
             catalog.Find(value.AsString()) is not { } record)
         {
@@ -91,12 +91,14 @@ internal sealed class AriseReferences(IReferenceContext context)
                 new ActionNode(InspectPrefix + id, "Inspect a reference record")
                 {
                     Description = catalog.Dataset.Attribution.ToShortText(),
-                    Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(id),
+                    Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(id) { ReadOnly = true },
                         FieldValue.Of(catalog.Search(new ReferenceQuery { Limit = 1 }).Items.FirstOrDefault()?.Key ?? ""))],
                 },
             ]);
     }
 
-    private IReferenceCatalog Catalog(string id) => _catalogs.GetValueOrDefault(id)
+    internal IReferenceCatalog? Catalog(string id) => _catalogs.GetValueOrDefault(id);
+
+    private IReferenceCatalog CatalogOrThrow(string id) => Catalog(id)
         ?? throw new KeyNotFoundException($"Tales of Arise catalog '{id}' is unavailable.");
 }

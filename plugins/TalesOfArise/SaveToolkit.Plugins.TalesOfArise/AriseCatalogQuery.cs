@@ -18,6 +18,7 @@ internal static class AriseCatalogQuery
         new("spCost", "SP cost (reference)", new TextSpec()),
         new("state", "Save state", new TextSpec()),
         new("details", "Reference facts and attribution", new TextSpec()) { Width = ColumnWidth.Wide },
+        new("inspect", "Inspect", null) { Width = ColumnWidth.Narrow },
     ];
 
     public static QueryableCollectionPage Query(string id, IReferenceCatalog catalog, QueryableCollectionQuery query)
@@ -80,6 +81,7 @@ internal static class AriseCatalogQuery
         "spCost" => record.Attributes.GetValueOrDefault("spCost") ?? "—",
         "state" => "Unknown (not joined to save)",
         "details" => $"{record.Description}\n{record.AttributionText}",
+        "inspect" => "Inspect",
         _ => throw new ArgumentException($"Unknown catalog column '{column}'.", nameof(column)),
     };
 
@@ -87,6 +89,12 @@ internal static class AriseCatalogQuery
     {
         var cells = Columns(id).ToDictionary(column => column.Key,
             column => (ViewNode)new TextNode(CellText(record, column.Key)), StringComparer.Ordinal);
+        cells["inspect"] = new ActionNode($"references/inspect/{id}", "Inspect")
+        {
+            Tone = Tone.Info,
+            Description = $"Read-only reference details. {record.AttributionText}",
+            Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(id) { ReadOnly = true }, FieldValue.Of(record.Key))],
+        };
         cells["id"] = new FieldNode($"catalog/{id}/{record.Key}/id", "Catalog identity",
             new ReferenceSpec(id) { ReadOnly = true, AllowCustom = true }, FieldValue.Of(record.Key))
         {

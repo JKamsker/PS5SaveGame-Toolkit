@@ -2,6 +2,7 @@ using System.Text.Json;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -106,6 +107,27 @@ public sealed class AriseWritePlanningTests
         Assert.False(session.State.CanUndo);
         Assert.True(session.Redo().Ok);
         Assert.True(session.State.CanUndo);
+    }
+
+    [Fact]
+    public void QuantityPlan_ResolvesF8QueryScopeAcrossUnloadedInventoryRows()
+    {
+        var file = Assert.IsType<DiskSaveFile>(AriseSampleTests.GameplayFiles().First(file => file.FileName == "SaveData_002.sav" && !file.Directory.IsBackup));
+        using var document = _plugin.Open(file);
+        using var session = new DocumentSession("arise-query-write", file, _plugin, document);
+        _ = session.BuildView();
+        var scope = new ActionScope
+        {
+            QueryScope = new ActionQueryScope("inventory", new QueryableCollectionQuery { Text = "Apple Gel" }, session.State.Revision),
+        };
+        var preview = session.PlanAction(ActionId, ParametersAsJson(12), scope);
+        Assert.NotNull(preview.PlanId);
+        Assert.Contains("inventory/24/quantity", preview.Scope.RowKeys!);
+        Assert.Single(preview.Plan.Changes);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.Equal(12, session.GetChanges().Changes.Single(change => change.ValueId == RowKey).CurrentValue.AsInt64());
+        Assert.True(session.Undo().Ok);
+        Assert.False(session.State.IsDirty);
     }
 
     private static IReadOnlyDictionary<string, FieldValue> Parameters(long quantity) =>
