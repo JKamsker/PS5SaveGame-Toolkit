@@ -92,14 +92,19 @@ function LazyChildren({ lazyId }: { lazyId: string }) {
     retry: (count, error) => !isStaleError(error) && count < 3,
   });
   const stale = query.isError && isStaleError(query.error);
-  const refreshedFor = useRef<number | null>(null);
+  const recoveryAttempted = useRef(false);
   useEffect(() => {
-    // The section belongs to a replaced view: reload the document (once) instead of showing an error.
-    if (!stale || refreshedFor.current === structureVersion) return;
-    refreshedFor.current = structureVersion;
-    void refresh();
-  }, [stale, structureVersion, refresh]);
-  if (query.isPending || stale) return <p className="section__loading">Loading…</p>;
+    if (query.isSuccess) recoveryAttempted.current = false;
+    // Retry automatically once until a node request succeeds, including across document refreshes.
+    if (!stale || recoveryAttempted.current) return;
+    recoveryAttempted.current = true;
+    void refresh().catch(() => {});
+  }, [stale, query.isSuccess, refresh]);
+  if (stale) return <div>
+    <p role="alert" className="notice notice--Danger">This section is out of date. Refresh the document to load its current contents.</p>
+    <button type="button" className="btn btn--small" onClick={() => void refresh().catch(() => {})}>Refresh document</button>
+  </div>;
+  if (query.isPending) return <p className="section__loading">Loading…</p>;
   if (query.isError) return <p className="notice notice--Danger">{query.error.message}</p>;
   return <ViewList nodes={query.data} />;
 }

@@ -17,10 +17,11 @@ function setup(refresh = vi.fn(async () => {})) {
   const context: DocumentContextValue = { workspaceId: "w", documentId: "d", store, canEdit: true, structureVersion: 0,
     refresh, commit: vi.fn(async () => true), acceptResult: vi.fn(), runAction: vi.fn() };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
-  render(<QueryClientProvider client={client}><DocumentContext.Provider value={context}>
+  const view = (generation: number) => <QueryClientProvider client={client}><DocumentContext.Provider value={{ ...context, structureVersion: generation }}>
     <ServerTableView node={{ type: "queryableTable", collectionId: "items", title: "Items", columns, totalCount: 100 }} />
-  </DocumentContext.Provider></QueryClientProvider>);
-  return { store, client, refresh };
+  </DocumentContext.Provider></QueryClientProvider>;
+  const { rerender } = render(view(0));
+  return { store, client, refresh, generation: (value: number) => rerender(view(value)) };
 }
 
 describe("server table request lifecycle", () => {
@@ -59,9 +60,13 @@ describe("server table request lifecycle", () => {
   it("attempts stale recovery once and keeps a manual refresh available", async () => {
     vi.spyOn(api, "queryCollection").mockRejectedValue(new ApiError("Stale view", 409, { code: "stale" }));
     const refresh = vi.fn(async () => { throw new Error("Offline"); });
-    const { client } = setup(refresh);
+    const { client, generation } = setup(refresh);
     await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
     expect(await screen.findByRole("alert")).toHaveProperty("textContent", expect.stringContaining("out of date"));
+    generation(1);
+    await waitFor(() => expect(api.queryCollection).toHaveBeenCalledTimes(2));
+    await screen.findByRole("alert");
+    expect(refresh).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole("button", { name: "Refresh document" }));
     await waitFor(() => expect(refresh).toHaveBeenCalledTimes(2));
     client.clear();

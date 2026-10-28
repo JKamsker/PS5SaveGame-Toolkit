@@ -92,4 +92,18 @@ describe("document snapshot lifecycle", () => {
     expect(screen.getByRole("switch").getAttribute("aria-checked")).toBe("true");
     client.clear();
   });
+
+  it("bounds stale lazy-node recovery across successive document generations", async () => {
+    const { client } = setup();
+    await screen.findByRole("switch");
+    vi.mocked(api.expand).mockRejectedValue(new ApiError("Stale node", 409, { code: "stale" }));
+    await act(async () => { await client.refetchQueries({ queryKey: ["document", "w", "d"] }); });
+    await waitFor(() => expect(api.document).toHaveBeenCalledTimes(3));
+    expect(await screen.findByRole("alert")).toHaveProperty("textContent", expect.stringContaining("section is out of date"));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh document" }));
+    await waitFor(() => expect(api.document).toHaveBeenCalledTimes(4));
+    await screen.findByRole("alert");
+    expect(api.document).toHaveBeenCalledTimes(4);
+    client.clear();
+  });
 });

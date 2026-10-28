@@ -32,13 +32,14 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
     retry: (count, error) => !(error instanceof ApiError && error.status >= 400 && error.status < 500) && count < 2,
   });
   const stale = result.isError && isStaleError(result.error);
-  const refreshedFor = useRef<number | null>(null);
+  const recoveryAttempted = useRef(false);
   useEffect(() => {
-    if (!stale || refreshedFor.current === structureVersion) return;
-    refreshedFor.current = structureVersion;
+    if (result.isSuccess) recoveryAttempted.current = false;
+    if (!stale || recoveryAttempted.current) return;
+    recoveryAttempted.current = true;
     // Keep the failure visible and allow manual retry if refreshing the document also fails.
     void refresh().catch(() => {});
-  }, [stale, structureVersion, refresh]);
+  }, [stale, result.isSuccess, refresh]);
 
   const page = result.isError || text !== deferredText ? undefined : result.data;
   const columns = useMemo<TableColumn[]>(
