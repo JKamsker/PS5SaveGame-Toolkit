@@ -251,3 +251,30 @@ also persist and undo byte-identically across all 36 primary gameplay generation
 All 76 supplied records still pass byte-identical no-op output. These are toolkit
 validation results, not PS5 acceptance evidence. See README for remaining unsafe
 dependencies and OWNER-CAPTURES.md for the exact console checklist.
+
+## Completion round
+
+Version 0.6.0 retains those 70 writable scalar controls and adds one F6 action over
+the same CareerBolts atom: target the inferred career-minus-spent balance, with
+SpentBolts unchanged. Pure preview, primary/derived review, bounds, wrong scope,
+no-op/skipped explanation, stale/forged plans, output byte/F1 diffs and real Core
+undo/redo are covered; all 36 primary gameplay records persist the action.
+
+Native F9 views expose sixteen stored upgrade masks per supported weapon via a
+paged/lazy diagram list and all 64 spybot bits via an external-link-only map/list.
+Every node targets an exact scalar field and has a text alternative. All gameplay
+states remain Unknown; prerequisite/cost and physical-coordinate joins are absent.
+The map source is attributed and linked, without importing art or coordinates.
+
+Additional F4 references use existing catalogs; raw inventory containers now use
+F8 pages. Optional diagnostic shapes no longer throw Single()/SingleOrDefault()
+errors; negative interpreted counters/masks fail by name with SaveFormatException.
+The static schema definitions are immutable and loaded once. Export buffers are
+isolated while avoiding an extra full-file copy, and long ASCII runs are bounded
+only in the preview; their original bytes remain in the blob/export.
+
+Final validation: **111 passed, 0 failed, 0 skipped**, with SAVETOOLKIT_ARTIFACTS set
+in the test invocation; API build **0 warnings/errors**. All 76 no-op records remain
+byte-identical. These tests do not establish console acceptance, HUD calibration,
+ownership, upgrade semantics or physical map alignment. See COMPLETION-AUDIT.md
+for every requirement/acceptance classification and README for framework adoption.

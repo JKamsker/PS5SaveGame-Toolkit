@@ -6,13 +6,14 @@ namespace SaveToolkit.Plugins.Insomniac;
 
 public sealed class InsomniacPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.5.0")
+    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.6.0")
     {
         Description = "Experimental bolt, gold-bolt option and boolean preference edits, with read-only arsenal/world inspection. Not console-validated; the game may reject edited saves.",
         Games = [new GameTitle("PPSA01474", "Ratchet & Clank: Rift Apart")],
         Maturity = PluginMaturity.Experimental,
         References =
         [
+            RiftCollectibleMap.GuideUrl,
             DdlSections.SchemaSource,
             "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json.license",
             "https://ratchetandclank.fandom.com/wiki/Burst_Pistol",

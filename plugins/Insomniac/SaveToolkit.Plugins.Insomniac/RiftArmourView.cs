@@ -24,7 +24,8 @@ internal sealed class RiftArmourView
         var campaign = sections.Roots.GetValueOrDefault(RiftPlayerView.CampaignTag);
         var field = campaign?.GetValueOrDefault("VanityPickupsCollected");
         ulong? mask = field is { Values.Count: 1 } ? field.Values[0].AsUInt64() : null;
-        var viewed = campaign?.GetValueOrDefault("NewItemsViewed")?.Values.Select(v => v.AsString()).ToHashSet(StringComparer.Ordinal) ?? [];
+        var viewed = campaign?.GetValueOrDefault("NewItemsViewed")?.Values.Where(v => v.Kind == FieldValueKind.Text)
+            .Select(v => v.AsString()).ToHashSet(StringComparer.Ordinal) ?? [];
         _collection = collections.Add("armour/collection", "Armour collection checklist",
             [new("name", "Piece candidate"), new("set", "Set"), new("slot", "Slot"),
              new("state", "Collection bit"), new("viewed", "Menu viewed flag"), new("perk", "Catalog bonus category")],
@@ -54,7 +55,8 @@ internal sealed class RiftArmourView
         var isSet = (mask & (1UL << bit)) != 0;
         return new(key, new Dictionary<string, RiftCell>
         {
-            ["name"] = RiftCollections.Field(label, () => _bind($"armour/bit/{bit}/name", "Piece candidate", new TextSpec(), FieldValue.Of(label)) with
+            ["name"] = RiftCollections.Field(label, () => _bind($"armour/bit/{bit}/name", "Piece candidate",
+                new ReferenceSpec("rift-armor") { AllowCustom = true }, FieldValue.Of(key)) with
             {
                 Confidence = reference is null ? Confidence.Unknown : Confidence.Inferred,
                 Description = $"Stored bit {bit}; schema name {rawName ?? "unresolved"}. {reference?.Description} {reference?.AttributionText ?? DdlSections.Attribution}",

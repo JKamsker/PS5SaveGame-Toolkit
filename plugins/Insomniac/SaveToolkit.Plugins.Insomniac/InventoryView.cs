@@ -1,4 +1,5 @@
 using System.Globalization;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -7,8 +8,14 @@ namespace SaveToolkit.Plugins.Insomniac;
 
 internal sealed class InventoryView(IReadOnlyList<InventoryBlock> blocks, IReferenceCatalog? types,
     Func<string, string, FieldSpec, FieldValue, FieldNode> bind,
-    Dictionary<string, Func<IReadOnlyList<ViewNode>>> lazy)
+    Dictionary<string, Func<IReadOnlyList<ViewNode>>> lazy, RiftCollections collections)
 {
+    private readonly Dictionary<string, QueryableTableNode> _tables = new(StringComparer.Ordinal);
+    internal void RegisterCollections()
+    {
+        foreach (var block in blocks) _ = Records(block);
+    }
+
     internal IReadOnlyList<ViewNode> Build() =>
     [
         new TextNode("Raw inventory diagnostics. Named path/token joins and selected state appear in Weapons, Armour and Upgrades. Repeated blocks can hold shared, equipped or cached state; actor/ownership and upgrade limits remain unproven. GUID/config columns preserve exact stored byte tokens.") { Tone = Tone.Warning },
@@ -31,34 +38,42 @@ internal sealed class InventoryView(IReadOnlyList<InventoryBlock> blocks, IRefer
     {
         if (block.Records.Count == 0)
             return [new TextNode($"No serialized item records. {block.OpaqueBytes} trailing state bytes remain opaque.") { Tone = Tone.Muted }];
-        return [new TableNode([new("type", "Schema type"), new("guid", "Item GUID bytes (candidate)"),
-            new("config", "Config bytes (candidate)"), new("count", "Count (candidate)"), new("state", "State candidates")],
-            block.Records.Select(record => Row(block, record)).ToArray())
+        if (!_tables.TryGetValue(block.Key, out var table))
         {
-            Title = $"Container {block.Key}",
-            Description = "Type IDs match the CC0 schema. Field meanings are inferred from matching fixed payloads, not controlled gameplay captures. " + DdlSections.Attribution,
-        }];
+            table = collections.Add($"inventory/{block.Key}", $"Container {block.Key}",
+                [new("type", "Schema type"), new("guid", "Item GUID bytes (candidate)"),
+                 new("config", "Config bytes (candidate)"), new("count", "Count (candidate)"), new("state", "State candidates")],
+                block.Records.Select(record => Row(block, record)),
+                "Type IDs match the CC0 schema. Field meanings are inferred from matching fixed payloads, not controlled gameplay captures. " + DdlSections.Attribution);
+            _tables.Add(block.Key, table);
+        }
+        return [table];
     }
 
-    private TableRow Row(InventoryBlock block, InventoryRecord record)
+    private RiftRow Row(InventoryBlock block, InventoryRecord record)
     {
         var prefix = $"inventory/{block.Key}/{record.Key}";
         var type = types?.Find($"{record.Type:x8}");
         var detailId = $"{prefix}/details";
-        lazy[detailId] = () => State(prefix, record);
-        return new TableRow(record.Key, new Dictionary<string, ViewNode>
+        return new RiftRow(record.Key, new Dictionary<string, RiftCell>
         {
-            ["type"] = bind($"{prefix}/type-name", "Schema type", new TextSpec(), FieldValue.Of(type?.Name ?? $"0x{record.Type:X8}")) with
+            ["type"] = RiftCollections.Field(type?.Name ?? $"0x{record.Type:X8}", () => bind($"{prefix}/type-name", "Schema type",
+                new ReferenceSpec("rift-item-types") { AllowCustom = true }, FieldValue.Of($"{record.Type:x8}")) with
             {
                 Confidence = type is null ? Confidence.Unknown : Confidence.Verified,
                 Description = $"Stored type ID: 0x{record.Type:X8}. " + (type?.AttributionText ?? "Unknown serialized type; full payload retained."),
-            },
-            ["guid"] = Token($"{prefix}/guid", record.GuidBytes),
-            ["config"] = Token($"{prefix}/config", record.ConfigBytes),
+            }),
+            ["guid"] = RiftCollections.Field(record.GuidBytes ?? "Opaque", () => Token($"{prefix}/guid", record.GuidBytes)),
+            ["config"] = RiftCollections.Field(record.ConfigBytes ?? "Opaque", () => Token($"{prefix}/config", record.ConfigBytes)),
             ["count"] = record.Count is { } count
-                ? Candidate($"{prefix}/count", "Item count candidate", IntegerSpec.UInt32, FieldValue.Of((ulong)count))
-                : new TextNode("Opaque"),
-            ["state"] = new SectionNode("Raw state candidates", []) { LazyId = detailId },
+                ? RiftCollections.Field(count.ToString(CultureInfo.InvariantCulture),
+                    () => Candidate($"{prefix}/count", "Item count candidate", IntegerSpec.UInt32, FieldValue.Of((ulong)count)), count)
+                : RiftCell.TextOnly("Opaque"),
+            ["state"] = new("Raw state candidates", () =>
+            {
+                lazy[detailId] = () => State(prefix, record);
+                return new SectionNode("Raw state candidates", []) { LazyId = detailId };
+            }),
         });
     }
 

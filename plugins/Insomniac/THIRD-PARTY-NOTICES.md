@@ -21,3 +21,8 @@ and [armour 402364](https://ratchetandclank.fandom.com/wiki/Rift_Apart_armor?old
 Their individual record sources, dataset attribution and modification notices
 must remain with redistributed/adapted data. No game artwork is included.
 These data licenses do not relicense the plugin implementation.
+
+F9 graph descriptions are original presentations of the attributed CC0 schema and
+measured save row masks. The external Guides4Gamers map index is linked only; no
+third-party map art, coordinates or marker descriptions are redistributed. See
+[SPATIAL-SOURCES.md](SPATIAL-SOURCES.md) for the source, retrieval and scope notice.

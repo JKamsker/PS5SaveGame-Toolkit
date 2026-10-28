@@ -1,4 +1,4 @@
-# Enabled scalar controls (0.5.0)
+# Enabled scalar controls (0.6.0)
 
 All controls are **Inferred / Experimental**, not console-validated. Integrity
 coverage is unknown; **the game may reject the edited save**. See the README's
@@ -9,6 +9,10 @@ titles/builds. Fields are located by parsed descriptors, never absolute offsets.
 Existing scalar boolean preferences are recognized by their actual wire type;
 unknown numeric/string/object fields remain read-only. In this corpus there are
 70 distinct writable controls (nine gameplay and 61 preference controls).
+The F6 `bolts/set-target` action now previews and changes the same CareerBolts
+atom to achieve an inferred career-minus-spent target. It preserves SpentBolts,
+reuses conservative width/corpus bounds and adds no storage writer. It requires
+preview/apply, rejects row/query scope and reports the integrity warning.
 
 ## Gameplay
 

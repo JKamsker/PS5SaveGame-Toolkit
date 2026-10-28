@@ -87,7 +87,7 @@ Use F1/SaveDiff for complete byte/decoded changes with generation identities.
 16. **Baseline:** export unmodified through the toolkit; confirm matching bytes,
     restore with the complete sibling set, load, play, re-save, reimport and reload.
     Record console/build and recovery outcome.
-17. **Bolt edit:** use the plugin's Checkpoint / section D436A987 / CareerBolts
+17. **Bolt edit:** use the plugin's Player / Economy / CareerBolts
     control to add exactly one within
     the stored integer width. Early/late autosaves use UInt16/UInt32 respectively.
     Keep SpentBolts and every unrelated byte unchanged; never resize or use an
@@ -106,6 +106,20 @@ Use F1/SaveDiff for complete byte/decoded changes with generation identities.
 19. **Preferences:** independently validate an unchanged export, one in-game setting
     pair and a reviewed single-field candidate with observed type/width. Gameplay
     acceptance does not establish preferences acceptance.
+20. **F6 calculated-balance target:** on a disposable spare slot, first lower the
+    calculated balance by one. Review CareerBolts, unchanged SpentBolts and derived
+    balance/expanded diagnostic values; apply, undo, redo and export. Load, inspect
+    wallet and a normal purchase, native-save, reload and re-export/diff. Separately
+    test zero and a small increase within the shown bounds. Report clamping,
+    rejection, ignored effects or history/accounting changes; no wallet calibration
+    or body-integrity claim follows from the toolkit preview.
+21. **F9 joins:** pair each known spybot pickup with the exact bit, planet and
+    physical location; preserve unresolved/reserved bits. For each upgrade purchase
+    record its weapon, exact node, grid row/column, cost, available prerequisites
+    and before/after masks/counts. Physical map transforms require at least three
+    non-collinear known landmarks per build/region/dimension. Current F9 storage
+    diagrams and link-only maps deliberately contain no claimed coordinates or
+    prerequisites; external map art/coordinates are not imported.
 
 Automated probes and production-write tests run **in memory only**. They establish
 single-atom parser acceptance, byte preservation and undo, not complete integrity
