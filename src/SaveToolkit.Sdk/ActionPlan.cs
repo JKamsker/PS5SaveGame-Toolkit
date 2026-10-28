@@ -1,3 +1,4 @@
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Sdk;
@@ -7,7 +8,8 @@ public interface IActionPlanningDocument
 {
     /// <summary>
     /// Pure validation and calculation, including derived effects. Must not mutate the document.
-    /// Null row keys means document scope; an empty list means no selected rows, never all rows.
+    /// Null row keys without a query means document scope; an empty list means no selected rows.
+    /// Core resolves query scopes to bounded row keys before calling the plugin.
     /// Called again at apply time. Results must be deterministic for the same document and request.
     /// Planning is allowed on read-only documents; applying is not.
     /// </summary>
@@ -21,7 +23,17 @@ public interface IActionPlanningDocument
     EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan);
 }
 
-public sealed record ActionScope(IReadOnlyList<string>? RowKeys = null);
+public sealed record ActionScope(IReadOnlyList<string>? RowKeys = null)
+{
+    /// <summary>Optional whole-query selection. Core supplies both this and resolved RowKeys to plugins.</summary>
+    public ActionQueryScope? QueryScope { get; init; }
+}
+
+/// <summary>A revision-bound selection of every matching row, including pages never loaded by the client.</summary>
+public sealed record ActionQueryScope(string CollectionId, QueryableCollectionQuery Query, long Revision)
+{
+    public IReadOnlyList<string> ExcludedRowKeys { get; init; } = [];
+}
 
 /// <summary>Named, game-level consequences. Null before/after means absence only when the corresponding Exists flag is false.</summary>
 public sealed record PlannedChange(string ValueId, string Label, FieldValue OldValue, FieldValue NewValue)

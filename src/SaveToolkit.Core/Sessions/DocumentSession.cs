@@ -57,6 +57,8 @@ public sealed partial class DocumentSession : IDisposable
         Plugin = plugin;
         Document = document;
         var limits = options ?? DocumentSessionOptions.Default;
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limits.MaxQueryActionRows);
+        _maxQueryActionRows = limits.MaxQueryActionRows;
         var referenceContext = references ?? ReferenceContext.None;
         _history = new EditHistory(limits);
         _referenceFields = new ReferenceFieldService(referenceContext);

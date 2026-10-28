@@ -1,7 +1,13 @@
 import { request } from "./client";
 import type { EditResult, FieldError, FieldValue } from "./protocol";
 
-export interface ActionScope { rowKeys?: readonly string[] | null }
+export interface ActionQueryScope {
+  collectionId: string;
+  query: { text?: string; filters?: Record<string, string>; sortColumn?: string; descending?: boolean };
+  revision: number;
+  excludedRowKeys: readonly string[];
+}
+export interface ActionScope { rowKeys?: readonly string[] | null; queryScope?: ActionQueryScope }
 export interface PlannedChange {
   valueId: string; label: string; oldValue: FieldValue; newValue: FieldValue;
   derived: boolean; oldExists: boolean; newExists: boolean;

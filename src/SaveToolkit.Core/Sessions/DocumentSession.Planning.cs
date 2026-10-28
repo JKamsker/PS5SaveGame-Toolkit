@@ -17,6 +17,7 @@ public sealed partial class DocumentSession
     // another document can ever be applied. Replacement and a size limit bound retained memory.
     private const int MaxPlanBytes = 4 * 1024 * 1024;
     private const int MaxScopeRows = 5000;
+    private readonly int _maxQueryActionRows;
     private PendingAction? _pendingAction;
 
     public ActionPreview PlanAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters,
@@ -37,13 +38,18 @@ public sealed partial class DocumentSession
             return Reject([new FieldError(actionId, "This action does not support planning.")]);
         }
 
+        if (requested.QueryScope is not null && requested.RowKeys is not null)
+        {
+            return Reject([new FieldError(actionId, "Supply either row keys or a query scope, not both.")]);
+        }
+
         if (requested.RowKeys is { } keys && (keys.Count > MaxScopeRows || keys.Any(string.IsNullOrEmpty) || keys.Distinct(StringComparer.Ordinal).Count() != keys.Count))
         {
             return Reject([new FieldError(actionId, "Selection must contain at most 5000 distinct row keys.")]);
         }
 
         // Copy request data; callers cannot change the retained request after seeing the preview.
-        requested = new ActionScope(requested.RowKeys is { } rows ? Array.AsReadOnly(rows.ToArray()) : null);
+        requested = requested with { RowKeys = requested.RowKeys is { } rows ? Array.AsReadOnly(rows.ToArray()) : null };
         var (values, errors) = CoerceParameters(action, parameters);
         if (errors.Count > 0)
         {
@@ -52,6 +58,11 @@ public sealed partial class DocumentSession
 
         try
         {
+            if (requested.QueryScope is { } queryScope)
+            {
+                requested = ResolveActionQuery(queryScope);
+            }
+
             var readOnlyValues = new ReadOnlyDictionary<string, FieldValue>(values);
             var plan = planner.PlanAction(actionId, readOnlyValues, requested);
             var bytes = JsonSerializer.SerializeToUtf8Bytes(plan);
@@ -70,6 +81,10 @@ public sealed partial class DocumentSession
             var id = Guid.NewGuid().ToString("N");
             _pendingAction = new PendingAction(id, _revision, actionId, readOnlyValues, requested, bytes);
             return new ActionPreview(id, _revision, requested, plan);
+        }
+        catch (StaleViewException ex)
+        {
+            return Reject([new FieldError(actionId, ex.Message)], stale: true);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -99,6 +114,12 @@ public sealed partial class DocumentSession
         EnsureOriginal();
         try
         {
+            if (pending.Scope.QueryScope is { } queryScope
+                && !pending.Scope.RowKeys!.SequenceEqual(ResolveActionQuery(queryScope).RowKeys!, StringComparer.Ordinal))
+            {
+                return Rejected(pending.ActionId, "The query selection changed. Preview it again.") with { Stale = true };
+            }
+
             var fresh = planner.PlanAction(pending.ActionId, pending.Parameters, pending.Scope);
             if (fresh.Errors.Count > 0)
             {
@@ -132,4 +153,11 @@ public sealed partial class DocumentSession
 
     private sealed record PendingAction(string Id, long Revision, string ActionId,
         IReadOnlyDictionary<string, FieldValue> Parameters, ActionScope Scope, byte[] PlanBytes);
+
+    private ActionScope ResolveActionQuery(ActionQueryScope scope)
+    {
+        if (scope.Revision != _revision) throw new StaleViewException();
+        return ActionQueryScopeResolver.Resolve(scope, _maxQueryActionRows,
+            query => QueryCollection(scope.CollectionId, query, scope.Revision));
+    }
 }

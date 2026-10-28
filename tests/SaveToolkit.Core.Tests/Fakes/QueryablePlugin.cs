@@ -24,6 +24,8 @@ public sealed class QueryablePlugin : IGamePlugin
             ? ProbeResult.Match(ProbeScore.Title, "Queryable test save")
             : ProbeResult.None;
 
+    public QueryableDocument? LastOpened { get; private set; }
+
     public ISaveDocument Open(ISaveFile file)
     {
         if (!file.ReadHeader(Magic.Length).AsSpan().SequenceEqual(Magic))
@@ -31,14 +33,18 @@ public sealed class QueryablePlugin : IGamePlugin
             throw new SaveFormatException("Not a queryable test save.");
         }
 
-        return new QueryableDocument(file);
+        return LastOpened = new QueryableDocument(file);
     }
 
     public static byte[] Create() => [.. Magic, 0, 0, 0, 0];
 
-    private sealed class QueryableDocument(ISaveFile file) : BoundSaveDocument, IQueryableDocument
+    public sealed class QueryableDocument(ISaveFile file) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
     {
         private readonly Dictionary<int, long> _values = Enumerable.Range(0, RowCount).ToDictionary(i => i, i => (long)i);
+        public Func<QueryableCollectionPage, QueryableCollectionPage>? TransformPage { get; set; }
+        public int QueryCount { get; private set; }
+        public int ApplyCount { get; private set; }
+        public ActionScope? LastPlannedScope { get; private set; }
 
         private static readonly IReadOnlyList<QueryableColumn> Columns =
         [
@@ -54,10 +60,12 @@ public sealed class QueryablePlugin : IGamePlugin
             [new("items", "Items", Columns, RowCount) { Description = "Synthetic 100k-row collection." }];
 
         public override ViewNode BuildView() =>
-            new SectionNode("Large collections", [new QueryableTableNode("items", "Items", Columns, RowCount)]);
+            new SectionNode("Large collections", [new QueryableTableNode("items", "Items", Columns, RowCount),
+                new ActionNode("increment", "Increment selected") { SupportsPlanning = true }]);
 
         public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
         {
+            QueryCount++;
             var rows = Enumerable.Range(0, RowCount).Select(CreateRecord);
             if (!string.IsNullOrWhiteSpace(query.Text))
             {
@@ -84,7 +92,24 @@ public sealed class QueryablePlugin : IGamePlugin
             var next = (query.Cursor is null ? query.Offset : DecodeCursor(query.Cursor)) + page.Count < filtered.Count
                 ? ((query.Cursor is null ? query.Offset : DecodeCursor(query.Cursor)) + page.Count).ToString(CultureInfo.InvariantCulture)
                 : null;
-            return new QueryableCollectionPage(collectionId, Columns, page, RowCount, filtered.Count, query.Cursor is null ? query.Offset : DecodeCursor(query.Cursor), query.Limit) { NextCursor = next };
+            var result = new QueryableCollectionPage(collectionId, Columns, page, RowCount, filtered.Count, query.Cursor is null ? query.Offset : DecodeCursor(query.Cursor), query.Limit) { NextCursor = next };
+            return TransformPage?.Invoke(result) ?? result;
+        }
+
+        public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
+        {
+            LastPlannedScope = scope;
+            return new ActionPlan { Changes = (scope.RowKeys ?? []).Select(key =>
+            {
+                var value = _values[int.Parse(key, CultureInfo.InvariantCulture)];
+                return new PlannedChange($"items/{key}/value", $"Item {key} value", FieldValue.Of(value), FieldValue.Of(value + 1));
+            }).ToArray() };
+        }
+
+        public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+        {
+            ApplyCount++;
+            return ApplyEdits(plan.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray());
         }
 
         public override IReadOnlyList<FileOutput> Serialize() => [new FileOutput(file.RelativePath, Create())];

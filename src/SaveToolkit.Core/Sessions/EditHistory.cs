@@ -2,7 +2,7 @@ using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Core.Sessions;
 
-/// <summary>Limits for one document's undo/redo history.</summary>
+/// <summary>Limits for one document's history, review and action planning.</summary>
 public sealed record DocumentSessionOptions
 {
     public static DocumentSessionOptions Default { get; } = new();
@@ -12,6 +12,9 @@ public sealed record DocumentSessionOptions
 
     /// <summary>Memory budget for semantic original values; incomplete coverage is explicitly reported.</summary>
     public long MaxOriginalBytes { get; init; } = 16L * 1024 * 1024;
+
+    /// <summary>Maximum matching rows (before exclusions) resolved for a query-scoped action.</summary>
+    public int MaxQueryActionRows { get; init; } = 5_000;
 
     /// <summary>
     /// Upper bound for the memory held by structural undo tokens (<see cref="DocumentMemento.SizeBytes"/>)
