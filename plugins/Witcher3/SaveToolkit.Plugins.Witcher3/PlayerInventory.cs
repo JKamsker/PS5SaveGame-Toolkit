@@ -12,7 +12,19 @@ internal sealed class InventoryItem(string name, int id, int quantityOffset, ush
     public bool Equipped { get; } = equipped;
     public ushort OriginalQuantity { get; } = quantity;
     public string ValueId => $"inventory/{Id}/quantity";
+    public uint Flags { get; init; }
+    public float Durability { get; init; }
+    public string Slot { get; init; } = "";
+    public IReadOnlyList<string> Tags { get; init; } = [];
+    public IReadOnlyList<InventoryAttribute> Attributes { get; init; } = [];
+    public IReadOnlyList<string> PrefixNames { get; init; } = [];
+    public string OpaquePrefix { get; init; } = "";
+    public int Offset { get; init; }
+    public int Size { get; init; }
+    public string OpaqueHash { get; init; } = "";
 }
+
+internal sealed record InventoryAttribute(string Name, uint RawValue, byte Type);
 
 internal sealed record PlayerInventory(IReadOnlyList<InventoryItem> Items)
 {
@@ -52,11 +64,11 @@ internal sealed record PlayerInventory(IReadOnlyList<InventoryItem> Items)
         var items = new List<InventoryItem>(count);
         for (var index = 0; index < count; index++)
         {
+            var start = position;
             Need(position, RecordPrefixSize);
             var name = Name(position);
             var flags = BinaryPrimitives.ReadUInt32LittleEndian(raw.AsSpan(position + 2));
-            _ = Name(position + 13, allowZero: true);
-            _ = Name(position + 15, allowZero: true);
+            string[] prefixNames = [Name(position + 13, allowZero: true), Name(position + 15, allowZero: true)];
             var quantityOffset = position + QuantityPosition;
             var quantity = BinaryData.UInt16(raw, quantityOffset);
             var durability = BinaryPrimitives.ReadSingleLittleEndian(raw.AsSpan(position + 19));
@@ -67,10 +79,11 @@ internal sealed record PlayerInventory(IReadOnlyList<InventoryItem> Items)
             }
 
             position += RecordPrefixSize;
+            var itemAttributes = new List<InventoryAttribute>(attributes);
             for (var attribute = 0; attribute < attributes; attribute++)
             {
                 Need(position, AttributeSize);
-                _ = Name(position);
+                itemAttributes.Add(new InventoryAttribute(Name(position), BinaryPrimitives.ReadUInt32LittleEndian(raw.AsSpan(position + 2)), raw[position + 6]));
                 position += AttributeSize;
             }
 
@@ -83,20 +96,27 @@ internal sealed record PlayerInventory(IReadOnlyList<InventoryItem> Items)
             }
 
             position += 4;
+            var itemTags = new List<string>(tags);
             for (var tag = 0; tag < tags; tag++)
             {
-                _ = Name(position);
+                itemTags.Add(Name(position));
                 position += 2;
             }
 
             var equipped = (flags & EquippedFlag) != 0;
+            var slot = "";
             if (equipped)
             {
-                _ = Name(position);
+                slot = Name(position);
                 position += 2;
             }
 
-            items.Add(new InventoryItem(name, id, tail.Offset + quantityOffset, quantity, equipped));
+            items.Add(new InventoryItem(name, id, tail.Offset + quantityOffset, quantity, equipped) {
+                Flags = flags, Durability = durability, Slot = slot, Tags = itemTags, Attributes = itemAttributes,
+                PrefixNames = prefixNames, OpaquePrefix = Convert.ToHexString(raw.AsSpan(start + 6, 7)),
+                Offset = tail.Offset + start, Size = position - start,
+                OpaqueHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(raw.AsSpan(start + 6, 7))),
+            });
         }
 
         ReadOnlySpan<byte> terminal = [1, 0, 0, 0, 0, 0];

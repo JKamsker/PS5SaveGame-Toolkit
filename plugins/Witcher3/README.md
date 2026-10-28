@@ -1,10 +1,16 @@
 # The Witcher 3: Wild Hunt – Complete Edition (`witcher3`)
 
-Title: **PPSA04018**. Version: **0.2.0**. Maturity: **Experimental**.
+Title: **PPSA04018**. Version: **0.3.0**. Maturity: **Experimental**.
 Supports player level, unspent XP, available ability points, Crowns and inventory quantity edits for the
 supplied PS5 SAV3 schema **64 / 23 / 163**. The preserving writer passes edit conformance and sample
-round trips; **edited saves have not been loaded on a console**. Other SAV3 versions and saves without
-an unambiguous player identity retain the read-only explorer. Stable requires human in-game testing.
+round trips; **edited saves have not been loaded on a console**. When the outer parser recognizes the
+container/directory, other SAV3 versions and saves without an unambiguous player identity retain the
+read-only explorer; arbitrary future formats are not guaranteed to open. Stable requires human in-game testing.
+
+This round adds attributed item names/categories/descriptions, searchable inventory details, a
+catalog lookup picker, and read-only saved ability/Gwent collections. See [EVIDENCE.md](EVIDENCE.md)
+for the compatibility matrix, identity-aligned F1 comparisons and remaining capture gates.
+These deliver the requested foundations and **parts of Phases 1 and 2**; neither whole phase is complete.
 
 ## File roles
 
@@ -16,7 +22,9 @@ an unambiguous player identity retain the read-only explorer. Stable requires hu
 - `user.settings`: INI-style configuration; not claimed or modified.
 - System files, JSON companions, thumbnails and backup siblings are never rewritten as a side effect.
 
-Only the selected `.sav` is exported. Processing uses SDK-supplied bytes without filesystem/network I/O.
+The plugin emits only the selected `.sav`. Core may mirror byte-identical backup siblings during
+workspace export; the plugin alone does not assemble a complete restore-ready slot. Processing uses
+SDK-supplied bytes without filesystem/network I/O.
 
 ## SNFH container and compression
 
@@ -77,7 +85,8 @@ padding and trailers remain byte-identical; relocated blocks keep their exact co
 No-op serialization and undo back to the original values return a copy of the **entire original file**,
 without recompression or canonicalization. After any edit, `Serialize()` decompresses its own output,
 requires equality with the edited body, re-parses the directories/tree/player, and compares progression
-and every inventory ID/name/quantity against the current model. Failure throws before returning output.
+and every inventory ID/name/quantity against the current model. It also verifies flags, durability,
+slots, opaque prefixes, prefix names, attributes and tags are unchanged. Failure throws before returning output.
 
 ## Player identity and progression evidence
 
@@ -126,17 +135,46 @@ finite durability and terminal bytes are checked. Unknown bytes, flags, attribut
 
 Inventory quantity controls use **1..65,535**, the observed storage width; deleting/adding stacks and
 wider/alternate encodings are unsupported. Item stack limits and quest/equipment dependencies remain
-unknown and have warnings. Equipment flag meaning and quantities are Inferred. Names are exact stored
-identifiers, without an invented localization dictionary. `Orens` and `Florens` would be separate rows
+unknown and have warnings. Equipment flag meaning and quantities are Inferred. Native identifiers
+are always retained alongside reviewed reference labels. `Orens` and `Florens` would be separate rows
 if present; none of the samples contains either. The Crowns control shares the inventory stack's
 stable ID, so the two views cannot diverge.
 
 ## Views
 
-Tabs provide overview, player progression, a paged inventory table, variable tree, MANU dictionary and
-container details. Stats show headline player facts. Lists page 128 entries; raw nodes have lazy children
-and paged input bytes. Chunk tables are bounded to 4096 rows. Main edit IDs use semantic player IDs and
-inventory item IDs, so insertions do not change them. Raw explorer IDs use input payload offsets.
+Tabs provide overview, player progression, inventory, abilities/Gwent, variable tree, MANU dictionary
+and container details. F8 inventory queries search the complete model by label, native ID, category,
+slot and instance ID, with exact name/ID/category/slot/equipped filters, numeric quantity/durability
+sorting and deterministic instance-ID tie breaks. Pages contain at most 200 rows; raw/ability/Gwent
+lists page 128 entries. Chunk tables are bounded to 4096 rows. Existing quantity IDs remain
+`inventory/<instance>/quantity`, including the Crowns summary; raw explorer IDs use input offsets.
+
+F3 detail cells show raw durability (including -1), saved flags/slot, unknown prefix data, raw
+attribute values/type bytes and tags. Categories and labels do not establish safe write limits or
+ordinary equipment: internal appearance and scabbard records remain visible. F4's **Look up catalog
+item** picker browses the pinned `items` catalog and returns attributed descriptions without modifying
+the save. Replacement, equipping, add/remove and refill actions are deliberately absent.
+
+F2 embeds 18 reviewed English mappings in `witcher3.starter.en` under CC BY-SA 3.0. Each has a name,
+category, concise description and source URL. The original `Open(file)` overload uses an empty context
+and retains raw IDs; the host calls `Open(file, references)` to resolve packs. Unknown/modded IDs stay
+unmapped. Only build-agnostic packs or packs explicitly tagged `sav3-64.23.163` are selected for the
+supported schema; this token identifies the tuple, **not a known PS5 patch version**. Imported packs
+remain pinned per document. Optional pack images show their separate asset attribution; no icons or
+CD PROJEKT resources are embedded. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+The bounded ability reader reaches the player's `W3PlayerAbilityManager` through its owning Entity
+and consumes each observed tagged array exactly: 102 skills, 16 skill slots, 4 mutagen slots,
+13 mutations, 6 base stats and 14 resistance entries. Sixteen level-1 core definitions are not sixteen
+purchased skills. Entries without native keys retain explicitly unnamed slot labels, with no invented
+skill identity. Saved localization/icon keys remain identifiers. Unknown nested values retain hashes
+and lengths; no skill/stat/mutation edits are enabled.
+
+The Gwent reader validates declared ordinary/leader collection counts and each bounded pair, stops at
+the manager's `SBSelectedDeckIndex` boundary and excludes deck nodes. All samples contain 27 indices /
+35 copies, including 4 leaders. Valid zero-length collections are supported. Card names, decks,
+achievement eligibility and missing-card expectations are unresolved. Optional reader failures show
+warnings and leave the existing explorer/writer available.
 
 The raw explorer remains read-only and shows the **input image**, while Player/Inventory show pending
 edits. It decodes scalar bool/integer/finite float/double, CName, GUID and validated short ASCII strings.
@@ -188,13 +226,16 @@ Tests cover:
 
 Missing samples skip via `SampleSaves`; all synthetic tests remain runnable. No sample data is committed.
 
-Validation: **44 plugin tests passed**, zero skips with samples present; with samples absent,
-**34 passed / 10 skipped**. Full API build: **zero warnings/errors**. Framework Core: **43 passed**.
+Validation for this round: **64 plugin tests passed, 0 failed, 0 skipped**, with the artifacts variable
+exported in the same command. Full API build: **zero warnings/errors**. New coverage includes all
+ability counts, bounded empty/corrupt Gwent groups, F1 identity alignment, exact F2 pack validity and
+joins, F3 provenance/detail cells, F4 unknown-ID rejection, F8 search beyond row 128, numeric sorting,
+deterministic pages, missing-pack fallback and atomic zero-quantity rejection. Missing-sample behavior
+continues to use `SampleSaves`; no absent-sample run is counted as validation here.
 
 ```powershell
-dotnet test --project plugins/Witcher3/SaveToolkit.Plugins.Witcher3.Tests
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/Witcher3/SaveToolkit.Plugins.Witcher3.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
-dotnet test --project tests/SaveToolkit.Core.Tests
 ```
 
 ## Open problems
@@ -204,10 +245,20 @@ Higher-level/paragon schemas, absent/new inventory stacks, wider money encodings
 prefixes, native inventory extensions, generic saved handles/arrays, ROTS/SBDF, RB word semantics and
 other string encodings need further research and samples. Unsupported data stays preserved and opaque.
 
-## Sources and licences
+## Sources and attribution
 
 Research/sample verification: 2026-10-28. Upstream code was cloned into scratch storage and read as
 text; no downloaded editor/script was run. The plugin is independently written bounded format code.
+
+| Dataset / code | Source / author | License / notices | Modifications and UI provenance |
+| --- | --- | --- | --- |
+| 18 item labels, categories and descriptions | [Witcher Wiki contributors](https://witcher.fandom.com/wiki/Category:The_Witcher_3_items), individual article in each record; retrieved 2026-10-28 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); [data.source.md](SaveToolkit.Plugins.Witcher3/ReferencePacks/witcher3.starter.en/data.source.md), [third-party notice](THIRD-PARTY-NOTICES.md); [Fandom policy](https://www.fandom.com/licensing) | Selected exact IDs and factual labels; normalized categories; wrote short uncertainty-aware descriptions. Source/license in inventory cells, lookup results and Sources panel. No artwork or creative game text. |
+| SAV3 framing/primitive layout adaptation | [Atvaark/W3SavegameEditor](https://github.com/Atvaark/W3SavegameEditor/tree/cff905189d565606aed9058b2804eb4c5ee9f540/W3SavegameEditor.Core) | MIT, [notice](W3SavegameEditor-LICENSE.txt) | Bounded parser and preserving writer; stored names have save-native provenance. |
+| Native inventory/tagged property research and layout adaptation | [cahian converter](https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter/tree/7ae8b6fe71c4b36e571246ad25629d03c7ec8219/w3save) | MIT, [notice](SaveConverter-LICENSE.txt) | Independently bounded PS5 readers; retained raw attributes/flags/prefixes; no PC schema conversion. |
+| Raw LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT, existing managed package | No copied source or reference dataset. |
+
+The following research sources add context; game script mirrors are research-only and are not
+redistributed. Their repositories' tool licenses do not grant rights to CD PROJEKT game assets.
 
 - [Atvaark/W3SavegameEditor at cff9051](https://github.com/Atvaark/W3SavegameEditor/tree/cff905189d565606aed9058b2804eb4c5ee9f540/W3SavegameEditor.Core):
   Round 1 framing, SAV3 directories/virtual offsets, BS/VL/OP/SS/SXAP/BLCK/PORP/AVAL and primitives.
@@ -239,4 +290,12 @@ text; no downloaded editor/script was run. The plugin is independently written b
 
 ## SDK requests
 
-None. Existing bindings, integer specs, lazy sections, tables and paged blobs are sufficient.
+No blocking SDK request for the shipped scope: F2, F3, F4 and F8 are used directly. R6–R9 from the
+older plan are no longer blockers for these reads. F5/F6 remain available for later evidence-backed
+structural/bulk edits; no plugin-local substitute was added.
+
+Nonblocking F1 tooling request: the CLI's `PluginViewDecoder` visits eager fields/lazy sections but
+does not enumerate F8 queryable collections or register plugin-specific decoder hooks. This round's
+test-side `WitcherSemanticDecoder` uses F1's actual `ISaveDecoder`/`SemanticDiffer` contracts to compare
+native identities without raw-offset explorer noise. A CLI hook registry or bounded F8 visitor would
+make that route directly selectable in `savediff compare`. No framework files were changed.
