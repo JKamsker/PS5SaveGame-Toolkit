@@ -41,6 +41,13 @@ internal sealed class GvasParser(byte[] bytes)
         return new GvasFile(bytes, _header, nodes, _sizes.ToArray());
     }
 
+    public GvasFile ParseHeaderless(GvasHeader header)
+    {
+        _header = header;
+        var nodes = ReadProperties(new GvasCursor(bytes), 0);
+        return new GvasFile(bytes, header, nodes, _sizes.ToArray());
+    }
+
     internal IReadOnlyList<GvasNode> ReadProperties(GvasCursor reader, int depth)
     {
         CheckDepth(depth);

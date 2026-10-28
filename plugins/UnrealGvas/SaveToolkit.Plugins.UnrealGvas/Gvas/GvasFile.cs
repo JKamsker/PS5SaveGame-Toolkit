@@ -31,6 +31,17 @@ public sealed class GvasFile
         return new GvasParser(bytes.ToArray()).Parse();
     }
 
+    /// <summary>
+    /// Parses a bounded legacy property stream that has no GVAS header. Unreal stores some
+    /// compressed actor arrays this way. The supplied header controls the tag layout; the returned
+    /// model is inspection-only and must not be serialized as a standalone save.
+    /// </summary>
+    public static GvasFile ParseHeaderless(ReadOnlySpan<byte> bytes, GvasHeader header)
+    {
+        if (bytes.Length > MaxFileLength) throw new SaveFormatException("Headerless property stream exceeds the 128 MiB safety limit.");
+        return new GvasParser(bytes.ToArray()).ParseHeaderless(header);
+    }
+
     public static IEnumerable<GvasNode> Descendants(IEnumerable<GvasNode> nodes)
     {
         foreach (var node in nodes)

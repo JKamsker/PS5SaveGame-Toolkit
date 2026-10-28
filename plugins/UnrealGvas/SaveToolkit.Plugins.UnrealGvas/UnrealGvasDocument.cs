@@ -1,5 +1,6 @@
 using SaveToolkit.Plugins.UnrealGvas.Gvas;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -11,16 +12,22 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     private const string EditWarning = "Serialized property name and type are verified. Game constraints and effects are unverified; keep a backup.";
     private readonly string _path;
     private readonly GvasEnvelope _envelope;
+    private readonly UnrealGvasSchema _schema;
+    private readonly IReferenceContext _references;
+    private readonly JediActorStream? _actorStream;
     private readonly Dictionary<string, GvasNode> _nodes = new(StringComparer.Ordinal);
     private readonly Dictionary<GvasNode, string> _ids = [];
     private readonly Dictionary<string, Func<IReadOnlyList<ViewNode>>> _lazy = new(StringComparer.Ordinal);
     private readonly string? _readOnlyReason;
 
-    public UnrealGvasDocument(string path, GvasEnvelope envelope)
+    public UnrealGvasDocument(string path, GvasEnvelope envelope, IReferenceContext references)
     {
         _path = path;
         _envelope = envelope;
+        _references = references;
+        _schema = UnrealGvasSchema.Detect(envelope.File);
         Index(envelope.File.Properties, "property");
+        _actorStream = ReadActorStream();
         if (envelope.IsWrapped) _readOnlyReason = "This compressed envelope is read-only; recompression has not been verified.";
         else if (_nodes.Values.Any(n => n.Name.Contains("crc", StringComparison.OrdinalIgnoreCase) ||
                  n.Name.Contains("checksum", StringComparison.OrdinalIgnoreCase) || n.Name.Contains("signature", StringComparison.OrdinalIgnoreCase)))
@@ -35,7 +42,8 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
         var file = _envelope.File;
         var header = file.Header;
         var primitives = file.Properties.Where(n => n.Scalar is not null).ToArray();
-        return new TabsNode([
+        var tabs = new List<Tab>
+        {
             new Tab("Overview", [
                 new StatsNode([
                     new Stat("Save version", header.SaveVersion.ToString()),
@@ -46,12 +54,15 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
                 ]),
                 new TextNode($"Save class: {header.SaveClass}"),
                 new TextNode($"Branch: {header.EngineBranch}. {_envelope.Label}."),
+                new TextNode($"Schema: {_schema.Name} ({_schema.Confidence}). {_schema.Evidence}") { Tone = _schema.IsTitleSchema ? Tone.Info : Tone.Muted },
                 .. ImageSetNotes(header.SaveClass),
                 new TextNode(_readOnlyReason ?? "Experimental. Embedded compressed payloads and unknown native structures are preserved read-only.") { Tone = Tone.Warning },
             ]),
             new Tab("Properties", [Lazy("Property tree", "tree", () => TreePage(file.Properties, 0, "tree"))]),
             new Tab("Search", [Lazy("Top-level primitive properties", "search", () => SearchPage(primitives, 0))]),
-        ]);
+        };
+        if (_schema.IsTitleSchema) tabs.Add(new Tab("Schema", BuildSchemaOverlay()));
+        return new TabsNode(tabs);
     }
 
     private static IReadOnlyList<ViewNode> ImageSetNotes(string saveClass) =>
@@ -155,6 +166,121 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
         GvasScalarKind.Float or GvasScalarKind.Double => FieldValue.Of((double)scalar.Value),
         _ => FieldValue.Of((Int128)scalar.Value),
     };
+
+    private IReadOnlyList<ViewNode> BuildSchemaOverlay()
+    {
+        var nodes = GvasFile.Descendants(_envelope.File.Properties).ToArray();
+        var result = new List<ViewNode>
+        {
+            new StatsNode([
+                new Stat("Schema", _schema.Name),
+                new Stat("Build", _schema.Build),
+                new Stat("Evidence", _schema.Confidence),
+            ]),
+            new TextNode(_schema.Evidence) { Tone = Tone.Info },
+        };
+        if (_schema.Kind == UnrealGvasSchemaKind.SackboyGeneral)
+            result.Add(BuildNamedPropertyTable(nodes, UnrealGvasReferences.SackboyFields,
+                ["CollectabellsStored", "TotalCollectabellsCollected", "UnlockedWorlds", "Checksum"],
+                "Verified storage fields; checksum coverage and gameplay effects are unknown."));
+        else if (_schema.Kind == UnrealGvasSchemaKind.SackboyImageSet)
+            result.Add(BuildNamedPropertyTable(nodes, UnrealGvasReferences.SackboyImageFields,
+                ["SurfaceWidth", "SurfaceHeight", "PixelFormat", "Image"],
+                "Metadata is readable; PS5 channel order, swizzle and screenshot correspondence remain inferred."));
+        else if (_schema.Kind == UnrealGvasSchemaKind.JediGameplay)
+        {
+            result.Add(BuildNamedPropertyTable(nodes, UnrealGvasReferences.JediFields,
+                ["CompressedActorRecords", "UncompressedActorRecordsSize", "Crc32"],
+                "The complete document stays read-only until checksum coverage is established."));
+            result.Add(Lazy("Decoded actor stream", "jedi/actors", () => _actorStream is { IsValid: true }
+                ? BuildActorPage(_actorStream.Roots, 0)
+                : [new TextNode(_actorStream?.Error ?? "Actor stream was not found.") { Tone = Tone.Warning }]) with
+            { Badge = _actorStream is { IsValid: true } valid ? $"{valid.DecodedLength:N0} bytes" : "opaque" });
+        }
+        else if (_schema.Kind == UnrealGvasSchemaKind.HogwartsMetadata)
+            result.Add(new TextNode("RawDatabaseImage and RawExclusiveImage remain opaque. #28 must provide the managed Kraken decoder and bounded in-memory SQLite reader before database rows can be exposed.") { Tone = Tone.Warning });
+        return result;
+    }
+
+    private TableNode BuildNamedPropertyTable(IReadOnlyList<GvasNode> nodes, string catalogId,
+        IReadOnlyList<string> names, string description)
+    {
+        var rows = names.Select(name =>
+        {
+            var node = nodes.LastOrDefault(candidate => candidate.Name == name);
+            var raw = node?.Scalar is { } scalar ? scalar.Value.ToString() ?? "" : node is null ? "Not present" : "Opaque";
+            var record = _references.Catalog(catalogId)?.Find(name);
+            var reference = Field($"schema/{catalogId}/{name}", "Property",
+                new ReferenceSpec(catalogId), () => FieldValue.Of(name))
+            with
+            {
+                Confidence = record is null ? Confidence.Unknown : Confidence.Verified,
+                Description = record?.AttributionText ?? "Raw serialized property name; no pinned catalog record is available.",
+                Warning = "Read-only semantic overlay. The raw property remains the source of truth.",
+            };
+            return new TableRow(name, new Dictionary<string, ViewNode>
+            {
+                ["property"] = reference,
+                ["value"] = new TextNode(raw) { Monospace = node is null },
+                ["type"] = new TextNode(node?.Type ?? "Missing") { Tone = node is null ? Tone.Warning : Tone.Normal },
+            });
+        }).ToArray();
+        return new TableNode([new("property", "Catalog property"), new("type", "Storage type"), new("value", "Current value")], rows)
+        {
+            Title = "Observed schema fields",
+            Description = description + " Catalog attribution is shown by each field.",
+        };
+    }
+
+    private IReadOnlyList<ViewNode> BuildActorPage(IReadOnlyList<GvasNode> roots, int start)
+    {
+        var flat = Flatten(roots);
+        var rows = flat.Skip(start).Take(PageSize).Select(item => new TableRow(item.Path, new Dictionary<string, ViewNode>
+        {
+            ["path"] = new TextNode(item.Path) { Monospace = true },
+            ["type"] = new TextNode(item.Node.Type),
+            ["value"] = new TextNode(item.Node.Scalar?.Value.ToString() ?? item.Node.Note ?? $"{item.Node.Length:N0} bytes")
+        })).ToArray();
+        var result = new List<ViewNode>
+        {
+            new TextNode("Headerless actor properties are decoded with the same bounded legacy GVAS tag reader. Names and storage types are evidence; actor roles, currency, XP and skill semantics are not inferred.") { Tone = Tone.Warning },
+            new TableNode([new("path", "Path"), new("type", "Type"), new("value", "Value")], rows)
+            { Title = "Actor property index", Description = "Paged at 100 rows; unsupported structs remain opaque." },
+        };
+        if (start + PageSize < flat.Count)
+            result.Add(Lazy("More actor properties", $"jedi/actors/{start + PageSize}", () => BuildActorPage(roots, start + PageSize)));
+        return result;
+    }
+
+    private static List<(string Path, GvasNode Node)> Flatten(IReadOnlyList<GvasNode> roots)
+    {
+        var result = new List<(string, GvasNode)>();
+        void Visit(IReadOnlyList<GvasNode> current, string prefix)
+        {
+            for (var i = 0; i < current.Count; i++)
+            {
+                var node = current[i];
+                var path = $"{prefix}/{i}:{node.Name}";
+                result.Add((path, node));
+                if (node.Children.Count > 0) Visit(node.Children, path);
+            }
+        }
+        Visit(roots, "actors");
+        return result;
+    }
+
+    private JediActorStream? ReadActorStream()
+    {
+        if (_schema.Kind != UnrealGvasSchemaKind.JediGameplay) return null;
+        var actor = GvasFile.Descendants(_envelope.File.Properties).FirstOrDefault(node => node.Name == "CompressedActorRecords");
+        var size = GvasFile.Descendants(_envelope.File.Properties).FirstOrDefault(node => node.Name == "UncompressedActorRecordsSize")?.Scalar?.Value;
+        if (actor is null || size is null || !int.TryParse(size.ToString(), out var declared) || actor.Length < sizeof(int)) return null;
+        var original = _envelope.File.Original.Span;
+        if (actor.Offset < 0 || actor.Offset > original.Length - actor.Length) return null;
+        var count = BitConverter.ToInt32(original.Slice(actor.Offset, sizeof(int)));
+        if (count < 0 || count > actor.Length - sizeof(int)) return null;
+        return JediActorStreamReader.Read(original.Slice(actor.Offset + sizeof(int), count), declared, _envelope.File.Header);
+    }
 
     private static string? Validate(GvasScalar scalar, FieldValue value)
     {

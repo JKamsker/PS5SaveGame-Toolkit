@@ -75,22 +75,27 @@ there is no managed Oodle implementation. The arrays and their internal framing
 remain untouched. `RawMiniMapImage` and settings arrays are likewise read-only.
 
 Jedi actor data has zlib framing, alongside explicit `UncompressedActorRecordsSize`
-and `Crc32` properties. Standard CRC32 over compressed/uncompressed actor data did
-not match the supplied gameplay records. Coverage/algorithm is unknown, so the
-entire gameplay document is read-only. More generally, visible property names
-containing CRC/checksum/signature disable writes. This conservative guard cannot
-detect integrity metadata hidden in opaque game payloads. GVAS has no standard
-container checksum. No embedded encryption was found in the claimed containers.
+and `Crc32` properties. Standard IEEE CRC32, CRC32C, FNV-1a, Adler32 and byte-sum
+candidate vectors over the known whole-file/zeroed-field range do not match the
+supplied gameplay records; independent check vectors are in the plugin tests.
+Coverage/algorithm is unknown, so the entire gameplay document is read-only. More
+generally, visible property names containing CRC/checksum/signature disable writes.
+This conservative guard cannot detect integrity metadata hidden in opaque game
+payloads. GVAS has no standard container checksum. No embedded encryption was
+found in the claimed containers.
 
 Outer Oodle/unknown envelopes remain unsupported. Without verified inner GVAS,
 Probe declines them instead of inferring format from a filename.
 
 ## Views, confidence and limits
 
-Overview shows header facts and writability. Properties uses lazy sections with
-100-node pages; Search contains paged tables of top-level primitives. Top-level
-fields appear only in Search to satisfy global value-ID uniqueness; nested fields
-appear in the explorer. IDs use ordinal paths, stable across length changes.
+Overview shows header facts, writability and the selected version/class/property
+signature schema. Sackboy General and image sets expose read-only schema tables
+with attributed catalog pickers; Jedi gameplay saves expose a bounded actor-stream
+index after zlib decoding. Properties uses lazy sections with 100-node pages;
+Search contains paged tables of top-level primitives. Top-level fields appear only
+in Search to satisfy global value-ID uniqueness; nested fields appear in the
+explorer. IDs use ordinal paths, stable across length changes.
 Opaque values expose paged read-only hex.
 
 `Verified` means the serialized name/storage type or sourced struct component
@@ -138,6 +143,34 @@ remain below 300 lines; repository policy is enforced in review.
    version extensions when samples become available.
 5. Solve Sackboy General checksum coverage; decode image texture layouts before
    providing image previews. Atomic Heart now has its own read-only plugin.
+
+## Round 3 implementation evidence (2026-10-28)
+
+The schema selector matches positive save-class, engine-build and property-signature
+evidence before adding a title tab; unmatched files retain the generic view. The
+Jedi actor view first attempts the normal legacy tag reader and falls back to a
+bounded serialized-FString index for custom actor structs, preserving unknown bytes
+and never enabling edits. The Sackboy tab surfaces the verified storage names and
+values, while its checksum and image metadata remain explicitly unknown or inferred.
+
+The embedded `unrealgvas.ps5` F2 pack is version `1.0.0`, title-scoped to PPSA01288
+and PPSA02199, and repeats attribution for each dataset. It intentionally carries
+no limits, icons, localization or private sample bytes. The UI attaches a
+`ReferenceSpec` to each read-only catalog property so F4 can resolve the raw name
+without changing the stored value.
+
+### Hogwarts integration boundary for #28
+
+Hogwarts remains metadata-only in this round. The future codec adapter needs to take
+the original `RawDatabaseImage` and `RawExclusiveImage` byte-array spans plus their
+UE chunk headers, validate each declared decoded length, and return immutable decoded
+buffers with per-chunk offsets. A separate #28 SQLite layer must accept each decoded
+buffer in memory, expose read-only schema/row queries, and report a fingerprint and
+integrity result; it must not assume the two images are mirrors. `UnrealGvasDocument`
+can then add a read-only database tab at the existing schema-overlay point while
+leaving original compressed spans untouched. No Kraken, SQLite, filesystem or native
+codec code is implemented here, and writes stay disabled until #28 supplies the
+bounded API and owner evidence.
 
 ## Round 2 evidence (2026-10-28)
 
@@ -202,9 +235,9 @@ upstream code was copied and no downloaded program was executed.
 
 ## SDK requests
 
-* Allow read-only document download separately from editing: CanEdit=false
-  currently disables export in the UI as well.
-* A field-reference node could show one value in both Search and the tree while
-  retaining global value-ID uniqueness. Tree entries currently refer to Search.
-* Conformance selection could distinguish recognized-but-unsupported wrappers
-  from openable matches; this plugin currently selects only openable formats.
+No new SDK request is required for this round. The implementation uses the existing
+`IReferenceContext`, embedded-pack loader, `ReferenceSpec`, lazy sections and bounded
+tables. The former read-only-download request is stale: the current API already
+permits original-file download when editing is disabled. A canonical field-reference
+node and richer image cells remain useful future framework improvements, but this
+plugin does not duplicate them locally.

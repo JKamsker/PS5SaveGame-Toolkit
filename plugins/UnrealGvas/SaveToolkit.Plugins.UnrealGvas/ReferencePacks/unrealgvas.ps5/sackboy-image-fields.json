@@ -1,0 +1,8 @@
+{
+  "records": [
+    {"id":"SurfaceWidth","name":"SurfaceWidth","category":"image-metadata","description":"Image surface width metadata observed in supplied image-set GVAS.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA01288"}},
+    {"id":"SurfaceHeight","name":"SurfaceHeight","category":"image-metadata","description":"Image surface height metadata observed in supplied image-set GVAS.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA01288"}},
+    {"id":"PixelFormat","name":"PixelFormat","category":"image-metadata","description":"Pixel format metadata observed; byte order and swizzle remain unverified on PS5.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA01288"}},
+    {"id":"Image","name":"Image","category":"image-data","description":"Opaque compressed image payload; no PNG/JPEG signature was found in supplied companions.","attributes":{"confidence":"Opaque","titleId":"PPSA01288"}}
+  ]
+}

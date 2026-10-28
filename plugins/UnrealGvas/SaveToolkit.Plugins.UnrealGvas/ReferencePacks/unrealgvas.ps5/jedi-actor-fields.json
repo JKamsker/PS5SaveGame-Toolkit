@@ -1,0 +1,8 @@
+{
+  "records": [
+    {"id":"CompressedActorRecords","name":"CompressedActorRecords","category":"actor-stream","description":"Byte array containing zlib-compressed headerless ActorRecords properties.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA02199"}},
+    {"id":"UncompressedActorRecordsSize","name":"UncompressedActorRecordsSize","category":"actor-stream","description":"Declared decoded actor stream size; both supplied gameplay generations match the decoded byte count.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA02199"}},
+    {"id":"Crc32","name":"Crc32","category":"integrity","description":"Stored UInt32 integrity field; common CRC32 and CRC32C candidate ranges do not reproduce it.","attributes":{"confidence":"UnknownCoverage","titleId":"PPSA02199"}},
+    {"id":"ActorRecords","name":"ActorRecords","category":"actor-stream","description":"Headerless tagged actor-record root observed after zlib decompression; actor roles and gameplay semantics are not inferred.","attributes":{"confidence":"VerifiedStorage","titleId":"PPSA02199"}}
+  ]
+}
