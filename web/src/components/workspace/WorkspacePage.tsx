@@ -16,10 +16,23 @@ export function WorkspacePage() {
   const queryClient = useQueryClient();
   const exportDialog = useRef<HTMLDialogElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const workspace = useQuery({ queryKey: ["workspace", workspaceId], queryFn: () => api.workspace(workspaceId), retry: false });
 
   const notify = useCallback((text: string, isError = false) => setToast({ text, isError, at: Date.now() }), []);
+
+  const close = async () => {
+    setClosing(true);
+    try {
+      await api.deleteWorkspace(workspaceId);
+      navigate("/");
+    } catch (error) {
+      notify(error instanceof ApiError ? error.message : "Could not close the dump.", true);
+    } finally {
+      setClosing(false);
+    }
+  };
 
   const open = useCallback(
     async (file: SaveFileInfo, pluginId?: string) => {
@@ -75,12 +88,10 @@ export function WorkspacePage() {
           <button
             type="button"
             className="btn btn--quiet btn--small"
-            onClick={async () => {
-              await api.deleteWorkspace(ws.id);
-              navigate("/");
-            }}
+            disabled={closing}
+            onClick={() => void close()}
           >
-            Close dump
+            {closing ? "Closing…" : "Close dump"}
           </button>
           <button type="button" className="btn btn--primary" onClick={() => setExportOpen(true)}>
             Export
