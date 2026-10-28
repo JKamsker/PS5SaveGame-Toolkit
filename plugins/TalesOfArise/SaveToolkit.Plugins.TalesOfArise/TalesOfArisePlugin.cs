@@ -1,11 +1,14 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Plugins.TalesOfArise;
 
-public sealed class TalesOfArisePlugin : IGamePlugin
+public sealed class TalesOfArisePlugin : IGamePlugin, ISaveDecoderProvider
 {
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = Array.AsReadOnly<ISaveDecoderHook>([new AriseDiff()]);
+
     public PluginInfo Info { get; } = new("tales-of-arise", "Tales of Arise", "0.2.0")
     {
         Description = "PS5 gameplay decryption, integrity verification and experimental fixed-size editing.",

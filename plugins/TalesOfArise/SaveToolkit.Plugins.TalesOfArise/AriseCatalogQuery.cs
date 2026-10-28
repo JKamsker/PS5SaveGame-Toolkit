@@ -5,7 +5,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.TalesOfArise;
 
-/// <summary>Pages across the whole pinned catalog before filtering and deterministic sorting.</summary>
+/// <summary>Uses declared catalog queries, retaining richer plugin fact/character filters.</summary>
 internal static class AriseCatalogQuery
 {
     public static IReadOnlyList<QueryableColumn> Columns(string id) =>
@@ -30,25 +30,60 @@ internal static class AriseCatalogQuery
             throw new ArgumentException("Use offset paging and published catalog columns for filters and sorting.", nameof(query));
         }
 
-        var matching = All(catalog).Where(record => Matches(record, query)).ToArray();
         var sortColumn = query.SortColumn ?? "id";
-        var ordered = query.Descending
-            ? matching.OrderByDescending(record => CellText(record, sortColumn), StringComparer.OrdinalIgnoreCase)
-            : matching.OrderBy(record => CellText(record, sortColumn), StringComparer.OrdinalIgnoreCase);
+        var sortKey = sortColumn switch
+        {
+            "id" => ReferenceSortKey.Key,
+            "name" => ReferenceSortKey.Name,
+            "category" => ReferenceSortKey.Category,
+            _ => (ReferenceSortKey?)null,
+        };
+        var useCatalogSort = sortKey is { } key && catalog.SortKeys.Contains(key);
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, ReferenceQuery.MaxLimit);
-        var rows = ordered.ThenBy(record => record.Key, StringComparer.Ordinal).Skip(offset).Take(limit)
+        var referenceQuery = new ReferenceQuery
+        {
+            Category = query.Filters.GetValueOrDefault("category"),
+            SortBy = useCatalogSort ? sortKey : null,
+            Descending = query.Descending,
+            Limit = ReferenceQuery.MaxLimit,
+        };
+        // Rich text also searches descriptions/attributes, so it cannot use key/name-only F2 text search.
+        if (useCatalogSort && string.IsNullOrWhiteSpace(query.Text) && query.Filters.Keys.All(key => key == "category"))
+        {
+            var page = catalog.Search(referenceQuery with { Offset = offset, Limit = limit });
+            return new QueryableCollectionPage(id, Columns(id), page.Items.Select(record => Row(id, record)).ToArray(),
+                catalog.Count, page.Total, offset, limit);
+        }
+
+        var matching = All(catalog, referenceQuery).Where(record => Matches(record, query)).ToArray();
+        IEnumerable<ReferenceRecord> ordered = matching;
+        if (!useCatalogSort)
+        {
+            var sorted = query.Descending
+                ? matching.OrderByDescending(record => CellText(record, sortColumn), StringComparer.OrdinalIgnoreCase)
+                : matching.OrderBy(record => CellText(record, sortColumn), StringComparer.OrdinalIgnoreCase);
+            ordered = sorted.ThenBy(record => record.Key, StringComparer.Ordinal);
+        }
+
+        var rows = ordered.Skip(offset).Take(limit)
             .Select(record => Row(id, record)).ToArray();
         return new QueryableCollectionPage(id, Columns(id), rows, catalog.Count, matching.Length, offset, limit);
     }
 
-    private static IEnumerable<ReferenceRecord> All(IReferenceCatalog catalog)
+    private static IEnumerable<ReferenceRecord> All(IReferenceCatalog catalog, ReferenceQuery query)
     {
         for (var offset = 0; offset < catalog.Count; offset += ReferenceQuery.MaxLimit)
         {
-            foreach (var record in catalog.Search(new ReferenceQuery { Offset = offset, Limit = ReferenceQuery.MaxLimit }).Items)
+            var page = catalog.Search(query with { Offset = offset });
+            foreach (var record in page.Items)
             {
                 yield return record;
+            }
+
+            if (offset + page.Items.Count >= page.Total)
+            {
+                yield break;
             }
         }
     }
@@ -89,12 +124,7 @@ internal static class AriseCatalogQuery
     {
         var cells = Columns(id).ToDictionary(column => column.Key,
             column => (ViewNode)new TextNode(CellText(record, column.Key)), StringComparer.Ordinal);
-        cells["inspect"] = new ActionNode($"references/inspect/{id}", "Inspect")
-        {
-            Tone = Tone.Info,
-            Description = $"Read-only reference details. {record.AttributionText}",
-            Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(id) { ReadOnly = true }, FieldValue.Of(record.Key))],
-        };
+        cells["inspect"] = AriseReferences.InspectionAction(id, record);
         cells["id"] = new FieldNode($"catalog/{id}/{record.Key}/id", "Catalog identity",
             new ReferenceSpec(id) { ReadOnly = true, AllowCustom = true }, FieldValue.Of(record.Key))
         {
