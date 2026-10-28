@@ -20,8 +20,8 @@ public sealed class XorJsonTests
         Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());
         var fields = Fields(document);
         Assert.Equal(5, fields.Count);
-        Assert.IsType<FloatSpec>(fields[2].Spec);
-        var edits = new[] { new ValueEdit(fields[2].ValueId, FieldValue.Of(2.0)), new ValueEdit(fields[4].ValueId, FieldValue.Of("longer 日本語\n\"text")) };
+        Assert.IsType<ExactNumberSpec>(Assert.IsType<NullableSpec>(fields[2].Spec).Inner);
+        var edits = new[] { new ValueEdit(fields[2].ValueId, FieldValue.ExactNumber("2.0")), new ValueEdit(fields[4].ValueId, FieldValue.Of("longer 日本語\n\"text")) };
         Assert.True(document.ApplyEdits(edits).Succeeded);
         var expected = original.Replace("1.2300E+02", "2.0", StringComparison.Ordinal)
             .Replace("\"é\"", JsonSerializer.Serialize(edits[1].Value.AsString()), StringComparison.Ordinal);
@@ -57,9 +57,9 @@ public sealed class XorJsonTests
         var bytes = Encode("[1,2.0,\"text\",1e9999,1e-9999,170141183460469231731687303715884105728,null]", false);
         using var document = Open(bytes);
         var fields = Fields(document);
-        Assert.Equal(6, fields.Count);
-        Assert.All(fields.Skip(3), f => Assert.True(f.Spec.ReadOnly));
-        var result = document.ApplyEdits([new(fields[0].ValueId, FieldValue.Of(2L)), new(fields[2].ValueId, FieldValue.Of("\uD800"))]);
+        Assert.Equal(7, fields.Count);
+        Assert.All(fields, f => Assert.False(f.Spec.ReadOnly));
+        var result = document.ApplyEdits([new(fields[0].ValueId, FieldValue.ExactNumber("2")), new(fields[2].ValueId, FieldValue.Of("\uD800"))]);
         Assert.False(result.Succeeded);
         Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());
         foreach (var invalid in new[] { Encode(new string('[', 65) + "0" + new string(']', 65), true), new byte[16 * 1024 * 1024 + 1], new byte[] { 0x5A, 0xFE, 0x5C } })
@@ -76,7 +76,7 @@ public sealed class XorJsonTests
         Assert.Empty(lazy.Children);
         var fields = Fields(document);
         Assert.Equal(20000, fields.Count);
-        Assert.Equal((Int128)19999, document.GetValue(fields[^1].ValueId).AsInteger());
+        Assert.Equal("19999", document.GetValue(fields[^1].ValueId).AsExactNumber());
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public sealed class XorJsonTests
     }
 
     [Fact]
-    public void EveryGlobalSnapshotUsesByteMinusOneAndCharacterRemainsPlainJson()
+    public void EveryGlobalSnapshotUsesByteMinusOneAndCharacterIsReadOnly()
     {
         var files = SampleSaves.Load("PPSA16064").AllDiskFiles.Where(f => !f.IsSystemFile).ToArray();
         var global = files.Where(f => f.Directory.Name == "GlobalSaveDataDefault").ToArray();
@@ -108,22 +108,26 @@ public sealed class XorJsonTests
             Assert.Contains("minus one", plugin.Probe(file).Label!);
             using var document = plugin.Open(file);
             var fields = Fields(document);
-            Assert.Equal((Int128)50, fields.Single(f => f.Label == "masterVolume").Value.AsInteger());
+            Assert.Equal("50", fields.Single(f => f.Label == "masterVolume").Value.AsExactNumber());
             Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());
         }
         foreach (var file in files.Where(f => f.Directory.Name.StartsWith("Character", StringComparison.Ordinal)))
         {
-            Assert.False(plugin.Probe(file).IsMatch);
+            Assert.True(plugin.Probe(file).IsMatch);
+            using var document = plugin.Open(file);
+            Assert.False(document.CanEdit);
+            Assert.All(Fields(document), f => Assert.True(f.Spec.ReadOnly));
+            Assert.Equal(file.ReadAllBytes(), document.Serialize()[0].Content.ToArray());
             using var json = JsonDocument.Parse(file.ReadAllBytes());
             Assert.True(json.RootElement.TryGetProperty("SerializeMeta", out _));
             Assert.True(json.RootElement.TryGetProperty("CharacterSaveV1", out _));
         }
     }
 
-    private static byte[] Encode(string text, bool xor) => Encoding.UTF8.GetBytes(text)
+    internal static byte[] Encode(string text, bool xor = false) => Encoding.UTF8.GetBytes(text)
         .Select(b => xor ? (byte)(b ^ 1) : unchecked((byte)(b - 1))).ToArray();
 
-    private static ISaveDocument Open(byte[] bytes) => new XorJsonPlugin().Open(MemorySaveSet.SingleFile("save", bytes));
+    internal static ISaveDocument Open(byte[] bytes) => new XorJsonPlugin().Open(MemorySaveSet.SingleFile("save", bytes));
 
     internal static IReadOnlyList<FieldNode> Fields(ISaveDocument document)
     {

@@ -2,15 +2,15 @@ using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Plugins.XorJson;
 
-internal sealed record JsonEncoding(bool Xor)
+internal sealed record JsonEncoding(bool Xor, bool Plain = false)
 {
-    internal string Label => Xor ? "JSON · XOR 1" : "JSON · byte minus one";
+    internal string Label => Plain ? "JSON · FCharacterSaveV1" : Xor ? "JSON · XOR 1" : "JSON · byte minus one";
 
     internal byte[] Transform(ReadOnlySpan<byte> bytes, bool decode)
     {
         var result = new byte[bytes.Length];
         for (var i = 0; i < result.Length; i++)
-            result[i] = Xor ? (byte)(bytes[i] ^ 1) : unchecked((byte)(bytes[i] + (decode ? 1 : -1)));
+            result[i] = Plain ? bytes[i] : Xor ? (byte)(bytes[i] ^ 1) : unchecked((byte)(bytes[i] + (decode ? 1 : -1)));
         return result;
     }
 
@@ -20,6 +20,13 @@ internal sealed record JsonEncoding(bool Xor)
 
     internal static DecodedJson Decode(byte[] bytes)
     {
+        if (HasJsonPrefix(bytes))
+        {
+            var plainTree = JsonTokenTree.Parse(bytes);
+            if (CharacterProfile.Read(plainTree) is not null)
+                return new DecodedJson(bytes, plainTree, new JsonEncoding(false, true));
+            throw new SaveFormatException("Plain JSON is not an FCharacterSaveV1 document.");
+        }
         DecodedJson? match = null;
         foreach (var encoding in new[] { new JsonEncoding(true), new JsonEncoding(false) })
         {

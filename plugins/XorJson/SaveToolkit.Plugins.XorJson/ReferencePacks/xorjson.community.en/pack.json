@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "id": "xorjson.community.en",
+  "version": "1.0.0",
+  "title": "Dungeons II community identifiers (PS5 unverified)",
+  "plugins": [
+    "format.json-xor"
+  ],
+  "titleIds": [
+    "PPSA16064"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "xorjson-items",
+      "kind": "records",
+      "title": "Items (PC community, PS5 unverified)",
+      "files": [
+        {
+          "path": "items.json",
+          "sha256": "75f9dc06cbefb345734fe50409363e5a630afa1c61d8d984f2cb9109d24c3fe5"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json",
+        "author": "Ishiaki and mcd2-save-editor contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted curated identifiers, short names and categories only. Omitted tooltip/quest prose, icons, numeric caps and effect tiers. World labels mechanically expanded from IDs; PS5 applicability unverified."
+      }
+    },
+    {
+      "id": "xorjson-effects",
+      "kind": "records",
+      "title": "Effects (PC community, PS5 unverified)",
+      "files": [
+        {
+          "path": "effects.json",
+          "sha256": "494f9c5af204b553fc4303e6af02e97b37ea634d20761c768ad71b62d94899fe"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json",
+        "author": "Ishiaki and mcd2-save-editor contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted curated identifiers, short names and categories only. Omitted tooltip/quest prose, icons, numeric caps and effect tiers. World labels mechanically expanded from IDs; PS5 applicability unverified."
+      }
+    },
+    {
+      "id": "xorjson-world",
+      "kind": "records",
+      "title": "World (PC community, PS5 unverified)",
+      "files": [
+        {
+          "path": "world.json",
+          "sha256": "e309d87d3cbbf70a5fd70d81ff95f76f1f5bc79e293d8a52114ee278836244e0"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/world.json",
+        "author": "Ishiaki and mcd2-save-editor contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted curated identifiers, short names and categories only. Omitted tooltip/quest prose, icons, numeric caps and effect tiers. World labels mechanically expanded from IDs; PS5 applicability unverified."
+      }
+    }
+  ]
+}

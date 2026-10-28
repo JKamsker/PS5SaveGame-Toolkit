@@ -12,7 +12,8 @@ public sealed class XorJsonConformanceTests : PluginConformanceTests<XorJsonPlug
 
     protected override IReadOnlyList<ValueEdit> ChooseEdits(ISaveDocument document, IReadOnlyList<FieldNode> fields)
     {
+        if (!document.CanEdit) return [];
         var volume = fields.Single(f => f.Label == "masterVolume");
-        return [new ValueEdit(volume.ValueId, FieldValue.Of(volume.Value.AsInteger() - 1))];
+        return [new ValueEdit(volume.ValueId, FieldValue.ExactNumber("49"))];
     }
 }

@@ -1,112 +1,190 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.XorJson;
 
-internal sealed class JsonSaveDocument(string name, string path, byte[] original, JsonTokenTree tree, JsonEncoding encoding) : BoundSaveDocument
+internal sealed class JsonSaveDocument : BoundSaveDocument
 {
     private const int PageSize = 128;
+    private readonly string _name;
+    private readonly string _path;
+    private readonly JsonEncoding _encoding;
+    private readonly IReferenceContext _references;
+    private readonly CharacterProfile? _character;
+    private readonly JsonEditModel _model;
+    private readonly bool _allowStructure;
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
 
-    public override string Title => name;
+    public JsonSaveDocument(string name, string path, JsonTokenTree tree, JsonEncoding encoding, IReferenceContext references)
+    {
+        _name = name;
+        _path = path;
+        _encoding = encoding;
+        _references = references;
+        _character = CharacterProfile.Read(tree);
+        _model = new(tree);
+        _allowStructure = _character is null && !_model.Root.Children.Any(n => n.Label == "blobs");
+    }
 
-    public override ViewNode BuildView() => new TabsNode([
-        new Tab("Overview", [
-            new StatsNode([new Stat("Bytes", original.Length.ToString()), new Stat("Values", tree.Nodes.Count.ToString())]),
-            new TextNode(encoding.Label),
-            new TextNode("Field names come from the file; game semantics and allowed values are unknown.") { Tone = Tone.Warning },
-        ]),
-        new Tab("JSON", [NodeView(tree.Nodes[0])]),
-    ]);
+    public override string Title => _name;
+    public override bool CanEdit => _character is null;
+
+    public override ViewNode BuildView()
+    {
+        _ranges.Clear();
+        var tabs = new List<Tab>
+        {
+            new("Overview", [
+                new StatsNode([new Stat("Values", _model.Nodes.Count.ToString(CultureInfo.InvariantCulture))]),
+                new TextNode(_encoding.Label),
+                new TextNode(_character?.Warning ?? "Experimental raw settings edits. Game-specific constraints and console acceptance are unknown.") { Tone = Tone.Warning },
+            ]),
+        };
+        if (_character is null) tabs.Add(new("JSON", [NodeView(_model.Root)]));
+        else tabs.AddRange(CharacterViews.Build(_model.Root, NodeView));
+        return new TabsNode(tabs);
+    }
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
-        if (!_ranges.TryGetValue(lazyId, out var range))
-        {
-            throw new KeyNotFoundException($"Unknown JSON section '{lazyId}'.");
-        }
-
+        if (!_ranges.TryGetValue(lazyId, out var range)) throw new KeyNotFoundException("Unknown or retired JSON section.");
         if (range.Count <= PageSize)
         {
-            return range.Parent.Children.Skip(range.Start).Take(range.Count).Select(NodeView).ToArray();
+            var children = range.Parent.Children.Skip(range.Start).Take(range.Count).Select(NodeView).ToList();
+            if (_allowStructure && range.Start == 0 && range.Count == range.Parent.Children.Count)
+                return [new SectionNode("Structural actions", StructureActions(range.Parent).ToArray()), new SectionNode("Values", children)];
+            return children;
         }
-
-        var children = new List<ViewNode>();
-        var chunk = Math.Max(PageSize, (range.Count + PageSize - 1) / PageSize);
+        var pages = new List<ViewNode>();
+        if (_allowStructure) pages.AddRange(StructureActions(range.Parent));
+        // Reserve room for the bounded action controls as well as pages.
+        var pageSlots = PageSize - pages.Count;
+        var chunk = Math.Max(PageSize, (range.Count + pageSlots - 1) / pageSlots);
         for (var offset = 0; offset < range.Count; offset += chunk)
         {
             var count = Math.Min(chunk, range.Count - offset);
             var start = range.Start + offset;
-            children.Add(LazyRange($"Entries {start}–{start + count - 1}", range.Parent, start, count));
+            pages.Add(LazyRange($"Entries {start}–{start + count - 1}", range.Parent, start, count));
         }
-
-        return children;
+        return pages;
     }
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
-        var edits = tree.Nodes.Where(n => n.Spec is not null && n.Current != n.Original).ToArray();
-        using var output = new MemoryStream();
-        var position = 0;
-        foreach (var node in edits)
-        {
-            output.Write(original.AsSpan(position, node.Offset - position));
-            var encoded = node.Encode();
-            if (output.Length + encoded.Length > JsonTokenTree.MaxBytes)
-            {
-                throw new SaveFormatException("Edited JSON exceeds the 16 MiB safety limit.");
-            }
-
-            output.Write(encoded);
-            position = node.Offset + node.Length;
-        }
-
-        output.Write(original.AsSpan(position));
-        var bytes = output.ToArray();
-        if (bytes.Length > JsonTokenTree.MaxBytes) throw new SaveFormatException("Edited JSON exceeds the 16 MiB safety limit.");
-        var result = encoding.Transform(bytes, false);
+        var plain = JsonTokenWriter.Write(_model.Root);
+        var result = _encoding.Transform(plain, false);
         var decoded = JsonEncoding.Decode(result);
-        var reparsed = decoded.Tree;
-        if (decoded.Encoding != encoding || reparsed.Nodes.Count != tree.Nodes.Count)
-            throw new SaveFormatException("Edited JSON changed its encoding or structure.");
-        foreach (var node in tree.Nodes)
+        var expected = _model.Nodes;
+        if (decoded.Encoding != _encoding || decoded.Tree.Nodes.Count != expected.Count)
+            throw new SaveFormatException("Edited JSON changed its encoding or structure unexpectedly.");
+        for (var i = 0; i < expected.Count; i++)
         {
-            var actual = reparsed.Nodes[node.Index];
-            if (actual.Kind != node.Kind || actual.Label != node.Label || actual.Current != node.Current)
-            {
+            var before = expected[i];
+            var after = decoded.Tree.Nodes[i];
+            if (before.Label != after.Label || before.IsContainer != after.IsContainer ||
+                (before.IsContainer ? before.Kind != after.Kind : before.Scalar != after.Scalar))
                 throw new SaveFormatException("Edited JSON failed value round-trip validation.");
-            }
         }
+        return [new FileOutput(_path, result)];
+    }
 
-        return [new FileOutput(path, result)];
+    public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
+    {
+        var outcome = base.ApplyEdits(edits);
+        if (!outcome.Succeeded || edits.Count == 0) return outcome;
+        try
+        {
+            _ = Serialize();
+            return outcome;
+        }
+        catch (Exception ex) when (ex is SaveFormatException or ArgumentException)
+        {
+            // Scalar rollback keeps the same objects/bindings and their original escape spellings.
+            _ = base.ApplyEdits(outcome.Changes.Reverse().Select(c => new ValueEdit(c.ValueId, c.OldValue)).ToArray());
+            return EditOutcome.Rejected(edits[0].ValueId, ex.Message);
+        }
+    }
+
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
+    {
+        if (!_allowStructure) throw new SaveFormatException("Structural writes are disabled for game settings and character saves pending PS5 evidence.");
+        var parts = actionId.Split('/');
+        if (parts.Length != 3 || parts[0] != "json" || parts[1] is not ("add" or "remove" or "replace") ||
+            !int.TryParse(parts[2], NumberStyles.None, CultureInfo.InvariantCulture, out var id))
+            throw new KeyNotFoundException("Unknown JSON action.");
+        string? Parameter(string name) => parameters.TryGetValue(name, out var value) && value.Kind == FieldValueKind.Text ? value.AsString() : null;
+        return Structural(() =>
+        {
+            _model.Change(parts[1], id, Parameter("json"), Parameter("key"));
+            _ = Serialize(); // A transaction must also retain an unambiguous encoding and round-trip values.
+        }, "JSON structure changed. Review the export before use.");
+    }
+
+    protected override DocumentMemento CaptureSnapshot()
+    {
+        var state = _model.Snapshot();
+        return DocumentMemento.Snapshot(state, state.SizeBytes);
+    }
+
+    protected override void LoadSnapshot(DocumentMemento snapshot)
+    {
+        _model.Restore(((SnapshotMemento<JsonModelSnapshot>)snapshot).State);
+        _ranges.Clear();
     }
 
     private ViewNode NodeView(JsonValueToken node)
     {
         if (node.IsContainer)
         {
-            return LazyRange(node.Label, node, 0, node.Children.Count);
+            var label = node.Member("name")?.Scalar is { Kind: FieldValueKind.Text } blobName ? blobName.AsString() : node.Label;
+            var section = LazyRange(label, node, 0, node.Children.Count);
+            return _character is not null && node.Parent?.Label == "Entries" && node.Parent.Parent?.Label == "Inventory"
+                ? section with { Description = InventoryIdentity.Describe(node) } : section;
         }
-
-        if (node.Spec is not { } spec)
+        var spec = node.Spec!;
+        ReferenceRecord? record = null;
+        var catalogId = CharacterViews.CatalogFor(node);
+        if (catalogId is not null && node.Scalar.Kind == FieldValueKind.Text)
         {
-            return new TextNode($"{node.Label}: null");
+            spec = new ReferenceSpec(catalogId) { AllowCustom = false, ReadOnly = _character is not null };
+            record = _references.Catalog(catalogId)?.Find(node.Scalar.AsString());
         }
-
-        return Field(node.ValueId, node.Label, spec, () => node.Current,
-            spec.ReadOnly ? null : value => node.Current = value, node.Validate) with
+        var field = Field(node.ValueId, node.Label, spec, () => node.Current,
+            CanEdit && !spec.ReadOnly ? value => node.Current = value : null, node.Validate) with
         {
-            Confidence = Confidence.Unknown,
-            Warning = node.Warning ?? "Game-specific constraints and dependencies are unknown.",
-            Description = $"Original UTF-8 value token at byte offset 0x{node.Offset:X}.",
+            Confidence = record is null ? Confidence.Unknown : Confidence.Inferred,
+            Warning = node.Warning ?? (_character?.Warning ?? "Game-specific constraints and dependencies are unknown."),
+            Description = $"{node.TypedPath}; original UTF-8 token at 0x{node.Offset:X}." +
+                (record is null ? "" : $" {record.Name} ({record.Category}). {record.AttributionText}. PC catalog; PS5 semantics unverified."),
         };
+        return _allowStructure ? new SectionNode(node.Label, [field, .. StructureActions(node)]) : field;
+    }
+
+    private IEnumerable<ActionNode> StructureActions(JsonValueToken node)
+    {
+        const string warning = "Advanced raw JSON operation. Unknown game dependencies may make the save invalid.";
+        var json = new FieldNode("json", "Complete JSON value", new TextSpec { Multiline = true, MaxLength = JsonTokenTree.MaxBytes }, FieldValue.Of("null"));
+        if (node.IsContainer)
+            yield return new ActionNode($"json/add/{node.Index}", "Add row/member")
+            {
+                Confirm = warning,
+                Parameters = node.Kind == System.Text.Json.JsonTokenType.StartObject
+                    ? [new FieldNode("key", "New member name", new TextSpec(), FieldValue.Of("")), json] : [json],
+            };
+        if (node.Parent is null) yield break;
+        yield return new ActionNode($"json/remove/{node.Index}", "Remove row/member") { Confirm = warning };
+        yield return new ActionNode($"json/replace/{node.Index}", "Replace row/member") { Confirm = warning, Parameters = [json] };
     }
 
     private SectionNode LazyRange(string label, JsonValueToken parent, int start, int count)
     {
-        var id = $"children/{parent.Index}/{start}/{count}";
-        _ranges[id] = new ChildRange(parent, start, count);
-        return SectionNode.Lazy(label, id, count.ToString());
+        var id = start == 0 && count == parent.Children.Count
+            ? $"children/{parent.Index}" : $"children/{parent.Index}/page/{start}/{count}";
+        _ranges[id] = new(parent, start, count);
+        return SectionNode.Lazy(label, id, count.ToString(CultureInfo.InvariantCulture));
     }
 
     private sealed record ChildRange(JsonValueToken Parent, int Start, int Count);
