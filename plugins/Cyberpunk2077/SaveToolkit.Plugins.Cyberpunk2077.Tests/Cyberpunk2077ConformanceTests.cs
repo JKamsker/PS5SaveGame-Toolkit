@@ -12,6 +12,8 @@ public sealed class Cyberpunk2077ConformanceTests : PluginConformanceTests<Cyber
     protected override IReadOnlyList<ValueEdit> ChooseEdits(ISaveDocument document, IReadOnlyList<FieldNode> fields)
     {
         var money = Assert.Single(fields, field => field.Label == "Money (Items.money)" && !field.Spec.ReadOnly);
-        return [new ValueEdit(money.ValueId, FieldValue.Of(money.Value.AsInteger() + 1))];
+        var editable = fields.Where(field => !field.Spec.ReadOnly && (field.ValueId.StartsWith("progression/", StringComparison.Ordinal)
+            || field.ValueId == "inventory/49/quantity" || field == money));
+        return editable.Select(field => new ValueEdit(field.ValueId, FieldValue.Of(field.Value.AsInteger() + 1))).ToArray();
     }
 }
