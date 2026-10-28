@@ -23,6 +23,8 @@ internal sealed class SkillRanks
     private readonly TaggedProperty _property;
     private readonly AbilityArray _skills;
     public IReadOnlyList<SkillRank> Ranks { get; }
+    private readonly IReadOnlyDictionary<string, SkillRank> _byId;
+    public SkillRank? Find(string id) => _byId.GetValueOrDefault(id);
 
     public SkillRanks(Sav3Node manager, byte[] data, IReadOnlyList<string> names, AbilityArray skills)
     {
@@ -54,6 +56,7 @@ internal sealed class SkillRanks
         }
 
         Ranks = ranks;
+        _byId = ranks.ToDictionary(r => r.Entry.Id, StringComparer.Ordinal);
     }
 
     public IReadOnlyList<Sav3Patch> Patches()
@@ -63,7 +66,7 @@ internal sealed class SkillRanks
         values.Write(BinaryData.EncodeInt32(_skills.Entries.Count));
         foreach (var entry in _skills.Entries)
         {
-            var rank = Ranks.SingleOrDefault(r => r.Entry.Id == entry.Id);
+            var rank = Find(entry.Id);
             values.Write(rank is null || rank.Value == rank.Original ? entry.Record.Write(new Dictionary<string, byte[]>()) :
                 entry.Record.Write(new Dictionary<string, byte[]> { [LevelName] = LevelProperty(rank.Value) }));
         }
@@ -85,7 +88,7 @@ internal sealed class SkillRanks
 
         foreach (var (before, after) in _skills.Entries.Zip(skills.Entries))
         {
-            var rank = Ranks.SingleOrDefault(r => r.Entry.Id == before.Id);
+            var rank = Find(before.Id);
             var replacements = new Dictionary<string, byte[]>();
             if (rank is not null && rank.Value != rank.Original) { replacements.Add(LevelName, LevelProperty(rank.Value)); }
             if (!before.Record.Write(replacements).AsSpan().SequenceEqual(after.Record.Write(new Dictionary<string, byte[]>())))

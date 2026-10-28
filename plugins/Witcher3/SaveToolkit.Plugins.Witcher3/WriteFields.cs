@@ -1,5 +1,6 @@
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.Witcher3;
 
@@ -9,6 +10,12 @@ internal delegate FieldNode FieldBinding(string id, string label, FieldSpec spec
 /// <summary>Curated writes retain source evidence and gameplay caveats at each editing control.</summary>
 internal sealed class WriteFields(FieldBinding bind)
 {
+    public static string IdentityId(string array, string id) => $"abilities/{array}/{id}/identity";
+    public FieldNode Identity(string array, AbilityEntry entry, ReferenceRecord? reference = null) => bind(IdentityId(array, entry.Id), "Saved identity",
+        array is "skills" or "mutations" ? new ReferenceSpec("abilities") { AllowCustom = true } : new TextSpec(), () => FieldValue.Of(entry.Id)) with {
+        Confidence = Confidence.Unknown, Description = "Source: native saved ability definition. Identity does not establish acquisition or availability. " +
+            reference?.AttributionText,
+    };
     private const string ConverterSource = "Source: cahian, MIT, https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter/tree/7ae8b6fe71c4b36e571246ad25629d03c7ec8219/w3save . ";
     private const string GwentSource = "Source: Vishal Gupta / rfvgyhn, MIT, https://github.com/vishalgupta-git/GwentTracker/blob/d8eab8c25c409be42a0ea7b43b901a43dfefed18/src/lib/save/parse.ts . ";
     public const string ConsoleWarning = "Not validated on console. The game may reject the edited save or rebuild dependent state.";

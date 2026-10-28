@@ -29,12 +29,12 @@ internal static class RecipeReader
         return result;
     }
 
-    internal static IReadOnlyList<string> ReadNames(ReadOnlySpan<byte> raw, IReadOnlyList<string> names)
+    internal static IReadOnlyList<string> ReadNames(ReadOnlySpan<byte> raw, IReadOnlyList<string> names, string context = "Recipe")
     {
         var count = BinaryData.Int32(raw, 0);
         if (count < 0 || count > MaximumRecipes || raw.Length != sizeof(int) + (long)count * sizeof(ushort))
         {
-            throw new SaveFormatException("Recipe count disagrees with its bounded CName array.");
+            throw new SaveFormatException($"{context} count disagrees with its bounded name array.");
         }
 
         var result = new List<string>(count);
@@ -44,7 +44,7 @@ internal static class RecipeReader
             var index = BinaryData.UInt16(raw, sizeof(int) + i * sizeof(ushort));
             if (index < 1 || index > names.Count || !seen.Add(names[index - 1]))
             {
-                throw new SaveFormatException("Invalid or duplicate recipe name index.");
+                throw new SaveFormatException($"Invalid or duplicate {context.ToLowerInvariant()} name index.");
             }
 
             result.Add(names[index - 1]);

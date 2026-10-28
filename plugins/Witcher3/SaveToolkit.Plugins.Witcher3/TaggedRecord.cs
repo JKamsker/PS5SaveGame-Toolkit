@@ -13,6 +13,10 @@ internal sealed record TaggedRecord(IReadOnlyList<TaggedProperty> Properties)
 {
     public static TaggedRecord Read(byte[] data, ref int position, int end, IReadOnlyList<string> names)
     {
+        if (position < 0 || end < 0 || end > data.Length || position > end - 3)
+        {
+            throw new SaveFormatException("Truncated Witcher saved structure within its parent boundary.");
+        }
         if (BinaryData.Slice(data, position++, 1)[0] != 0)
         {
             throw new SaveFormatException("Unsupported Witcher saved structure prefix.");

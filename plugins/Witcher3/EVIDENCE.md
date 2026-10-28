@@ -205,3 +205,35 @@ unimplemented, with no remaining console-evidence switch blocking the four new c
 Write-round validation: **88 passed / 0 failed / 0 skipped** with `SAVETOOLKIT_ARTIFACTS` exported in
 the same test command. Full API build succeeds with **0 warnings / 0 errors**. Changes stay entirely
 inside `plugins/Witcher3/`; no sample files, credentials, game assets or new source datasets were added.
+
+## Completion round — version 0.6.0
+
+See [COMPLETION.md](COMPLETION.md) for every requirement/acceptance disposition and the exact
+additional #31 capture checklist; README records F1–F11 adoption and pending F12/F13 (#32/#33).
+
+- F9 skill graphs retain native branches/costs/current ranks without fabricated prerequisite edges.
+  Mutation graphs decode 13 definitions and 11 exact `requiredMutations` edges in every supplied
+  save. Research/availability is Unknown; core ranks are not purchases. Positive editable ranks
+  represent stored rank only. Changes and undo/redo rebuild the published diagram.
+- Native map reads validate separate counted known/discovered/disabled CName blocks under the
+  unique `CCommonMapManager`. No absent tag becomes Missing; discovery is not completion/reward.
+  Friendly region/coordinates still need matching native definitions and controlled captures.
+  Community map links are fully attributed and external-only: no NC artwork/coordinates/marker
+  dataset is imported. Existing friendly ability reference attribution stays visible in graphs.
+- F8 full ability/map queries return bounded pages; direct lazy targets navigate to unloaded late
+  details. Synthetic tests exercise 4,096 skills and 1,650 map tags; malformed graph/name/count/type/
+  cycle/duplicate inputs fail with warnings or clear format exceptions.
+- One additional enabled write capability: F6 refill of existing ordinary native Bread/Bottled water
+  only when unequipped, unslotted and untagged. Imported quantities are ceilings, not legal caps.
+  Higher/already-full, quest variants, unknown IDs, currency and protected records are skipped.
+  All eight files have exact native-byte/F1/reopen/history checks for eligible refill stacks.
+  Equipped water is correctly excluded; owner should provide two eligible stacks for a native
+  multi-stack trial. Direct invocation and forged/stale/invalid scopes are rejected.
+- Direct progression/quantity wrong-type/range validation now rejects atomically; parent record
+  bounds reject truncated/out-of-range endpoints. Skill lookups use an indexed dictionary during
+  view, write and reparse verification instead of repeated full-rank scans.
+
+Software validation: **99 passed / 0 failed / 0 skipped**; restore-enabled API build **0 warnings /
+0 errors**. All C# files remain below 300 physical lines. No console was accessed, no file outside
+the plugin changed, and no sample/asset bytes were committed. All earlier owner validation remains
+open; existing implemented writes stay enabled and Experimental.
