@@ -12,12 +12,15 @@ internal sealed class ReferenceReadouts
 {
     internal const string ItemsCatalog = "pragmata-items";
     internal const string ItemEvidenceCatalog = "pragmata-item-evidence";
+    internal const string MissionsCatalog = "pragmata-missions";
     private readonly PragmataDocument _document;
     private readonly IReferenceContext _context;
     private readonly IReferenceCatalog? _items;
     private readonly IReferenceCatalog? _itemEvidence;
     private readonly IReferenceCatalog? _sections;
     private readonly IReferenceCatalog? _identifiers;
+    private readonly IReferenceCatalog? _missions;
+    private readonly Dictionary<string, FieldValue> _readOnly = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (SaveNode Node, bool Reference)> _bindings = new(StringComparer.Ordinal);
 
     public ReferenceReadouts(PragmataDocument document, IReferenceContext context)
@@ -28,6 +31,7 @@ internal sealed class ReferenceReadouts
         _itemEvidence = context.Catalog(ItemEvidenceCatalog);
         _sections = context.Catalog("pragmata-sections");
         _identifiers = context.Catalog("pragmata-identifiers");
+        _missions = context.Catalog(MissionsCatalog);
     }
 
     public ReferenceRecord? Item(uint id) => _items?.Find(id.ToString(CultureInfo.InvariantCulture));
@@ -40,6 +44,7 @@ internal sealed class ReferenceReadouts
     }
     public ResolvedEdit? Resolve(string id, FieldValue value)
     {
+        if (_readOnly.ContainsKey(id)) return new ResolvedEdit(null, value, "Reference evidence is browse-only.");
         if (!_bindings.TryGetValue(id, out var binding)) return null;
         if (binding.Reference)
         {
@@ -50,8 +55,22 @@ internal sealed class ReferenceReadouts
         }
         return new ResolvedEdit(binding.Node, value);
     }
-    public FieldValue? GetValue(string id) => _bindings.TryGetValue(id, out var binding) ? Value(binding, _document.Read(binding.Node)) : null;
+    public FieldValue? GetValue(string id) => _readOnly.TryGetValue(id, out var value) ? value :
+        _bindings.TryGetValue(id, out var binding) ? Value(binding, _document.Read(binding.Node)) : null;
     public AssetContent? GetAsset(string id) => _context.GetAsset(id);
+    public IReferenceCatalog? Missions => _missions;
+
+    public FieldNode Browse(string catalog, ReferenceRecord record)
+    {
+        var id = $"browse/{catalog}/{record.Key}";
+        var value = FieldValue.Of(record.Key);
+        _readOnly[id] = value;
+        return new FieldNode(id, record.Name, new ReferenceSpec(catalog) { ReadOnly = true }, value)
+        {
+            Confidence = Confidence.Unknown,
+            Description = $"{record.Description} {record.AttributionText} Reference catalogue only; this does not report saved ownership, completion or a legal limit.",
+        };
+    }
 
     public FieldNode ItemField(SaveNode node)
     {
@@ -118,5 +137,5 @@ internal sealed class ReferenceReadouts
     private static FieldValue Value((SaveNode Node, bool Reference) binding, FieldValue value) =>
         binding.Reference ? FieldValue.Of(value.AsUInt32().ToString(CultureInfo.InvariantCulture)) : value;
 
-    internal sealed record ResolvedEdit(SaveNode Node, FieldValue Value, string? Error = null);
+    internal sealed record ResolvedEdit(SaveNode? Node, FieldValue Value, string? Error = null);
 }

@@ -59,9 +59,27 @@ def main():
         raise ValueError("Mission data does not match the pinned MIT source revision")
     observed_ids = {row["id"] for row in items}
     cross_references = {}
-    for entry in json.loads(raw_missions)[0]["app.MissionUserdata"]["Units"]:
+    mission_records = []
+    mission_data = json.loads(raw_missions)[0]["app.MissionUserdata"]
+    display_order = {str(key): index + 1 for index, key in enumerate(mission_data["MissionDisplayOrderArray"])}
+    for entry in mission_data["Units"]:
         unit = entry["app.MissionUserdata.Unit"]
         item_id = str(unit["OpenConditionItemID"])
+        mission_id = str(unit["ID"]["app.ObjectDefine"]["Hash"])
+        mission_records.append({
+            "id": mission_id, "name": f"Mission 0x{int(mission_id):08x}",
+            "category": f"category-hash-{unit['CategoryHash']:08x}",
+            "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. "
+                           "OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+            "source": MISSION_SOURCE,
+            "attributes": {"confidence": "Inferred", "nameConfidence": "Unknown",
+                           "openingItemId": item_id, "difficultyValue": str(unit["Difficulty"]),
+                           "displayOrder": str(display_order.get(mission_id, "not listed")),
+                           "chapterConditionGuid": unit["OpenCondition"]["app.ChapterFlagID"]["_Guid"],
+                           "nameMessageGuid": unit["NameText"]["app.TextMessageData"]["_MessageId"],
+                           "extraMission": str(unit["IsExtraMission"]).lower(),
+                           "platform": "PC; PS5 semantics unverified"},
+        })
         if item_id in observed_ids:
             cross_references.setdefault(item_id, set()).add(str(unit["ID"]["app.ObjectDefine"]["Hash"]))
     mission_items = [{
@@ -80,6 +98,7 @@ def main():
         ("pragmata-items", items, "Save Toolkit contributors", "CC0-1.0", "https://creativecommons.org/publicdomain/zero/1.0/",
          "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21"),
         ("pragmata-item-evidence", mission_items, "Egg Targaryen / dzxrly; Save Toolkit contributors (PS5 cross-index)", "MIT", MISSION_LICENSE, MISSION_SOURCE),
+        ("pragmata-missions", mission_records, "Egg Targaryen / dzxrly; Save Toolkit contributors (reference labels)", "MIT", MISSION_LICENSE, MISSION_SOURCE),
     ]:
         filename = catalog + ".json"
         write(pack / filename, {"records": rows})
@@ -87,12 +106,12 @@ def main():
                          "files": [{"path": filename, "sha256": hashlib.sha256((pack / filename).read_bytes()).hexdigest()}],
                          "attribution": {"sourceUrl": source, "author": author, "license": license_name,
                                          "licenseUrl": license_url, "retrieved": "2026-10-28",
-                                         "modifications": "Selected exact numeric OpenConditionItemID links and mission IDs; cross-indexed PS5 inventory observations. No localized text or artwork."
-                                         if catalog == "pragmata-item-evidence" else "Selected observed hashes; verified spelling; original group labels and explicit unknown-ID descriptions. No game text or artwork."}})
-    write(pack / "pack.json", {"schema": 1, "id": "pragmata.evidence.en", "version": "1.1.0",
+                                         "modifications": "Selected numeric mission IDs, opening conditions and reference metadata; cross-indexed PS5 inventory observations. No localized text or artwork."
+                                         if catalog in ("pragmata-item-evidence", "pragmata-missions") else "Selected observed hashes; verified spelling; original group labels and explicit unknown-ID descriptions. No game text or artwork."}})
+    write(pack / "pack.json", {"schema": 1, "id": "pragmata.evidence.en", "version": "1.2.0",
                                "title": "Pragmata observed identifiers (not a gameplay dictionary)", "plugins": ["pragmata"],
                                "titleIds": ["PPSA02530"], "gameBuilds": [], "locale": "en", "datasets": datasets})
-    print(f"Built {len(identifiers)} identifiers, {len(sections)} sections, {len(items)} unknown item IDs, {len(mission_items)} mission item cross-references.")
+    print(f"Built {len(identifiers)} identifiers, {len(sections)} sections, {len(items)} unknown item IDs, {len(mission_items)} mission item cross-references, {len(mission_records)} missions.")
 
 
 if __name__ == "__main__":

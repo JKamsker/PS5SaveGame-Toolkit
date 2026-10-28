@@ -19,7 +19,7 @@ internal sealed class PragmataViews
         _document = document;
         _blockCount = blockCount;
         _raw = new RawExplorer(document, _pages);
-        _inventory = new InventoryView(document, _pages);
+        _inventory = new InventoryView(document);
         _evidence = new EvidenceView(document, _pages);
     }
 
@@ -35,9 +35,9 @@ internal sealed class PragmataViews
             tabs.Add(new Tab("Progress", _evidence.Family("app.ChapterManager.SaveData",
                 "app.GameOccurrenceRecordManager.SaveData", "app.GameOccurrenceEventManager.SaveData", "app.CampaignManager.GameData",
                 "app.DifficultyLevelSystem.SaveData")));
-            tabs.Add(new Tab("Quests", _evidence.Family("app.ObjectiveManager.SaveData")));
-            tabs.Add(new Tab("World", _evidence.Family("app.CheckPointManager.SaveData", "app.GimmickManager.SaveData",
-                "app.PropManager.SaveData", "app.EnvironmentSceneManager.SaveData", "app.LightManager.SaveData")));
+            tabs.Add(new Tab("Quests", [.. _document.Missions.Build(), .. _evidence.Family("app.ObjectiveManager.SaveData")]));
+            tabs.Add(new Tab("World", [.. new CheckpointMap(_document, _pages).Build(), .. _evidence.Family("app.CheckPointManager.SaveData", "app.GimmickManager.SaveData",
+                "app.PropManager.SaveData", "app.EnvironmentSceneManager.SaveData", "app.LightManager.SaveData")]));
             tabs.Add(new Tab("Clock", Clock()));
         }
         tabs.Add(new Tab("Raw", [

@@ -67,10 +67,12 @@ public sealed class RawViewTests
         _ = reader.Parse();
         var floating = reader.Classes.SelectMany(c => c.Children).First(n => n.Type == 11 && double.IsFinite(document.Read(n).AsDouble()));
         var field = document.Field(floating, raw: true);
-        var outcome = document.ApplyEdits([new(field.ValueId, FieldValue.Of(12.25))]);
+        var spec = Assert.IsType<FloatSpec>(field.Spec);
+        var next = field.Value.AsDouble() == 0 ? Math.Min(0.5, spec.Max ?? 0.5) : 0;
+        var outcome = document.ApplyEdits([new(field.ValueId, FieldValue.Of(next))]);
         Assert.True(outcome.Succeeded);
         var checkedPlaintext = new Crypto.DsssContainer(document.Serialize().Single().Content.Span).Plaintext;
-        Assert.Equal(12.25, PrimitiveCodec.Read(floating, checkedPlaintext).AsDouble());
+        Assert.Equal((double)(float)next, PrimitiveCodec.Read(floating, checkedPlaintext).AsDouble());
         Assert.True(document.ApplyEdits([new(field.ValueId, field.Value)]).Succeeded);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
     }

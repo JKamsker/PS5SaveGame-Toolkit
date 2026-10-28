@@ -81,6 +81,46 @@ public sealed class MalformedInputTests
         Assert.Throws<SaveFormatException>(() => new TypedReader(trailing).Parse());
     }
 
+    [Fact]
+    public void DuplicateRootsAndFieldsRejectWithPreciseErrors()
+    {
+        var root = PrimitivePayload(FieldTags.Int32, 4, 28);
+        Assert.Contains("Duplicate root hash", Assert.Throws<SaveFormatException>(() =>
+            new TypedReader(root.Concat(root).ToArray()).Parse()).Message, StringComparison.Ordinal);
+        var duplicate = new byte[44];
+        root.CopyTo(duplicate, 0);
+        root.AsSpan(12).CopyTo(duplicate.AsSpan(28));
+        BinaryPrimitives.WriteUInt32LittleEndian(duplicate.AsSpan(4), 2);
+        Assert.Contains("Duplicate class field hash", Assert.Throws<SaveFormatException>(() =>
+            new TypedReader(duplicate).Parse()).Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ExcessiveNestingRejectsBeforeWalkingTheCompleteInput()
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream);
+        writer.Write(1U);
+        for (var index = 0; index < 110; index++)
+        {
+            writer.Write(1); writer.Write(2U); writer.Write(3U); writer.Write(FieldTags.Class);
+        }
+        writer.Write(0); writer.Write(2U);
+        Assert.Contains("nesting limit", Assert.Throws<SaveFormatException>(() =>
+            new TypedReader(stream.ToArray()).Parse()).Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(1_000_001U)]
+    [InlineData(uint.MaxValue)]
+    public void OversizedArraysRejectBeforeAllocatingTheirElements(uint count)
+    {
+        var bytes = PrimitivePayload(FieldTags.Array, FieldTags.UInt32, 40);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(24), sizeof(uint));
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(28), count);
+        Assert.Contains("element count", Assert.Throws<SaveFormatException>(() => new TypedReader(bytes).Parse()).Message, StringComparison.Ordinal);
+    }
+
     private static byte[] PrimitivePayload(int type, int size, int total)
     {
         var bytes = new byte[total];
