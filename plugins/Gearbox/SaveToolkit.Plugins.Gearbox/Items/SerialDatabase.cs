@@ -63,6 +63,7 @@ internal sealed class SerialDatabase
     }
 
     public ReferenceRecord? Find(string catalog, string id) => _catalogs[catalog].GetValueOrDefault(id);
+    public ReferenceRecord? TryFind(string catalog, string id) => _catalogs.TryGetValue(catalog, out var records) ? records.GetValueOrDefault(id) : null;
     public IEnumerable<ReferenceRecord> Records(string catalog) => _catalogs[catalog].Values;
 
     public int Width(string category, int version)

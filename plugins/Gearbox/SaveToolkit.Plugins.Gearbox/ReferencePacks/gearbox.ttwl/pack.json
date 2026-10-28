@@ -145,6 +145,44 @@
         "retrieved": "2026-10-28",
         "modifications": "Extracted skill names, plain-text descriptions, calculator tiers and rank caps; stripped code/art. Reference-only: no save-subobject ID or gameplay/hotfix correctness claim."
       }
+    },
+    {
+      "id": "part-labels",
+      "kind": "records",
+      "title": "part-labels",
+      "files": [
+        {
+          "path": "part-labels.json",
+          "sha256": "00d087f31c24cd4f4de5cb175bb31300d63131ec5ccbe3b5a8ae22410b57fa24"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/somefunguy/TTWLSaveEditor/blob/c6d701ec4a5ae1c115017de54d39df4813c035c1/BL3Tools/GameData/Items/Mappings/part_name_mapping_redux.json",
+        "author": "somefunguy / TTWLSaveEditor contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/somefunguy/TTWLSaveEditor/blob/c6d701ec4a5ae1c115017de54d39df4813c035c1/BL3Tools/GameData/Items/Mappings/part_name_mapping_redux.json",
+        "retrieved": "2026-10-29",
+        "modifications": "Converted community path-to-token mapping; labels are raw mapping names."
+      }
+    },
+    {
+      "id": "skill-crosswalk",
+      "kind": "records",
+      "title": "skill-crosswalk",
+      "files": [
+        {
+          "path": "skill-crosswalk.json",
+          "sha256": "e9b91b1322bd031a98ae955b66b5fb3ddd75b6f5f5a69ac8b5ea5725ebbf6e8c"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/somefunguy/TTWLSaveEditor/blob/c6d701ec4a5ae1c115017de54d39df4813c035c1/BL3Tools/GameData/Items/Mappings/part_name_mapping_redux.json",
+        "author": "somefunguy / TTWLSaveEditor contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/somefunguy/TTWLSaveEditor/blob/c6d701ec4a5ae1c115017de54d39df4813c035c1/BL3Tools/GameData/Items/Mappings/part_name_mapping_redux.json",
+        "retrieved": "2026-10-29",
+        "modifications": "Bounded tree-prefix joins; names require a unique tier and rank-cap match."
+      }
     }
   ]
 }

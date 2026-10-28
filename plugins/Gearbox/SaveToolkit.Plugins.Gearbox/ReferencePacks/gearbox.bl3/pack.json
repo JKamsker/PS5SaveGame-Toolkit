@@ -145,6 +145,63 @@
         "retrieved": "2026-10-28",
         "modifications": "Extracted skill names, plain-text descriptions, calculator tiers and rank caps; stripped code/art. Reference-only: no save-subobject ID or gameplay/hotfix correctness claim."
       }
+    },
+    {
+      "id": "localized-cards",
+      "kind": "records",
+      "title": "localized-cards",
+      "files": [
+        {
+          "path": "localized-cards.json",
+          "sha256": "551ed8717ebd5f31a6f4d7b36c13b19bcd65ad339ea59407e153e593ac6262c2"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/sandsmark/borderlands3-save-editor/blob/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data/english-names.json",
+        "author": "Sandsmark / community contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/sandsmark/borderlands3-save-editor/blob/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data/english-names.json",
+        "retrieved": "2026-10-29",
+        "modifications": "Joined community human labels to pinned balance object tokens; artwork and extracted game text remain excluded."
+      }
+    },
+    {
+      "id": "part-labels",
+      "kind": "records",
+      "title": "part-labels",
+      "files": [
+        {
+          "path": "part-labels.json",
+          "sha256": "84aa35c8096367b3c6d6f08c13ae5d86088fd34fec25c67bb9f303399c36d4b1"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/sandsmark/borderlands3-save-editor/tree/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data/descriptions",
+        "author": "Sandsmark / community contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/sandsmark/borderlands3-save-editor/tree/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data/descriptions",
+        "retrieved": "2026-10-29",
+        "modifications": "Converted community part-description tables; no icons or artwork."
+      }
+    },
+    {
+      "id": "skill-crosswalk",
+      "kind": "records",
+      "title": "skill-crosswalk",
+      "files": [
+        {
+          "path": "skill-crosswalk.json",
+          "sha256": "d6ccbb7cff1a5e8f197657153bbf0edc231e36be903d85f8d75ba886a2943260"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/sandsmark/borderlands3-save-editor/blob/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data/english-names.json",
+        "author": "Sandsmark / community contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/sandsmark/borderlands3-save-editor/blob/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data/english-names.json",
+        "retrieved": "2026-10-29",
+        "modifications": "Bounded tree-prefix joins; names require a unique tier and rank-cap match."
+      }
     }
   ]
 }
