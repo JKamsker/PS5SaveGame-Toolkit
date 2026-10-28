@@ -1,10 +1,11 @@
 # Final Fantasy VII Remake / Rebirth (`ff7r`)
 
-**Maturity: Experimental.** A bounded PS5 linked-record explorer with in-place edits for researched
-gil, item quantities and materia AP on Remake and retail Rebirth. The supplied decrypted samples show
-no internal checksum or dependent metadata, and public editors/Save Wizard codes patch these values
-directly. Demo gameplay remains read-only because its field meanings are inferred. No console loading
-test has been performed; keep backups and treat every edit as untested.
+**Maturity: Experimental.** A bounded PS5 linked-record explorer with in-place edits for narrowly
+qualified gil, occupied item quantities and ordinary materia AP on Remake and retail Rebirth. The
+supplied decrypted samples show no internal checksum or dependent metadata, and public editors/Save
+Wizard codes patch these values directly. Empty, unknown and summon-exception rows are read-only;
+demo gameplay remains read-only because its field meanings are inferred. No console loading test has
+been performed; keep backups and treat every edit as untested.
 
 ## Supported titles and files
 
@@ -100,6 +101,33 @@ remain visible; negative quantities receive a warning. No arbitrary gameplay lim
 read-only values. On writable schemas, gil is limited to 0–9,999,999, ordinary item quantities to
 0–9,999, and materia AP to 0–999,999. These are conservative editor bounds, not proven game caps.
 Item/materia names are embedded reference data from the MIT-licensed source below.
+
+### Read-only characters and owned relationships
+
+The **Characters** tab exposes seven candidate party records for each gameplay file. Remake uses the
+measured `0x40` stride and Rebirth/demo use the measured `0x100` stride; level, XP, current/max HP and
+(for Rebirth) weapon-detail references are read-only `Inferred` fields. The names and order are the
+MIT resource order, while guest, past and cached records still need controlled screenshots.
+
+Retail/demo Rebirth also exposes lazy **Owned items** pages. Weapon rows join inventory instance/type
+records at `0x5FA6C` to detail records at `0xB3A68` (stride `0x60`) and show character references at
+`0xCC + index*0x100`. Materia rows join instance/type/quantity at `0x60A6C` to detail records at
+`0xBFA68`, including the observed owner byte at `+0x11`. These are identity joins only; they never
+enable an edit. The **Catalog** tab pages every embedded item/materia name and can use optional
+toolkit reference packs with catalog ids `ff7r-items`, `ff7r-materia`, `ff7r-weapons` and
+`ff7r-characters`.
+
+### Semantic safety evidence
+
+The F1 differential engine is exercised by `RelationshipTests.F1DiffEvidence_DemoGenerationChangesBodiesOnly`.
+The supplied demo snapshots differ in 800 body bytes and no record envelope/content-header/tail
+bytes. `RelationshipTests` also checks every supplied retail/demo character weapon reference against
+the 128 measured weapon-detail records and checks the first owned materia join. This evidence does
+not prove gameplay behavior or console acceptance.
+
+Writable quantity/AP bindings now require a non-sentinel, mapped type ID. The Rebirth Titan type
+`14011` remains read-only because the public AP curve disagrees with its stored level in three retail
+samples. Existing stored values, including empty and unknown rows, remain visible and byte-preserved.
 
 Examples asserted by tests (primary files):
 
@@ -228,6 +256,11 @@ None required. The existing lazy sections, field confidence and paged blob API s
   supply item and materia names, extracted as data into `Resources/names.json` (337/54 Remake and
   883/88 Rebirth names). MIT, copyright 2024 RyudoSynbios; notice retained in
   [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt). All parser/view code here is independently written.
+- [game-tools-collection pinned resource revision](https://github.com/RyudoSynbios/game-tools-collection/tree/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils):
+  character order and the Rebirth weapon list used by the read-only relationship view. The small
+  `Resources/equipment.json` extract is MIT-derived, retains the same copyright notice, and carries
+  no artwork, descriptions or game limits. The current plugin fallback catalog is text-only; an
+  imported `IReferenceContext` pack can replace names without plugin I/O.
 - [Public Remake editor](https://game-tools-collection.com/final-fantasy-vii-remake/save-editor) and
   [Rebirth editor](https://game-tools-collection.com/final-fantasy-vii-rebirth/save-editor): platform scope
   is PC/Steam, not evidence of PS5 console compatibility.

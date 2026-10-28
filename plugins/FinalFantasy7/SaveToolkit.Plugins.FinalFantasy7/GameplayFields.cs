@@ -35,6 +35,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
     private const int MaximumQuantity = 9_999;
     private const int MaximumGil = 9_999_999;
     private const int MaximumAp = 999_999;
+    private const uint RebirthTitanMateria = 14_011;
 
     public int InventoryOffset => schema.IsRemake ? RemakeInventoryOffset : RebirthInventoryOffset;
     public int InventoryStride => schema.IsRemake ? RemakeInventoryStride : RebirthInventoryStride;
@@ -104,18 +105,20 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
             {
                 var apOffset = (schema.IsRemake ? RemakeMateriaApOffset : RebirthMateriaApOffset) + i * MateriaStride;
                 var levelOffset = (schema.IsRemake ? RemakeMateriaLevelOffset : RebirthMateriaLevelOffset) + i * MateriaStride;
+                var editable = IsWritableMateria(id);
                 cells["quantity"] = bind(Define($"{key}/ap", "AP", apOffset,
-                    IntegerSpec.UInt32 with { Min = 0, Max = MaximumAp }, editable: true,
-                    warning: $"{EditWarning} Value limited to 0–{MaximumAp:N0}."));
+                    IntegerSpec.UInt32 with { Min = 0, Max = MaximumAp }, editable: editable,
+                    warning: MateriaWarning(id, editable)));
                 cells["level"] = bind(Define($"{key}/level", "Level", levelOffset, IntegerSpec.UInt8, singleByte: true));
             }
             else
             {
                 var isGil = id == (schema.IsRemake ? RemakeGilId : RebirthGilId);
                 var maximum = isGil ? MaximumGil : MaximumQuantity;
+                var editable = IsWritableItem(id);
                 cells["quantity"] = bind(Define($"{key}/quantity", "Quantity", idOffset + QuantityOffset,
-                    IntegerSpec.Int32 with { Min = 0, Max = maximum }, signed: true, editable: true,
-                    warning: $"{EditWarning} Value limited to 0–{maximum:N0}."));
+                    IntegerSpec.Int32 with { Min = 0, Max = maximum }, signed: true, editable: editable,
+                    warning: ItemWarning(id, editable, isGil)));
             }
 
             rows.Add(new TableRow(key, cells));
@@ -140,6 +143,20 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema)
             JoinWarnings(schema.IsDemo ? DemoWarning : null, warning), editable && !schema.IsDemo);
 
     private static string? JoinWarnings(string? first, string? second) => first is null ? second : second is null ? first : $"{first} {second}";
+
+    private bool IsWritableItem(uint id) => !schema.IsDemo &&
+        id != uint.MaxValue && id != 0 && (id == (schema.IsRemake ? RemakeGilId : RebirthGilId) || ItemNames.Contains(schema, false, id));
+
+    private bool IsWritableMateria(uint id) => !schema.IsDemo && id != 0 && id != uint.MaxValue &&
+        id != RebirthTitanMateria && ItemNames.Contains(schema, true, id);
+
+    private string ItemWarning(uint id, bool editable, bool gil) => !editable
+        ? $"Write disabled: {(id == 0 || id == uint.MaxValue ? "empty" : "unmapped or unsupported")} row; raw value is retained."
+        : $"{EditWarning} {(gil ? "Gil" : "item quantity")} cap is an editor bound, not a proven game limit.";
+
+    private string MateriaWarning(uint id, bool editable) => !editable
+        ? $"Write disabled: {(id == 0 || id == uint.MaxValue ? "empty" : id == RebirthTitanMateria ? "summon AP/level relationship is unverified" : "unmapped or unsupported")} row; raw value is retained."
+        : $"{EditWarning} AP cap is an editor bound, not a proven game limit.";
 
     private uint U32(int offset) => BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset));
 }

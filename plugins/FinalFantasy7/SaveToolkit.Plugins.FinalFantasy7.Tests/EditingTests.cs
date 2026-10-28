@@ -1,12 +1,29 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 
 public sealed class EditingTests
 {
+    [Fact]
+    public void UnprovenRowsRemainReadOnly()
+    {
+        const string title = "PPSA08664";
+        var schema = Ff7Schema.ForTitle(title)!;
+        var source = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "ff7rebirth009");
+        using var document = new FinalFantasy7Plugin().Open(source);
+        var inventory = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("inventory/1")));
+        var materia = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("materia/0")));
+        var empty = inventory.Rows.First(row => Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsUInt32() == uint.MaxValue);
+        Assert.True(Assert.IsType<FieldNode>(empty.Cells["quantity"]).Spec.ReadOnly);
+        var titan = materia.Rows.First(row => Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsUInt32() == 14_011);
+        Assert.True(Assert.IsType<FieldNode>(titan.Cells["quantity"]).Spec.ReadOnly);
+        Assert.Equal("Unknown ID 0xFFFFFFFF", ItemNames.Lookup(schema, false, uint.MaxValue));
+    }
+
     [Fact]
     public void RetailEditsPatchOnlyCuratedBytesAndUndoRestoresTheOriginal()
     {

@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Plugins.FinalFantasy7;
@@ -7,7 +8,7 @@ public sealed class FinalFantasy7Plugin : IGamePlugin
 {
     public PluginInfo Info { get; } = new("ff7r", "Final Fantasy VII Remake / Rebirth", "0.2.0")
     {
-        Description = "Experimental linked-record explorer with in-place edits for researched gil, inventory quantities and materia AP.",
+        Description = "Experimental linked-record explorer with guarded scalar edits plus read-only character and owned-item relationship views.",
         Games =
         [
             new GameTitle("PPSA01911", "Final Fantasy VII Remake Intergrade"),
@@ -19,6 +20,7 @@ public sealed class FinalFantasy7Plugin : IGamePlugin
         [
             "https://github.com/Xeeynamo/KingdomSaveEditor/tree/master/KHSave.LibFf7Remake",
             "https://github.com/RyudoSynbios/game-tools-collection/tree/master/src/lib/templates/final-fantasy-vii-rebirth",
+            "https://github.com/RyudoSynbios/game-tools-collection/tree/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils",
             "https://github.com/sterben-Dev10/SaveWizard-Resources/blob/main/SaveWizard-Codes/FFVII-Remake%20Codes%20%5BSaveWizard%5D.txt",
             "https://game-tools-collection.com/final-fantasy-vii-remake/save-editor",
             "https://game-tools-collection.com/final-fantasy-vii-rebirth/save-editor",
@@ -39,7 +41,9 @@ public sealed class FinalFantasy7Plugin : IGamePlugin
             : ProbeResult.None;
     }
 
-    public ISaveDocument Open(ISaveFile file)
+    public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         var schema = Ff7Schema.ForTitle(file.Directory.TitleId);
         if (schema is null || !schema.TryGetRole(file.FileName, out var common) ||
@@ -50,6 +54,6 @@ public sealed class FinalFantasy7Plugin : IGamePlugin
 
         var bytes = file.ReadAllBytes();
         var records = LinkedRecords.Parse(bytes, schema, common);
-        return new FinalFantasy7Document(file.RelativePath, file.FileName, bytes, schema, common, records);
+        return new FinalFantasy7Document(file.RelativePath, file.FileName, bytes, schema, common, records, references);
     }
 }

@@ -13,6 +13,7 @@ internal enum Ff7Variant
 internal sealed record Ff7Schema(Ff7Variant Variant, string Name, string Prefix, string CommonName)
 {
     public const int CommonFileLength = 1_056;
+    public const int CharacterCount = 7;
     private const int RemakeFileLength = 9_434_752;
     private const int RebirthFileLength = 23_381_104;
     private const int CommonContentLength = 0x400;

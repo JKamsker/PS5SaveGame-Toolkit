@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Globalization;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -18,9 +19,12 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
     private readonly IReadOnlyList<LinkedRecord> _records;
     private readonly GameplayFields _gameplay;
     private readonly RecordExplorer _explorer;
+    private readonly CharacterView _characters;
+    private readonly OwnedRelationsView? _ownedRelations;
+    private readonly ReferenceData _references;
 
     public FinalFantasy7Document(string path, string name, byte[] bytes, Ff7Schema schema, bool common,
-        IReadOnlyList<LinkedRecord> records)
+        IReadOnlyList<LinkedRecord> records, IReferenceContext? references = null)
     {
         _path = path;
         _bytes = bytes;
@@ -28,7 +32,10 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
         _common = common;
         _records = records;
         _gameplay = new(bytes, schema);
+        _references = new(references ?? IReferenceContext.Empty, schema);
         _explorer = new(bytes, records, Bind);
+        _characters = new(schema, _references, Bind);
+        _ownedRelations = !common && !schema.IsRemake ? new(bytes, _references) : null;
         Title = $"{schema.Name} · {name}";
     }
 
@@ -52,8 +59,11 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
                 ? [new TextNode("Common-file settings have no substantiated gameplay mapping. Use the record explorer.")]
                 : _gameplay.Summary(Bind)),
         ]),
+        new Tab("Characters", _common ? [] : [_characters.Build()]),
+        new Tab("Catalog", _common ? [] : _references.CatalogSections()),
         new Tab("Inventory", _common ? [] : _gameplay.Pages(materia: false)),
         new Tab("Materia", _common ? [] : _gameplay.Pages(materia: true)),
+        new Tab("Owned items", _ownedRelations is null ? [] : _ownedRelations.Sections()),
         new Tab("Records", [RecordTable(), .. RecordGroups()]),
         new Tab("Raw file", [new HexNode("file", _bytes.Length) { Title = "Original bytes (paged)" }]),
     ]);
@@ -78,6 +88,18 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
             {
                 return _explorer.Record(index);
             }
+        }
+
+        if (parts.Length == 3 && parts[0] == "owned" && _ownedRelations is not null &&
+            TryIndex(parts[2], out var ownedPage))
+        {
+            return [_ownedRelations.Page(parts[1], ownedPage)];
+        }
+
+        if (parts.Length == 3 && parts[0] == "catalog" && parts[1] is "items" or "materia" && !_common &&
+            TryIndex(parts[2], out var catalogPage))
+        {
+            return [_references.CatalogPage(parts[1] == "materia", catalogPage)];
         }
 
         if (parts.Length == 4 && parts[0] == "words" && TryIndex(parts[1], out var record) &&
