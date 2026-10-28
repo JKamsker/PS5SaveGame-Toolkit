@@ -1,0 +1,299 @@
+{
+  "format": "ffxvi-unlicensed-naming-audit/1",
+  "reviewedOn": "2026-10-29",
+  "revision": "4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03",
+  "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+  "supersedes": "round2-naming-audit.json: 41 remaining unnamed IDs",
+  "sources": {
+    "item_ids.csv": {
+      "sha256Lf": "90a39daa4656115ac79fd354ae1593634962dc0171b2bef94e568f6e407f60c1",
+      "rows": 373,
+      "namedRows": 353,
+      "namedIds": 353,
+      "omittedUnnamedRows": 20
+    },
+    "equip_item_ids.csv": {
+      "sha256Lf": "fba2cff3e6ac4781a26cda158456aad174a17d2fb3ea1bcfd52830ce94579355",
+      "rows": 537,
+      "namedRows": 526,
+      "namedIds": 526,
+      "omittedUnnamedRows": 11
+    },
+    "gamemap_ids.csv": {
+      "sha256Lf": "b7a5d48c040427703437d546b866c7b0a1aa71d86ff7b892c7dc6cd36cea627a",
+      "rows": 150,
+      "namedRows": 110,
+      "namedIds": 98,
+      "omittedUnnamedRows": 40
+    },
+    "bnpc_ids.csv": {
+      "sha256Lf": "009b194bf58b1333fe992b4b28aca4fe1ccd84dd2f8b32e36d3b69f1a0b73a1b",
+      "rows": 1758,
+      "namedRows": 1758,
+      "namedIds": 1758,
+      "omittedUnnamedRows": 0
+    },
+    "enpc_ids.csv": {
+      "sha256Lf": "54d6c50d2cb773d1bd13bfb74b633e90b29ee43bf5513823e18460f52e897bc4",
+      "rows": 1085,
+      "namedRows": 1085,
+      "namedIds": 1085,
+      "omittedUnnamedRows": 0
+    }
+  },
+  "catalogCounts": {
+    "ffxvi_published_items": 879,
+    "ffxvi_published_maps": 98,
+    "ffxvi_published_bnpc": 1758,
+    "ffxvi_published_enpc": 1085
+  },
+  "newlyNamedObservedIds": [
+    {
+      "id": 110,
+      "name": "Iron Filings",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 501,
+      "name": "Drakeslayer Gear Design Draft",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 505,
+      "name": "Ambrosia's Pinion",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 512,
+      "name": "The Slumbering Chocobo",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 513,
+      "name": "The Moon and Stars",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 514,
+      "name": "The Burnt Blade",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 515,
+      "name": "The Desert Rose",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 516,
+      "name": "The Crimson Collar",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 517,
+      "name": "The Collar and Compass",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 518,
+      "name": "Phoenix Down",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 553,
+      "name": "Fragrant Satchel",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 609,
+      "name": "Forevermore Orchestrion Roll",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1204,
+      "name": "Bundle of Cloth",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1217,
+      "name": "Treated Leather",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1229,
+      "name": "Salt Broth",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1230,
+      "name": "Wood Planks",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1232,
+      "name": "Hearty Meal",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1233,
+      "name": "Vineyard Soil Sample",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1234,
+      "name": "Sealed Crate",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1238,
+      "name": "Lost Letter",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1245,
+      "name": "Pitcher Wax",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1249,
+      "name": "Errmonea Leaf",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1255,
+      "name": "Raptor Liver",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1256,
+      "name": "Saint's Bonnet",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1263,
+      "name": "Leather Pouch",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1265,
+      "name": "Weathered Comb",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1266,
+      "name": "Mortal Remains",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1311,
+      "name": "Continental Rum",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1315,
+      "name": "On Gods and Men",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1317,
+      "name": "Lost Supplies",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1329,
+      "name": "List of Materials",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1330,
+      "name": "Supply Kit",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1332,
+      "name": "Handwritten Receipt",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1335,
+      "name": "Thermal Plating Designs",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1336,
+      "name": "Thermal Shielding Designs",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1337,
+      "name": "Garlic",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1338,
+      "name": "Pepio Nuts",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1339,
+      "name": "Stardust",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1340,
+      "name": "Spring Lime",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1342,
+      "name": "Tarnished Ring",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    },
+    {
+      "id": 1343,
+      "name": "White Chocobo Pinion",
+      "confidence": "Inferred",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv"
+    }
+  ],
+  "labelsAreNotGameplayEvidence": true
+}

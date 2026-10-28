@@ -58,6 +58,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
         new Tab(FaithAbilityView.TabTitle, [new TextNode("Optional reference tree contains Eikon/DLC spoilers. " +
             "Names and AP annotations are separate from saved rank bytes; unlock/mastery state remains Unknown."),
             SectionNode.Lazy(FaithAbilityView.SectionTitle, FaithAbilityView.LazyId, $"{_catalog.Abilities().Count} reference abilities")]),
+        new Tab("Published references", new FaithPublishedReferences(_catalog).Build(BindContextField)),
         new Tab("Structure", _explorer.BuildView()),
         new Tab("Hex", [new HexNode(FaithExplorer.FileBlobId, _bytes.Length) { Title = "Original layout with current edits" }]),
     ]);

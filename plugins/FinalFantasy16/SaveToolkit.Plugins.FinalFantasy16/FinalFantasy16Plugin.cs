@@ -10,12 +10,18 @@ public sealed class FinalFantasy16Plugin : IGamePlugin, ISaveDecoderProvider
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new FaithEvidenceDecoder()];
 
-    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.5.0")
+    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.6.0")
     {
         Description = "Paged PS5 inventories, filtered quantity previews, Eikon ability reference trees and a location guide; experimental fixed-width writes. Not console-validated.",
         Games = [new GameTitle("PPSA10665", "Final Fantasy XVI"), new GameTitle("PPSA13803", "Final Fantasy XVI Demo")],
         Maturity = PluginMaturity.Experimental,
         References = [
+            "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+            "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv",
+            "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/equip_item_ids.csv",
+            "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+            "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/bnpc_ids.csv",
+            "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/enpc_ids.csv",
             "https://finalfantasy.fandom.com/wiki/Template:Navbox_abilities_FFXVI?oldid=3770527",
             "https://finalfantasy.fandom.com/wiki/Leviathan_(Final_Fantasy_XVI)?oldid=4005603",
             "https://finalfantasy.fandom.com/wiki/Ultima_(Final_Fantasy_XVI)?oldid=4045298",

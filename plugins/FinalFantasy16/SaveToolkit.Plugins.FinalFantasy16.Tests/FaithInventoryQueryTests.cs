@@ -26,6 +26,7 @@ public sealed class FaithInventoryQueryTests
         var manifest = JsonNode.Parse(manifestStream)!;
         manifest["id"] = "ffxvi.test-long-name";
         manifest["version"] = "99.0.0";
+        manifest["datasets"]![0]!["id"] = FaithCatalog.ItemsId;
         manifest["datasets"]![0]!["files"]![0]!["sha256"] = Convert.ToHexStringLower(
             System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(records)));
         using var memory = new MemoryStream();

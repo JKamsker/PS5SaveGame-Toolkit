@@ -13,6 +13,10 @@ public sealed class FaithEvidenceTests
 
     [Theory]
     [InlineData("ffxvi_items", 234)]
+    [InlineData("ffxvi_published_items", 879)]
+    [InlineData("ffxvi_published_maps", 98)]
+    [InlineData("ffxvi_published_bnpc", 1758)]
+    [InlineData("ffxvi_published_enpc", 1085)]
     [InlineData("ffxvi_maps", 107)]
     [InlineData("ffxvi_summons", 10)]
     [InlineData("ffxvi_skills", 3)]

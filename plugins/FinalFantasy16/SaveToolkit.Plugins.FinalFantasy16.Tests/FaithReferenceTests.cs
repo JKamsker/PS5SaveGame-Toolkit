@@ -21,21 +21,21 @@ public sealed class FaithReferenceTests
         var store = new ReferencePackStore([_plugin], new ReferencePackOptions { PreferredLocales = [locale] });
         Assert.Empty(store.LoadErrors);
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(store.Pin(_plugin, "PPSA10665").Catalog(FaithCatalog.ItemsId));
-        Assert.Equal(234, catalog.Count);
+        Assert.Equal(879, catalog.Count);
         Assert.Equal("Defender", catalog.Find("100029")?.Name);
         Assert.Equal("weapon", catalog.Find("100029")?.Category);
         Assert.Equal("Gil", catalog.Find("1")?.Name);
         Assert.Null(catalog.Find("900000"));
         Assert.Null(catalog.Find("999999"));
         Assert.Equal("Rune Blade +1", catalog.Find("100027")?.Name);
-        Assert.Null(catalog.Find("110")); // No cleared Iron Filings label/ID source found.
-        var records = catalog.Search(new ReferenceQuery { Limit = 200 }).Items
-            .Concat(catalog.Search(new ReferenceQuery { Offset = 200, Limit = 200 }).Items).ToArray();
+        Assert.Equal("Iron Filings", catalog.Find("110")?.Name);
+        var records = Enumerable.Range(0, (catalog.Count + 199) / 200)
+            .SelectMany(page => catalog.Search(new ReferenceQuery { Offset = page * 200, Limit = 200 }).Items).ToArray();
         Assert.Equal(catalog.Count, records.Length);
         Assert.All(records, record =>
         {
-            Assert.Equal("CC-BY-SA-3.0", record.Dataset.Attribution.License);
-            Assert.True(record.Source!.Contains("oldid=", StringComparison.Ordinal) || record.Source.Contains("d3ad0627", StringComparison.Ordinal));
+            Assert.Equal("No licence published; reused with attribution per owner decision 2026-10-28", record.Dataset.Attribution.License);
+            Assert.Contains("4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03", record.Source);
             Assert.Equal("Inferred", record.Attributes["confidence"]);
             Assert.NotEmpty(record.Attributes["identifierSource"]);
             Assert.NotEmpty(record.Description!);

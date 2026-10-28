@@ -1,0 +1,1486 @@
+{
+  "records": [
+    {
+      "id": "100000",
+      "name": "The Dhalmekian Republic",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "2",
+        "variant_0": "The Dhalmekian Republic | map/a/f00/a00/a_f00_a00.mpb",
+        "variant_1": "The Dhalmekian Republic | map/a/f00/a20/a_f00_a20.mpb"
+      }
+    },
+    {
+      "id": "101000",
+      "name": "Kostnice",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Kostnice | map/a/s01/a00/a_s01_a00.mpb"
+      }
+    },
+    {
+      "id": "102000",
+      "name": "Drake's Fang",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Fang | map/a/s02/a00/a_s02_a00.mpb"
+      }
+    },
+    {
+      "id": "102100",
+      "name": "Drake's Fang",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Fang | map/a/s02/b00/a_s02_b00.mpb"
+      }
+    },
+    {
+      "id": "102200",
+      "name": "Drake's Fang",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Fang | map/a/s02/c00/a_s02_c00.mpb"
+      }
+    },
+    {
+      "id": "104000",
+      "name": "The Crystalline Dominion",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Crystalline Dominion | map/a/s04/a00/a_s04_a00.mpb"
+      }
+    },
+    {
+      "id": "104200",
+      "name": "The Crystalline Dominion",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Crystalline Dominion | map/a/s04/c00/a_s04_c00.mpb"
+      }
+    },
+    {
+      "id": "104300",
+      "name": "The Crystalline Dominion",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Crystalline Dominion | map/a/s04/d00/a_s04_d00.mpb"
+      }
+    },
+    {
+      "id": "104310",
+      "name": "The Crystalline Dominion",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Crystalline Dominion | map/a/s04/d10/a_s04_d10.mpb"
+      }
+    },
+    {
+      "id": "104400",
+      "name": "The Crystalline Dominion",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Crystalline Dominion | map/a/s04/e00/a_s04_e00.mpb"
+      }
+    },
+    {
+      "id": "106000",
+      "name": "The Free Cities of Kanver",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Free Cities of Kanver | map/a/s06/a00/a_s06_a00.mpb"
+      }
+    },
+    {
+      "id": "106100",
+      "name": "The Ironworks",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Ironworks | map/a/s06/b00/a_s06_b00.mpb"
+      }
+    },
+    {
+      "id": "108000",
+      "name": "The Naldia Narrow",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Naldia Narrow | map/a/s08/a00/a_s08_a00.mpb"
+      }
+    },
+    {
+      "id": "108100",
+      "name": "The Naldia Narrow",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Naldia Narrow | map/a/s08/b00/a_s08_b00.mpb"
+      }
+    },
+    {
+      "id": "190000",
+      "name": "The Nysa Defile",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Nysa Defile | map/a/x90/a00/a_x90_a00.mpb"
+      }
+    },
+    {
+      "id": "191000",
+      "name": "The Nysa Defile",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Nysa Defile | map/a/x90/a20/a_x90_a20.mpb"
+      }
+    },
+    {
+      "id": "200000",
+      "name": "The Holy Empire of Sanbreque",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "6",
+        "variant_0": "The Holy Empire of Sanbreque | map/b/f00/a00/b_f00_a00.mpb",
+        "variant_1": "The Holy Empire of Sanbreque | map/b/f00/a10/b_f00_a10.mpb",
+        "variant_2": "The Holy Empire of Sanbreque | map/b/f00/a20/b_f00_a20.mpb",
+        "variant_3": "The Holy Empire of Sanbreque | map/b/f00/a30/b_f00_a30.mpb",
+        "variant_4": "The Holy Empire of Sanbreque | map/b/f00/a40/b_f00_a40.mpb",
+        "variant_5": "The Holy Empire of Sanbreque | map/b/f00/a50/b_f00_a50.mpb"
+      }
+    },
+    {
+      "id": "201000",
+      "name": "The Greatwood",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Greatwood | map/b/s01/a00/b_s01_a00.mpb"
+      }
+    },
+    {
+      "id": "202000",
+      "name": "Caer Norvent",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Caer Norvent | map/b/s02/a00/b_s02_a00.mpb"
+      }
+    },
+    {
+      "id": "203000",
+      "name": "The Eye of the Tempest",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Eye of the Tempest | map/b/s03/a00/b_s03_a00.mpb"
+      }
+    },
+    {
+      "id": "203100",
+      "name": "The Eye of the Tempest",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Eye of the Tempest | map/b/s03/b00/b_s03_b00.mpb"
+      }
+    },
+    {
+      "id": "203110",
+      "name": "The Eye of the Tempest",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Eye of the Tempest | map/b/s03/b10/b_s03_b10.mpb"
+      }
+    },
+    {
+      "id": "204000",
+      "name": "The Kingsfall",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Kingsfall | map/b/s04/a00/b_s04_a00.mpb"
+      }
+    },
+    {
+      "id": "205000",
+      "name": "Drake's Head",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Head | map/b/s05/a00/b_s05_a00.mpb"
+      }
+    },
+    {
+      "id": "205100",
+      "name": "Drake's Head",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Head | map/b/s05/b00/b_s05_b00.mpb"
+      }
+    },
+    {
+      "id": "205110",
+      "name": "Drake's Head",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Head | map/b/s05/b10/b_s05_b10.mpb"
+      }
+    },
+    {
+      "id": "300000",
+      "name": "The Imperial Province of Rosaria",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "4",
+        "variant_0": "The Imperial Province of Rosaria | map/c/f00/a00/c_f00_a00.mpb",
+        "variant_1": "The Imperial Province of Rosaria | map/c/f00/a10/c_f00_a10.mpb",
+        "variant_2": "The Imperial Province of Rosaria | map/c/f00/a40/c_f00_a40.mpb",
+        "variant_3": "The Imperial Province of Rosaria | map/c/f00/a05/c_f00_a05.mpb"
+      }
+    },
+    {
+      "id": "301000",
+      "name": "Phoenix Gate Ruins",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Phoenix Gate Ruins | map/c/s01/a00/c_s01_a00.mpb"
+      }
+    },
+    {
+      "id": "301100",
+      "name": "Phoenix Gate Ruins",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Phoenix Gate Ruins | map/c/s01/b00/c_s01_b00.mpb"
+      }
+    },
+    {
+      "id": "301200",
+      "name": "Phoenix Gate Ruins",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Phoenix Gate Ruins | map/c/s01/c00/c_s01_c00.mpb"
+      }
+    },
+    {
+      "id": "302000",
+      "name": "Drake's Breath",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Breath | map/c/s02/a00/c_s02_a00.mpb"
+      }
+    },
+    {
+      "id": "302100",
+      "name": "Drake's Breath",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Breath | map/c/s02/b00/c_s02_b00.mpb"
+      }
+    },
+    {
+      "id": "303000",
+      "name": "Rosalith",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Rosalith | map/c/s03/a00/c_s03_a00.mpb"
+      }
+    },
+    {
+      "id": "303010",
+      "name": "Rosalith",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Rosalith | map/c/s03/a10/c_s03_a10.mpb"
+      }
+    },
+    {
+      "id": "304000",
+      "name": "The Sagespire",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Sagespire | map/dlc2/c/s04/a00/c_s04_a00.mpb"
+      }
+    },
+    {
+      "id": "304100",
+      "name": "The Sagespire",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Sagespire | map/dlc2/c/s04/b00/c_s04_b00.mpb"
+      }
+    },
+    {
+      "id": "304200",
+      "name": "The Sagespire",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Sagespire | map/dlc2/c/s04/c00/c_s04_c00.mpb"
+      }
+    },
+    {
+      "id": "304300",
+      "name": "The Sagespire",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Sagespire | map/dlc2/c/s04/d00/c_s04_d00.mpb"
+      }
+    },
+    {
+      "id": "304400",
+      "name": "The Sagespire",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Sagespire | map/dlc2/c/s04/e00/c_s04_e00.mpb"
+      }
+    },
+    {
+      "id": "390000",
+      "name": "Rosalith Castle",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Rosalith Castle | map/c/x90/a00/c_x90_a00.mpb"
+      }
+    },
+    {
+      "id": "391000",
+      "name": "Stillwind",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Stillwind | map/c/x91/a00/c_x91_a00.mpb"
+      }
+    },
+    {
+      "id": "392000",
+      "name": "Phoenix Gate",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Phoenix Gate | map/c/x92/a00/c_x92_a00.mpb"
+      }
+    },
+    {
+      "id": "393000",
+      "name": "Phoenix Gate",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Phoenix Gate | map/c/x92/a10/c_x92_a10.mpb"
+      }
+    },
+    {
+      "id": "393100",
+      "name": "Phoenix Gate",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Phoenix Gate | map/c/x92/b00/c_x92_b00.mpb"
+      }
+    },
+    {
+      "id": "400000",
+      "name": "The Kingdom of Waloed",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "3",
+        "variant_0": "The Kingdom of Waloed | map/d/f00/a00/d_f00_a00.mpb",
+        "variant_1": "The Kingdom of Waloed | map/d/f00/a10/d_f00_a10.mpb",
+        "variant_2": "The Kingdom of Waloed | map/d/f00/a20/d_f00_a20.mpb"
+      }
+    },
+    {
+      "id": "401000",
+      "name": "Reverie",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Reverie | map/d/s01/a00/d_s01_a00.mpb"
+      }
+    },
+    {
+      "id": "401100",
+      "name": "Reverie",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Reverie | map/d/s01/b00/d_s01_b00.mpb"
+      }
+    },
+    {
+      "id": "402000",
+      "name": "Drake's Spine",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Spine | map/d/s02/a00/d_s02_a00.mpb"
+      }
+    },
+    {
+      "id": "402100",
+      "name": "Drake's Spine",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Drake's Spine | map/d/s02/b00/d_s02_b00.mpb"
+      }
+    },
+    {
+      "id": "403000",
+      "name": "Origin",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Origin | map/d/s03/a00/d_s03_a00.mpb"
+      }
+    },
+    {
+      "id": "403010",
+      "name": "Origin",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Origin | map/d/s03/a10/d_s03_a10.mpb"
+      }
+    },
+    {
+      "id": "403200",
+      "name": "Origin",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Origin | map/d/s03/c00/d_s03_c00.mpb"
+      }
+    },
+    {
+      "id": "403210",
+      "name": "Origin",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Origin | map/d/s03/c10/d_s03_c10.mpb"
+      }
+    },
+    {
+      "id": "403220",
+      "name": "Origin",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Origin | map/d/s03/c20/d_s03_c20.mpb"
+      }
+    },
+    {
+      "id": "450000",
+      "name": "Mysidia",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Mysidia | map/dlc3/f/f00/a00/f_f00_a00.mpb"
+      }
+    },
+    {
+      "id": "451000",
+      "name": "The Surge",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Surge | map/dlc3/f/s01/a00/f_s01_a00.mpb"
+      }
+    },
+    {
+      "id": "452000",
+      "name": "The Aire of Hours",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Aire of Hours | map/dlc3/f/s02/a00/f_s02_a00.mpb"
+      }
+    },
+    {
+      "id": "453000",
+      "name": "The Surge",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Surge | map/dlc3/f/s01/a10/f_s01_a10.mpb"
+      }
+    },
+    {
+      "id": "454000",
+      "name": "The Surge",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Surge | map/dlc3/f/s02/b00/f_s02_b00.mpb"
+      }
+    },
+    {
+      "id": "455000",
+      "name": "The Surge",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Surge | map/dlc3/f/s02/c00/f_s02_c00.mpb"
+      }
+    },
+    {
+      "id": "500400",
+      "name": "Benedikta/Hugo Romance (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Benedikta/Hugo Romance (Cutscene) | map/e/e00100/e_e00100.mpb"
+      }
+    },
+    {
+      "id": "505010",
+      "name": "Barnabas Benedikta Room (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Barnabas Benedikta Room (Cutscene) | map/e/e00900/e_e00900.mpb"
+      }
+    },
+    {
+      "id": "505700",
+      "name": "Odin vs Bahamut (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Odin vs Bahamut (Cutscene) | map/e/e01100/e_e01100.mpb"
+      }
+    },
+    {
+      "id": "506000",
+      "name": "Benedikta Priming (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Benedikta Priming (Cutscene) | map/e/e01200/e_e01200.mpb"
+      }
+    },
+    {
+      "id": "506400",
+      "name": "Ultima Related",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Ultima Related | map/e/e02300/e_e02300.mpb"
+      }
+    },
+    {
+      "id": "507200",
+      "name": "Jote Camping (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Jote Camping (Cutscene) | map/e/e01400/e_e01400.mpb"
+      }
+    },
+    {
+      "id": "507800",
+      "name": "Jill tries to kiss Clive (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Jill tries to kiss Clive (Cutscene) | map/e/e01600/e_e01600.mpb"
+      }
+    },
+    {
+      "id": "508800",
+      "name": "Titan Related (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Titan Related (Cutscene) | map/e/e01700/e_e01700.mpb"
+      }
+    },
+    {
+      "id": "509100",
+      "name": "Imperial Yard (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Imperial Yard (Cutscene) | map/e/e01900/e_e01900.mpb"
+      }
+    },
+    {
+      "id": "509600",
+      "name": "Oriflamme Brothel (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Oriflamme Brothel (Cutscene) | map/e/e02000/e_e02000.mpb"
+      }
+    },
+    {
+      "id": "510400",
+      "name": "North of the Isles Ark (Dion/Terance Romance) (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "North of the Isles Ark (Dion/Terance Romance) (Cutscene) | map/e/e00601/e_e00601.mpb"
+      }
+    },
+    {
+      "id": "511000",
+      "name": "Northern Territories (Joshua/Jote Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Northern Territories (Joshua/Jote Cutscene) | map/e/e02400/e_e02400.mpb"
+      }
+    },
+    {
+      "id": "511550",
+      "name": "Uncle Byron's Mansion (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Uncle Byron's Mansion (Cutscene) | map/e/e02500/e_e02500.mpb"
+      }
+    },
+    {
+      "id": "511600",
+      "name": "Uncle Byron's Mansion Outside (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Uncle Byron's Mansion Outside (Cutscene) | map/e/e02600/e_e02600.mpb"
+      }
+    },
+    {
+      "id": "511800",
+      "name": "The Ship to Drake's Breath (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Ship to Drake's Breath (Cutscene) | map/e/e02800/e_e02800.mpb"
+      }
+    },
+    {
+      "id": "512700",
+      "name": "Uncle Byron's Mansion (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Uncle Byron's Mansion (Cutscene) | map/e/e02700/e_e02700.mpb"
+      }
+    },
+    {
+      "id": "513600",
+      "name": "Imperial Hall (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Imperial Hall (Cutscene) | map/e/e03400/e_e03400.mpb"
+      }
+    },
+    {
+      "id": "514600",
+      "name": "Titan Death (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Titan Death (Cutscene) | map/e/e03550/e_e03550.mpb"
+      }
+    },
+    {
+      "id": "514800",
+      "name": "Joshua/Jote/Dion Tent (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Joshua/Jote/Dion Tent (Cutscene) | map/e/e03700/e_e03700.mpb"
+      }
+    },
+    {
+      "id": "514900",
+      "name": "Cid Grave (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Cid Grave (Cutscene) | map/e/e00602/e_e00602.mpb"
+      }
+    },
+    {
+      "id": "515300",
+      "name": "Imperial Hall 2",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Imperial Hall 2 | map/e/e03401/e_e03401.mpb"
+      }
+    },
+    {
+      "id": "515700",
+      "name": "Imperial Hall 3",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Imperial Hall 3 | map/e/e03402/e_e03402.mpb"
+      }
+    },
+    {
+      "id": "518400",
+      "name": "Barnabas in the Free Cities of Kanver (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Barnabas in the Free Cities of Kanver (Cutscene) | map/e/e05500/e_e05500.mpb"
+      }
+    },
+    {
+      "id": "519600",
+      "name": "Jill in cell (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Jill in cell (Cutscene) | map/e/e05600/e_e05600.mpb"
+      }
+    },
+    {
+      "id": "519700",
+      "name": "Enterprise (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Enterprise (Cutscene) | map/e/e05601/e_e05601.mpb"
+      }
+    },
+    {
+      "id": "519750",
+      "name": "The Crystalline Dominion Ruins (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Crystalline Dominion Ruins (Cutscene) | map/e/e05650/e_e05650.mpb"
+      }
+    },
+    {
+      "id": "519800",
+      "name": "Medicine Girl and Dion (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Medicine Girl and Dion (Cutscene) | map/e/e05800/e_e05800.mpb"
+      }
+    },
+    {
+      "id": "519900",
+      "name": "Odin with Sea (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Odin with Sea (Cutscene) | map/e/e05810/e_e05810.mpb"
+      }
+    },
+    {
+      "id": "520700",
+      "name": "Jill Clive beach at Night (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Jill Clive beach at Night (Cutscene) | map/e/e05900/e_e05900.mpb"
+      }
+    },
+    {
+      "id": "520800",
+      "name": "Jill Clive beach at Daytime (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Jill Clive beach at Daytime (Cutscene) | map/e/e05901/e_e05901.mpb"
+      }
+    },
+    {
+      "id": "521000",
+      "name": "Waloed Cliff (Joshua Punch Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Waloed Cliff (Joshua Punch Cutscene) | map/e/e06000/e_e06000.mpb"
+      }
+    },
+    {
+      "id": "523808",
+      "name": "Young Joshua saves Adult Clive (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Young Joshua saves Adult Clive (Cutscene) | map/e/e06760/e_e06760.mpb"
+      }
+    },
+    {
+      "id": "523820",
+      "name": "Rosfield Castle Clive Nightmare (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Rosfield Castle Clive Nightmare (Cutscene) | map/e/e06750/e_e06750.mpb"
+      }
+    },
+    {
+      "id": "525300",
+      "name": "Ultima Ending Stage (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Ultima Ending Stage (Cutscene) | map/e/e07240/e_e07240.mpb"
+      }
+    },
+    {
+      "id": "525700",
+      "name": "Hideaway Night Ending (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Hideaway Night Ending (Cutscene) | map/e/e07500/e_e07500.mpb"
+      }
+    },
+    {
+      "id": "525800",
+      "name": "Post Credit (Cutscene)",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "Post Credit (Cutscene) | map/e/e07600/e_e07600.mpb"
+      }
+    },
+    {
+      "id": "601000",
+      "name": "The Hideaway",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "1",
+        "variant_0": "The Hideaway | map/t/a01/a00/t_a01_a00.mpb | Variant 1"
+      }
+    },
+    {
+      "id": "602000",
+      "name": "The Hideaway",
+      "category": "map-reference",
+      "source": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+      "description": "Published community identifier; PS5 mapping confidence: Inferred. Catalogue presence does not prove ownership, availability, active state or gameplay limits. No save-index, quest-state or NPC-instance association is established.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "sourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "categoryConfidence": "Inferred",
+        "variantCount": "2",
+        "variant_0": "The Hideaway | map/t/a02/a00/t_a02_a00t_a02_a00.mpb | Variant 2 - Normal",
+        "variant_1": "The Hideaway | map/t/a02/a10/t_a02_a10.mpb | Variant 2 - Pink Sky"
+      }
+    }
+  ]
+}
