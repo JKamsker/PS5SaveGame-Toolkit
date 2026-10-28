@@ -1,0 +1,797 @@
+{
+  "format": "ffxvi-corpus-evidence/1",
+  "analyzedOn": "2026-10-28",
+  "status": "Uncontrolled archive occurrences, not chronological event pairs",
+  "titles": [
+    {
+      "titleId": "PPSA10665",
+      "archive": "PPSA10665_saves_dec.zip",
+      "archiveSha256": "9aa21199f980b3882428972f7e204cbffee52d1f338ccde21d6828db8b157cb5",
+      "counts": {
+        "crcValid": 60,
+        "fixedWidthPatchChecks": 49,
+        "framingValid": 60,
+        "gameplay": 59,
+        "populatedGameplay": 49,
+        "records": 60,
+        "system": 1
+      },
+      "distinctContents": 51,
+      "distinctMainIds": 172,
+      "namedMainIds": 105,
+      "explicitUnknownMainIds": 67,
+      "blockTriples": [
+        {
+          "type": 1,
+          "version": 202211161,
+          "payloadLength": 272,
+          "occurrences": 23
+        },
+        {
+          "type": 1,
+          "version": 202211161,
+          "payloadLength": 1536,
+          "occurrences": 36
+        },
+        {
+          "type": 2,
+          "version": 2021112401,
+          "payloadLength": 168,
+          "occurrences": 59
+        },
+        {
+          "type": 3,
+          "version": 2022052701,
+          "payloadLength": 11592,
+          "occurrences": 59
+        },
+        {
+          "type": 4,
+          "version": 202108100,
+          "payloadLength": 2048,
+          "occurrences": 59
+        },
+        {
+          "type": 5,
+          "version": 2022033101,
+          "payloadLength": 40,
+          "occurrences": 1
+        },
+        {
+          "type": 6,
+          "version": 2021110401,
+          "payloadLength": 36448,
+          "occurrences": 59
+        },
+        {
+          "type": 7,
+          "version": 2021061001,
+          "payloadLength": 104,
+          "occurrences": 59
+        },
+        {
+          "type": 8,
+          "version": 202007210,
+          "payloadLength": 592464,
+          "occurrences": 59
+        },
+        {
+          "type": 9,
+          "version": 201609011,
+          "payloadLength": 4104,
+          "occurrences": 59
+        },
+        {
+          "type": 10,
+          "version": 201706091,
+          "payloadLength": 16,
+          "occurrences": 1
+        },
+        {
+          "type": 12,
+          "version": 20220512,
+          "payloadLength": 20816,
+          "occurrences": 59
+        },
+        {
+          "type": 13,
+          "version": 20220104,
+          "payloadLength": 72,
+          "occurrences": 59
+        },
+        {
+          "type": 14,
+          "version": 2021120301,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 15,
+          "version": 202210141,
+          "payloadLength": 592,
+          "occurrences": 59
+        },
+        {
+          "type": 16,
+          "version": 201802061,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 17,
+          "version": 2018022001,
+          "payloadLength": 24,
+          "occurrences": 1
+        },
+        {
+          "type": 19,
+          "version": 2022070101,
+          "payloadLength": 16,
+          "occurrences": 59
+        },
+        {
+          "type": 20,
+          "version": 202210131,
+          "payloadLength": 20400,
+          "occurrences": 59
+        },
+        {
+          "type": 21,
+          "version": 20220628,
+          "payloadLength": 137224,
+          "occurrences": 59
+        },
+        {
+          "type": 22,
+          "version": 2021081001,
+          "payloadLength": 568,
+          "occurrences": 59
+        },
+        {
+          "type": 23,
+          "version": 202108200,
+          "payloadLength": 2944,
+          "occurrences": 59
+        },
+        {
+          "type": 24,
+          "version": 2022022801,
+          "payloadLength": 64,
+          "occurrences": 59
+        },
+        {
+          "type": 25,
+          "version": 20198101,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 26,
+          "version": 202108100,
+          "payloadLength": 6656,
+          "occurrences": 59
+        },
+        {
+          "type": 27,
+          "version": 20210422,
+          "payloadLength": 96,
+          "occurrences": 59
+        },
+        {
+          "type": 28,
+          "version": 2020012801,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 29,
+          "version": 20200428,
+          "payloadLength": 2592,
+          "occurrences": 59
+        },
+        {
+          "type": 32,
+          "version": 20210715,
+          "payloadLength": 96328,
+          "occurrences": 3
+        },
+        {
+          "type": 32,
+          "version": 20210715,
+          "payloadLength": 96448,
+          "occurrences": 56
+        },
+        {
+          "type": 33,
+          "version": 2022062801,
+          "payloadLength": 6160,
+          "occurrences": 59
+        },
+        {
+          "type": 34,
+          "version": 20220509,
+          "payloadLength": 1208,
+          "occurrences": 59
+        },
+        {
+          "type": 35,
+          "version": 20201221,
+          "payloadLength": 8,
+          "occurrences": 59
+        },
+        {
+          "type": 37,
+          "version": 20210504,
+          "payloadLength": 16,
+          "occurrences": 59
+        },
+        {
+          "type": 38,
+          "version": 20220901,
+          "payloadLength": 3296,
+          "occurrences": 59
+        },
+        {
+          "type": 39,
+          "version": 20220517,
+          "payloadLength": 536,
+          "occurrences": 59
+        },
+        {
+          "type": 40,
+          "version": 20220419,
+          "payloadLength": 3312,
+          "occurrences": 3
+        },
+        {
+          "type": 40,
+          "version": 20220419,
+          "payloadLength": 3328,
+          "occurrences": 56
+        },
+        {
+          "type": 41,
+          "version": 2021062201,
+          "payloadLength": 88,
+          "occurrences": 59
+        },
+        {
+          "type": 42,
+          "version": 20210715,
+          "payloadLength": 24040,
+          "occurrences": 59
+        },
+        {
+          "type": 43,
+          "version": 20220701,
+          "payloadLength": 1624,
+          "occurrences": 3
+        },
+        {
+          "type": 43,
+          "version": 20220701,
+          "payloadLength": 6496,
+          "occurrences": 56
+        },
+        {
+          "type": 44,
+          "version": 2021082302,
+          "payloadLength": 80,
+          "occurrences": 118
+        },
+        {
+          "type": 45,
+          "version": 2021090601,
+          "payloadLength": 24,
+          "occurrences": 1
+        },
+        {
+          "type": 47,
+          "version": 2021110901,
+          "payloadLength": 6680,
+          "occurrences": 3
+        },
+        {
+          "type": 47,
+          "version": 2021110901,
+          "payloadLength": 13360,
+          "occurrences": 56
+        },
+        {
+          "type": 48,
+          "version": 20220628,
+          "payloadLength": 16024,
+          "occurrences": 59
+        },
+        {
+          "type": 49,
+          "version": 20220428,
+          "payloadLength": 200,
+          "occurrences": 59
+        },
+        {
+          "type": 50,
+          "version": 20220517,
+          "payloadLength": 600,
+          "occurrences": 59
+        },
+        {
+          "type": 51,
+          "version": 2022022501,
+          "payloadLength": 13960,
+          "occurrences": 3
+        },
+        {
+          "type": 51,
+          "version": 2022022501,
+          "payloadLength": 27912,
+          "occurrences": 56
+        },
+        {
+          "type": 52,
+          "version": 2022062201,
+          "payloadLength": 24,
+          "occurrences": 3
+        },
+        {
+          "type": 52,
+          "version": 2022062201,
+          "payloadLength": 32,
+          "occurrences": 56
+        },
+        {
+          "type": 53,
+          "version": 20220331,
+          "payloadLength": 72,
+          "occurrences": 59
+        },
+        {
+          "type": 54,
+          "version": 20230215,
+          "payloadLength": 2928,
+          "occurrences": 59
+        },
+        {
+          "type": 55,
+          "version": 20220302,
+          "payloadLength": 664,
+          "occurrences": 59
+        },
+        {
+          "type": 56,
+          "version": 20220630,
+          "payloadLength": 424,
+          "occurrences": 59
+        },
+        {
+          "type": 57,
+          "version": 20220630,
+          "payloadLength": 4824,
+          "occurrences": 59
+        },
+        {
+          "type": 58,
+          "version": 20220407,
+          "payloadLength": 16024,
+          "occurrences": 59
+        },
+        {
+          "type": 59,
+          "version": 20220428,
+          "payloadLength": 824,
+          "occurrences": 59
+        },
+        {
+          "type": 60,
+          "version": 2022062801,
+          "payloadLength": 64,
+          "occurrences": 59
+        },
+        {
+          "type": 61,
+          "version": 20220728,
+          "payloadLength": 8,
+          "occurrences": 59
+        },
+        {
+          "type": 62,
+          "version": 20230217,
+          "payloadLength": 8,
+          "occurrences": 56
+        },
+        {
+          "type": 63,
+          "version": 202308140,
+          "payloadLength": 296,
+          "occurrences": 20
+        },
+        {
+          "type": 63,
+          "version": 202310260,
+          "payloadLength": 168,
+          "occurrences": 36
+        },
+        {
+          "type": 64,
+          "version": 202310260,
+          "payloadLength": 1376,
+          "occurrences": 36
+        },
+        {
+          "type": 64,
+          "version": 2023081501,
+          "payloadLength": 9568,
+          "occurrences": 20
+        },
+        {
+          "type": 65,
+          "version": 2023052301,
+          "payloadLength": 8,
+          "occurrences": 56
+        },
+        {
+          "type": 66,
+          "version": 202305231,
+          "payloadLength": 48,
+          "occurrences": 56
+        },
+        {
+          "type": 70,
+          "version": 2023082301,
+          "payloadLength": 776,
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "titleId": "PPSA13803",
+      "archive": "PPSA13803_saves_dec.zip",
+      "archiveSha256": "7bf92619001de3318c7765524905c9527b7ae0381140e0fe53bade212c9dfd5f",
+      "counts": {
+        "crcValid": 12,
+        "fixedWidthPatchChecks": 11,
+        "framingValid": 12,
+        "gameplay": 11,
+        "populatedGameplay": 11,
+        "records": 12,
+        "system": 1
+      },
+      "distinctContents": 12,
+      "distinctMainIds": 2,
+      "namedMainIds": 2,
+      "explicitUnknownMainIds": 0,
+      "blockTriples": [
+        {
+          "type": 1,
+          "version": 202211161,
+          "payloadLength": 272,
+          "occurrences": 11
+        },
+        {
+          "type": 2,
+          "version": 2021112401,
+          "payloadLength": 168,
+          "occurrences": 11
+        },
+        {
+          "type": 3,
+          "version": 2022052701,
+          "payloadLength": 11592,
+          "occurrences": 11
+        },
+        {
+          "type": 4,
+          "version": 202108100,
+          "payloadLength": 2048,
+          "occurrences": 11
+        },
+        {
+          "type": 5,
+          "version": 2022033101,
+          "payloadLength": 40,
+          "occurrences": 1
+        },
+        {
+          "type": 6,
+          "version": 2021110401,
+          "payloadLength": 36448,
+          "occurrences": 11
+        },
+        {
+          "type": 7,
+          "version": 2021061001,
+          "payloadLength": 104,
+          "occurrences": 11
+        },
+        {
+          "type": 8,
+          "version": 202007210,
+          "payloadLength": 592464,
+          "occurrences": 11
+        },
+        {
+          "type": 9,
+          "version": 201609011,
+          "payloadLength": 4104,
+          "occurrences": 11
+        },
+        {
+          "type": 10,
+          "version": 201706091,
+          "payloadLength": 16,
+          "occurrences": 1
+        },
+        {
+          "type": 12,
+          "version": 20220512,
+          "payloadLength": 20816,
+          "occurrences": 11
+        },
+        {
+          "type": 13,
+          "version": 20220104,
+          "payloadLength": 72,
+          "occurrences": 11
+        },
+        {
+          "type": 14,
+          "version": 2021120301,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 15,
+          "version": 202210141,
+          "payloadLength": 592,
+          "occurrences": 11
+        },
+        {
+          "type": 16,
+          "version": 201802061,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 17,
+          "version": 2018022001,
+          "payloadLength": 16,
+          "occurrences": 1
+        },
+        {
+          "type": 19,
+          "version": 2022070101,
+          "payloadLength": 16,
+          "occurrences": 11
+        },
+        {
+          "type": 20,
+          "version": 202210131,
+          "payloadLength": 20400,
+          "occurrences": 11
+        },
+        {
+          "type": 21,
+          "version": 20220628,
+          "payloadLength": 137224,
+          "occurrences": 11
+        },
+        {
+          "type": 22,
+          "version": 2021081001,
+          "payloadLength": 568,
+          "occurrences": 11
+        },
+        {
+          "type": 23,
+          "version": 202108200,
+          "payloadLength": 2944,
+          "occurrences": 11
+        },
+        {
+          "type": 24,
+          "version": 2022022801,
+          "payloadLength": 64,
+          "occurrences": 11
+        },
+        {
+          "type": 25,
+          "version": 20198101,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 26,
+          "version": 202108100,
+          "payloadLength": 6656,
+          "occurrences": 11
+        },
+        {
+          "type": 27,
+          "version": 20210422,
+          "payloadLength": 96,
+          "occurrences": 11
+        },
+        {
+          "type": 28,
+          "version": 2020012801,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 29,
+          "version": 20200428,
+          "payloadLength": 2592,
+          "occurrences": 11
+        },
+        {
+          "type": 32,
+          "version": 20210715,
+          "payloadLength": 96328,
+          "occurrences": 11
+        },
+        {
+          "type": 33,
+          "version": 2022062801,
+          "payloadLength": 6160,
+          "occurrences": 11
+        },
+        {
+          "type": 34,
+          "version": 20220509,
+          "payloadLength": 1208,
+          "occurrences": 11
+        },
+        {
+          "type": 35,
+          "version": 20201221,
+          "payloadLength": 8,
+          "occurrences": 11
+        },
+        {
+          "type": 37,
+          "version": 20210504,
+          "payloadLength": 16,
+          "occurrences": 11
+        },
+        {
+          "type": 38,
+          "version": 20220901,
+          "payloadLength": 3296,
+          "occurrences": 11
+        },
+        {
+          "type": 39,
+          "version": 20220517,
+          "payloadLength": 536,
+          "occurrences": 11
+        },
+        {
+          "type": 40,
+          "version": 20220419,
+          "payloadLength": 3312,
+          "occurrences": 11
+        },
+        {
+          "type": 41,
+          "version": 2021062201,
+          "payloadLength": 88,
+          "occurrences": 11
+        },
+        {
+          "type": 42,
+          "version": 20210715,
+          "payloadLength": 24040,
+          "occurrences": 11
+        },
+        {
+          "type": 43,
+          "version": 20220701,
+          "payloadLength": 1624,
+          "occurrences": 11
+        },
+        {
+          "type": 44,
+          "version": 2021082302,
+          "payloadLength": 80,
+          "occurrences": 22
+        },
+        {
+          "type": 45,
+          "version": 2021090601,
+          "payloadLength": 24,
+          "occurrences": 1
+        },
+        {
+          "type": 47,
+          "version": 2021110901,
+          "payloadLength": 6680,
+          "occurrences": 11
+        },
+        {
+          "type": 48,
+          "version": 20220628,
+          "payloadLength": 16024,
+          "occurrences": 11
+        },
+        {
+          "type": 49,
+          "version": 20220428,
+          "payloadLength": 200,
+          "occurrences": 11
+        },
+        {
+          "type": 50,
+          "version": 20220517,
+          "payloadLength": 600,
+          "occurrences": 11
+        },
+        {
+          "type": 51,
+          "version": 2022022501,
+          "payloadLength": 13960,
+          "occurrences": 11
+        },
+        {
+          "type": 52,
+          "version": 2022062201,
+          "payloadLength": 24,
+          "occurrences": 11
+        },
+        {
+          "type": 53,
+          "version": 20220331,
+          "payloadLength": 72,
+          "occurrences": 11
+        },
+        {
+          "type": 54,
+          "version": 20230215,
+          "payloadLength": 2928,
+          "occurrences": 11
+        },
+        {
+          "type": 55,
+          "version": 20220302,
+          "payloadLength": 664,
+          "occurrences": 11
+        },
+        {
+          "type": 56,
+          "version": 20220630,
+          "payloadLength": 424,
+          "occurrences": 11
+        },
+        {
+          "type": 57,
+          "version": 20220630,
+          "payloadLength": 4824,
+          "occurrences": 11
+        },
+        {
+          "type": 58,
+          "version": 20220407,
+          "payloadLength": 16024,
+          "occurrences": 11
+        },
+        {
+          "type": 59,
+          "version": 20220428,
+          "payloadLength": 824,
+          "occurrences": 11
+        },
+        {
+          "type": 60,
+          "version": 2022062801,
+          "payloadLength": 64,
+          "occurrences": 11
+        },
+        {
+          "type": 61,
+          "version": 20220728,
+          "payloadLength": 8,
+          "occurrences": 11
+        }
+      ]
+    }
+  ]
+}

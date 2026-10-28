@@ -24,3 +24,54 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Additional schema research and reference annotations
+
+The new PartyData, EquipmentData, SkillData and common PlayerData readers adapt
+the wire layout in Nenkai/010GameTemplates, revision
+`4a3685f9b63f72ca49e24ac2f18420aaad2762b8`. The 2024 MIT notice above applies.
+Downloaded templates were inspected as text and never executed.
+
+The `ffxvi.nex.en` map/summon datasets adapt MIT research annotations from
+[Nenkai/ffxvi-nex-layouts](https://github.com/Nenkai/ffxvi-nex-layouts/tree/d3ad0627a29af168916ad574dadbca6759e2ac48).
+Item/EquipItem/Skill/ParamGrow layouts were consulted for boundary/dependency
+research; no unproven caps, skill-index mapping or growth data were manufactured.
+FF16Tools save checksum research was also consulted (revision
+`b87c2f22a8ea630cb03f7b2198af84c7709a1b0c`); no PC wrapper is emitted or executed.
+Both projects carry the following notice:
+
+MIT License
+
+Copyright (c) 2025 Nenkai
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Wiki-derived reference data (separate from code)
+
+`ReferencePacks/ffxvi.wiki.en/items.source.tsv` and `items.json` adapt English
+names/categories from Final Fantasy Wiki contributors, with an original curated
+factual ID crosswalk. Retrieved 2026-10-28. This adaptation remains under
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+Retain attribution, links to source revisions/history, modification notice and
+share-alike terms when redistributing or adapting this data. No wiki prose,
+images, game icons or art are included. Third-party media can have different terms.
+The source URL/version, per-record provenance, modifications and coverage are
+listed in the pack's `data.source.md` and `pack.json`, and in README.
+The unlicensed published ID CSVs were consulted as research and are not vendored
+or re-licensed by these notices.

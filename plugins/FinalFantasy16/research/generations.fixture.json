@@ -1,0 +1,35 @@
+{
+  "format": "savetoolkit-fixtures/1",
+  "description": "Uncontrolled retail archive occurrences. Not an in-game event or chronological capture; no write semantics are established.",
+  "fixtures": [
+    {
+      "id": "ffxvi-retail-uncontrolled-autosave-occurrences",
+      "titleId": "PPSA10665",
+      "game": "Final Fantasy XVI",
+      "platform": "PS5",
+      "slot": "FAITHDATAAUTO/game-save-data00",
+      "event": "Uncontrolled ZIP occurrence comparison, populated state versus initialized empty state",
+      "control": false,
+      "notes": "Build, region, DLC and actual capture dates are unknown. Generation numbers are archive occurrence order only. Additional changes are expected, so strict is false.",
+      "before": {
+        "archive": "PPSA10665_saves_dec.zip",
+        "generation": "0",
+        "sha256": "9aa21199f980b3882428972f7e204cbffee52d1f338ccde21d6828db8b157cb5"
+      },
+      "after": {
+        "archive": "PPSA10665_saves_dec.zip",
+        "generation": "1",
+        "sha256": "9aa21199f980b3882428972f7e204cbffee52d1f338ccde21d6828db8b157cb5"
+      },
+      "decoder": "ffxvi",
+      "files": ["sdimg_FAITHDATAAUTO/game-save-data00"],
+      "expected": [
+        { "file": "game-save-data00", "path": "player/level", "before": "42", "after": "10" },
+        { "file": "game-save-data00", "path": "player/xp", "before": "13891", "after": "0" },
+        { "file": "game-save-data00", "path": "user/playTime", "before": "597253", "after": "0" },
+        { "file": "game-save-data00", "offset": 0, "length": 4, "changed": false }
+      ],
+      "strict": false
+    }
+  ]
+}

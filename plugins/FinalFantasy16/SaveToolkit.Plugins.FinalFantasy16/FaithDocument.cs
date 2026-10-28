@@ -3,6 +3,7 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.FinalFantasy16;
 
@@ -18,8 +19,11 @@ internal sealed class FaithDocument : BoundSaveDocument
     private readonly FaithSchema _schema;
     private readonly FaithInventory _inventory;
     private readonly FaithExplorer _explorer;
+    private readonly FaithCatalog _catalog;
+    private readonly FaithReadOnlyContext _context;
+    private readonly IReferenceContext _references;
 
-    public FaithDocument(ISaveFile file, byte[] bytes, FaithContainer container, FaithSchema schema)
+    public FaithDocument(ISaveFile file, byte[] bytes, FaithContainer container, FaithSchema schema, IReferenceContext references)
     {
         _file = file;
         _bytes = bytes;
@@ -27,6 +31,9 @@ internal sealed class FaithDocument : BoundSaveDocument
         _schema = schema;
         _inventory = FaithInventory.Parse(bytes, container);
         _explorer = new FaithExplorer(bytes, container);
+        _references = references;
+        _catalog = new FaithCatalog(references);
+        _context = new FaithReadOnlyContext(bytes, container, schema, references);
     }
 
     public override string Title => $"Final Fantasy XVI{(_schema.IsDemo ? " Demo" : "")} · {_file.FileName}";
@@ -34,18 +41,30 @@ internal sealed class FaithDocument : BoundSaveDocument
 
     public override ViewNode BuildView() => new TabsNode([
         new Tab("Overview", Overview()),
-        new Tab("Inventory", [
-            new TextNode("Edit existing stacks only. Item IDs, allocation data, equipment and progression flags are preserved. " +
-                "The secondary inventory's role is unconfirmed and is available only in the raw explorer.") { Tone = Tone.Warning },
-            _inventory.IsSupported
-                ? InventoryTable()
-                : new TextNode("No supported ItemData allocator was found; use the read-only structural explorer.") { Tone = Tone.Warning },
-        ]),
+        new Tab("Inventory", new FaithInventoryView(_bytes, _inventory, _catalog).Build(Quantity, ItemIdentity)),
+        new Tab("Character context", _context.Build(BindReadOnly, ItemIdentity)),
         new Tab("Structure", _explorer.BuildView()),
         new Tab("Hex", [new HexNode(FaithExplorer.FileBlobId, _bytes.Length) { Title = "Original layout with current edits" }]),
     ]);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _explorer.Expand(lazyId);
+
+    public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
+
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
+    {
+        if (actionId != FaithCatalog.LookupActionId) return base.InvokeAction(actionId, parameters);
+        if (!parameters.TryGetValue(FaithCatalog.LookupParameter, out var value) || value.Kind != FieldValueKind.Text ||
+            !int.TryParse(value.AsString(), System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture, out var itemId) || _catalog.Item(itemId) is null)
+            throw new ArgumentException("Choose a known catalog item.", nameof(parameters));
+        var count = _inventory.Items.Count(item => item.Id == itemId);
+        return new ActionOutcome
+        {
+            Message = $"{_catalog.Name(itemId)} (ID {itemId}, {_catalog.Category(itemId)}). " +
+                $"Allocated main-bank records: {count}; this does not prove current ownership. {_catalog.Provenance(itemId)}",
+        };
+    }
 
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) =>
         _explorer.ReadBlob(blobId, offset, count);
@@ -80,8 +99,8 @@ internal sealed class FaithDocument : BoundSaveDocument
 
     private IReadOnlyList<ViewNode> Overview()
     {
-        var player = UniqueBlock(_schema.SupportsPlayer);
-        var user = UniqueBlock(FaithSchema.SupportsUser);
+        var player = FaithSchema.Unique(_container, FaithSchema.PlayerType, _schema.SupportsPlayer);
+        var user = FaithSchema.Unique(_container, FaithSchema.UserType, FaithSchema.SupportsUser);
         var stats = new List<Stat>
         {
             new("Variant", _schema.Name),
@@ -123,7 +142,7 @@ internal sealed class FaithDocument : BoundSaveDocument
                 IntegerSpec.Int32 with { Format = IntegerFormat.Duration, UnitsPerSecond = 1, Unit = "s" }));
         }
 
-        var currency = _inventory.Items.Where(item => item.HasKnownName).Select(item => (ViewNode)Quantity(item)).ToArray();
+        var currency = _inventory.Items.Where(item => item.Id is 1 or 2 or 3).Select(item => (ViewNode)Quantity(item)).ToArray();
         if (currency.Length > 0)
         {
             nodes.Add(new SectionNode("Resources", currency));
@@ -132,22 +151,11 @@ internal sealed class FaithDocument : BoundSaveDocument
         return nodes;
     }
 
-    private TableNode InventoryTable() => new([
-        new TableColumn("slot", "Storage slot"), new TableColumn("id", "Item ID"),
-        new TableColumn("name", "Name"), new TableColumn("quantity", "Stack"),
-    ], _inventory.Items.Select(item => new TableRow(item.Slot.ToString(), new Dictionary<string, ViewNode>
-    {
-        ["slot"] = new TextNode(item.Slot.ToString()),
-        ["id"] = new TextNode(item.Id.ToString()),
-        ["name"] = new TextNode(item.Name),
-        ["quantity"] = Quantity(item),
-    })).ToArray()) { Title = "Main inventory (allocated records, including zero stacks)" };
-
     private FieldNode Quantity(FaithItem item)
     {
         var offset = item.Offset + QuantityOffset;
         var writable = ReadInt(offset) >= 0;
-        return Field(item.QuantityId, item.HasKnownName ? item.Name : $"Item {item.Id} stack",
+        return Field(item.QuantityId, $"{_catalog.Name(item.Id)} stack",
             writable ? new IntegerSpec(0, int.MaxValue) : IntegerSpec.Int32,
             () => FieldValue.Of(ReadInt(offset)),
             writable ? value => BinaryPrimitives.WriteInt32LittleEndian(_bytes.AsSpan(offset), value.AsInt32()) : null,
@@ -156,7 +164,7 @@ internal sealed class FaithDocument : BoundSaveDocument
         {
             Confidence = Confidence.Verified,
             Description = $"ItemData slot {item.Slot}, stack at file offset 0x{offset:X}. " +
-                (item.HasKnownName ? "Name from Nenkai's item ID research." : "Stack layout is known; item name is unmapped."),
+                _catalog.Provenance(item.Id),
             Warning = "Game-specific stack limits and progression effects are unknown. Large values may be clamped or rejected by the game.",
         };
     }
@@ -164,11 +172,18 @@ internal sealed class FaithDocument : BoundSaveDocument
     private FieldNode ReadOnlyInt(string id, string label, int offset, IntegerSpec? spec = null) =>
         Field(id, label, spec ?? IntegerSpec.Int32, () => FieldValue.Of(ReadInt(offset))) with { Confidence = Confidence.Verified };
 
-    private FaithBlock? UniqueBlock(Func<FaithBlock, bool> predicate)
-    {
-        var candidates = _container.Blocks.Where(predicate).Take(2).ToArray();
-        return candidates.Length == 1 ? candidates[0] : null;
-    }
+    private FieldNode ItemIdentity(string id, int itemId) =>
+        Field(id, _catalog.Name(itemId), new ReferenceSpec(FaithCatalog.ItemsId) { AllowCustom = true },
+            () => FieldValue.Of(FaithCatalog.Key(itemId))) with
+        {
+            Confidence = _catalog.Item(itemId) is null ? Confidence.Unknown : Confidence.Inferred,
+            Description = _catalog.Provenance(itemId),
+            Warning = "Identity is read-only; catalog presence does not establish ownership, slot eligibility or game-build availability.",
+        };
+
+    private FieldNode BindReadOnly(string id, string label, FieldSpec spec, Func<FieldValue> get,
+        Confidence confidence, string description) => Field(id, label, spec, get) with
+        { Confidence = confidence, Description = description };
 
     private int ReadInt(int offset) => BinaryPrimitives.ReadInt32LittleEndian(_bytes.AsSpan(offset));
     private uint ReadCrc() => BinaryPrimitives.ReadUInt32LittleEndian(_bytes.AsSpan(FaithContainer.CrcOffset));

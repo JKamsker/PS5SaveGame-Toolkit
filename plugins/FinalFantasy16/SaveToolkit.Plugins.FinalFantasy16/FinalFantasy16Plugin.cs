@@ -1,21 +1,32 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
 using System.Buffers.Binary;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.FinalFantasy16;
 
 public sealed class FinalFantasy16Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.1.0")
+    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.2.0")
     {
-        Description = "PS5 Faith containers, existing inventory stacks, and a lazy structural explorer.",
+        Description = "Named PS5 inventories, experimental stack edits, and read-only gear, abilities and location context.",
         Games = [new GameTitle("PPSA10665", "Final Fantasy XVI"), new GameTitle("PPSA13803", "Final Fantasy XVI Demo")],
         Maturity = PluginMaturity.Experimental,
         References = [
             "https://nenkai.github.io/ffxvi-modding/resources/other/save_files/",
             "https://github.com/Nenkai/010GameTemplates/blob/f31430e32f099d66cc22d609a7926988e041c409/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt",
+            "https://github.com/Nenkai/010GameTemplates/blob/4a3685f9b63f72ca49e24ac2f18420aaad2762b8/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt",
             "https://nenkai.github.io/ffxvi-modding/resources/ids/item_ids/",
-            "https://github.com/Nenkai/FF16Tools/blob/master/FF16Tools.Files/Save/FaithSaveFile.cs",
+            "https://github.com/Nenkai/FF16Tools/blob/b87c2f22a8ea630cb03f7b2198af84c7709a1b0c/FF16Tools.Files/Save/FaithSaveFile.cs",
+            "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473",
+            "https://www.fandom.com/licensing",
+            "https://community.fandom.com/wiki/Help:Licensing?oldid=3983537",
+            "https://finalfantasy.fandom.com/wiki/Gil?oldid=4063996",
+            "https://finalfantasy.fandom.com/wiki/Renown?oldid=3741166",
+            "https://finalfantasy.fandom.com/wiki/Ability_Points?oldid=4035790",
+            "https://github.com/Nenkai/ffxvi-nex-layouts/tree/d3ad0627a29af168916ad574dadbca6759e2ac48",
+            "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+            "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
         ],
     };
 
@@ -41,7 +52,9 @@ public sealed class FinalFantasy16Plugin : IGamePlugin
             : ProbeResult.None;
     }
 
-    public ISaveDocument Open(ISaveFile file)
+    public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         if (!IsSupportedTitle(file.Directory.TitleId) || !IsSaveName(file.FileName))
         {
@@ -60,7 +73,7 @@ public sealed class FinalFantasy16Plugin : IGamePlugin
             throw new SaveFormatException("Faith header does not match the file's gameplay/system role.");
         }
 
-        return new FaithDocument(file, bytes, container, FaithSchema.ForTitle(file.Directory.TitleId));
+        return new FaithDocument(file, bytes, container, FaithSchema.ForTitle(file.Directory.TitleId), references);
     }
 
     private static bool IsSupportedTitle(string title) => title is "PPSA10665" or "PPSA13803";

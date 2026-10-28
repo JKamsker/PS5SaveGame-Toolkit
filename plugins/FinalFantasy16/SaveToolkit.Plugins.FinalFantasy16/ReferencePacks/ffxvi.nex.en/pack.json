@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "id": "ffxvi.nex.en",
+  "version": "1.0.0",
+  "title": "FFXVI Nex map/summon annotations (MIT, Inferred)",
+  "plugins": [
+    "ffxvi"
+  ],
+  "titleIds": [
+    "PPSA10665",
+    "PPSA13803"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "ffxvi_maps",
+      "kind": "records",
+      "title": "Nex map research annotations",
+      "files": [
+        {
+          "path": "ffxvi_maps.json",
+          "sha256": "6fa09b11a84dbe8c792171e47e78d673df20cf74c5b6ea8b9e5ab26f9cb039c4"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+        "author": "Nenkai and ffxvi-nex-layouts contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted set_comment identifiers and annotations; grouped subrows without inventing asset paths; added documented Hideaway variant note. Research labels remain Inferred."
+      }
+    },
+    {
+      "id": "ffxvi_summons",
+      "kind": "records",
+      "title": "Nex summon research annotations",
+      "files": [
+        {
+          "path": "ffxvi_summons.json",
+          "sha256": "6610f571aad5176bcbaa4997ee1045db564ccbcba911924f2b37a4519dc491c1"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+        "author": "Nenkai and ffxvi-nex-layouts contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted set_comment identifiers and annotations; grouped subrows without inventing asset paths; added documented Hideaway variant note. Research labels remain Inferred."
+      }
+    }
+  ]
+}

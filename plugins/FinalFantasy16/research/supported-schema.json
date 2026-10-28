@@ -1,0 +1,56 @@
+{
+  "format": "ffxvi-supported-schema/1",
+  "titles": ["PPSA10665", "PPSA13803"],
+  "maturity": "Experimental",
+  "container": {
+    "gameplayVersion": "0x785930BD",
+    "systemVersion": "0x0C044C6D",
+    "roles": ["game-save-data", "game-save-data00..09", "system-save-data"],
+    "checksum": "CRC-32/ISO-HDLC, offset 4, over bytes 16..EOF",
+    "evidence": "Verified framing/checksum in 72 archive occurrences; no console acceptance claim"
+  },
+  "source": "https://github.com/Nenkai/010GameTemplates/blob/4a3685f9b63f72ca49e24ac2f18420aaad2762b8/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt",
+  "license": "MIT",
+  "blocks": [
+    {
+      "type": 1, "version": 202211161, "payloadLengths": [272, 1536],
+      "demoPayloadLengths": [272], "role": "gameplay",
+      "verifiedReadOnly": ["level@0", "xp@4", "childLevel@8", "childXp@12"],
+      "inferredReadOnly": ["hp@16", "recovery@20", "lb@24", "summonIndex@28", "summonFlags@32,36", "summonModes[3]@40", "commandIds[22]@52", "shortcutItems[4]@140"],
+      "opaque": "Extended palette suffix at 272, 1264 bytes. No growth thresholds or skill-ID-to-rank-index mapping."
+    },
+    {
+      "type": 2, "version": 2021112401, "payloadLengths": [168], "role": "gameplay",
+      "inferredReadOnly": ["sceneId@0", "mapId@4", "partyId@16", "memberCount@20"],
+      "opaque": "enterRange, member transforms; map subrow selection not resolved"
+    },
+    {
+      "type": 6, "version": 2021110401, "payloadLengths": [36448], "role": "gameplay",
+      "verifiedExperimentalWrite": ["existing nonnegative main dense-record stack i32 at record+4"],
+      "readOnly": ["main IDs/flags/allocator", "secondary dense-bank diagnostic at 33624; zero ID retained"],
+      "confidence": "Dense storage layout Verified; secondary role and gameplay caps Unknown; reference names Inferred"
+    },
+    {
+      "type": 7, "version": 2021061001, "payloadLengths": [104], "role": "gameplay",
+      "verifiedReadOnly": ["playTimeSeconds@0"]
+    },
+    {
+      "type": 13, "version": 20220104, "payloadLengths": [72], "role": "gameplay",
+      "inferredReadOnly": ["itemArray[6]@0", "itemArrayBoyhood[6]@24", "virtualEquip[6]@48"],
+      "unknown": "Active bank, slot semantics and unknown ID 900000"
+    },
+    {
+      "type": 27, "version": 20210422, "payloadLengths": [96], "role": "gameplay",
+      "unknownReadOnly": ["skillLv bytes[68]@0", "newFlags bytes[12]@68", "protectFlags bytes[12]@80"],
+      "opaque": "padding@92; array index is not a verified skill ID"
+    }
+  ],
+  "policy": "Absent, duplicate (including mixed-version), or unrecognized blocks stay opaque. No ID, equipment, ability, progression or structural writes.",
+  "catalogs": {
+    "ffxvi_items": "205 English wiki-derived item/equipment/resource labels; partial; CC-BY-SA-3.0; no caps/art",
+    "ffxvi_maps": "107 MIT Nex research annotations; incomplete subrows; Inferred",
+    "ffxvi_summons": "10 MIT Nex research annotations; not unlock flags; Inferred",
+    "ffxvi_commands": "Optional external reference context; no embedded data",
+    "ffxvi_growth": "Optional label/context only; no derived stats or cap calculation"
+  }
+}

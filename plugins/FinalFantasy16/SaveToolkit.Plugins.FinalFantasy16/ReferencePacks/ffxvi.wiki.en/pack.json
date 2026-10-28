@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "ffxvi.wiki.en",
+  "version": "1.0.0",
+  "title": "FFXVI English wiki labels (partial, CC BY-SA 3.0)",
+  "plugins": [
+    "ffxvi"
+  ],
+  "titleIds": [
+    "PPSA10665",
+    "PPSA13803"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "description": "Partial name/category crosswalk; no gameplay caps, icons or availability claims.",
+  "datasets": [
+    {
+      "id": "ffxvi_items",
+      "kind": "records",
+      "title": "English item and equipment labels",
+      "files": [
+        {
+          "path": "items.json",
+          "sha256": "16575bc25017f885a55231563e2b8d58a22e12aa3cb5f21cb858d8e5a4976a45"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473",
+        "author": "Final Fantasy Wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted English names and categories, joined factual numeric identifiers, omitted unmatched labels, prose, art and limits. Adaptation remains CC BY-SA 3.0."
+      }
+    }
+  ]
+}

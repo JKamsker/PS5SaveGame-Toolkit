@@ -13,6 +13,15 @@ internal sealed record FaithSchema(string Name, bool IsDemo)
     public const int ExtendedPlayerLength = 1536;
     public const int ItemLength = 36448;
     public const int UserLength = 104;
+    public const uint PartyType = 2;
+    public const uint EquipmentType = 13;
+    public const uint SkillType = 27;
+    public const ulong PartyVersion = 2021112401;
+    public const ulong EquipmentVersion = 20220104;
+    public const ulong SkillVersion = 20210422;
+    public const int PartyLength = 168;
+    public const int EquipmentLength = 72;
+    public const int SkillLength = 96;
 
     public static FaithSchema ForTitle(string title) => title switch
     {
@@ -29,4 +38,21 @@ internal sealed record FaithSchema(string Name, bool IsDemo)
 
     public static bool SupportsUser(FaithBlock block) => block.Type == UserType &&
         block.Version == UserVersion && block.PayloadLength == UserLength;
+
+    public static bool SupportsParty(FaithBlock block) => block.Type == PartyType &&
+        block.Version == PartyVersion && block.PayloadLength == PartyLength;
+
+    public static bool SupportsEquipment(FaithBlock block) => block.Type == EquipmentType &&
+        block.Version == EquipmentVersion && block.PayloadLength == EquipmentLength;
+
+    public static bool SupportsSkills(FaithBlock block) => block.Type == SkillType &&
+        block.Version == SkillVersion && block.PayloadLength == SkillLength;
+
+    // A duplicate of any version makes the semantic owner ambiguous. Never select just the
+    // recognized occurrence when another occurrence with the same type is present.
+    public static FaithBlock? Unique(FaithContainer container, uint type, Func<FaithBlock, bool> supported)
+    {
+        var blocks = container.Blocks.Where(block => block.Type == type).Take(2).ToArray();
+        return blocks.Length == 1 && supported(blocks[0]) ? blocks[0] : null;
+    }
 }

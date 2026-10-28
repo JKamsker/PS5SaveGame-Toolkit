@@ -1,0 +1,74 @@
+{
+  "records": [
+    {
+      "id": "1",
+      "name": "Phoenix",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    },
+    {
+      "id": "2",
+      "name": "Garuda",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    },
+    {
+      "id": "3",
+      "name": "Titan",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    },
+    {
+      "id": "4",
+      "name": "Ramuh",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    },
+    {
+      "id": "5",
+      "name": "Shiva",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    },
+    {
+      "id": "6",
+      "name": "Phoenix (before Ifrit awakened at Phoenix Gate)",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    },
+    {
+      "id": "7",
+      "name": "Odin",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    },
+    {
+      "id": "8",
+      "name": "Bahamut",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    },
+    {
+      "id": "9",
+      "name": "Leviathan",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    },
+    {
+      "id": "10",
+      "name": "Ultima",
+      "category": "summon",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/SummonMode.layout",
+      "attributes": {}
+    }
+  ]
+}
