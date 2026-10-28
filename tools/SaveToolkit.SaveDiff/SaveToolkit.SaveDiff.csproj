@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SaveToolkit.SaveDiff</RootNamespace>
+    <Description>Read-only differential-save developer tool (byte and semantic diffs, fixture manifests).</Description>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SaveToolkit.Testing\SaveToolkit.Testing.csproj" />
+    <!-- Same glob as the Api: every plugin is available as a semantic decoder (semantic mode "auto" or a plugin id). -->
+    <ProjectReference Include="..\..\plugins\*\*\SaveToolkit.Plugins.*.csproj" Exclude="..\..\plugins\**\*.Tests.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="SaveToolkit.SaveDiff.Tests" />
+  </ItemGroup>
+</Project>
