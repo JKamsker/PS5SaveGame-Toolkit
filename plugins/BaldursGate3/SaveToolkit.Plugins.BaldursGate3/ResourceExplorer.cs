@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 internal sealed class ResourceExplorer(IReadOnlyList<DocumentEntry> entries, Func<string, string, ResourceAttribute, FieldNode> bind)
 {
     internal const int PageSize = 128;
-    private const int MaxInlineBytes = 4096;
+    internal const int MaxInlineBytes = 4096;
 
     internal IReadOnlyList<ViewNode> EntryList(LspkPackage? package) => entries.Count <= PageSize
         ? [EntryTable(0, entries.Count, package)] : Pages("Entries", "entries", entries.Count);

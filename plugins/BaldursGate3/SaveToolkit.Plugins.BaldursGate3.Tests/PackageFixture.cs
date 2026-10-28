@@ -58,7 +58,11 @@ internal static class PackageFixture
         writer.Write((uint)listSize);
         writer.Write((byte)0); // package flags
         writer.Write((byte)0); // priority
-        writer.Write(new byte[16]);
+        // Independent MD5 vector in physical write order, per LSLib; table order may differ.
+#pragma warning disable CA5351
+        var digest = System.Security.Cryptography.MD5.HashData(payloads.SelectMany(p => p.Bytes).ToArray());
+#pragma warning restore CA5351
+        writer.Write(digest.Select(b => unchecked((byte)(b + 1))).ToArray());
         if (version != 15)
         {
             writer.Write((ushort)1);

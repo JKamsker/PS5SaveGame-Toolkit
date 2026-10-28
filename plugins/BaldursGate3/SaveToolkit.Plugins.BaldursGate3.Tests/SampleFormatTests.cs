@@ -69,7 +69,7 @@ public sealed class SampleFormatTests
     }
 
     [Fact]
-    public void EveryClaimedCopyHasByteIdenticalNoOpEvenWhenReadOnly()
+    public void EveryClaimedCopyHasByteIdenticalNoOp()
     {
         var plugin = new BaldursGate3Plugin();
         var files = SampleSaves.Load(TitleId).AllDiskFiles.Where(f => plugin.Probe(f).IsMatch).ToArray();
@@ -77,7 +77,7 @@ public sealed class SampleFormatTests
         foreach (var file in files)
         {
             using var document = plugin.Open(file);
-            Assert.False(document.CanEdit);
+            if (file.FileName.EndsWith(".lsx", StringComparison.Ordinal)) Assert.False(document.CanEdit);
             var output = Assert.Single(document.Serialize());
             Assert.Equal(file.RelativePath, output.RelativePath);
             Assert.True(file.ReadAllBytes().AsSpan().SequenceEqual(output.Content.Span));
@@ -100,7 +100,7 @@ public sealed class SampleFormatTests
     }
 
     [Fact]
-    public void HeaderDigestDoesNotMatchTheReferenceWriterAlgorithm()
+    public void HeaderDigestNeedsPhysicalOrderRatherThanFileListOrOrdinalOrder()
     {
         var bytes = Save().ReadAllBytes();
         var package = LspkPackage.Read(bytes);
@@ -123,8 +123,10 @@ public sealed class SampleFormatTests
             }
 
             Assert.False(digest.AsSpan().SequenceEqual(bytes.AsSpan(22, 16)),
-                "The integrity limitation must be reassessed if the sample digest now matches.");
+                "This fixture distinguishes the file list and ordinal name order from physical write order.");
         }
+
+        Assert.Equal(bytes[22..38], LspkIntegrity.Compute(package.Entries.OrderBy(e => e.Offset).Select(package.Extract)));
     }
 
     private static ISaveFile Save() => SampleSaves.Load(TitleId).AllDiskFiles.First(f =>

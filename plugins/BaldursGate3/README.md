@@ -1,27 +1,34 @@
 # Baldur's Gate 3 (`bg3`)
 
-Title: **PPSA18463**. Maturity: **ReadOnly**, version 0.1.0.
+Title: **PPSA18463**. Maturity: **Experimental**, version 0.2.0.
 
 Opens decrypted BG3 save packages and profile resources, lists package entries with
 stored/expanded sizes and compression, and exposes every resource node and attribute
 through a lazy explorer. Includes embedded WebP thumbnails, decoded scalar values,
 vectors/matrices, translation handles, and paged raw bytes for opaque or large values.
 LSX exploration includes XML wrapper elements, metadata attributes and text.
+Round 2 adds validated LSPK v18 checksums, preservation-first LSF/LSPK writers,
+primitive editing and a sourced Party summary. No in-game write test has occurred.
 
 ## Supported scope and preservation
 
-- LSPK v15/v16/v18, independent entries in a single archive part.
-- LSOF v5/v6/v7, compact metadata formats 0/2 and extended format 1, including keys.
+- LSPK v18 reading/writing, independent entries in a single archive part, with a
+  mandatory matching header digest. Legacy v15/v16 remain read-only; their CRCs
+  and digests are not claimed to be verified.
+- LSOF v5/v6/v7 reading/writing, compact metadata formats 0/2 and extended format 1,
+  including keys. Edits target existing primitive attributes, not tree structure.
 - Uncompressed, zlib, LZ4 blocks/frames, and zstd resource data; package payloads use
   the per-entry codec. The file list is always an LZ4 block.
 - LSX XML, including UTF-8/BOM and UTF-16 little/big endian with BOM.
   DTDs and external entities are prohibited.
 - No-op `Serialize()` returns a fresh copy of the **original file**, preserving
   unrecognized metadata, padding, trailing data, compression and XML spelling.
-  This is explicitly tested for all twelve claimed primary/backup files even though
-  the shared conformance suite skips serialization checks for ReadOnly plugins.
-- All fields reject edits. No writer, recompression level, or console compatibility
-  is claimed. No file system/network access or external executable is used by the plugin.
+  This is tested for all twelve claimed primary/backup files, and independently
+  through the section rebuilder for all fourteen embedded/standalone LSF copies.
+- Integers, finite floats/doubles, booleans and ordinary UTF-8 string types can be
+  edited. GUIDs, vectors/matrices, translation structures, ScratchBuffers, LSX,
+  JSON and story data stay read-only. The UUID-only analytics resource has no
+  editable primitive. No file/network I/O or external executable is used.
 
 Solid packages, multipart packages, deletion entries and older versions are rejected
 with `SaveFormatException`. Solid LZ4 uses offsets into a shared frame rather than
@@ -53,7 +60,7 @@ The profile files are LSOF v7 with extended metadata format 1:
 
 | File | Nodes / attributes | Role |
 | --- | --- | --- |
-| `analyticsUserData.lsf` | 1 / 1 | Profile analytics resource; inner string is not interpreted |
+| `analyticsUserData.lsf` | 1 / 1 | UUID-only profile analytics resource; read-only |
 | `profile8.lsf` | 17 / 19 | Profile resource; gameplay meaning not inferred |
 | `config.lsf` | 4 / 10 | Configuration resource with a nonempty key table |
 | `graphicSettings.lsx` | 14 / 29 XML elements/attributes | Graphics settings XML |
@@ -63,6 +70,17 @@ Verified sample values in `meta.lsf`: `Level = TUT_Avernus_C`, raw `Difficulty =
 raw `OriginalPlatform = 3`. Numeric enum meanings are deliberately not assigned.
 `Globals.lsf` has a `NewAge` root with a `ScratchBuffer` named `NewAge` of 2,618,936
 bytes beginning `LSMF`. It is available in the raw explorer without being decoded.
+
+The Party tab reads `SaveInfo.json / Active Party / Characters`: the supplied sample
+contains three rows at level 1, with current/total XP `(30,30)`, `(30,30)`, `(0,0)`.
+Origin strings are shown as origins rather than invented localised names. The
+`meta.lsf` leader display-name primitive is also exposed (metadata only; it does
+not rename a live character). Summary meanings use `Confidence.Inferred`, backed
+by the cited community parser/editor documentation and exact sample keys. Level
+and XP summaries are read-only. Gold quantities and localised companion names are
+unavailable; no validated mapping for them is implemented. The metadata has two
+`CharacterMetaData` nodes, so those nodes are not assumed to map one-to-one to the
+three JSON rows. Editing primitive metadata does not synchronise live ECS state.
 
 ## Binary layout
 
@@ -77,7 +95,7 @@ All numeric fields below are little-endian. These layouts follow LSLib; see sour
 | 8 | File-list offset (u64) |
 | 16 | File-list stored size (u32), including 8-byte preamble |
 | 20 / 21 | Package flags / priority (u8 each) |
-| 22 | Unverified header digest (16 bytes) |
+| 22 | MD5 over expanded payloads in physical order, each digest byte +1 (16 bytes) |
 | 38 | Archive part count (u16); payloads begin at 40 or later |
 
 The file list starts with an i32 entry count and u32 compressed size, followed by an
@@ -120,72 +138,103 @@ last four 16-bit groups. Translated strings expose their handle/version; localis
 is not resolved. Scratch buffers and formatted translation payloads remain raw bytes.
 Matrices display their stored column-major scalar sequence.
 
-## Integrity, writing, confidence and open problems
+## Integrity and writing
 
 No additional encryption was found or applied: the provided input is already decrypted.
 Codec framing/length checks are enforced, including zlib/zstd integrity checks provided
 by their decoders when present. They do **not** authenticate the package or its raw data.
 
-LSLib's reference package writer computes MD5 over concatenated expanded entries,
-then increments each digest byte. On this PS5 sample, **neither file-list order nor
-ordinal filename order matches the header digest**. A regression test records this
-finding. The digest is preserved and displayed as unverified, never reported as valid.
-The correct PS5 digest/integrity algorithm remains unknown. Structural corruption and
-broken compressed streams are rejected; arbitrary content changes that leave a valid
-structure may be undetectable.
+The v18 digest is reproduced and verified: MD5 of concatenated expanded entries in
+increasing payload-offset order, then each digest byte +1 modulo 256. The sample
+matches `6D98C6D4C2FF81E7C7F43AAA881D66DA`. File-list order and ordinal filename
+order fail. Case-insensitive name order matches the same physical sequence on this
+single independent sample, so those hypotheses cannot yet be distinguished. Both
+orders remain satisfied by the writer's supported edits, which preserve names and
+physical order. Zero/stale/nonmatching v18 digests are rejected; the plugin does not
+assume the game ignores the hash. [INTEGRITY.md](INTEGRITY.md) records all 844
+experiments, exact physical order, limitations and upstream issue/commit research.
 
-ReadOnly is deliberate: implementing a writer before resolving integrity would violate
-the toolkit's integrity rule. Community editor research also reports load/warning
-problems after edits, but those PC findings have not been independently reproduced on
-PS5. No in-game writing verification has occurred. An LSF/LSPK writer, meaningful edit
-conformance tests, and per-entry unchanged-content proof remain future work.
+The LSF writer retains the original header, names, node order, owner tags, links,
+keys, unused value bytes, trailing bytes and unchanged compressed sections. It
+patches attribute lengths and rebuilds the value section, updating all extended
+value offsets after string growth/shrinkage. Overlapping extended attribute value
+ranges are readable but edits are rejected rather than rewriting aliased data.
+The rebuilder retains raw sections under compressed headers and block/frame LZ4
+encodings. No-op and undo to original values return exact original bytes, including
+noncanonical true bytes and additional trailing string NULs.
+
+The LSPK writer preserves file-list order and physical payload order independently.
+It retains filename bytes/padding, flags/priority, unknown gap/trailing bytes and
+every untouched entry's **original compressed bytes**. Only modified entries are
+recompressed. Offsets, sizes and digest are recomputed, and the LZ4 file list is
+rebuilt. Added alignment padding uses LSLib's 64-byte header-relative alignment and
+`0xAD` fill. No-op package writing is byte-identical; edited output is not expected
+to match the old archive byte layout, but reopens to exactly the intended expanded
+entries. All package entries and resource tables are re-parsed inside `Serialize()`.
+The writers additionally compare every reopened attribute/payload to its expected
+bytes before returning output.
+
+Original codec and level flags are retained. LSLib's fast/default/max mappings are
+used for recompression: zlib Fastest/Optimal/SmallestSize, LZ4 fast/10/12, zstd
+3/9/22. Unknown high-nibble levels use the reference default while retaining the
+flag byte. Unchanged sections/entries are never passed through a compressor.
+
+The digest does not cover filenames, container metadata or padding and is not
+authentication. Standalone LSFs have structural checks but no discovered content
+checksum. NewAge/LSMF and Osiris internal formats/integrity are not decoded or
+modified. Community load failures after ECS changes are not evidence about the
+primitive-only writer; PS5 compatibility still needs human testing. Maturity stays
+Experimental until that test, even though the byte/checksum/conformance tests pass.
+
+## Confidence and remaining limits
 
 Verified: magic/version/layout matches, sample counts, actual primitive values, codec
-output sizes, XML structure, the LSMF signature and byte-identical no-op preservation.
+output sizes, XML structure, the LSMF signature, byte-identical no-op preservation,
+the supplied package digest and preservation of every unedited compressed payload.
 Raw fields carry `Confidence.Unknown` because their **gameplay meaning** is unvalidated.
-There are no inferred gameplay controls, guessed item names, or curated Party tab.
-Live character names, level/XP, gold, abilities and inventory relationships inside
-LSMF require a separate validated decoder; LSF primitive editing alone cannot supply it.
+Curated Party metadata uses `Confidence.Inferred`. Live character names, level/XP,
+gold, abilities and inventory relationships inside LSMF need a separate validated
+decoder. No live stat or gold editor, guessed item names, tree insertion/deletion,
+multipart/solid writer, or console compatibility is claimed.
 
 Other limits: 256 MiB input, 256 MiB total expanded package payloads, 256 MiB expanded
 resource sections per document, one million resource nodes/attributes, XML depth 256,
-formatted translation depth 32. Explorer collections page in groups of 128 with
+formatted translation depth 32. Editable text is limited to one million UTF-16
+units and rejects embedded NULs/invalid UTF-8. The optional Party JSON reader caps
+input at 1 MiB, depth at 32 and rows at 128; unsupported JSON remains available raw.
+Explorer collections page in groups of 128 with
 hierarchical page links for very large lists. Binary attributes above 4 KiB use a raw
 view; XML values above 4,096 characters use a bounded preview. Views are lazy; models and compressed resource tables validate
-during opening. Diagnostic parsing of the supplied package took approximately 0.5 s
+during opening. Opening and initial view construction took approximately 0.4 s
 on the development machine; this is an observation, not a timing assertion in CI.
 
-## Validation and source-size guard
+## Validation
 
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 dotnet test --project plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3.Tests
 dotnet test --project tests/SaveToolkit.Core.Tests
-pwsh -NoProfile -File plugins/BaldursGate3/scripts/check-source-size.ps1
 ```
 
 Tests cover the shared conformance suite, every sample resource and no-op copy,
-backup equality, reference digest mismatch, synthetic version/codec/layout fixtures,
-UTF-8/UUID/scalar vectors, malformed/truncated data, entity rejection, read-only edits,
-thumbnails/blob ranges, and 20,000-entry/child paging. Synthetic tests run without samples.
+backup equality, 844 digest hypotheses, known MD5 vectors, synthetic version/codec/
+layout fixtures, string growth/shrinkage, unordered extended offsets and gaps,
+preservation of untouched compressed sections and entries, atomic rollback/undo,
+UTF-8/UUID/scalar vectors, malformed/truncated data, entity rejection, meaningful
+leader-name edits in conformance, thumbnails/blob ranges, and 20,000-entry/child
+paging. Synthetic tests run without samples.
 
-Validation on .NET SDK 10.0.400: API build passed with zero warnings/errors; 44 plugin
-tests and 42 framework tests passed. With an empty artifacts directory, 33 plugin
-tests passed and 11 sample-dependent tests skipped. The source-size guard passed.
-
-The source-size test runs with the plugin test project in CI. The optional scoped hook
-warns above 300 physical lines and rejects 400 or more, honoring the stricter plugin
-rule. Run it without changing configuration shared with other workers:
-
-```powershell
-git -c core.hooksPath=plugins/BaldursGate3/.githooks commit ...
-```
+Validation on .NET SDK 10.0.400: API build passed with zero warnings/errors; all 120
+plugin tests and all 43 framework tests passed. With an empty
+`SAVETOOLKIT_ARTIFACTS` directory, 103 plugin tests pass and 17 sample-dependent
+tests skip. The source-size test
+runs with the plugin tests; all source files are below 300 physical lines. No plugin
+hooks, scripts, build targets or repository tooling are installed.
 
 ## SDK requests
 
-No contract change is required. Test-kit improvement: the shared conformance suite
-currently skips byte-identical no-op checks for ReadOnly plugins. Those plugins can
-and should still prove preservation; this plugin supplies that test itself.
+None. Existing bindings support atomic edits, rollback, lazy raw fields and undo.
+The current shared conformance suite also checks no-op output for read-only files.
 
 ## Sources and licensing
 
@@ -197,15 +246,16 @@ Downloaded source was inspected as text; no upstream executable was run.
 - [PackageFormat.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/PackageFormat.cs): headers, row layouts, flags.
 - [PackageReader.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/PackageReader.cs): file lists, version dispatch, solid/multipart behavior.
 - [PackageCommon.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/PackageCommon.cs): payload selection and deletion markers.
-- [PackageWriter.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/PackageWriter.cs): digest algorithm tested against the sample; no writer ported.
+- [PackageWriter.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/PackageWriter.cs) and [PackageVersion.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/Enums/PackageVersion.cs): MD5+1 algorithm, physical/build-input order and header-relative 64-byte padding. See [integrity research](INTEGRITY.md) for history and issue sources.
 - [LSFCommon.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/Resources/LSF/LSFCommon.cs) and [LSFReader.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/Resources/LSF/LSFReader.cs): section order, layouts, attribute chains, keys, strings/translations.
 - [LSFVersion.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/Enums/LSFVersion.cs): BG3 extended header, node-key and patch version numbering.
+- [LSFWriter.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/Resources/LSF/LSFWriter.cs): section compression/order and attribute offsets. Our writer patches original tables instead of rebuilding names and trees.
 - [Compression.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/Compression.cs) and [compression flags](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/Enums/Compression.cs): codec dispatch and framing.
 - [NodeAttribute.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/NodeAttribute.cs) and [BinUtils.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/BinUtils.cs): type IDs, scalar/vector layout, GUID display.
 - [LSXReader.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/Resources/LSX/LSXReader.cs): XML resource structure; our explorer retains all elements generically.
 - [clemarescx/bg3d](https://github.com/clemarescx/bg3d): inspector precedent and NewAge opaque-blob context.
-- [Hawk-on field mapping](https://github.com/Hawk-on/bg3-save-editor/blob/master/FIELD_MAPPING.md): exploratory gold/character leads, not accepted as validated field mappings.
+- [Hawk-on field mapping](https://github.com/Hawk-on/bg3-save-editor/blob/master/FIELD_MAPPING.md): SaveInfo party/level/XP context and distinction between template amounts and runtime gold. No runtime-gold control adopted.
 - [Wahkah/BG3SE research](https://github.com/Wahkah/BG3SE/blob/main/README.md): independent write-integrity concerns and LSMF context; no decoder code copied and no gameplay mappings adopted.
 - [Serofix-code/bg3-save-editor](https://github.com/Serofix-code/bg3-save-editor): reported repack warnings and metadata versus live-state distinction.
-- [BG3 format research](https://github.com/DanFinchUK/bg3-savefile-parser/blob/master/FORMAT.md): cross-check of LSMF scope; not a basis for PS5 party controls.
+- [BG3 format research](https://github.com/DanFinchUK/bg3-savefile-parser/blob/master/FORMAT.md): leader-name metadata, JSON party/level/XP summary and distinction from live LSMF state. Curated summaries are Inferred, not verified live stat controls.
 - [K4os LZ4 1.3.8](https://www.nuget.org/packages/K4os.Compression.LZ4.Streams/1.3.8) and [ZstdSharp.Port 0.8.8](https://www.nuget.org/packages/ZstdSharp.Port/0.8.8): managed MIT codec dependencies; see notices.

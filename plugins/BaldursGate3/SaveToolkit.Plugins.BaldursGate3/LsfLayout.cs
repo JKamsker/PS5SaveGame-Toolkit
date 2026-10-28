@@ -30,4 +30,5 @@ internal static class LsfLayout
     internal const int NameBucketShift = 16;
     internal const int AttributeTypeBits = 6;
     internal const uint AttributeTypeMask = 0x3f;
+    internal const int MaxAttributeLength = (int)(uint.MaxValue >> AttributeTypeBits);
 }

@@ -96,7 +96,7 @@ public sealed class ParserBoundaryTests
                 }
                 catch (SaveFormatException)
                 {
-                    // Structurally valid mutations need not fail: the package digest is unverified.
+                    // Header/table metadata and standalone LSFs have no content checksum; valid mutations may survive.
                 }
             }
         }

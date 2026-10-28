@@ -1,10 +1,13 @@
 # Third-party notices
 
 The package and LSF layouts, attribute type IDs, compact attribute-chain algorithm,
-translation decoding, and GUID display convention were adapted from Norbyte's
+translation decoding, GUID display convention, MD5+1 algorithm, compression-level
+mappings and writer section/padding rules were adapted from Norbyte's
 LSLib (reference revision `6f5f6987d10d8485876b8368431c948e4dea4f83`).
 The implementation uses checked span reads instead of upstream unsafe structure
-blitting, performs no I/O, and implements a restricted read-only subset.
+blitting, performs no I/O, and implements a restricted subset with preservation-first
+primitive writers. Community project documentation informed the read-only Party
+summary; no community parser/editor implementation was copied.
 
 LSLib: <https://github.com/Norbyte/lslib>
 
