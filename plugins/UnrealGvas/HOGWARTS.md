@@ -87,10 +87,12 @@ summary to `%TEMP%/hogwarts-f1-summary.json`; it never exports save bytes or cel
 
 ## Write investigation and owner checklist
 
-The runtime serializes the original compressed GVAS bytes. The separate test-only
-`HogwartsWriteProbe` checks the exact observed legacy tag, splices stored frames,
-updates the array count/property size and preserves surrounding bytes. It is not
-reachable through any UI action or plugin edit method.
+Existing integer, real and text cells in a complete pair are writable. Identity
+columns, blobs, catalog reference cells, metadata files and malformed pairs remain
+read-only. The write path uses the shared codec in this order: SQLite `Serialize()`
+and `PRAGMA integrity_check`, stored Kraken blocks, then a size-adjusted GVAS
+replacement. The separate test-only `HogwartsWriteProbe` remains useful as a framing
+oracle, but UI writes now use the production `GvasFile.SerializeReplacements` path.
 
 `HogwartsWriteResearchTests` proves on HL0010 that both no-op SQLite images serialize
 byte-identically, stored frames can rebuild both arrays, a fresh GVAS parse and a
@@ -99,12 +101,13 @@ checks after reopen. The walker still uses the same shared Kraken implementation
 no independent proprietary Oodle decoder has been run. Synthetic coverage also
 checks multi-chunk stored output and malformed framing/prefixes/query bounds.
 
-HL0010 grows from **2,073,197 to 8,787,444 bytes** with stored frames. This is format
-evidence only. It establishes neither slot quota acceptance nor console loading.
-The other samples retain their original compressed arrays; full GVAS stored-output
-rebuild was investigated on HL0010, not claimed for every slot/build.
+HL0010 grows from **2,073,197 to 8,787,444 bytes** with stored frames. The plugin
+rejects edited output above its conservative **16 MiB** slot budget. This is a safety
+bound, not a claim about the PS5 allocation, and it establishes neither slot quota
+acceptance nor console loading. The other samples retain their original compressed
+arrays until an edit is made.
 
-Before any write can ship, the owner must provide/validate:
+Before relying on any write, the owner must provide/validate:
 
 - [ ] Unchanged load/re-save control pair from the same spare slot/build, preserving
   both images and SaveGameList plus every companion. Record region, build and DLC.
@@ -126,6 +129,6 @@ Before any write can ship, the owner must provide/validate:
   independently re-decodable output for every write-capable schema. Validate stored
   streams with another decoder when available. Only the owner may mark Stable.
 
-No quest-complete, reward, trophy, entitlement, absent-item creation or bulk-write
-action is enabled. Phase 2 read-only inspection and write feasibility are delivered;
-phases 3–5 remain gated by the evidence above.
+No quest-complete, reward, trophy, entitlement, absent-item creation, identity-column
+or bulk-write action is enabled. Existing-value writes are Experimental and remain
+gated for confidence and console acceptance by the evidence above.

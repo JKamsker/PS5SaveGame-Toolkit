@@ -91,7 +91,23 @@ public sealed class HogwartsDatabase : IDisposable
         return (result, filtered, query.Offset, query.Limit);
     }
 
+    public void SetCell(HogwartsTable table, long rowId, string column, object value)
+    {
+        if (rowId < 1 || !table.Columns.Contains(column, StringComparer.Ordinal) || table.IdentityColumns.Contains(column, StringComparer.Ordinal))
+            throw new ArgumentException("Only existing non-identity Hogwarts columns can be edited.");
+        if (value is not (long or double or string)) throw new ArgumentException("Only SQLite integer, real and text cells can be edited.");
+        string sql = $"UPDATE {HogwartsTable.Quote(table.Name)} SET {HogwartsTable.Quote(column)} = $value WHERE _rowid_ = $rowid";
+        if (_database.Execute(sql, new Dictionary<string, object?> { ["$value"] = value, ["$rowid"] = rowId }) != 1)
+            throw new SaveFormatException("The selected Hogwarts row no longer exists.");
+    }
+
     /// <summary>Research only: SQLite enforces integrity_check before returning a no-op image.</summary>
     public byte[] SerializeForResearch() => _database.Serialize();
+    /// <summary>Write path: serialize only after the shared codec's integrity check succeeds.</summary>
+    public byte[] SerializeForWrite()
+    {
+        _database.ValidateIntegrity();
+        return _database.Serialize();
+    }
     public void Dispose() => _database.Dispose();
 }

@@ -53,8 +53,25 @@ public sealed class GvasFile
 
     public byte[] Serialize()
     {
+        return SerializeReplacements(new Dictionary<GvasNode, ReadOnlyMemory<byte>>());
+    }
+
+    /// <summary>
+    /// Serializes scalar edits and complete opaque payload replacements while preserving every
+    /// unedited byte. Replacements are used by title-specific codecs whose payload length can grow.
+    /// </summary>
+    public byte[] SerializeReplacements(IReadOnlyDictionary<GvasNode, ReadOnlyMemory<byte>> replacements)
+    {
+        ArgumentNullException.ThrowIfNull(replacements);
         var patches = Descendants(Properties).Where(n => n.Scalar?.Changed == true)
             .Select(n => n.Scalar!).Select(s => new BytePatch(s.Offset, s.Length, s.Encode())).ToList();
+        foreach (var (node, bytes) in replacements)
+        {
+            if (!Descendants(Properties).Contains(node)) throw new SaveFormatException("Replacement node is not part of this GVAS.");
+            if (node.Scalar is not null) throw new SaveFormatException("Scalar payloads must be edited through their field binding.");
+            if (bytes.Length > MaxFileLength) throw new SaveFormatException("Replacement payload exceeds the 128 MiB safety limit.");
+            patches.Add(new BytePatch(node.Offset, node.Length, bytes.ToArray()));
+        }
         var valuePatches = patches.ToArray();
         foreach (var region in _sizes)
         {

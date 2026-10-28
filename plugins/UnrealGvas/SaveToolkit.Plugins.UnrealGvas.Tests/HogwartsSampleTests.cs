@@ -44,7 +44,7 @@ public sealed class HogwartsSampleTests
         var plugin = new UnrealGvasPlugin();
         var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA01603");
         using var document = plugin.Open(sample, context);
-        Assert.False(document.CanEdit);
+        Assert.True(document.CanEdit);
         var tabs = Assert.IsType<TabsNode>(document.BuildView()).Tabs;
         foreach (string name in new[] { "Character", "Inventory", "Progression", "Collections" })
             Assert.Contains(tabs, tab => tab.Title == name && tab.Children.OfType<QueryableTableNode>().Any());
@@ -53,7 +53,12 @@ public sealed class HogwartsSampleTests
         var inventory = Assert.Single(queryable.Collections, collection => collection.Id == "hogwarts/RawDatabaseImage/InventoryDynamic");
         var page = queryable.Query(inventory.Id, new() { Filters = new Dictionary<string, string> { ["ItemID"] = "Knuts" } });
         Assert.NotEmpty(page.Rows);
-        Assert.All(page.Rows, row => Assert.Equal("Knuts", Assert.IsType<TextNode>(row.Cells["ItemID"]).Text));
+        Assert.All(page.Rows, row => Assert.Equal("Knuts", row.Cells["ItemID"] switch
+        {
+            TextNode text => text.Text,
+            FieldNode field => field.Value.AsString(),
+            _ => throw new Xunit.Sdk.XunitException("Unexpected ItemID cell type."),
+        }));
         Assert.True(page.FilteredCount < inventory.TotalCount);
         Assert.False(document.ApplyEdits([new("property/0", SaveToolkit.Sdk.Values.FieldValue.Of("PC"))]).Succeeded);
         Assert.True(sample.ReadAllBytes().AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
@@ -83,9 +88,12 @@ public sealed class HogwartsSampleTests
                 foreach (var field in page.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>())
                 {
                     matches++;
-                    Assert.True(Assert.IsType<SaveToolkit.Sdk.Values.ReferenceSpec>(field.Spec).ReadOnly);
+                    if (field.Spec is SaveToolkit.Sdk.Values.ReferenceSpec reference)
+                    {
+                        Assert.True(reference.ReadOnly);
+                        Assert.Contains("Malin001", field.Description);
+                    }
                     Assert.Equal(field.Value, document.GetValue(field.ValueId));
-                    Assert.Contains("Malin001", field.Description);
                 }
             }
         }

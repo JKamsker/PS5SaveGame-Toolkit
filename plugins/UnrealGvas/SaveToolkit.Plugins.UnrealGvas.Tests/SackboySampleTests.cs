@@ -25,7 +25,7 @@ public sealed class SackboySampleTests
     }
 
     [Fact]
-    public void GeneralHasVerifiedTaggedCurrencyAndUnknownChecksumBlocksEditing()
+    public void GeneralHasVerifiedTaggedCurrencyAndUnknownChecksumKeepsOnlyItsFieldReadOnly()
     {
         var files = SampleSaves.Load("PPSA01288").AllDiskFiles.Where(f => f.FileName == "General").DistinctBy(f => f.Sha256).ToArray();
         Assert.Equal(2, files.Length);
@@ -39,9 +39,10 @@ public sealed class SackboySampleTests
             currencies.Add((Int128)Assert.Single(nodes, n => n.Name == "CollectabellsStored").Scalar!.Value);
             Assert.Contains(nodes, n => n.Name == "Checksum");
             using var document = new UnrealGvasPlugin().Open(file);
-            Assert.False(document.CanEdit);
+            Assert.True(document.CanEdit);
             var fields = GvasFormatTests.Expand(document);
-            Assert.All(fields, f => Assert.True(f.Spec.ReadOnly));
+            Assert.Contains(fields, f => f.Label.Contains("CollectabellsStored", StringComparison.Ordinal) && !f.Spec.ReadOnly);
+            Assert.Contains(fields, f => f.Label.Contains("Checksum", StringComparison.Ordinal) && f.Spec.ReadOnly);
         }
         Assert.Equal(new Int128[] { 322, 445 }, currencies.Order().ToArray());
     }

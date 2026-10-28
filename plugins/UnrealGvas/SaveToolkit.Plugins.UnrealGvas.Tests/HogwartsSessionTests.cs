@@ -31,6 +31,6 @@ public sealed class HogwartsSessionTests
         Assert.NotNull(reference);
         var candidates = session.SearchReferences(reference.ValueId, new() { Text = reference.Value.AsString(), Limit = 5 });
         Assert.Contains(candidates.Items, candidate => candidate.RawId == reference.Value.AsString() && candidate.Dataset?.Attribution.License == "MIT");
-        Assert.False(session.CanEdit);
+        Assert.True(session.CanEdit);
     }
 }

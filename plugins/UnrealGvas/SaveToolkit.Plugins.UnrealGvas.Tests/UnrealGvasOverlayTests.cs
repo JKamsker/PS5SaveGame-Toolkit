@@ -24,7 +24,7 @@ public sealed class UnrealGvasOverlayTests
     }
 
     [Fact]
-    public void JediGameplay_ExposesBoundedDecodedActorIndexAndKeepsDocumentReadOnly()
+    public void JediGameplay_ExposesBoundedDecodedActorIndexAndWarnsOnWrites()
     {
         var plugin = new UnrealGvasPlugin();
         var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02199");
@@ -32,7 +32,7 @@ public sealed class UnrealGvasOverlayTests
             f.Directory.Name == "SaveGame00" && f.FileName == "ue4savegame.dpx.sav");
 
         using var document = plugin.Open(file, context);
-        Assert.False(document.CanEdit);
+        Assert.True(document.CanEdit);
         var tabs = Assert.IsType<TabsNode>(document.BuildView()).Tabs;
         Assert.Contains(tabs, tab => tab.Title == "Schema");
         var actorPage = document.ExpandNode("jedi/actors");
@@ -53,7 +53,7 @@ public sealed class UnrealGvasOverlayTests
         Assert.NotEmpty(diff.Ranges);
 
         using var document = new UnrealGvasPlugin().Open(files[0]);
-        Assert.False(document.CanEdit);
+        Assert.True(document.CanEdit);
         var schema = Assert.Single(Assert.IsType<TabsNode>(document.BuildView()).Tabs, tab => tab.Title == "Schema");
         var table = Assert.Single(schema.Children.OfType<TableNode>());
         Assert.Contains(table.Rows, row => row.Cells["property"] is FieldNode field && field.Value.AsString() == "CollectabellsStored");

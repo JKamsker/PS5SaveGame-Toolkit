@@ -37,7 +37,7 @@ public sealed class HogwartsWriteResearchTests
         }
         // GVAS writer research stays in this test. Actual document serialization retains original frames.
         using var document = new UnrealGvasPlugin().Open(sample);
-        Assert.False(document.CanEdit);
+        Assert.True(document.CanEdit);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         File.WriteAllText(Path.Combine(Path.GetTempPath(), "hogwarts-write-size.txt"), $"original={original.Length}; stored={rebuilt.Length}");
     }

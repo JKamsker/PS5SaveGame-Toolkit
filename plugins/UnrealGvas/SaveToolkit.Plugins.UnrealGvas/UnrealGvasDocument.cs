@@ -10,6 +10,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
 {
     private const int PageSize = 100;
     private const string EditWarning = "Serialized property name and type are verified. Game constraints and effects are unverified; keep a backup.";
+    internal const string UnknownIntegrityWarning = "Not validated on console. Checksum coverage is unproven; the game may reject or overwrite this edited save. Keep a backup.";
     private readonly string _path;
     private readonly GvasEnvelope _envelope;
     private readonly UnrealGvasSchema _schema;
@@ -19,6 +20,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     private readonly Dictionary<GvasNode, string> _ids = [];
     private readonly Dictionary<string, Func<IReadOnlyList<ViewNode>>> _lazy = new(StringComparer.Ordinal);
     private readonly string? _readOnlyReason;
+    private readonly string? _integrityWarning;
 
     public UnrealGvasDocument(string path, GvasEnvelope envelope, IReferenceContext references, string? readOnlyReason = null)
     {
@@ -30,6 +32,10 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
         _actorStream = ReadActorStream();
         if (readOnlyReason is not null) _readOnlyReason = readOnlyReason;
         else if (envelope.IsWrapped) _readOnlyReason = "This compressed envelope is read-only; recompression has not been verified.";
+        else if (_schema.Kind == UnrealGvasSchemaKind.JediGameplay && _actorStream is not { IsValid: true })
+            _readOnlyReason = "The actor payload failed bounded validation; the gameplay document remains read-only.";
+        else if (_schema.Kind is UnrealGvasSchemaKind.SackboyGeneral or UnrealGvasSchemaKind.JediGameplay)
+            _integrityWarning = UnknownIntegrityWarning;
         else if (_nodes.Values.Any(n => n.Name.Contains("crc", StringComparison.OrdinalIgnoreCase) ||
                  n.Name.Contains("checksum", StringComparison.OrdinalIgnoreCase) || n.Name.Contains("signature", StringComparison.OrdinalIgnoreCase)))
             _readOnlyReason = "This save contains a game-specific integrity field. Its coverage is unknown, so the entire document is read-only.";
@@ -58,7 +64,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
                 new TextNode($"Branch: {header.EngineBranch}. {_envelope.Label}."),
                 new TextNode($"Schema: {_schema.Name} ({_schema.Confidence}). {_schema.Evidence}") { Tone = _schema.IsTitleSchema ? Tone.Info : Tone.Muted },
                 .. ImageSetNotes(header.SaveClass),
-                new TextNode(_readOnlyReason ?? "Experimental. Embedded compressed payloads and unknown native structures are preserved read-only.") { Tone = Tone.Warning },
+                new TextNode(_readOnlyReason ?? _integrityWarning ?? "Experimental. Embedded compressed payloads and unknown native structures are preserved read-only.") { Tone = Tone.Warning },
             ]),
             new Tab("Properties", [Lazy("Property tree", "tree", () => TreePage(file.Properties, 0, "tree"))]),
             new Tab("Search", [Lazy("Top-level primitive properties", "search", () => SearchPage(primitives, 0))]),
@@ -142,14 +148,30 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     private FieldNode Bind(GvasNode node)
     {
         var scalar = node.Scalar!;
+        var writable = CanEdit && !IsIntegrityNode(node);
         return Field(_ids[node], $"{node.Name} · {node.Type}", GvasScalarField.Spec(scalar), () => GvasScalarField.ToFieldValue(scalar),
-            CanEdit ? value => GvasScalarField.SetScalar(scalar, value) : null, value => GvasScalarField.Validate(scalar, value)) with
+            writable ? value => GvasScalarField.SetScalar(scalar, value) : null, value => GvasScalarField.Validate(scalar, value)) with
         {
-            Confidence = Confidence.Verified,
-            Description = "Raw serialized property; the name and storage type are confirmed by its tag.",
-            Warning = _readOnlyReason ?? EditWarning,
+            Confidence = _integrityWarning is null ? Confidence.Verified : Confidence.Inferred,
+            Description = _integrityWarning is null
+                ? "Raw serialized property; the name and storage type are confirmed by its tag."
+                : "Existing serialized field observed in supplied title captures; gameplay meaning and integrity coverage remain unproven.",
+            Warning = _readOnlyReason ?? _integrityWarning ?? EditWarning,
         };
     }
+
+    public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
+    {
+        var outcome = base.ApplyEdits(edits);
+        return outcome.Succeeded && edits.Count > 0 && _integrityWarning is not null
+            ? outcome with { Warnings = [_integrityWarning] }
+            : outcome;
+    }
+
+    private static bool IsIntegrityNode(GvasNode node) =>
+        node.Name.Contains("crc", StringComparison.OrdinalIgnoreCase) ||
+        node.Name.Contains("checksum", StringComparison.OrdinalIgnoreCase) ||
+        node.Name.Contains("signature", StringComparison.OrdinalIgnoreCase);
 
     private IReadOnlyList<ViewNode> BuildSchemaOverlay()
     {
