@@ -5,7 +5,8 @@
 PPSA01325 only. There are two distinct primary `memory.dat` generations and two
 byte-identical backup twins, not four independent gameplay captures. Build, region,
 capture actions and chronological order are unknown. No edited save has been tested
-on PS5. The plugin remains Experimental; new catalogue controls are read-only.
+on PS5. The plugin remains Experimental; catalogue labels are read-only and ownership actions
+are now enabled with explicit warnings under the owner's write-round decision (see #31).
 
 No private payload, account metadata, screenshots or extracted game assets are
 committed. `fixtures.json` stores exact schema paths and non-sensitive primitive
@@ -75,9 +76,17 @@ samples; the fixture explicitly checks its absence rather than inventing a value
 
 Several UDS counters change alongside collection/progression flags, but these
 mixed-event saves cannot prove cause, direction or the minimal safe batch.
-**No new grant/revoke, per-world or collect-all writes are justified.** F6 now exposes a reviewed
-coin action (the `NumCoin` storage transition is proven) and a collect-all preview that reports every
-selected row as skipped; it cannot supply missing gameplay evidence or enable collectible writes.
+The observations do not prove gameplay-safe dependencies. The 2026-10-28 owner decision
+**"Enable writes. Keep warnings."** supersedes the previous evidence gate: F6 collect-all/selected
+actions now set existing missing `IsGot` booleans only, with no guessed derived writes. Cinematic,
+notification, Progress/World and UDS fields are preserved. Plans and outcomes warn that console
+acceptance and integrity are unverified and the game may reject an edited save. Missing or
+ambiguous/nonboolean ownership structures are skipped instead of being inserted or rewritten.
+
+`AstroCollectWriteTests` applies all 164 missing flags in generation 0 and 151 in generation 1
+across both primary/backup twins. An independent literal-span replacement oracle plus F1 byte
+and semantic diffs proves that only ownership text and required displacement/zero fill change;
+reopen and one-step Core undo/redo also pass. These are serializer checks, not gameplay evidence.
 
 ## Reference mappings and unresolved locations
 
@@ -113,6 +122,7 @@ fetches were blocked; exact selected data is pinned by pack version/file hashes.
 The README's exact capture checklist covers control/coin gain/spend pairs, named
 artifact/prop/puzzle pickups including all four ambiguous boundaries, stage/boss
 clears, catalogue screenshots, update/special-bot transitions and cross-title
-transfer pairs. Every proposed write still requires spare-save load, intended
-effect, ordinary gameplay, resave/re-dump and a clean second load on PS5. No new
-action is enabled until linked-state evidence proves its entire dependency group.
+transfer pairs. Every enabled write still needs spare-save load, intended
+effect, ordinary gameplay, resave/re-dump and a clean second load on PS5 before its
+warnings can be narrowed. Validation is tracked in
+[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31), independently of write enablement.

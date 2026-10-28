@@ -31,7 +31,7 @@ public sealed class AstroPlanningTests
     }
 
     [Fact]
-    public void CollectAllPreviewSkipsEveryExistingRecordWithoutProposingWrites()
+    public void CollectAllPreviewProposesOnlyExistingMissingOwnershipFlagsWithoutMutating()
     {
         var (plugin, _, context) = AstroCatalogueTestData.References();
         using var document = plugin.Open(AstroTestData.Samples()[0], context);
@@ -40,9 +40,18 @@ public sealed class AstroPlanningTests
         var plan = planner.PlanAction(CollectAllAction, new Dictionary<string, FieldValue>(), new());
 
         Assert.Empty(plan.Errors);
-        Assert.Empty(plan.Changes);
-        Assert.Equal(164, plan.SkippedRows.Count);
-        Assert.Contains("Collectible writes are disabled", Assert.Single(plan.Warnings), StringComparison.Ordinal);
+        Assert.Equal(164, plan.Changes.Count);
+        Assert.Empty(plan.SkippedRows);
+        Assert.All(plan.Changes, change =>
+        {
+            Assert.EndsWith("/IsGot[0]/text[0]", change.ValueId, StringComparison.Ordinal);
+            Assert.Equal(FieldValue.Of(false), change.OldValue);
+            Assert.Equal(FieldValue.Of(true), change.NewValue);
+            Assert.False(change.Derived);
+            Assert.Contains("Inferred", change.Label, StringComparison.Ordinal);
+        });
+        Assert.Contains(plan.Warnings, warning => warning.Contains("not validated on console", StringComparison.Ordinal));
+        Assert.Contains(plan.Warnings, warning => warning.Contains("game may reject", StringComparison.Ordinal));
         Assert.Equal(AstroTestData.Samples()[0].ReadAllBytes(), AstroTestData.Output(document));
     }
 

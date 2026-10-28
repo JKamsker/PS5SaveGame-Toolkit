@@ -113,6 +113,6 @@ public sealed class AstroCatalogueTests
         Assert.Equal("1/1 owned; 0 mapped / 1 unmapped; 0 unknown ownership", AstroCatalogueTestData.Group(newer, "Artifacts").Badge);
         Assert.Equal(bytes, AstroTestData.Output(newer));
         Assert.All(AstroTestData.Fields(newer).Where(f => f.Description!.Contains("Armadillo", StringComparison.Ordinal)), f => Assert.True(f.Spec.ReadOnly));
-        Assert.Empty(AstroCatalogueTestData.Catalogue(newer).Children.OfType<ActionNode>());
+        Assert.Equal("collectibles/collect-all", Assert.Single(AstroCatalogueTestData.Catalogue(newer).Children.OfType<ActionNode>()).ActionId);
     }
 }
