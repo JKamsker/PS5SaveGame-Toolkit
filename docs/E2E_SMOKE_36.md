@@ -123,3 +123,44 @@ Acceptance: the per-plugin issue table is complete; the discovered framework
 bug is fixed with regressions; plugin findings have minimal reproductions.
 The full-suite-green goal remains unmet because of A/E. Plugin owners must also
 resolve B/C/D/F; re-run those paths afterward. Issue #36 remains open.
+
+## Finding D — framework guard follow-up
+
+Implemented on `framework/lazy-expansion-guard` without plugin changes. The web
+renderer automatically loads at most eight distinct lazy IDs per mounted view,
+at the first lazy level only. Eager grouping sections and tabs do not increase
+that depth. Lazy descendants and roots beyond the budget stay collapsed with a
+named **Load** button; native summary toggling and explicit review/map jumps still
+work. Returning to a tab reuses its automatic grants. Document refresh keeps the
+budget and stale-recovery state while fetching current-generation children.
+
+All lazy requests share a four-slot FIFO queue across views and generations.
+Unmounting a section cancels its queued request and forwards cancellation to an
+active fetch. A cancelled active request holds its slot until it settles.
+
+Rechecked the original largest Insomniac save, import file `f40` in
+`PPSA01474_saves_dec.zip`, snapshot `108976056`, against the built UI and isolated
+API on port 5380. Selecting **Systems** settled at eight node requests, peak
+concurrency four, 46 section shells, zero field elements, zero remaining loading
+sections and zero failed requests. Clicking **Load DimensionSaves** issued exactly
+one further request and left **DimensionSaves[0]** collapsed. Focusing its Load
+button and pressing Enter issued exactly one more request; its six child sections
+remained collapsed. No recursive request cascade or console exception occurred.
+Samples were read from the original artifacts directory; imported workspaces
+remained under the system temporary directory. Port 5180 was untouched.
+
+Web regressions cover a 1,000-level default-open chain, broad roots, cached deep
+trees, bounded rendered fields/sections, explicit loads, focus, native toggles,
+tab budget persistence, refresh and StrictMode. Queue tests cover concurrency,
+FIFO dispatch, cancellation and slot recovery after failures. Existing stale-view
+recovery and review/spatial jump tests remain green. `npm run build` and `npm test`
+pass; API build has zero warnings/errors; Core 309/309, Codecs 25/25 and SaveDiff
+107/107 pass with samples configured and zero skips. An earlier full web run hit
+five existing-test timeouts under machine memory pressure; both a constrained
+worker run and the subsequent normal `npm test` run passed.
+
+No SDK, HTTP API or shared protocol type changed. `api.expand` gained only an
+optional client-side `AbortSignal`. This safeguard bounds automatic lazy traversal;
+the plugin rule to bound individual eager views/responses still applies. Optional
+Core eager-node warnings were not added. B/F and the separate Insomniac plugin
+fix remain outside this framework follow-up; the issue remains open.
