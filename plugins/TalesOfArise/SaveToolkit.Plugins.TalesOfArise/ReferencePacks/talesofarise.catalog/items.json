@@ -5,12 +5,15 @@
       "name": "Apple Gel",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): 500\nResale Price (Gald): 250\nAcquisition Method: Shop: Lacerda Cliffs Search: Zionne Mine Tunnels , Sandinus Ravine , Ulzebek (in the well), Iglia Wastes , Fagan Ruins - Storage Block 2F, Kyrd Garrison (3x), Glanymede Castle - 1F, 2F, 3F (2x), Ulvhan Grotto (3x), White Silver Plains , Rudhir Forest , Cysloden - Fountain Plaza Avenue, Riville Prison Tower - Southern Block, Collection Room, Underground Prison, 2F, Adan Lake (BtD)\nheals 400 HP to one ally",
+      "description": "Purchase Price (Gald): 500\nResale Price (Gald): 250\nAcquisition Method: Shop: Lacerda Cliffs Search: Zionne Mine Tunnels , Sandinus Ravine , Ulzebek (in the well), Iglia Wastes , Fagan Ruins - Storage Block 2F, Kyrd Garrison (3x), Glanymede Castle - 1F, 2F, 3F (2x), Ulvhan Grotto (3x), White Silver Plains , Rudhir Forest , Cysloden - Fountain Plaza Avenue, Riville Prison Tower - Southern Block, Collection Room, Underground Prison, 2F, Adan Lake (BtD)\nheals 400 HP to one ally\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "1",
         "sourceRevision": "382800",
         "section": "Gels (グミ)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -19,12 +22,15 @@
       "name": "Panacea Bottle",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): 400\nResale Price (Gald): 200\nAcquisition Method: Chest: Ulvhan Grotto (3x), Riville Prison Tower - 2F\ncures and temporarily protects one ally from all status ailments",
+      "description": "Purchase Price (Gald): 400\nResale Price (Gald): 200\nAcquisition Method: Chest: Ulvhan Grotto (3x), Riville Prison Tower - 2F\ncures and temporarily protects one ally from all status ailments\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "10",
         "sourceRevision": "382800",
         "section": "Bottles (ボトル)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -33,12 +39,15 @@
       "name": "Life Bottle",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): 1000\nResale Price (Gald): 500\nAcquisition Method: Shop: Lacerda Cliffs Chest: Sandinus Ravine , Fagan Ruins - Storage Block 1F, Glanymede Castle - 3F, Lacerda Cliffs , White Silver Plains , Cysloden - Bregon's Hideout, Riville Prison Tower - Underground Prison, Safar Sea Cave - Central Level, Razum Quarry - Mining Site 2, Mobile Fortress Gradia - Ship Interior Level 1, Ship Interior Level 2, Del Fharis Castle - Central Entrance Plaza 4F, Forland Mountains - North Hiking Trail, Lenegis - Forbidden Zone Research Area, Mausoleum of the Jungle: Helgal-Ryugola 67 - Lower Central Stabilization Layer Sub-Event: Doc's Secret Ingredient (2x), Thawing Revelations (2x), Culling the Snowplain Herds (2x), Getting Rusty (2x), City Renewal (3x), Fishing Fiends (3x), Catching Up (2x) DLC: Premium Item Pack\nrecovers one member from KO and restores 800 HP",
+      "description": "Purchase Price (Gald): 1000\nResale Price (Gald): 500\nAcquisition Method: Shop: Lacerda Cliffs Chest: Sandinus Ravine , Fagan Ruins - Storage Block 1F, Glanymede Castle - 3F, Lacerda Cliffs , White Silver Plains , Cysloden - Bregon's Hideout, Riville Prison Tower - Underground Prison, Safar Sea Cave - Central Level, Razum Quarry - Mining Site 2, Mobile Fortress Gradia - Ship Interior Level 1, Ship Interior Level 2, Del Fharis Castle - Central Entrance Plaza 4F, Forland Mountains - North Hiking Trail, Lenegis - Forbidden Zone Research Area, Mausoleum of the Jungle: Helgal-Ryugola 67 - Lower Central Stabilization Layer Sub-Event: Doc's Secret Ingredient (2x), Thawing Revelations (2x), Culling the Snowplain Herds (2x), Getting Rusty (2x), City Renewal (3x), Fishing Fiends (3x), Catching Up (2x) DLC: Premium Item Pack\nrecovers one member from KO and restores 800 HP\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "11",
         "sourceRevision": "382800",
         "section": "Bottles (ボトル)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -47,12 +56,15 @@
       "name": "Elixir",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): -\nResale Price (Gald): -\nAcquisition Method: Chest: Tarfhal Helgarahi - Lower Level 2F, Zone 3, Lower Level 2F Corridor, Mobile Fortress Gradia - Ship Interior Level 2, Del Fharis Castle - North Tower 1F, \"The Wedge\" - Spiral 3 Conduit, Tarfhal Helgarahi - Lower Level 2F Corridor, Lower Level 2F (Zone 3), The Otherworld - Spirit Forest Shallows, Oracle Snowcap Entrance, Mausoleum of the Ruins: Helgal-Ryugola 238 - Central Stabilization Layer, Iglia Wastes (BtD), Shinefall Woods (BtD), Mausoleum of the Jungle: Helgal-Ryugola 67 - Limestone Cavern: Shallow Layer, Limestone Cavern: Falls: Upper Level, Keystone - Gate Room: Upper Level, Flame Palace: Upper Level Coliseum: Group Battle (Target clear bonus)\nrecovers one member from KO, restores all their HP, and cures all their status ailments",
+      "description": "Purchase Price (Gald): -\nResale Price (Gald): -\nAcquisition Method: Chest: Tarfhal Helgarahi - Lower Level 2F, Zone 3, Lower Level 2F Corridor, Mobile Fortress Gradia - Ship Interior Level 2, Del Fharis Castle - North Tower 1F, \"The Wedge\" - Spiral 3 Conduit, Tarfhal Helgarahi - Lower Level 2F Corridor, Lower Level 2F (Zone 3), The Otherworld - Spirit Forest Shallows, Oracle Snowcap Entrance, Mausoleum of the Ruins: Helgal-Ryugola 238 - Central Stabilization Layer, Iglia Wastes (BtD), Shinefall Woods (BtD), Mausoleum of the Jungle: Helgal-Ryugola 67 - Limestone Cavern: Shallow Layer, Limestone Cavern: Falls: Upper Level, Keystone - Gate Room: Upper Level, Flame Palace: Upper Level Coliseum: Group Battle (Target clear bonus)\nrecovers one member from KO, restores all their HP, and cures all their status ailments\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "12",
         "sourceRevision": "382800",
         "section": "Bottles (ボトル)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -61,12 +73,15 @@
       "name": "Omega Elixir",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): -\nResale Price (Gald): 20000\nAcquisition Method: Chest: Hidden Treasury , Del Fharis Castle - Central Entrance Plaza 3F, Hanging Garden, Tower of the Wind Spirit - Lower Level, Tarfhal Helgarahi - Lower Level 2F (Zone 3), The Otherworld - Spirit Forest Shallows, Dragon Slumber Mountain, Volcano of Renewal: Middle Level, Keystone - Stone Palace: Central Level\nrecovers all allies from KO, restores all their HP, and cures all their status ailments",
+      "description": "Purchase Price (Gald): -\nResale Price (Gald): 20000\nAcquisition Method: Chest: Hidden Treasury , Del Fharis Castle - Central Entrance Plaza 3F, Hanging Garden, Tower of the Wind Spirit - Lower Level, Tarfhal Helgarahi - Lower Level 2F (Zone 3), The Otherworld - Spirit Forest Shallows, Dragon Slumber Mountain, Volcano of Renewal: Middle Level, Keystone - Stone Palace: Central Level\nrecovers all allies from KO, restores all their HP, and cures all their status ailments\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "13",
         "sourceRevision": "382800",
         "section": "Bottles (ボトル)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -75,12 +90,15 @@
       "name": "Peach Gel",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): 1200\nResale Price (Gald): 600\nAcquisition Method: Search: Rudhir Forest (2x), Underground Waterway , Riville Prison Tower - 2F, Safar Sea Cave - Lower Level, Traslida Highway , Viscint , Razum Quarry - Mining Site 1, Mining Site 2, Gilanne Woodland - Outer Level, Autelina Palace - Dining Hall, Mount Dhiara - Mountain Trail, Ridge, Aqfotle Hills , Adan Lake , Adan Ruins , Este Luvah Forest - Fortress Ruins Ground Level, Fortress Ruins Basement Level 3F, Mobile Fortress Gradia - Ship Interior Level 1, Ship Interior Lower Level, Ship Interior Level 2, Lavtu Marshlands\nheals 1200 HP to one ally",
+      "description": "Purchase Price (Gald): 1200\nResale Price (Gald): 600\nAcquisition Method: Search: Rudhir Forest (2x), Underground Waterway , Riville Prison Tower - 2F, Safar Sea Cave - Lower Level, Traslida Highway , Viscint , Razum Quarry - Mining Site 1, Mining Site 2, Gilanne Woodland - Outer Level, Autelina Palace - Dining Hall, Mount Dhiara - Mountain Trail, Ridge, Aqfotle Hills , Adan Lake , Adan Ruins , Este Luvah Forest - Fortress Ruins Ground Level, Fortress Ruins Basement Level 3F, Mobile Fortress Gradia - Ship Interior Level 1, Ship Interior Lower Level, Ship Interior Level 2, Lavtu Marshlands\nheals 1200 HP to one ally\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "2",
         "sourceRevision": "382800",
         "section": "Gels (グミ)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -89,12 +107,15 @@
       "name": "Lemon Gel",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): 4000\nResale Price (Gald): 2000\nAcquisition Method: Search: Aureum Falls - Central Level, Lavtu Marshlands , Forland Mountains - North Hiking Trail, Pelegion - Saxleoh Temple, Del Fharis Castle - South Tower 2F, Frozen Valley , \"The Wedge\" - Spiral 2 Lower Level, Spiral 4 Central Level, Berg Volcano - Interior, Lavtu Marshlands , Del Fharis Castle - South Tower 2F, Pelegion - Saxleoh Temple, Forland Mountains - North Hiking Trail, \"The Wedge\" - Spiral 2 Lower Level, Spiral 4 Central Level, Berg Volcano - Interior, Uninhabited Island Coliseum: Alphen 's Solo Battle (Alphen Training, Target clear bonus), Law 's Solo Battle (Law Training, Target clear bonus) DLC: Relief Support Pack\nheals 2000 HP to one ally",
+      "description": "Purchase Price (Gald): 4000\nResale Price (Gald): 2000\nAcquisition Method: Search: Aureum Falls - Central Level, Lavtu Marshlands , Forland Mountains - North Hiking Trail, Pelegion - Saxleoh Temple, Del Fharis Castle - South Tower 2F, Frozen Valley , \"The Wedge\" - Spiral 2 Lower Level, Spiral 4 Central Level, Berg Volcano - Interior, Lavtu Marshlands , Del Fharis Castle - South Tower 2F, Pelegion - Saxleoh Temple, Forland Mountains - North Hiking Trail, \"The Wedge\" - Spiral 2 Lower Level, Spiral 4 Central Level, Berg Volcano - Interior, Uninhabited Island Coliseum: Alphen 's Solo Battle (Alphen Training, Target clear bonus), Law 's Solo Battle (Law Training, Target clear bonus) DLC: Relief Support Pack\nheals 2000 HP to one ally\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "3",
         "sourceRevision": "382800",
         "section": "Gels (グミ)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -103,12 +124,15 @@
       "name": "Grape Gel",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): 4000\nResale Price (Gald): 2000\nAcquisition Method: Search: Lenegis - Residential Zone 4, Maintenance Passageway, Forbidden Zone Research Area, Gegham Helgarahi - Upper Level 3F, Fogwharl Limestone Caverns - Shallows, Lenegis - Maintenance Passageway DLC: Relief Support Pack\nheals 2800 HP to one ally",
+      "description": "Purchase Price (Gald): 4000\nResale Price (Gald): 2000\nAcquisition Method: Search: Lenegis - Residential Zone 4, Maintenance Passageway, Forbidden Zone Research Area, Gegham Helgarahi - Upper Level 3F, Fogwharl Limestone Caverns - Shallows, Lenegis - Maintenance Passageway DLC: Relief Support Pack\nheals 2800 HP to one ally\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "4",
         "sourceRevision": "382800",
         "section": "Gels (グミ)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -117,12 +141,15 @@
       "name": "Orange Gel",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): 3000\nResale Price (Gald): 1500\nAcquisition Method: Search: Sandinus Ravine , Fagan Ruins - Storage Block 3F, Glanymede Castle - 3F (2x), Ulvhan Grotto (2x), Rudhir Forest , Nevira Snowplains , Cysloden - Underground Waterway, Riville Prison Tower - Southern Block, Safar Sea Cave - Central Level (2x), Razum Quarry - Mining Site 2, Autelina Palace - Office, Barracks, Meeting Room, Library, Mount Dhiara - Mountain Trail, Adan Ruins , Mobile Fortress Gradia - Ship Interior Level 1, Boat Deck, Aureum Falls - Lower Level, Waterfall Basin, Del Fharis Castle - South Tower 1F, \"The Wedge\" - Spiral 3 Central Level, Berg Volcano - Interior, Lenegis - Residential Zone 4, Tarfhal Helgarahi - Lower Level 1F, Mausoleum of the Ruins: Helgal-Ryugola 238 - Lower Surface Concretion Layer, Mausoleum of the Jungle: Helgal-Ryugola 67 - Lower Surface Concretion Layer, Limestone Cavern: Falls: Upper Level, Lower Central Stabilization Layer, Keystone - Aged Floor: Sloped Corridor Sub-Event: Fire Beneath the Ice (2x)\nrestores 30% CP",
+      "description": "Purchase Price (Gald): 3000\nResale Price (Gald): 1500\nAcquisition Method: Search: Sandinus Ravine , Fagan Ruins - Storage Block 3F, Glanymede Castle - 3F (2x), Ulvhan Grotto (2x), Rudhir Forest , Nevira Snowplains , Cysloden - Underground Waterway, Riville Prison Tower - Southern Block, Safar Sea Cave - Central Level (2x), Razum Quarry - Mining Site 2, Autelina Palace - Office, Barracks, Meeting Room, Library, Mount Dhiara - Mountain Trail, Adan Ruins , Mobile Fortress Gradia - Ship Interior Level 1, Boat Deck, Aureum Falls - Lower Level, Waterfall Basin, Del Fharis Castle - South Tower 1F, \"The Wedge\" - Spiral 3 Central Level, Berg Volcano - Interior, Lenegis - Residential Zone 4, Tarfhal Helgarahi - Lower Level 1F, Mausoleum of the Ruins: Helgal-Ryugola 238 - Lower Surface Concretion Layer, Mausoleum of the Jungle: Helgal-Ryugola 67 - Lower Surface Concretion Layer, Limestone Cavern: Falls: Upper Level, Lower Central Stabilization Layer, Keystone - Aged Floor: Sloped Corridor Sub-Event: Fire Beneath the Ice (2x)\nrestores 30% CP\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "5",
         "sourceRevision": "382800",
         "section": "Gels (グミ)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -131,12 +158,15 @@
       "name": "Pineapple Gel",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): 9000\nResale Price (Gald): 4500\nAcquisition Method: Chest: Keystone - Revolving Ring: Upper Level, Whirlpool Palace: Level 2, Stone Palace: Upper Level Search: Riville Prison Tower - 2F, Mobile Fortress Gradia - Ship Interior Level 2, Aureum Falls - Waterfalls, Del Fharis Castle - North Tower 1F, Forland Mountains - South Hiking Trail, \"The Wedge\" - Spiral 3 Central Level, Spiral 2 Top Level, Berg Volcano - Interior, Fogwharl Limestone Caverns - Center, Lenegis - Maintenance Passageway, Gegham Helgarahi - Upper Level 2F Corridor, Regulator Area Group Remnants, Tarfhal Helgarahi - Lower Level 1F, Mausoleum of the Jungle: Helgal-Ryugola 67 - Lower Central Stabilization Layer Coliseum: Shionne 's Solo Battle (Shionne Training, Target clear bonus)\nrestores 60% CP",
+      "description": "Purchase Price (Gald): 9000\nResale Price (Gald): 4500\nAcquisition Method: Chest: Keystone - Revolving Ring: Upper Level, Whirlpool Palace: Level 2, Stone Palace: Upper Level Search: Riville Prison Tower - 2F, Mobile Fortress Gradia - Ship Interior Level 2, Aureum Falls - Waterfalls, Del Fharis Castle - North Tower 1F, Forland Mountains - South Hiking Trail, \"The Wedge\" - Spiral 3 Central Level, Spiral 2 Top Level, Berg Volcano - Interior, Fogwharl Limestone Caverns - Center, Lenegis - Maintenance Passageway, Gegham Helgarahi - Upper Level 2F Corridor, Regulator Area Group Remnants, Tarfhal Helgarahi - Lower Level 1F, Mausoleum of the Jungle: Helgal-Ryugola 67 - Lower Central Stabilization Layer Coliseum: Shionne 's Solo Battle (Shionne Training, Target clear bonus)\nrestores 60% CP\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "6",
         "sourceRevision": "382800",
         "section": "Gels (グミ)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -145,12 +175,15 @@
       "name": "Gold Gel",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): -\nResale Price (Gald): 10000\nAcquisition Method: Chest: Aureum Falls - Central Level, Del Fharis Castle - Hanging Garden, Berg Volcano - Interior, The Otherworld - Cavern of Fate Shallows, The Otherworld - Oracle Snowcap Entrance, Dragon Slumber Mountain, Mausoleum of the Jungle: Helgal-Ryugola 67 - Limestone Cavern: Shallow Layer, Convection Control Layer, Limestone Cavern: Innermost Area, Keystone - Stone Palace: Central Level, Helgan Shrine Search: Adan Lake (BtD) Event: Heal a masked individual in the Keystone - Revolving Ring: Lower Level\nrestores 100% CP",
+      "description": "Purchase Price (Gald): -\nResale Price (Gald): 10000\nAcquisition Method: Chest: Aureum Falls - Central Level, Del Fharis Castle - Hanging Garden, Berg Volcano - Interior, The Otherworld - Cavern of Fate Shallows, The Otherworld - Oracle Snowcap Entrance, Dragon Slumber Mountain, Mausoleum of the Jungle: Helgal-Ryugola 67 - Limestone Cavern: Shallow Layer, Convection Control Layer, Limestone Cavern: Innermost Area, Keystone - Stone Palace: Central Level, Helgan Shrine Search: Adan Lake (BtD) Event: Heal a masked individual in the Keystone - Revolving Ring: Lower Level\nrestores 100% CP\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "7",
         "sourceRevision": "382800",
         "section": "Gels (グミ)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -159,12 +192,15 @@
       "name": "Treat",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): -\nResale Price (Gald): 1500\nAcquisition Method: Chest: Underground Waterway , Riville Prison Tower - 2F, Safar Sea Cave - Central Level, Gilanne Woodland - Gold Dust Cats Hideout, Mausoleum of the Ruins: Helgal-Ryugola 238 - Lower Surface Concretion Layer, Mausoleum of the Jungle: Helgal-Ryugola 67 - Lower Central Stabilization Layer, Keystone - Whirlwind Palace\nrestores 1000 HP to all allies",
+      "description": "Purchase Price (Gald): -\nResale Price (Gald): 1500\nAcquisition Method: Chest: Underground Waterway , Riville Prison Tower - 2F, Safar Sea Cave - Central Level, Gilanne Woodland - Gold Dust Cats Hideout, Mausoleum of the Ruins: Helgal-Ryugola 238 - Lower Surface Concretion Layer, Mausoleum of the Jungle: Helgal-Ryugola 67 - Lower Central Stabilization Layer, Keystone - Whirlwind Palace\nrestores 1000 HP to all allies\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "8",
         "sourceRevision": "382800",
         "section": "Bottles (ボトル)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },
@@ -173,12 +209,15 @@
       "name": "Heavy Treat",
       "category": "Consumable",
       "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
-      "description": "Purchase Price (Gald): -\nResale Price (Gald): 4000\nAcquisition Method: Chest: Autelina Palace - Storeroom 1, Razum Quarry - Mining Site 2, Hidden Wharf - Wharf, Aureum Falls - Upper Waterfall Basin, Del Fharis Castle - Central Entrance Plaza 2F, Fogwharl Limestone Caverns - Center, Gegham Helgarahi - Upper Level 2F Corridor, The Otherworld - Spirit Forest Shallows, Oracle Snowcap Entrance, Keystone - Gate Room: Lower Level\nrestores 3000 HP to all allies",
+      "description": "Purchase Price (Gald): -\nResale Price (Gald): 4000\nAcquisition Method: Chest: Autelina Palace - Storeroom 1, Razum Quarry - Mining Site 2, Hidden Wharf - Wharf, Aureum Falls - Upper Waterfall Basin, Del Fharis Castle - Central Entrance Plaza 2F, Fogwharl Limestone Caverns - Center, Gegham Helgarahi - Upper Level 2F Corridor, The Otherworld - Spirit Forest Shallows, Oracle Snowcap Entrance, Keystone - Gate Room: Lower Level\nrestores 3000 HP to all allies\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "9",
         "sourceRevision": "382800",
         "section": "Bottles (ボトル)",
         "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
         "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
       }
     },

@@ -17,14 +17,17 @@
       "name": "Alphen",
       "category": "Playable",
       "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
-      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.\nCommunity crosswalk: https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT (SHA-256 5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "Unknown",
         "role": "protagonists",
         "sourceRevision": "300086",
         "character": "Alphen",
         "statusIndex": "0",
-        "mappingConfidence": "Inferred"
+        "mappingConfidence": "Inferred",
+        "mappingSource": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+        "mappingSourceSha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+        "mappingSourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28"
       }
     },
     {
@@ -188,14 +191,17 @@
       "name": "Dohalim il Qaras",
       "category": "Playable",
       "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
-      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.\nCommunity crosswalk: https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT (SHA-256 5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "Unknown",
         "role": "protagonists",
         "sourceRevision": "300086",
         "character": "Dohalim",
         "statusIndex": "5",
-        "mappingConfidence": "Inferred"
+        "mappingConfidence": "Inferred",
+        "mappingSource": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+        "mappingSourceSha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+        "mappingSourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28"
       }
     },
     {
@@ -431,14 +437,17 @@
       "name": "Kisara",
       "category": "Playable",
       "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
-      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.\nCommunity crosswalk: https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT (SHA-256 5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "Unknown",
         "role": "protagonists",
         "sourceRevision": "300086",
         "character": "Kisara",
         "statusIndex": "4",
-        "mappingConfidence": "Inferred"
+        "mappingConfidence": "Inferred",
+        "mappingSource": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+        "mappingSourceSha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+        "mappingSourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28"
       }
     },
     {
@@ -470,14 +479,17 @@
       "name": "Law",
       "category": "Playable",
       "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
-      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.\nCommunity crosswalk: https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT (SHA-256 5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "Unknown",
         "role": "protagonists",
         "sourceRevision": "300086",
         "character": "Law",
         "statusIndex": "3",
-        "mappingConfidence": "Inferred"
+        "mappingConfidence": "Inferred",
+        "mappingSource": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+        "mappingSourceSha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+        "mappingSourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28"
       }
     },
     {
@@ -605,14 +617,17 @@
       "name": "Rinwell",
       "category": "Playable",
       "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
-      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.\nCommunity crosswalk: https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT (SHA-256 5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "Unknown",
         "role": "protagonists",
         "sourceRevision": "300086",
         "character": "Rinwell",
         "statusIndex": "2",
-        "mappingConfidence": "Inferred"
+        "mappingConfidence": "Inferred",
+        "mappingSource": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+        "mappingSourceSha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+        "mappingSourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28"
       }
     },
     {
@@ -632,14 +647,17 @@
       "name": "Shionne Vymer Imeris Daymore",
       "category": "Playable",
       "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
-      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.\nCommunity crosswalk: https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT (SHA-256 5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46). No licence published; reused with attribution per owner decision 2026-10-28",
       "attributes": {
         "serializedId": "Unknown",
         "role": "protagonists",
         "sourceRevision": "300086",
         "character": "Shionne",
         "statusIndex": "1",
-        "mappingConfidence": "Inferred"
+        "mappingConfidence": "Inferred",
+        "mappingSource": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+        "mappingSourceSha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+        "mappingSourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28"
       }
     },
     {

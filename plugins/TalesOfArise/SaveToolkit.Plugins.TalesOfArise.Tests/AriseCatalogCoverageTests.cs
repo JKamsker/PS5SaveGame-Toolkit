@@ -94,4 +94,33 @@ public sealed class AriseCatalogCoverageTests
         Assert.Equal("Shionne Vymer Imeris Daymore", context.Catalog("characters")!.Find("character:shionne")!.Name);
         Assert.Equal(25, context.Catalog("items")!.Search(new ReferenceQuery { Category = "Fishing item" }).Total);
     }
+
+    [Fact]
+    public void ReusedCommunityCrosswalksArePinnedAndAttributed()
+    {
+        var plugin = new TalesOfArisePlugin();
+        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02745");
+        var items = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("items"));
+        var legacyItems = items.Search(new ReferenceQuery { Category = "Consumable", Limit = 50 }).Items
+            .Where(record => record.Attributes.ContainsKey("identitySource")).ToArray();
+        Assert.Equal(13, legacyItems.Length);
+        Assert.All(legacyItems, record =>
+        {
+            Assert.Equal("https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt", record.Attributes["identitySource"]);
+            Assert.Equal("64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c", record.Attributes["identitySourceSha256"]);
+            Assert.Equal("No licence published; reused with attribution per owner decision 2026-10-28", record.Attributes["identitySourceLicense"]);
+            Assert.Contains("31135.txt", record.Description!);
+        });
+
+        var characters = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("characters"));
+        var playable = characters.Search(new ReferenceQuery { Category = "Playable", Limit = 50 }).Items;
+        Assert.Equal(6, playable.Count);
+        Assert.All(playable, record =>
+        {
+            Assert.Equal("https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT", record.Attributes["mappingSource"]);
+            Assert.Equal("5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46", record.Attributes["mappingSourceSha256"]);
+            Assert.Equal("No licence published; reused with attribution per owner decision 2026-10-28", record.Attributes["mappingSourceLicense"]);
+            Assert.Contains("Arise.CT", record.Description!);
+        });
+    }
 }

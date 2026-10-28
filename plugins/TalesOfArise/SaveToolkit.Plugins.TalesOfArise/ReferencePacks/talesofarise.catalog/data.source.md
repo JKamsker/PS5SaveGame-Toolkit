@@ -29,8 +29,12 @@ and source facts/descriptions adapted to record JSON. Continuation rows are reta
 as source notes rather than invented distinct records. Duplicate English names with
 different source rows retain separate symbolic variant identities. Source errors and
 question marks are preserved; published stats, costs and requirements are references,
-not claims validated on PS5. No permissive datamine was needed, and no unlicensed
-Cheat Engine dropdowns, proprietary patches or extracted game assets were copied.
+not claims validated on PS5. No proprietary patches, Cheat Engine scripts or extracted
+game assets were copied. The 13 legacy consumable numeric identities and six playable
+status-index joins are now imported as **Inferred** F2 attributes from the separately
+pinned community sources in `Resources/UnlicensedSources.source.md`.
+Their licence field is: **No licence published; reused with attribution per owner
+decision 2026-10-28**. The source code and patch instructions remain excluded.
 
 Except for the 13 legacy inferred consumable identities, keys are symbolic reference
 identities and `serializedId` is `Unknown`. The wiki supplies no PS5 numeric join.

@@ -23,6 +23,15 @@ ARMOR = dict(zip(["Mails", "Dresses", "Cloaks", "Vests", "Guards", "Capes"], CHA
 LEGACY_ITEMS = {label: str(i + 1) for i, label in enumerate([
     "Apple Gel", "Peach Gel", "Lemon Gel", "Grape Gel", "Orange Gel", "Pineapple Gel",
     "Gold Gel", "Treat", "Heavy Treat", "Panacea Bottle", "Life Bottle", "Elixir", "Omega Elixir"])}
+UNLICENSED_REUSE = "No licence published; reused with attribution per owner decision 2026-10-28"
+CONSUMABLE_ID_SOURCE = {
+    "url": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+    "sha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+}
+CHARACTER_INDEX_SOURCE = {
+    "url": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+    "sha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+}
 TITLES = {"items": "Items", "equipment": "Equipment", "artes": "Artes",
           "skills": "Skills", "titles": "Title panels", "skill-nodes": "Title skill nodes",
           "characters": "Characters", "progress": "Recipe, fish and artifact guides"}
@@ -35,6 +44,11 @@ def character_for(title):
 
 def add(output, dataset, source, label, category, attributes, description="", key=None):
     attributes = {"serializedId": "Unknown", **attributes}
+    crosswalk_source = attributes.get("identitySource") or attributes.get("mappingSource")
+    if crosswalk_source:
+        crosswalk_hash = attributes.get("identitySourceSha256") or attributes.get("mappingSourceSha256")
+        description = (description + "\nCommunity crosswalk: " + crosswalk_source +
+                       " (SHA-256 " + crosswalk_hash + "). " + UNLICENSED_REUSE).strip()
     key = key or ":".join(filter(None, [slug(category), slug(attributes.get("character", "")), slug(label)]))
     record = {"id": key, "name": label, "category": category, "source": source["url"],
               "description": description or "Reference only; save-state identity is not established.",
@@ -118,6 +132,9 @@ def extract_table(output, source, headers, section, table):
             if key is not None:
                 attrs["serializedId"] = key
                 attrs["identityEvidence"] = "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation."
+                attrs["identitySource"] = CONSUMABLE_ID_SOURCE["url"]
+                attrs["identitySourceSha256"] = CONSUMABLE_ID_SOURCE["sha256"]
+                attrs["identitySourceLicense"] = UNLICENSED_REUSE
                 attrs["editingGuardrail"] = "15 (plugin policy; not a proven effective cap)"
             add(output, "items", source, label, category, attrs, description, key=key)
 
@@ -136,7 +153,10 @@ def extract_characters(output, source, parsed):
             short = {"Shionne Vymer Imeris Daymore": "Shionne", "Dohalim il Qaras": "Dohalim"}.get(label, label)
             attrs = {"role": group, "sourceRevision": str(source["revision"])}
             if short in CHARACTERS:
-                attrs.update(character=short, statusIndex=str(CHARACTERS.index(short)), mappingConfidence="Inferred")
+                attrs.update(character=short, statusIndex=str(CHARACTERS.index(short)), mappingConfidence="Inferred",
+                             mappingSource=CHARACTER_INDEX_SOURCE["url"],
+                             mappingSourceSha256=CHARACTER_INDEX_SOURCE["sha256"],
+                             mappingSourceLicense=UNLICENSED_REUSE)
             add(output, "characters", source, label, "Playable" if short in CHARACTERS else group.replace("_", " ").title(), attrs,
                 "Character or group named by the source navigation template. This is not a party/recruitment flag.",
                 key="character:" + slug(short))
@@ -194,7 +214,7 @@ def build(cache, output_directory, sources_path):
             "files": [{"path": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}],
             "attribution": {"sourceUrl": urls[0], "author": "Aselia Wiki contributors",
                 "license": "CC-BY-SA-3.0", "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-                "retrieved": "2026-10-28", "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."}})
+                "retrieved": "2026-10-28", "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."}})
         print(dataset, len(rows))
     write_json(destination / "pack.json", manifest)
     write_json(destination / "source-revisions.json", [{**s, "extractedRecords": counts[s["title"]]} for s in sources])
