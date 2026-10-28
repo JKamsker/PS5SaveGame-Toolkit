@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>SaveToolkit.Plugins.FinalFantasy7</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Plugins depend on the SDK only (never on Core/Api). -->
+    <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources/names.json" />
+    <InternalsVisibleTo Include="SaveToolkit.Plugins.FinalFantasy7.Tests" />
+  </ItemGroup>
+</Project>
