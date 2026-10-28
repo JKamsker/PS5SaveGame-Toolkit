@@ -29,7 +29,7 @@ public sealed class JsonSampleTests
         Assert.Equal(45415, file.Length);
         using var document = new GenericJsonPlugin().Open(file);
         var version = JsonEditingTests.Fields(document).First(f => f.Label == "version");
-        Assert.Equal(136, version.Value.AsInt32());
+        Assert.Equal("136", version.Value.AsUnion().Value.AsExactNumber());
     }
 
     [Fact]
@@ -39,6 +39,6 @@ public sealed class JsonSampleTests
         Assert.Equal(1320, file.Length);
         using var document = new GenericJsonPlugin().Open(file);
         var cubic = JsonEditingTests.Fields(document).Single(f => f.Label == "cubic_A");
-        Assert.Equal(-0.5, cubic.Value.AsDouble());
+        Assert.Equal("-0.5", cubic.Value.AsUnion().Value.AsExactNumber());
     }
 }

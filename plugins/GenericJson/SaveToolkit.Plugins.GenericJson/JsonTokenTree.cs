@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk;
@@ -82,42 +81,19 @@ internal sealed class JsonTokenTree
 
     private static void ReadValue(JsonValueToken node, ref Utf8JsonReader reader)
     {
-        switch (reader.TokenType)
+        if (reader.TokenType == JsonTokenType.Number)
         {
-            case JsonTokenType.String:
-                node.Spec = new TextSpec();
-                node.Current = FieldValue.Of(reader.GetString()!);
-                break;
-            case JsonTokenType.True:
-            case JsonTokenType.False:
-                node.Spec = new BoolSpec();
-                node.Current = FieldValue.Of(reader.GetBoolean());
-                break;
-            case JsonTokenType.Number:
-                var raw = Encoding.UTF8.GetString(reader.ValueSpan);
-                if (!raw.Contains('.') && !raw.Contains('e') && !raw.Contains('E'))
-                {
-                    if (Int128.TryParse(raw, CultureInfo.InvariantCulture, out var integer))
-                    {
-                        node.Spec = new IntegerSpec(Int128.MinValue, Int128.MaxValue);
-                        node.Current = FieldValue.Of(integer);
-                        break;
-                    }
-                }
-                else if (reader.TryGetDouble(out var number) && double.IsFinite(number) && (number != 0 || IsZero(raw)))
-                {
-                    node.Spec = FloatSpec.Double;
-                    node.Current = FieldValue.Of(number);
-                    node.Warning = "Edits use double precision. The original number spelling is preserved until changed.";
-                    break;
-                }
-
+            var raw = Encoding.UTF8.GetString(reader.ValueSpan);
+            if (ExactJsonNumber.Validate(raw, JsonScalar.NumberSpec) is not null)
+            {
                 node.Spec = new TextSpec { ReadOnly = true };
                 node.Current = FieldValue.Of(raw);
-                node.Warning = "Number exceeds the SDK numeric range; preserved verbatim and read-only.";
-                break;
+                node.Warning = "Number exceeds SDK lexeme/exponent resource limits; preserved verbatim and read-only.";
+                return;
+            }
         }
-    }
 
-    private static bool IsZero(string raw) => raw.Split('e', 'E')[0].All(c => c is '0' or '-' or '.');
+        node.Spec = JsonScalar.Spec;
+        node.Current = JsonScalar.Read(ref reader);
+    }
 }
