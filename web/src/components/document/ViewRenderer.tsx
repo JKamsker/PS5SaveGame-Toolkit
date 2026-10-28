@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../../api/client";
+import { api, isStaleError } from "../../api/client";
 import type { SectionNode, StatsNode, TabsNode, TextNode, ViewNode } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { FieldRow } from "../fields/FieldRow";
@@ -63,13 +63,22 @@ function Section({ node }: { node: SectionNode }) {
 }
 
 function LazyChildren({ lazyId }: { lazyId: string }) {
-  const { workspaceId, documentId, structureVersion } = useDocument();
+  const { workspaceId, documentId, structureVersion, refresh } = useDocument();
   const query = useQuery({
     queryKey: ["nodes", workspaceId, documentId, lazyId, structureVersion],
     queryFn: () => api.expand(workspaceId, documentId, lazyId),
     staleTime: Infinity,
+    retry: (count, error) => !isStaleError(error) && count < 3,
   });
-  if (query.isPending) return <p className="section__loading">Loading…</p>;
+  const stale = query.isError && isStaleError(query.error);
+  const refreshedFor = useRef<number | null>(null);
+  useEffect(() => {
+    // The section belongs to a replaced view: reload the document (once) instead of showing an error.
+    if (!stale || refreshedFor.current === structureVersion) return;
+    refreshedFor.current = structureVersion;
+    void refresh();
+  }, [stale, structureVersion, refresh]);
+  if (query.isPending || stale) return <p className="section__loading">Loading…</p>;
   if (query.isError) return <p className="notice notice--Danger">{query.error.message}</p>;
   return <ViewList nodes={query.data} />;
 }

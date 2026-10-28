@@ -99,6 +99,8 @@ export interface DocumentContextValue {
   store: DocumentStore;
   /** Bumped when the structure changed; lazy sections refetch on change. */
   structureVersion: number;
+  /** Refetches the view (and bumps `structureVersion`), e.g. after a stale-id rejection. */
+  refresh: () => Promise<void>;
   commit: (valueId: string, value: FieldValue) => Promise<boolean>;
   runAction: (actionId: string, parameters: Record<string, FieldValue>) => Promise<EditResult>;
 }
