@@ -17,7 +17,7 @@ public sealed class SampleEvidenceTests
         var files = sample.AllDiskFiles.Where(f => !f.IsSystemFile).ToArray();
         Assert.Equal(2, files.Length);
         Assert.Single(files.Select(f => f.Directory.Generation).Distinct());
-        var decoder = new XorJsonSampleDecoder();
+        var decoder = new HookSaveDecoder(new XorJsonPlugin().Decoders.Single());
         foreach (var file in files)
         {
             var tree = decoder.Decode(file, new DecodeLimits());
@@ -47,7 +47,7 @@ public sealed class SampleEvidenceTests
         var character = sample.AllDiskFiles.Single(f => !f.IsSystemFile && f.Directory.Name.StartsWith("Character", StringComparison.Ordinal));
         Assert.Equal(character.ReadAllBytes(), after.Directories.SelectMany(directory => directory.Files)
             .Single(f => f.RelativePath == character.RelativePath).ReadAllBytes());
-        var report = SaveSetDiffer.Compare(sample, after, new SaveDiffOptions { Decoder = new XorJsonSampleDecoder() });
+        var report = SaveSetDiffer.Compare(sample, after, new SaveDiffOptions { Decoder = new HookSaveDecoder(new XorJsonPlugin().Decoders.Single()) });
         var changed = Assert.Single(report.Files, f => f.Status == FileDiffStatus.Changed);
         Assert.NotNull(changed.Semantic);
         Assert.Null(changed.Semantic.Error);
@@ -131,23 +131,5 @@ public sealed class SampleEvidenceTests
         var file = MemorySaveSet.SingleFile("hero.sav", System.Text.Encoding.UTF8.GetBytes(text));
         Assert.False(new XorJsonPlugin().Probe(file).IsMatch);
         Assert.Throws<SaveFormatException>(() => new XorJsonPlugin().Open(file));
-    }
-}
-
-/// <summary>F1 test hook: the runtime plugin remains SDK-only and performs no file I/O.</summary>
-internal sealed class XorJsonSampleDecoder : ISaveDecoder
-{
-    public string Id => "xorjson-sample";
-    public bool CanDecode(ISaveFile file) => new XorJsonPlugin().Probe(file).IsMatch;
-
-    public SemanticTree Decode(ISaveFile file, DecodeLimits limits)
-    {
-        if (file.Length > limits.MaxFileBytes) throw new InvalidDataException("File exceeds the F1 decoder limit.");
-        var probe = new XorJsonPlugin().Probe(file);
-        if (!probe.IsMatch) throw new SaveFormatException("Unsupported JSON encoding.");
-        var bytes = file.ReadAllBytes();
-        if (probe.Label!.Contains("minus one", StringComparison.Ordinal)) bytes = bytes.Select(b => unchecked((byte)(b + 1))).ToArray();
-        else if (probe.Label.Contains("XOR", StringComparison.Ordinal)) bytes = bytes.Select(b => (byte)(b ^ 1)).ToArray();
-        return new JsonSaveDecoder(["name", .. JsonSaveDecoder.DefaultIdentityKeys]).Decode(bytes, limits);
     }
 }

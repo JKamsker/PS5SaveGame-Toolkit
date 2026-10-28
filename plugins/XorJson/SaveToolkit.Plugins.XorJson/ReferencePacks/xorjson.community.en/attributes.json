@@ -1,0 +1,112 @@
+{
+  "records": [
+    {
+      "id": "Emeralds",
+      "name": "Emeralds",
+      "category": "Attribute",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified",
+        "inferredMaximum": "99999",
+        "inferredMinimum": "0"
+      }
+    },
+    {
+      "id": "SpringStone",
+      "name": "Echo shards",
+      "category": "Attribute",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified",
+        "inferredMaximum": "100",
+        "inferredMinimum": "0"
+      }
+    },
+    {
+      "id": "EnchantmentPoints",
+      "name": "Enchantment points",
+      "category": "Attribute",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified",
+        "inferredMaximum": "99",
+        "inferredMinimum": "0"
+      }
+    },
+    {
+      "id": "Level",
+      "name": "Level",
+      "category": "Attribute",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified",
+        "inferredMaximum": "100",
+        "inferredMinimum": "1"
+      }
+    },
+    {
+      "id": "XP",
+      "name": "XP",
+      "category": "Attribute",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified",
+        "inferredMaximum": "2147483647",
+        "inferredMinimum": "0"
+      }
+    },
+    {
+      "id": "VillageMerchantUpgradeLevel",
+      "name": "Village merchant level",
+      "category": "Attribute",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified",
+        "inferredMaximum": "3",
+        "inferredMinimum": "1"
+      }
+    },
+    {
+      "id": "VillageMerchantRefreshCharges",
+      "name": "Merchant refreshes",
+      "category": "Attribute",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified",
+        "inferredMaximum": "2147483647",
+        "inferredMinimum": "0"
+      }
+    },
+    {
+      "id": "EnchantsmithUpgradeLevel",
+      "name": "Enchantsmith level",
+      "category": "Attribute",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified",
+        "inferredMaximum": "3",
+        "inferredMinimum": "1"
+      }
+    },
+    {
+      "id": "OldBlacksmithUpgradeLevel",
+      "name": "Blacksmith level",
+      "category": "Attribute",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified",
+        "inferredMaximum": "3",
+        "inferredMinimum": "1"
+      }
+    }
+  ]
+}

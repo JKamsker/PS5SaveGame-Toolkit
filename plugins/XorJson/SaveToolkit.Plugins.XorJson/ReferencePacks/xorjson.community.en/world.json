@@ -30,7 +30,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA00"
       }
     },
     {
@@ -41,7 +42,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA01"
       }
     },
     {
@@ -52,7 +54,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA01"
       }
     },
     {
@@ -63,7 +66,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA01"
       }
     },
     {
@@ -74,7 +78,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA01_B"
       }
     },
     {
@@ -85,7 +90,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA02"
       }
     },
     {
@@ -96,7 +102,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA02_C"
       }
     },
     {
@@ -107,7 +114,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA02_C"
       }
     },
     {
@@ -118,7 +126,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA02_B"
       }
     },
     {
@@ -129,7 +138,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA02_B"
       }
     },
     {
@@ -140,7 +150,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA02_B"
       }
     },
     {
@@ -151,7 +162,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA03"
       }
     },
     {
@@ -162,7 +174,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA03"
       }
     },
     {
@@ -173,7 +186,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA04"
       }
     },
     {
@@ -184,7 +198,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Expanded internal identifier; not an official localized name"
+        "labelMethod": "Expanded internal identifier; not an official localized name",
+        "prerequisites": "CA04"
       }
     },
     {
@@ -195,7 +210,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA04"
       }
     },
     {
@@ -206,7 +222,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA04"
       }
     },
     {
@@ -217,7 +234,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA07"
       }
     },
     {
@@ -228,7 +246,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA07"
       }
     },
     {
@@ -239,7 +258,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA07"
       }
     },
     {
@@ -250,7 +270,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA07"
       }
     },
     {
@@ -261,7 +282,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA07"
       }
     },
     {
@@ -272,7 +294,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA07"
       }
     },
     {
@@ -283,7 +306,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA05"
       }
     },
     {
@@ -294,7 +318,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA06"
       }
     },
     {
@@ -305,7 +330,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA05"
       }
     },
     {
@@ -316,7 +342,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA08"
       }
     },
     {
@@ -327,7 +354,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA05"
       }
     },
     {
@@ -338,7 +366,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA05"
       }
     },
     {
@@ -349,7 +378,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA05"
       }
     },
     {
@@ -360,7 +390,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA08"
       }
     },
     {
@@ -371,7 +402,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA08"
       }
     },
     {
@@ -382,7 +414,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA05"
       }
     },
     {
@@ -393,7 +426,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA08_B"
       }
     },
     {
@@ -404,7 +438,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA09"
       }
     },
     {
@@ -415,7 +450,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA08_B"
       }
     },
     {
@@ -426,7 +462,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA10"
       }
     },
     {
@@ -437,7 +474,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA10"
       }
     },
     {
@@ -448,7 +486,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA09"
       }
     },
     {
@@ -459,7 +498,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA09"
       }
     },
     {
@@ -470,7 +510,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "CA10"
       }
     },
     {
@@ -481,7 +522,8 @@
       "attributes": {
         "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
         "confidence": "Inferred: PC community catalog; PS5 applicability unverified",
-        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified"
+        "labelMethod": "Short quest label from pinned MIT community catalog; PS5 localization unverified",
+        "prerequisites": "MEa2_S02_A"
       }
     },
     {

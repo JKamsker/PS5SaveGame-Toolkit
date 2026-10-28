@@ -1,0 +1,54 @@
+{
+  "records": [
+    {
+      "id": "SW.Rarity.Common",
+      "name": "Common",
+      "category": "Rarity",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Rarity.Rare",
+      "name": "Rare",
+      "category": "Rarity",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Rarity.Special",
+      "name": "Special",
+      "category": "Rarity",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Rarity.Unique",
+      "name": "Unique",
+      "category": "Rarity",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified"
+      }
+    },
+    {
+      "id": "SW.Rarity.None",
+      "name": "None",
+      "category": "Rarity",
+      "source": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+      "attributes": {
+        "upstreamRevision": "84ffee67b73e49d5b888e31257ce9767aa8ab826",
+        "confidence": "Inferred: PC community mapping; PS5 applicability unverified"
+      }
+    }
+  ]
+}

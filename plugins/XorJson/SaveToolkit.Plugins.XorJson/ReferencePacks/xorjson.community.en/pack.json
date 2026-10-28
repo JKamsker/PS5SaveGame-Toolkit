@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "xorjson.community.en",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Dungeons II community identifiers (PS5 unverified)",
   "plugins": [
     "format.json-xor"
@@ -57,7 +57,7 @@
       "files": [
         {
           "path": "world.json",
-          "sha256": "fb0b8413b557c2a0fc40a58a06e6dc5884713b928f94a5f3bcdf087ff20be4cb"
+          "sha256": "d5d3d916339a4c4cef12e8ec80c60164f1bd89c90648e1223b155dd68fefae8f"
         }
       ],
       "attribution": {
@@ -66,7 +66,7 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
         "retrieved": "2026-10-28",
-        "modifications": "Retained world identifiers and mechanically expanded labels; added quest/task identifiers and short labels from names/labels tables. No coordinates, reward logic or numeric limits. All PS5 semantics unverified."
+        "modifications": "Retained world identifiers and mechanically expanded labels; added quest/task identifiers and short labels from names/labels tables. No coordinates, reward logic or numeric limits. All PS5 semantics unverified. Added follows relationships as prerequisite metadata; no coordinates or reward logic."
       }
     },
     {
@@ -86,6 +86,44 @@
         "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
         "retrieved": "2026-10-28",
         "modifications": "Extracted enchantment identifiers and short names only; no tiers, strengths, points, limits or tooltip prose."
+      }
+    },
+    {
+      "id": "xorjson-attributes",
+      "kind": "records",
+      "title": "Stored attributes and inferred PC preset bounds",
+      "files": [
+        {
+          "path": "attributes.json",
+          "sha256": "b29176415a07dc1da7cd8dd8df46c197452fef7b92d6e9b28c7dc054e930002c"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+        "author": "Ishiaki and mcd2-save-editor contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted short labels/identifiers and, for attributes, conservative PC action bounds only. PS5 limits and dependencies remain unverified. No artwork or tooltip text."
+      }
+    },
+    {
+      "id": "xorjson-rarities",
+      "kind": "records",
+      "title": "Rarity identifiers (PC community, PS5 unverified)",
+      "files": [
+        {
+          "path": "rarities.json",
+          "sha256": "816a6a6e749c1c37cd5a81f4c03bfe82dc2dcdcfd43aa032d4c881599ae496f0"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py",
+        "author": "Ishiaki and mcd2-save-editor contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted short labels/identifiers and, for attributes, conservative PC action bounds only. PS5 limits and dependencies remain unverified. No artwork or tooltip text."
       }
     }
   ]

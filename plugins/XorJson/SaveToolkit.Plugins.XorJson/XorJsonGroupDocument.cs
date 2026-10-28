@@ -77,6 +77,8 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
     public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
         var member = Member(actionId);
+        if (member.Local(actionId) == "json/inspect")
+            return member.Document.InvokeAction("json/inspect", parameters);
         var before = CaptureMemento();
         try
         {

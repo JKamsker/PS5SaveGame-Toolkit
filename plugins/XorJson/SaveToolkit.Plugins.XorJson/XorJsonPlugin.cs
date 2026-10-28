@@ -1,13 +1,15 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Diff;
 
 namespace SaveToolkit.Plugins.XorJson;
 
-public sealed class XorJsonPlugin : IGamePlugin, IDocumentGroupPlugin
+public sealed class XorJsonPlugin : IGamePlugin, IDocumentGroupPlugin, ISaveDecoderProvider
 {
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new XorJsonDecoder()];
     private const int ProbeHeaderBytes = 64;
-    public PluginInfo Info { get; } = new("format.json-xor", "Obfuscated JSON / Dungeons II", "0.3.0")
+    public PluginInfo Info { get; } = new("format.json-xor", "Obfuscated JSON / Dungeons II", "0.4.0")
     {
         Description = "Lossless exact JSON editing with Experimental settings, FCharacterSaveV1 and character/global transaction writes; console acceptance remains unverified.",
         Games = [new GameTitle("PPSA16064", "Minecraft Dungeons II")],

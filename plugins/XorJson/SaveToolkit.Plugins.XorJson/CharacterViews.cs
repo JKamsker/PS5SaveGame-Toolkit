@@ -38,6 +38,11 @@ internal static class CharacterViews
         if (current.Kind == FieldValueKind.Union) current = current.AsUnion().Value;
         if (current.Kind != FieldValueKind.Text) return null;
         var value = current.AsString();
+        if (node.Label == "AttributeName") return "xorjson-attributes";
+        if (node.Label == "RarityTag") return "xorjson-rarities";
+        if (node.Label == "FocusedQuestId") return "xorjson-world";
+        if (node.Label == "TypeTag" && node.Parent?.Label == "ItemData") return "xorjson-items";
+        if (node.Label is "LastMinecartStation" or "CurrentLocation") return "xorjson-world";
         if (value.StartsWith("SW.Item.", StringComparison.Ordinal) && node.Label == "TypeTag") return "xorjson-items";
         if (value.StartsWith("SW.Effect.", StringComparison.Ordinal)) return "xorjson-effects";
         if (value.StartsWith("SW.Enchantment.", StringComparison.Ordinal)) return "xorjson-enchantments";

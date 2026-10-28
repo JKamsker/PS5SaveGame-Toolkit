@@ -9,8 +9,11 @@ internal sealed class JsonEditModel
 {
     private const int EstimatedNodeBytes = 256;
     private int _nextId;
+    private Dictionary<int, JsonValueToken>? _index;
+    private IReadOnlyList<JsonValueToken>? _nodes;
     public JsonValueToken Root { get; private set; }
-    public IReadOnlyList<JsonValueToken> Nodes => Walk(Root).ToArray();
+    public IReadOnlyList<JsonValueToken> Nodes => _nodes ??= Walk(Root).ToArray();
+    private Dictionary<int, JsonValueToken> Index => _index ??= Nodes.ToDictionary(node => node.Index);
 
     public JsonEditModel(JsonTokenTree tree)
     {
@@ -18,7 +21,7 @@ internal sealed class JsonEditModel
         _nextId = tree.Nodes.Count;
     }
 
-    public JsonValueToken Find(int id) => Walk(Root).FirstOrDefault(n => n.Index == id)
+    public JsonValueToken Find(int id) => Index.GetValueOrDefault(id)
         ?? throw new KeyNotFoundException("The JSON record no longer exists.");
 
     public void Change(string operation, int id, string? json, string? key)
@@ -75,6 +78,8 @@ internal sealed class JsonEditModel
                 occurrences[child.Label] = occurrence + 1;
             }
         }
+        _index = null;
+        _nodes = null;
         // Validate the full depth, node count, size and grammar before the transaction can succeed.
         _ = JsonTokenWriter.Write(Root);
     }
@@ -90,6 +95,8 @@ internal sealed class JsonEditModel
     public void Restore(JsonModelSnapshot state)
     {
         Root = Clone(state.Root, null);
+        _index = null;
+        _nodes = null;
         // Never reuse an id allocated by a later, now-undone operation.
         _nextId = Math.Max(_nextId, state.NextId);
     }
