@@ -17,9 +17,9 @@ public sealed class AriseReferenceTests
         var context = store.Pin(new TalesOfArisePlugin(), "PPSA02745");
         var items = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("items"));
         var equipment = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("equipment"));
-        Assert.Equal(13, items.Count);
-        Assert.Equal(14, equipment.Count);
-        Assert.Equal("1.0.0", items.Pack.Version);
+        Assert.Equal(271, items.Count);
+        Assert.Equal(675, equipment.Count);
+        Assert.Equal("2.0.0", items.Pack.Version);
         Assert.Equal("CC-BY-SA-3.0", items.Dataset.Attribution.License);
         Assert.All(items.Search(new ReferenceQuery { Limit = 50 }).Items, item => Assert.Contains("aselia.fandom.com", item.AttributionText));
         Assert.Equal("Apple Gel", items.Find("1")!.Name);
@@ -32,14 +32,14 @@ public sealed class AriseReferenceTests
         var context = new ReferencePackStore([new TalesOfArisePlugin()]).Pin(new TalesOfArisePlugin(), "PPSA02745");
         using var document = new TalesOfArisePlugin().Open(AriseSampleTests.GameplayFiles().First(f => f.FileName == "SaveData_002.sav"), context);
         var query = Assert.IsAssignableFrom<IQueryableDocument>(document);
-        Assert.Equal(13, query.Collections.Single(c => c.Id == "items").TotalCount);
+        Assert.Equal(271, query.Collections.Single(c => c.Id == "items").TotalCount);
         var apple = query.Query("items", new QueryableCollectionQuery { Text = "1" });
         Assert.Contains(apple.Rows, row => row.Key == "1");
         var alphen = query.Query("equipment", new QueryableCollectionQuery
         {
             Filters = new Dictionary<string, string> { ["category"] = "Weapon", ["character"] = "Alphen" },
         });
-        Assert.Equal(3, alphen.Rows.Count);
+        Assert.Equal(45, alphen.Rows.Count);
         Assert.All(alphen.Rows, row => Assert.Equal("Alphen", Assert.IsType<TextNode>(row.Cells["character"]).Text));
         var view = Assert.IsType<TabsNode>(document.BuildView());
         var inventory = Assert.Single(document.ExpandNode("inventory")).AsTable();

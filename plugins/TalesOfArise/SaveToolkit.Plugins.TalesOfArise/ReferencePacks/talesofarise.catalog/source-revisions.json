@@ -1,0 +1,620 @@
+[
+  {
+    "title": "ToA - Consumables",
+    "revision": 382800,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800",
+    "cache": "d5264be49295fa9a.json",
+    "sha256": "0139ef1ea854e0015493ef0b29987c1f720936c0831c437247dd3cfe1e1ea141",
+    "wikitextSha256": "4ddcfb42310a668b7fa648e88d3e0e2a6c014488c41d183824faac3758a35200",
+    "extractedRecords": 28,
+    "publishedNames": 28
+  },
+  {
+    "title": "ToA - Materials",
+    "revision": 379815,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Materials?oldid=379815",
+    "cache": "498bf9fe42372956.json",
+    "sha256": "f7d31497abcd659989f2582ed6d294835a77189f3c63cc6305ee46a947354f53",
+    "wikitextSha256": "869dcfa534dac29ac0d4da3e96d68356d2f004b3da473831603835b7e4133766",
+    "extractedRecords": 113,
+    "publishedNames": 113
+  },
+  {
+    "title": "ToA - Accessory Materials",
+    "revision": 379795,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Accessory_Materials?oldid=379795",
+    "cache": "cfe091996d1937ad.json",
+    "sha256": "dc1ad6ec4e4c5df91857534735a2895def88ae7705295570e868a9c6daa1a4b3",
+    "wikitextSha256": "db818e7cf60983c18f1dfdba71751eb9312cc0a71d0049d60edb4fbfd7c63513",
+    "extractedRecords": 25,
+    "publishedNames": 25
+  },
+  {
+    "title": "ToA - Valuables",
+    "revision": 379820,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Valuables?oldid=379820",
+    "cache": "93d22ec6d91157bd.json",
+    "sha256": "cd5bb45065f29c33867c7b49a616656ebb659143c1c43f704e96211b41e8cd57",
+    "wikitextSha256": "1f290321cc4f836c7532ea30eef6b917d9ffdeea716053f98c71c02a2b746613",
+    "extractedRecords": 41,
+    "publishedNames": 41
+  },
+  {
+    "title": "ToA - Cooking",
+    "revision": 379806,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+    "cache": "8fceb43ef22aac2b.json",
+    "sha256": "48eb3a11537761e7ce984aea92c6848a522fb5a14c4bb87307f57a3c6afec7a1",
+    "wikitextSha256": "b09c4ac63e93f573835a2c871b919253a56d756cb8092a843b6f63929bb0ef8e",
+    "extractedRecords": 45,
+    "publishedNames": 45
+  },
+  {
+    "title": "ToA - Fishing Items",
+    "revision": 379810,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Fishing_Items?oldid=379810",
+    "cache": "0a64175b41db696d.json",
+    "sha256": "df3d51de923e1c91777cd1cecc0f99e6c8e552e4993eec078d61dd5cbb782dc0",
+    "wikitextSha256": "df2437b711827228e8fd344f78704e29079717eaade433e54928b878b09dd318",
+    "extractedRecords": 25,
+    "publishedNames": 25
+  },
+  {
+    "title": "ToA - Artifacts",
+    "revision": 381166,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+    "cache": "b84afb0e0955b861.json",
+    "sha256": "19af75660097800c551a98d9cbae1d374f804e25438488b9752ef9f51f3fcb82",
+    "wikitextSha256": "4e903da94637a423e2659bf9d2bc0d76a92d97a7ed6bb20d00127ee54861c7f6",
+    "extractedRecords": 78,
+    "publishedNames": 39
+  },
+  {
+    "title": "ToA - Accessories",
+    "revision": 361384,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Accessories?oldid=361384",
+    "cache": "ea87c4088d98506d.json",
+    "sha256": "96d6335bd16a67f31e34eff035380945894b3fbbcb9631bad9a22ab428ad5e4b",
+    "wikitextSha256": "91d0c883c0691de13f811ecb254398cd8134616e52a074ed98a240475761c23e",
+    "extractedRecords": 26,
+    "publishedNames": 26
+  },
+  {
+    "title": "ToA - Skills",
+    "revision": 378099,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+    "cache": "7d5277c8ac7ef443.json",
+    "sha256": "66fb0d0ad3a32cf70db769be5b47ccee0c74c2b636b0d27e8fde2673a7d23ccf",
+    "wikitextSha256": "5a97b2faa98e82d625886901b036f07e95cde2e6ab116db0de13b1daa6f752f3",
+    "extractedRecords": 64,
+    "publishedNames": 64
+  },
+  {
+    "title": "ToA - Fishing",
+    "revision": 350354,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+    "cache": "729b051d820588b6.json",
+    "sha256": "c27734f552818b4ebae682ee1f853ec92e6866973060b42fccd96de323edc7b4",
+    "wikitextSha256": "7ecbf092dd85f3fd4e0521ecad18ac3cdd6b704ecba42a936f70b57525f0b7d2",
+    "extractedRecords": 44,
+    "publishedNames": 44
+  },
+  {
+    "title": "ToA - Boost Strikes",
+    "revision": 363183,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Boost_Strikes?oldid=363183",
+    "cache": "ea591ead771faf79.json",
+    "sha256": "e84c9885891b6db76d93f578235a9e627f97fa33aa461d883f3948a3aa61f1b7",
+    "wikitextSha256": "2073424c87d2fdcb15ac7954e690a6b798031b02875ad508c3d0ac38088f02f3",
+    "extractedRecords": 0
+  },
+  {
+    "title": "ToA - Attachments",
+    "revision": 379805,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Attachments?oldid=379805",
+    "cache": "d889fd785f3f6afc.json",
+    "sha256": "dcec38aee060fecf9276be30233b978088227cf6be6124d0e8664ec8ce4360bc",
+    "wikitextSha256": "4b9ead75279986739c3059a88b77408376570f45d75c655288f2a6d7ccbed418",
+    "extractedRecords": 68,
+    "publishedNames": 68
+  },
+  {
+    "title": "ToA - Weapons (Swords)",
+    "revision": 363915,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Weapons_(Swords)?oldid=363915",
+    "cache": "4013793dd0973f0b.json",
+    "sha256": "74ef7842c926ff78ccac25b2d363f454d8366e15874c4eb5eeafb5f8630a2f21",
+    "wikitextSha256": "516ff64ba47a5c43f5437027f9917a153de2b7279f6f20c3559e6787953e18e8",
+    "extractedRecords": 45,
+    "publishedNames": 45
+  },
+  {
+    "title": "ToA - Weapons (Rifles)",
+    "revision": 363926,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Weapons_(Rifles)?oldid=363926",
+    "cache": "104a27051ddf5feb.json",
+    "sha256": "8beee51be84b670954f2e8d07e0e778f6093a1449218d1226d628c6cd1fab190",
+    "wikitextSha256": "38f98d2e8e0b5bf020c5c11192f025520692299c8b5b91dc3f38d760bc9bea59",
+    "extractedRecords": 36,
+    "publishedNames": 36
+  },
+  {
+    "title": "ToA - Weapons (Books)",
+    "revision": 379821,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Weapons_(Books)?oldid=379821",
+    "cache": "27f5b5aba7de7729.json",
+    "sha256": "a9d935d37d6f361331d30015132de64941cdb7295e47f64b7c752359bc5b732d",
+    "wikitextSha256": "9414adafe8c3c6c63073ad2c23b10b608b87b4ffc3d922b06da17c460cff7740",
+    "extractedRecords": 34,
+    "publishedNames": 34
+  },
+  {
+    "title": "ToA - Weapons (Gauntlets)",
+    "revision": 363201,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Weapons_(Gauntlets)?oldid=363201",
+    "cache": "02d47994e140e7e9.json",
+    "sha256": "e1d4c6a1fc77cd04f16780d5d5d478a7bdb5a0fd32f05d259f801bfc72fa2496",
+    "wikitextSha256": "59f720989f81694e32e62055e88fb23dab78fc0ebef9de5dfe18e44f28daec7d",
+    "extractedRecords": 33,
+    "publishedNames": 33
+  },
+  {
+    "title": "ToA - Weapons (Shields)",
+    "revision": 382423,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Weapons_(Shields)?oldid=382423",
+    "cache": "f2ed4ecb36b8b873.json",
+    "sha256": "62b0ae08f4fbe5caa281b49d413d6ac4c1a3e6ab8559fdd3821efb148a2f4259",
+    "wikitextSha256": "f710102f57fd416275fa82261bc1f324262e123d88980cd93b4736b1c71a0a6c",
+    "extractedRecords": 34,
+    "publishedNames": 34
+  },
+  {
+    "title": "ToA - Weapons (Rods)",
+    "revision": 363203,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Weapons_(Rods)?oldid=363203",
+    "cache": "54ff2983cfd4e528.json",
+    "sha256": "0ac0a14e0979a5565bce8c5678c9c2a7b490e9fd867f6749b028ae086ab940b5",
+    "wikitextSha256": "69fcb93db149657d4d4306062ac940057ebe26dfd6da2c4cf0cf0be1b0f10f87",
+    "extractedRecords": 29,
+    "publishedNames": 29
+  },
+  {
+    "title": "ToA - Armor (Mails)",
+    "revision": 379802,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Armor_(Mails)?oldid=379802",
+    "cache": "185bdd5231107e57.json",
+    "sha256": "585dfaf7744ee3d03f492d77537b05d51ba29671984a884378829877e3aa8ded",
+    "wikitextSha256": "6245d1328fc2c2a8141830e5ed637c6117e7d71fa6d9531e70d7411a43bb5929",
+    "extractedRecords": 26,
+    "publishedNames": 26
+  },
+  {
+    "title": "ToA - Armor (Dresses)",
+    "revision": 379800,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Armor_(Dresses)?oldid=379800",
+    "cache": "b30b4baaf1bc015e.json",
+    "sha256": "4bcbf36319de954080e5b985cdc89f9a4aa9f954250abe579814a5e025d10b2e",
+    "wikitextSha256": "76a3dbd91dd5cc5add42d19d23441398f1d50268e4527a1805d6f62013082603",
+    "extractedRecords": 26,
+    "publishedNames": 26
+  },
+  {
+    "title": "ToA - Armor (Cloaks)",
+    "revision": 379799,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Armor_(Cloaks)?oldid=379799",
+    "cache": "fcd0c8e26e3afc9b.json",
+    "sha256": "fc50e14e832bdaf3992c09ae2b763139328d7cf367f7a399fff34771b4157379",
+    "wikitextSha256": "da2d97d6c70c529a14b0af01a5b1ef98a6a2bb06136e173e1692405fb060fee7",
+    "extractedRecords": 20,
+    "publishedNames": 20
+  },
+  {
+    "title": "ToA - Armor (Vests)",
+    "revision": 379803,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Armor_(Vests)?oldid=379803",
+    "cache": "78bb3ca818e56d79.json",
+    "sha256": "b0835af0bf1e8e329eea22d49e0a1a1331d09e78f4c95d5b74dcaed871344f70",
+    "wikitextSha256": "e97d357c49bab84d966ca4f42dac06cf3497d9727cb69eb63b162f826dfc1dfd",
+    "extractedRecords": 22,
+    "publishedNames": 22
+  },
+  {
+    "title": "ToA - Armor (Guards)",
+    "revision": 379801,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Armor_(Guards)?oldid=379801",
+    "cache": "35cf5efddaeaee1f.json",
+    "sha256": "0a2ce6d18eef630315b6c862e8f4ad954cdf9f23e9e08294d937cc4e052d826c",
+    "wikitextSha256": "07d872a820ee157559e0e2e8718175ad8650a16dcf82d011e2a5eabe73ef8e91",
+    "extractedRecords": 18,
+    "publishedNames": 18
+  },
+  {
+    "title": "ToA - Armor (Capes)",
+    "revision": 379798,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Armor_(Capes)?oldid=379798",
+    "cache": "da7a61cb77388060.json",
+    "sha256": "ce393000537f90fe156bc902e038e779e1db7d3b784330540f48730ed8e4430d",
+    "wikitextSha256": "07e451a334ccc1e1d0f578f556c9a69010631670de248cccec0532609bfef019",
+    "extractedRecords": 17,
+    "publishedNames": 17
+  },
+  {
+    "title": "ToA - Alphen: Artes",
+    "revision": 378115,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Alphen:_Artes?oldid=378115",
+    "cache": "1abd8e04e6c7558f.json",
+    "sha256": "3d66b16eb719ed19ed441c42d22144e445633a293f104b62d92f7eff5a0ad5db",
+    "wikitextSha256": "6d42118f3376f89bceea5c837fa595ccedb31f44575ed53c8d3d0a5fe6f9591a",
+    "extractedRecords": 45,
+    "publishedNames": 45
+  },
+  {
+    "title": "ToA - Alphen: Skill Panels",
+    "revision": 378024,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Alphen:_Skill_Panels?oldid=378024",
+    "cache": "18ecdd53b6a62875.json",
+    "sha256": "f3b910b70509d756192773c2f68b07ac3fa4c22dbf1fcf4232f94e8594541d54",
+    "wikitextSha256": "3ca5ec0c30a56728459cd7b9784a84921d7689fb5e613de394b5da4719735d04",
+    "extractedRecords": 108,
+    "publishedNames": 18
+  },
+  {
+    "title": "ToA - Alphen: Costumes",
+    "revision": 379796,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Alphen:_Costumes?oldid=379796",
+    "cache": "4729a63cad58c042.json",
+    "sha256": "41d4f4127f75dcd2c0ed12e75f870871d621e08348ba46406a32441b850e5fbb",
+    "wikitextSha256": "a690e283f830ddc673081308818f3a8a340f3bbc3f0e1c0cf9b4043b96134ef1",
+    "extractedRecords": 27,
+    "publishedNames": 27
+  },
+  {
+    "title": "ToA - Alphen: Haircut, Style",
+    "revision": 379797,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Alphen:_Haircut,_Style?oldid=379797",
+    "cache": "e3b74e6be5ebe7fe.json",
+    "sha256": "8cfd7be6937a4bbd140c1fc89bcabb10dca3d15725e209ad0f22f77530f55561",
+    "wikitextSha256": "1c940daf7a34e89a3734d360ac9733a9d117628d75f36ce40421c72feacf8889",
+    "extractedRecords": 14,
+    "publishedNames": 14
+  },
+  {
+    "title": "ToA - Shionne Imeris: Artes",
+    "revision": 361403,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Shionne_Imeris:_Artes?oldid=361403",
+    "cache": "ae222c807cdad7f7.json",
+    "sha256": "5d3762c05e2e3fe96e44d54b238570fa20efe565cc9aac748d8a05976be87555",
+    "wikitextSha256": "89084615f7feec6a4763e3bc618f032a6f7c2f84602caff477a70e067cf1681a",
+    "extractedRecords": 45,
+    "publishedNames": 45
+  },
+  {
+    "title": "ToA - Shionne Imeris: Skill Panels",
+    "revision": 378077,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Shionne_Imeris:_Skill_Panels?oldid=378077",
+    "cache": "3ce5f7b4f5d263d4.json",
+    "sha256": "e56ded6ac3cb3d4549a2393128335bd29bb9d421f709d5dfabc82eb834c09222",
+    "wikitextSha256": "27f8b3cfb212db4a2bf1bd08dcb396f6e209524b822e7cfd7de68363bef6d0a9",
+    "extractedRecords": 108,
+    "publishedNames": 18
+  },
+  {
+    "title": "ToA - Shionne Imeris: Costumes",
+    "revision": 379818,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Shionne_Imeris:_Costumes?oldid=379818",
+    "cache": "7821005b3d38b8c7.json",
+    "sha256": "a6fa699f12d478c4761c16a84e6ab5743179411fbce563f7a22fea5be0cfd5ba",
+    "wikitextSha256": "f912aa033d68e2ebac970f1bcdd909d32777bc9b3380aa01773717d8c93f5279",
+    "extractedRecords": 27,
+    "publishedNames": 26
+  },
+  {
+    "title": "ToA - Shionne Imeris: Haircut, Style",
+    "revision": 379819,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Shionne_Imeris:_Haircut,_Style?oldid=379819",
+    "cache": "0297c58b257a6143.json",
+    "sha256": "f2b691f481f6164049596a9496df8bcdf36d07cddfea5ee92a84d558917c8346",
+    "wikitextSha256": "11d72834e71c56f2523d143119a9988ccbd7f2b1b0f0b262207170a8d9463712",
+    "extractedRecords": 27,
+    "publishedNames": 27
+  },
+  {
+    "title": "ToA - Rinwell: Artes",
+    "revision": 363191,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Rinwell:_Artes?oldid=363191",
+    "cache": "f6690182ea33188f.json",
+    "sha256": "eee09fd6b4767d7a721d16fe0b94fe876aa791e14f4a0e6a4b1abedc377eceac",
+    "wikitextSha256": "c47f412984622205bd68b99938d1ea1f303078b087d4e62e596fab70a59e02f0",
+    "extractedRecords": 43,
+    "publishedNames": 43
+  },
+  {
+    "title": "ToA - Rinwell: Skill Panels",
+    "revision": 378043,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Rinwell:_Skill_Panels?oldid=378043",
+    "cache": "6e08961e2f6054d2.json",
+    "sha256": "5d600f3e0ff7950f8ad9495cb8b0ad97ca04635c9708f4be61f560dca55c4750",
+    "wikitextSha256": "3e79b45aef7b5d890c414276c313bdd97a941c3dd3a3b8630d230e5c9cddf993",
+    "extractedRecords": 108,
+    "publishedNames": 18
+  },
+  {
+    "title": "ToA - Rinwell: Costumes",
+    "revision": 379816,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Rinwell:_Costumes?oldid=379816",
+    "cache": "008ba88d93ba3883.json",
+    "sha256": "a88a6c4604286474c17e5322fb736a508d2a752f2355919ecc4f4faad8aaeb99",
+    "wikitextSha256": "7b7eb28f137c32576c1591365fc42a138231d9133543b5998bab66c61f1a7e2e",
+    "extractedRecords": 20,
+    "publishedNames": 20
+  },
+  {
+    "title": "ToA - Rinwell: Haircut, Style",
+    "revision": 379817,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Rinwell:_Haircut,_Style?oldid=379817",
+    "cache": "ab3d1628fab20022.json",
+    "sha256": "ece9ef664091ad52ffadd80e43641567d41989545e774cf3a56f4cbaf4f631c4",
+    "wikitextSha256": "84f0111ed23016e89eed299c3dc8bf318b6cc8fb82a44efc58f4683987ef10b7",
+    "extractedRecords": 20,
+    "publishedNames": 20
+  },
+  {
+    "title": "ToA - Law: Artes",
+    "revision": 361401,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Law:_Artes?oldid=361401",
+    "cache": "6cfb88b6cca92f96.json",
+    "sha256": "12bb032a9b5edd47935e81ff0a71919b8763b9315a097e10d42c5e68a923a6ed",
+    "wikitextSha256": "b4fe1c392f40b89c31fcb46f79879d149cc92f39cea83b48789be62957042ad7",
+    "extractedRecords": 31,
+    "publishedNames": 31
+  },
+  {
+    "title": "ToA - Law: Skill Panels",
+    "revision": 378045,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Law:_Skill_Panels?oldid=378045",
+    "cache": "6b2acc5d69229070.json",
+    "sha256": "490e2b314d65ec71eaae22d1613bf00fa139f7325c7ca3aaa8803990ad4149ef",
+    "wikitextSha256": "9c0c7fd2df227bc95a9732eae17ec845999c3882f08d3e2cc77f83ca9fe53b65",
+    "extractedRecords": 108,
+    "publishedNames": 18
+  },
+  {
+    "title": "ToA - Law: Costumes",
+    "revision": 379813,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Law:_Costumes?oldid=379813",
+    "cache": "2f5f48b1d056a950.json",
+    "sha256": "55fc0ed7b543a9be6463763c4b799314db87220ea26ec91355127cfd8b85cf28",
+    "wikitextSha256": "48d384868101c82c70df28de91f7f7c23f7dba6ff9cdbadbeaf811de601c4c9f",
+    "extractedRecords": 22,
+    "publishedNames": 22
+  },
+  {
+    "title": "ToA - Law: Haircut, Style",
+    "revision": 379814,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Law:_Haircut,_Style?oldid=379814",
+    "cache": "edf7256a4690fab8.json",
+    "sha256": "2ab5c5862cb32d61c53faece0b3206907ff2b82cd75943c727a796d94ed06198",
+    "wikitextSha256": "018799ad566097471b87f72c11c09e093aa58e261c7bb328f8dead4f1f3a15cc",
+    "extractedRecords": 14,
+    "publishedNames": 14
+  },
+  {
+    "title": "ToA - Kisara: Artes",
+    "revision": 361400,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Kisara:_Artes?oldid=361400",
+    "cache": "bf7bb14e32405f3a.json",
+    "sha256": "37405c25f12c7497e1d58b3566df400c2eb4245d3a7df344e4f19a56ac125481",
+    "wikitextSha256": "c5bc55a902bdc42358580ef9be1bf13ff0aef49ab8d54237d25ccfa77d00bcb6",
+    "extractedRecords": 33,
+    "publishedNames": 33
+  },
+  {
+    "title": "ToA - Kisara: Skill Panels",
+    "revision": 378064,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Kisara:_Skill_Panels?oldid=378064",
+    "cache": "17d535e150388598.json",
+    "sha256": "7610627e3b5704a66bfe371c07e56b08935659fd306795e0badce882feca5c8a",
+    "wikitextSha256": "b170498757009f82d7087b569ac118ad4d59d3c9b0e36c96ce7e2b2e34bdae6d",
+    "extractedRecords": 108,
+    "publishedNames": 18
+  },
+  {
+    "title": "ToA - Kisara: Costumes",
+    "revision": 379811,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Kisara:_Costumes?oldid=379811",
+    "cache": "9a1f1190186de7b5.json",
+    "sha256": "de863848a8088b7d9bd40cbd1312a1a123d6f608599b46d58bca50c0a3f329e7",
+    "wikitextSha256": "f56960d72a10c0764b9cf9ca78035fe5646549831a142a1a23b8385b39382d9c",
+    "extractedRecords": 20,
+    "publishedNames": 20
+  },
+  {
+    "title": "ToA - Kisara: Haircut, Style",
+    "revision": 379812,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Kisara:_Haircut,_Style?oldid=379812",
+    "cache": "3cc5ac333652d730.json",
+    "sha256": "956e842d53bc6cdced6eaf6d5b5f088686d8c8ff3f6392980b6135ba7b80b587",
+    "wikitextSha256": "8b5dc3051a3780f1c5f91df6381ea9820f113eb83df30c85b8b789cb02cae38f",
+    "extractedRecords": 16,
+    "publishedNames": 16
+  },
+  {
+    "title": "ToA - Dohalim il Qaras: Artes",
+    "revision": 361399,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Dohalim_il_Qaras:_Artes?oldid=361399",
+    "cache": "65ac2835e2521559.json",
+    "sha256": "7754dae7755b902dbef2b70028cd2f66054a36d3c5a12c60afd3474f2804801d",
+    "wikitextSha256": "8956ee9d6738998df61ae7dca7c156cb5d8a6fa26af49d657d0fd58311ea99a3",
+    "extractedRecords": 39,
+    "publishedNames": 39
+  },
+  {
+    "title": "ToA - Dohalim il Qaras: Skill Panels",
+    "revision": 378048,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Dohalim_il_Qaras:_Skill_Panels?oldid=378048",
+    "cache": "d9123ba175ebaed5.json",
+    "sha256": "d0077bee745ca585c691a684e1f7fe9c399a876a2e34aa062a0e5275fa6c6583",
+    "wikitextSha256": "9f9472f466229a149330c95edf7122d18c76df2a4645f48baceb82dc486a0ed2",
+    "extractedRecords": 108,
+    "publishedNames": 18
+  },
+  {
+    "title": "ToA - Dohalim il Qaras: Costumes",
+    "revision": 379807,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Dohalim_il_Qaras:_Costumes?oldid=379807",
+    "cache": "b7c3b5e48b7ff73c.json",
+    "sha256": "5dfb47919783684fee50a8f25f410a9f10641c619b6104bc784f7ad8633f961b",
+    "wikitextSha256": "c40a4d130a4bbbdbc1dd69f53791bc9754e9fca47a3c47d0a1ac00f8fb486175",
+    "extractedRecords": 20,
+    "publishedNames": 20
+  },
+  {
+    "title": "ToA - Dohalim il Qaras: Haircut, Style",
+    "revision": 379808,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Dohalim_il_Qaras:_Haircut,_Style?oldid=379808",
+    "cache": "8725d56fe2e4e9f3.json",
+    "sha256": "68ca1d76b5f213814acbbd80ee3c09ac41e075ac760a604cfda3d24d41ce90e3",
+    "wikitextSha256": "1bfd0f570cdd3b719ec84b19a0145850f398bd154af5546df283a3322fd8fb96",
+    "extractedRecords": 14,
+    "publishedNames": 14
+  },
+  {
+    "title": "Template:ToA Characters",
+    "revision": 300086,
+    "url": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+    "cache": "21bfbbc007d7375a.json",
+    "sha256": "a28c78f33181aec16513a6b1c6ce19f6a841000d9fdb0ea098960443d4304842",
+    "wikitextSha256": "fefb527f764c5fab000d5e79fc3ceadd31580e82d74d2aae35ca23291716ed18",
+    "extractedRecords": 63
+  },
+  {
+    "title": "ToA - Zephyr: Artes",
+    "revision": 354337,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Zephyr:_Artes?oldid=354337",
+    "cache": "3ae550c6c39f8c54.json",
+    "sha256": "b4a5b4ff5d42c15ca05a8717aab1e2fe51c9be5f4c1959e911f7eaac9f257ee9",
+    "wikitextSha256": "5dafc384b0844f53d9a3ad45294d976ba0ce036c3762f5ccdb1cb63a15f23f61",
+    "extractedRecords": 10,
+    "publishedNames": 10
+  },
+  {
+    "title": "ToA - Balseph: Artes",
+    "revision": 349963,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Balseph:_Artes?oldid=349963",
+    "cache": "2e5d87f607ec17b8.json",
+    "sha256": "4f64a2663c6aee3c37eafa81cc07579c285ce3b07317af50199a03c9cb68c2f4",
+    "wikitextSha256": "32ac56b0c687dd1d7ac5c0e24b82c4c657b5ba61cdec85b8693ce2bef2c80376",
+    "extractedRecords": 1,
+    "publishedNames": 1
+  },
+  {
+    "title": "ToA - Ganabelt Valkyris: Artes",
+    "revision": 349961,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Ganabelt_Valkyris:_Artes?oldid=349961",
+    "cache": "3e92eebf9cc12759.json",
+    "sha256": "dd7bfaec731ebef426a24d70918060feddd3d1b40883c8a2ba9cdb239f7b3930",
+    "wikitextSha256": "d3aa39d14ad39d81cb1b9826e9f49a73eafd7c0b6ddfb6e004067872cfbac7a9",
+    "extractedRecords": 7,
+    "publishedNames": 5
+  },
+  {
+    "title": "ToA - Almeidrea Kaineris: Artes",
+    "revision": 350002,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Almeidrea_Kaineris:_Artes?oldid=350002",
+    "cache": "da1efe943ea7ed9e.json",
+    "sha256": "8711de70ab2ff1064a08806fd911b8717ca2b8c92492f9c802559ae2a7a4ad49",
+    "wikitextSha256": "cf6bb35aed3b51321b29bde07fe42f837b2f851fc34b5cb68a9c4c21d2a2ab32",
+    "extractedRecords": 6,
+    "publishedNames": 6
+  },
+  {
+    "title": "ToA - Vholran Igniseri: Artes",
+    "revision": 350000,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Vholran_Igniseri:_Artes?oldid=350000",
+    "cache": "237c8125493f4f1f.json",
+    "sha256": "becda36fbcfcdea59c87ceb747edcfa028a89b519e48b7f9c5a4c456bc75dda4",
+    "wikitextSha256": "f0bc729fb5d59e9f555ebe94c2b4a9242a6da1ada7160e062fc79828cfb285e0",
+    "extractedRecords": 5,
+    "publishedNames": 5
+  },
+  {
+    "title": "ToA - Helganquil: Artes",
+    "revision": 350001,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Helganquil:_Artes?oldid=350001",
+    "cache": "5c2b693391021b22.json",
+    "sha256": "d7c9886e724c7bb6d9fc100f4bb540b84ccf0bdf9c2b647cf5b85f50c2f5383b",
+    "wikitextSha256": "1164634b5ca758e1b086359625440aa59fa99dfcd8d3d031140738313a8d4dcb",
+    "extractedRecords": 3,
+    "publishedNames": 3
+  },
+  {
+    "title": "ToA - Great Astral Spirit: Artes",
+    "revision": 351060,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Great_Astral_Spirit:_Artes?oldid=351060",
+    "cache": "b7c77f9b01e61a74.json",
+    "sha256": "ed6116664c893caf1dffed6db8f698a1d3faa6df948248def42362355f2193e9",
+    "wikitextSha256": "50d720b5ba1ca910737660458cfff539126c36761a43a32d05e8f8983f14ad12",
+    "extractedRecords": 2,
+    "publishedNames": 2
+  },
+  {
+    "title": "ToA - Nazamil Hildris: Artes",
+    "revision": 354231,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Nazamil_Hildris:_Artes?oldid=354231",
+    "cache": "2270a3218c99fde2.json",
+    "sha256": "061e3ec3efcc4b79655833addd828831608fe9cdd0b5379bdc5525adccfdf339",
+    "wikitextSha256": "661d03758370cb2bc66f23862e4e19da8cbaae3ca5a98b39395e5030420d0f6f",
+    "extractedRecords": 19,
+    "publishedNames": 18
+  },
+  {
+    "title": "ToA - Edna: Artes",
+    "revision": 351767,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Edna:_Artes?oldid=351767",
+    "cache": "da1d9427c33b336a.json",
+    "sha256": "c9c48d0d86d906185ba113deceac1dde38005ca522a9ba46394f21b917ecef09",
+    "wikitextSha256": "05d70f2dc7bcee18dabe629e8211778d0cbc55c694a764c91e34a4fc7701562b",
+    "extractedRecords": 5,
+    "publishedNames": 5
+  },
+  {
+    "title": "ToA - Eizen: Artes",
+    "revision": 351778,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Eizen:_Artes?oldid=351778",
+    "cache": "27a078b28f3b9a1f.json",
+    "sha256": "158eefb45243459f6b0a129af66c8a1775e20e40b28372b40a563ecff11ddf02",
+    "wikitextSha256": "b922c68a81132eaec56e6c3ed77a20fdd419c7919ef329159fd161c90c77e61c",
+    "extractedRecords": 11,
+    "publishedNames": 11
+  },
+  {
+    "title": "ToA - Chronos: Artes",
+    "revision": 351781,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Chronos:_Artes?oldid=351781",
+    "cache": "ff6b3e1d20cf0e2b.json",
+    "sha256": "53f3f7e29bbe6706d8226e6c16cb39f2330e224c952c302b7b4da449090db5fd",
+    "wikitextSha256": "d1433fcf94a194034e0d489a083bd10963551efbe66cf48aae742b9e8cc75d5f",
+    "extractedRecords": 1,
+    "publishedNames": 1
+  },
+  {
+    "title": "ToA - Kirito: Artes",
+    "revision": 351919,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Kirito:_Artes?oldid=351919",
+    "cache": "1f77f406c5336f83.json",
+    "sha256": "ccfd3fc55770a14392012ffe03563aaa231ec08f09fec58b6843d34beb2c2e6e",
+    "wikitextSha256": "811c9fcdd792e6c40a3984d4cf42306efc9e472d0fe10e7647bc441b02848581",
+    "extractedRecords": 2,
+    "publishedNames": 2
+  },
+  {
+    "title": "ToA - Asuna: Artes",
+    "revision": 351922,
+    "url": "https://aselia.fandom.com/wiki/ToA_-_Asuna:_Artes?oldid=351922",
+    "cache": "4d7d9a8f1c96a21e.json",
+    "sha256": "4e5a4994f7a4c63eb7f1921abf56bd5873bfd66627d532962b787544845ba8e0",
+    "wikitextSha256": "4c62eb93f9e54c4108199d24d9e85e3e3afbd0b7bae4d258521a79c7cd3e6346",
+    "extractedRecords": 1,
+    "publishedNames": 1
+  }
+]

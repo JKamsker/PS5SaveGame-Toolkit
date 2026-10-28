@@ -10,7 +10,7 @@ public sealed class AriseExplorerTests
         var file = AriseSampleTests.GameplayFiles().First();
         using var document = new TalesOfArisePlugin().Open(file);
         var root = Assert.IsType<TabsNode>(document.BuildView());
-        Assert.Equal(4, root.Tabs.Count);
+        Assert.Contains(root.Tabs, tab => tab.Title == "Explorer");
         var words = 0;
         for (var index = 0; index < 30; index++)
         {

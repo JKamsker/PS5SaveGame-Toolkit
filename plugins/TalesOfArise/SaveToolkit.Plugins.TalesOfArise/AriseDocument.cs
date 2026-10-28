@@ -4,6 +4,7 @@ using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using static SaveToolkit.Plugins.TalesOfArise.AriseSchema;
 
 namespace SaveToolkit.Plugins.TalesOfArise;
 
@@ -12,23 +13,19 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     private const int GaldOffset = 0x18;
     private const int PlaySecondsOffset = 0xAF8;
     private const int PlayTicksOffset = 0x2000;
-    private const int LevelOffset = 0x04;
-    private const int CurrentHpOffset = 0x08;
-    private const int ExperienceOffset = 0x10;
-    private const int SkillPointsOffset = 0x30;
-    private const int BaseHpOffset = 0x50;
     private const int ItemFlagsOffset = 1;
     private const int ItemIdOffset = 2;
     private const uint MaximumLevel = 100;
     private const uint MaximumHp = 99999;
     private const uint MaximumSkillPoints = 999999;
     private const uint MaximumGald = 999999999;
-    private const int MainCharacterCount = 6;
     private const int ItemRecordSize = 16;
     private const int ItemRecordCount = 0x3A6; // Count in the cited PS4 inventory patch; later regions are not item stacks.
     private const int ConsumableStackLimit = 15;
     private const string ExperimentalWarning = "PS5 field mapping is inferred from PS4 research. Edits have not been tested in-game.";
     private readonly AriseReferences _references = new(references);
+    private AriseReadOnlyViews? _readOnlyViews;
+    private AriseReadOnlyViews ReadOnlyViews => _readOnlyViews ??= new(save, _references);
 
     public override string Title => $"Tales of Arise · {fileName}";
 
@@ -59,6 +56,9 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                 SectionNode.Lazy("Owned inventory records", "inventory"),
             ]),
             new Tab("Catalogs", _references.BuildView()),
+            new Tab("Character sheets", ReadOnlyViews.CharacterView(ReadOnlyNumber)),
+            new Tab("Artes and skills", ReadOnlyViews.BuildView()),
+            new Tab("Progress", ReadOnlyViews.ProgressView()),
             new Tab("Explorer",
             [
                 new TextNode("Decrypted sections and primitive words are read-only. Offsets are relative to the gameplay block at file offset 0x32058."),
@@ -69,9 +69,27 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
         ]);
     }
 
-    public IReadOnlyList<QueryableCollection> Collections => _references.Collections;
+    public IReadOnlyList<QueryableCollection> Collections => [.. _references.Collections, .. ReadOnlyViews.Collections];
 
-    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => _references.Query(collectionId, query);
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
+    {
+        if (ReadOnlyViews.Handles(collectionId))
+        {
+            return ReadOnlyViews.Query(collectionId, query, ReadOnlyNumber);
+        }
+
+        var page = _references.Query(collectionId, query);
+        return page with
+        {
+            Rows = page.Rows.Select(row => row with
+            {
+                Cells = row.Cells.ToDictionary(cell => cell.Key, cell => cell.Value is FieldNode node
+                    ? Field(node.ValueId, node.Label, node.Spec, () => node.Value) with
+                        { Description = node.Description, Confidence = node.Confidence }
+                    : cell.Value, StringComparer.Ordinal),
+            }).ToArray(),
+        };
+    }
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
         _references.Handles(actionId) ? _references.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
@@ -116,9 +134,11 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             var offset = section.Offset;
             var active = i < MainCharacterCount && Read(offset + LevelOffset) != 0;
             var prefix = $"character/{i}";
+            var name = names[i];
             rows.Add(new TableRow(prefix, new Dictionary<string, ViewNode>
             {
-                ["name"] = new TextNode(names[i]),
+                ["name"] = Field($"{prefix}/name", "Character", new TextSpec(), () => FieldValue.Of(name))
+                    with { Description = _references.Character(i)?.AttributionText ?? CharacterAttribution, Confidence = i < MainCharacterCount ? Confidence.Inferred : Confidence.Unknown },
                 ["level"] = Number($"{prefix}/level", "Level", offset + LevelOffset, MaximumLevel, active, active ? 1u : 0u)
                     with { Warning = "Level alone does not recalculate experience or stats. The preserved load-screen preview can show the old level." },
                 ["hp"] = Number($"{prefix}/hp", "Current HP", offset + CurrentHpOffset, MaximumHp, active),
@@ -148,19 +168,22 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                 continue;
             }
 
-            var name = AriseSchema.ConsumableName(id);
+            var supportedName = AriseSchema.ConsumableName(id);
+            var reference = _references.Items?.Find(id.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            var name = reference?.Name ?? supportedName;
+            var attribution = reference?.AttributionText ?? ConsumableAttribution;
             var valueId = $"inventory/{relative / ItemRecordSize}/quantity";
             var idField = Field($"inventory/{relative / ItemRecordSize}/id", $"0x{id:X4}",
                 new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true, AllowCustom = true },
                 () => FieldValue.Of(id.ToString())) with
                 {
-                    Confidence = Confidence.Inferred,
+                    Confidence = name is null ? Confidence.Unknown : Confidence.Inferred,
                     Description = name is null
                         ? "Unknown item/equipment identity; raw numeric ID is preserved."
-                        : $"{name}; raw numeric ID is preserved. Catalog attribution is shown in the Catalogs tab.",
+                        : $"{name}; raw numeric ID is preserved. {attribution}",
                 };
             var spec = new IntegerSpec(0, Math.Max(ConsumableStackLimit, (int)save.Payload[offset]));
-            var canWrite = name is not null && save.Payload[offset] <= ConsumableStackLimit;
+            var canWrite = supportedName is not null && save.Payload[offset] <= ConsumableStackLimit;
             var quantity = Field(valueId, "Quantity", spec,
                 () => FieldValue.Of((long)save.Payload[offset]),
                 canWrite ? v => save.Payload[offset] = checked((byte)v.AsUInt32()) : null,
@@ -169,7 +192,9 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             rows.Add(new TableRow(valueId, new Dictionary<string, ViewNode>
             {
                 ["id"] = idField,
-                ["name"] = new TextNode(name ?? "Unknown item / equipment"),
+                ["name"] = Field($"inventory/{relative / ItemRecordSize}/name", "Item", new TextSpec(),
+                    () => FieldValue.Of(name ?? "Unknown item / equipment"))
+                    with { Description = name is null ? "Unknown numeric identity; no name join is assumed." : attribution, Confidence = name is null ? Confidence.Unknown : Confidence.Inferred },
                 ["quantity"] = quantity,
                 ["flags"] = new TextNode($"0x{save.Payload[offset + ItemFlagsOffset]:X2}"),
             }));
@@ -190,5 +215,6 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     }
 
     private uint Read(int offset) => AriseFormat.U32(save.Payload, offset);
+    private FieldNode ReadOnlyNumber(string id, string label, int offset) => Number(id, label, offset, uint.MaxValue, false);
     private AriseSection Section(string name) => save.Sections.Single(section => section.Name == name);
 }

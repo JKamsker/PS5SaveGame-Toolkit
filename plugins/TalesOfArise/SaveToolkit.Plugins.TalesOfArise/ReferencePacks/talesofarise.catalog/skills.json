@@ -1,0 +1,964 @@
+{
+  "records": [
+    {
+      "id": "skill:10-hit-boost-gauge-increase",
+      "name": "10-hit Boost Gauge Increase",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Dohalim\nBase stacks (same user order): -; -; -; 3; 3\nDLC stacks (same user order): 1; 2; 3; -; -\nincreases BG by ?% every 10 hits, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Dohalim",
+        "baseStacks": "-; -; -; 3; 3",
+        "dlcStacks": "1; 2; 3; -; -"
+      }
+    },
+    {
+      "id": "skill:ag-restored-by-perfect-evading-guarding",
+      "name": "AG Restored By Perfect Evading/Guarding",
+      "category": "Action Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Law; Kisara; Dohalim\nBase stacks (same user order): 2; 3; -; 2\nDLC stacks (same user order): -; -; 2; -\nrecovers ? AG when perfectly evading or guarding against an attack, up to the maximum value of ?",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Action Skills",
+        "character": "Alphen; Law; Kisara; Dohalim",
+        "baseStacks": "2; 3; -; 2",
+        "dlcStacks": "-; -; 2; -"
+      }
+    },
+    {
+      "id": "skill:ag-restored-from-critical-hits",
+      "name": "AG Restored From Critical Hits",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): 2; 3; 3; 2; 3\nDLC stacks (same user order): -; -; -; -; -\nrecovers ? AG when performing a critical hit on the foe, up to the maximum of ?",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "2; 3; 3; 2; 3",
+        "dlcStacks": "-; -; -; -; -"
+      }
+    },
+    {
+      "id": "skill:ag-restored-upon-enemy-defeat",
+      "name": "AG Restored Upon Enemy Defeat",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Shionne; Rinwell; Law; Kisara\nBase stacks (same user order): 2; 3; 3; 2\nDLC stacks (same user order): -; -; -; -\nrestores AG by ? upon enemy's defeat, up to the maximum of ?",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Shionne; Rinwell; Law; Kisara",
+        "baseStacks": "2; 3; 3; 2",
+        "dlcStacks": "-; -; -; -"
+      }
+    },
+    {
+      "id": "skill:arte-casting-mobility",
+      "name": "Arte Casting Mobility",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Shionne; Rinwell; Dohalim\nBase stacks (same user order): 1; 1; 1\nDLC stacks (same user order): -; -; -\nallows the user to move while chanting",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Shionne; Rinwell; Dohalim",
+        "baseStacks": "1; 1; 1",
+        "dlcStacks": "-; -; -"
+      }
+    },
+    {
+      "id": "skill:awakening-battle-chain-bonus",
+      "name": "Awakening Battle Chain Bonus",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Law\nBase stacks (same user order): 3\nDLC stacks (same user order): -\nwinning a battle while Awakening is active will increase Battle Score by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Law",
+        "baseStacks": "3",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:awakening-burst",
+      "name": "Awakening Burst",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Law\nBase stacks (same user order): 2\nDLC stacks (same user order): -\nas the level of Awakening increases, Law's Attack and Elemental Attack increase accordingly by ?% per level, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Law",
+        "baseStacks": "2",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:counter-edge",
+      "name": "Counter Edge",
+      "category": "Action Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: All\nBase stacks (same user order): 1\nDLC stacks (same user order): -\nwhen performing a perfect evasion or guard, the player can press R1 to perform an instant counterattack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Action Skills",
+        "character": "All",
+        "baseStacks": "1",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:counter-edge-upon-enemy-defeat",
+      "name": "Counter Edge Upon Enemy Defeat",
+      "category": "Action Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: All\nBase stacks (same user order): 1\nDLC stacks (same user order): -\nwhen defeating a foe, the player can press R1 to perform a Counter Edge",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Action Skills",
+        "character": "All",
+        "baseStacks": "1",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:cp-restoration-when-full",
+      "name": "CP Restoration When Full",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Shionne\nBase stacks (same user order): 2\nDLC stacks (same user order): 2\nrestores ?% of CP while cooking effect is active, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Shionne",
+        "baseStacks": "2",
+        "dlcStacks": "2"
+      }
+    },
+    {
+      "id": "skill:easier-awakening-over-limit",
+      "name": "Easier Awakening Over Limit",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Law\nBase stacks (same user order): 3\nDLC stacks (same user order): -\nincreases chance to enter Over Limit while Awakening is active by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Law",
+        "baseStacks": "3",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:easier-over-limit",
+      "name": "Easier Over Limit",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Law; Kisara\nBase stacks (same user order): 2; 2; 3; 3\nDLC stacks (same user order): -; -; -; -\nimproves chance for user to enter Over Limit",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Law; Kisara",
+        "baseStacks": "2; 2; 3; 3",
+        "dlcStacks": "-; -; -; -"
+      }
+    },
+    {
+      "id": "skill:easier-party-member-over-limit",
+      "name": "Easier Party Member Over Limit",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Law; Kisara\nBase stacks (same user order): -; 2\nDLC stacks (same user order): 2; -\nincreases allies' chance to enter Over Limit when they are hit by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Law; Kisara",
+        "baseStacks": "-; 2",
+        "dlcStacks": "2; -"
+      }
+    },
+    {
+      "id": "skill:easier-perfect-evading-guarding",
+      "name": "Easier Perfect Evading/Guarding",
+      "category": "Action Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Law; Kisara; Dohalim\nBase stacks (same user order): 2; 1; -; 1; 3\nDLC stacks (same user order): -; -; 1; -; -\nincreases chance to perfectly evade or guard against an attack by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Action Skills",
+        "character": "Alphen; Shionne; Law; Kisara; Dohalim",
+        "baseStacks": "2; 1; -; 1; 3",
+        "dlcStacks": "-; -; 1; -; -"
+      }
+    },
+    {
+      "id": "skill:faster-ag-recovery",
+      "name": "Faster AG Recovery",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): 3; 3; 3; 3; 3; 3\nDLC stacks (same user order): -; -; -; -; 1; -\nincreases AG recovery speed by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "3; 3; 3; 3; 3; 3",
+        "dlcStacks": "-; -; -; -; 1; -"
+      }
+    },
+    {
+      "id": "skill:faster-flaming-edge-charge",
+      "name": "Faster Flaming Edge Charge",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen\nBase stacks (same user order): 2\nDLC stacks (same user order): -\nincreases charge speed of Flaming Edge by ?%, up to the maximum of ?% the amount of HP consumed while charging Flaming Edge does not change",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Alphen",
+        "baseStacks": "2",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:faster-magic-charge",
+      "name": "Faster Magic Charge",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Rinwell\nBase stacks (same user order): 2\nDLC stacks (same user order): -\nreduces chanting time by ?% when an astral arte is charged, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Rinwell",
+        "baseStacks": "2",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:flaming-edge-burst",
+      "name": "Flaming Edge Burst",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen\nBase stacks (same user order): 4\nDLC stacks (same user order): -\nallow longer Flaming Edge charge to increase damage by ?% at the cost of more HP consumption, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Alphen",
+        "baseStacks": "4",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:guard-mobility",
+      "name": "Guard Mobility",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Kisara\nBase stacks (same user order): 1\nDLC stacks (same user order): -\nallows movement while guarding",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Kisara",
+        "baseStacks": "1",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:guard-vengeance",
+      "name": "Guard Vengeance",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Kisara\nBase stacks (same user order): 1\nDLC stacks (same user order): -\ndamage received while guarding is added to the damage dealt to the next arte activated with Guard Ignition added damage is capped at user's Attack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Kisara",
+        "baseStacks": "1",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:improved-healing-artes",
+      "name": "Improved Healing Artes",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Shionne; Dohalim\nBase stacks (same user order): 3; 2\nDLC stacks (same user order): -; -\nincreases the amount of HP recovered with artes by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Shionne; Dohalim",
+        "baseStacks": "3; 2",
+        "dlcStacks": "-; -"
+      }
+    },
+    {
+      "id": "skill:increased-aggro-while-guarding",
+      "name": "Increased Aggro While Guarding",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Kisara\nBase stacks (same user order): 2\nDLC stacks (same user order): -\nwhen the user guards that chance for an enemy to target her increases by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Kisara",
+        "baseStacks": "2",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:increased-ailment-bonus-damage",
+      "name": "Increased Ailment Bonus Damage",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne\nBase stacks (same user order): -; 3\nDLC stacks (same user order): 2; 2\nincreases damage dealt to enemies afflicted with status ailments by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne",
+        "baseStacks": "-; 3",
+        "dlcStacks": "2; 2"
+      }
+    },
+    {
+      "id": "skill:increased-ailment-rate",
+      "name": "Increased Ailment Rate",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Shionne\nBase stacks (same user order): 3\nDLC stacks (same user order): 2\nincreases chance to inflict a status ailment on the enemy by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Shionne",
+        "baseStacks": "3",
+        "dlcStacks": "2"
+      }
+    },
+    {
+      "id": "skill:increased-anti-dragon-damage",
+      "name": "Increased Anti-Dragon Damage",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Rinwell\nBase stacks (same user order): 2\nDLC stacks (same user order): -\nincreases damage dealt to dragons by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Rinwell",
+        "baseStacks": "2",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:increased-arte-casting-resilience",
+      "name": "Increased Arte Casting Resilience",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Shionne; Rinwell; Dohalim\nBase stacks (same user order): 2; 3; 2\nDLC stacks (same user order): -; -; -\ndecreases chance to be interrupted when chanting by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Shionne; Rinwell; Dohalim",
+        "baseStacks": "2; 3; 2",
+        "dlcStacks": "-; -; -"
+      }
+    },
+    {
+      "id": "skill:increased-attack-elemental-attack-after-guarding",
+      "name": "Increased Attack/Elemental Attack After Guarding",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Kisara\nBase stacks (same user order): 4\nDLC stacks (same user order): -\nincreases user's Attack and Elemental Attack after guarding against enemy attack by ?% each, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Kisara",
+        "baseStacks": "4",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:increased-attack-elemental-attack-when-full",
+      "name": "Increased Attack/Elemental Attack When Full",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne\nBase stacks (same user order): -; 2\nDLC stacks (same user order): 1; 2\nincreases user's Attack and Elemental Attack while a cooking effect is active by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne",
+        "baseStacks": "-; 2",
+        "dlcStacks": "1; 2"
+      }
+    },
+    {
+      "id": "skill:increased-attack-elemental-attack-when-surrounded",
+      "name": "Increased Attack/Elemental Attack When Surrounded",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Kisara\nBase stacks (same user order): -; 2\nDLC stacks (same user order): 1; 1\nincreases user's Attack and Elemental Attack with each enemy targeting the user by ?% each",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Kisara",
+        "baseStacks": "-; 2",
+        "dlcStacks": "1; 1"
+      }
+    },
+    {
+      "id": "skill:increased-awakening-attack",
+      "name": "Increased Awakening Attack",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Law\nBase stacks (same user order): 3\nDLC stacks (same user order): -\nwhile Awakening is active, Law's Attack and Elemental Attack increase by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Law",
+        "baseStacks": "3",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:increased-bg-at-battle-start",
+      "name": "Increased BG at Battle Start",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): -; 2; 3; 3; 3; -\nDLC stacks (same user order): 1; -; -; -; -; 2\nincreases BG at the start of battle by ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "-; 2; 3; 3; 3; -",
+        "dlcStacks": "1; -; -; -; -; 2"
+      }
+    },
+    {
+      "id": "skill:increased-boost-gauge-from-enemy-defeats",
+      "name": "Increased Boost Gauge from Enemy Defeats",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): -; -; 3; -; 3; -\nDLC stacks (same user order): 2; 2; -; 2; -; 2\nincreases BG by ?% upon enemy's defeat, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "-; -; 3; -; 3; -",
+        "dlcStacks": "2; 2; -; 2; -; 2"
+      }
+    },
+    {
+      "id": "skill:increased-boost-gauge-from-enemy-downs",
+      "name": "Increased Boost Gauge from Enemy Downs",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): 2; 3; 3; 3; 3; 3\nDLC stacks (same user order): -; -; -; -; -; -\nincreases user's BG by ?% when knocking down an enemy with a Boost Attack that exploit enemy's type, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "2; 3; 3; 3; 3; 3",
+        "dlcStacks": "-; -; -; -; -; -"
+      }
+    },
+    {
+      "id": "skill:increased-boost-strike-damage",
+      "name": "Increased Boost Strike Damage",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): 3; 2; 2; 2; 2; 2\nDLC stacks (same user order): -; -; -; -; -; -\nincreases damage dealt with Boost Strikes by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "3; 2; 2; 2; 2; 2",
+        "dlcStacks": "-; -; -; -; -; -"
+      }
+    },
+    {
+      "id": "skill:increased-counterattack-critical-hit-rate",
+      "name": "Increased Counterattack Critical Hit Rate",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Kisara; Dohalim\nBase stacks (same user order): 2; 3; -\nDLC stacks (same user order): -; -; 2\nincreases critical hit rate when attacking an enemy that attacks the user by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Kisara; Dohalim",
+        "baseStacks": "2; 3; -",
+        "dlcStacks": "-; -; 2"
+      }
+    },
+    {
+      "id": "skill:increased-counterattack-damage",
+      "name": "Increased Counterattack Damage",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Law; Kisara; Dohalim\nBase stacks (same user order): 2; 2; 3; -\nDLC stacks (same user order): -; -; -; 2\nincreases damage dealt when attacking an enemy that attacks the user by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Law; Kisara; Dohalim",
+        "baseStacks": "2; 2; 3; -",
+        "dlcStacks": "-; -; -; 2"
+      }
+    },
+    {
+      "id": "skill:increased-critical-damage",
+      "name": "Increased Critical Damage",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): 3; -; 3; -; 3\nDLC stacks (same user order): -; 2; -; 2; -\nincreases damage dealt with critical attack by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "3; -; 3; -; 3",
+        "dlcStacks": "-; 2; -; 2; -"
+      }
+    },
+    {
+      "id": "skill:increased-down-damage",
+      "name": "Increased Down Damage",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): 2; 3; -; -; 2\nDLC stacks (same user order): -; 2; 1; 1; -\nincreases damage dealt to downed foes by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "2; 3; -; -; 2",
+        "dlcStacks": "-; 2; 1; 1; -"
+      }
+    },
+    {
+      "id": "skill:increased-evasion-distance",
+      "name": "Increased Evasion Distance",
+      "category": "Action Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Rinwell; Law\nBase stacks (same user order): 1; 1; 1\nDLC stacks (same user order): -; -; -\nincreases distance when performing an evasive maneuver by ?",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Action Skills",
+        "character": "Alphen; Rinwell; Law",
+        "baseStacks": "1; 1; 1",
+        "dlcStacks": "-; -; -"
+      }
+    },
+    {
+      "id": "skill:increased-guarding-effects",
+      "name": "Increased Guarding Effects",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Kisara\nBase stacks (same user order): 3\nDLC stacks (same user order): -\ndecreases damage received while guarding by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Kisara",
+        "baseStacks": "3",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:increased-max-ag",
+      "name": "Increased Max AG",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): 8; 8; 8; 7; 7; 7\nDLC stacks (same user order): -; -; -; -; -; -\nincreases maximum AG by 1 point, up to the maximum of 8 points",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "8; 8; 8; 7; 7; 7",
+        "dlcStacks": "-; -; -; -; -; -"
+      }
+    },
+    {
+      "id": "skill:increased-mid-air-damage",
+      "name": "Increased Mid-Air Damage",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara\nBase stacks (same user order): 2; 3; 2; -; -\nDLC stacks (same user order): -; -; 1; 1; 1\nincreases damage dealt while in the air by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara",
+        "baseStacks": "2; 3; 2; -; -",
+        "dlcStacks": "-; -; 1; 1; 1"
+      }
+    },
+    {
+      "id": "skill:increased-near-death-attack-elemental-attack",
+      "name": "Increased Near-Death Attack/Elemental Attack",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Law; Kisara\nBase stacks (same user order): 3; 2; 2; -\nDLC stacks (same user order): 1; -; -; 2\nincreases user's Attack and Elemental Attack while their HP is critical by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Law; Kisara",
+        "baseStacks": "3; 2; 2; -",
+        "dlcStacks": "1; -; -; 2"
+      }
+    },
+    {
+      "id": "skill:increased-near-death-defense-elemental-defense",
+      "name": "Increased Near-Death Defense/Elemental Defense",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Law; Kisara\nBase stacks (same user order): 2; 1; 2\nDLC stacks (same user order): -; -; -\nincreases user's Defence and Elemental Defense while their HP is critical by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Law; Kisara",
+        "baseStacks": "2; 1; 2",
+        "dlcStacks": "-; -; -"
+      }
+    },
+    {
+      "id": "skill:increased-normal-attack-limit",
+      "name": "Increased Normal Attack Limit",
+      "category": "Action Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): 2; 2; 1; 2; 2; 2\nDLC stacks (same user order): -; -; -; -; -; -\nincreases number of attacks performed in normal attack combo by 1, up to the maximum of 2",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Action Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "2; 2; 1; 2; 2; 2",
+        "dlcStacks": "-; -; -; -; -; -"
+      }
+    },
+    {
+      "id": "skill:increased-rod-extension-attack",
+      "name": "Increased Rod Extension Attack",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Dohalim\nBase stacks (same user order): 3\nDLC stacks (same user order): 1\nincreases damage dealt while Rod Extension is active by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Dohalim",
+        "baseStacks": "3",
+        "dlcStacks": "1"
+      }
+    },
+    {
+      "id": "skill:increased-rod-extension-critical-damage",
+      "name": "Increased Rod Extension Critical Damage",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Dohalim\nBase stacks (same user order): 3\nDLC stacks (same user order): 1\nincreases critical damage while Rod Extension is active by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Dohalim",
+        "baseStacks": "3",
+        "dlcStacks": "1"
+      }
+    },
+    {
+      "id": "skill:increased-rod-extension-critical-rate",
+      "name": "Increased Rod Extension Critical Rate",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Dohalim\nBase stacks (same user order): 3\nDLC stacks (same user order): 1\nincreases critical hit rate while Rod Extension is active by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Dohalim",
+        "baseStacks": "3",
+        "dlcStacks": "1"
+      }
+    },
+    {
+      "id": "skill:increased-rod-extension-length",
+      "name": "Increased Rod Extension Length",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Dohalim\nBase stacks (same user order): 2\nDLC stacks (same user order): -\nincreases length of the the user's rod while Rod Extension is active by ?, up to the maximum of ?",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Dohalim",
+        "baseStacks": "2",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:increased-rod-extension-time-limit",
+      "name": "Increased Rod Extension Time Limit",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Dohalim\nBase stacks (same user order): 2\nDLC stacks (same user order): 1\nincreases the duration of Rod Extension by ?, up to the maximum of ?",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Dohalim",
+        "baseStacks": "2",
+        "dlcStacks": "1"
+      }
+    },
+    {
+      "id": "skill:increased-special-ammo",
+      "name": "Increased Special Ammo",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Shionne\nBase stacks (same user order): 2\nDLC stacks (same user order): -\nincreases the maximum amount of special ammo that can be held by 1, up to the maximum of 2",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Shionne",
+        "baseStacks": "2",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:increased-weak-point-damage",
+      "name": "Increased Weak Point Damage",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara\nBase stacks (same user order): 2; 2; 3; -; -\nDLC stacks (same user order): -; -; 1; 2; 1\nincreases damage dealt to enemy's weak points by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara",
+        "baseStacks": "2; 2; 3; -; -",
+        "dlcStacks": "-; -; 1; 2; 1"
+      }
+    },
+    {
+      "id": "skill:ko-prevention",
+      "name": "KO Prevention",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law; Kisara; Dohalim\nBase stacks (same user order): 2; 1; 1; 1; 1; 1\nDLC stacks (same user order): 1; -; 1; 1; -; -\nif the damage received would knock out the user their HP will be reduced to 1 point once, up to the maximum of 3 activations of reducing HP to 1 point",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law; Kisara; Dohalim",
+        "baseStacks": "2; 1; 1; 1; 1; 1",
+        "dlcStacks": "1; -; 1; 1; -; -"
+      }
+    },
+    {
+      "id": "skill:last-shot",
+      "name": "Last Shot",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Shionne\nBase stacks (same user order): 2\nDLC stacks (same user order): -\ndetonating a bomb with a single special ammo left increases bomb's damage by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Shionne",
+        "baseStacks": "2",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:mid-air-evasion",
+      "name": "Mid-Air Evasion",
+      "category": "Action Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: All\nBase stacks (same user order): 1\nDLC stacks (same user order): -\ncan perform an evasive maneuver once while in the air",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Action Skills",
+        "character": "All",
+        "baseStacks": "1",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:mid-air-jump",
+      "name": "Mid-Air Jump",
+      "category": "Action Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Rinwell; Law; Dohalim\nBase stacks (same user order): 1; 1; 1; 1\nDLC stacks (same user order): -; -; -; -\ncan jump once while in the air",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Action Skills",
+        "character": "Alphen; Rinwell; Law; Dohalim",
+        "baseStacks": "1; 1; 1; 1",
+        "dlcStacks": "-; -; -; -"
+      }
+    },
+    {
+      "id": "skill:over-limit-extension",
+      "name": "Over Limit Extension",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Shionne; Rinwell; Law\nBase stacks (same user order): 2; 2; 2; -\nDLC stacks (same user order): -; -; -; 2\nincreases the duration of the user's Over Limit by ?, up to the maximum of ?",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Shionne; Rinwell; Law",
+        "baseStacks": "2; 2; 2; -",
+        "dlcStacks": "-; -; -; 2"
+      }
+    },
+    {
+      "id": "skill:owl-astral-energy",
+      "name": "Owl Astral Energy",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Rinwell\nBase stacks (same user order): 2\nDLC stacks (same user order): -\nincreases user's Elemental Attack in accordance to the number of owls found by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Rinwell",
+        "baseStacks": "2",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:recover",
+      "name": "Recover",
+      "category": "Action Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: All\nBase stacks (same user order): 1\nDLC stacks (same user order): -\npress R2 when being hit to recover and avoid being knocked down",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Action Skills",
+        "character": "All",
+        "baseStacks": "1",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:reduced-arte-casting-time-during-combos",
+      "name": "Reduced Arte Casting Time During Combos",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Shionne; Rinwell; Dohalim\nBase stacks (same user order): 2; 2; 2\nDLC stacks (same user order): -; 2; -\ndecreases chanting time by ?, when an astral arte is included in a chain, up to the maximum of ? chanting time decreases more as the astral arte in question is queued later in a chain",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Shionne; Rinwell; Dohalim",
+        "baseStacks": "2; 2; 2",
+        "dlcStacks": "-; 2; -"
+      }
+    },
+    {
+      "id": "skill:reduced-awakening-requirements",
+      "name": "Reduced Awakening Requirements",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Law\nBase stacks (same user order): -\nDLC stacks (same user order): 2\nreduces the number of hits required to activate Awakening by ?, up to the maximum of ?",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Law",
+        "baseStacks": "-",
+        "dlcStacks": "2"
+      }
+    },
+    {
+      "id": "skill:strengthened-counter-edge",
+      "name": "Strengthened Counter Edge",
+      "category": "Parameter Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Alphen; Law; Kisara; Dohalim\nBase stacks (same user order): -; 3; 2; 2\nDLC stacks (same user order): 2; -; 1; -\nincreases Counter Edge damage by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Parameter Skills",
+        "character": "Alphen; Law; Kisara; Dohalim",
+        "baseStacks": "-; 3; 2; 2",
+        "dlcStacks": "2; -; 1; -"
+      }
+    },
+    {
+      "id": "skill:strengthened-guard-ignition",
+      "name": "Strengthened Guard Ignition",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Kisara\nBase stacks (same user order): 3\nDLC stacks (same user order): -\nincreases damage from artes activated via Guard Ignition by ?%, up to the maximum of ?%",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Kisara",
+        "baseStacks": "3",
+        "dlcStacks": "-"
+      }
+    },
+    {
+      "id": "skill:strengthened-magic-charge",
+      "name": "Strengthened Magic Charge",
+      "category": "Character-Specific Skills",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+      "description": "Users: Rinwell\nBase stacks (same user order): 3\nDLC stacks (same user order): -\nincreases damage dealt with charged astral artes by ?%, up to the maximum of ?% also applies to astral artes stolen from enemies with Magic Cancel",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "378099",
+        "section": "Character-Specific Skills",
+        "character": "Rinwell",
+        "baseStacks": "3",
+        "dlcStacks": "-"
+      }
+    }
+  ]
+}

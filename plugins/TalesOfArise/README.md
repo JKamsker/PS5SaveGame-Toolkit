@@ -23,11 +23,26 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
   Even no-op serialization runs the actual cipher and is byte-identical on all six files.
 - Preserves the entire outer region `0..0x32057`, including screenshot/header bytes.
   Unknown fields, record flags, IDs, padding and unvisited bytes remain unchanged in plaintext.
-- Ships the versioned `talesofarise.catalog` F2 pack for `PPSA02745` (English, v1.0.0), with
-  13 observed numeric consumable IDs and a clearly marked symbolic equipment starter subset.
-  The Catalogs tab is searchable and queryable by exact category; equipment also supports a
-  character filter. Inventory IDs use read-only `ReferenceSpec` fields so the picker preserves
-  unknown numeric values instead of offering unsafe replacement.
+- Ships the `talesofarise.catalog` F2 pack for `PPSA02745` (English, **v2.0.0**):
+  **2,157 records from 62 pinned Aselia revisions**, with CC BY-SA 3.0 share-alike,
+  per-record source links and attributed facts/descriptions. Coverage is every named
+  row in the listed sources; symbolic keys do not claim PS5 identity or DLC support.
+  The 13 existing numeric consumable mappings remain Inferred; only Apple Gel has
+  the current PS5 acquisition observation. Inventory IDs stay read-only references.
+- F8 catalog pages search facts/prerequisites as well as names/IDs, filter category,
+  character and title, and sort deterministically across the **whole** catalog.
+  Pages contain at most 200 rows; filtering does not truncate after the first 200.
+- Read-only character sheets show the existing inferred level/HP/XP/SP/base-HP fields.
+  Recruitment, equipped gear and skill state remain Unknown. Two unmapped status
+  blocks expose raw bytes only. Read-only aliases stay current after supported edits.
+- Arte/skill views show published requirements, costs and effects for 309 character-
+  specific artes, 64 skill definitions, 108 title panels and 540 individual nodes.
+  Usage, proficiency, title unlock, purchase and panel-completion joins are Unknown.
+- Progress views combine 128 recipe/fish/artifact guide records with separate raw
+  section evidence for owls, quests/scenario, fishing, camps/maps, PartyProfile and
+  ItemManager. They do not infer ownership, learned/cooked, caught/rewarded, found/
+  reported/rewarded, effect toggles or completion percentages. No new writes or bulk
+  actions are enabled; future bulk actions must use F6 planning.
 - Records section-relative evidence in `Resources/EvidenceLedger.csv`. `AriseDiff` aligns
   decrypted bodies by schema ID and reports relative changed offsets, so shuffled physical
   addresses do not become false field evidence. No new gameplay meaning is promoted by this ledger.
@@ -154,12 +169,14 @@ three slots. Slot 002 adds an Apple Gel stack of one at inventory record 24.
 
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
-dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests
-dotnet test --project tests/SaveToolkit.Core.Tests
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests
+python -I -X utf8 plugins/TalesOfArise/ReferenceData/test_wiki_tables.py
 ```
 
-Plugin suite: **45 passed, 0 skipped**, including the six inherited conformance tests.
-Core suite: **43 passed**. API build: **zero warnings/errors**.
+Round-2 plugin suite: **59 passed, 0 failed, 0 skipped**, including the inherited
+conformance suite and a Core F8 session integration test. Python parser suite:
+**3 passed**. API build: **zero warnings/errors**. Earlier standalone Core-suite
+counts are historical; this round does not claim to have rerun that suite.
 Tests cover independent cipher vectors with short feedback updates and key evolution,
 SHA1 `abc`, independently calculated whole-plaintext SHA256 digests, all six real
 gameplay records, known values, no-op, edits/reopen/undo, exact preservation of every
@@ -167,8 +184,26 @@ other plaintext byte and outer bytes, atomic rejection, corruption, valid-SHA1
 malformed encrypted structures, unsupported modes/schema, and every explorer page.
 Sample tests use `SampleSaves` and skip when the archive is unavailable.
 An explicit missing-archive run passed 9 independent tests and skipped 30 sample tests.
-The embedded catalog is factual name/category data only; no sample data or downloaded reference
-implementation is embedded in this plugin.
+The embedded catalog contains attributed names, reference facts and adapted descriptions;
+no sample data or downloaded reference implementation is embedded. New tests cover all
+catalog pages, pinned licence attribution, title-node relations, source duplicates and
+unknowns, tail searches, character/title filters, deterministic sorting, bound read-only
+query fields, live aliases, and byte-identical read-only views on all six gameplay files.
+
+## Round-2 scope and remaining evidence
+
+The catalog/data portion of phases 1–2 is complete for the pinned source coverage.
+The new read-only character, arte/skill and progression evidence views continue phases
+2, 4 and 5. They do **not** complete the plan's semantic/save-identity gates: the sample
+corpus still has three early-game snapshots, no controlled skill/equipment/progress
+pairs, and no console-qualified new writes. Phases 3–6 remain gated by that evidence.
+
+Follow [the exact owner capture/qualification checklist](OWNER_CHECKLIST.md) before
+enabling quantity-category expansion, equipment swaps, character growth/CP operations,
+skill purchases/refunds, structural inventory or progression actions. No refill,
+restore-all, unlock-all, completion, preset or structural mutation is exposed. Future
+bulk actions must use `IActionPlanningDocument`/`SupportsPlanning`, Core-resolved F8
+selection, apply-time revalidation and one undo group.
 
 ## Open questions
 
@@ -207,13 +242,39 @@ are the SDK and .NET cryptography only, with no added NuGet packages.
   consulted for existing tools; this is a PC memory table, not PS5 save-layout evidence.
 - [Local reconnaissance](../../docs/formats/PPSA02745.md) and
   [method](../../docs/formats/README.md): initial archive measurements and offset discrepancy.
-- [Aselia ToA consumables](https://aselia.fandom.com/wiki/ToA_-_Consumables) and
-  [Aselia weapon-list category](https://aselia.fandom.com/wiki/Category:Weapon_Lists):
-  CC BY-SA 3.0 factual names and broad categories used by the v1.0.0 F2 pack. The pack's
-  `data.source.md` and each `ReferenceRecord` retain per-dataset and per-record attribution.
+The following derived data is by **Aselia Wiki contributors**, retrieved **2026-10-28**,
+and remains **[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)**.
+Names and published facts/descriptions were extracted, whitespace normalized, images
+and navigation omitted, and symbolic keys added. Unknowns/source duplicates were
+retained. Every record has its own revision URL; every source is also in `Info.References`
+and UI descriptions/provenance. Dataset attribution appears in the Sources panel.
+
+| Dataset | Coverage | Pinned source / attribution |
+| --- | --- | --- |
+| `items` (271) | All named consumables, materials, accessory materials, valuables, fishing items and artifacts | [Consumables r382800](https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800); all six lists in the [source ledger](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/data.source.md) |
+| `equipment` (675) | Six weapon/armor types, accessories, costumes, styles and attachments | [Swords r363915](https://aselia.fandom.com/wiki/ToA_-_Weapons_(Swords)?oldid=363915); every category/character revision in the source ledger |
+| `artes` (309) | Six playable and thirteen allied/enemy/cameo character pages; character-specific Boost Strikes | [Alphen artes r378115](https://aselia.fandom.com/wiki/ToA_-_Alphen:_Artes?oldid=378115); all 19 pages and Boost Strike cross-check in the source ledger |
+| `skills` (64) | All parameter/action/character skills, published base/DLC stacks, effects and unknowns | [Skills r378099](https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099) |
+| `titles` (108) | All six characters' 18 panels, requirements and bonuses | [Alphen panels r378024](https://aselia.fandom.com/wiki/ToA_-_Alphen:_Skill_Panels?oldid=378024); six character revisions in the source ledger |
+| `skill-nodes` (540) | All five positions per panel, SP text and title prerequisites | Same six pinned panel pages; dash costs remain distinct from explicit zero |
+| `characters` (62) | Every named character/group in the navigation template; six inferred playable status joins | [Character template r300086](https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086) |
+| `progress` (128) | 45 recipes, 44 fish species, 39 artifacts; guide data, no saved state joins | [Cooking r379806](https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806), [Fishing r350354](https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354), [Artifacts r381166](https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166) |
+| `Characters.csv` | Six short names plus unmapped placeholders; existing index mapping remains Inferred | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Characters.source.md) |
+| `Consumables.csv` | 13 legacy inferred numeric mappings; no newly established IDs | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Consumables.source.md) |
+| `Sections.csv` | Published section labels plus independently measured schema facts; GPL-3.0 format research, no code port | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Sections.source.md) |
+
+The [data sidecar](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/data.source.md)
+lists all **62 immutable revision URLs**, author/licence/date/modifications and coverage
+limits. `source-revisions.json` pins rendered response and wikitext SHA-256s; the pack
+manifest pins all record files. [Maintenance scripts](ReferenceData/README.md) reproduce
+the extraction from hash-checked downloads held outside the repository. No unlicensed
+datamine, copyrighted icon bundle or downloaded implementation was copied this round.
+Wiki references include DLC/expansion facts; the supported save schema remains base-game
+PPSA02745 only. No complete licensed owl/quest identity table or save join was established.
 
 ## SDK requests
 
 None. The existing bindings, queryable tables, reference picker, lazy sections and paged blobs
-support this plugin. Equipment replacement remains intentionally unavailable until owner captures
-prove serialized identities, ownership and character compatibility.
+support this plugin. Evidence, rather than a missing framework contract, gates equipment,
+arte/skill and progression writes. F6 planning and F8 query-scope resolution are available
+when the owner captures establish safe bulk operations; no plugin-local substitute was added.
