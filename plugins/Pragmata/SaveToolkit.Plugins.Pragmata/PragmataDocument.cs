@@ -6,6 +6,7 @@ using SaveToolkit.Plugins.Pragmata.Views;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.Pragmata;
 
@@ -23,24 +24,29 @@ internal sealed class PragmataDocument : ISaveDocument
     private byte[] _plaintext;
 
     public SaveLayout Layout { get; }
+    internal ReferenceReadouts References { get; }
     public bool CanEdit => true;
     public string Title => Layout.Header is { } header
         ? FormattableString.Invariant($"Pragmata · Slot {Read(Layout.Detail.Find(KnownHashes.Slot)!)} · {HoursPlayed(header):F1} h")
         : "Pragmata · System data";
 
-    public PragmataDocument(string relativePath, ReadOnlySpan<byte> original)
+    public PragmataDocument(string relativePath, ReadOnlySpan<byte> original, IReferenceContext? references = null)
     {
         _relativePath = relativePath;
         _container = new DsssContainer(original);
         _plaintext = _container.Plaintext.ToArray();
         Layout = new SaveLayout(_plaintext);
+        References = new ReferenceReadouts(this, references ?? IReferenceContext.Empty);
         _views = new PragmataViews(this, _container.BlockCount);
     }
 
     public ViewNode BuildView() => _views.Build();
     public IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _views.Expand(lazyId);
-    public FieldValue GetValue(string valueId) => Read(_bindings.TryGetValue(valueId, out var node) ? node :
-        throw new KeyNotFoundException($"Unknown Pragmata value '{valueId}'."));
+    public FieldValue GetValue(string valueId) => References.GetValue(valueId) ??
+        Read(_bindings.TryGetValue(valueId, out var node) ? node :
+            throw new KeyNotFoundException($"Unknown Pragmata value '{valueId}'."));
+
+    public AssetContent? GetAsset(string assetId) => References.GetAsset(assetId);
 
     internal FieldValue Read(SaveNode node) => node.Type == FieldTags.String
         ? FieldValue.Of(Encoding.Unicode.GetString(_plaintext, node.Offset, node.Size))
@@ -68,7 +74,7 @@ internal sealed class PragmataDocument : ISaveDocument
         return new FieldNode(id, HashNames.Label(node.Hash), spec, Read(node))
         {
             Confidence = IsTimer(node) ? Confidence.Inferred : HashNames.All.ContainsKey(node.Hash) ? Confidence.Verified : Confidence.Unknown,
-            Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x}",
+            Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x} · {References.IdentifierSource(node.Hash)}",
         };
     }
 
@@ -77,6 +83,8 @@ internal sealed class PragmataDocument : ISaveDocument
         var proposed = new Dictionary<SaveNode, FieldValue>();
         foreach (var edit in edits)
         {
+            if (References.IsReadOnly(edit.ValueId))
+                return EditOutcome.Rejected(edit.ValueId, "Evidence views are read-only; gameplay effects and structural changes are unverified.");
             if (!_bindings.TryGetValue(edit.ValueId, out var node))
                 return EditOutcome.Rejected(edit.ValueId, "Unknown field; expand its section first.");
             if (!node.IsPrimitive) return EditOutcome.Rejected(edit.ValueId, "Field is read-only.");
@@ -93,7 +101,8 @@ internal sealed class PragmataDocument : ISaveDocument
         // Clock values must be addressable for undo even if the caller has only expanded Raw.
         foreach (var timer in proposed.Keys.Where(IsTimer)) _ = Field(timer);
         var changes = _bindings.Where(b => proposed.TryGetValue(b.Value, out var next) && Read(b.Value) != next)
-            .Select(b => new ValueChange(b.Key, Read(b.Value), proposed[b.Value])).ToArray();
+            .Select(b => new ValueChange(b.Key, Read(b.Value), proposed[b.Value]))
+            .Concat(References.Changes(proposed)).ToArray();
         if (changes.Length == 0) return new EditOutcome();
 
         // Stage bytes so a failed batch cannot partially mutate the document.

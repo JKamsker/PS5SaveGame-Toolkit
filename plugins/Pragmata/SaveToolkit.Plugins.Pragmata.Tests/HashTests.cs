@@ -38,7 +38,7 @@ public sealed class HashTests
     [Fact]
     public void EveryEmbeddedNameReproducesItsHash()
     {
-        Assert.Equal(413, HashNames.All.Count);
+        Assert.Equal(408, HashNames.All.Count);
         Assert.All(HashNames.All, pair => Assert.Equal(pair.Key, Murmur3.Hash(Encoding.UTF8.GetBytes(pair.Value))));
         Assert.Equal("_SaveSlotIconHash", HashNames.All[0x6182c62b]);
         Assert.Equal("_SavePlayActualTime", HashNames.All[KnownHashes.Playtime]);

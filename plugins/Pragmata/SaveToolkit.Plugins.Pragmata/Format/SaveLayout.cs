@@ -11,6 +11,7 @@ internal sealed class SaveLayout
     public SaveNode? Clock { get; }
     public IReadOnlyList<SaveNode> Items { get; } = [];
     public IReadOnlyList<SaveNode> Timers { get; } = [];
+    public IReadOnlyList<SaveNode> Sections { get; } = [];
 
     public SaveLayout(byte[] plaintext)
     {
@@ -28,6 +29,9 @@ internal sealed class SaveLayout
         }
 
         Require(Header, KnownHashes.SaveDate, FieldTags.Int64);
+        var game = Roots.FirstOrDefault(n => n.Hash == KnownHashes.GameRoot) ??
+            throw new SaveFormatException("Missing Pragmata gameplay root.");
+        Sections = Require(game, KnownHashes.GameSections, FieldTags.Array).Children;
         Require(Header, KnownHashes.Playtime, FieldTags.UInt64);
         Require(Header, KnownHashes.Cleared, FieldTags.Boolean);
         Require(Header, KnownHashes.Difficulty, FieldTags.UInt32);

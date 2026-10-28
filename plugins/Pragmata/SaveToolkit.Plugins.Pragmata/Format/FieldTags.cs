@@ -23,6 +23,10 @@ internal static class FieldTags
 
     public static string ShortName(int type) => type switch
     {
+        Array => "array",
+        Class => "class",
+        String => "string",
+        Struct => "struct",
         Enum => "enum",
         Boolean => "bool",
         Int8 => "i8",

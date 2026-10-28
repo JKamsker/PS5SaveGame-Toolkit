@@ -8,8 +8,11 @@ namespace SaveToolkit.Plugins.Pragmata.Format;
 
 internal static class HashNames
 {
+    internal const string Source = "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json";
+    internal const string Attribution = "alphazolam; praydog (RSZ dumps), MIT, retrieved 2026-10-28. " + Source;
     public static FrozenDictionary<uint, string> All { get; } = Load();
     public static string Label(uint hash) => All.TryGetValue(hash, out var name) ? $"{name} ({hash:x8})" : $"0x{hash:x8}";
+    public static string Provenance(uint hash) => All.ContainsKey(hash) ? Attribution : "Unmapped identifier; gameplay meaning unknown.";
 
     private static FrozenDictionary<uint, string> Load()
     {

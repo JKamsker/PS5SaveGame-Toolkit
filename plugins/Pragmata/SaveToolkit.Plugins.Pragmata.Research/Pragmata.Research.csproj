@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Keep the developer harness out of the API's SaveToolkit.Plugins.*.csproj discovery glob. -->
+    <AssemblyName>SaveToolkit.Plugins.Pragmata.Research</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="SaveToolkit.Plugins.Pragmata.Tests" />
+    <ProjectReference Include="../SaveToolkit.Plugins.Pragmata/SaveToolkit.Plugins.Pragmata.csproj" />
+    <ProjectReference Include="../../../src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
+  </ItemGroup>
+</Project>

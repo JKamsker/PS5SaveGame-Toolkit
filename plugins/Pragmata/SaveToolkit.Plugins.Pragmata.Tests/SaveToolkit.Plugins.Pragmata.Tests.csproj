@@ -8,11 +8,13 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SaveToolkit.Plugins.Pragmata\SaveToolkit.Plugins.Pragmata.csproj" />
+    <ProjectReference Include="../SaveToolkit.Plugins.Pragmata.Research/Pragmata.Research.csproj" />
     <ProjectReference Include="..\..\..\src\SaveToolkit.Testing\SaveToolkit.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
     <EmbeddedResource Include="../../../docs/research/pragmata/verified_save_map.json" LogicalName="Pragmata.VerifiedSaveMap.json" />
     <EmbeddedResource Include="EditedQuantityHashes.json" LogicalName="Pragmata.EditedQuantityHashes.json" />
+    <EmbeddedResource Include="../evidence/manifest.v1.json" LogicalName="Pragmata.Evidence.json" />
   </ItemGroup>
 </Project>
