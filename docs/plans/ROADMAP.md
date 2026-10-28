@@ -38,7 +38,8 @@ whatever the code quality.
 **B1: Controlled sample pairs (17/17).** Every plan asks for saves taken right before and after
 one known in-game change: buy one item, gain one level, equip one piece, collect one collectible.
 Single snapshots can't prove which bytes encode quantity, ownership or limits.
-- *Proposal:* a short **capture protocol** in `docs/SAMPLES.md`. Per title it lists the 5–10
+- *Proposal:* a short **capture protocol** in `docs/SAMPLES.md`, expanded into the consolidated
+  [owner capture and console-validation guide](../OWNER_CHECKLIST.md). Per title it lists the 5–10
   smallest events that pin down the main fields, how to name the files
   (`<title>_<event>_before/after`), and what to note (game version, slot, DLC).
 - The per-plugin plans already list exactly which events they need.
