@@ -97,7 +97,7 @@ export const api = {
   expand: (wsId: string, docId: string, lazyId: string) =>
     request<ViewNode[]>(`${doc(wsId, docId)}/nodes?id=${encodeURIComponent(lazyId)}`),
   queryCollection: (wsId: string, docId: string, collectionId: string, query: CollectionQuery = {}, revision?: number) => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams({ collectionId });
     if (query.q) params.set("q", query.q);
     if (query.filters && Object.keys(query.filters).length > 0) params.set("filters", JSON.stringify(query.filters));
     if (query.sort) params.set("sort", query.sort);
@@ -106,8 +106,7 @@ export const api = {
     if (query.limit !== undefined) params.set("limit", String(query.limit));
     if (query.cursor) params.set("cursor", query.cursor);
     if (revision !== undefined) params.set("revision", String(revision));
-    const suffix = params.toString();
-    return request<QueryablePage>(`${doc(wsId, docId)}/collections/${encodeURIComponent(collectionId)}${suffix ? `?${suffix}` : ""}`);
+    return request<QueryablePage>(`${doc(wsId, docId)}/collections?${params.toString()}`);
   },
   /** `revision` is the view revision the caller is bound to; the server rejects stale ones (`stale: true`). */
   edit: (wsId: string, docId: string, edits: { valueId: string; value: FieldValue }[], revision?: number) =>
