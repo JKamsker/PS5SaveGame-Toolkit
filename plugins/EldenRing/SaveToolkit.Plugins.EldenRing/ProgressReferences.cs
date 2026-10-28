@@ -26,7 +26,7 @@ internal static class ProgressReferences
     internal const int BitsPerByte = 8;
     public const string Warning = "Read-only Inferred source candidates, not console-validated PS5 progress. "
         + "A set/unset source bit does not prove discovery, boss defeat, historical collection or quest completion. "
-        + "Statuses stay Unknown. No summoning-pool, quest, DLC or NG+ mapping is claimed.";
+        + "Statuses stay Unknown. Source DLC/NG+ labels do not establish ownership, cycles, resets or quest semantics.";
 
     public static ProgressIndex Read(IReferenceCatalog? catalog)
     {
@@ -62,10 +62,15 @@ internal static class ProgressReferences
     internal static ProgressEntry? Parse(ReferenceRecord record)
     {
         var attributes = record.Attributes;
-        if (record.Category is not ("grace" or "boss" or "map-control")
+        // The compact community contract places its constant category/schema in dataset metadata.
+        // Imported legacy/custom mappings still require an explicit per-record schema.
+        var compact = record.Dataset.Id == CommunityReferences.FlagsCatalogId
+            && record.Dataset.Attribution.Modifications.StartsWith(CommunityReferences.FlagSchema, StringComparison.Ordinal);
+        if (compact) record = record with { Category = "event-flag" };
+        if (record.Category is not ("grace" or "boss" or "map-control" or "event-flag")
             || !Identifier(record.Key) || !record.Key.StartsWith(record.Category + ":", StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(record.Name) || record.Name.Length > MaximumLabelLength
-            || !attributes.TryGetValue("schema", out var schema) || schema != "eldenring-progress-candidate/1"
+            || (!compact && (!attributes.TryGetValue("schema", out var schema) || schema != "eldenring-progress-candidate/1"))
             || !attributes.TryGetValue("region", out var region) || string.IsNullOrWhiteSpace(region) || region.Length > MaximumLabelLength
             || !attributes.TryGetValue("regionId", out var regionId) || !Identifier(regionId)
             || !attributes.TryGetValue("eventId", out var eventText)

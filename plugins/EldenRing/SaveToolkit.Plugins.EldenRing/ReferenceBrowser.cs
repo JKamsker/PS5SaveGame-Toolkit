@@ -5,7 +5,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.EldenRing;
 
-internal sealed class ReferenceBrowser(IReferenceCatalog? catalog)
+internal sealed class ReferenceBrowser(IReferenceCatalog? catalog, IReferenceCatalog? community = null)
 {
     public const string CatalogId = "eldenring-items";
     public const string CollectionId = "catalog/items";
@@ -22,7 +22,28 @@ internal sealed class ReferenceBrowser(IReferenceCatalog? catalog)
     private static IReadOnlyList<QueryableColumn> Columns =>
     [new("id", "Canonical ID"), new("name", "Name"), new("category", "Category"), new("details", "Details / provenance")];
 
-    public ReferenceRecord? Find(string key) => catalog?.Find(key);
+    public ReferenceRecord? Find(string key)
+    {
+        var primary = catalog?.Find(key);
+        return primary is null || primary.Attributes.GetValueOrDefault("nameStatus") == "unnamed"
+            ? community?.Find(key) ?? primary : primary;
+    }
+
+    public string FieldCatalogId(string key) => Find(key)?.Dataset.Id ?? CatalogId;
+
+    public string CommunityGroups(string key) => community?.Find(key) is { } row
+        ? string.Join(" · ", new[] { row.Attributes.GetValueOrDefault("groups"), row.Attributes.GetValueOrDefault("editorGroups") }
+            .Where(value => value is not null)) : "Unspecified";
+
+    public string ItemDetails(string key)
+    {
+        var record = Find(key);
+        var details = record is null ? "Unknown name; raw identity retained." : Details(record);
+        var supplemental = community?.Find(key);
+        return supplemental is null ? details : details + " · Community groups: "
+            + CommunityGroups(key) + " · Source content groups: "
+            + supplemental.Attributes.GetValueOrDefault("contentGroups", "Unspecified") + " · " + Details(supplemental);
+    }
 
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
     {
@@ -32,7 +53,8 @@ internal sealed class ReferenceBrowser(IReferenceCatalog? catalog)
     }
 
     public static string Details(ReferenceRecord record) => string.Join(" · ",
-        new[] { record.Description, record.AttributionText, $"Pack {record.Dataset.PackId}; dataset {record.Dataset.Id}" }
+        new[] { record.Description, record.AttributionText, $"Pack {record.Dataset.PackId}; dataset {record.Dataset.Id}",
+            record.Dataset.PackId == CommunityReferences.PackId ? record.Dataset.Attribution.Modifications : null }
             .Where(value => !string.IsNullOrWhiteSpace(value)));
 
     private static string Text(ReferenceRecord row, string column) => column switch

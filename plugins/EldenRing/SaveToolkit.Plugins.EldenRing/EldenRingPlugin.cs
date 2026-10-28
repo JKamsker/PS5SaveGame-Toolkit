@@ -9,7 +9,7 @@ public sealed class EldenRingPlugin : IGamePlugin, ISaveDecoderProvider
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new EldenRingEvidenceDecoder()];
 
-    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.5.0")
+    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.6.1")
     {
         Description = "Experimental bounded writes with F6 review, attributed inventory/classes, read-only progress maps and attribute dependency graph.",
         Games =
@@ -22,6 +22,7 @@ public sealed class EldenRingPlugin : IGamePlugin, ISaveDecoderProvider
         Maturity = PluginMaturity.Experimental,
         References =
         [
+            .. CommunitySourceReferences.All,
             "https://github.com/ClayAmore/ER-Save-Editor",
             "https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df",
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/weapon_name.rs",
@@ -44,6 +45,9 @@ public sealed class EldenRingPlugin : IGamePlugin, ISaveDecoderProvider
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/14",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31",
             "https://github.com/Hapfel1/er-save-manager",
+            "https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA/tree/393c439e72ad48128efdc5e30fc3feb4bfbd210f",
+            "https://github.com/soulsmods/Paramdex/tree/ff7245e524329bc3eab00036723d2bd53384cedf",
+            "https://github.com/ClayAmore/ER-Save-Lib/blob/664ff9e83b7022a6fdc5a8332e8b7b22dce34e0f/src/res/eventflag_bst.txt",
             "https://soulsmodding.com/doku.php?id=format:sl2",
             "https://prosperopatches.com/PPSA03169",
             "https://prosperopatches.com/PPSA04608",

@@ -167,8 +167,9 @@ budget, zlib corruption, directory counts/offsets/names and PARAM schema/body/na
 - Phase 1 infrastructure: implemented. Temporal/console proof remains owner-dependent.
 - Phase 2: complete pinned MIT item/weapon/armor/talisman/AoW names, ten class references,
   packs, F4 identities/inspection, F8 browsing and directory-only regulation decode implemented.
-  Versioned field schemas, legal item caps, upgrade compatibility, localized descriptions/icons
-  and verified DLC/build coverage remain owner-data/evidence dependent.
+  Community row names/technical layout references now supplement this (below). Validated field decoding,
+  legal item caps, upgrade compatibility and verified DLC/build coverage remain evidence dependent.
+  Game-extracted descriptions/icons are excluded.
 - Phase 3: fixed-size names, positive ordinary quantities, manual history mirrors, F6 held-only/linked
   runes and refill are enabled with warnings. Modifier-aware attribute/respec writers remain unimplemented.
 - Phase 4: read-only equipment joins; complete profile/equipment/upgrade/history transactions remain unimplemented.
@@ -176,3 +177,38 @@ budget, zlib corruption, directory counts/offsets/names and PARAM schema/body/na
   dependency graph. Statuses remain Unknown; verified progress/quest/world semantics require controlled captures.
 - Phase 6: no allocation/cleanup writer. No prepared F5/F7 write exists.
   See [OWNER_CAPTURES.md](OWNER_CAPTURES.md); evidence no longer gates the enabled Experimental operations.
+
+## Community-data unblock validation (2026-10-29)
+
+The owner's 2026-10-28 decision resolves missing-licence exclusions for community facts. The
+separate `eldenring.community.en` pack contains 3,221 TGA item identities/groups, 1,748 TGA flag
+candidates and 1,072 technical layout records. The unused 8,651-row PARAM dump was removed in the
+v1.1.0 compaction follow-up; no native save-data view/decoder used it. The compact pack retains revisions,
+source-byte hashes, per-dataset attribution and source sidecars; the text-only reproducible importer
+never executes upstream code. Descriptions/artwork, editor bounds and spawning recipes are excluded.
+
+- ER-Save-Lib's sparse block map agrees with all **499** existing grace/boss/map-control mappings.
+  The new flag catalog overlaps **488 unique event IDs** from the old catalog (the old list repeats
+  some IDs). All **1,748** new addresses fit the existing bounded event allocation.
+- The sample independently reproduces source events **76100/76101 set, 76102 unset**. Synthetic
+  address vectors cover DLC source event **76800 → 0xD16, LSB bit 7** and NG+ persistence event
+  **60730 → 0x53D, LSB bit 5**. These vectors are addressing tests, not console semantics.
+- All 1,748 F9 markers publish through Core with bounded regions, Unknown status, source attribution,
+  no coordinates/art and full navigation paths. Candidate/reference fields reject writes. No-op,
+  inspection, rejected edits and rune undo retain exact complete save bytes.
+- DLC Scadutree Fragment has an attributed fallback name and read-only F4 catalog on synthetic
+  inventory rows, including unsupported profile-91 write mode. No DLC save sample or ownership
+  proof is claimed. Sample Rowa Fruit gains factual Crafting: Plant/category-source attribution.
+- The sampled `EquipParamGoods` directory has data version **3**; the technical reference also
+  reports **3 / 117 fields**. This comparison establishes neither field compatibility nor caps.
+  No PARAM row values are decoded or exported.
+- Original v1.0.0 validation: **230 passed / 0 failed / 0 skipped** using the required artifacts path;
+  API build **0 warnings / 0 errors**. All ordinary C# files remain below 300 lines.
+
+The compaction follow-up preserves all used facts with independent semantic digests from `c63ba1b`.
+It rejects compact flags without the explicit dataset schema contract and keeps the existing bounds.
+Measured sizes, fresh-process timing/allocation results and follow-up validation are recorded in
+[PACK_COMPACTION.md](PACK_COMPACTION.md). The benchmark program stays outside the repository.
+
+Controlled observations needed for verified DLC/NG+/quest meanings remain in the owner checklist.
+No additional writer, console compatibility claim, SDK request or maturity promotion was introduced.

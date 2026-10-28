@@ -5,13 +5,14 @@ using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Plugins.EldenRing;
 
-internal sealed class ProgressViews(byte[] bytes, IReadOnlyList<SemanticCharacter> characters, IReferenceCatalog? catalog)
+internal sealed class ProgressViews(byte[] bytes, IReadOnlyList<SemanticCharacter> characters, IReferenceCatalog? catalog,
+    string catalogId = ProgressReferences.CatalogId, string sectionPrefix = "progress", string? parentSectionId = null)
 {
     public const string TabTitle = "World / progress";
     public const string MapUrl = "https://mapgenie.io/elden-ring/maps/the-lands-between";
     private readonly Lazy<ProgressIndex> _index = new(() => ProgressReferences.Read(catalog));
-    private static IReadOnlyList<QueryableColumn> Columns =>
-    [new("name", "Source candidate", new ReferenceSpec(ProgressReferences.CatalogId) { ReadOnly = true }),
+    private IReadOnlyList<QueryableColumn> Columns =>
+    [new("name", "Source candidate", new ReferenceSpec(catalogId) { ReadOnly = true }),
         new("category", "Category"), new("region", "Source region"), new("event", "Source event ID"),
         new("raw", "Raw source bit (not verified status)"), new("details", "Evidence / uncertainty")];
 
@@ -35,7 +36,7 @@ internal sealed class ProgressViews(byte[] bytes, IReadOnlyList<SemanticCharacte
 
     public IReadOnlyList<ViewNode> Root() =>
     [
-        new TextNode("Optional spoiler content: named base-game grace, boss and map-control candidates. Expand a slot and region to inspect. "
+        new TextNode("Optional spoiler content: named source progress candidates. Expand a slot and source group to inspect. "
             + ProgressReferences.Warning) { Tone = Tone.Warning },
         .. Collections.Select(collection => new QueryableTableNode(collection.Id, collection.Title, collection.Columns,
             collection.TotalCount) { Description = collection.Description }),
@@ -61,7 +62,8 @@ internal sealed class ProgressViews(byte[] bytes, IReadOnlyList<SemanticCharacte
         Func<string, string, FieldSpec, Func<FieldValue>, FieldNode> bind)
     {
         var range = character.Ranges.Single(range => range.Name == SemanticLayout.EventRangeName);
-        var path = new[] { "tab:" + TabTitle, "section:" + SlotId(character.Slot), "section:" + RegionId(character.Slot, region) };
+        string[] path = ["tab:" + TabTitle, .. parentSectionId is null ? Array.Empty<string>() : ["section:" + parentSectionId],
+            "section:" + SlotId(character.Slot), "section:" + RegionId(character.Slot, region)];
         var markers = region.Entries.Select(entry => new MapMarker(entry.RowId(character.Slot), entry.Reference.Name,
             MapMarkerStatus.Unknown, entry.Category)
         {
@@ -88,7 +90,7 @@ internal sealed class ProgressViews(byte[] bytes, IReadOnlyList<SemanticCharacte
     private TableRow Row(int slot, ProgressEntry entry, SaveRange range,
         Func<string, string, FieldSpec, Func<FieldValue>, FieldNode> bind) => new(entry.RowId(slot), new Dictionary<string, ViewNode>
     {
-        ["name"] = bind(entry.RowId(slot) + "/reference", entry.Reference.Name, new ReferenceSpec(ProgressReferences.CatalogId),
+        ["name"] = bind(entry.RowId(slot) + "/reference", entry.Reference.Name, new ReferenceSpec(catalogId),
             () => FieldValue.Of(entry.Key)) with { Confidence = Confidence.Inferred, Description = ReferenceBrowser.Details(entry.Reference) },
         ["category"] = new TextNode(entry.Category), ["region"] = new TextNode(entry.Region),
         ["event"] = new TextNode(entry.EventId.ToString(System.Globalization.CultureInfo.InvariantCulture)),
@@ -131,7 +133,7 @@ internal sealed class ProgressViews(byte[] bytes, IReadOnlyList<SemanticCharacte
         return (source[range.Offset + offset] & (1 << bit)) != 0;
     }
 
-    private static string SlotId(int slot) => $"progress/{slot}";
-    private static string CollectionId(int slot) => $"slots/{slot}/progress";
-    private static string RegionId(int slot, ProgressRegion region) => $"{SlotId(slot)}/{region.Id}";
+    private string SlotId(int slot) => $"{sectionPrefix}/{slot}";
+    private string CollectionId(int slot) => $"slots/{slot}/{sectionPrefix}";
+    private string RegionId(int slot, ProgressRegion region) => $"{SlotId(slot)}/{region.Id}";
 }

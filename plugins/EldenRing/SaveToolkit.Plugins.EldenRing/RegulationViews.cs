@@ -3,22 +3,24 @@ using System.Security.Cryptography;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.EldenRing;
 
-internal sealed class RegulationViews(byte[] bytes)
+internal sealed class RegulationViews(byte[] bytes, IReferenceCatalog? layouts = null)
 {
     public const string CollectionId = "regulation/tables";
     private readonly Lazy<Metadata> _metadata = new(() => Read(bytes));
     private static IReadOnlyList<QueryableColumn> Columns =>
-        [new("name", "PARAM file"), new("rows", "Rows"), new("version", "Data / format version"), new("size", "Bytes")];
+        [new("name", "PARAM file"), new("rows", "Rows"), new("version", "Data / format version"), new("size", "Bytes"),
+            new("schema", "Technical reference layout (not validated field decoding)")];
 
     // Advertising the collection must not trigger 37 MiB of decoding during initial view construction.
     // Its table is published only after lazy inspection knows the real count; query also resolves it.
     public IReadOnlyList<QueryableCollection> Collections => _metadata.IsValueCreated ? [Collection] : [];
     private QueryableCollection Collection => new(CollectionId, "Embedded regulation directory (inferred)", Columns, _metadata.Value.Tables.Count)
     {
-        Description = "Row counts and bounds only; no decoded field schema or quantity limits.",
+        Description = "Row counts and bounds, with separately attributed technical layout references. No decoded field values or quantity limits.",
     };
 
     public IReadOnlyList<ViewNode> BuildView()
@@ -39,12 +41,24 @@ internal sealed class RegulationViews(byte[] bytes)
             tables.Count, result.Filtered, result.Offset, result.Limit);
     }
 
-    private static string Text(RegulationTable table, string column) => column switch
+    private string Text(RegulationTable table, string column) => column switch
     {
         "name" => table.Name, "rows" => table.Rows.ToString(CultureInfo.InvariantCulture),
         "size" => table.Size.ToString(CultureInfo.InvariantCulture), "version" => $"{table.DataVersion} / {table.FormatVersion}",
+        "schema" => Schema(table),
         _ => throw new ArgumentException("Unknown regulation column."),
     };
+
+    private string Schema(RegulationTable table)
+    {
+        const string extension = ".param";
+        var key = table.Name.EndsWith(extension, StringComparison.Ordinal) ? table.Name[..^extension.Length] : table.Name;
+        var reference = layouts?.Find(key + ":schema");
+        return reference is null ? "No compatible technical reference." : "Reference only: "
+            + reference.Attributes.GetValueOrDefault("fieldCount", "Unknown") + " fields; source data version "
+            + reference.Attributes.GetValueOrDefault("dataVersion", "Unknown") + $", save {table.DataVersion}. "
+            + "Version equality does not prove PS5 compatibility. " + ReferenceBrowser.Details(reference);
+    }
 
     private static Metadata Read(byte[] bytes)
     {

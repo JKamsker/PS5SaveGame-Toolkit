@@ -23,6 +23,7 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     private readonly ValueWrites _writes;
     private readonly WritePlanning _writePlans;
     private readonly ProgressViews _progress;
+    private readonly CommunityReferences _community;
 
     public EldenRingDocument(string path, byte[] bytes, ParsedSave save, IReferenceContext references)
     {
@@ -38,20 +39,23 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
         // An actual content fingerprint, not a guessed application/regulation version number.
         var fingerprint = Convert.ToHexStringLower(SHA256.HashData(
             bytes.AsSpan(EldenRingLayout.RegulationOffset, EldenRingLayout.RegulationSize)));
-        _catalog = new(references.Catalog(ReferenceBrowser.CatalogId, fingerprint));
+        _community = new(references, fingerprint, bytes, characters);
+        _catalog = new(references.Catalog(ReferenceBrowser.CatalogId, fingerprint), _community.Items);
         _inventory = new(characters, _catalog, asset => references.AssetProvenance(asset)?.Attribution.ToShortText(), _writes.Current);
         _writePlans = new(bytes, save, characters, _writes, _catalog);
         _semantic = new(bytes, characters, _catalog, references.Catalog(ProgressReferences.ClassCatalogId, fingerprint));
         _progress = new(bytes, characters, references.Catalog(ProgressReferences.CatalogId, fingerprint));
-        _regulation = new(bytes);
+        _regulation = new(bytes, _community.Layouts);
     }
 
     public IReadOnlyList<QueryableCollection> Collections =>
-        [.. _inventory.Collections, _catalog.Collection, .. _progress.Collections, .. _regulation.Collections];
+        [.. _inventory.Collections, _catalog.Collection, .. _progress.Collections, .. _regulation.Collections, .. _community.Collections];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
         collectionId == ReferenceBrowser.CollectionId ? _catalog.Query(query)
             : collectionId == RegulationViews.CollectionId ? _regulation.Query(query)
+            : _community.OwnsCatalog(collectionId) ? _community.Query(collectionId, query)
+            : _community.Progress.OwnsCollection(collectionId) ? _community.Progress.Query(collectionId, query, (id, label, spec, get) => Field(id, label, spec, get))
             : _progress.OwnsCollection(collectionId) ? _progress.Query(collectionId, query, (id, label, spec, get) => Field(id, label, spec, get))
             : _inventory.Query(collectionId, query, ItemField, (entry, slot) => _writes.Quantity(entry, slot, Field));
 
@@ -80,13 +84,17 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
             $"Slot {slot.Index}", $"characters/{slot.Index}", slot.Active ? "Active" : "Inactive")).ToArray()),
         new Tab("Inventory / storage", _inventory.Collections.Select(Table).ToArray()),
         new Tab("Reference catalog", CatalogView()),
-        new Tab(ProgressViews.TabTitle, _progress.Root()),
+        new Tab(ProgressViews.TabTitle, [.. _progress.Root(), .. _community.ProgressSections]),
         new Tab("Raw", _hex.BuildSections()),
     ]);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
         if (lazyId == "regulation/metadata") return _regulation.BuildView();
+        if (_community.OwnsCatalog(lazyId)) return _community.ExpandCatalog(lazyId);
+        if (lazyId == CommunityReferences.ProgressSectionId) return _community.Progress.Root();
+        if (lazyId.StartsWith(CommunityReferences.ProgressSectionId + "/", StringComparison.Ordinal))
+            return _community.Progress.Expand(lazyId, (id, label, spec, get) => Field(id, label, spec, get));
         if (lazyId.StartsWith("progress/", StringComparison.Ordinal))
             return _progress.Expand(lazyId, (id, label, spec, get) => Field(id, label, spec, get));
         foreach (var slot in save.Slots)
@@ -204,17 +212,18 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     {
         var record = _catalog.Find(entry.RawId);
         return Field(entry.Key(slot) + "/item", record?.Name ?? entry.RawId,
-            new ReferenceSpec(ReferenceBrowser.CatalogId), () => FieldValue.Of(entry.RawId)) with
+            new ReferenceSpec(_catalog.FieldCatalogId(entry.RawId)), () => FieldValue.Of(entry.RawId)) with
         {
             Confidence = entry.ItemId.HasValue ? Confidence.Inferred : Confidence.Unknown,
-            Description = record?.AttributionText ?? "Unknown name; raw identity preserved. No compatible reference record.",
+            Description = _catalog.ItemDetails(entry.RawId),
             Warning = "Read-only identity. Only allowlisted positive ordinary-stack quantities can change; equipment relationships remain protected.",
         };
     }
 
     private IReadOnlyList<ViewNode> CatalogView()
     {
-        var nodes = new List<ViewNode> { Table(_catalog.Collection), SectionNode.Lazy("Embedded regulation directory", "regulation/metadata") };
+        List<ViewNode> nodes = [Table(_catalog.Collection), SectionNode.Lazy("Embedded regulation directory", "regulation/metadata"),
+            .. _community.CatalogSections];
         // A reference lookup has no save effects and reports no changes, preserving undo history.
         if (_catalog.Collection.TotalCount > 0)
             nodes.Add(new ActionNode("references/inspect", "Inspect an item reference")

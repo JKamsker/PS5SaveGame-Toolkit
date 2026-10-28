@@ -1,6 +1,6 @@
 # Elden Ring (`eldenring`)
 
-**Experimental**, v0.5.0, for character/profile formats **150/90**. Enables mirrored names,
+**Experimental**, v0.6.1, for character/profile formats **150/90**. Enables mirrored names,
 bounded ordinary-stack quantities, both rune-history mirrors, and shared F6 refill/linked-rune
 actions alongside the existing held-rune edit. New writes are **Inferred**, with explicit warnings:
 there is no console validation and the game may reject edited saves. Owner validation is tracked
@@ -186,7 +186,8 @@ observations, not a PS5 discovery/defeat/completion claim. The sample reproduces
 set and 76102 unset at the corrected range; no independent before/after or menu observation exists.
 Map controls include viewport/layer controls and are not all collectible fragments. Inventory ownership,
 historical collection, consumed/sold rewards and boss/quest completion are never equated. Summoning pools,
-quests, DLC, blessings, NG+ resets and mutually exclusive world states remain unmodeled.
+quests, blessings, NG+ resets and mutually exclusive world states remain unmodeled. Additional
+community DLC/NG+ source candidates are available below; their semantics remain Inferred.
 
 Maps link to [Map Genie](https://mapgenie.io/elden-ring/maps/the-lands-between) with host/attribution
 through the shared renderer. No community coordinates, art, tiles or external images are imported;
@@ -347,7 +348,8 @@ final implementation comment; no binary sample or extracted regulation is includ
 
 ## Sources and attribution
 
-Retrieved/inspected **2026-10-28**. Downloaded code was read as untrusted text, never executed.
+Initial sources inspected **2026-10-28**; community-data round **2026-10-29**.
+Downloaded code was read as untrusted text, never executed.
 
 | Dataset / code port | Author / source | Licence / modifications / coverage |
 | --- | --- | --- |
@@ -361,23 +363,76 @@ Retrieved/inspected **2026-10-28**. Downloaded code was read as untrusted text, 
 | Read-only equipment relationship checks | [ClayAmore / ER-Save-Editor, vm/equipment.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/equipment.rs) and same-revision `save/common/save_slot.rs` | MIT; adapted position/handle/ID relationships with explicit uniqueness/category checks; no writer, unsafe indexing or repair ported. Same full MIT notice. |
 | Fixed-size write layout/evidence | [ClayAmore / ER-Save-Editor, save_slot.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs), [PlayStation user_data_10.rs](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/playstation/user_data_10.rs) and local [baseline measurements](Evidence/README.md) | MIT layout facts; original bounded in-place name/history/quantity writers and F6 plans, strict Unicode, preserved padding, staged rollback and sample-observed ceilings. No new game data or external implementation is embedded. Full notice retained. |
 | PS checksum / legacy-count research only | [Hapfel1/er-save-manager, 5974934](https://github.com/Hapfel1/er-save-manager/tree/5974934537feeace982721f82f0fbe69c20c208d) | Restricted/source-available current licence: no code translated, copied, executed or distributed. Facts independently checked against permissive code and sample bytes. |
-| Schema / data research only | [ERDB, e2028a6](https://github.com/EldenRingDatabase/erdb/tree/e2028a6e044b920a471388fb4e1c468b31b64350), [Paramdex](https://github.com/soulsmods/Paramdex), [TGA](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA) | ERDB generator MIT does not license game assets. Paramdex/TGA reuse rights unresolved: no code, schema files, bulk lists, descriptions or artwork imported. |
+| Game-data generator research | [ERDB, e2028a6](https://github.com/EldenRingDatabase/erdb/tree/e2028a6e044b920a471388fb4e1c468b31b64350) | Generator MIT does not license game descriptions/artwork; those assets remain excluded. |
+| Community item identities/groups: 3,221 rows | [TGA, 393c439e](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA/tree/393c439e72ad48128efdc5e30fc3feb4bfbd210f); inherited [ClayAmore items.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/items.rs) | No licence published; reused with attribution per owner decision 2026-10-28. Names/category facts and literal memberships only: 19 inherited groups, 545 source occurrences / 544 distinct memberships. No spawn quantities/code/descriptions/art. |
+| Base/DLC/NG+ flags: 1,748 candidates | [TGA flag manager, same revision](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA/blob/393c439e72ad48128efdc5e30fc3feb4bfbd210f/CheatTable/CheatEntries/Open%20-%20The%20Grand%20Archives%20-%20Elden%20Ring/Event%20Flags/Event%20Flag%20Manager/.cea), Dasaav/Umgak; [ClayAmore ER-Save-Lib block map, 664ff9e8](https://github.com/ClayAmore/ER-Save-Lib/blob/664ff9e83b7022a6fdc5a8332e8b7b22dce34e0f/src/res/eventflag_bst.txt) | Same no-licence owner decision. Literal event/group labels plus sparse addressing facts; original bounded reader, no predicates, runtime pointers or writers copied. All statuses Unknown. |
+| PARAM layouts: 1,072 records | [soulsmods / Paramdex, ff7245e5](https://github.com/soulsmods/Paramdex/tree/ff7245e524329bc3eab00036723d2bd53384cedf/ER) | Same no-licence owner decision. Ten technical field layouts. Unused standalone row-name dump removed in v1.1.0. XML descriptions/display strings/defaults/editor bounds excluded. No field values decoded or caps inferred. |
 | Title identity research | [JP](https://prosperopatches.com/PPSA03169), [Asia](https://prosperopatches.com/PPSA04608), [EU](https://prosperopatches.com/PPSA04609), [US](https://prosperopatches.com/PPSA04610) | Title/region facts only. No assets copied. |
 | Progress names/regions/events: 314 graces, 157 bosses, 28 map controls | [ClayAmore db, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db): `graces.rs`, `map_name.rs`, `bosses.rs`, `maps.rs`, `event_flags.rs`; same-revision `vm/events.rs` / `util/bit.rs` | MIT; explicit sparse joins and original labels/source boss groups; `upstreamName` preserves exact whitespace. Added schema, offsets/bits, provenance and uncertainty; no art/coordinates, pools, quest prerequisites or PS5 completion claims. [Sidecar and hashes](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.progress.en/progress.source.md), separate F2 dataset and full MIT notice. |
 | Ten starting-class names/values | [ClayAmore classes.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs) | MIT; explicit enum IDs and starting-value tuples, separate `eldenring-classes` dataset. No class/respec writes or asserted legal minima. Same sidecar, source hash and full notice. |
 | External map reference | [Map Genie, Elden Ring](https://mapgenie.io/elden-ring/maps/the-lands-between) | Link only; reuse licence unverified. Host and attribution shown through F9; no art, coordinates, labels, descriptions or external resources copied from this site. |
 
 The [plan](../../docs/plans/EldenRing.md) records broader research and provenance exclusions.
-The owner's issue #14 policy approves these MIT name lists and attributed CC BY-SA text. No CC BY-SA
-text is needed by this release. Restricted er-save-manager and unresolved Paramdex/TGA remain
-research-only; none of their datasets, descriptions or artwork is embedded.
+The owner's 2026-10-28 decision also unblocks unlicensed community data. Paramdex/TGA and the
+ER-Save-Lib block map are now embedded with their own attribution, never relabelled as MIT.
+Restricted er-save-manager and game descriptions/artwork remain excluded.
+
+## Unlicensed community data round
+
+`eldenring.community.en` v1.1.0 contains three separate F2 datasets listed above. The exact source URLs,
+revisions, original-byte hashes and modifications are in [community.source.md](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.community.en/community.source.md).
+[import-community-catalog.py](Evidence/import-community-catalog.py) and its local helper reproduce
+the pack from hash-pinned scratch downloads using `python -I`; upstream code is never executed.
+All sources appear in `Info.References`, Sources, fields and browsable evidence.
+
+Inventory retains existing names and gains TGA name fallback (including Scadutree Fragment),
+an attributed searchable community-group column and browse-only F4 references. The new catalogs
+page/filter/sort all records through F8. The ten PARAM layouts cover equipment, goods, gems,
+arts, graces, classes, reinforcement and NG+ scaling. Technical schemas contribute declarations,
+order, type/version and field counts only. Regulation browsing compares reference/save versions
+without asserting compatibility; no decoded PARAM values or new editable limits are introduced.
+
+The v1.1.0 pack minifies JSON and hoists repeated source/revision/hash/schema/uncertainty metadata
+into dataset attribution, per-table layout summaries and the source sidecar. Differing item sources
+remain per-record. It removes all 8,651 PARAM row labels and the standalone dump browser: no save
+decoder or inventory/equipment/progress/regulation view used those labels. This avoids selecting
+data from a single sample or discarding unseen TGA items. All 3,221 identities, 1,748 candidates,
+1,072 layouts and their used facts remain pinned by semantic digests against v1.0.0. Full attribution
+still appears in F2 Sources, pickers and views. See [compaction measurements](Evidence/PACK_COMPACTION.md)
+for byte counts and first-open timing/allocation methodology.
+
+World / progress gains a separate lazy community section: **1,340 base-game**, **392 DLC1** and
+**16 DLC3** flag candidates, including **26 NG+ persistence** flag observations. DLC1/DLC3 are
+upstream content-group labels, not PS5 installation/ownership claims. Each multi-flag recipe becomes
+separate raw observations; predicates and writer actions are discarded. One exact repeated flag
+is retained once with `sourceOccurrences=2`. Sparse addressing is `block * 125 + (id % 1000) / 8`,
+LSB bit `7 - id % 8`; it is never `id / 8`. All 499 existing mappings independently agree with the
+new map; 488 unique existing event IDs overlap the new candidates. Sample source bits 76100/76101
+are set and 76102 unset. Base/DLC/NG+ meanings remain Inferred and every F9 status stays Unknown.
+Missing/malformed/out-of-range mappings are skipped, retained in the reference browser and counted
+in diagnostics. No current NG+ cycle, DLC entitlement, quest completion or reset semantics is asserted.
+
+## Licence exclusions
+
+| Source (pinned revision) | Licence/terms found | Why excluded | Alternative | What would unblock it |
+| --- | --- | --- | --- | --- |
+| [Hapfel1/er-save-manager, 81b55f78](https://github.com/Hapfel1/er-save-manager/blob/81b55f78d19b571f480b0ae06d680151a9b61e1e/LICENSE) | Source-Available: “may not be sublicensed, sold or included in any other package or bundle intended for distribution” | Explicit redistribution restriction, not missing licence | Research only; independent source/sample facts; no code/data imported | Specific written redistribution permission |
+| Game-extracted descriptions, captions, XML display/description strings and artwork in ERDB / ER-Save-Lib / Paramdex / TGA | Publisher game assets; community tool licences do not grant publisher rights | Proprietary game text/art excluded by owner directive | Names/IDs, technical facts and categories only; no descriptions/icons/art | Separate applicable publisher permission |
+| [Map Genie](https://mapgenie.io/elden-ring/maps/the-lands-between) | Map/asset reuse terms unverified | No game/map artwork redistribution | Attributed external link; no tiles/art/coordinates imported | Applicable asset permission and separately proven coordinate mapping |
+
+Resolved: Paramdex, TGA (including inherited ClayAmore groups), and ER-Save-Lib factual maps were
+previously held for missing licences; their useful facts are imported under the owner's decision.
+Other template/library/editor leads remain optional cross-checks rather than permission blockers;
+existing bounded code covers their applicable prefix/quantity facts. No selected imported file declares NC
+or no-redistribution terms. Explicit NC/no-redistribution content and game assets remain excluded.
 
 ## Remaining gates and owner captures
 
 Phase 1 reader/evidence infrastructure is implemented; its temporal/console validation gate remains
 open. Phase 2 includes the complete pinned five-table MIT name catalog, ten starting classes,
-reference plumbing, rich browsing and regulation **directory** validation. PARAM field schemas,
-validated caps, additional localizations/descriptions/icons and actual DLC/version coverage remain unfinished.
+reference plumbing, rich browsing and regulation **directory** validation. Technical PARAM reference
+layouts and DLC/NG+ candidate labels are now available; validated field decoding/caps, additional
+localizations and actual DLC/version coverage remain unfinished. Game descriptions/artwork are excluded.
 Phase 3 now enables the fixed-size name/ordinary-quantity/history operations and F6 refill/linked-rune
 previews above. Phase 4 retains read-only equipment joins. Phase 5 now has source-only progress
 candidates and F9 map navigation, plus the character calculation DAG; verified statuses, quest edges

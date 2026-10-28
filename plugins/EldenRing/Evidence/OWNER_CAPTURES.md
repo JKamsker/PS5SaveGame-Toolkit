@@ -146,8 +146,9 @@ source/event ID separately. Art/coordinates are external links only and require 
 
 - [x] Owner policy: embed the complete ClayAmore MIT name lists with their notice and per-dataset
   attribution; attributed CC BY-SA text may also be embedded with share-alike. Implemented for all
-  five name tables. Restricted/unlicensed/NC content remains excluded, including er-save-manager;
-  Paramdex/TGA remain research-only until their licence is confirmed. No repeated approval needed.
+  five name tables. The 2026-10-28 owner decision also unblocks attributed community facts from
+  Paramdex/TGA/ER-Save-Lib; imported in `eldenring.community.en`. Explicit NC/no-redistribution
+  content (including er-save-manager) and game descriptions/artwork remain excluded. No repeated approval needed.
 - [ ] Supply an audited normalized F2 pack with source/author/licence/date/modifications per dataset,
   locale, game/regulation versions, category-qualified IDs, and exact validated caps only where proven.
   Keep technical slot capacity, carry limit, storage limit and shared container capacity distinct.
@@ -192,3 +193,13 @@ These captures validate the enabled Experimental writes; they are no longer prer
 enabling them. Only an owner can use console results to promote maturity. Future stat/equipment,
 upgrade/progress or structural writers still need complete dependency/structure implementations;
 their current readers cannot safely be turned into partial writes merely by changing a setter.
+
+## Community flag observations (unlicensed-data round)
+
+- [ ] For one DLC grace, e.g. Gravesite Plain (source event 76800), capture before/after touching it,
+  plus an unchanged control save. Record exact app/regulation/DLC versions and observed menu status.
+- [ ] Capture acquiring Bone Peddler's Bell Bearing, offering it and starting the next journey as
+  separate pairs; record merchant availability and source 60730/11109746 observations independently.
+  A persistence bit alone does not establish a journey counter or a complete reset recipe.
+- [ ] Supply DLC1/DLC3 source-group observations only where the installed game actually exposes them;
+  source names are not proof of PS5 content availability. No new flag writes are enabled.

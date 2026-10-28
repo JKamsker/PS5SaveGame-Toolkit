@@ -21,7 +21,7 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
     private static IReadOnlyList<QueryableColumn> Columns =>
     [
         new("item", "Item", new ReferenceSpec(ReferenceBrowser.CatalogId) { ReadOnly = true }),
-        new("category", "Category"), new("quantity", "Quantity", IntegerSpec.UInt32),
+        new("category", "Category"), new("sourceGroup", "Community group"), new("quantity", "Quantity", IntegerSpec.UInt32),
         new("group", "Array"), new("handle", "Instance / direct handle"),
         new("index", "Inventory index", IntegerSpec.UInt32 with { ReadOnly = true }), new("resolution", "Resolution"),
         new("details", "Evidence / provenance"), new("refill", "Refill selected stacks"),
@@ -41,6 +41,7 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
             {
                 ["item"] = itemField(entry, character.Slot),
                 ["category"] = new TextNode(entry.Category),
+                ["sourceGroup"] = new TextNode(references.CommunityGroups(entry.RawId)),
                 ["quantity"] = quantityField(entry, character.Slot),
                 ["group"] = new TextNode(entry.Group),
                 ["handle"] = new TextNode($"0x{entry.Handle:X8}") { Monospace = true },
@@ -58,12 +59,13 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
     {
         "item" => $"{entry.RawId} {references.Find(entry.RawId)?.Name}",
         "category" => entry.Category,
+        "sourceGroup" => references.CommunityGroups(entry.RawId),
         "quantity" => quantity(entry).ToString(CultureInfo.InvariantCulture),
         "group" => entry.Group,
         "handle" => $"0x{entry.Handle:X8}",
         "index" => entry.InventoryIndex.ToString(CultureInfo.InvariantCulture),
         "resolution" => entry.Resolution,
-        "details" => references.Find(entry.RawId) is { } record ? ReferenceBrowser.Details(record) : entry.RawId,
+        "details" => references.ItemDetails(entry.RawId),
         "refill" => "Refill supported ordinary stacks",
         _ => throw new ArgumentException("Unknown inventory column."),
     };
@@ -83,7 +85,7 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
         };
         if (record is not null)
         {
-            nodes.Add(new TextNode(ReferenceBrowser.Details(record)));
+            nodes.Add(new TextNode(references.ItemDetails(entry.RawId)));
             if (record.AssetId is { } asset)
             {
                 nodes.Add(new TextNode("Icon source: " + (assetAttribution(asset) ?? "No asset provenance available.")));

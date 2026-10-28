@@ -22,7 +22,7 @@ public sealed class SpatialViewTests
         var root = Assert.IsType<TabsNode>(session.BuildView());
         var world = root.Tabs.Single(tab => tab.Title == ProgressViews.TabTitle);
         Assert.Single(world.Children.OfType<QueryableTableNode>());
-        var slot = Assert.Single(world.Children.OfType<SectionNode>());
+        var slot = Assert.Single(world.Children.OfType<SectionNode>(), section => section.LazyId == "progress/0");
         var regions = session.Expand(slot.LazyId!).OfType<SectionNode>().ToArray();
         Assert.NotEmpty(regions);
         var markers = new HashSet<string>(StringComparer.Ordinal);

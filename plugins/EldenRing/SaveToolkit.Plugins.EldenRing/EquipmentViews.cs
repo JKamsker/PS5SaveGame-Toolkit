@@ -27,11 +27,11 @@ internal static class EquipmentViews
             ["slot"] = new TextNode(link.Label),
             ["item"] = link.Entry is null ? new TextNode("Unresolved")
                 : bind($"slots/{slot}/equipment-links/{link.Key}/item", record?.Name ?? link.Entry.RawId,
-                    new ReferenceSpec(ReferenceBrowser.CatalogId), () => FieldValue.Of(link.Entry.RawId)) with
+                    new ReferenceSpec(references.FieldCatalogId(link.Entry.RawId)), () => FieldValue.Of(link.Entry.RawId)) with
                 {
                     Confidence = link.Entry.ItemId.HasValue ? Confidence.Inferred : Confidence.Unknown,
                     Description = Provenance + " " + (record is null ? "No compatible name record; raw identity retained."
-                        : ReferenceBrowser.Details(record)),
+                        : references.ItemDetails(link.Entry.RawId)),
                 },
             ["handle"] = Hex(link.Handle),
             ["position"] = new TextNode($"{link.Position.ToString(CultureInfo.InvariantCulture)}; held record {link.Entry?.Record.ToString(CultureInfo.InvariantCulture) ?? "—"}"),
@@ -39,7 +39,7 @@ internal static class EquipmentViews
             ["equipped"] = Hex(link.EquippedId),
             ["status"] = new TextNode(link.Status),
             ["source"] = new SectionNode("Relationship evidence", [new TextNode(Provenance),
-                new TextNode(record is null ? "No compatible name record; raw identity retained." : ReferenceBrowser.Details(record))]),
+                new TextNode(record is null ? "No compatible name record; raw identity retained." : references.ItemDetails(record.Key))]),
         });
     }
 

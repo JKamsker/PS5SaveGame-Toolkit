@@ -6,7 +6,7 @@ revision `014107f0ca1cff867b5f7565cb79d6684f9b35df` (retrieved 2026-10-28):
 https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df
 
 The adaptation adds bounds, output budgets and snapshot-specific BND flag/PARAM directory checks;
-it excludes unsafe PARAM field casting, restricted/unlicensed databases, descriptions and game artwork.
+it excludes unsafe PARAM field casting, explicitly restricted databases, game descriptions and artwork.
 That project offers MIT and Apache-2.0 licences; the MIT option is used for this adaptation.
 
 The write-enable round also uses the same `src/save/common/save_slot.rs` and PlayStation
@@ -33,6 +33,37 @@ The acquisition skip now uses the source's four-u32 (16-byte) GaItem2 rows rathe
 The F9 level graph composes the existing validated attribute/level equation with field navigation;
 it does not import a quest graph or invent upgrade/vital derivations. The full MIT notice also
 accompanies the new pack. Map Genie is an attributed external link only; no content is redistributed.
+
+## Unlicensed community facts (resolved 2026-10-28 owner decision)
+
+`eldenring.community.en` imports TGA `393c439e72ad48128efdc5e30fc3feb4bfbd210f`, Paramdex
+`ff7245e524329bc3eab00036723d2bd53384cedf` and the ER-Save-Lib event block map at
+`664ff9e83b7022a6fdc5a8332e8b7b22dce34e0f`. No root licences were found. Each dataset says:
+**No licence published; reused with attribution per owner decision 2026-10-28**.
+This is the owner's reuse authorization, not an assertion that upstream granted a licence.
+
+TGA contributors (Dasaav/Umgak flag data; Apricus, Mar_Veloz and other item-group contributors)
+provide 3,221 item identities/groups and 1,748 base/DLC/NG+ flag observations. ClayAmore's
+MIT `items.rs` at the existing editor revision explicitly inherits TGA: 19 groups / 545 active
+occurrences are now imported with both sources credited; no blanket MIT relicensing of TGA data.
+The ER-Save-Lib map supplies sparse block facts. Original bounded C# reading composes these facts;
+no unlicensed implementation, Cheat Engine script, predicates, runtime pointers or writer is copied.
+
+Paramdex contributors provide 1,072 technical layout records across ten definitions. The v1.0.0
+standalone dump of 8,651 row labels was removed in v1.1.0 because no native save-data view or
+decoder consumed it. Only declaration/type/version/order facts are extracted.
+Game XML descriptions/display text, defaults/editor bounds, game artwork and full schema files
+are excluded. No item caps or field compatibility are inferred from a schema or version match.
+
+Original source-byte/pack hashes, authors, URLs, retrieval date (2026-10-29), exact transformations
+and reproducible importer accompany the data in `community.source.md`. Dataset licences are separate
+from the MIT notice below. The README, `Info.References`, F2 Sources, fields and reference browsers
+retain provenance. Explicit NC/no-redistribution sources, including er-save-manager, remain excluded;
+game-extracted descriptions and artwork remain excluded as publisher assets.
+
+In v1.1.0 the JSON is minified. Dataset-wide source URLs, revisions, hashes, schema and uncertainty
+live in attribution/source sidecars; table layout metadata lives once per summary. Per-record source
+overrides are retained where different. This storage change does not change source ownership or terms.
 
 MIT License
 
