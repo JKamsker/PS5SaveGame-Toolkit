@@ -65,7 +65,7 @@ those bindings. Custom `ApplyEdits` and action implementations still own their a
 | `ImageNode(assetId, alt)` | Screenshots, thumbnails. |
 | `HexNode(blobId, length)` | Raw bytes, paged. |
 | `GraphNode(title, items, edges, textAlternative)` | Read-only, bounded prerequisite DAG with states, costs, branches and links to existing controls. |
-| `MapNode(title, bounds, markers, textAlternative)` | Read-only regional map or external-link-only location list. Embed only safely licensed local art/coordinates. |
+| `MapNode(title, bounds, markers, textAlternative)` | Read-only regional map or external-link-only location list. Use local art/coordinates permitted by rule 9, with provenance. |
 
 ### Maps and prerequisite graphs (F9)
 
@@ -98,7 +98,8 @@ or projection is inferred from an image's dimensions. Transformed markers must b
 The renderer supports zoom, scroll/drag/keyboard pan, category/status/text filters, a legend and a
 selected-marker detail panel. All markers, including those without positions, appear in the list.
 
-**External links are the default for unclear licences.** Set `ExternalSource` on a map or
+**Use external links for material still refused under rule 9 or unavailable for import.** A missing
+community-data licence alone does not require link-only treatment. Set `ExternalSource` on a map or
 `ExternalLink` on a marker to `new ExternalViewLink(httpsUrl, label, attribution)`. For example:
 
 ```csharp
@@ -107,7 +108,7 @@ new MapNode("Region", new MapBounds(0, 0, 1, 1),
     "Consult the external regional guide; no art or coordinates have been imported.")
 {
     ExternalSource = new ExternalViewLink("https://example.org/map", "Open regional map",
-        "Example community; licence unverified. Link only."),
+        "Example community; NC terms. Link only."),
 };
 ```
 
@@ -119,20 +120,23 @@ parsed host and attribution, opens a new tab, and sets `rel="noopener noreferrer
 applies to source/licence links in map attribution. Invalid links are rejected by Core; the web
 renderer additionally renders them as non-clickable text if given a malformed payload.
 
-**Import only when the licence clearly allows embedding**, following rule 9 in full. For an original
-or safely licensed schematic/background, resolve a local F2 asset with `references.GetAsset(id)`
-and `references.AssetProvenance(id)`. If unavailable, omit `Background`. Otherwise use
+**Follow rule 9 for imports**, including the owner decision on unlicensed community facts. Publisher
+art remains excluded without permission. For an original or permitted schematic/background, resolve
+a local F2 asset with `references.GetAsset(id)` and `references.AssetProvenance(id)`. If unavailable,
+omit `Background`. Otherwise use
 `new MapBackground("pack.id:maps/region.png", alt, provenance.Attribution, EmbeddingPermitted: true)`.
 This is served through the existing local F2 reference-asset endpoint, with full attribution next
 to the diagram and in Sources. Remote URLs and ordinary plugin asset IDs are not backgrounds.
 `EmbeddingPermitted` defaults to false and is an explicit assertion by the plugin author; the
-framework cannot decide licence compatibility from a licence name. Do not set it for unclear terms.
+framework cannot decide reuse policy from a licence name. Set it only after recording the applicable
+terms or owner-policy basis; the owner decision on community facts does not permit publisher artwork.
 
 Embedding **any coordinates**, including save-derived positions and original schematics, similarly
 requires `CoordinateAttribution` (`ReferenceAttribution`) and `CoordinateEmbeddingPermitted = true`.
 Record original work as such rather than inventing an upstream source. Community coordinate
-licences need their own review; a permissive extractor's code licence does not license map art or
-coordinate datasets. Prefer the link-only form until reuse is clearly safe. Retain source sidecars,
+terms and provenance must be recorded separately; a permissive extractor's code licence does not
+license publisher map art. Community coordinate facts follow rule 9 even without a published licence.
+Use the link-only form for remaining refusals or unavailable data. Retain source sidecars,
 README attribution tables and `Info.References` as required by rule 9.
 
 `ViewTarget(kind, id)` links to an existing `Field` or `Action`; maps may also link to a table `Row`.
@@ -549,7 +553,8 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
 9. **Attribute every reference at every place it shows up.** You may embed data from wikis, datamines and
    community tools, but each dataset needs full attribution in each of these places:
    - **Next to the data:** a header in the resource file, or a `*.source.md` sidecar. It gives the source
-     URL, author or project, licence (with link), retrieval date, and what you changed or extracted.
+     URL, author or project, published licence (with link) or owner-decision notice when none is
+     published, retrieval date, and what you changed or extracted.
    - **Plugin README:** a `## Sources and attribution` table with one row per dataset or code port.
    - **`IGamePlugin.Info.References`:** the upstream URLs.
    - **The UI:** the provenance or attribution text of every name, description or icon you show. Put it in
@@ -563,12 +568,20 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
    modification notice; code ports retain upstream notices. Record modifications in
    [THIRD-PARTY-NOTICES](../THIRD-PARTY-NOTICES) as well as the plugin README.
 
-   The only licence-based refusal reasons are **GPL-2.0-only code; no licence (all rights reserved);
-   NC or no-redistribution terms; and proprietary game assets**. Check the exact revision and the
-   particular material: a licensed tool does not automatically license its extracted game assets,
-   and a wiki text licence does not automatically cover icons or map art. Missing captures, an
-   unavailable build-matched pack or unproven game semantics are separate evidence/implementation
-   gaps, not licence incompatibility.
+   **Owner decision, 2026-10-28: no licence is not a blocker.** Import data and facts from unlicensed
+   community sources, including ID tables, names, offsets, hash tables and format layouts, with full
+   attribution at every place listed above. Record the licence field exactly as
+   `No licence published; reused with attribution per owner decision 2026-10-28`.
+   This also applies to community sources previously left external solely for an all-rights-reserved
+   notice. Reimplement code from unlicensed repositories from its documented behaviour and credit
+   the source; do not copy the implementation. Record the source/revision and implementation approach.
+
+   The only remaining licence-based refusal reasons are **GPL-2.0-only code; NC or no-redistribution
+   terms; and proprietary game assets: publisher art, icons, screenshots and text extracted from
+   the game**. Check the exact revision and particular material: community tables/facts and original
+   descriptions must be distinguished from publisher assets. A tool or wiki licence does not
+   automatically cover those assets. Missing captures, an unavailable build-matched pack or unproven
+   game semantics are separate evidence/implementation gaps, not licence incompatibility.
 
    **Every licence-based refusal must be written up** in the plugin README's `## Licence exclusions`
    table **and** [docs/LICENCE_EXCLUSIONS.md](LICENCE_EXCLUSIONS.md). Use one row per source with:
@@ -576,9 +589,11 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
    done instead; and what would unblock reuse. The central table also names the plugin. Record
    link-only and research-only decisions when licence restrictions caused them. If no specific
    source or revision was identified, say so; do not invent a licence or a rights-holder decision.
-   **When the licence is unclear, link instead of importing.** Expose an external link to the source
-   (e.g. a wiki page or a community interactive map) in the record's `source`/details. Import the data
-   only once its licence is clearly safe.
+   Keep previously refused sources in the register with their current status. Mark no-licence-only
+   refusals `Unblocked by owner decision 2026-10-28`; track pending imports/reimplementations separately
+   from completed work. External source links remain useful for attribution, remaining refusals and
+   unavailable data; they are not a substitute for importing usable community facts solely because
+   no licence was published.
 
 ## Catalog-valued fields and searchable pickers
 

@@ -45,11 +45,13 @@ define archive naming, metadata, decoder discovery and fixture manifests. For ev
 4. Capture identity/equipment/transfer, XP/skill and collectible/story events separately to explain
    missing joins and dependencies. A reference catalogue or set bit alone proves neither ownership nor completion.
 5. Add boundary, duplicate-instance, full-container, later-build, NG+/DLC and regional variants.
-6. Supply lawful version/locale-matched reference data with provenance and compatible terms. The
-   repository already permits attributed compatible datasets; unclear licences use external links.
-   Artwork/coordinates need their own terms. No blanket new licensing or write-permission decision is needed.
-   Consult the [licence exclusions register](LICENCE_EXCLUSIONS.md) for each recorded source, missing
-   rights evidence and unblocking action; asking the author for compatible terms can resolve an entry.
+6. Supply version/locale-matched reference data with provenance. Under the owner decision of
+   2026-10-28, import unlicensed community facts/data with full attribution and reimplement unlicensed
+   code from documented behaviour with source credit; no published licence is required for those paths.
+   GPL-2.0-only code, NC/no-redistribution terms and publisher art, icons, screenshots or game-extracted
+   text remain refusals. Consult the [licence exclusions register](LICENCE_EXCLUSIONS.md) for current
+   status and imports in progress. Seek compatible terms for remaining refusals; matching captures
+   and ID joins still need evidence.
 
 ## Title checklists
 
@@ -95,8 +97,9 @@ bounded NewAge live candidates; no authoritative party/gold total.
 - [ ] Capture separate damage/heal/temporary-HP, boosted-gear, learn/prepare-spell,
       level-up/respec, quest accept/complete/fail, approval change, rest/romance and
       recipe/waypoint event pairs.
-- [ ] Provide permitted build/language/module-matched template, stats and LOCA data with a
-      rights manifest; distinguish permitted text from proprietary icons/legacy NC prose and record spoiler choices.
+- [ ] Provide build/language/module-matched community template/stat/ID facts with full attribution,
+      including unlicensed sources under the owner decision. Record source terms; publisher LOCA text,
+      icons and legacy NC prose remain excluded without compatible permission. Record spoiler choices.
 
 ### PPSA01325 — ASTRO's PLAYROOM
 
@@ -310,7 +313,8 @@ and reviewed main-stack targets. No allocator/growth/dependency repair is claime
 - [ ] Unlock one Eikon separately from any story transition.
 - [ ] Earn XP without leveling, then cross one level; repeat adult/child and normal/Final Fantasy mode.
 - [ ] Supply matched, legally owned PC binary/XML states with build/locale/DLC if available.
-- [ ] Supply licence-compatible labels or observed item-label/acquisition pairs for the 41 Unknown IDs.
+- [ ] Supply attributed community labels, including unlicensed tables under the owner decision, or observed
+      item-label/acquisition pairs for the 41 Unknown IDs; keep publisher-extracted text separate.
 - [ ] Capture one upgrade each for potency/capacity IDs 506, 507, 508 and 509, with both banks,
       displayed capacities/potencies, quest, mode, DLC, stage, zero-stack control and stage replay.
 - [ ] Capture learn, upgrade, master and reset for skill IDs 39, 45 and 49 independently, with
@@ -644,7 +648,8 @@ Progress, Quests and World. RSA trailer is preserved but unverified/unregenerate
 - [ ] Capture one chapter transition.
 - [ ] Capture one named collectible pickup.
 - [ ] Supply empty/full inventories and difficulty, chapter, cleared and NG+ examples.
-- [ ] Supply licensed ID/name evidence or a user-owned extraction pack.
+- [ ] Supply attributed community ID/name evidence, including unlicensed sources under the owner decision;
+      publisher-extracted text/art still requires compatible permission.
 
 ### PPSA02225 — Ghost of Tsushima (Director's Cut)
 

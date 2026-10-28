@@ -22,7 +22,7 @@ on a disposable spare slot. The owner validation work is tracked in
 - **F6 — Review before apply:** bulk-action previews, skipped rows, one-step undo and a Changes panel.
 - **F7 — Related files:** explicit document groups with coordinated edits, history and export.
 - **F8 — Large collections:** bounded server-side search/filter/sort and selection across unloaded pages.
-- **F9 — Maps and graphs:** read-only diagrams with text lists; external map links when reuse is unclear.
+- **F9 — Maps and graphs:** read-only diagrams with text lists and external map links.
 - **F10 — Exact values:** JSON numbers without rounding, explicit nulls and typed alternatives.
 - **F11 — Shared codecs:** managed Kraken decoding/stored-block writing and in-memory SQLite images.
 - **F12 — Decoder hooks:** SaveDiff traverses paged views and discovers explicit plugin evidence decoders.
@@ -107,5 +107,7 @@ The server binds to 127.0.0.1 and has no authentication; it is meant to run on y
 
 Licensed under **GPL-3.0-or-later**; see [LICENSE](LICENSE) and [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).
 Upstream components retain their own compatible licences and attribution.
-The [licence exclusions register](docs/LICENCE_EXCLUSIONS.md) records link-only/research-only sources,
-missing rights evidence and what owners can unblock by obtaining compatible terms or permitted packs.
+The [licence exclusions register](docs/LICENCE_EXCLUSIONS.md) tracks remaining refusals and imports in
+progress. Per the owner decision of 2026-10-28, unlicensed community facts/data are reused with full
+attribution; unlicensed code is reimplemented with source credit. GPL-2.0-only code, NC/no-redistribution
+terms and proprietary publisher assets remain refusal reasons.
