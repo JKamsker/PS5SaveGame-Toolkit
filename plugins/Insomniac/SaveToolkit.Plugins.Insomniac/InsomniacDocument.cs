@@ -94,6 +94,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
             return (ViewNode)new SectionNode(_sections.Label(root.Key), [])
             {
                 LazyId = id,
+                Collapsed = true,
                 Badge = $"{root.Value.Count} root fields",
                 Description = DdlSections.Attribution,
             };

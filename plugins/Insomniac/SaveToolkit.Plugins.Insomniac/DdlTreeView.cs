@@ -12,8 +12,31 @@ internal sealed class DdlTreeView(
 {
     private const int PageSize = 100;
 
-    internal IReadOnlyList<ViewNode> Fields(string path, IReadOnlyDictionary<string, DdlField> fields) =>
-        fields.Values.Select(field => (ViewNode)FieldSection(path, field)).ToArray();
+    internal IReadOnlyList<ViewNode> Fields(string path, IReadOnlyDictionary<string, DdlField> fields)
+    {
+        var values = fields.Values.ToArray();
+        return values.Length <= PageSize
+            ? FieldRange(path, values, 0, values.Length)
+            : FieldPages(path, values);
+    }
+
+    private IReadOnlyList<ViewNode> FieldPages(string path, IReadOnlyList<DdlField> fields) =>
+        Enumerable.Range(0, PageCount(fields.Count)).Select(page =>
+        {
+            var start = page * PageSize;
+            var count = Math.Min(PageSize, fields.Count - start);
+            var id = $"{path}/fields/{start}";
+            lazy[id] = () => FieldRange(path, fields, start, count);
+            return (ViewNode)new SectionNode($"Fields {start}–{start + count - 1}", [])
+            {
+                LazyId = id,
+                Collapsed = true,
+                Badge = $"{count} fields",
+            };
+        }).ToArray();
+
+    private IReadOnlyList<ViewNode> FieldRange(string path, IReadOnlyList<DdlField> fields, int start, int count) =>
+        Enumerable.Range(start, count).Select(index => (ViewNode)FieldSection(path, fields[index])).ToArray();
 
     private SectionNode FieldSection(string path, DdlField field)
     {
@@ -22,6 +45,7 @@ internal sealed class DdlTreeView(
         return new SectionNode(field.Name, [])
         {
             LazyId = id,
+            Collapsed = true,
             Badge = $"{field.Kind} · {field.Count}",
             Description = Description(field),
         };
@@ -31,15 +55,42 @@ internal sealed class DdlTreeView(
     {
         if (field.Count == 0) return [new TextNode("Empty stored collection (0 entries).") { Tone = Tone.Muted }];
         if (field.Count <= PageSize) return Range(path, field, 0, field.Count);
-        return Enumerable.Range(0, (field.Count + PageSize - 1) / PageSize).Select(page =>
+        var pages = PageCount(field.Count);
+        if (pages > PageSize)
+        {
+            return Enumerable.Range(0, PageCount(pages)).Select(group =>
+            {
+                var firstPage = group * PageSize;
+                var pageCount = Math.Min(PageSize, pages - firstPage);
+                var id = $"{path}/pages/{firstPage}";
+                lazy[id] = () => ArrayPages(path, field, firstPage, pageCount);
+                return (ViewNode)new SectionNode($"Pages {firstPage}–{firstPage + pageCount - 1}", [])
+                {
+                    LazyId = id,
+                    Collapsed = true,
+                    Badge = $"{pageCount} pages",
+                };
+            }).ToArray();
+        }
+
+        return ArrayPages(path, field, 0, pages);
+    }
+
+    private IReadOnlyList<ViewNode> ArrayPages(string path, DdlField field, int firstPage, int pageCount) =>
+        Enumerable.Range(firstPage, pageCount).Select(page =>
         {
             var start = page * PageSize;
             var count = Math.Min(PageSize, field.Count - start);
             var id = $"{path}/page/{start}";
             lazy[id] = () => Range(path, field, start, count);
-            return (ViewNode)new SectionNode($"Entries {start}–{start + count - 1}", []) { LazyId = id };
+            return (ViewNode)new SectionNode($"Entries {start}–{start + count - 1}", [])
+            {
+                LazyId = id,
+                Collapsed = true,
+            };
         }).ToArray();
-    }
+
+    private static int PageCount(int count) => (count + PageSize - 1) / PageSize;
 
     private IReadOnlyList<ViewNode> Range(string path, DdlField field, int start, int count) =>
         Enumerable.Range(start, count).Select(index =>
@@ -52,6 +103,7 @@ internal sealed class DdlTreeView(
                 return (ViewNode)new SectionNode($"{field.Name}[{index}]", [])
                 {
                     LazyId = id,
+                    Collapsed = true,
                     Badge = $"{child.Fields.Count} fields",
                     Description = $"Validated object at 0x{child.Offset:X}, {child.Size} bytes. Map keys are stored identities; array positions do not prove ownership.",
                 };
