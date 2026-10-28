@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -16,19 +17,33 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
     private readonly SaveContainer _container;
     private readonly TsushimaInventory? _inventory;
     private readonly TsushimaProgress? _progress;
+    private readonly IReadOnlyList<TsushimaIdentifier> _identifiers;
+    private readonly IReferenceContext _references;
+    private readonly IReferenceCatalog? _items;
+    private readonly IReferenceCatalog? _equipment;
+    private readonly IReferenceCatalog? _techniques;
     private readonly string? _subtitle;
 
-    private SuckerPunchDocument(ISaveFile file, byte[] bytes, SaveContainer container)
+    private SuckerPunchDocument(ISaveFile file, byte[] bytes, SaveContainer container, IReferenceContext references)
     {
         _file = file;
         _bytes = bytes;
         _container = container;
+        _references = references;
         _subtitle = file.Directory.ParamSfo?.SubTitle;
         if (container.Kind == ContainerKind.Tsushima)
         {
             var content = bytes.AsSpan(0, (int)container.Word1);
             _inventory = TsushimaInventory.Parse(content);
             _progress = TsushimaProgress.Parse(content, container.Word3);
+            _identifiers = TsushimaIdentifiers.Scan(content);
+            _items = references.Catalog("suckerpunch_items");
+            _equipment = references.Catalog("suckerpunch_equipment");
+            _techniques = references.Catalog("suckerpunch_techniques");
+        }
+        else
+        {
+            _identifiers = [];
         }
     }
 
@@ -38,10 +53,10 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
 
     public override bool CanEdit => _inventory is not null;
 
-    public static SuckerPunchDocument Open(ISaveFile file)
+    public static SuckerPunchDocument Open(ISaveFile file, IReferenceContext references)
     {
         var bytes = file.ReadAllBytes();
-        return new SuckerPunchDocument(file, bytes, SaveContainer.Parse(bytes, file.Directory.TitleId));
+        return new SuckerPunchDocument(file, bytes, SaveContainer.Parse(bytes, file.Directory.TitleId), references);
     }
 
     public override ViewNode BuildView()
@@ -95,6 +110,21 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
             tabs.Add(new Tab("Inventory", [new TextNode(
                 "Experimental edits: only existing unlocked records can change. Ammo updates both count copies. " +
                 "The game may clamp quantities to its capacity limits.") { Tone = Tone.Warning }, BuildInventory()]));
+            if (_identifiers.Count > 0)
+            {
+                tabs.Add(new Tab("Equipment", [new TextNode(
+                    "Read-only identifier evidence. Presence in the save does not prove ownership, an equipped slot, " +
+                    "a loadout, or a writable equipment record.") { Tone = Tone.Warning },
+                    BuildIdentifierTable(IdentifierGroup.Equipment, _equipment, "suckerpunch_equipment")]));
+                tabs.Add(new Tab("Techniques", [new TextNode(
+                    "Read-only identifier evidence. Prerequisites, points, unlock state and progression effects are " +
+                    "not established by these strings.") { Tone = Tone.Warning },
+                    BuildIdentifierTable(IdentifierGroup.Technique, _techniques, "suckerpunch_techniques")]));
+                tabs.Add(new Tab("Character", [new TextNode(
+                    "Read-only relationships inferred from identifier names. Values are not exposed as edits, and " +
+                    "the scanner does not distinguish definitions, counters, ownership or active state.") { Tone = Tone.Warning },
+                    BuildCharacterTable()]));
+            }
             tabs.Add(new Tab("Blocks", BuildBlocks()));
         }
 
@@ -162,6 +192,8 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
         return _bytes.AsSpan((int)offset, count).ToArray();
     }
 
+    public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
+
     private IReadOnlyList<ViewNode> BuildHeaderFields(bool isTsushima)
     {
         string[] labels = isTsushima ? ["Magic", "Content size", "Checksum", "Format version"] :
@@ -202,11 +234,66 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
             return new TableRow(record.Name, new Dictionary<string, ViewNode>
             {
                 ["name"] = new TextNode(record.Name),
+                ["item"] = ReferenceField($"inventory/{record.Name}/reference", "Identifier", record.Name,
+                    "suckerpunch_items", _items),
                 ["quantity"] = quantityField,
             });
         }).ToArray();
-        return new TableNode([new TableColumn("name", "Internal item name"), new TableColumn("quantity", "Quantity")], rows)
-        { Title = "Named inventory", Description = "Located relative to LegendsInvestment; 48 length-prefixed records." };
+        return new TableNode([new TableColumn("name", "Internal item name"),
+            new TableColumn("item", "Catalog reference"), new TableColumn("quantity", "Quantity")], rows)
+        {
+            Title = "Named inventory",
+            Description = "Located relative to LegendsInvestment; 48 length-prefixed records. Catalog names preserve raw IDs and are attributed in each field.",
+        };
+    }
+
+    private TableNode BuildIdentifierTable(IdentifierGroup group, IReferenceCatalog? catalog, string catalogId)
+    {
+        var rows = _identifiers.Where(identifier => identifier.Group == group).Select(identifier =>
+        {
+            return new TableRow(identifier.Name, new Dictionary<string, ViewNode>
+            {
+                ["reference"] = ReferenceField($"{catalogId}/{identifier.Name}/reference", "Identifier",
+                    identifier.Name, catalogId, catalog),
+                ["location"] = new TextNode($"0x{identifier.Offset:X}") { Monospace = true },
+                ["state"] = new TextNode("Unknown") { Tone = Tone.Warning },
+            });
+        }).ToArray();
+        return new TableNode([new TableColumn("reference", "Catalog reference"),
+            new TableColumn("location", "First observed offset"), new TableColumn("state", "Ownership / state")], rows)
+        {
+            Title = group == IdentifierGroup.Equipment ? "Observed equipment identifiers" : "Observed technique identifiers",
+            Description = catalog is null ? "No pinned reference pack; raw IDs remain visible." :
+                $"Attributed dataset: {catalog.Dataset.Attribution.ToShortText()}",
+        };
+    }
+
+    private TableNode BuildCharacterTable()
+    {
+        var rows = _identifiers.Where(identifier => identifier.Group == IdentifierGroup.Character).Select(identifier =>
+            new TableRow(identifier.Name, new Dictionary<string, ViewNode>
+            {
+                ["identifier"] = new TextNode(identifier.Name) { Monospace = true },
+                ["location"] = new TextNode($"0x{identifier.Offset:X}") { Monospace = true },
+                ["relationship"] = new TextNode("Unknown") { Tone = Tone.Warning },
+            })).ToArray();
+        return new TableNode([new TableColumn("identifier", "Observed identifier"),
+            new TableColumn("location", "First observed offset"), new TableColumn("relationship", "Relationship")], rows)
+        { Title = "Character and progression candidates", Description = "Identifiers are evidence only; no character value or relationship is asserted." };
+    }
+
+    private FieldNode ReferenceField(string valueId, string label, string rawId, string catalogId,
+        IReferenceCatalog? catalog)
+    {
+        var record = catalog?.Find(rawId);
+        var description = record?.AttributionText ??
+            "Raw identifier observed in the Tsushima save; no pinned record supplies a display name.";
+        return Field(valueId, label, new ReferenceSpec(catalogId), () => FieldValue.Of(rawId)) with
+        {
+            Confidence = record is null ? Confidence.Unknown : Confidence.Inferred,
+            Description = description,
+            Warning = "Read-only: presence does not prove ownership, equipped state, or edit safety.",
+        };
     }
 
     private void SetQuantity(InventoryRecord record, uint quantity)

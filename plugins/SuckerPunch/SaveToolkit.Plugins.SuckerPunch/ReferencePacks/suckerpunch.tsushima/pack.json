@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "id": "suckerpunch.tsushima",
+  "version": "1.0.0",
+  "title": "Ghost of Tsushima observed identifier catalog",
+  "description": "Small raw-ID catalog for PS5 Tsushima saves. It names observed identifiers without asserting ownership, equipped state, capacities or write semantics.",
+  "plugins": [
+    "suckerpunch"
+  ],
+  "titleIds": [
+    "PPSA02225"
+  ],
+  "datasets": [
+    {
+      "id": "suckerpunch_items",
+      "kind": "records",
+      "title": "Inventory identifiers",
+      "files": [
+        {
+          "path": "items.json",
+          "sha256": "dedbc58f9aa2bceb8a647ce747e37b89cda59b4f0cb41beeda6cca1268f1eafb"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "author": "PS5 Save Game Toolkit contributors",
+        "license": "Original sample-derived index; project terms",
+        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "retrieved": "2026-10-28",
+        "modifications": "Names and raw identifiers were transcribed from privately retained Tsushima evidence; no game text, images or third-party code is embedded."
+      }
+    },
+    {
+      "id": "suckerpunch_equipment",
+      "kind": "records",
+      "title": "Equipment identifiers",
+      "files": [
+        {
+          "path": "equipment.json",
+          "sha256": "6f325309e9ce6b2c45372c54089b26bec74321e1f64e4bcb6725fb0d2a6cbfb6"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "author": "PS5 Save Game Toolkit contributors",
+        "license": "Original sample-derived index; project terms",
+        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "retrieved": "2026-10-28",
+        "modifications": "Names and raw identifiers were transcribed from privately retained Tsushima evidence; no game text, images or third-party code is embedded."
+      }
+    },
+    {
+      "id": "suckerpunch_techniques",
+      "kind": "records",
+      "title": "Technique identifiers",
+      "files": [
+        {
+          "path": "techniques.json",
+          "sha256": "35b94de62a5779038efe19f2e5f4e3f82abeb41b218f1e7fb566de83be1b5986"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "author": "PS5 Save Game Toolkit contributors",
+        "license": "Original sample-derived index; project terms",
+        "licenseUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "retrieved": "2026-10-28",
+        "modifications": "Names and raw identifiers were transcribed from privately retained Tsushima evidence; no game text, images or third-party code is embedded."
+      }
+    }
+  ]
+}

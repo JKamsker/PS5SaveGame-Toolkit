@@ -1,14 +1,15 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Plugins.SuckerPunch;
 
 public sealed class SuckerPunchPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.2.0")
+    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.3.0")
     {
-        Description = "Experimental Tsushima inventory editing; Yōtei container inspection.",
+        Description = "Experimental Tsushima inventory editing with attributed read-only catalogs; Yōtei container inspection.",
         Games =
         [
             new GameTitle("PPSA02225", "Ghost of Tsushima"),
@@ -22,6 +23,10 @@ public sealed class SuckerPunchPlugin : IGamePlugin
             "https://github.com/sterben-Dev10/SaveWizard-Resources/blob/main/SaveWizard-Codes/Ghost%20of%20Tsushima%20Codes%20%5BSaveWizard%5D.txt",
             "https://github.com/bucanero/apollo-patches/blob/main/PS4/CUSA11456.savepatch",
             "https://github.com/bucanero/apollo-lib/blob/main/source/patches.c",
+            "https://ghostfranchise.fandom.com/wiki/Resources",
+            "https://ghostfranchise.fandom.com/wiki/Charms",
+            "https://ghostfranchise.fandom.com/wiki/Techniques",
+            "https://ghostfranchise.fandom.com/wiki/Sword_Kits",
         ],
     };
 
@@ -57,12 +62,15 @@ public sealed class SuckerPunchPlugin : IGamePlugin
     }
 
     public ISaveDocument Open(ISaveFile file)
+        => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         if (Probe(file).Score < ProbeScore.Title)
         {
             throw new SaveFormatException("This is not a recognised Sucker Punch save file.");
         }
 
-        return SuckerPunchDocument.Open(file);
+        return SuckerPunchDocument.Open(file, references);
     }
 }

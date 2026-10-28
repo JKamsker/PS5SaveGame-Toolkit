@@ -1,7 +1,7 @@
 # Sucker Punch save plugin (`suckerpunch`)
 
 Titles: **PPSA02225** (Ghost of Tsushima, Director's Cut) and **PPSA26344** (Ghost of Yōtei).
-Version 0.2.0 is **Experimental**: Tsushima inventory edits pass conformance and exact byte-difference
+Version 0.3.0 is **Experimental**: Tsushima inventory edits pass conformance and exact byte-difference
 tests, but have not been tested in-game. Yōtei documents remain **read-only**. No sample bytes,
 extracted saves, or third-party implementation code are included in this plugin.
 
@@ -19,8 +19,16 @@ extracted saves, or third-party implementation code are included in this plugin.
 * Locked records, unmatched ammo copies, unmapped item kinds and existing quantities above 32767 are
   inspection-only. The editable range 0–32767 follows the upstream refill value, **not a proven game
   capacity**. The UI warns that quantities can be clamped. Ownership/upgrade flags are never changed.
+* The embedded F2 pack `suckerpunch.tsushima` contains attributed raw-ID catalogs for the 48 inventory
+  records plus observed equipment and technique identifiers. F4 `ReferenceSpec` fields preserve each
+  exact ID and expose the catalog picker metadata; they are read-only because no safe ID replacement
+  mapping has been proven. Each catalog field carries its dataset attribution and an Inferred/Unknown
+  confidence label.
+* Tsushima has read-only Equipment, Techniques and Character tabs. They show first observed offsets and
+  explicit Unknown ownership/equipped/progression relationships. Identifier presence is not treated as
+  ownership, a loadout, a prerequisite, or an editable value. Raw record words remain read-only.
 * Tabs contain overview statistics, a 48-row inventory table, lazy Blocks sections and paged raw hex.
-  Raw record words have unknown semantics and are read-only. Edits invalidate the block snapshots.
+  Edits invalidate the block snapshots.
 * Opening copies the input; exports and hex pages are isolated copies. No-op exports are byte-identical,
   including unknown data, console metadata and padding. Only the selected document's file is returned;
   sibling saves, backup slots and `param.sfo` are preserved.
@@ -207,6 +215,21 @@ third-party code was copied or ported.
 * [Apollo code-format reference](https://bucanero.github.io/apollo-lib/savewizard.html): syntax overview;
   actual interpreter source was used where descriptions were ambiguous.
 
+## Sources and attribution
+
+| Dataset | Source and licence | What is included |
+| --- | --- | --- |
+| `suckerpunch_items` | [PS5 Save Game Toolkit](https://github.com/JKamsker/PS5SaveGame-Toolkit), PS5 Save Game Toolkit contributors, original sample-derived index under project terms, retrieved 2026-10-28 | The exact raw names from the observed 48-record Tsushima inventory table. No translations, limits or icons are asserted. |
+| `suckerpunch_equipment` | [PS5 Save Game Toolkit](https://github.com/JKamsker/PS5SaveGame-Toolkit), PS5 Save Game Toolkit contributors, original sample-derived index under project terms, retrieved 2026-10-28 | Exact raw equipment-like identifiers observed in Tsushima. Prefix grouping is a display aid; ownership and equipped state remain Unknown. |
+| `suckerpunch_techniques` | [PS5 Save Game Toolkit](https://github.com/JKamsker/PS5SaveGame-Toolkit), PS5 Save Game Toolkit contributors, original sample-derived index under project terms, retrieved 2026-10-28 | Exact raw stance/technique-like identifiers observed in Tsushima. Prerequisites, points and unlock state remain Unknown. |
+
+The pack's `SOURCES.md` sidecar and each record's attributes repeat this attribution next to the
+embedded data. The Ghost Franchise Wiki [resources](https://ghostfranchise.fandom.com/wiki/Resources),
+[charms](https://ghostfranchise.fandom.com/wiki/Charms), [techniques](https://ghostfranchise.fandom.com/wiki/Techniques)
+and [sword kits](https://ghostfranchise.fandom.com/wiki/Sword_Kits) pages informed research only; their
+text and images are not embedded because a redistributable, revision-pinned permission decision is
+still open.
+
 ## Validation and maintenance
 
 ```powershell
@@ -220,9 +243,11 @@ payloads. Additional tests cover exact byte differences across all 25 Tsushima f
 checksum changes, byte-identical undo, atomic rejection, corrupt headers, malformed inventory with repaired
 checksums, non-zero padding, and isolated returned memory. No console load test has been performed.
 
-Round 2 validation on 2026-10-28: **46/46 plugin tests passed**, **42/42 Core tests passed**;
-API build passed with **zero warnings/errors**. With an empty sample directory the plugin suite
-passed four sample-independent tests and **skipped 42**, confirming absent samples do not fail the run.
+Round 2 validation on 2026-10-28: the prior format suite had **46/46 plugin tests passed** and
+**42/42 Core tests passed**; API build passed with **zero warnings/errors**. The catalog change adds
+an embedded-pack attribution test. With an empty sample directory the current plugin suite passes
+six sample-independent tests and skips 42, confirming absent samples do not fail the run. The current
+API build also passes with zero warnings/errors.
 
 The plugin-local source-length script warns above 300 lines and rejects above 399, satisfying the task's
 strict `<400` limit. Its staged mode is wired to `plugins/SuckerPunch/.githooks/pre-commit`; use it with
