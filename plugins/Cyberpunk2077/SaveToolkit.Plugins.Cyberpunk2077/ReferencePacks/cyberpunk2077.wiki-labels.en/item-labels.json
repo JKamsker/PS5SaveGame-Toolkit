@@ -1,0 +1,139 @@
+{
+  "records": [
+    {
+      "id": "86622686573",
+      "name": "Bounce Back",
+      "source": "https://cyberpunk.fandom.com/wiki/Bounce_Back?oldid=297811",
+      "attributes": {
+        "internalName": "Items.BonesMcCoy70V1",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "87444585979",
+      "name": "Bounce Back",
+      "source": "https://cyberpunk.fandom.com/wiki/Bounce_Back?oldid=297811",
+      "attributes": {
+        "internalName": "Items.BonesMcCoy70V0",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "88887008471",
+      "name": "Bounce Back",
+      "source": "https://cyberpunk.fandom.com/wiki/Bounce_Back?oldid=297811",
+      "attributes": {
+        "internalName": "Items.BonesMcCoy70V2",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "90628141458",
+      "name": "MaxDoc",
+      "source": "https://cyberpunk.fandom.com/wiki/MaxDoc?oldid=297812",
+      "attributes": {
+        "internalName": "Items.FirstAidWhiffV0",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "92054257924",
+      "name": "MaxDoc",
+      "source": "https://cyberpunk.fandom.com/wiki/MaxDoc?oldid=297812",
+      "attributes": {
+        "internalName": "Items.FirstAidWhiffV1",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "94352298174",
+      "name": "MaxDoc",
+      "source": "https://cyberpunk.fandom.com/wiki/MaxDoc?oldid=297812",
+      "attributes": {
+        "internalName": "Items.FirstAidWhiffV2",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "99305869858",
+      "name": "Constitutional Arms Unity",
+      "source": "https://cyberpunk.fandom.com/wiki/Constitutional_Arms_Unity?oldid=290048",
+      "attributes": {
+        "internalName": "Items.Preset_Unity_Pimp",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "99913722915",
+      "name": "F-GX Frag Grenade",
+      "source": "https://cyberpunk.fandom.com/wiki/F-GX_Frag_Grenade?oldid=301113",
+      "attributes": {
+        "internalName": "Items.GrenadeFragSticky",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "100447065807",
+      "name": "EMP Grenade",
+      "source": "https://cyberpunk.fandom.com/wiki/EMP_Grenade?oldid=301118",
+      "attributes": {
+        "internalName": "Items.GrenadeEMPRegular",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "100645655563",
+      "name": "Constitutional Arms Unity",
+      "source": "https://cyberpunk.fandom.com/wiki/Constitutional_Arms_Unity?oldid=290048",
+      "attributes": {
+        "internalName": "Items.Preset_Unity_Neon",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "106604679927",
+      "name": "X-22 Flashbang Grenade",
+      "source": "https://cyberpunk.fandom.com/wiki/X-22_Flashbang_Grenade?oldid=287501",
+      "attributes": {
+        "internalName": "Items.GrenadeFlashHoming",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "107068407543",
+      "name": "F-GX Frag Grenade",
+      "source": "https://cyberpunk.fandom.com/wiki/F-GX_Frag_Grenade?oldid=301113",
+      "attributes": {
+        "internalName": "Items.GrenadeFragRegular",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "108055157240",
+      "name": "X-22 Flashbang Grenade",
+      "source": "https://cyberpunk.fandom.com/wiki/X-22_Flashbang_Grenade?oldid=287501",
+      "attributes": {
+        "internalName": "Items.GrenadeFlashRegular",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "113697797098",
+      "name": "Constitutional Arms Unity",
+      "source": "https://cyberpunk.fandom.com/wiki/Constitutional_Arms_Unity?oldid=290048",
+      "attributes": {
+        "internalName": "Items.Preset_Unity_Default",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    },
+    {
+      "id": "116304285064",
+      "name": "Constitutional Arms Unity",
+      "source": "https://cyberpunk.fandom.com/wiki/Constitutional_Arms_Unity?oldid=290048",
+      "attributes": {
+        "internalName": "Items.Preset_Unity_Military",
+        "scope": "Wiki base-record name; instance tier, stats and availability unverified."
+      }
+    }
+  ]
+}

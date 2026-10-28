@@ -15,7 +15,8 @@ internal sealed class CyberpunkReferences
         Upstream + "/items.bin; categories researched using " + Upstream + "/CP2077SaveEditor/Resources/ItemClasses.json. " +
         "Internal identifier only; no localization, availability or game-limit claim.";
     private const string ActionPrefix = "inspect-catalog/";
-    private static readonly string[] CatalogIds = ["items", "facts", "vehicles", "travel"];
+    private const string IdentifierPackId = "cyberpunk2077.identifiers";
+    private static readonly string[] CatalogIds = ["items", "facts", "vehicles", "travel", "item-labels"];
     private readonly IReferenceContext _context;
     private readonly IReadOnlyDictionary<string, IReferenceCatalog?> _catalogs;
 
@@ -29,6 +30,23 @@ internal sealed class CyberpunkReferences
 
     public IReferenceCatalog? Items => _catalogs["items"];
     public IReferenceCatalog? Facts => _catalogs["facts"];
+    public IReferenceCatalog? Catalog(string id) => _catalogs.GetValueOrDefault(id);
+    public ReferenceRecord? ItemLabel(ulong id)
+    {
+        // A selected same-build/local item pack owns its name, description and icon together.
+        if (Items is { } catalog && catalog.Pack.Id != IdentifierPackId && Item(id) is not null) return null;
+        return _catalogs["item-labels"]?.Find(ItemKey(id));
+    }
+    public string? ItemDisplayName(ulong id) => ItemLabel(id)?.Name ?? Item(id)?.Name;
+    public string ItemAttribution(ulong id) => string.Join("\n", new[] { Item(id)?.AttributionText, ItemLabel(id)?.AttributionText }.OfType<string>());
+
+    public static IEnumerable<ReferenceRecord> All(IReferenceCatalog? catalog)
+    {
+        if (catalog is null) yield break;
+        for (var offset = 0; offset < catalog.Count; offset += ReferenceQuery.MaxLimit)
+            foreach (var record in catalog.Search(new ReferenceQuery { Offset = offset, Limit = ReferenceQuery.MaxLimit }).Items)
+                yield return record;
+    }
     public static string ItemKey(ulong id) => id.ToString(CultureInfo.InvariantCulture);
     public ReferenceRecord? Item(ulong id) => Items?.Find(ItemKey(id));
     public ReferenceRecord? Fact(uint hash)
@@ -44,7 +62,8 @@ internal sealed class CyberpunkReferences
 
     public IReadOnlyList<ViewNode> Build(bool allowActions) => [
         new TextNode("Catalogs describe identifiers, not saved ownership, unlocks, completion or safe replacements. " +
-            "Community build/DLC coverage is unknown. Localized text and icons require a separately attributed pack."),
+            "Community build/DLC coverage is unknown. A small pinned CC BY-SA wiki pack supplies base-record names; " +
+            "same-build localization and icons require a separately attributed local pack."),
         .. _catalogs.Select(pair => (ViewNode)new SectionNode(pair.Key, pair.Value is { } catalog
             ? [new TextNode($"{catalog.Count} records · {catalog.Pack.Id} {catalog.Pack.Version}"),
                 new TextNode(catalog.Dataset.Attribution.ToShortText()),

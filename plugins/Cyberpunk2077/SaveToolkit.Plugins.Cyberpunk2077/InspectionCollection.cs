@@ -82,8 +82,8 @@ internal sealed class InspectionCollection<T>(
         public static NumericComparer Instance { get; } = new();
 
         public int Compare(string? x, string? y) =>
-            ulong.TryParse(x, NumberStyles.Integer, CultureInfo.InvariantCulture, out var left) &&
-            ulong.TryParse(y, NumberStyles.Integer, CultureInfo.InvariantCulture, out var right)
+            Int128.TryParse(x, NumberStyles.Integer, CultureInfo.InvariantCulture, out var left) &&
+            Int128.TryParse(y, NumberStyles.Integer, CultureInfo.InvariantCulture, out var right)
                 ? left.CompareTo(right) : StringComparer.Ordinal.Compare(x, y);
     }
 }
