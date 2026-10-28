@@ -3,10 +3,17 @@ using SaveToolkit.Sdk;
 namespace SaveToolkit.Plugins.BaldursGate3;
 
 /// <summary>Checked address conventions derived independently from the PS5 sample.</summary>
-internal sealed class LsmfAccess(LsmfModel model)
+internal sealed class LsmfAccess
 {
     internal const ulong Empty = ulong.MaxValue;
-    internal LsmfModel Model { get; } = model;
+    internal LsmfModel Model { get; }
+    private readonly Lazy<IReadOnlyDictionary<int, int[]>> _owners;
+
+    internal LsmfAccess(LsmfModel model)
+    {
+        Model = model;
+        _owners = new Lazy<IReadOnlyDictionary<int, int[]>>(ScanOwners);
+    }
 
     internal LsmfComponent? Column(string name, int width)
     {
@@ -50,7 +57,9 @@ internal sealed class LsmfAccess(LsmfModel model)
         return System.Text.Encoding.ASCII.GetString(bytes);
     }
 
-    internal IReadOnlyDictionary<int, int[]> Owners()
+    internal IReadOnlyDictionary<int, int[]> Owners() => _owners.Value;
+
+    private IReadOnlyDictionary<int, int[]> ScanOwners()
     {
         var entities = Column(LsmfReader.EntityComponent, 16);
         if (entities is null) return new Dictionary<int, int[]>();
@@ -90,6 +99,32 @@ internal sealed class LsmfAccess(LsmfModel model)
         return found;
     }
 
+    /// <summary>Returns component rows with their owner entity when an ownerlist exists.</summary>
+    internal IReadOnlyList<LsmfComponentRow> Rows(string name, int width)
+    {
+        var component = Column(name, width);
+        if (component is null) return [];
+        var owners = Owners();
+        if (!owners.TryGetValue(component.Index, out var ownerRows))
+            return Enumerable.Range(0, component.Rows).Select(row => new LsmfComponentRow(component, row, null)).ToArray();
+        BinaryData.Require(ownerRows.Length == component.Rows, $"Ownerlist length does not match {name}.");
+        return ownerRows.Select((entity, row) => new LsmfComponentRow(component, row, entity)).ToArray();
+    }
+
+    internal int? RowForEntity(string name, int width, int entityRow)
+    {
+        var matches = RowsForEntity(name, width, entityRow);
+        return matches.Length == 1 ? matches[0] : null;
+    }
+
+    internal int[] RowsForEntity(string name, int width, int entityRow) => Rows(name, width)
+        .Where(candidate => candidate.EntityRow == entityRow).Select(candidate => candidate.Row).Distinct().ToArray();
+
     internal static string Guid(ReadOnlyMemory<byte> bytes) => AttributeDecoder.Read(
         new ResourceAttribute("GUID", LarianAttributeType.UUID, bytes)).AsString();
+}
+
+internal sealed record LsmfComponentRow(LsmfComponent Component, int Row, int? EntityRow)
+{
+    internal int Offset => Component.Offset + checked(Row * Component.ElementBytes);
 }

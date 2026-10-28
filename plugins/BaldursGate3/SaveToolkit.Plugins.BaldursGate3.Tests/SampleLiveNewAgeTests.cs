@@ -31,7 +31,7 @@ public sealed class SampleLiveNewAgeTests
         Assert.Equal(2242, books.Sum(b => b.Spells.Count));
         using var document = new BaldursGate3Plugin().Open(Save());
         var view = document.ExpandNode(source.Prefix);
-        Assert.Equal(4, view.OfType<QueryableTableNode>().Count());
+        Assert.Equal(7, view.OfType<QueryableTableNode>().Count());
         Assert.Equal(256, source.Classes.Count);
         var book = books.First(b => b.Spells.Count > 0);
         var graph = Assert.Single(document.ExpandNode(source.Prefix + $"/book/{book.Row}").OfType<GraphNode>());

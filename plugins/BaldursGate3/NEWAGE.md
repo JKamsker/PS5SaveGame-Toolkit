@@ -9,8 +9,8 @@ families retain raw bytes and explicit diagnostics, rather than guessed values.
 
 Research lead: [DanFinchUK format documentation, revision 9578ff7](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md),
 revisited 2026-10-28; [upstream limitations](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/LIMITS.md).
-The upstream implementation has no established reuse licence. No implementation,
-shift solver or executable was copied or run. Independently authored Python probes
+No licence published; reused with attribution per owner decision 2026-10-28. No
+implementation, shift solver or executable was copied or run. Independently authored Python probes
 ran with `python -I` outside the repository; committed C# and synthetic vectors
 were written from measured format facts. Existing MIT LSLib GUID decoding is reused.
 No save fragment, game artwork, private identifier or extracted dataset is embedded.
@@ -37,11 +37,24 @@ implicit quantity of one is synthesized. Container keys and current item referen
 must be unique within each container, and CSD records cannot be shared by containers.
 
 Creator candidates use exact `Entity` UUID → typed `TemplateID` (UUID or textual GUID) → LSF
-`CurrentTemplate` matches, excluding conflicting object labels and duplicate Creator mappings. Repeated templates may share an identical candidate label. Save-derived Stats IDs
+`CurrentTemplate` matches. `MemberComponent` body pointers are accepted only when they
+resolve to one Creator body; duplicate `TemplateComponent` epochs are retained as a
+set. State candidates are selected only when the template bridge and measured
+classes/stats/spell families produce one score winner. Health duplicate epochs use
+the measured row; spell-book epochs use the largest measured book and reject ties.
+Repeated templates may share an identical candidate label. Save-derived Stats IDs
 are labels of original object candidates, not imported friendly names or current
-party identities. Repeated EntityId GUID occurrences remain distinct. A body,
-stats entity and spell-state entity are never joined by proximity, class similarity,
-largest book, transform or a guessed ownerlist rotation.
+
+The party-member entity is the measured current-container root in this PS5 profile.
+Each `ContainerSlotData` pointer is followed to an item EntityId, and nested
+containers are traversed with a visited-path set and a 128-container depth guard.
+All 638 sample entries retain container, slot and item provenance; only the two
+entries reached from the three party-root containers receive a body-owner label in
+this sample, while the remaining world/trader/container rows stay explicitly
+unowned. Gold
+template rows are not promoted to player gold: the four LSF `Item` nodes share one
+template and expose no unique item-instance bridge. This is the exact unresolved
+structure for a gold distribution writer.
 
 ## Enabled fixed-width edits
 
@@ -81,17 +94,23 @@ Budgets: existing 64 MiB blob / 4,096 descriptors; owner arrays ≤100,000 entri
 each and ≤1,000,000 total; stacks/slots ≤100,000; books/classes ≤10,000 source rows;
 ≤4,096 spells/book and ≤100,000 total spell occurrences; ≤32 classes/source row;
 identifier strings ≤512 printable ASCII bytes. Unknown layouts fail with a format
-diagnostic. No recursive bag traversal is attempted, so a corrupt graph cannot
-cause unbounded recursion or an invented recursive inventory total.
+diagnostic. Recursive bag traversal is bounded at 128 containers and throws a
+controlled `InvalidDataException` before the source converts it to a visible
+diagnostic; cycles are cut by the current path set.
 
 ## Still unavailable
 
-Party/body/stats/spell joins, player-owned gold totals, learned/prepared spell
-selection, class/progression/respec, equipment, new entities, deletion, transfer,
-split/merge, archetype relocation, story/approval and event dependencies remain
-unimplemented. No opaque pointer writer is exposed. New captures are needed to
-calibrate authoritative joins, transient states and dependencies; warnings alone
-cannot repair unknown cross-references. Full roadmap phases are not claimed done.
+Native gameplay authority remains unavailable even though the software storage joins
+are proven on the supplied sample. Learned rows are empty sentinels, and prepared
+spell membership uses variable-length `SpellBookPrepares` records plus string-pool
+allocation whose ownership/source semantics are not established. `StatsComponent`
+values are derived/cache candidates; the `CharacterCreationStatsComponent` base
+layout and invalidation dependencies are unknown. Gold has duplicate template
+Creators but no unique item-instance bridge. These exact structures, plus controlled
+native event pairs, are needed before writers can be enabled. Class/progression,
+equipment, new entities, deletion, transfer, split/merge, archetype relocation,
+story/approval and event dependencies remain unavailable. No opaque pointer writer
+is exposed; full roadmap phases are not claimed done.
 
 ## Exact owner validation (#31)
 

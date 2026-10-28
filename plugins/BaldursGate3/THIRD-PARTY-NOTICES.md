@@ -61,7 +61,11 @@ CC BY-NC-SA expressive content; no blanket redistribution right to that content
 or to game assets is claimed.
 
 LSMF research consulted DanFinchUK/bg3-savefile-parser's pinned format document
-(`9578ff7c46a1aa40c805f6b7beecf907f10fb3b8`), whose implementation licence remains
-unresolved. No implementation was adapted or executed. The new reader is an
-independent implementation of documented and independently measured format facts;
-see `LSMF.md` for its limited scope and validation record.
+(`9578ff7c46a1aa40c805f6b7beecf907f10fb3b8`). No licence published; reused with
+attribution per owner decision 2026-10-28. The reader reimplements documented and
+independently measured format facts; no repository code was copied or executed.
+See `LSMF.md` and `NEWAGE.md` for scope, joins and validation.
+
+No proprietary Larian art, icons or extracted game text is distributed. Legacy
+CC BY-NC-SA expressive wiki contributions are also excluded; see the README's
+Licence exclusions table.

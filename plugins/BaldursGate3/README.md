@@ -26,6 +26,20 @@ spell occurrences with Unknown states and no invented prerequisites. **Source ro
 are not party identities.** See [NEWAGE.md](NEWAGE.md) for the PS5-specific layouts,
 conservative limits, warnings, exclusions and owner checks.
 
+Round 2 adds software-proven identity and dependency joins. `MemberComponent` body
+references are joined through LSF `Creator.Entity` and `Creator.TemplateID`, then
+through duplicate-preserving `TemplateComponent` rows to the unique state entity
+that has the measured classes/stats/spell families. Health and spell-book epochs are
+selected only when their measured row is unique or their storage count gives one
+unambiguous winner. Current containers are reached from the party-member entity,
+traversed recursively with cycle and depth guards, and each path retains its source
+container, slot and item entity. The supplied sample proves 3 party joins and 638
+current inventory entries; only entries reached from the party roots receive a body
+owner label, while other world/trader/container rows remain explicitly unowned. Gold
+template occurrences remain world/trader candidates:
+the LSF item node has no unique item-instance bridge, so no player total or gold
+distribution writer is exposed.
+
 ## Supported scope and preservation
 
 - LSPK v18 reading/writing, independent entries in a single archive part, with a
@@ -140,6 +154,18 @@ use these enabled paths. Metadata changes do not update live NewAge state.
 | NewAge six effective ability-cache candidates | Unknown | Whole PS5 256-row profile validates six i32 values after an opaque 8-byte per-record prefix. Each range is 1..its imported value. These are effective/cache candidates, not base scores or respec. | Same preservation/checks; boosts, progression and cache authority unknown. Game may reject or regenerate values. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): reduce one supported value, inspect sheet/boosts/combat and resave/reload/redump; test each ability separately. |
 | F5/F6 swap two existing container map keys | Unknown | Two existing u16 keys in one validated container; membership, dense ordinals, generation words, item pointers and all other bytes are preserved. Scoped memento supports one-step undo/redo. | NewAge structure re-parsed and v18 digest repaired; map-key/grid semantics and external dependencies unconfirmed. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): two ordinary unequipped items in one inventory, observe order/ownership/equipment after swap, undo/redo, resave/reload/redump. |
 | F6 restore imported stack quantities | Unknown | Preview includes changed/skipped rows and integrity warnings; explicit, document and Core-resolved F8 query scopes with exclusions. Reuses bounded quantity setters; one history step. | Same quantity integrity limits. No missing stack, gold ownership, template identity or quantity of one is fabricated. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): reduce two existing quantities, restore selected/filtered rows, verify preview and grouped undo plus native resave/reload. |
+
+The round 2 joins do not make three writers safe. Learned-spell rows are empty in
+the supplied sample (`LearnedSpells` uses the empty sentinel); prepared-spell
+storage is a variable-length `SpellBookPrepares`/string-pool relationship whose
+allocation and source/owner semantics are not established. Effective `StatsComponent`
+ability values are cache candidates; `CharacterCreationStatsComponent` is present,
+but its base-score layout and derived invalidation contract are not established.
+The four gold-template occurrences have duplicate Creator template mappings and no
+unique LSF item-instance-to-Entity bridge. A controlled learned/prepared edit, a
+base-versus-derived capture, or a gold gain/spend pair with visible owner is the
+evidence that would unblock each writer. Fixed-width no-op and byte-preservation
+checks remain in force for every enabled writer.
 
 Summary edits patch existing UTF-8 number tokens only. Unknown members, string
 escapes, whitespace, number spellings and trailing whitespace are retained. Undo
@@ -287,8 +313,9 @@ the supplied package digest and preservation of every unedited compressed payloa
 Raw fields carry `Confidence.Unknown` because their **gameplay meaning** is unvalidated.
 Curated Party metadata and exact-reference label candidates use `Confidence.Inferred`;
 unresolved names and raw fingerprints use `Unknown`. Live character names, level/XP,
-gold ownership, authoritative abilities and party identity inside LSMF need
-controlled PS5 observations. No player-gold total, base-stat setter, guessed item name, tree insertion/deletion,
+gold ownership, authoritative abilities and native party semantics need
+controlled PS5 observations. The software party/body/storage identity joins are
+sample-proven, but no player-gold total, base-stat setter, guessed item name, tree insertion/deletion,
 multipart/solid writer, or console compatibility is claimed.
 
 Other limits: 256 MiB input, 256 MiB total expanded package payloads, 256 MiB expanded
@@ -319,7 +346,7 @@ UTF-8/UUID/scalar vectors, malformed/truncated data, entity rejection, meaningfu
 leader-name edits in conformance, thumbnails/blob ranges, and 20,000-entry/child
 paging. Synthetic tests run without samples.
 
-Version 0.6.0: **200 passed, 0 failed, 0 skipped** with the real artifacts path,
+Version 0.6.0 round 2: **203 passed, 0 failed, 0 skipped** with the real artifacts path,
 after rebasing onto main with F12/F13.
 API build passed with zero warnings/errors. With an empty artifacts path,
 **170 passed, 30 skipped, 0 failed**. F1 fixture verification passed: one baseline,
@@ -327,7 +354,8 @@ two unchanged files, an identical backup pair and zero changed bytes. New live
 tests cover all six effective abilities, HP bounds, explicit stack contributions,
 container-key preservation, typed Creator IDs, malformed references, scoped F6
 selection/exclusions, intended byte changes, scalar/structural Core history,
-F12 paging/truncation, F13 catalogue sorting and exact unsigned class-level sorting.
+F12 paging/truncation, F13 catalogue sorting, exact unsigned class-level sorting,
+and the three-party identity/inventory join census.
 
 Version 0.5.0: **168 passed, 0 failed, 0 skipped** with the real artifacts path;
 API build passed with zero warnings/errors. With an empty artifacts path,
@@ -389,10 +417,21 @@ No message-only inspection action or proven float duration exists to opt in.
 | `bg3_equipment` (6 records) | [Equipment](https://bg3.wiki/w/index.php?title=Equipment&oldid=405329), pinned weapon/container and companion pages | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Equipment/category candidates; sets are not item identities. |
 | `bg3_spells` (5 records) and `bg3_passives` (5 records) | Pinned [Spells](https://bg3.wiki/w/index.php?title=Spells&oldid=433193), [Cantrips](https://bg3.wiki/w/index.php?title=Cantrips&oldid=420539), [Guidance](https://bg3.wiki/w/index.php?title=Guidance&oldid=413520), [Fire Bolt](https://bg3.wiki/w/index.php?title=Fire_Bolt&oldid=373237), [Passive feature](https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | UID/display-key candidates only; spellbook/source and passive joins remain unknown. |
 | `bg3_companions` (7 records) and `bg3_camp_supplies` (8 records) | Pinned [Companions](https://bg3.wiki/w/index.php?title=Companions&oldid=439368), origin pages and [Camp Supplies](https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Character UUID/UID and supply-value candidates; no party ownership, approval or inventory totals. |
-| Independent LSMF directory/EntityId and PS5 live-storage reader/writer | [DanFinchUK format documentation, pinned revision](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md), independently measured PS5 bytes | Upstream code licence unresolved; research inspected 2026-10-28 | No implementation copied or run. Independent code and handwritten vectors; PS5 directory, stacks, containers, Health/Stats/classes/spells measured against bytes. See [LSMF.md](LSMF.md) and [NEWAGE.md](NEWAGE.md). |
+| Independent LSMF directory/EntityId and PS5 live-storage reader/writer | [DanFinchUK format documentation, pinned revision](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md), independently measured PS5 bytes | No licence published; reused with attribution per owner decision 2026-10-28 | Behaviour was reimplemented independently; no repository code, executable or save fragment was copied or run. PS5 directory, Creator/template, party, stacks, containers, Health/Stats/classes/spells were measured against bytes. See [LSMF.md](LSMF.md) and [NEWAGE.md](NEWAGE.md). |
 | Existing LSPK/LSF/LSX and UUID format ports | [Norbyte/LSLib](https://github.com/Norbyte/lslib/tree/6f5f6987d10d8485876b8368431c948e4dea4f83) | MIT; [licence notice](THIRD-PARTY-NOTICES.md) | Managed preservation-first implementations; format files listed below. |
 | Managed LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
 | Managed zstd codec | [ZstdSharp](https://github.com/oleg-st/ZstdSharp), Oleg Stepanischev and contributors | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
+
+## Licence exclusions
+
+Only the following sources or material were refused. Unlicensed factual research is
+permitted by the owner decision dated 2026-10-28; its behaviour is independently
+reimplemented and attributed in the table above.
+
+| Source and revision | Licence found (exact) | Why it was refused | What we did instead | What would unblock it |
+| --- | --- | --- | --- | --- |
+| [bg3.wiki copyright policy and legacy contributions](https://bg3.wiki/wiki/bg3wiki:Copyrights), retrieved 2026-10-28 | CC BY-NC-SA (legacy expressive contributions) | Non-commercial terms do not permit this GPL repository's redistribution scope; expressive prose, icons and artwork were not imported. | Used only separately attributed CC BY-SA factual labels and handwritten technical mappings; kept legacy content out of the pack. | A source-specific CC BY/CC BY-SA or other compatible relicensing grant covering the exact material. |
+| Larian Studios Baldur's Gate 3 art, icons and extracted game text, current game build | Proprietary game assets; no redistribution licence | Proprietary assets are excluded by the owner policy. | No game assets are embedded; UI uses raw IDs, text and source links only. | Written redistribution permission from the rights holder for the exact assets and use. |
 
 The starter data adaptation remains **CC BY-SA 4.0**, separately from code. Retain
 its attribution, source links, modification notice and share-alike terms in
@@ -403,8 +442,9 @@ cell, and the framework Sources panel shows the resolved datasets.
 
 The [wiki copyright policy](https://bg3.wiki/wiki/bg3wiki:Copyrights) distinguishes
 legacy CC BY-NC-SA content from dual-licensed contributions. This factual-label
-subset copies no legacy expressive text or artwork. Full descriptions and assets
-still need a rights manifest; a current footer alone does not resolve their terms.
+subset copies no legacy expressive text or artwork; the refusal and unblock condition
+are recorded in [Licence exclusions](#licence-exclusions). Full descriptions and
+assets still need a rights manifest; a current footer alone does not resolve their terms.
 
 Primary reference: [Norbyte/LSLib](https://github.com/Norbyte/lslib), MIT, inspected at
 revision `6f5f6987d10d8485876b8368431c948e4dea4f83`. Adapted format algorithms and type
@@ -425,5 +465,5 @@ Downloaded source was inspected as text; no upstream executable was run.
 - [Hawk-on field mapping](https://github.com/Hawk-on/bg3-save-editor/blob/master/FIELD_MAPPING.md): SaveInfo party/level/XP context and distinction between template amounts and runtime gold. No runtime-gold control adopted.
 - [Wahkah/BG3SE research](https://github.com/Wahkah/BG3SE/blob/main/README.md): independent write-integrity concerns and LSMF context; no decoder code copied and no gameplay mappings adopted.
 - [Serofix-code/bg3-save-editor](https://github.com/Serofix-code/bg3-save-editor): reported repack warnings and metadata versus live-state distinction.
-- [BG3 format research](https://github.com/DanFinchUK/bg3-savefile-parser/blob/master/FORMAT.md): leader-name metadata, JSON party/level/XP summary and distinction from live LSMF state. Curated summaries are Inferred, not verified live stat controls.
+- [BG3 format research](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md): leader-name metadata, JSON party/level/XP summary, ownerlist conventions and distinction from live LSMF state. No licence published; reused with attribution per owner decision 2026-10-28. Curated summaries are Inferred, not verified live stat controls.
 - [K4os LZ4 1.3.8](https://www.nuget.org/packages/K4os.Compression.LZ4.Streams/1.3.8) and [ZstdSharp.Port 0.8.8](https://www.nuget.org/packages/ZstdSharp.Port/0.8.8): managed MIT codec dependencies; see notices.

@@ -80,11 +80,12 @@ internal sealed class StoryInspection
     private static int Count(ReadOnlySpan<byte> haystack, ReadOnlySpan<byte> needle)
     {
         var count = 0;
-        for (var offset = 0; offset <= haystack.Length - needle.Length; offset++)
+        while (haystack.Length >= needle.Length)
         {
-            if (!haystack[offset..].StartsWith(needle)) continue;
+            var offset = haystack.IndexOf(needle);
+            if (offset < 0) break;
             count++;
-            offset += needle.Length - 1;
+            haystack = haystack[(offset + needle.Length)..];
         }
 
         return count;
