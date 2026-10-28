@@ -21,17 +21,24 @@ public sealed class FaithReferenceTests
         var store = new ReferencePackStore([_plugin], new ReferencePackOptions { PreferredLocales = [locale] });
         Assert.Empty(store.LoadErrors);
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(store.Pin(_plugin, "PPSA10665").Catalog(FaithCatalog.ItemsId));
-        Assert.Equal(205, catalog.Count);
+        Assert.Equal(234, catalog.Count);
         Assert.Equal("Defender", catalog.Find("100029")?.Name);
         Assert.Equal("weapon", catalog.Find("100029")?.Category);
         Assert.Equal("Gil", catalog.Find("1")?.Name);
         Assert.Null(catalog.Find("900000"));
         Assert.Null(catalog.Find("999999"));
-        Assert.Null(catalog.Find("100027")); // Upgrade variant not present in the cleared extract.
-        Assert.All(catalog.Search(new ReferenceQuery { Limit = 200 }).Items, record =>
+        Assert.Equal("Rune Blade +1", catalog.Find("100027")?.Name);
+        Assert.Null(catalog.Find("110")); // No cleared Iron Filings label/ID source found.
+        var records = catalog.Search(new ReferenceQuery { Limit = 200 }).Items
+            .Concat(catalog.Search(new ReferenceQuery { Offset = 200, Limit = 200 }).Items).ToArray();
+        Assert.Equal(catalog.Count, records.Length);
+        Assert.All(records, record =>
         {
             Assert.Equal("CC-BY-SA-3.0", record.Dataset.Attribution.License);
-            Assert.Contains("oldid=", record.Source);
+            Assert.True(record.Source!.Contains("oldid=", StringComparison.Ordinal) || record.Source.Contains("d3ad0627", StringComparison.Ordinal));
+            Assert.Equal("Inferred", record.Attributes["confidence"]);
+            Assert.NotEmpty(record.Attributes["identifierSource"]);
+            Assert.NotEmpty(record.Description!);
             Assert.Null(record.Limit); // No sourced current gameplay caps.
         });
     }

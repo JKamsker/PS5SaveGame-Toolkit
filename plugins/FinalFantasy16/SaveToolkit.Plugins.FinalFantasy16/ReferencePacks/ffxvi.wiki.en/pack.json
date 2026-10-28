@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "ffxvi.wiki.en",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "FFXVI English wiki labels (partial, CC BY-SA 3.0)",
   "plugins": [
     "ffxvi"
@@ -21,16 +21,16 @@
       "files": [
         {
           "path": "items.json",
-          "sha256": "16575bc25017f885a55231563e2b8d58a22e12aa3cb5f21cb858d8e5a4976a45"
+          "sha256": "2f60d2702a5a0a5552beaa454cb1334ad415aafa99008e51709d8aa96d1ef70c"
         }
       ],
       "attribution": {
         "sourceUrl": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473",
-        "author": "Final Fantasy Wiki contributors; PS5 Save Game Toolkit contributors",
+        "author": "Final Fantasy Wiki contributors; Nenkai (MIT UseItem annotations); PS5 Save Game Toolkit contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted English names and categories, joined factual numeric identifiers, omitted unmatched labels, prose, art and limits. Adaptation remains CC BY-SA 3.0."
+        "modifications": "Curated English labels, factual identifiers, documented aliases/upgrade suffixes and mapping evidence; added four MIT UseItem labels with original notice retained. Omitted unsupported joins, prose, art and limits. Adaptation remains CC BY-SA 3.0."
       }
     }
   ]

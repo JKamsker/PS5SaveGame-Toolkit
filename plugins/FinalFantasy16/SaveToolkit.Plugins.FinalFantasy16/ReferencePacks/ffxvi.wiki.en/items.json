@@ -4,1231 +4,2809 @@
       "id": "1",
       "name": "Gil",
       "category": "resource",
-      "source": "https://finalfantasy.fandom.com/wiki/Gil?oldid=4063996"
+      "source": "https://finalfantasy.fandom.com/wiki/Gil?oldid=4063996",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "2",
       "name": "Renown",
       "category": "resource",
-      "source": "https://finalfantasy.fandom.com/wiki/Renown?oldid=3741166"
+      "source": "https://finalfantasy.fandom.com/wiki/Renown?oldid=3741166",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "3",
       "name": "Ability Points",
       "category": "resource",
-      "source": "https://finalfantasy.fandom.com/wiki/Ability_Points?oldid=4035790"
+      "source": "https://finalfantasy.fandom.com/wiki/Ability_Points?oldid=4035790",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "5",
       "name": "Potion",
       "category": "consumable",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "6",
       "name": "High Potion",
       "category": "consumable",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "7",
       "name": "Elixir",
       "category": "consumable",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "8",
       "name": "Strength Tonic",
       "category": "consumable",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "9",
       "name": "Stoneskin Tonic",
       "category": "consumable",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "10",
       "name": "Lionheart Tonic",
       "category": "consumable",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "11",
       "name": "Last Elixir",
       "category": "consumable",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "21",
       "name": "Meteorite",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "31",
       "name": "Scarletite",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "32",
       "name": "Orichalcum",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "101",
       "name": "Wyrrite",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "102",
       "name": "Sharp Fang",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "103",
       "name": "Steelsilk",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "104",
       "name": "Bloody Hide",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "105",
       "name": "Magicked Ash",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "106",
       "name": "Desert Rose",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "107",
       "name": "Valley Madder",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "108",
       "name": "Briar Clam Shell",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "109",
       "name": "Clutchmine",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "151",
       "name": "Gil Bug",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "152",
       "name": "Black Blood",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "153",
       "name": "Goblin Coin",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "154",
       "name": "Empty Shard",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "155",
       "name": "Amber",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "156",
       "name": "Fallen Enigma",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "157",
       "name": "One Man's Treasure",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "201",
       "name": "Wind Shard",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "202",
       "name": "Fire Shard",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "203",
       "name": "Lightning Shard",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "204",
       "name": "Earth Shard",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "205",
       "name": "Light Shard",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "207",
       "name": "Ice Shard",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "208",
       "name": "Dark Shard",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "217",
       "name": "Utterance of Creation",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "301",
       "name": "Frozen Tear",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "302",
+      "name": "Gnarled Scales",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Fafnir?oldid=3987229#Final_Fantasy_XVI",
+      "description": "FFXVI boss-drop name explicitly lists Gnarled Scales; factual ID join remains unverified on console.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "303",
       "name": "Clouded Eye",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "304",
       "name": "Liquid Flame",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "305",
       "name": "Earthen Fury",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "306",
       "name": "Whitewyrm Bone",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "307",
       "name": "Sanguine Insignia",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "308",
       "name": "Behemoth Shackle",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "506",
+      "name": "Morganbeard Extract",
+      "category": "curiosity",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+      "description": "MIT UseItem layout explicitly associates this item ID with a potency/capacity upgrade. PS5 ownership/activation and effects are unverified; no numerical capacities are supplied.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+        "sourceLicense": "MIT (Nenkai, copyright 2025; notice in THIRD_PARTY_NOTICES.md)"
+      }
+    },
+    {
+      "id": "507",
+      "name": "Invigorated Morganbeard Extract",
+      "category": "curiosity",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+      "description": "MIT UseItem layout explicitly associates this item ID with a potency/capacity upgrade. PS5 ownership/activation and effects are unverified; no numerical capacities are supplied.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+        "sourceLicense": "MIT (Nenkai, copyright 2025; notice in THIRD_PARTY_NOTICES.md)"
+      }
+    },
+    {
+      "id": "508",
+      "name": "Treated Potion Satchel",
+      "category": "curiosity",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+      "description": "MIT UseItem layout explicitly associates this item ID with a potency/capacity upgrade. PS5 ownership/activation and effects are unverified; no numerical capacities are supplied.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+        "sourceLicense": "MIT (Nenkai, copyright 2025; notice in THIRD_PARTY_NOTICES.md)"
+      }
+    },
+    {
+      "id": "509",
+      "name": "Expanded Potion Satchel",
+      "category": "curiosity",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+      "description": "MIT UseItem layout explicitly associates this item ID with a potency/capacity upgrade. PS5 ownership/activation and effects are unverified; no numerical capacities are supplied.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/UseItem.layout",
+        "sourceLicense": "MIT (Nenkai, copyright 2025; notice in THIRD_PARTY_NOTICES.md)"
+      }
+    },
+    {
+      "id": "511",
+      "name": "Hanged Man Signboard",
+      "category": "curiosity",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Hanged_Man_Signboard",
+      "description": "Museum label for the item researched as The Hanged Man; display alias, not a different item. Factual identifier research, not controlled PS5 verification.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "535",
+      "name": "Phoenix Feather",
+      "category": "curiosity",
+      "source": "https://finalfantasy.fandom.com/wiki/Joshua_Rosfield?oldid=4047110",
+      "description": "FFXVI character account explicitly identifies the Phoenix feather left for Clive. Capitalization normalized; the factual item-ID association remains Inferred, not an observed quest or ownership state.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "538",
+      "name": "Guardians Scarf",
+      "category": "curiosity",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Guardians_Scarf",
+      "description": "Exact museum label. Factual identifier research, not controlled PS5 verification.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "539",
+      "name": "Ambrosia's Tack",
+      "category": "curiosity",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Ambrosia's_Tack",
+      "description": "Exact museum label. Factual identifier research, not controlled PS5 verification.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "542",
+      "name": "Martelle Apples",
+      "category": "curiosity",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Martelle_Apples",
+      "description": "Museum curio ID; separate from the identically named quest-stack candidate 1244. Factual identifier research, not controlled PS5 verification.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "552",
+      "name": "The Oath",
+      "category": "curiosity",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#The_Oath",
+      "description": "Exact museum label. Factual identifier research, not controlled PS5 verification.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "604",
+      "name": "A Rose Is a Rose Orchestrion Roll",
+      "category": "orchestrion",
+      "source": "https://finalfantasy.fandom.com/wiki/Patron%27s_Whisper?oldid=3965500",
+      "description": "Reward table names this roll (source capitalization: A Rose is a Rose). ID join is Inferred; renown rewards are not modified.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1001",
       "name": "Dragon Talon",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1003",
       "name": "Minotaur Mane",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1005",
       "name": "Imperial Link",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1007",
       "name": "Fallen Iron",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1009",
       "name": "Coeurl Whisker",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1011",
       "name": "Bone Necklace",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1101",
       "name": "Comet Feather",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1103",
       "name": "Grimalkin Hide",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1105",
       "name": "Bomb Ember",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1107",
       "name": "Darksteel",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1109",
       "name": "Morbol Flower",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1111",
       "name": "Stone Tongue",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1113",
       "name": "Stained Loincloth",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1115",
       "name": "Electrum",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1117",
       "name": "Gelatinous Mass",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "1123",
       "name": "Primitive Battlehorn",
       "category": "material",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "1218",
+      "name": "Morganbeard",
+      "category": "quest-item",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#The_Root_of_the_Problem",
+      "description": "Named flower requested in the quest; singular form normalized. Factual ID association is Inferred, not a proven quest state.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "1231",
+      "name": "Bread and Wine",
+      "category": "quest-item",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#Welcoming_Committee",
+      "description": "Quest delivery text identifies bread and wine; title capitalization normalized. Factual ID association is Inferred, not a proven quest state.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "1244",
+      "name": "Martelle Apples",
+      "category": "quest-item",
+      "source": "https://finalfantasy.fandom.com/wiki/Wall_of_Memories?oldid=3968454#Martelle_Apples",
+      "description": "Quest-stack candidate with the same published label as curio 542; identities stay separate. Factual identifier research, not controlled PS5 verification.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "1246",
+      "name": "Unwonted Violet",
+      "category": "quest-item",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#A_Culinary_Pilgrimage",
+      "description": "Quest ingredient term appears in plural; singular form normalized. Factual ID association is Inferred, not a proven quest state.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "1267",
+      "name": "Trader's Pass",
+      "category": "quest-item",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#To_Catch_a_Thief",
+      "description": "Quest identifies the stolen trader pass; capitalization normalized. Factual ID association is Inferred, not a proven quest state.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "1327",
+      "name": "The Final Piece",
+      "category": "quest-item",
+      "source": "https://finalfantasy.fandom.com/wiki/Journal?oldid=3776380#Like_Father,_Like_Daughter",
+      "description": "Quest describes the final piece found in the orchestrion; display article/capitalization normalized. Factual ID association is Inferred, not a proven quest state.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100001",
       "name": "Imperial Infantry Blade",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100002",
       "name": "Rosarian Oath",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100003",
       "name": "Sparring Sword",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100005",
       "name": "Broadsword",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100008",
       "name": "Longsword",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100011",
       "name": "Bastard Sword",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100014",
       "name": "Gaia Blade",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100017",
       "name": "Platinum Sword",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100020",
       "name": "Enhancer",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100023",
       "name": "Diamond Sword",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100026",
       "name": "Rune Blade",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100027",
+      "name": "Rune Blade +1",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100028",
+      "name": "Rune Blade +2",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100029",
       "name": "Defender",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100032",
       "name": "Excalibur",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100033",
       "name": "Ragnarok",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100034",
       "name": "Coral Sword",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100035",
       "name": "Ancient Sword",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100036",
       "name": "Masamune",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100037",
       "name": "Stormcry",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100038",
       "name": "Flametongue",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100039",
       "name": "Levinbolt",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100040",
       "name": "Grindstone",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100041",
       "name": "Brightburn",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100043",
       "name": "Icebrand",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100044",
       "name": "Everdark",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100045",
       "name": "Invictus",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100090",
       "name": "Ultima Weapon",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100092",
       "name": "The Burning Thorn",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100094",
       "name": "Gotterdammerung",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100096",
       "name": "Braveheart",
       "category": "weapon",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100201",
       "name": "Imperial Infantry Belt",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100202",
       "name": "Rosarian Belt",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100203",
       "name": "Iron Belt",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100204",
+      "name": "Iron Belt +1",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100206",
       "name": "Wolfskin Sash",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100209",
       "name": "Dark Sash",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100210",
+      "name": "Dark Sash +1",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100212",
       "name": "Goldwork Sash",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100215",
       "name": "Platinum Belt",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100218",
       "name": "Hunter's Waistcloth",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100221",
       "name": "Silken Sash",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100224",
       "name": "Rune Belt",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100227",
       "name": "Circle of Heaven",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100230",
       "name": "Demontamer's Sash",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100231",
       "name": "Mythril Belt",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100233",
       "name": "Drakeslayer's Belt",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100234",
       "name": "Ouroboros",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100235",
       "name": "Metian Cross",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100271",
       "name": "Princely Stay",
       "category": "belt",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100301",
       "name": "Imperial Infantry Bracers",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100302",
       "name": "Hard Leather Armlets",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100303",
       "name": "Iron Bracers",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100304",
+      "name": "Iron Bracers +1",
+      "category": "vambrace",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100306",
       "name": "Traveler's Bands",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100309",
       "name": "Steel Crowns",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100310",
+      "name": "Steel Crowns +1",
+      "category": "vambrace",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100312",
       "name": "Battlechains",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100324",
       "name": "Rune Crescents",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100327",
       "name": "Sun Bracelets",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100331",
       "name": "Mythril Wristlets",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100333",
       "name": "Drakeslayer's Bracelets",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100334",
       "name": "The Sons of Ouroboros",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100335",
       "name": "Metian Bonds",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100371",
       "name": "Princely Bangles",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100373",
       "name": "The Founder's Grasp",
       "category": "vambraces",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100401",
       "name": "Badge of Might",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100402",
       "name": "Badge of Mettle",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100403",
       "name": "Cavall's Fang",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100405",
       "name": "Cleric's Medallion",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100406",
       "name": "The Eye of the Warrior",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100407",
       "name": "Stoneskin Cuffs",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100408",
+      "name": "Badge of Might +1",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100409",
+      "name": "Badge of Mettle +1",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki supplies the base English label; factual ID research distinguishes this upgrade suffix. No ID arithmetic or gameplay cap is inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100412",
+      "name": "Cleric's Medallion +1",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Patron%27s_Whisper?oldid=3965500",
+      "description": "Exact upgraded accessory name in the reward table; factual ID join remains Inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100415",
       "name": "Genji Gloves",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100416",
+      "name": "Adamantite Gauntlets",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Source spelling is Adamantite Gauntlet; plural normalized against factual identifier research. Name join is Inferred.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100418",
       "name": "Griffin's Head Braid",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100419",
       "name": "Bull's Horn Braid",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100420",
       "name": "Kestrel's Beak Braid",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100421",
       "name": "Dire Wolf Jess",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100422",
       "name": "Blood Hawk Jess",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100423",
       "name": "Ring of the Marksman",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100424",
       "name": "Ring of the Swiftshot",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100425",
       "name": "Channeler's Whispers",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100426",
       "name": "Ring of the Demolitionist",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100427",
       "name": "Crimson Tassels",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100428",
       "name": "Cobalt Tassels",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100432",
       "name": "High Cleric's Medallion",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100435",
       "name": "Talisman of Priming",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100436",
       "name": "The Golden Testament",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100437",
       "name": "On Fortune and the Heavens",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100438",
       "name": "The Wages of Warcraft",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100439",
       "name": "The Will of Fire (Rising Flames)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100440",
       "name": "The Favor of Fire (Scarlet Cyclone)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100441",
       "name": "The Favor of Fire (Heatwave)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
+    },
+    {
+      "id": "100442",
+      "name": "The Breath of Fire (Flame of Rebirth)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Source spelling retained (Flame of Rebirth); identifier research uses Flames of Rebirth. This is an Inferred label alias, not a distinct ability or eligibility claim.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100443",
       "name": "The Favor of Wind (Gouge)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100444",
       "name": "The Favor of Wind (Wicked Wheel)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100445",
       "name": "The Will of Wind (Rook's Gambit)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100446",
       "name": "The Breath of Wind (Aerial Blast)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100447",
       "name": "The Favor of the Inferno (Ignition)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100448",
       "name": "The Grace of the Inferno (Will-o'-the-Wykes)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100449",
       "name": "The Will of Lightning (Pile Drive)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100450",
       "name": "The Favor of Lightning (Thunderstorm)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100451",
       "name": "The Favor of Lightning (Lightning Rod)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100452",
       "name": "The Breath of Lightning (Judgment Bolt)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100453",
       "name": "The Favor of Earth (Windup)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100454",
       "name": "The Favor of Earth (Upheaval)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100455",
       "name": "The Favor of Earth (Raging Fists)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100456",
       "name": "The Breath of Earth (Earthen Fury)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100457",
       "name": "The Will of Light (Impulse)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100458",
       "name": "The Favor of Light (Flare Breath)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100459",
       "name": "The Will of Light (Satellite)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100460",
       "name": "Bahamut's Mercy",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100461",
       "name": "The Favor of Ice (Ice Age)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100462",
       "name": "The Will of Ice (Mesmerize)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100463",
       "name": "The Will of Ice (Rime)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100464",
       "name": "Shiva's Kiss",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100465",
       "name": "The Will of Darkness (Gungnir)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100466",
       "name": "The Favor of Darkness (Heaven's Cloud)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100468",
       "name": "The Pull of Darkness (Dancing Steel)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100473",
       "name": "The Breath of Fire (Rising Flames)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100474",
       "name": "The Breath of Fire (Scarlet Cyclone)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100475",
       "name": "The Breath of Fire (Heatwave)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100476",
       "name": "The Breath of Wind (Gouge)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100477",
       "name": "The Breath of Wind (Wicked Wheel)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100478",
       "name": "The Breath of Wind (Rook's Gambit)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100479",
       "name": "The Breath of the Inferno (Ignition)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100480",
       "name": "The Breath of Lightning (Pile Drive)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100481",
       "name": "The Breath of Lightning (Thunderstorm)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100482",
       "name": "The Breath of Lightning (Lightning Rod)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100483",
       "name": "The Breath of Earth (Windup)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100484",
       "name": "The Breath of Earth (Upheaval)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100485",
       "name": "The Breath of Earth (Raging Fists)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100486",
       "name": "The Breath of Light (Impulse)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100487",
       "name": "The Breath of Light (Flare Breath)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100488",
       "name": "The Breath of Light (Satellite)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100489",
       "name": "The Breath of Ice (Ice Age)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100490",
       "name": "The Breath of Ice (Mesmerize)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100491",
       "name": "The Breath of Ice (Rime)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100492",
       "name": "The Breath of Darkness (Gungnir)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100493",
       "name": "The Breath of Darkness (Heaven's Cloud)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100502",
       "name": "Ring of Timely Healing",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100503",
       "name": "Ring of Timely Assistance",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100504",
       "name": "Ring of Timely Strikes",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100505",
       "name": "Ring of Timely Evasion",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100506",
       "name": "Ring of Timely Focus",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100507",
       "name": "Berserker Ring",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100508",
       "name": "Scholar's Spectacles",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100511",
       "name": "The Will of Wind (Aerial Blast)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100512",
       "name": "The Favor of Lightning (Judgment Bolt)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100513",
       "name": "The Favor of Earth (Earthen Fury)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100514",
       "name": "The Favor of Light (Gigaflare)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100515",
       "name": "The Will of Ice (Diamond Dust)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     },
     {
       "id": "100516",
       "name": "The Will of Darkness (Dancing Steel)",
       "category": "accessory",
-      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories",
+      "description": "Wiki label joined to a factual published identifier; no controlled PS5 name/ID observation.",
+      "attributes": {
+        "confidence": "Inferred",
+        "identifierSource": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
+        "sourceLicense": "CC-BY-SA-3.0"
+      }
     }
   ]
 }

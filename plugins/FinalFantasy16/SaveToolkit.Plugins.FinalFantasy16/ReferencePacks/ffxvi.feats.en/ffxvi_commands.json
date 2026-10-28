@@ -1,0 +1,74 @@
+{
+  "records": [
+    {
+      "id": "201",
+      "name": "Phoenix Shift",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "222",
+      "name": "Deadly Embrace",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "236",
+      "name": "Titanic Block",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "261",
+      "name": "Cold Snap",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "281",
+      "name": "Arm of Darkness",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "321",
+      "name": "Blind Justice",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "341",
+      "name": "Serpent's Cry",
+      "category": "eikonic-feat",
+      "source": "https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs",
+      "description": "Vanilla restoration path in UndoSpecialAttack; Odin 281 also restored in SwitchOdin. Reference relationship only; no saved rank, AP cost, flag index or PS5 activation is proven.",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    }
+  ]
+}

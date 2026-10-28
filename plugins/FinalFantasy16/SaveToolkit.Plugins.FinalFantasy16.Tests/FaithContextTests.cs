@@ -66,7 +66,7 @@ public sealed class FaithContextTests
     }
 
     [Theory]
-    [InlineData("PPSA10665", 59, 172, 105)]
+    [InlineData("PPSA10665", 59, 172, 131)]
     [InlineData("PPSA13803", 11, 2, 2)]
     public void EveryGameplayOccurrenceHasGatedContextAndExplicitInventoryFallback(string title, int expected, int distinctIds, int namedIds)
     {

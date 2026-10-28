@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "id": "ffxvi.nex.en",
-  "version": "1.0.0",
-  "title": "FFXVI Nex map/summon annotations (MIT, Inferred)",
+  "version": "1.1.0",
+  "title": "FFXVI Nex map/summon/skill annotations (MIT, Inferred)",
   "plugins": [
     "ffxvi"
   ],
@@ -49,6 +49,25 @@
         "licenseUrl": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/LICENSE",
         "retrieved": "2026-10-28",
         "modifications": "Extracted set_comment identifiers and annotations; grouped subrows without inventing asset paths; added documented Hideaway variant note. Research labels remain Inferred."
+      }
+    },
+    {
+      "id": "ffxvi_skills",
+      "kind": "records",
+      "title": "Nex skill-ID research (not save-rank indices)",
+      "files": [
+        {
+          "path": "ffxvi_skills.json",
+          "sha256": "e48a487ccf2833ce82786959c836c5976179d70cf0b6584ffbe060d0ecb636dd"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/Skill.layout",
+        "author": "Nenkai and ffxvi-nex-layouts contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted three explicitly named skill IDs; no save index, rank, cost, prerequisite or Eikon assignment inferred."
       }
     }
   ]

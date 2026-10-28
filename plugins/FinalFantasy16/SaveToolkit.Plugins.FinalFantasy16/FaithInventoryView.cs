@@ -10,6 +10,8 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
     [
         new TextNode("Only existing main-bank quantities can be edited. Identity pickers are read-only: " +
             "replacing, adding, removing or equipping items requires controlled evidence.") { Tone = Tone.Warning },
+        new TextNode("Legacy manual edits use storage bounds only; reference names and limits do not establish current gameplay caps. " +
+            "F6 refill/set-quantity bulk actions are unavailable until active-bank, capacity and dependency evidence is supplied.") { Tone = Tone.Warning },
         new TextNode($"Named main records: {inventory.Items.Count(item => catalog.Item(item.Id) is not null)}/{inventory.Items.Count}. " +
             "Unmapped IDs remain visible. Categories describe the reference source, not ownership or availability."),
         new ActionNode(FaithCatalog.LookupActionId, "Look up an item")

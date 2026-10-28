@@ -36,6 +36,7 @@ internal sealed class FaithReadOnlyContext(byte[] bytes, FaithContainer containe
     private const int CurrentSummonOffset = 28;
     private const int LearnedSummonsOffset = 32;
     private const int RevealedSummonsOffset = 36;
+    private readonly FaithCatalog _catalog = new(references);
 
     public IReadOnlyList<ViewNode> Build(FaithReadField field, Func<string, int, FieldNode> item) =>
     [
@@ -100,6 +101,18 @@ internal sealed class FaithReadOnlyContext(byte[] bytes, FaithContainer containe
         return new SectionNode("Ability arrays — index meanings Unknown", [
             new TextNode("skillLv has 68 bytes. newFlags and protectFlags are separate 96-bit arrays. " +
                 "Byte index is not a demonstrated skill ID; observed rank ranges are not legal write bounds. " + SchemaSource),
+            new SectionNode("Named Nex skill IDs — save-rank association Unknown", [
+                new TextNode("These reference IDs are named by upstream research. They are not joined to the rank bytes below, " +
+                    "and do not report learned, mastered or unlocked state. At most 68 reference rows are shown."),
+                new TableNode([new TableColumn("id", "Nex skill ID"), new TableColumn("name", "Research name / provenance")],
+                    _catalog.SkillReferences().Select(record => new TableRow($"skills/references/{record.Key}", new Dictionary<string, ViewNode>
+                    {
+                        ["id"] = new TextNode(record.Key),
+                        ["name"] = field($"skills/references/{record.Key}", FaithCatalog.PlainText(record.Name),
+                            new ReferenceSpec(FaithCatalog.SkillsId) { AllowCustom = true }, () => FieldValue.Of(record.Key),
+                            Confidence.Inferred, FaithCatalog.Describe(record)),
+                    })).ToArray()),
+            ]),
             ByteTable(field, block.PayloadOffset, SkillRanks, "skills/ranks", "Stored rank bytes"),
             ByteTable(field, block.PayloadOffset + SkillRanks, FlagBytes, "skills/new", "Raw newFlags bytes (all 96 bits)"),
             ByteTable(field, block.PayloadOffset + ProtectOffset, FlagBytes, "skills/protect", "Raw protectFlags bytes (all 96 bits)"),
@@ -123,14 +136,22 @@ internal sealed class FaithReadOnlyContext(byte[] bytes, FaithContainer containe
             Number(field, "context/revealedSummons", "Raw revealed-summon flags", () => Int(offset + RevealedSummonsOffset)),
         };
         for (var index = 0; index < SummonCount; index++)
+        {
+            var summon = Int(offset + SummonModesOffset + index * sizeof(int));
             nodes.Add(Reference(field, $"context/summons/{index}", $"Summon slot {index}",
-                Int(offset + SummonModesOffset + index * sizeof(int)), FaithCatalog.SummonsId));
+                summon, FaithCatalog.SummonsId));
+            nodes.Add(Reference(field, $"context/feats/{index}", $"Reference feat for summon slot {index}",
+                summon, FaithCatalog.FeatsId));
+        }
+        nodes.Add(new TextNode("Reference feats describe a published vanilla summon/command relationship. " +
+            "They are not stored command selections or proof of learned ranks, Eikon unlocks, mastery or active loadout."));
         nodes.Add(new SectionNode("Stored command IDs (not skill ranks)", Enumerable.Range(0, CommandCount)
             .Select(index => (ViewNode)Reference(field, $"context/commands/{index}", $"Command {index}",
                 Int(offset + CommandsOffset + index * sizeof(int)), FaithCatalog.CommandsId)).ToArray()));
         nodes.Add(new SectionNode("Stored item shortcuts", Enumerable.Range(0, ShortcutCount)
             .Select(index => (ViewNode)item($"context/shortcuts/{index}", Int(offset + ShortcutOffset + index * sizeof(int)))).ToArray()));
-        var growth = references.Catalog(FaithCatalog.GrowthId)?.Find(FaithCatalog.Key(Int(offset)));
+        nodes.Add(new FaithGrowthContext(bytes, block).Build(field));
+        var growth = _catalog.Find(FaithCatalog.GrowthId, Int(offset));
         nodes.Add(new TextNode(growth is null ? "No matched growth dataset is available. No XP target, level cap or projected stats are calculated." :
             $"Optional reference context: {FaithCatalog.PlainText(growth.Name)}. {growth.AttributionText}. " +
             "This label does not prove the save's growth-curve variant or XP semantics."));
@@ -151,10 +172,11 @@ internal sealed class FaithReadOnlyContext(byte[] bytes, FaithContainer containe
 
     private FieldNode Reference(FaithReadField field, string id, string label, int value, string catalogId)
     {
-        var record = references.Catalog(catalogId)?.Find(FaithCatalog.Key(value));
+        var record = _catalog.Find(catalogId, value);
         return field(id, record is null ? label : $"{label}: {FaithCatalog.PlainText(record.Name)}",
             new ReferenceSpec(catalogId) { AllowCustom = true }, () => FieldValue.Of(FaithCatalog.Key(value)),
-            Confidence.Inferred, SchemaSource + " " + (record?.AttributionText ?? "No matched name dataset; raw ID retained."));
+            record is null ? Confidence.Unknown : Confidence.Inferred,
+            SchemaSource + " " + (record is null ? "No matched name dataset; raw ID retained." : FaithCatalog.Describe(record)));
     }
 
     private static FieldNode Number(FaithReadField field, string id, string label, Func<int> get) =>

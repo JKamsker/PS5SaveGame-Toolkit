@@ -1,4 +1,4 @@
-# Nex map / summon annotations — MIT
+# Nex map / summon / skill annotations — MIT
 
 Source: Nenkai and ffxvi-nex-layouts contributors,
 [revision d3ad0627a29af168916ad574dadbca6759e2ac48](https://github.com/Nenkai/ffxvi-nex-layouts/tree/d3ad0627a29af168916ad574dadbca6759e2ac48).
@@ -14,6 +14,11 @@ Datasets:
   remain verbatim **research annotations**, not verified game UI names.
 - `ffxvi_summons`: all 10 `SummonMode.layout` set_comment annotations. This names
   stored summon-mode IDs, not skill-rank byte indices or unlock-flag bits.
+- `ffxvi_skills`: the three explicit name/ID annotations in `Skill.layout`:
+  39 Wings of Light, 45 Ice Age, 49 Arm of Darkness. They are shown as a separate
+  reference table. **No rank-array index mapping** or learned/mastered state is
+  assigned. This schema is DoubleKeyed; a name alone supplies neither subrow
+  upgrade costs nor save-index semantics.
 
 Modifications: extracted annotations, sorted numeric keys, grouped subrows,
 retained source spelling/uncertainty; added explicit documented variant note.
