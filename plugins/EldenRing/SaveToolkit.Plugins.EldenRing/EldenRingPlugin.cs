@@ -1,14 +1,17 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Diff;
 
 namespace SaveToolkit.Plugins.EldenRing;
 
-public sealed class EldenRingPlugin : IGamePlugin
+public sealed class EldenRingPlugin : IGamePlugin, ISaveDecoderProvider
 {
-    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.4.0")
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new EldenRingEvidenceDecoder()];
+
+    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.5.0")
     {
-        Description = "Experimental mirrored names, bounded runes/history and ordinary-stack edits with F6 refill/review; attributed inventory and equipment browsing.",
+        Description = "Experimental bounded writes with F6 review, attributed inventory/classes, read-only progress maps and attribute dependency graph.",
         Games =
         [
             new GameTitle("PPSA03169", "Elden Ring") { Region = "JP" },
@@ -26,6 +29,15 @@ public sealed class EldenRingPlugin : IGamePlugin
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/armor_name.rs",
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/accessory_name.rs",
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/aow_name.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/classes.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/graces.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/map_name.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/maps.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/bosses.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/event_flags.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/util/bit.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/events.rs",
+            ProgressViews.MapUrl,
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/equipment.rs",
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs",
             "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/playstation/user_data_10.rs",

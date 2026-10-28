@@ -32,9 +32,14 @@ internal static class SemanticReader
         var regions = cursor.UInt32();
         cursor.SkipRecords(regions, sizeof(uint));
         cursor.Take(SemanticLayout.RideSize + SemanticLayout.RegionTailSize);
-        Add(ref cursor, ranges, slot.Offset, "Acquisition candidate", SemanticLayout.AcquisitionSize);
+        var acquisitionStart = cursor.Position;
+        var acquisitionCount = cursor.UInt32();
+        if (acquisitionCount > SemanticLayout.AcquisitionCapacity)
+            throw new SaveToolkit.Sdk.SaveFormatException("Acquisition count exceeds its fixed history array capacity.");
+        cursor.Take(SemanticLayout.AcquisitionSize - sizeof(uint));
+        ranges.Add(new(SemanticLayout.AcquisitionRangeName, slot.Offset + acquisitionStart, SemanticLayout.AcquisitionSize));
         cursor.Take(SemanticLayout.TutorialTailSize);
-        Add(ref cursor, ranges, slot.Offset, "Event flags candidate (no status mapping)", SemanticLayout.EventSize);
+        Add(ref cursor, ranges, slot.Offset, SemanticLayout.EventRangeName, SemanticLayout.EventSize);
         ranges.Add(held.Range);
         ranges.Add(storage.Range);
         return new SemanticCharacter(slot.Index, [held, storage], ranges, map.Entries);

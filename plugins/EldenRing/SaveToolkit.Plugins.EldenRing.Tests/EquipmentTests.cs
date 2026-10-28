@@ -1,6 +1,7 @@
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
+using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.EldenRing.Tests;
 
@@ -38,7 +39,13 @@ public sealed class EquipmentTests
             .Single(table => table.Title == "Existing equipment relationships (read-only)");
         Assert.Equal(34, table.Rows.Count);
         var head = table.Rows.Single(row => row.Key.EndsWith("gear/12", StringComparison.Ordinal));
-        Assert.Equal("Blue Cloth Cowl", Assert.IsType<TextNode>(head.Cells["item"]).Text);
+        var identity = Assert.IsType<FieldNode>(head.Cells["item"]);
+        Assert.Equal("Blue Cloth Cowl", identity.Label);
+        Assert.Equal("0x100A3930", identity.Value.AsString());
+        Assert.Equal(ReferenceBrowser.CatalogId, Assert.IsType<ReferenceSpec>(identity.Spec).CatalogId);
+        Assert.True(identity.Spec.ReadOnly);
+        Assert.Equal(identity.Value, document.GetValue(identity.ValueId));
+        Assert.False(document.ApplyEdits([new(identity.ValueId, FieldValue.Of("0x006CF2A0"))]).Succeeded);
         var provenance = Assert.IsType<SectionNode>(head.Cells["source"]);
         Assert.Contains(provenance.Children, node => node is TextNode text && text.Text.Contains("MIT", StringComparison.Ordinal));
         Assert.True(bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));

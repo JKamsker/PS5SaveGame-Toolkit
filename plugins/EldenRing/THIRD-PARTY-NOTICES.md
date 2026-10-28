@@ -21,6 +21,19 @@ The complete literal name/ID pairs from `src/db/weapon_name.rs`, `item_name.rs`,
 sentinel rows are preserved with explicit metadata. Each table has its own source/hash sidecar.
 The full MIT notice below also accompanies the embedded data as `LICENSE-MIT.txt`.
 
+The completion round also redistributes the same revision's `classes.rs`, `graces.rs`,
+`map_name.rs`, `bosses.rs`, `maps.rs` and selected `event_flags.rs` lookup tuples through
+`ReferencePacks/eldenring.progress.en` (499 progress candidates and 10 class records).
+The explicit sparse joins/LSB read follow `src/vm/events.rs` and `src/util/bit.rs`, also MIT.
+Source hashes and exact modifications are in the adjacent `progress.source.md`; original labels
+are retained in `upstreamName` where the framework trims display whitespace. These are read-only
+Inferred candidates, not verified PS5 completion, quest prerequisites, legal minima or DLC coverage.
+No upstream implementation was executed; no art/coordinates or restricted data were imported.
+The acquisition skip now uses the source's four-u32 (16-byte) GaItem2 rows rather than 8 bytes.
+The F9 level graph composes the existing validated attribute/level equation with field navigation;
+it does not import a quest graph or invent upgrade/vital derivations. The full MIT notice also
+accompanies the new pack. Map Genie is an attributed external link only; no content is redistributed.
+
 MIT License
 
 Copyright (c) 2024 ClayAmore

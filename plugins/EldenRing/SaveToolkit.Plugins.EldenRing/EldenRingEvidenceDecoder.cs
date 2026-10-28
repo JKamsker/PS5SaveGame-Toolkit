@@ -1,33 +1,33 @@
 using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
-using SaveToolkit.Testing.Diff;
+using SaveToolkit.Sdk.Diff;
 
-namespace SaveToolkit.Plugins.EldenRing.Tests;
+namespace SaveToolkit.Plugins.EldenRing;
 
 // F1 hook deliberately omits names, account/profile settings, passwords and all raw blobs.
-internal sealed class EldenRingEvidenceDecoder : ISaveDecoder
+internal sealed class EldenRingEvidenceDecoder : ISaveDecoderHook
 {
     public string Id => "eldenring-evidence";
     public bool CanDecode(ISaveFile file) => new EldenRingPlugin().Probe(file).Score > ProbeScore.Fallback;
 
-    public SemanticTree Decode(ISaveFile file, DecodeLimits limits)
+    public void Decode(ISaveFile file, ISaveDecodeSink sink)
     {
-        if (file.Length > limits.MaxFileBytes) throw new InvalidDataException("Evidence decoder file budget exceeded.");
+        if (file.Length > sink.MaxFileBytes) throw new InvalidDataException("Evidence decoder file budget exceeded.");
         var bytes = file.ReadAllBytes();
         var save = EldenRingParser.Parse(bytes);
-        var tree = new SemanticTreeBuilder(Id, limits);
-        tree.Add("profile/version", "integer", Number(save.ProfileVersion));
-        foreach (var slot in save.Slots.Where(slot => slot.Active && slot.Version == 150))
+        if (!sink.Add("profile/version", "integer", Number(save.ProfileVersion))) return;
+        foreach (var slot in save.Slots.Where(slot => slot.Active && slot.Version == EldenRingLayout.WritableSlotVersion))
         {
             var semantic = SemanticReader.Read(bytes, slot);
             var player = slot.PlayerOffset!.Value;
-            tree.Add($"slots/{slot.Index}/held-runes", "integer", Number(EldenRingParser.ReadUInt32(bytes, player + 0x64)));
+            if (!sink.Add($"slots/{slot.Index}/held-runes", "integer",
+                Number(EldenRingParser.ReadUInt32(bytes, player + EldenRingLayout.RunesOffset)))) return;
             foreach (var container in semantic.Containers)
             {
                 var prefix = $"slots/{slot.Index}/{container.Id}";
-                tree.Add(prefix + "/common-count", "integer", Number(container.CommonCount));
-                tree.Add(prefix + "/key-count", "integer", Number(container.KeyCount));
+                if (!sink.Add(prefix + "/common-count", "integer", Number(container.CommonCount))) return;
+                if (!sink.Add(prefix + "/key-count", "integer", Number(container.KeyCount))) return;
                 // Inventory index and handle, plus occurrence for genuine duplicates, align relocated rows.
                 var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
                 foreach (var entry in container.Entries)
@@ -36,12 +36,11 @@ internal sealed class EldenRingEvidenceDecoder : ISaveDecoder
                     var occurrence = occurrences.GetValueOrDefault(identity);
                     occurrences[identity] = occurrence + 1;
                     var path = occurrence == 0 ? identity : identity + $"[occurrence={occurrence + 1}]";
-                    if (!tree.Add(path + "/quantity", "integer", Number(entry.Quantity))) return tree.Build();
-                    if (!tree.Add(path + "/identity", "text", entry.RawId)) return tree.Build();
+                    if (!sink.Add(path + "/quantity", "integer", Number(entry.Quantity))) return;
+                    if (!sink.Add(path + "/identity", "text", entry.RawId)) return;
                 }
             }
         }
-        return tree.Build();
     }
 
     private static string Number(uint value) => value.ToString(CultureInfo.InvariantCulture);

@@ -27,6 +27,7 @@ internal static class EquipmentReader
     {
         var ranges = character.Ranges.ToDictionary(range => range.Name, StringComparer.Ordinal);
         var held = character.Containers.Single(container => container.Id == "held");
+        var heldByHandle = held.Entries.Where(entry => entry.Group == "common").ToLookup(entry => entry.Handle);
         var rows = new List<EquipmentLink>();
         for (var word = 0; word < SemanticLayout.EquipmentSize / sizeof(uint); word++)
         {
@@ -35,7 +36,7 @@ internal static class EquipmentReader
             rows.Add(Link($"gear/{word}", label,
                 ReadWord(bytes, ranges["ChrAsm2"], word), ReadWord(bytes, ranges["EquipData"], word),
                 ReadWord(bytes, ranges["ChrAsm"], word + AssemblyPrefixWords),
-                ReadWord(bytes, ranges["EquippedItems"], word), held,
+                ReadWord(bytes, ranges["EquippedItems"], word), heldByHandle,
                 word < WeaponSlotCount ? "weapon" : word <= LegsWord ? "armor" : "talisman"));
         }
         var quick = ranges["QuickItems"];
@@ -48,18 +49,18 @@ internal static class EquipmentReader
             var position = EldenRingParser.ReadUInt32(bytes, quick.Offset + pairOffset + sizeof(uint));
             var equipped = ReadWord(bytes, ranges["EquippedItems"], (pouch ? EquippedPouchWord : EquippedQuickWord) + slot);
             rows.Add(Link($"{(pouch ? "pouch" : "quick")}/{slot}", $"{(pouch ? "Pouch" : "Quick item")} {slot + 1}",
-                handle, position, null, equipped, held, "goods"));
+                handle, position, null, equipped, heldByHandle, "goods"));
         }
         return rows;
     }
 
     private static EquipmentLink Link(string key, string label, uint handle, uint position, uint? assembly,
-        uint equipped, InventoryContainer held, string category)
+        uint equipped, ILookup<uint, InventoryEntry> held, string category)
     {
         EquipmentLink Result(InventoryEntry? entry, string status) => new(key, label, handle, position, assembly, equipped, entry, status);
         if (handle == 0)
             return Result(null, "Unassigned candidate; empty/unarmed rules unverified");
-        var matches = held.Entries.Where(entry => entry.Group == "common" && entry.Handle == handle).ToArray();
+        var matches = held[handle].ToArray();
         if (matches.Length != 1)
             return Result(null, matches.Length == 0 ? "No held common-row match" : "Ambiguous held handle; no instance selected");
         var entry = matches[0];

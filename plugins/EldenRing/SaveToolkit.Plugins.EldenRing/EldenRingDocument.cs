@@ -18,10 +18,11 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     private readonly ReferenceBrowser _catalog;
     private readonly InventoryBrowser _inventory;
     private readonly SemanticViews _semantic;
-    private readonly Lazy<IReadOnlyList<ViewNode>> _regulation;
+    private readonly RegulationViews _regulation;
     private readonly RunePlanning _runes;
     private readonly ValueWrites _writes;
     private readonly WritePlanning _writePlans;
+    private readonly ProgressViews _progress;
 
     public EldenRingDocument(string path, byte[] bytes, ParsedSave save, IReferenceContext references)
     {
@@ -40,15 +41,19 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
         _catalog = new(references.Catalog(ReferenceBrowser.CatalogId, fingerprint));
         _inventory = new(characters, _catalog, asset => references.AssetProvenance(asset)?.Attribution.ToShortText(), _writes.Current);
         _writePlans = new(bytes, save, characters, _writes, _catalog);
-        _semantic = new(bytes, characters, _catalog);
-        _regulation = new(() => RegulationViews.Read(bytes));
+        _semantic = new(bytes, characters, _catalog, references.Catalog(ProgressReferences.ClassCatalogId, fingerprint));
+        _progress = new(bytes, characters, references.Catalog(ProgressReferences.CatalogId, fingerprint));
+        _regulation = new(bytes);
     }
 
-    public IReadOnlyList<QueryableCollection> Collections => [.. _inventory.Collections, _catalog.Collection];
+    public IReadOnlyList<QueryableCollection> Collections =>
+        [.. _inventory.Collections, _catalog.Collection, .. _progress.Collections, .. _regulation.Collections];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
-        collectionId == ReferenceBrowser.CollectionId ? _catalog.Query(query) : _inventory.Query(collectionId, query, ItemField,
-            (entry, slot) => _writes.Quantity(entry, slot, Field));
+        collectionId == ReferenceBrowser.CollectionId ? _catalog.Query(query)
+            : collectionId == RegulationViews.CollectionId ? _regulation.Query(query)
+            : _progress.OwnsCollection(collectionId) ? _progress.Query(collectionId, query, (id, label, spec, get) => Field(id, label, spec, get))
+            : _inventory.Query(collectionId, query, ItemField, (entry, slot) => _writes.Quantity(entry, slot, Field));
 
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 
@@ -75,12 +80,15 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
             $"Slot {slot.Index}", $"characters/{slot.Index}", slot.Active ? "Active" : "Inactive")).ToArray()),
         new Tab("Inventory / storage", _inventory.Collections.Select(Table).ToArray()),
         new Tab("Reference catalog", CatalogView()),
+        new Tab(ProgressViews.TabTitle, _progress.Root()),
         new Tab("Raw", _hex.BuildSections()),
     ]);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
-        if (lazyId == "regulation/metadata") return _regulation.Value;
+        if (lazyId == "regulation/metadata") return _regulation.BuildView();
+        if (lazyId.StartsWith("progress/", StringComparison.Ordinal))
+            return _progress.Expand(lazyId, (id, label, spec, get) => Field(id, label, spec, get));
         foreach (var slot in save.Slots)
         {
             if (lazyId == $"characters/{slot.Index}")
@@ -103,6 +111,7 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
         if (!CanEdit) return EditOutcome.Rejected("document", "This character/profile version is read-only.");
+        if (edits.Count == 0) return new EditOutcome();
         if (edits.Select(edit => edit.ValueId).Distinct(StringComparer.Ordinal).Count() != edits.Count)
             return EditOutcome.Rejected("document", "Duplicate field edits are not supported.");
         var original = bytes.ToArray();
@@ -170,16 +179,18 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
             ReadOnlyInteger($"slots/{slot.Index}/version", "Character format version", slot.Offset, Confidence.Unknown),
         };
         string[] attributeNames = ["Vigor", "Mind", "Endurance", "Strength", "Dexterity", "Intelligence", "Faith", "Arcane"];
+        var attributes = new List<FieldNode>();
         for (var index = 0; index < attributeNames.Length; index++)
         {
             var name = attributeNames[index];
-            fields.Add(ReadOnlyInteger($"slots/{slot.Index}/attributes/{name.ToLowerInvariant()}", name,
+            attributes.Add(ReadOnlyInteger($"slots/{slot.Index}/attributes/{name.ToLowerInvariant()}", name,
                 player + EldenRingLayout.AttributesOffset + index * sizeof(uint)) with
                 {
                     Description = "Read-only until class minima and dependent HP/FP/stamina updates are validated.",
                 });
         }
-
+        fields.AddRange(attributes);
+        fields.Add(CharacterGraph.Build(slot.Index, attributes));
         fields.AddRange(_semantic.Character(slot, (id, label, spec, get) => Field(id, label, spec, get)));
         fields.Add(_runes.Action(slot));
         fields.AddRange(_writePlans.Actions(slot));
@@ -205,9 +216,10 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     {
         var nodes = new List<ViewNode> { Table(_catalog.Collection), SectionNode.Lazy("Embedded regulation directory", "regulation/metadata") };
         // A reference lookup has no save effects and reports no changes, preserving undo history.
-        if (CanEdit && _catalog.Collection.TotalCount > 0)
+        if (_catalog.Collection.TotalCount > 0)
             nodes.Add(new ActionNode("references/inspect", "Inspect an item reference")
             {
+                Mutates = false,
                 Description = "Search the shared reference picker and read its provenance. This changes no save bytes.",
                 Parameters = [new FieldNode("item", "Reference item", new ReferenceSpec(ReferenceBrowser.CatalogId), FieldValue.Of("0x400050F0"))],
             });

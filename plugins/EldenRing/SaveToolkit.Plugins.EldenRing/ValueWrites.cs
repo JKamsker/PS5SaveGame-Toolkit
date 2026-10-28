@@ -37,13 +37,16 @@ internal sealed class ValueWrites
             slot => Math.Max(ObservedRuneHistory, Read(slot.PlayerOffset!.Value + EldenRingLayout.RuneMemoryOffset)));
         foreach (var character in characters)
         foreach (var container in character.Containers.Where(container => container.Warnings.Count == 0))
-        foreach (var entry in container.Entries)
         {
-            var ceiling = entry.ItemId switch { RowaFruit => ObservedRowaFruit, SmithingStoneOne => ObservedSmithingStoneOne, _ => 0U };
-            if (entry.Group == "common" && entry.Category == "goods" && entry.Resolution == "direct"
-                && entry.Quantity > 0 && entry.Quantity <= ceiling
-                && container.Entries.Count(other => other.Handle == entry.Handle) == 1)
-                _quantities.Add(entry.Key(character.Slot), (character.Slot, entry, ceiling));
+            var handleCounts = container.Entries.GroupBy(entry => entry.Handle).ToDictionary(group => group.Key, group => group.Count());
+            foreach (var entry in container.Entries)
+            {
+                var ceiling = entry.ItemId switch { RowaFruit => ObservedRowaFruit, SmithingStoneOne => ObservedSmithingStoneOne, _ => 0U };
+                if (entry.Group == "common" && entry.Category == "goods" && entry.Resolution == "direct"
+                    && entry.Quantity > 0 && entry.Quantity <= ceiling
+                    && handleCounts[entry.Handle] == 1)
+                    _quantities.Add(entry.Key(character.Slot), (character.Slot, entry, ceiling));
+            }
         }
     }
 

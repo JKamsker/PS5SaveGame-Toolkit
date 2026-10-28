@@ -104,6 +104,19 @@ public sealed class SemanticReaderTests
         Assert.True(fixture.Save.Bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
     }
 
+    [Theory]
+    [InlineData(7001U)]
+    [InlineData(uint.MaxValue)]
+    public void AcquisitionCountsCannotExceedTheFixedSixteenByteRowArray(uint count)
+    {
+        var fixture = new SemanticFixture();
+        var range = SemanticReader.Read(fixture.Save.Bytes, EldenRingParser.Parse(fixture.Save.Bytes).Slots[0])
+            .Ranges.Single(range => range.Name == SemanticLayout.AcquisitionRangeName);
+        fixture.Save.Write32(range.Offset, count);
+        var error = Assert.Throws<SaveFormatException>(() => fixture.Save.Open());
+        Assert.Contains("Acquisition count", error.Message);
+    }
+
     [Fact]
     public void UnsampledVersions_DoNotInterpretDeeperData()
     {

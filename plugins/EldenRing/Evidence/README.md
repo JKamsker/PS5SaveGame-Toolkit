@@ -77,6 +77,31 @@ remain Inferred and warnings state that unknown integrity/dependency rules may c
 Console validation is tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 See [OWNER_CAPTURES.md](OWNER_CAPTURES.md) for current capability decisions and exact validation steps.
 
+## Completion-round progress and layout correction
+
+The bounded acquisition range previously skipped 7,000 **eight-byte** rows, but pinned MIT
+`GaItem2::read` consumes four u32 values (**16 bytes**). The corrected sample range starts
+at `0x1AC53`, has an eight-byte header/count **73** and 112,000 row bytes, followed by tutorial/tail
+bytes. The event range starts at **`0x36600`**, 56,000 bytes later than the old candidate; length
+remains `0x1BF99F`. `SemanticSampleTests.SampleAcquisitionRowsAreSixteenBytesAndEventRangeMatchesIndependentProbe`
+pins these independent scratch observations. Oversized/negative-as-u32 counts are rejected, and
+no exported bytes change. The new reader reproduces source flags 76100/76101 set and 76102 unset;
+this is raw-byte agreement, **not** in-game activation proof.
+
+New `eldenring.progress.en` F2 datasets contain every pinned source name/event pair for 314 graces,
+157 bosses and 28 map controls, plus ten starting-class tuples. Sparse offsets and LSB bits come
+from explicit `event_flags.rs` joins; no flat `eventId/8` assumption. Source hashes, full MIT notice,
+all modifications and coverage limits accompany the resources. Independent name/event digests
+retain exact upstream whitespace in metadata where F2 trims display labels.
+
+F9 regional maps leave all statuses Unknown and omit coordinates/backgrounds, with attributed
+external map links and raw-field navigation through real Core expansion paths. The F9 graph
+shows eight attributes feeding level, without fabricated quest/unlock/upgrade dependencies.
+F8 covers the complete progress list and the formerly eager 186-table regulation directory;
+regional text/graphic alternatives are bounded to 100 entries. Read-only versions and missing packs
+retain honest fallbacks. Inspection and failed raw-flag edits preserve rune undo and exact bytes.
+The F1 decoder/privacy masks remain unchanged: these new raw event reads are not added to reports.
+
 ## F1 reproduction
 
 From repository root, set the private sample root:
@@ -96,11 +121,13 @@ Do not use the raw compare command above on newly captured changing saves withou
 
 `fixtures.json` uses the shared `savetoolkit-fixtures/1` schema and records that limitation explicitly.
 `EvidenceTests.BaselineCorpus_VerifiesWithoutPretendingToHaveIndependentGenerations` runs F1's
-`FixtureVerifier`, supplying `EldenRingEvidenceDecoder` and `EvidencePrivacy` from this plugin's
-test project. The custom decoder lives in the test project because runtime plugins may depend on
-SDK only, whereas the F1 decoder contract lives in Testing. The shared CLI does not auto-discover
-this test-only hook; use that test for the manifest. CLI `--semantic eldenring` sees ordinary bound
-view fields and does not traverse F8 inventory pages.
+`FixtureVerifier`, supplying the production `EldenRingEvidenceDecoder` through F12's shared
+`HookSaveDecoder` adapter, plus `EvidencePrivacy` from the test project. The runtime hook depends
+only on SDK and is explicitly registered by `EldenRingPlugin.ISaveDecoderProvider` under the
+unchanged ID `eldenring-evidence`. `savediff list-decoders` discovers it; the fixture CLI can resolve
+its existing decoder ID without a test-only implementation. CLI `--semantic eldenring` now traverses
+bounded F8 inventory pages through the shared view decoder; prefer `--decoder eldenring-evidence`
+for the privacy-filtered semantic allowlist. Neither CLI mode applies raw-byte privacy masks by itself.
 
 The hook emits only numeric profile version/held runes/counts and inventory identity/quantity paths.
 It excludes names, profile settings, account/password data and raw blobs. Handle + inventory-index
@@ -138,11 +165,14 @@ budget, zlib corruption, directory counts/offsets/names and PARAM schema/body/na
 ## Implementation and validation status
 
 - Phase 1 infrastructure: implemented. Temporal/console proof remains owner-dependent.
-- Phase 2: complete pinned MIT item/weapon/armor/talisman/AoW names, packs, F4 inspection, F8
-  browsing and directory-only regulation decode implemented. Versioned field schemas, item caps,
-  classes/graces, upgrade compatibility, localized descriptions/icons and DLC coverage remain open.
+- Phase 2: complete pinned MIT item/weapon/armor/talisman/AoW names, ten class references,
+  packs, F4 identities/inspection, F8 browsing and directory-only regulation decode implemented.
+  Versioned field schemas, legal item caps, upgrade compatibility, localized descriptions/icons
+  and verified DLC/build coverage remain owner-data/evidence dependent.
 - Phase 3: fixed-size names, positive ordinary quantities, manual history mirrors, F6 held-only/linked
   runes and refill are enabled with warnings. Modifier-aware attribute/respec writers remain unimplemented.
 - Phase 4: read-only equipment joins; complete profile/equipment/upgrade/history transactions remain unimplemented.
-- Phases 5–6: no entity/event mappings or allocation/cleanup writer. No prepared F5/F7 write exists.
+- Phase 5: 499 attributed source candidates, F9 link-only regional maps, F8 browsing and character
+  dependency graph. Statuses remain Unknown; verified progress/quest/world semantics require controlled captures.
+- Phase 6: no allocation/cleanup writer. No prepared F5/F7 write exists.
   See [OWNER_CAPTURES.md](OWNER_CAPTURES.md); evidence no longer gates the enabled Experimental operations.

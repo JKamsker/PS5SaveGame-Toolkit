@@ -23,9 +23,13 @@ internal static class SemanticLayout
     public const int GesturesSize = 0x100;
     public const int RideSize = 0x28;
     public const int RegionTailSize = 1 + 0x40 + 12 + 0x1008 + 0x34;
-    public const int AcquisitionSize = 8 + 0x1B58 * 8;
+    public const int AcquisitionCapacity = 0x1B58;
+    public const int AcquisitionRecordSize = 4 * sizeof(uint);
+    public const int AcquisitionSize = 2 * sizeof(uint) + AcquisitionCapacity * AcquisitionRecordSize;
+    public const string AcquisitionRangeName = "Acquisition candidate";
     public const int TutorialTailSize = 0x408 + 0x1D;
     public const int EventSize = 0x1BF99F;
+    public const string EventRangeName = "Event flags candidate (no status mapping)";
     public const int ClassOffset = 0xB7;
     public const uint HandleMask = 0xF0000000;
     public const uint IdentityMask = 0x0FFFFFFF;
