@@ -4,17 +4,9 @@ namespace SaveToolkit.Plugins.Gearbox;
 
 internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews lazy)
 {
-    private const string ItemWarning = "Item serials are encrypted independently. Items, flags and slots are read-only; names are not decoded.";
-
     public IReadOnlyList<ViewNode> Inventory()
     {
-        List<ViewNode> nodes = [new TextNode(ItemWarning) { Tone = Tone.Info }];
-        var list = document.Profile ? "bank_inventory_list" : "inventory_items";
-        nodes.Add(lazy.Register("items", document.Profile ? "Bank inventory" : "Backpack", () => ItemPage(list, 0)));
-        if (document.Profile)
-            nodes.Add(lazy.Register("lost-loot", "Lost loot", () => ItemPage("lost_loot_inventory_list", 0)));
-        else nodes.Add(lazy.Register("slots", "Equipped slots", Slots));
-        return nodes;
+        return document.Profile ? [] : [lazy.Register("slots", "Equipped slots", Slots)];
     }
 
     public IReadOnlyList<ViewNode> Progression()
@@ -47,38 +39,21 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
         return nodes;
     }
 
-    private IReadOnlyList<ViewNode> ItemPage(string list, int offset)
-    {
-        var all = document.Root.All(list).ToArray();
-        var rows = all.Skip(offset).Take(GearboxLazyViews.PageSize).Select((f, i) =>
-        {
-            var serial = f.Message?.Last("item_serial_number")?.Value as byte[] ?? f.Value as byte[] ?? [];
-            var index = offset + i;
-            return Row(index.ToString(), ("index", new TextNode(index.ToString())), ("bytes", new TextNode(serial.Length.ToString())),
-                ("flags", new TextNode(f.Message?.Integer("flags").ToString() ?? "—")),
-                ("pickup", new TextNode(f.Message?.Integer("pickup_order_index").ToString() ?? "—")));
-        }).ToArray();
-        List<ViewNode> result = [new TableNode([new("index", "List index"), new("bytes", "Serial bytes"), new("flags", "Flags"), new("pickup", "Pickup order")], rows)];
-        if (offset + GearboxLazyViews.PageSize < all.Length)
-            result.Add(lazy.Register($"items/{list}/{offset + GearboxLazyViews.PageSize}", "More items", () => ItemPage(list, offset + GearboxLazyViews.PageSize)));
-        return result;
-    }
-
     private IReadOnlyList<ViewNode> Slots() => MessageTable("equipped_inventory_list", "slots", [new("slot", "Slot asset"), new("index", "Inventory index"), new("enabled", "Enabled")],
         (m, i) => Row(i.ToString(),
-            ("slot", new TextNode(m.Text("slot_data_path"))), ("index", new TextNode(m.Integer("inventory_list_index").ToString())),
+            ("slot", document.AssetLabel($"slots/{i}/label", "Slot", m.Text("slot_data_path"))), ("index", new TextNode(m.Integer("inventory_list_index").ToString())),
             ("enabled", new TextNode((m.Integer("enabled") != 0).ToString()))));
 
     private IReadOnlyList<ViewNode> Sdus()
     {
         var list = document.Profile ? "profile_sdu_list" : "sdu_list";
         return MessageTable(list, "sdus", [new("asset", "SDU asset"), new("level", "Purchased level")], (m, i) => Row(i.ToString(),
-            ("asset", new TextNode(m.Text("sdu_data_path"))),
+            ("asset", document.AssetLabel($"sdu/{i}/label", "SDU", m.Text("sdu_data_path"))),
             ("level", document.Integer($"sdu/{i}", "Purchased level", () => document.Root.Children(list).ElementAt(i), "sdu_level", writable: false))));
     }
 
     private IReadOnlyList<ViewNode> Ammo() => MessageTable("resource_pools", "ammo", [new("asset", "Resource pool"), new("amount", "Ammo")],
-        (m, i) => Row(i.ToString(), ("asset", new TextNode(m.Text("resource_path"))),
+        (m, i) => Row(i.ToString(), ("asset", document.AssetLabel($"ammo/{i}/label", "Resource", m.Text("resource_path"))),
             ("amount", float.IsFinite(m.Float("amount")) ? document.Ammo($"ammo/{i}", () => document.Root.Children("resource_pools").ElementAt(i))
                 : new TextNode("Non-finite resource amount (preserved, read-only)"))));
 

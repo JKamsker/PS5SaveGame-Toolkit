@@ -1,0 +1,101 @@
+{
+  "format": "savetoolkit-fixtures/1",
+  "description": "Gearbox observed ZIP generations: regression evidence only. Archive order is not chronology, builds/DLC/hotfixes and in-game actions unknown. No churn masks or private identities.",
+  "fixtures": [
+    {
+      "id": "bl3-observed-generations-0-1",
+      "titleId": "PPSA01463",
+      "game": "Borderlands 3",
+      "platform": "PS5",
+      "slot": "1",
+      "event": "Compare existing generations 0 and 1; uncontrolled, action unknown",
+      "control": false,
+      "notes": "Not a controlled before/after capture; proves decoded observations only. Does not enable writes.",
+      "before": {
+        "archive": "PPSA01463_saves_dec.zip",
+        "generation": 0,
+        "sha256": "0860d88d3d18bd8631ea4cc155319f1d4e952a25201b3d6ef271534925794e2c"
+      },
+      "after": {
+        "archive": "PPSA01463_saves_dec.zip",
+        "generation": 1,
+        "sha256": "0860d88d3d18bd8631ea4cc155319f1d4e952a25201b3d6ef271534925794e2c"
+      },
+      "decoder": "gearbox",
+      "files": [
+        "1"
+      ],
+      "expected": [
+        {
+          "file": "1",
+          "path": "character/xp",
+          "before": "9520932",
+          "after": "9520932",
+          "changed": false
+        },
+        {
+          "file": "1",
+          "path": "currency/618814354",
+          "before": "25526805",
+          "after": "13296047"
+        },
+        {
+          "file": "1",
+          "offset": 0,
+          "length": 4,
+          "before": "47564153",
+          "after": "47564153",
+          "changed": false
+        }
+      ],
+      "strict": false
+    },
+    {
+      "id": "ttwl-observed-generations-0-1",
+      "titleId": "PPSA01493",
+      "game": "Tiny Tina's Wonderlands",
+      "platform": "PS5",
+      "slot": "1",
+      "event": "Compare existing generations 0 and 1; uncontrolled, action unknown",
+      "control": false,
+      "notes": "Not a controlled before/after capture; proves decoded observations only. Does not enable writes.",
+      "before": {
+        "archive": "PPSA01493_saves_dec.zip",
+        "generation": 0,
+        "sha256": "9c00fa05d57897e7a14bec77445b8b72b3736e2ea6204cc1f055b94a386a5a37"
+      },
+      "after": {
+        "archive": "PPSA01493_saves_dec.zip",
+        "generation": 1,
+        "sha256": "9c00fa05d57897e7a14bec77445b8b72b3736e2ea6204cc1f055b94a386a5a37"
+      },
+      "decoder": "gearbox",
+      "files": [
+        "1"
+      ],
+      "expected": [
+        {
+          "file": "1",
+          "path": "character/xp",
+          "before": "70754",
+          "after": "75695"
+        },
+        {
+          "file": "1",
+          "path": "currency/618814354",
+          "before": "36748",
+          "after": "23304"
+        },
+        {
+          "file": "1",
+          "offset": 0,
+          "length": 4,
+          "before": "47564153",
+          "after": "47564153",
+          "changed": false
+        }
+      ],
+      "strict": false
+    }
+  ]
+}

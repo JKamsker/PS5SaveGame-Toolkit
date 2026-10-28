@@ -49,7 +49,7 @@ public sealed class ContainerTests
     public void CloneRetainsNewRecordProvenance_AfterRejectedBatch()
     {
         var container = GearboxContainer.Parse(Create(false, true), "PPSA01463", true);
-        using var document = new GearboxDocument("profile", "PPSA01463", container, container.Decode());
+        using var document = new GearboxDocument("profile", "PPSA01463", container, container.Decode(), SaveToolkit.Sdk.References.IReferenceContext.Empty);
         _ = document.BuildView();
         Assert.True(document.ApplyEdits([new("keys/2420693941", FieldValue.Of(9L))]).Succeeded);
         Assert.False(document.ApplyEdits([new("keys/2420693941", FieldValue.Of(-1L))]).Succeeded);
@@ -62,7 +62,7 @@ public sealed class ContainerTests
     public void InvalidUnicodeAndOversizedNames_AreRejectedWithoutMutation()
     {
         var container = GearboxContainer.Parse(Create(false, false), "PPSA01463", false);
-        using var document = new GearboxDocument("1", "PPSA01463", container, container.Decode());
+        using var document = new GearboxDocument("1", "PPSA01463", container, container.Decode(), SaveToolkit.Sdk.References.IReferenceContext.Empty);
         _ = document.BuildView();
         foreach (var name in new[] { "\uD800", "bad\nname", new string('a', 100) })
         {
@@ -75,7 +75,7 @@ public sealed class ContainerTests
     public void SingularMessageFragments_AreRejectedInsteadOfMisinterpreted() =>
         Assert.Throws<SaveFormatException>(() => ProtoMessage.Parse([0x22, 0, 0x22, 0], GearboxSchema.Bl3, "Character"));
 
-    private static byte[] Create(bool wonderlands, bool profile, bool unicode = false, byte[]? tail = null)
+    internal static byte[] Create(bool wonderlands, bool profile, bool unicode = false, byte[]? tail = null)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);

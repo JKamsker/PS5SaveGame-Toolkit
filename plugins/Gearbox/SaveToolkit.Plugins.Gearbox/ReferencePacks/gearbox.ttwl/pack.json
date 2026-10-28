@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "id": "gearbox.ttwl",
+  "version": "1.0.0",
+  "title": "Tiny Tina's Wonderlands serial database 59",
+  "description": "Pinned 1fde90dc43e7f7ee261413d85c366e0a7236dd9b; English family names; console build, DLC and hotfix coverage unknown.",
+  "plugins": [
+    "gearbox"
+  ],
+  "titleIds": [
+    "PPSA01493"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "serial-widths",
+      "kind": "records",
+      "title": "serial-widths",
+      "files": [
+        {
+          "path": "serial-widths.json",
+          "sha256": "4f8d0d942b00a810e9ee41ea2350cdcedbb88f1e90934113da691937848a469a"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/resources",
+        "author": "CJ Kucera / apocalyptech and Abram Hindle",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 59."
+      }
+    },
+    {
+      "id": "serial-indices",
+      "kind": "records",
+      "title": "serial-indices",
+      "files": [
+        {
+          "path": "serial-indices.json",
+          "sha256": "94cccceb4fe5e37abfeb5e6665383f3bc112a538110ae7749e94c01249479d77"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/resources",
+        "author": "CJ Kucera / apocalyptech and Abram Hindle",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 59."
+      }
+    },
+    {
+      "id": "part-families",
+      "kind": "records",
+      "title": "part-families",
+      "files": [
+        {
+          "path": "part-families.json",
+          "sha256": "4d9c5971e06f50e15ac29d70d93ca502f469f0ca9182aa718cbd5e1f55789f69"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/resources",
+        "author": "CJ Kucera / apocalyptech and Abram Hindle",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 59."
+      }
+    },
+    {
+      "id": "balances",
+      "kind": "records",
+      "title": "balances",
+      "files": [
+        {
+          "path": "balances.json",
+          "sha256": "dee328e4b666f6ca5ccdd19c44cf1a2813cae0d3b657e83d76ccfbf5a72d33de"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/resources",
+        "author": "CJ Kucera / apocalyptech and Abram Hindle",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 59."
+      }
+    },
+    {
+      "id": "labels",
+      "kind": "records",
+      "title": "Slot, SDU and ammo labels",
+      "files": [
+        {
+          "path": "labels.json",
+          "sha256": "2b6934e4e964d050d0a314aed37d65e95a20c354b96139387ce75c185bff0132"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://raw.githubusercontent.com/apocalyptech/ttwl-cli-saveedit/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/__init__.py",
+        "author": "CJ Kucera / apocalyptech and Abram Hindle",
+        "license": "Zlib",
+        "licenseUrl": "https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/COPYING.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted only explicit slot/SDU/ammo asset-to-label pairs; no upstream capacity limits applied."
+      }
+    }
+  ]
+}

@@ -1,14 +1,23 @@
 using System.Text;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
-internal sealed class GearboxDocument(string relativePath, string titleId, GearboxContainer container, ProtoMessage root) : BoundSaveDocument
+internal sealed class GearboxDocument(string relativePath, string titleId, GearboxContainer container, ProtoMessage root,
+    IReferenceContext references) : BoundSaveDocument, IQueryableDocument
 {
     private readonly Dictionary<string, Func<FieldValue>> _readers = new(StringComparer.Ordinal);
     private readonly GearboxLazyViews _lazy = new();
+    private ItemBrowser? _items;
+    private ItemBrowser Items => _items ??= new(this, Root, Profile, _lazy, references);
+    public IReadOnlyList<QueryableCollection> Collections => Items.Collections;
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => Items.Query(collectionId, query);
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        Items.Inspect(actionId, parameters) ?? base.InvokeAction(actionId, parameters);
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     public ProtoMessage Root { get; private set; } = root;
     public bool Profile => container.Profile;
@@ -20,13 +29,24 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         var tables = new GearboxTables(this, _lazy);
         return new TabsNode([
             new Tab(Profile ? "Profile" : "Character", overview.Build()),
-            new Tab("Inventory", tables.Inventory()),
+            new Tab("Inventory", [.. Items.Build(), .. tables.Inventory()]),
             new Tab("Progression", tables.Progression()),
             new Tab("Raw", [_lazy.RegisterRaw(() => Root)]),
         ]);
     }
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _lazy.Expand(lazyId);
+
+    internal FieldNode InspectionField(string id, string label, string value, Confidence confidence, string? source) =>
+        Bind(id, label, new TextSpec { ReadOnly = true }, () => FieldValue.Of(value), null)
+            with { Confidence = confidence, Description = source };
+
+    internal FieldNode AssetLabel(string id, string label, string path)
+    {
+        var record = references.Catalog(ItemCatalogs.Labels)?.Find(path) ?? SerialDatabase.For(Root.Schema.Wonderlands).Find(ItemCatalogs.Labels, path);
+        return InspectionField(id, label, record is null ? path : $"{record.Name} — {path}",
+            record is null ? Confidence.Unknown : Confidence.Verified, record?.AttributionText);
+    }
 
     internal FieldNode Integer(string id, string label, Func<ProtoMessage> parent, string name,
         long max = int.MaxValue, bool writable = true, string? warning = null)
