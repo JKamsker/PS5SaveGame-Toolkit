@@ -14,13 +14,14 @@ GVAS magic obtained by decompressing a supported envelope.
 | --- | --- | --- |
 | PPSA01603, Hogwarts Legacy | `ue4savegame.ps5.sav`: plain GVAS, UE 4.27.2, package 524, 72 custom versions. `SaveGameList` contains slot metadata; `SavedUserOptions` an opaque settings array; `HL0000`–`HL0014` contain metadata and compressed database arrays. 34 files, 17 distinct payloads. | All round-trip exactly. Primitive metadata editable; embedded byte arrays read-only. |
 | PPSA02199, STAR WARS Jedi: Fallen Order | `ue4savegame.dpx.sav`: plain GVAS, UE 4.25.0, package 518, 56 custom versions. `GameUserSettings` has settings/structs. `SaveGame00`/`Backup00` have zlib actor records and `Crc32`. 6 files, 3 distinct payloads. | All round-trip exactly. Settings editable. Gameplay/backup documents read-only: checksum coverage unknown. |
-| PPSA10695, Atomic Heart | Starts `01 00 00 00`, then a UE-style header and `/Script/SaveExtension.SlotInfo`, followed by custom framing. No GVAS magic anywhere. | Unclaimed; custom serializer needs its own plugin. |
+| PPSA01288, Sackboy: A Big Adventure | `General`: UE 4.25.1 tagged progression, including `CollectabellsStored` and `Checksum`. `LevelImages_*` / `CostumeThumbnails_*`: GVAS image sets. 20 files, 6 distinct payloads. | All round-trip exactly. General remains read-only because its checksum coverage is unknown. Image sets contain opaque compressed textures. |
+| PPSA10695, Atomic Heart | Starts `01 00 00 00`, then a UE-style header and `/Script/SaveExtension.SlotInfo`, followed by custom framing. No GVAS magic anywhere. | Unclaimed here; see the separate [AtomicHeart plugin](../AtomicHeart/README.md), which validates framing and SHA-1. |
 | PPSA01802 | Versioned binary with region names including `W0_Ruins_Region`. No GVAS magic. | Unclaimed; unknown format, no established compression wrapper. |
 | PPSA02343 | UTF-8 JSON with a `Profile` object. | Unclaimed; not GVAS. |
-| PPSA16064 | Character file is JSON with `SerializeMeta`. Global settings appear to be JSON XOR 1 (inferred from the opening bytes; not implemented). Neither contains GVAS magic. | Unclaimed; not GVAS. |
+| PPSA16064 | Minecraft Dungeons II: Character is plain JSON with `SerializeMeta`; Global settings are byte-minus-one JSON, **not XOR 1**. Neither contains GVAS magic. | Unclaimed here; see [XorJson](../XorJson/README.md) for Global settings. |
 
-All 40 claimed files, including backup twins, are tested byte-for-byte. Conformance
-also covers all 20 distinct payloads, exceeding the default six-file cap. Regression
+All 60 claimed files, including backup twins, are tested byte-for-byte. Conformance
+also covers all 26 distinct payloads, exceeding the default six-file cap. Regression
 tests ensure that the other four titles' filenames never cause false matches.
 
 ## Layout and reader/writer
@@ -59,7 +60,7 @@ tests ensure that the other four titles' filenames never cause false matches.
 
 ## Compression, SQLite and checksums
 
-The two claimed title sets have no outer wrapper. Plain RFC1950 zlib and the
+The three claimed title sets have no outer wrapper. Plain RFC1950 zlib and the
 documented 16-byte Astroneer envelope can additionally be identified and opened
 **read-only**. Original compressed bytes are returned unchanged, with declared
 length and Adler-32 checked. Recompression is deferred until game-specific window
@@ -115,21 +116,17 @@ bounded views/hex, truncations/corruption, and randomized foreign/mutated input.
 Sample-dependent tests skip through SampleSaves when archives are absent.
 
 Verified locally: API build completed with zero warnings/errors; plugin tests
-32 passed, zero skipped with samples present; framework tests 42 passed. With an
-empty sample directory, 20 synthetic/metadata tests pass and 12 sample tests skip.
+38 passed, zero skipped with samples present; framework tests 43 passed. With
+an empty sample directory, 21 tests pass and 17 sample-dependent tests skip.
 
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 dotnet test --project plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas.Tests
 dotnet test --project tests/SaveToolkit.Core.Tests
-pwsh -File plugins/UnrealGvas/scripts/check-csharp-size.ps1
 ```
 
-Plugin-scoped MSBuild targets enforce C# file sizes during production/test builds:
-warning above 300 lines, rejection above 500. No current file exceeds 300 lines.
-The optional committed `hooks/pre-commit` runs the same check and can be chained
-from the owner's existing hook. Shared hooks/CI files were not changed from this
-isolated worktree.
+No plugin build hooks, git hooks or size-check scripts are installed. All C# files
+remain below 300 lines; repository policy is enforced in review.
 
 ## Open problems
 
@@ -139,7 +136,43 @@ isolated worktree.
 3. Verify compression rewriting against actual wrapped PS5 samples.
 4. Add game schemas for opaque map/set structs, native values, complex FText and
    version extensions when samples become available.
-5. Research Atomic Heart and the other custom serializers separately.
+5. Solve Sackboy General checksum coverage; decode image texture layouts before
+   providing image previews. Atomic Heart now has its own read-only plugin.
+
+## Round 2 evidence (2026-10-28)
+
+Sackboy General has two distinct supplied snapshots: both `CollectabellsStored`
+and `TotalCollectabellsCollected` read 445 in one and 322 in the other. These are verified
+serialized names and values, not in-game validated edit targets. `Checksum`
+is present, so the existing integrity guard keeps General read-only.
+
+All companion files use `/Script/GingerBread.GingerbreadSaveImageSet`, including
+an empty `LevelImages_05`. Nonempty image sets have a tagged `Data` struct with
+an opaque Name-to-struct map. The bytes contain `SurfaceWidth`, `PixelFormat`,
+`Image`, and Unreal chunk headers. `LevelImages_04` has a zlib stream at `0x6E4`:
+12,144 compressed bytes decode to 131,072 bytes. No PNG or JPEG signatures were
+found across all four distinct companion payloads. The source below identifies
+PC images as compressed, swizzled raw texture pixels; matching PS5 raw pixel
+layout remains **inferred**, so no PNG/JPEG ImageNode/GetAsset is invented.
+
+Jedi gameplay/backup actor arrays are valid zlib, declaring and producing
+2,580,619 / 2,471,665 bytes. Their decompressed data begins with the tagged
+`ActorRecords` property. Stored CRCs are `253EB7D0` / `3A3A9C96`; IEEE CRC32 of
+the decompressed streams is `19B1D711` / `6A4BFDA3`, and of the compressed streams
+is `97B6B113` / `AD68AFA4`. None match.
+
+Further scratch experiments covered top-level tag/payload boundaries; whole
+file/headerless property streams with CRC original/zeroed/omitted; compressed
+array payload with and without its count; decompressed actor substitution with
+old/new/omitted counts; full `ActorRecords` tagged-stream substitution with
+size-property included/omitted; terminal padding/None removal; and all 1,023
+nonempty ordered subsets of the ten top-level property payloads, compressed and
+expanded. Two later batches alone checked 2,334 + 708 buffers per distinct
+sample, using external zlib seeds 0 / FFFFFFFF and both result complements.
+No match was found. Committed tests reproduce the principal ranges and also
+reject CRC32C variants, with independent standard check vectors. This does not
+rule out other seeds, coverage, serialization order, or a non-CRC algorithm.
+Gameplay writes remain blocked; no checksum-repair claim is made.
 
 ## Sources
 
@@ -161,6 +194,11 @@ upstream code was copied and no downloaded program was executed.
   wrapper magic, declared size, zlib and reported 4 KiB compression-window constraint.
 * https://www.rfc-editor.org/rfc/rfc1950 — zlib header and Adler-32 definition,
   independently implemented and checked against .NET-generated compressed streams.
+
+* https://peteronprogramming.wordpress.com/2024/01/06/reverse-engineering-the-end-of-level-photos-in-sackboy-a-big-adventure/ — primary author research on GVAS image sets, chunked zlib and swizzled raw pixels; no code copied. PS5 zlib framing checked independently above.
+* https://github.com/MsKrypt1/SackboyWorldUnlocker — surveyed PS4 General tool; no code copied (no explicit licence established).
+* https://prosperopatches.com/PPSA01288 — Sackboy title-id mapping.
+* https://www.save-editor.com/tools/pc_game_save_converter_title_StarWars_Jedi_FallenOrder.html — converter surveyed; publishes no usable checksum implementation. No data uploaded or code executed.
 
 ## SDK requests
 
