@@ -2,13 +2,16 @@
   "records": [
     {
       "id": "MoonStance",
-      "name": "MoonStance",
-      "category": "observed identifier",
-      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "name": "Moon Stance",
+      "category": "stance",
+      "description": "Sword combat stance suited to brutes.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Exact stance words match after inserting a space; role/unlock state is unproven."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271"
     },
     {
       "id": "StanceUnlock",
@@ -17,18 +20,24 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "StoneStance",
-      "name": "StoneStance",
-      "category": "observed identifier",
-      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "name": "Stone Stance",
+      "category": "stance",
+      "description": "Sword combat stance suited to swordsmen.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Exact stance words match after inserting a space; role/unlock state is unproven."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271"
     },
     {
       "id": "UltimateBrutalStance",
@@ -37,28 +46,37 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "WaterStance",
-      "name": "WaterStance",
-      "category": "observed identifier",
-      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "name": "Water Stance",
+      "category": "stance",
+      "description": "Sword combat stance suited to shield users.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Exact stance words match after inserting a space; role/unlock state is unproven."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271"
     },
     {
       "id": "WindStance",
-      "name": "WindStance",
-      "category": "observed identifier",
-      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "name": "Wind Stance",
+      "category": "stance",
+      "description": "Sword combat stance suited to spear users.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Exact stance words match after inserting a space; role/unlock state is unproven."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271"
     }
   ]
 }

@@ -1,0 +1,238 @@
+{
+  "records": [
+    {
+      "id": "wiki:technique:stone-stance",
+      "name": "Stone Stance",
+      "category": "stance",
+      "description": "Sword combat stance suited to swordsmen.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:water-stance",
+      "name": "Water Stance",
+      "category": "stance",
+      "description": "Sword combat stance suited to shield users.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:wind-stance",
+      "name": "Wind Stance",
+      "category": "stance",
+      "description": "Sword combat stance suited to spear users.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:moon-stance",
+      "name": "Moon Stance",
+      "category": "stance",
+      "description": "Sword combat stance suited to brutes.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:perfect-parry",
+      "name": "Perfect Parry",
+      "category": "deflection",
+      "description": "A last-moment parry opens a counterattack and earns Resolve.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:perfect-parry-healing",
+      "name": "Perfect Parry Healing",
+      "category": "deflection",
+      "description": "Perfect parries restore some health.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:unyielding-sword-parry",
+      "name": "Unyielding Sword Parry",
+      "category": "deflection",
+      "description": "Allows parrying certain otherwise unblockable sword attacks.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:deflect-arrows",
+      "name": "Deflect Arrows",
+      "category": "deflection",
+      "description": "Allows blocking incoming projectiles.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:heavenly-strike",
+      "name": "Heavenly Strike",
+      "category": "mythic",
+      "description": "Unblockable sword attack learned through The Heavenly Strike tale.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:dance-of-wrath",
+      "name": "Dance of Wrath",
+      "category": "mythic",
+      "description": "Three unblockable attacks learned through The Spirit of Yarikawa's Vengeance.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:way-of-the-flame",
+      "name": "Way of the Flame",
+      "category": "mythic",
+      "description": "Uses incendiary oil to set the katana alight; learned through The Undying Flame.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:wind-of-health",
+      "name": "Wind of Health",
+      "category": "exploration",
+      "description": "Guiding Wind tracks hot springs, which increase maximum health.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:wind-of-resolve",
+      "name": "Wind of Resolve",
+      "category": "exploration",
+      "description": "Guiding Wind tracks bamboo strikes, which increase maximum Resolve.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:wind-of-charms",
+      "name": "Wind of Charms",
+      "category": "exploration",
+      "description": "Guiding Wind tracks Shinto shrines and their charm rewards.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:wind-of-inari",
+      "name": "Wind of Inari",
+      "category": "exploration",
+      "description": "Guiding Wind tracks fox dens leading to Inari shrines.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:wind-of-vanity",
+      "name": "Wind of Vanity",
+      "category": "exploration",
+      "description": "Guiding Wind tracks cosmetic items.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:wind-of-harmony",
+      "name": "Wind of Harmony",
+      "category": "exploration",
+      "description": "Guiding Wind tracks Iki animal sanctuaries.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:technique:wind-of-concentration",
+      "name": "Wind of Concentration",
+      "category": "exploration",
+      "description": "Guiding Wind tracks Iki archery challenges.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    }
+  ]
+}

@@ -1,0 +1,578 @@
+{
+  "records": [
+    {
+      "id": "wiki:sword-kit:hero-of-tsushima",
+      "name": "Hero of Tsushima",
+      "category": "default",
+      "description": "Cosmetic sword kit. Complete the Prologue.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:the-storm-of-clan-sakai",
+      "name": "The Storm of Clan Sakai",
+      "category": "default",
+      "description": "Cosmetic sword kit. Available from the start of Ghost of Tsushima.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:fuujin-s-secret",
+      "name": "Fuujin's Secret",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Kaneda Inlet, along the coast.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Izuhara"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:genbu-s-darkness",
+      "name": "Genbu's Darkness",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near First General's Field, near Komoda Beach.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Izuhara"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:mamushi-venom",
+      "name": "Mamushi Venom",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Near Sakimori Overlook.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Izuhara"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:spring-bamboo",
+      "name": "Spring Bamboo",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Northwest of Shigenori's Peak.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Izuhara"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:twilight-oni",
+      "name": "Twilight Oni",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Wakou's Island, east of Azamo Bay.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Izuhara"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:warrior-s-brush",
+      "name": "Warrior's Brush",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near East of the Kuta Grasslands, northwest of Sibling Rocks.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Izuhara"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:yasha-s-embers",
+      "name": "Yasha's Embers",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Hidden Springs Forest, southeast of Hiyoshi Springs.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Izuhara"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:bishamon-s-fortune",
+      "name": "Bishamon's Fortune",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near North of Little Monk's Pond.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Toyotama"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:breath-of-hachiman",
+      "name": "Breath of Hachiman",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Southwest of Old Kanazawa Marsh, northeast of Iijima Farmstead.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Toyotama"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:dueling-festival",
+      "name": "Dueling Festival",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Old Togo Rice Fields, east of Fort Ito.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Toyotama"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:gold-koi-river",
+      "name": "Gold Koi River",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Old Toyotama Hills, southeast of Lord Shimura's Camp.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Toyotama"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:hijiki-in-sunlight",
+      "name": "Hijiki in Sunlight",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Southeast of Old Clan's Hill, northwest of Kazumasa's Isle.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Toyotama"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:hunting-bear",
+      "name": "Hunting Bear",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Yoshinaka Bay, along the coast.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Toyotama"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:moon-bear-s-paw",
+      "name": "Moon Bear's Paw",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Hakutaku Forest, east of Akashima Village.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Toyotama"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:warrior-s-faith",
+      "name": "Warrior's Faith",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Southwest of Wakou's Inlet, southeast of Umugi Cove.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Toyotama"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:yuzu-peel",
+      "name": "Yuzu Peel",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Near Sibling Bay.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Toyotama"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:azure-dragon",
+      "name": "Azure Dragon",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near East of the Endless Forest.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Kamiagata"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:hidden-forest",
+      "name": "Hidden Forest",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Near Cape Izumi.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Kamiagata"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:island-s-keeper",
+      "name": "Island's Keeper",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Near Jogaku Temple Lake, east of Jogaku Temple.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Kamiagata"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:midnight-hanabi",
+      "name": "Midnight Hanabi",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near North of Kin Sanctuary.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Kamiagata"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:shogun-s-storm",
+      "name": "Shogun's Storm",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Southwest of Bitter Hills.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Kamiagata"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:sly-tanuki",
+      "name": "Sly Tanuki",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near East of Iwai Village.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Kamiagata"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:tanuki-s-brush",
+      "name": "Tanuki's Brush",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Northwest of Mount Jogaku.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Kamiagata"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:immortal-hope",
+      "name": "Immortal Hope",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Near Sentinel's Peak.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Iki"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:mashira-s-bite",
+      "name": "Mashira's Bite",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Nakajima Island; This Pillar of Honor is not marked on the map.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Iki"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:nekoma-s-fang",
+      "name": "Nekoma's Fang",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Saru Island; A monkey prevents the player from collecting this Sword Kit. Play the flute for it (similar to the Animal Sanctuaries) to claim the Sword Kit.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Iki"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:the-stonecutter",
+      "name": "The Stonecutter",
+      "category": "pillars of honor",
+      "description": "Cosmetic sword kit. Pillar of Honor near Zasho River, east of Kidafure Battleground.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Iki"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:heavenly-falcon",
+      "name": "Heavenly Falcon",
+      "category": "mythic tales",
+      "description": "Cosmetic sword kit. Reward for completing The Heavenly Strike.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:izanami-s-grief",
+      "name": "Izanami's Grief",
+      "category": "mythic tales",
+      "description": "Cosmetic sword kit. Reward for completing The Undying Flame.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:omukade-s-revenge",
+      "name": "Omukade's Revenge",
+      "category": "mythic tales",
+      "description": "Cosmetic sword kit. Reward for completing The Spirit of Yarikawa's Vengeance.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:emperor-s-tears",
+      "name": "Emperor's Tears",
+      "category": "merchants",
+      "description": "Cosmetic sword kit. Sold by Izuhara Merchants: 15 flowers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:prowling-tiger",
+      "name": "Prowling Tiger",
+      "category": "merchants",
+      "description": "Cosmetic sword kit. Sold by Izuhara Merchants: 15 flowers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:sea-dragon-s-wing",
+      "name": "Sea Dragon's Wing",
+      "category": "merchants",
+      "description": "Cosmetic sword kit. Sold by Izuhara Merchants: 15 flowers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:snow-demon-s-eyes",
+      "name": "Snow Demon's Eyes",
+      "category": "merchants",
+      "description": "Cosmetic sword kit. Sold by Izuhara Merchants: 15 flowers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:the-spider-s-kiss",
+      "name": "The Spider's Kiss",
+      "category": "merchants",
+      "description": "Cosmetic sword kit. Sold by Iki Merchants: 15 flowers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:undying-rage",
+      "name": "Undying Rage",
+      "category": "merchants",
+      "description": "Cosmetic sword kit. Sold by Crimson Dye Merchant: 15 flowers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:warrior-s-shadow",
+      "name": "Warrior's Shadow",
+      "category": "merchants",
+      "description": "Cosmetic sword kit. Sold by Izuhara Merchants: 15 flowers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:the-hidden-heart",
+      "name": "The Hidden Heart",
+      "category": "exploration and activities",
+      "description": "Cosmetic sword kit. Complete The Hidden Cove Tournament.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    },
+    {
+      "id": "wiki:sword-kit:tempest-s-end",
+      "name": "Tempest's End",
+      "category": "exploration and activities",
+      "description": "Cosmetic sword kit. Complete Memories of Your Father.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only",
+        "region": "Not region-specific"
+      }
+    }
+  ]
+}

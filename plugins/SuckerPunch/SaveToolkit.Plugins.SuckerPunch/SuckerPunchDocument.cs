@@ -7,9 +7,8 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.SuckerPunch;
 
-internal sealed class SuckerPunchDocument : BoundSaveDocument
+internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDocument
 {
-    private const string ChecksumId = "container/word2";
     private const string InventoryBlockId = "blocks/inventory";
     private const string ProgressBlockId = "blocks/progress";
     private readonly ISaveFile _file;
@@ -20,8 +19,8 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
     private readonly IReadOnlyList<TsushimaIdentifier> _identifiers;
     private readonly IReferenceContext _references;
     private readonly IReferenceCatalog? _items;
-    private readonly IReferenceCatalog? _equipment;
-    private readonly IReferenceCatalog? _techniques;
+    private readonly TsushimaReferenceViews _views;
+    private readonly TsushimaQuantityPlanning _quantityPlanning;
     private readonly string? _subtitle;
 
     private SuckerPunchDocument(ISaveFile file, byte[] bytes, SaveContainer container, IReferenceContext references)
@@ -37,14 +36,15 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
             _inventory = TsushimaInventory.Parse(content);
             _progress = TsushimaProgress.Parse(content, container.Word3);
             _identifiers = TsushimaIdentifiers.Scan(content);
-            _items = references.Catalog("suckerpunch_items");
-            _equipment = references.Catalog("suckerpunch_equipment");
-            _techniques = references.Catalog("suckerpunch_techniques");
+            _items = references.Catalog(TsushimaIds.Items);
         }
         else
         {
             _identifiers = [];
         }
+
+        _views = new TsushimaReferenceViews(references, _identifiers, BindReadOnly);
+        _quantityPlanning = new TsushimaQuantityPlanning(bytes, container, _inventory);
     }
 
     public override string Title => string.IsNullOrWhiteSpace(_subtitle)
@@ -109,27 +109,53 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
         {
             tabs.Add(new Tab("Inventory", [new TextNode(
                 "Experimental edits: only existing unlocked records can change. Ammo updates both count copies. " +
-                "The game may clamp quantities to its capacity limits.") { Tone = Tone.Warning }, BuildInventory()]));
+                "The game may clamp quantities to its capacity limits.") { Tone = Tone.Warning },
+                _views.Inventory(_inventory, QuantityField), TsushimaQuantityPlanning.View, TsushimaReferenceViews.ResourceGuide]));
             if (_identifiers.Count > 0)
             {
                 tabs.Add(new Tab("Equipment", [new TextNode(
                     "Read-only identifier evidence. Presence in the save does not prove ownership, an equipped slot, " +
                     "a loadout, or a writable equipment record.") { Tone = Tone.Warning },
-                    BuildIdentifierTable(IdentifierGroup.Equipment, _equipment, "suckerpunch_equipment")]));
+                    _views.Identifiers(IdentifierGroup.Equipment, TsushimaIds.Equipment), .. TsushimaReferenceViews.EquipmentGuides]));
                 tabs.Add(new Tab("Techniques", [new TextNode(
                     "Read-only identifier evidence. Prerequisites, points, unlock state and progression effects are " +
                     "not established by these strings.") { Tone = Tone.Warning },
-                    BuildIdentifierTable(IdentifierGroup.Technique, _techniques, "suckerpunch_techniques")]));
+                    _views.Identifiers(IdentifierGroup.Technique, TsushimaIds.Techniques), TsushimaReferenceViews.TechniqueGuide]));
                 tabs.Add(new Tab("Character", [new TextNode(
                     "Read-only relationships inferred from identifier names. Values are not exposed as edits, and " +
                     "the scanner does not distinguish definitions, counters, ownership or active state.") { Tone = Tone.Warning },
-                    BuildCharacterTable()]));
+                    _views.Character()]));
             }
+            tabs.Add(new Tab("World", [new TextNode(
+                "Shrine reference by region. Discovery, completion and rewards cannot be read from the supplied saves yet; " +
+                "all location states remain Unknown. This is not a missing-content tracker.") { Tone = Tone.Warning },
+                TsushimaReferenceViews.WorldGuide]));
             tabs.Add(new Tab("Blocks", BuildBlocks()));
         }
 
         tabs.Add(new Tab("Raw bytes", [new HexNode("content", _bytes.Length) { Title = "Complete save bytes" }]));
         return new TabsNode(tabs);
+    }
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
+        => _quantityPlanning.Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+    {
+        var current = PlanAction(actionId, parameters, scope);
+        if (current.Errors.Count > 0)
+        {
+            return new EditOutcome { Errors = current.Errors };
+        }
+
+        if (!TsushimaQuantityPlanning.Matches(current, plan))
+        {
+            return EditOutcome.Rejected(actionId, "The goods preview is stale or does not match the request. Preview again.");
+        }
+
+        _ = BuildView();
+        return ApplyEdits(current.Changes.Where(change => !change.Derived)
+            .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray()) with { Warnings = current.Warnings };
     }
 
     protected override IEnumerable<ValueChange> DerivedChanges(IReadOnlyList<ValueChange> applied)
@@ -142,7 +168,7 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
         var old = ReadWord(8);
         var checksum = SaveContainer.CalculateTsushimaChecksum(_bytes, _container.Word1, _container.Magic, _container.Word3);
         WriteWord(8, checksum);
-        return old == checksum ? [] : [new ValueChange(ChecksumId, FieldValue.Of((ulong)old), FieldValue.Of((ulong)checksum))];
+        return old == checksum ? [] : [new ValueChange(TsushimaIds.ChecksumValue, FieldValue.Of((ulong)old), FieldValue.Of((ulong)checksum))];
     }
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
@@ -168,7 +194,8 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => lazyId switch
     {
-        InventoryBlockId when _inventory is not null => [BuildRawInventory()],
+        InventoryBlockId when _inventory is not null => [TsushimaReferenceViews.RawInventory(_inventory, ReadWord)],
+        _ when lazyId.StartsWith(TsushimaIds.GuidePrefix, StringComparison.Ordinal) && _inventory is not null => _views.ExpandGuide(lazyId),
         ProgressBlockId when _progress is not null => [new TextNode(
             $"Difficulty block: 0x{_progress.Start:X}–0x{_progress.End:X} (exclusive). " +
             "Four length-prefixed difficulty names each precede a float32 counter. Counter semantics are inferred; " +
@@ -208,92 +235,35 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
         })).ToArray();
     }
 
-    private TableNode BuildInventory()
+    private FieldNode QuantityField(InventoryRecord record)
     {
-        var rows = _inventory!.Records.Select(record =>
+        var flags = ReadWord(record.DataOffset);
+        var quantity = ReadWord(record.QuantityOffset);
+        var mirrorsMatch = !record.IsAmmo || quantity == ReadWord(record.QuantityOffset + sizeof(uint));
+        var editable = (record.IsAmmo || record.IsResource) && flags is 1 or 3 && mirrorsMatch &&
+            quantity <= InventoryRecord.MaximumQuantity;
+        var reference = _items?.Find(record.Name);
+        return Field(record.ValueId, reference?.Name ?? record.Name, new IntegerSpec(0,
+            Math.Max(quantity, InventoryRecord.MaximumQuantity)),
+            () => FieldValue.Of((ulong)ReadWord(record.QuantityOffset)),
+            editable ? value => SetQuantity(record, value.AsUInt32()) : null,
+            value => value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 ||
+                value.AsInteger() > InventoryRecord.MaximumQuantity ? "Quantity must be between 0 and 32767." : null) with
         {
-            var flags = ReadWord(record.DataOffset);
-            var quantity = ReadWord(record.QuantityOffset);
-            var mirrorsMatch = !record.IsAmmo || quantity == ReadWord(record.QuantityOffset + sizeof(uint));
-            var editable = (record.IsAmmo || record.IsResource) && flags is 1 or 3 && mirrorsMatch &&
-                quantity <= InventoryRecord.MaximumQuantity;
-            var quantityField = Field(record.ValueId, record.Name, new IntegerSpec(0,
-                Math.Max(quantity, InventoryRecord.MaximumQuantity)),
-                () => FieldValue.Of((ulong)ReadWord(record.QuantityOffset)),
-                editable ? value => SetQuantity(record, value.AsUInt32()) : null,
-                value => value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 ||
-                    value.AsInteger() > InventoryRecord.MaximumQuantity ? "Quantity must be between 0 and 32767." : null) with
-            {
-                Confidence = record.IsAmmo ? Confidence.Verified : Confidence.Inferred,
-                Description = $"Named record at 0x{record.Start:X}; count at 0x{record.QuantityOffset:X}. " +
-                    (record.IsAmmo ? "Apollo/Save Wizard targets these two count words." :
-                    "Resource count inferred from the named record and consistent slot values; internal identifier retained."),
-                Warning = editable ? "In-game capacity limits are unknown; large quantities may be clamped." :
-                    "Unmapped, locked, oversized, or inconsistent record: inspection only.",
-            };
-            return new TableRow(record.Name, new Dictionary<string, ViewNode>
-            {
-                ["name"] = new TextNode(record.Name),
-                ["item"] = ReferenceField($"inventory/{record.Name}/reference", "Identifier", record.Name,
-                    "suckerpunch_items", _items),
-                ["quantity"] = quantityField,
-            });
-        }).ToArray();
-        return new TableNode([new TableColumn("name", "Internal item name"),
-            new TableColumn("item", "Catalog reference"), new TableColumn("quantity", "Quantity")], rows)
-        {
-            Title = "Named inventory",
-            Description = "Located relative to LegendsInvestment; 48 length-prefixed records. Catalog names preserve raw IDs and are attributed in each field.",
+            Confidence = record.IsAmmo ? Confidence.Verified : Confidence.Inferred,
+            Description = $"Named record at 0x{record.Start:X}; count at 0x{record.QuantityOffset:X}. " +
+                (record.IsAmmo ? "Apollo/Save Wizard targets these two count words." :
+                "Resource count inferred from the named record and consistent slot values; raw identifier retained.") +
+                (reference is null ? "" : $" {reference.Description} {reference.AttributionText}"),
+            Warning = editable ? "In-game capacity limits are unknown; large quantities may be clamped." :
+                "Unmapped, locked, oversized, or inconsistent record: inspection only.",
         };
     }
 
-    private TableNode BuildIdentifierTable(IdentifierGroup group, IReferenceCatalog? catalog, string catalogId)
+    private FieldNode BindReadOnly(FieldNode node)
     {
-        var rows = _identifiers.Where(identifier => identifier.Group == group).Select(identifier =>
-        {
-            return new TableRow(identifier.Name, new Dictionary<string, ViewNode>
-            {
-                ["reference"] = ReferenceField($"{catalogId}/{identifier.Name}/reference", "Identifier",
-                    identifier.Name, catalogId, catalog),
-                ["location"] = new TextNode($"0x{identifier.Offset:X}") { Monospace = true },
-                ["state"] = new TextNode("Unknown") { Tone = Tone.Warning },
-            });
-        }).ToArray();
-        return new TableNode([new TableColumn("reference", "Catalog reference"),
-            new TableColumn("location", "First observed offset"), new TableColumn("state", "Ownership / state")], rows)
-        {
-            Title = group == IdentifierGroup.Equipment ? "Observed equipment identifiers" : "Observed technique identifiers",
-            Description = catalog is null ? "No pinned reference pack; raw IDs remain visible." :
-                $"Attributed dataset: {catalog.Dataset.Attribution.ToShortText()}",
-        };
-    }
-
-    private TableNode BuildCharacterTable()
-    {
-        var rows = _identifiers.Where(identifier => identifier.Group == IdentifierGroup.Character).Select(identifier =>
-            new TableRow(identifier.Name, new Dictionary<string, ViewNode>
-            {
-                ["identifier"] = new TextNode(identifier.Name) { Monospace = true },
-                ["location"] = new TextNode($"0x{identifier.Offset:X}") { Monospace = true },
-                ["relationship"] = new TextNode("Unknown") { Tone = Tone.Warning },
-            })).ToArray();
-        return new TableNode([new TableColumn("identifier", "Observed identifier"),
-            new TableColumn("location", "First observed offset"), new TableColumn("relationship", "Relationship")], rows)
-        { Title = "Character and progression candidates", Description = "Identifiers are evidence only; no character value or relationship is asserted." };
-    }
-
-    private FieldNode ReferenceField(string valueId, string label, string rawId, string catalogId,
-        IReferenceCatalog? catalog)
-    {
-        var record = catalog?.Find(rawId);
-        var description = record?.AttributionText ??
-            "Raw identifier observed in the Tsushima save; no pinned record supplies a display name.";
-        return Field(valueId, label, new ReferenceSpec(catalogId), () => FieldValue.Of(rawId)) with
-        {
-            Confidence = record is null ? Confidence.Unknown : Confidence.Inferred,
-            Description = description,
-            Warning = "Read-only: presence does not prove ownership, equipped state, or edit safety.",
-        };
+        _ = Field(node.ValueId, node.Label, node.Spec, () => node.Value);
+        return node;
     }
 
     private void SetQuantity(InventoryRecord record, uint quantity)
@@ -319,24 +289,6 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument
         }
 
         return nodes;
-    }
-
-    private TableNode BuildRawInventory()
-    {
-        var rows = _inventory!.Records.Select(record =>
-        {
-            var cells = new Dictionary<string, ViewNode> { ["name"] = new TextNode(record.Name) };
-            for (var index = 0; index < InventoryRecord.WordCount; index++)
-            {
-                var offset = record.DataOffset + index * sizeof(uint);
-                cells[$"word{index}"] = new TextNode($"0x{ReadWord(offset):X8} @ 0x{offset:X}") { Monospace = true };
-            }
-
-            return new TableRow(record.Name, cells);
-        }).ToArray();
-        return new TableNode([new TableColumn("name", "Record"),
-            .. Enumerable.Range(0, InventoryRecord.WordCount).Select(i => new TableColumn($"word{i}", $"Word {i}"))], rows)
-        { Description = "Unknown raw words. Edits invalidate this block so its snapshot can be refreshed." };
     }
 
     private uint ReadWord(int offset) => BinaryPrimitives.ReadUInt32LittleEndian(_bytes.AsSpan(offset));

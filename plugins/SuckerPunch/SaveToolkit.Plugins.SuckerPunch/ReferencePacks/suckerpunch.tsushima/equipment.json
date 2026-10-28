@@ -7,8 +7,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm02",
@@ -17,8 +20,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm03",
@@ -27,8 +33,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm04",
@@ -37,8 +46,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm05",
@@ -47,8 +59,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm06",
@@ -57,8 +72,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm07",
@@ -67,8 +85,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm08",
@@ -77,8 +98,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm09",
@@ -87,8 +111,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm10",
@@ -97,8 +124,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm11",
@@ -107,8 +137,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm12",
@@ -117,8 +150,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm13",
@@ -127,8 +163,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm14",
@@ -137,8 +176,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm15",
@@ -147,8 +189,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm16",
@@ -157,8 +202,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm17",
@@ -167,8 +215,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm18",
@@ -177,8 +228,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm19",
@@ -187,8 +241,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm20",
@@ -197,8 +254,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm21",
@@ -207,8 +267,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm22",
@@ -217,8 +280,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm23",
@@ -227,8 +293,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm24",
@@ -237,8 +306,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm25",
@@ -247,8 +319,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm26",
@@ -257,8 +332,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm27",
@@ -267,8 +345,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm28",
@@ -277,8 +358,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm29",
@@ -287,8 +371,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm30",
@@ -297,8 +384,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm31",
@@ -307,8 +397,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm32",
@@ -317,8 +410,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm33",
@@ -327,8 +423,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm34",
@@ -337,8 +436,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm36",
@@ -347,8 +449,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm37",
@@ -357,8 +462,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm38",
@@ -367,8 +475,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm39",
@@ -377,8 +488,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm40",
@@ -387,8 +501,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm41",
@@ -397,8 +514,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm42",
@@ -407,8 +527,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm43",
@@ -417,8 +540,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm44",
@@ -427,8 +553,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm45",
@@ -437,8 +566,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm46",
@@ -447,8 +579,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm47",
@@ -457,8 +592,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm48",
@@ -467,8 +605,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm49",
@@ -477,8 +618,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm50",
@@ -487,8 +631,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm51",
@@ -497,8 +644,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm52",
@@ -507,8 +657,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm53",
@@ -517,8 +670,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm54",
@@ -527,8 +683,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm55",
@@ -537,8 +696,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm56",
@@ -547,8 +709,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm57",
@@ -557,8 +722,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm58",
@@ -567,8 +735,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm59",
@@ -577,8 +748,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm60",
@@ -587,8 +761,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm61",
@@ -597,8 +774,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm62",
@@ -607,8 +787,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm63",
@@ -617,8 +800,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm64",
@@ -627,8 +813,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm65",
@@ -637,8 +826,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm66",
@@ -647,8 +839,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm67",
@@ -657,8 +852,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm68",
@@ -667,8 +865,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm69",
@@ -677,8 +878,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm70",
@@ -687,8 +891,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm71",
@@ -697,8 +904,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm72",
@@ -707,8 +917,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm73",
@@ -717,8 +930,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm74",
@@ -727,8 +943,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm75",
@@ -737,8 +956,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm76",
@@ -747,8 +969,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm77",
@@ -757,8 +982,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm78",
@@ -767,8 +995,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm79",
@@ -777,8 +1008,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AccMinorCharm80",
@@ -787,8 +1021,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorAcc1",
@@ -797,8 +1034,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorAcc2",
@@ -807,8 +1047,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorAcc3",
@@ -817,8 +1060,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorAcc4",
@@ -827,8 +1073,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorAcc5",
@@ -837,8 +1086,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorAcc6",
@@ -847,8 +1099,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorChest",
@@ -857,8 +1112,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorHead",
@@ -867,8 +1125,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorMaskFull",
@@ -877,8 +1138,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "ArmorMaskHalf",
@@ -887,8 +1151,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "HeadLegendsMask",
@@ -897,8 +1164,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "HorseArmor",
@@ -907,8 +1177,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "RoleAbilityVampsword",
@@ -917,8 +1190,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SuperArmor",
@@ -927,8 +1203,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordBokken",
@@ -937,8 +1216,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordBokkenYoung",
@@ -947,8 +1229,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordKatana",
@@ -957,8 +1242,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordKatanaBroken",
@@ -967,8 +1255,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordKatanaHonjo",
@@ -977,18 +1268,24 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordKatanaSakaiStorm",
-      "name": "SwordKatanaSakaiStorm",
-      "category": "observed identifier",
-      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "name": "The Storm of Clan Sakai",
+      "category": "sword kit",
+      "description": "The default cosmetic sword kit inherited by Jin from his father.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Sword + Katana + Sakai + Storm corresponds lexically to the wiki default kit; no equipped/owned relationship is asserted."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356"
     },
     {
       "id": "SwordKatanaYarikawa",
@@ -997,8 +1294,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordKatanaYoung",
@@ -1007,8 +1307,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordKatanaYoungIki",
@@ -1017,8 +1320,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFx",
@@ -1027,8 +1333,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFx8bit",
@@ -1037,8 +1346,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxAsh",
@@ -1047,8 +1359,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxBlood",
@@ -1057,8 +1372,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxDefault",
@@ -1067,8 +1385,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxFeathers",
@@ -1077,8 +1398,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxInfamous00",
@@ -1087,8 +1411,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxInfamous01",
@@ -1097,8 +1424,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxInfamous02",
@@ -1107,8 +1437,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxInk",
@@ -1117,8 +1450,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxNature00",
@@ -1127,8 +1463,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxNature01",
@@ -1137,8 +1476,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxNature02",
@@ -1147,8 +1489,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxPages",
@@ -1157,8 +1502,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxRainbow",
@@ -1167,8 +1515,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxTip",
@@ -1177,8 +1528,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxVolcanic00",
@@ -1187,8 +1541,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxVolcanic01",
@@ -1197,8 +1554,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SwordSwingFxVolcanic02",
@@ -1207,8 +1567,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "WeaponSword",
@@ -1217,8 +1580,11 @@
       "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 identifier scan",
-        "confidence": "Unknown"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     }
   ]
 }

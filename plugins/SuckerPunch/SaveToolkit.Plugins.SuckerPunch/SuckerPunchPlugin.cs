@@ -7,9 +7,9 @@ namespace SaveToolkit.Plugins.SuckerPunch;
 
 public sealed class SuckerPunchPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.3.0")
+    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.4.0")
     {
-        Description = "Experimental Tsushima inventory editing with attributed read-only catalogs; Yōtei container inspection.",
+        Description = "Experimental Tsushima quantity editing with action previews and attributed wiki reference guides; Yōtei inspection.",
         Games =
         [
             new GameTitle("PPSA02225", "Ghost of Tsushima"),
@@ -23,10 +23,13 @@ public sealed class SuckerPunchPlugin : IGamePlugin
             "https://github.com/sterben-Dev10/SaveWizard-Resources/blob/main/SaveWizard-Codes/Ghost%20of%20Tsushima%20Codes%20%5BSaveWizard%5D.txt",
             "https://github.com/bucanero/apollo-patches/blob/main/PS4/CUSA11456.savepatch",
             "https://github.com/bucanero/apollo-lib/blob/main/source/patches.c",
-            "https://ghostfranchise.fandom.com/wiki/Resources",
-            "https://ghostfranchise.fandom.com/wiki/Charms",
-            "https://ghostfranchise.fandom.com/wiki/Techniques",
-            "https://ghostfranchise.fandom.com/wiki/Sword_Kits",
+            "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221",
+            "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+            "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+            "https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356",
+            "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+            "https://ghostfranchise.fandom.com/wiki/Shinto_Shrines?oldid=29432",
+            "https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796",
         ],
     };
 

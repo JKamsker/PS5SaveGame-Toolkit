@@ -1,7 +1,7 @@
 # Sucker Punch save plugin (`suckerpunch`)
 
 Titles: **PPSA02225** (Ghost of Tsushima, Director's Cut) and **PPSA26344** (Ghost of Yōtei).
-Version 0.3.0 is **Experimental**: Tsushima inventory edits pass conformance and exact byte-difference
+Version 0.4.0 is **Experimental**: Tsushima inventory edits pass conformance and exact byte-difference
 tests, but have not been tested in-game. Yōtei documents remain **read-only**. No sample bytes,
 extracted saves, or third-party implementation code are included in this plugin.
 
@@ -10,9 +10,16 @@ extracted saves, or third-party implementation code are included in this plugin.
 * Tsushima: edit quantities in existing unlocked resource and ammunition records. Ammunition edits
   update both count words targeted by the Apollo / Save Wizard refill codes. The checksum is repaired
   immediately after an atomic edit batch, exposed as a derived change, and checked again during export.
-* Supplies, flowers, hides and internal `Ingred...` resource identifiers are shown without inventing
-  translations such as `IngredCoreOre` = iron. Resource quantity meanings are **Inferred**. Ammo count
-  meanings are **Verified** against matching source anchors and both count copies in all samples.
+* Attributed, revision-pinned wiki names accompany defensible raw-ID mappings. `IngredCoreOre`, raw
+  `Hide`, numbered charms and armor slots retain their raw names and **Unknown** mapping confidence.
+  Resource quantity meanings remain **Inferred**. Ammo count meanings remain **Verified** against
+  source anchors and both count copies; this is separate from name mapping and console validation.
+* An F6 preview/apply action sets a target quantity for existing Supplies, Flowers and raw Hide records
+  in observed container versions 47–49. Document scope covers those three records; an explicit empty
+  row selection changes nothing. Locked/oversized/already-matching rows are skipped; other selected
+  IDs are excluded. The preview includes count/checksum changes and warnings, is pure, and is rechecked
+  on apply. It uses ordinary validated scalar edits and one Core undo/redo group. It does not refill
+  to a claimed capacity, unlock items, or introduce new equipment/progression writes.
 * Difficulty and v48/v49 play time are **Inferred**, read-only fields. Every slot's whole play-time
   minutes and difficulty match its `param.sfo SUBTITLE`; changing these would also require deciding
   how to update console metadata. The v47 timer layout is different, so no timer is published for it.
@@ -27,8 +34,11 @@ extracted saves, or third-party implementation code are included in this plugin.
 * Tsushima has read-only Equipment, Techniques and Character tabs. They show first observed offsets and
   explicit Unknown ownership/equipped/progression relationships. Identifier presence is not treated as
   ownership, a loadout, a prerequisite, or an editable value. Raw record words remain read-only.
-* Tabs contain overview statistics, a 48-row inventory table, lazy Blocks sections and paged raw hex.
-  Edits invalidate the block snapshots.
+* Inventory retains a visible raw-ID column alongside friendly reference labels, categories and mapping
+  confidence. Equipment and Techniques retain Unknown ownership/state. Lazy reference guides cover
+  resources, charms, armor, sword kits and techniques. The World tab provides 17 region-scoped Shinto
+  shrine references; discovered/completed/rewarded state is Unknown for every entry. Edits invalidate
+  raw block snapshots. Guide views are capped at 200 rows and report truncation if a larger pack is used.
 * Opening copies the input; exports and hex pages are isolated copies. No-op exports are byte-identical,
   including unknown data, console metadata and padding. Only the selected document's file is returned;
   sibling saves, backup slots and `param.sfo` are preserved.
@@ -157,10 +167,10 @@ All-zero `dis.dat` placeholders remain opaque. Two non-empty samples have these 
 | memory.dat | `0x150` | 13 | 411619 | 29902195 |
 | AutoE1/dis.dat | `0x150` | 16 | 411397 | 30157398 |
 
-Round 2 found a promising additive integrity relationship and two counted name tables. The complete
+Earlier format research found a promising additive integrity relationship and two counted name tables. The complete
 header and writable gameplay semantics have not yet been established; Yōtei remains read-only.
 
-### Round 2 integrity and structure follow-up
+### Earlier integrity and structure follow-up
 
 Both non-empty files satisfy this **hypothesis**, independently recomputed in research tests:
 
@@ -192,7 +202,7 @@ is claimed. This is the stopping point for the stretch goal.
 
 ## Research log and sources
 
-Round 2, 2026-10-28: reviewed the converter, both SaveWizard code lists, Apollo's patch and its actual
+Earlier format research, 2026-10-28: reviewed the converter, both SaveWizard code lists, Apollo's patch and its actual
 code interpreter before implementation. Compared all 25 Tsushima files / 12 distinct payloads, including
 the older memory snapshot; rejected obsolete binary anchors, parsed named inventory, correlated
 subtitles, and tested fixed-size edits. Searches for Yōtei save editors, checksums and `memory.dat`
@@ -217,42 +227,108 @@ third-party code was copied or ported.
 
 ## Sources and attribution
 
-| Dataset | Source and licence | What is included |
-| --- | --- | --- |
-| `suckerpunch_items` | [PS5 Save Game Toolkit](https://github.com/JKamsker/PS5SaveGame-Toolkit), PS5 Save Game Toolkit contributors, original sample-derived index under project terms, retrieved 2026-10-28 | The exact raw names from the observed 48-record Tsushima inventory table. No translations, limits or icons are asserted. |
-| `suckerpunch_equipment` | [PS5 Save Game Toolkit](https://github.com/JKamsker/PS5SaveGame-Toolkit), PS5 Save Game Toolkit contributors, original sample-derived index under project terms, retrieved 2026-10-28 | Exact raw equipment-like identifiers observed in Tsushima. Prefix grouping is a display aid; ownership and equipped state remain Unknown. |
-| `suckerpunch_techniques` | [PS5 Save Game Toolkit](https://github.com/JKamsker/PS5SaveGame-Toolkit), PS5 Save Game Toolkit contributors, original sample-derived index under project terms, retrieved 2026-10-28 | Exact raw stance/technique-like identifiers observed in Tsushima. Prerequisites, points and unlock state remain Unknown. |
+| Dataset | Entries | Pinned source | License |
+| --- | ---: | --- | --- |
+| `suckerpunch_items` | 48 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221) | CC-BY-SA-3.0 |
+| `suckerpunch_equipment` | 122 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356) | CC-BY-SA-3.0 |
+| `suckerpunch_techniques` | 6 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271) | CC-BY-SA-3.0 |
+| `suckerpunch_resource_guide` | 12 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221) | CC-BY-SA-3.0 |
+| `suckerpunch_charm_guide` | 79 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085) | CC-BY-SA-3.0 |
+| `suckerpunch_armor_guide` | 15 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366) | CC-BY-SA-3.0 |
+| `suckerpunch_sword_guide` | 41 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356) | CC-BY-SA-3.0 |
+| `suckerpunch_technique_guide` | 18 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271) | CC-BY-SA-3.0 |
+| `suckerpunch_world_guide` | 17 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Shinto_Shrines?oldid=29432) | CC-BY-SA-3.0 |
 
-The pack's `SOURCES.md` sidecar and each record's attributes repeat this attribution next to the
-embedded data. The Ghost Franchise Wiki [resources](https://ghostfranchise.fandom.com/wiki/Resources),
-[charms](https://ghostfranchise.fandom.com/wiki/Charms), [techniques](https://ghostfranchise.fandom.com/wiki/Techniques)
-and [sword kits](https://ghostfranchise.fandom.com/wiki/Sword_Kits) pages informed research only; their
-text and images are not embedded because a redistributable, revision-pinned permission decision is
-still open.
+Every row above is a separate dataset in embedded pack `suckerpunch.tsushima` v2.0.0, retrieved
+2026-10-28. Wiki-derived data and the adapted mappings retain
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) share-alike. Each dataset has a
+`.source.md` sidecar, manifest attribution, per-record pinned source, and UI attribution; upstream
+URLs are also in `Info.References`. The inventory dataset additionally uses
+[Arrows, oldid 31796](https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796). Source changes and
+contributor attribution are detailed in the pack's `SOURCES.md`. Names, gameplay facts and acquisition
+information are extracted/shortened; images, button glyphs and quoted game flavor text are omitted.
+
+### Mapping policy and evidence
+
+There are **19 Inferred friendly-name mappings** across the 176 raw-key entries:
+
+* Nine resources: `IngredCoreBamboo`, `IngredUpgradeGold`, `IngredUpgradeSteel`, `IngredCoreLinen`,
+  `IngredUpgradeLeather`, `IngredUpgradeSilk`, `IngredUpgradeYew`, `Supplies`, `Flowers`. The names
+  match explicit resource words; Yew → Yew Wood is a lexical inference. The resource list supplies
+  category/vendor facts, not the raw-ID join. No ore → iron, Hide → Predator Hides, or wax-tree →
+  Wax Wood assumption is shipped.
+* Five arrows: `ArrowNormal`, `ArrowFire`, `ArrowHeavy`, `ArrowExplosive`, `ArrowPiercing`, joining
+  the named Apollo refill anchors/sample records to wiki arrow labels. Piercing Arrow is explicitly
+  Legends-only in its description; string presence does not establish campaign availability.
+* Four stances: `StoneStance`, `WaterStance`, `WindStance`, `MoonStance`, matching the wiki names
+  after inserting a space. These strings do not prove stance unlocks, points or active selection.
+* `SwordKatanaSakaiStorm` → The Storm of Clan Sakai: the katana/Sakai/Storm words match the wiki's
+  default kit. This does not prove a live owned/equipped cosmetic record.
+
+Each mapping includes a record-level `mappingEvidence` and `mappingConfidence`. All remaining
+157 raw mappings are **Unknown**. Quantity confidence and edit safety are independent of name
+confidence. In particular, a wiki list's order is never used to assign `AccMinorCharmNN` or
+`ArmorAccN` names. Rechecking all 12 distinct Tsushima payloads found the same numbered charm and
+stance identifiers across versions 47/48/49, consistent with definitions/registries being mixed into
+the save. No controlled observation proves their role as owned, equipped or unlocked state.
+
+The six additional guide datasets have **182 named reference entries** (12 resources, 79 charms,
+15 armor sets, 41 sword kits, 18 selected techniques, 17 shrines). Their `wiki:` keys are a separate,
+explicitly unjoined reference namespace. They are shown as text, not save bindings or replacement
+choices. Armor/charm ownership, technique unlocks, and world discovery/completion/rewards remain
+Unknown. The historical Archery Master's Attire is marked removed in patch 2.04. The shrine reference
+separates Izuhara (7), Toyotama (6), Kamiagata (3), and Iki expansion (1), without claiming a
+save-specific denominator or completed count. No Yōtei entries are imported into Tsushima's pack.
+
+### Remaining phase gates and owner captures
+
+Phase 1's attributed naming/readability and target-quantity preview are implemented. Phase 2 still
+lacks live equipment/character joins. Phase 3's equipment/technique/character edits and Phase 4's
+saved world-state reads remain blocked by evidence; the World reference is not a completion tracker.
+The existing corpus contains no annotated single-action captures. No new gameplay state semantics
+were inferred merely from different slot balances. No console-tested feature or Stable maturity is claimed.
+
+For each capture, use one disposable slot and retain **all participating files**; record title, PS5
+patch/build, region, mode (campaign/Legends), NG/NG+, DLC and locale. First capture an unchanged
+load/save control. Then capture separate before/after pairs for:
+
+1. **Resource labels/caps:** +1 Supplies, pick one flower, sell one Predator Hide, sell one iron,
+   one yew wood and one wax wood; fire/pick up one arrow; upgrade one pouch/quiver. Photograph the
+   relevant menu balance and upgrade tier. This resolves raw Hide/Ore/WaxTree joins and capacities.
+2. **Equipment:** equip one already-owned armor, sword kit and charm separately; switch one enabled
+   per-armor loadout; acquire a second copy of one minor charm; buy one dye; upgrade one existing
+   armor/weapon tier. Record exact item names, slot/ownership counts and both loadouts before/after.
+3. **Character/techniques:** earn one technique point, spend one point on a named technique, buy one
+   prerequisite chain, unlock one stance, finish one mythic tale, gain one legend rank, take damage
+   then heal. Record displayed points/rank/health/Resolve and technique state at every step.
+4. **World:** for one named shrine, fox den, hot spring, haiku, bamboo strike, pillar and quest,
+   capture discovery separately from completion and reward. Record region/location, journal state,
+   awarded item/health/Resolve/charm-slot change and coordinates if available.
+5. **Console validation:** restore an unchanged export first. For a small supported quantity edit,
+   load, observe the exact balance, consume/buy one item, resave, reload and export. Record any
+   clamping/normalization and compare every changed span; repeat separately for NG+/Iki/Legends
+   before claiming support in those modes.
+6. **Yōtei:** non-zero Mon/resource/ammo single-action pairs, manual/autosave/memory role controls,
+   and natural non-zero trailing bytes or an owner-controlled integrity/load/resave experiment.
+   Checksum coverage and authoritative records must be resolved before any Yōtei write.
 
 ## Validation and maintenance
 
 ```powershell
-dotnet test --project plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch.Tests
-pwsh -NoProfile -File plugins/SuckerPunch/scripts/check-source-length.ps1
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch.Tests/SaveToolkit.Plugins.SuckerPunch.Tests.csproj
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Sample-dependent tests use `SampleSaves.Load`, so missing archives skip those cases. The synthetic checksum
-vector runs without samples. Conformance explicitly chooses a supplies edit and selects all distinct
-payloads. Additional tests cover exact byte differences across all 25 Tsushima files, ammo copies,
-checksum changes, byte-identical undo, atomic rejection, corrupt headers, malformed inventory with repaired
-checksums, non-zero padding, and isolated returned memory. No console load test has been performed.
-
-Round 2 validation on 2026-10-28: the prior format suite had **46/46 plugin tests passed** and
-**42/42 Core tests passed**; API build passed with **zero warnings/errors**. The catalog change adds
-an embedded-pack attribution test. With an empty sample directory the current plugin suite passes
-six sample-independent tests and skips 42, confirming absent samples do not fail the run. The current
-API build also passes with zero warnings/errors.
-
-The plugin-local source-length script warns above 300 lines and rejects above 399, satisfying the task's
-strict `<400` limit. Its staged mode is wired to `plugins/SuckerPunch/.githooks/pre-commit`; use it with
-`git -c core.hooksPath=plugins/SuckerPunch/.githooks commit ...` without changing repository-wide hook
-configuration. No CI configuration exists in this worktree; a future pipeline can run the same script.
+Sample-dependent tests use `SampleSaves.Load` and skip if archives are absent. A skipped run is not
+round validation. With the supplied artifacts, round 1's baseline was **48 passed, 0 skipped**.
+Round-2 final checks on 2026-10-28: **85 passed, 0 failed, 0 skipped** with the artifacts variable
+exported in the test command; the full API build passed with **0 warnings and 0 errors**.
+Coverage includes all 25 Tsushima / 8 Yōtei
+payload entries, byte-identical no-op exports, exact changed count/checksum spans, mirrored ammo,
+locked/malformed/ambiguous records, rollback/undo, non-zero padding, isolated returned memory,
+pack validity/attribution, unjoined guide state, F6 purity/scope/stale/forged plans, and Core one-step
+undo/redo plus semantic review. Production code depends only on the SDK and performs no I/O.
+New C# files stay below 300 physical lines; no hooks, build targets or repository tooling were added.
 
 ## Open questions
 
@@ -264,6 +340,9 @@ configuration. No CI configuration exists in this worktree; a future pipeline ca
 
 ## SDK requests
 
-None required for inventory edits. Float timers have no Duration display equivalent to `IntegerSpec`,
+None for this round: F2/F4 references and F6 planning are used directly. F8 is unnecessary for these
+small lazy guides (maximum 79 rows); larger imported guides are bounded to one 200-row page.
+Equipment/progression/world blockers require sample evidence rather than new SDK substitutes.
+Float timers have no Duration display equivalent to `IntegerSpec`,
 so the read-only timer is presented in seconds. A future metadata-edit contract/policy could clarify
 whether changing play time or difficulty should update `param.sfo SUBTITLE`; this plugin leaves it intact.

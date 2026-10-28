@@ -2,53 +2,68 @@
   "records": [
     {
       "id": "ArrowNormal",
-      "name": "ArrowNormal",
+      "name": "Arrow",
       "category": "ammunition",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "description": "Half Bow ammunition.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Named Apollo refill anchor and matching arrow identifier; wiki supplies the display label and purpose."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796"
     },
     {
       "id": "ArrowFire",
-      "name": "ArrowFire",
+      "name": "Flaming Arrow",
       "category": "ammunition",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "description": "Half Bow ammunition that sets targets alight.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Named Apollo refill anchor and matching arrow identifier; wiki supplies the display label and purpose."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796"
     },
     {
       "id": "ArrowHeavy",
-      "name": "ArrowHeavy",
+      "name": "Heavy Arrow",
       "category": "ammunition",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "description": "Longbow ammunition that can pierce helmets.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Named Apollo refill anchor and matching arrow identifier; wiki supplies the display label and purpose."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796"
     },
     {
       "id": "ArrowPiercing",
-      "name": "ArrowPiercing",
+      "name": "Piercing Arrow",
       "category": "ammunition",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "description": "Legends Hunter ammunition that penetrates shields; campaign availability is not established.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Named Apollo refill anchor and matching arrow identifier; wiki supplies the display label and purpose."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796"
     },
     {
       "id": "ArrowExplosive",
-      "name": "ArrowExplosive",
+      "name": "Explosive Arrow",
       "category": "ammunition",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "description": "Longbow ammunition with an explosive payload.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Named Apollo refill anchor and matching arrow identifier; wiki supplies the display label and purpose."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796"
     },
     {
       "id": "ArrowSpirit",
@@ -57,8 +72,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "DartNormal",
@@ -67,8 +85,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "DartHallucination",
@@ -77,8 +98,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "DartWeakening",
@@ -87,8 +111,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "DartInstantPoison",
@@ -97,8 +124,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AmmoFlashBomb",
@@ -107,8 +137,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AmmoNoisemaker",
@@ -117,8 +150,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AmmoBell",
@@ -127,8 +163,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AmmoFireBomb",
@@ -137,8 +176,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AmmoConcussionBomb",
@@ -147,8 +189,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AmmoThrowingDagger",
@@ -157,8 +202,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AmmoSmokeBomb",
@@ -167,8 +215,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AmmoStickyBomb",
@@ -177,8 +228,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "AmmoFireBlade",
@@ -187,18 +241,24 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredCoreBamboo",
-      "name": "IngredCoreBamboo",
-      "category": "resource",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "name": "Bamboo",
+      "category": "wood",
+      "description": "Upgrade material used by bowyers.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Identifier contains the exact resource name Bamboo."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221"
     },
     {
       "id": "IngredCoreGunpowder",
@@ -207,8 +267,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredCoreOil",
@@ -217,8 +280,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredCoreOre",
@@ -227,8 +293,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredCoreToxin",
@@ -237,8 +306,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeBearHide",
@@ -247,8 +319,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeBoarHide",
@@ -257,8 +332,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeBone",
@@ -267,8 +345,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeCloth",
@@ -277,8 +358,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeDeerHide",
@@ -287,8 +371,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeFeather",
@@ -297,28 +384,37 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeGold",
-      "name": "IngredUpgradeGold",
-      "category": "resource",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "name": "Gold",
+      "category": "metal",
+      "description": "Upgrade material used by swordsmiths.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Identifier contains the exact resource name Gold."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221"
     },
     {
       "id": "IngredUpgradeSteel",
-      "name": "IngredUpgradeSteel",
-      "category": "resource",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "name": "Steel",
+      "category": "metal",
+      "description": "Upgrade material used by swordsmiths.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Identifier contains the exact resource name Steel."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221"
     },
     {
       "id": "IngredUpgradeGreenHerb",
@@ -327,8 +423,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeSinew",
@@ -337,8 +436,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeSilver",
@@ -347,8 +449,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeTalon",
@@ -357,8 +462,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredUpgradeVenomPouch",
@@ -367,48 +475,63 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "IngredCoreLinen",
-      "name": "IngredCoreLinen",
-      "category": "resource",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "name": "Linen",
+      "category": "cloth",
+      "description": "Upgrade material used by armorers.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Identifier contains the exact resource name Linen."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221"
     },
     {
       "id": "IngredUpgradeLeather",
-      "name": "IngredUpgradeLeather",
-      "category": "resource",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "name": "Leather",
+      "category": "cloth",
+      "description": "Upgrade material used by armorers.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Identifier contains the exact resource name Leather."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221"
     },
     {
       "id": "IngredUpgradeSilk",
-      "name": "IngredUpgradeSilk",
-      "category": "resource",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "name": "Silk",
+      "category": "cloth",
+      "description": "Upgrade material used by armorers.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Identifier contains the exact resource name Silk."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221"
     },
     {
       "id": "IngredUpgradeYew",
-      "name": "IngredUpgradeYew",
-      "category": "resource",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "name": "Yew Wood",
+      "category": "wood",
+      "description": "Upgrade material used by bowyers.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Yew ingredient identifier matches the wiki wood resource; lexical inference only."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221"
     },
     {
       "id": "IngredUpgradeWaxTree",
@@ -417,18 +540,24 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "Supplies",
       "name": "Supplies",
-      "category": "resource",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "category": "goods",
+      "description": "Used by equipment vendors and trappers.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Exact save identifier and wiki resource name match."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221"
     },
     {
       "id": "Hide",
@@ -437,18 +566,24 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "Flowers",
       "name": "Flowers",
-      "category": "resource",
-      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "category": "goods",
+      "description": "Traded with merchants.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Inferred",
+        "mappingConfidence": "Inferred",
+        "mappingEvidence": "Exact save identifier and wiki resource name match."
+      },
+      "source": "https://ghostfranchise.fandom.com/wiki/Resources?oldid=29221"
     },
     {
       "id": "TestItem",
@@ -457,8 +592,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "SurvivalCurrency",
@@ -467,8 +605,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     },
     {
       "id": "NGPFlowers",
@@ -477,8 +618,11 @@
       "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
       "attributes": {
         "evidence": "PPSA02225 sample inventory tables",
-        "confidence": "Inferred"
-      }
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "mappingEvidence": "Identifier presence only; no defensible friendly-name join."
+      },
+      "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit"
     }
   ]
 }

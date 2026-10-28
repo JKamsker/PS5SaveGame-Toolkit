@@ -1,0 +1,199 @@
+{
+  "records": [
+    {
+      "id": "wiki:armor:archery-master-s-attire",
+      "name": "Archery Master's Attire",
+      "category": "body armor",
+      "description": "Former body armor; the wiki reports removal in patch 2.04. Reference only.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:broken-armor",
+      "name": "Broken Armor",
+      "category": "body armor",
+      "description": "Body armor; default.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:deadly-rival-s-attire",
+      "name": "Deadly Rival's Attire",
+      "category": "body armor",
+      "description": "Body armor; Baku the Voiceless: 50 Ghost flowers.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:fundoshi",
+      "name": "Fundoshi",
+      "category": "body armor",
+      "description": "Body armor; complete 18 Hot Springs.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:ghost-armor",
+      "name": "Ghost Armor",
+      "category": "body armor",
+      "description": "Body armor; received during \"From the Darkness\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:gosaku-s-armor",
+      "name": "Gosaku's Armor",
+      "category": "body armor",
+      "description": "Body armor; complete \"The Unbreakable Gosaku\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:hero-of-tsushima-armor",
+      "name": "Hero of Tsushima Armor",
+      "category": "body armor",
+      "description": "Body armor; complete the Prologue and begin Act 1.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:kensei-armor",
+      "name": "Kensei Armor",
+      "category": "body armor",
+      "description": "Body armor; complete \"The Six Blades of Kojiro\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:mongol-commander-s-armor",
+      "name": "Mongol Commander's Armor",
+      "category": "body armor",
+      "description": "Body armor; complete \"Fit for the Khan\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:ronin-attire",
+      "name": "Ronin Attire",
+      "category": "body armor",
+      "description": "Body armor; received during \"Blood on the Grass\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:sakai-clan-armor",
+      "name": "Sakai Clan Armor",
+      "category": "body armor",
+      "description": "Body armor; received during \"Ghosts from the Past\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:samurai-clan-armor",
+      "name": "Samurai Clan Armor",
+      "category": "body armor",
+      "description": "Body armor; received during \"The Tale of Lady Masako\" [Masako Tale 1 of 9].",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:sarugami-armor",
+      "name": "Sarugami Armor",
+      "category": "body armor",
+      "description": "Body armor; received during \"The Legend of Black Hand Riku\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:tadayori-s-armor",
+      "name": "Tadayori's Armor",
+      "category": "body armor",
+      "description": "Body armor; received during \"The Legend of Tadayori\".",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    },
+    {
+      "id": "wiki:armor:traveler-s-attire",
+      "name": "Traveler's Attire",
+      "category": "body armor",
+      "description": "Body armor; gift from first Merchant.",
+      "source": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+      "attributes": {
+        "evidence": "Wiki reference only; no save-ID join or ownership/completion assertion.",
+        "confidence": "Unknown",
+        "mappingConfidence": "Unknown",
+        "scope": "Tsushima reference only"
+      }
+    }
+  ]
+}
