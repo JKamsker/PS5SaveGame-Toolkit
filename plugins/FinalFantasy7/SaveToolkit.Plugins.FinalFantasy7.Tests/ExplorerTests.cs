@@ -111,8 +111,9 @@ public sealed class ExplorerTests
         {
             var quantity = Assert.IsType<FieldNode>(row.Cells["quantity"]);
             var id = Assert.IsType<FieldNode>(row.Cells["id"]).Value.AsUInt32();
+            var source = EmbeddedCatalogs.Records(schema, "ff7r-items").FirstOrDefault(record => record.Key == id.ToString());
             var expectedReadOnly = title == "PPSA18936" ||
-                (id != 1 && id != 20 && !ItemNames.Contains(schema, false, id));
+                (id != (schema.IsRemake ? 20U : 1U) && source?.Category != "Items");
             Assert.Equal(expectedReadOnly, quantity.Spec.ReadOnly);
         }
         Assert.Equal(104, Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("materia/7"))).Rows.Count);

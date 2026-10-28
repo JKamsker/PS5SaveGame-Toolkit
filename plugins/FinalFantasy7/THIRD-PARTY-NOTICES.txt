@@ -1,4 +1,5 @@
-Item, materia, character and weapon display data derived from RyudoSynbios/game-tools-collection.
+Item, materia, character and weapon names/categories/AP tables, and progress candidate
+labels/offsets derived from RyudoSynbios/game-tools-collection.
 
 The MIT License (MIT)
 
@@ -21,3 +22,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+Round 2 source revision: c7bdd6d8228304b87dcdf15e57155d092eb06fd2.
+Metadata descriptions were added by the toolkit authors; they summarize the source
+classification and do not contain imported game effect text or artwork.
+No CC BY-SA wiki material or NC/unlicensed datamine content is included.

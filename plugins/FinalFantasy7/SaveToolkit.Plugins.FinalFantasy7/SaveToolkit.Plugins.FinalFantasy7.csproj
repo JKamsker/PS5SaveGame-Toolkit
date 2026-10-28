@@ -9,6 +9,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources/names.json" />
     <EmbeddedResource Include="Resources/equipment.json" />
+    <EmbeddedResource Include="Resources/*-progress.json" />
+    <EmbeddedResource Include="ReferencePacks/ff7r.remake.en/*" LogicalName="refpacks/ff7r.remake.en/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="ReferencePacks/ff7r.rebirth.en/*" LogicalName="refpacks/ff7r.rebirth.en/%(Filename)%(Extension)" />
     <InternalsVisibleTo Include="SaveToolkit.Plugins.FinalFantasy7.Tests" />
   </ItemGroup>
 </Project>

@@ -20,6 +20,7 @@ internal sealed class CharacterView(Ff7Schema schema, ReferenceData references, 
             var cells = new Dictionary<string, ViewNode>(StringComparer.Ordinal)
             {
                 ["name"] = new TextNode(references.Character(index)),
+                ["source"] = new TextNode(references.CharacterSource(index)),
                 ["level"] = bind(Field(key + "/level", "Level", baseOffset, IntegerSpec.UInt8, singleByte: true)),
                 ["experience"] = bind(Field(key + "/experience", "Experience", baseOffset + 0x20, IntegerSpec.UInt32)),
                 ["hp"] = bind(Field(key + "/hp", "Current HP", baseOffset + 0x10, IntegerSpec.UInt32)),
@@ -38,6 +39,7 @@ internal sealed class CharacterView(Ff7Schema schema, ReferenceData references, 
         {
             new("name", "Character"), new("level", "Level"), new("experience", "XP"),
             new("hp", "HP"), new("maxHp", "Max HP"),
+            new("source", "Name source"),
         };
         if (!schema.IsRemake)
         {
@@ -47,7 +49,7 @@ internal sealed class CharacterView(Ff7Schema schema, ReferenceData references, 
         return new TableNode(columns, rows)
         {
             Title = "Character sheets",
-            Description = "Candidate party records from the public MIT schema and matching PS5 sample values. Values are read-only and Inferred until controlled screenshots and before/after captures identify guest and cached records.",
+            Description = "Candidate party records from the public MIT schema and matching PS5 sample values. Values are read-only and Inferred until controlled screenshots and before/after captures identify guest and cached records. " + EmbeddedCatalogs.Attribution,
         };
     }
 

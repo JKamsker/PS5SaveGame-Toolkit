@@ -1,0 +1,623 @@
+[
+  {
+    "name": "Cloud's Dress 1",
+    "region": "General",
+    "category": "Character Outfits / Obtained Dresses",
+    "offset": 272274,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42792/6"
+  },
+  {
+    "name": "Cloud's Dress 2",
+    "region": "General",
+    "category": "Character Outfits / Obtained Dresses",
+    "offset": 272275,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42793/1"
+  },
+  {
+    "name": "Cloud's Dress 3",
+    "region": "General",
+    "category": "Character Outfits / Obtained Dresses",
+    "offset": 272275,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42793/4"
+  },
+  {
+    "name": "Tifa's Dress 1",
+    "region": "General",
+    "category": "Character Outfits / Obtained Dresses",
+    "offset": 272274,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42792/7"
+  },
+  {
+    "name": "Tifa's Dress 2",
+    "region": "General",
+    "category": "Character Outfits / Obtained Dresses",
+    "offset": 272275,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42793/2"
+  },
+  {
+    "name": "Tifa's Dress 3",
+    "region": "General",
+    "category": "Character Outfits / Obtained Dresses",
+    "offset": 272275,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42793/5"
+  },
+  {
+    "name": "Aerith's Dress 1",
+    "region": "General",
+    "category": "Character Outfits / Obtained Dresses",
+    "offset": 272275,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42793/0"
+  },
+  {
+    "name": "Aerith's Dress 2",
+    "region": "General",
+    "category": "Character Outfits / Obtained Dresses",
+    "offset": 272275,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42793/3"
+  },
+  {
+    "name": "Aerith's Dress 3",
+    "region": "General",
+    "category": "Character Outfits / Obtained Dresses",
+    "offset": 272275,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42793/6"
+  },
+  {
+    "name": "Report 01: Monster Bio Pt. 1",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273262,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6e/3"
+  },
+  {
+    "name": "Report 02: Magic Elements Pt. 1",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273262,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6e/4"
+  },
+  {
+    "name": "Report 03: The Stagger Effect Pt. 1",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273262,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6e/5"
+  },
+  {
+    "name": "Report 04: The Stagger Effect Pt. 2",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273262,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6e/6"
+  },
+  {
+    "name": "Report 05: Combat Simulation: Shiva",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273262,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6e/7"
+  },
+  {
+    "name": "Report 06: Monster Bio Pt. 2",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273263,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6f/0"
+  },
+  {
+    "name": "Report 07: Magic Elements Pt. 2",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273263,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6f/1"
+  },
+  {
+    "name": "Report 08: The Manipulation Technique",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273263,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6f/2"
+  },
+  {
+    "name": "Report 09: Monster Variants Pt. 1",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273263,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6f/3"
+  },
+  {
+    "name": "Report 10: Combat Simulation: Fat Chocobo",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273263,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6f/4"
+  },
+  {
+    "name": "Report 11: Monster Bio Pt. 3",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273263,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6f/5"
+  },
+  {
+    "name": "Report 12: The Stagger Effect Pt. 3",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273263,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6f/6"
+  },
+  {
+    "name": "Report 13: Refocus Analysis",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273263,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b6f/7"
+  },
+  {
+    "name": "Report 14: The Stagger Effect Pt. 4",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273264,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b70/0"
+  },
+  {
+    "name": "Report 15: Combat Simulation: Leviathan",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273264,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b70/1"
+  },
+  {
+    "name": "Report 16: Monster Bio Pt. 4",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273264,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b70/2"
+  },
+  {
+    "name": "Report 17: Weapon Abilities",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273264,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b70/3"
+  },
+  {
+    "name": "Report 18: MP Consumption",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273264,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b70/4"
+  },
+  {
+    "name": "Report 19: Monster Variants Pt. 2",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273264,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b70/5"
+  },
+  {
+    "name": "Report 20: Combat Simulation: Bahamut",
+    "region": "General",
+    "category": "Battle Intel / Entries",
+    "offset": 273264,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b70/6"
+  },
+  {
+    "name": "Report 01: Monster Bio Pt. 1",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273268,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b74/5"
+  },
+  {
+    "name": "Report 02: Magic Elements Pt. 1",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273268,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b74/6"
+  },
+  {
+    "name": "Report 03: The Stagger Effect Pt. 1",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273268,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b74/7"
+  },
+  {
+    "name": "Report 04: The Stagger Effect Pt. 2",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273269,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b75/0"
+  },
+  {
+    "name": "Report 05: Combat Simulation: Shiva",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273269,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b75/1"
+  },
+  {
+    "name": "Report 06: Monster Bio Pt. 2",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273269,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b75/2"
+  },
+  {
+    "name": "Report 07: Magic Elements Pt. 2",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273269,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b75/3"
+  },
+  {
+    "name": "Report 08: The Manipulation Technique",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273269,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b75/4"
+  },
+  {
+    "name": "Report 09: Monster Variants Pt. 1",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273269,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b75/5"
+  },
+  {
+    "name": "Report 10: Combat Simulation: Fat Chocobo",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273269,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b75/6"
+  },
+  {
+    "name": "Report 11: Monster Bio Pt. 3",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273269,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b75/7"
+  },
+  {
+    "name": "Report 12: The Stagger Effect Pt. 3",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273270,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b76/0"
+  },
+  {
+    "name": "Report 13: Refocus Analysis",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273270,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b76/1"
+  },
+  {
+    "name": "Report 14: The Stagger Effect Pt. 4",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273270,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b76/2"
+  },
+  {
+    "name": "Report 15: Combat Simulation: Leviathan",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273270,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b76/3"
+  },
+  {
+    "name": "Report 16: Monster Bio Pt. 4",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273270,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b76/4"
+  },
+  {
+    "name": "Report 17: Weapon Abilities",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273270,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b76/5"
+  },
+  {
+    "name": "Report 18: MP Consumption",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273270,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b76/6"
+  },
+  {
+    "name": "Report 19: Monster Variants Pt. 2",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273270,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b76/7"
+  },
+  {
+    "name": "Report 20: Combat Simulation: Bahamut",
+    "region": "General",
+    "category": "Battle Intel / Completed",
+    "offset": 273271,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b77/0"
+  },
+  {
+    "name": "Auto-Cure Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273274,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7a/7"
+  },
+  {
+    "name": "Wind Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273275,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7b/0"
+  },
+  {
+    "name": "First Strike Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273275,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7b/1"
+  },
+  {
+    "name": "ATB Boost Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273275,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7b/2"
+  },
+  {
+    "name": "Steadfast Block Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273275,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7b/4"
+  },
+  {
+    "name": "Steal Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273275,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7b/5"
+  },
+  {
+    "name": "Provoke Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273275,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7b/6"
+  },
+  {
+    "name": "Synergy Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273275,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7b/7"
+  },
+  {
+    "name": "Item Master Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273276,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7c/1"
+  },
+  {
+    "name": "Parry Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273276,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7c/2"
+  },
+  {
+    "name": "ATB Assist Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273276,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7c/3"
+  },
+  {
+    "name": "ATB Stagger Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273276,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7c/4"
+  },
+  {
+    "name": "Enemy Skill Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273276,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7c/6"
+  },
+  {
+    "name": "Skill Master Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273276,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7c/7"
+  },
+  {
+    "name": "MP Absorption Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273277,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7d/0"
+  },
+  {
+    "name": "HP Absorption Materia",
+    "region": "General",
+    "category": "Battle Intel / Reward",
+    "offset": 273277,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b7d/1"
+  },
+  {
+    "name": "Shiva defeated",
+    "region": "General",
+    "category": "Battle Intel / VR Missions",
+    "offset": 273266,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b72/5"
+  },
+  {
+    "name": "Fat Chocobo defeated",
+    "region": "General",
+    "category": "Battle Intel / VR Missions",
+    "offset": 273267,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b73/2"
+  },
+  {
+    "name": "Leviathan defeated",
+    "region": "General",
+    "category": "Battle Intel / VR Missions",
+    "offset": 273267,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b73/7"
+  },
+  {
+    "name": "Bahamut defeated",
+    "region": "General",
+    "category": "Battle Intel / VR Missions",
+    "offset": 273268,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+    "id": "remake/42b74/4"
+  }
+]

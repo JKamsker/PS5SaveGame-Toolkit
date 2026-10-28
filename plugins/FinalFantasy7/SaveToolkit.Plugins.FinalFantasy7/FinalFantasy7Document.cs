@@ -1,13 +1,14 @@
 using System.Buffers.Binary;
 using System.Globalization;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.FinalFantasy7;
 
-internal sealed class FinalFantasy7Document : BoundSaveDocument
+internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private const int RecordsPerSection = 32;
     private const int MaximumBlobPage = 64 * 1024;
@@ -22,6 +23,8 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
     private readonly CharacterView _characters;
     private readonly OwnedRelationsView? _ownedRelations;
     private readonly ReferenceData _references;
+    private readonly DocumentCollections? _collections;
+    private readonly MateriaPlanning _materiaPlanning;
 
     public FinalFantasy7Document(string path, string name, byte[] bytes, Ff7Schema schema, bool common,
         IReadOnlyList<LinkedRecord> records, IReferenceContext? references = null)
@@ -31,11 +34,28 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
         _schema = schema;
         _common = common;
         _records = records;
-        _gameplay = new(bytes, schema);
         _references = new(references ?? IReferenceContext.Empty, schema);
+        _gameplay = new(bytes, schema, _references);
+        _materiaPlanning = new(schema, _gameplay, _references);
         _explorer = new(bytes, records, Bind);
         _characters = new(schema, _references, Bind);
         _ownedRelations = !common && !schema.IsRemake ? new(bytes, _references) : null;
+        if (!common)
+        {
+            var progress = new ProgressData(bytes, schema, flag => Field($"progress/{flag.Id}/bit", "Stored bit",
+                IntegerSpec.UInt8 with { Min = 0, Max = 1 }, () => FieldValue.Of((long)((_bytes[flag.Offset] >> flag.Bit) & 1))) with
+            {
+                Confidence = Confidence.Inferred,
+                Description = $"Absolute byte 0x{flag.Offset:X}, bit {flag.Bit}. {flag.Source}; {EmbeddedCatalogs.Attribution}",
+                Warning = "Read-only candidate; rewards, actors and chapter-reset dependencies are unverified.",
+            });
+            _collections = new(_gameplay, _references, Bind, progress);
+            if (_ownedRelations is not null)
+            {
+                _collections.Add(_ownedRelations.Collection("weapon"));
+                _collections.Add(_ownedRelations.Collection("materia"));
+            }
+        }
         Title = $"{schema.Name} · {name}";
     }
 
@@ -60,13 +80,42 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument
                 : _gameplay.Summary(Bind)),
         ]),
         new Tab("Characters", _common ? [] : [_characters.Build()]),
-        new Tab("Catalog", _common ? [] : _references.CatalogSections()),
-        new Tab("Inventory", _common ? [] : _gameplay.Pages(materia: false)),
-        new Tab("Materia", _common ? [] : _gameplay.Pages(materia: true)),
-        new Tab("Owned items", _ownedRelations is null ? [] : _ownedRelations.Sections()),
+        new Tab("Catalog", _collections?.CatalogViews() ?? []),
+        new Tab("Inventory", _collections is null ? [] : [_collections.View("inventory")]),
+        new Tab("Materia", _collections is null ? [] : [_materiaPlanning.View(), _collections.View("materia")]),
+        new Tab("Progress", _collections is null ? [] : [_collections.View("progress")]),
+        new Tab("Cards", _collections?.Contains("cards") == true ? [_collections.View("cards")] : []),
+        new Tab("Owned items", _ownedRelations is null || _collections is null ? [] :
+            [_collections.View("owned-weapon"), _collections.View("owned-materia")]),
         new Tab("Records", [RecordTable(), .. RecordGroups()]),
         new Tab("Raw file", [new HexNode("file", _bytes.Length) { Title = "Original bytes (paged)" }]),
     ]);
+
+    public IReadOnlyList<QueryableCollection> Collections => _collections?.Metadata ?? [];
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        _collections?.Query(collectionId, query) ?? throw new KeyNotFoundException("Common files have no gameplay collections.");
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        _common ? new() { Errors = [new("action", "Common files are read-only.")] } : _materiaPlanning.Plan(actionId, parameters, scope);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
+    {
+        var current = PlanAction(actionId, parameters, scope);
+        if (!CanEdit || current.Errors.Count > 0 || !current.Changes.SequenceEqual(plan.Changes) ||
+            !current.SkippedRows.SequenceEqual(plan.SkippedRows) || !current.Warnings.SequenceEqual(plan.Warnings) || plan.Errors.Count > 0)
+        {
+            return EditOutcome.Rejected("action", "The AP plan is invalid or has changed; preview again.");
+        }
+
+        foreach (var change in current.Changes)
+        {
+            var slot = int.Parse(change.ValueId.Split('/')[1], CultureInfo.InvariantCulture);
+            _ = _gameplay.Row(true, slot, Bind);
+        }
+
+        return ApplyEdits([.. current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue))]);
+    }
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {

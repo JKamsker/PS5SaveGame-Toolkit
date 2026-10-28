@@ -1,0 +1,2956 @@
+{
+  "records": [
+    {
+      "id": "1",
+      "name": "Potion",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "2",
+      "name": "Hi-Potion",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3",
+      "name": "Ether",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "4",
+      "name": "Turbo Ether",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "5",
+      "name": "Elixir",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "6",
+      "name": "Phoenix Down",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "7",
+      "name": "Antidote",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "8",
+      "name": "Echo Mist",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9",
+      "name": "Adrenaline",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "10",
+      "name": "Sedative",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "11",
+      "name": "Remedy",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "12",
+      "name": "Celeris",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "13",
+      "name": "Grenade",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "14",
+      "name": "Spiderweb",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "15",
+      "name": "Hazardous Material",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "16",
+      "name": "Big Bomber",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "17",
+      "name": "Molotov Cocktail",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "18",
+      "name": "Orb of Gravity",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "19",
+      "name": "Smelling Salts",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "20",
+      "name": "Gil",
+      "category": "Trading Tokens",
+      "description": "Trading Tokens entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "21",
+      "name": "Maiden's Kiss",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "22",
+      "name": "Mega-Potion",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "31",
+      "name": "AI Programming Core",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "32",
+      "name": "Fuzzy Wuzzy",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "33",
+      "name": "Mr. Cuddlesworth",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "34",
+      "name": "Armor Core",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "50",
+      "name": "Fire damage (general)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "51",
+      "name": "Ice damage (fixed)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "52",
+      "name": "Lightning damage (STR)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "53",
+      "name": "Wind damage (Owner max HP percentage)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "54",
+      "name": "Earth damage (HP percentage)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "55",
+      "name": "Holy damage",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "56",
+      "name": "Dark damage",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "57",
+      "name": "Non-elemental damage",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "58",
+      "name": "Fire damage (physical)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "59",
+      "name": "Ice damage (physical)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "60",
+      "name": "Lightning damage (physical)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "61",
+      "name": "Wind damage (physical)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "62",
+      "name": "Earth damage (physical)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "63",
+      "name": "Holy damage (physical)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "64",
+      "name": "Dark damage (physical)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "65",
+      "name": "Non-elemental damage (physical)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "66",
+      "name": "0 damage spell (general)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "67",
+      "name": "0 damage physical attack (fixed)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "68",
+      "name": "Reflect",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "69",
+      "name": "Shield",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "70",
+      "name": "Pierce Reflect",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "71",
+      "name": "Nullify Reflect",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "72",
+      "name": "Pierce Shield",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "73",
+      "name": "Nullify Shield",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "74",
+      "name": "Toad",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "75",
+      "name": "Toad (All)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "76",
+      "name": "Maiden's Kiss (All)",
+      "category": "Items",
+      "description": "Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "100",
+      "name": "Sector 5 Reactor Keycard",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "102",
+      "name": "Tournament Entry Form",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "103",
+      "name": "Madam M's Endorsement",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "104",
+      "name": "Andrea's Endorsement",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "111",
+      "name": "Shinra ID Card",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "115",
+      "name": "Grappling Gun (1)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "116",
+      "name": "Grappling Gun (2)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "117",
+      "name": "Key to the Sewers",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "118",
+      "name": "Moogle Medal",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "119",
+      "name": "Sam's Coin",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "120",
+      "name": "Shinra Keycard",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "121",
+      "name": "Hojo's Research Lab Keycard",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "122",
+      "name": "Combat Analyzer",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "123",
+      "name": "Watch Security Key",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "124",
+      "name": "Handmade Necklace",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "126",
+      "name": "Behemoth Horn",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "127",
+      "name": "Medicinal Flowers",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "132",
+      "name": "Sam's Delivery Lifetime Pass",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "139",
+      "name": "Madam M's Requests",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "140",
+      "name": "Sam's Requests",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "141",
+      "name": "The Sauce",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "142",
+      "name": "Medicine Voucher",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "143",
+      "name": "VIP Card",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "144",
+      "name": "Yellow Flower",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "148",
+      "name": "Graveyard Key",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "149",
+      "name": "Guardian Angel's Calling Cards",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "150",
+      "name": "Vitalabrew",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "151",
+      "name": "Crimson Spike",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "152",
+      "name": "Bottle of Antiemetic",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "153",
+      "name": "Deodorizing Tablets",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "154",
+      "name": "Packets of Antacid",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "155",
+      "name": "Moogle Membership Card",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "156",
+      "name": "Gysahl Greens",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "157",
+      "name": "Doctor's List",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "158",
+      "name": "Moogle's Mortar",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "159",
+      "name": "Map to the Hideout",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "160",
+      "name": "Ruby Tiara",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "161",
+      "name": "Diamond Tiara",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "162",
+      "name": "Emerald Tiara",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "163",
+      "name": "Johnny's Wallet",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "164",
+      "name": "Corneo Vault Key",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "165",
+      "name": "Shinra Keycard",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "166",
+      "name": "Shinra Keycard",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "167",
+      "name": "Shinra Keycard",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "168",
+      "name": "Shinra Executive Keycard",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "169",
+      "name": "Letter from the Guardian Angel",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "170",
+      "name": "Andrea's Earrings",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "171",
+      "name": "Real Calling Card",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "172",
+      "name": "Fake Calling Card",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "173",
+      "name": "Corneo Vault Note",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "174",
+      "name": "Condor Coin",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "175",
+      "name": "Da-chao Beans",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "176",
+      "name": "Interplate ID Card",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "177",
+      "name": "Shinra Employee ID Card",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "178",
+      "name": "The Happy Turtle Newsletter 1",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "179",
+      "name": "The Happy Turtle Newsletter 2",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "180",
+      "name": "The Happy Turtle Newsletter 3",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "181",
+      "name": "The Happy Turtle Newsletter 4",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "182",
+      "name": "The Happy Turtle Newsletter 5",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "183",
+      "name": "The Happy Turtle Newsletter 6",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "184",
+      "name": "List of Flyer Clues",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "185",
+      "name": "Note from Zhijie",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "256",
+      "name": "1. The Prelude",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "257",
+      "name": "1. The Prelude",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "258",
+      "name": "4. Barret's Theme",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "260",
+      "name": "27. Hip Hop de Chocobo",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "261",
+      "name": "5. Lurking in the Darkness",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "262",
+      "name": "28. Stamp",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "264",
+      "name": "18. Electric de Chocobo",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "265",
+      "name": "2. Bombing Mission",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "266",
+      "name": "21. Cait Sith's Theme",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "267",
+      "name": "23. Descendant of Shinobi",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "268",
+      "name": "20. Gold Saucer",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "270",
+      "name": "19. Costa del Sol",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "272",
+      "name": "10. Honeybee Inn",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "273",
+      "name": "17. Farm Boy",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "274",
+      "name": "12. Fight On!",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "275",
+      "name": "11. Don of the Slums",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "276",
+      "name": "9. The Oppressed",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "278",
+      "name": "6. Let the Battles Begin!",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "282",
+      "name": "15. On Our Way",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "283",
+      "name": "14. Main Theme of FFVII",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "284",
+      "name": "30. Stand Up",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "285",
+      "name": "16. Good Night, Until Tomorrow",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "286",
+      "name": "24. Wutai",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "287",
+      "name": "7. Turks' Theme",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "288",
+      "name": "13. The Chase",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "289",
+      "name": "22. Cosmo Canyon",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "292",
+      "name": "29. The Midgar Blues",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "295",
+      "name": "26. Let the Battles Begin! -REMAKE-",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "300",
+      "name": "3. Tifa's Theme",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "301",
+      "name": "25. Tango of Tears",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "302",
+      "name": "8. Under the Rotting Pizza",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "303",
+      "name": "31. Scarlet's Theme",
+      "category": "Music Collection",
+      "description": "Music Collection entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "316",
+      "name": "The Art of Swordplay Vol. I",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "317",
+      "name": "The Art of Swordplay Vol. II",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "318",
+      "name": "The Art of Swordplay Vol. III",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "319",
+      "name": "The Art of Swordplay Vol. IV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "320",
+      "name": "The Art of Swordplay Vol. V",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "321",
+      "name": "The Art of Swordplay Vol. VI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "322",
+      "name": "The Art of Swordplay Vol. VII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "323",
+      "name": "The Art of Swordplay Vol. VIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "324",
+      "name": "The Art of Swordplay Vol. IX",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "325",
+      "name": "The Art of Swordplay Vol. X",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "326",
+      "name": "The Art of Swordplay Vol. XI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "327",
+      "name": "The Art of Swordplay Vol. XII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "328",
+      "name": "The Art of Swordplay Vol. XIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "329",
+      "name": "The Art of Swordplay Vol. XIV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "331",
+      "name": "Sharpshooter's Companion Vol. I",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "332",
+      "name": "Sharpshooter's Companion Vol. II",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "333",
+      "name": "Sharpshooter's Companion Vol. III",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "334",
+      "name": "Sharpshooter's Companion Vol. IV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "335",
+      "name": "Sharpshooter's Companion Vol. V",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "336",
+      "name": "Sharpshooter's Companion Vol. VI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "337",
+      "name": "Sharpshooter's Companion Vol. VII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "338",
+      "name": "Sharpshooter's Companion Vol. VIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "339",
+      "name": "Sharpshooter's Companion Vol. IX",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "340",
+      "name": "Sharpshooter's Companion Vol. X",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "341",
+      "name": "Sharpshooter's Companion Vol. XI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "342",
+      "name": "Sharpshooter's Companion Vol. XII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "343",
+      "name": "Sharpshooter's Companion Vol. XIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "344",
+      "name": "Sharpshooter's Companion Vol. XIV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "346",
+      "name": "Way of the Fist Vol. I",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "347",
+      "name": "Way of the Fist Vol. II",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "348",
+      "name": "Way of the Fist Vol. III",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "349",
+      "name": "Way of the Fist Vol. IV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "350",
+      "name": "Way of the Fist Vol. V",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "351",
+      "name": "Way of the Fist Vol. VI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "352",
+      "name": "Way of the Fist Vol. VII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "353",
+      "name": "Way of the Fist Vol. VIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "354",
+      "name": "Way of the Fist Vol. IX",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "355",
+      "name": "Way of the Fist Vol. X",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "356",
+      "name": "Way of the Fist Vol. XI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "357",
+      "name": "Way of the Fist Vol. XII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "358",
+      "name": "Way of the Fist Vol. XIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "359",
+      "name": "Way of the Fist Vol. XIV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "361",
+      "name": "Telluric Scriptures Vol. I",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "362",
+      "name": "Telluric Scriptures Vol. II",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "363",
+      "name": "Telluric Scriptures Vol. III",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "364",
+      "name": "Telluric Scriptures Vol. IV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "365",
+      "name": "Telluric Scriptures Vol. V",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "366",
+      "name": "Telluric Scriptures Vol. VI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "367",
+      "name": "Telluric Scriptures Vol. VII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "368",
+      "name": "Telluric Scriptures Vol. VIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "369",
+      "name": "Telluric Scriptures Vol. IX",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "370",
+      "name": "Telluric Scriptures Vol. X",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "371",
+      "name": "Telluric Scriptures Vol. XI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "372",
+      "name": "Telluric Scriptures Vol. XII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "373",
+      "name": "Telluric Scriptures Vol. XIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "374",
+      "name": "Telluric Scriptures Vol. XIV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "380",
+      "name": "Legacy: Ascension",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "381",
+      "name": "Legacy: Catastrophe",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "382",
+      "name": "Legacy: Dolphin Flurry",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "383",
+      "name": "Legacy: Planet's Protection",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "500",
+      "name": "Secrets of the Ninja Vol. I",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "501",
+      "name": "Secrets of the Ninja Vol. II",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "502",
+      "name": "Secrets of the Ninja Vol. III",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "503",
+      "name": "Secrets of the Ninja Vol. IV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "504",
+      "name": "Secrets of the Ninja Vol. V",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "505",
+      "name": "Secrets of the Ninja Vol. VI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "506",
+      "name": "Secrets of the Ninja Vol. VII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "507",
+      "name": "Secrets of the Ninja Vol. VIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "508",
+      "name": "Secrets of the Ninja Vol. IX",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "509",
+      "name": "Secrets of the Ninja Vol. X",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "510",
+      "name": "Secrets of the Ninja Vol. XI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "511",
+      "name": "Secrets of the Ninja Vol. XII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "512",
+      "name": "Secrets of the Ninja Vol. XIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "513",
+      "name": "Secrets of the Ninja Vol. XIV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "514",
+      "name": "Secrets of the Staff Vol. I",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "515",
+      "name": "Secrets of the Staff Vol. II",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "516",
+      "name": "Secrets of the Staff Vol. III",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "517",
+      "name": "Secrets of the Staff Vol. IV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "518",
+      "name": "Secrets of the Staff Vol. V",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "519",
+      "name": "Secrets of the Staff Vol. VI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "520",
+      "name": "Secrets of the Staff Vol. VII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "521",
+      "name": "Secrets of the Staff Vol. VIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "522",
+      "name": "Secrets of the Staff Vol. IX",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "523",
+      "name": "Secrets of the Staff Vol. X",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "524",
+      "name": "Secrets of the Staff Vol. XI",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "525",
+      "name": "Secrets of the Staff Vol. XII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "526",
+      "name": "Secrets of the Staff Vol. XIII",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "527",
+      "name": "Secrets of the Staff Vol. XIV",
+      "category": "Manuscripts",
+      "description": "Manuscripts entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "528",
+      "name": "Starter Board",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "529",
+      "name": "Sorcerer Board I",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "530",
+      "name": "Battalion Board I",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "531",
+      "name": "Assassin Board I",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "532",
+      "name": "Sorcerer Board II",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "533",
+      "name": "Battalion Board II",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "534",
+      "name": "Assassin Board II",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "535",
+      "name": "Assassin Board III",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "536",
+      "name": "Battalion Board III",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "537",
+      "name": "Grandmaster Board",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "538",
+      "name": "Security Officer (Vanguard)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "539",
+      "name": "Elite Security Officer (Vanguard)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "540",
+      "name": "Helitrooper (Vanguard)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "541",
+      "name": "Elite Helitrooper (Vanguard)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "542",
+      "name": "Shock Trooper (Vanguard)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "543",
+      "name": "Cutter (Vanguard)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "544",
+      "name": "Guard Dog (Vanguard)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "545",
+      "name": "Security Officer Barracks (Vanguard)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "546",
+      "name": "Grenadier (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "547",
+      "name": "Elite Grenadier (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "548",
+      "name": "Elite Shock Trooper (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "549",
+      "name": "Sweeper (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "550",
+      "name": "Slug-Ray (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "551",
+      "name": "Monodrive (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "552",
+      "name": "Sentry Ray (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "553",
+      "name": "Missile Launcher (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "554",
+      "name": "Grenadier Barracks (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "555",
+      "name": "Slug-Ray Facility (Ranged)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "556",
+      "name": "Riot Trooper (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "557",
+      "name": "Elite Riot Trooper (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "558",
+      "name": "Blast-Ray (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "559",
+      "name": "Armored Shock Trooper (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "560",
+      "name": "Helicopter (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "561",
+      "name": "Sentry Gun Prototype (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "562",
+      "name": "Sentry Gun (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "563",
+      "name": "Sledgeworm (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "564",
+      "name": "M.O.T.H. Unit (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "565",
+      "name": "Riot Trooper Barracks (Defense)",
+      "category": "Key Items",
+      "description": "Key Items entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "1001",
+      "name": "Buster Sword",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "1002",
+      "name": "Iron Blade",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "1003",
+      "name": "Hardedge",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "1004",
+      "name": "Mythril Saber",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "1005",
+      "name": "Twin Stinger",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "1006",
+      "name": "Nail Bat",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "1871",
+      "name": "Steel Reaper",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "2001",
+      "name": "Gatling Gun",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "2002",
+      "name": "Light Machine Gun",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "2003",
+      "name": "Steel Pincers",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "2004",
+      "name": "Big Bertha",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "2005",
+      "name": "EKG Cannon",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "2006",
+      "name": "Wrecking Ball",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3001",
+      "name": "Leather Gloves",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3002",
+      "name": "Metal Knuckles",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3003",
+      "name": "Feathered Gloves",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3004",
+      "name": "Mythril Claws",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3005",
+      "name": "Purple Pain",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3006",
+      "name": "Sonic Strikers",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3423",
+      "name": "4-Point Shuriken",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3431",
+      "name": "Indurate Staff",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "3934",
+      "name": "Cacstar",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "4001",
+      "name": "Guard Stick",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "4002",
+      "name": "Silver Staff",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "4003",
+      "name": "Bladed Staff",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "4004",
+      "name": "Mythril Rod",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "4005",
+      "name": "Reinforced Staff",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "4006",
+      "name": "Arcane Scepter",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "5001",
+      "name": "Mythril Collar",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "6608",
+      "name": "Boomerang",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "8181",
+      "name": "Marshalist's Staff",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9001",
+      "name": "Bronze Bangle",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9002",
+      "name": "Iron Bangle",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9003",
+      "name": "Titanium Bangle",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9004",
+      "name": "Gothic Bangle",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9005",
+      "name": "Cog Bangle",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9006",
+      "name": "Chain Bangle",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9007",
+      "name": "Leather Bracer",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9008",
+      "name": "Studded Bracer",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9009",
+      "name": "Heavy-Duty Bracer",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9010",
+      "name": "Supreme Bracer",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9011",
+      "name": "Iron Maiden",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9012",
+      "name": "Mesmeric Armlet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9013",
+      "name": "Mythril Armlet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9014",
+      "name": "Sorcerer's Armlet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9015",
+      "name": "Rune Armlet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9016",
+      "name": "Astral Cuff",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9017",
+      "name": "Power Wristguards",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9018",
+      "name": "Bulletproof Vest",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9019",
+      "name": "Earrings",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9020",
+      "name": "Talisman",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9021",
+      "name": "Headband",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9022",
+      "name": "Star Pendant",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9023",
+      "name": "Fury Ring",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9024",
+      "name": "Revival Earrings",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9025",
+      "name": "Whistlewind Scarf",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9026",
+      "name": "Mythical Amulet",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9027",
+      "name": "Healing Carcanet",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9028",
+      "name": "Clarity Pendant",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9029",
+      "name": "Transference Module",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9030",
+      "name": "Spectral Cogwheel",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9031",
+      "name": "Moogle's Amulet",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9032",
+      "name": "Enfeeblement Ring",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9033",
+      "name": "Crescent Moon Charm",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9034",
+      "name": "Champion Belt",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9035",
+      "name": "Protective Boots",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9036",
+      "name": "Circlet",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9037",
+      "name": "Tarot Cards",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9038",
+      "name": "Otherworldly Crystal",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9039",
+      "name": "Salvation Badge",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9040",
+      "name": "Star Bracelet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9041",
+      "name": "Caliginous Bracelet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9042",
+      "name": "Magician's Bracelet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9043",
+      "name": "Geometric Bracelet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9044",
+      "name": "Force Bracelet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9045",
+      "name": "Seraphic Earrings",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9050",
+      "name": "Enchanted Ring",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9051",
+      "name": "Supernatural Wristguards",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9052",
+      "name": "Survival Vest",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9053",
+      "name": "Platinum Earrings",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9054",
+      "name": "Timeworn Talisman",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9055",
+      "name": "Midgar Bangle",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9056",
+      "name": "Shinra Bangle",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9057",
+      "name": "Corneo Armlet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9058",
+      "name": "Superstar Belt",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9059",
+      "name": "Mako Crystal",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9060",
+      "name": "Götterdämmerung",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9061",
+      "name": "Ninja Armlet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9062",
+      "name": "Chthonian Armlet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9063",
+      "name": "Volant Armlet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9064",
+      "name": "Firebird Armlet",
+      "category": "Armor",
+      "description": "Armor entry in the Remake reference table.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9065",
+      "name": "Kindred Cord",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9066",
+      "name": "Ribbon",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9067",
+      "name": "Gozu Drive",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9068",
+      "name": "Mezu Drive",
+      "category": "Accessories",
+      "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    },
+    {
+      "id": "9579",
+      "name": "Djinn Staff",
+      "category": "Weapons",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
+      "attributes": {}
+    }
+  ]
+}

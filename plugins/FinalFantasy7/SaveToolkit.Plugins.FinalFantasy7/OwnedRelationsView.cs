@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.FinalFantasy7;
@@ -13,6 +15,26 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
     private const int PageSize = 64;
     private const int WeaponCount = 128;
     private const int MateriaCount = 1000;
+
+    public CollectionQuery Collection(string kind)
+    {
+        var count = kind == "materia" ? MateriaCount : WeaponCount;
+        var offset = kind == "materia" ? MateriaInventoryOffset : WeaponInventoryOffset;
+        var occupied = Enumerable.Range(0, count).Count(slot => U32(offset + slot * 0x20) != uint.MaxValue &&
+            U32(offset + slot * 0x20 + 4) != uint.MaxValue);
+        return new(new($"owned-{kind}", $"Owned {kind} relationships",
+            [new("slot", "Slot", IntegerSpec.UInt32), new("instance", "Instance"), new("type", "Type"),
+             new("name", "Name"), new("quantity", "Count", IntegerSpec.UInt32), new("detail", "Detail type"),
+             new("owner", "Referenced by"), new("source", "Source")], occupied)
+        {
+            Description = "Read-only instance/detail joins; equipment legality remains unverified. " + EmbeddedCatalogs.Attribution,
+        }, () => Enumerable.Range(0, (count + PageSize - 1) / PageSize).SelectMany(page => Page(kind, page).Rows)
+            .Select(row =>
+            {
+                var values = row.Cells.ToDictionary(pair => pair.Key, pair => ((TextNode)pair.Value).Text, StringComparer.Ordinal);
+                return new CollectionEntry(row.Key, values);
+            }));
+    }
 
     public IReadOnlyList<ViewNode> Sections() =>
     [
@@ -61,16 +83,20 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
                 ["quantity"] = new TextNode(U32(offset + 8).ToString()),
                 ["detail"] = new TextNode(detail is { } value ? $"0x{value:X8}" : "unresolved") { Monospace = true },
                 ["owner"] = new TextNode(owner),
+                ["source"] = new TextNode(references.Source(materia ? "ff7r-materia" : "ff7r-weapons", type) +
+                    " Character labels: " + string.Join("; ", Enumerable.Range(0, Ff7Schema.CharacterCount)
+                        .Select(references.CharacterSource).Distinct(StringComparer.Ordinal))),
             };
             rows.Add(new TableRow(key, cells));
         }
 
         return new TableNode(
             [new("slot", "Slot"), new("instance", "Instance"), new("type", "Type"), new("name", "Name"),
-             new("quantity", materia ? "Quantity" : "Count"), new("detail", "Detail type"), new("owner", materia ? "Equipped by" : "Referenced by")], rows)
+             new("quantity", materia ? "Quantity" : "Count"), new("detail", "Detail type"), new("owner", materia ? "Equipped by" : "Referenced by"),
+             new("source", "Source")], rows)
         {
             Title = materia ? "Owned materia relationships" : "Owned weapon relationships",
-            Description = "Instance/type domains are kept separate. Joins are sample-proven for the supplied retail Rebirth files; demo values remain Inferred and all rows are read-only.",
+            Description = "Instance/type domains are kept separate. Joins are sample-proven for the supplied retail Rebirth files; demo values remain Inferred and all rows are read-only. " + EmbeddedCatalogs.Attribution,
         };
     }
 

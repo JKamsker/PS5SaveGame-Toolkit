@@ -1,0 +1,4232 @@
+[
+  {
+    "name": "Chapter 1: Fall of a Hero",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280776,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c8/6"
+  },
+  {
+    "name": "Chapter 2: A New Journey Begins",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280776,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c8/7"
+  },
+  {
+    "name": "Chapter 3: Deeper into Darkness",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280777,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c9/0"
+  },
+  {
+    "name": "Chapter 4: Dawn of a New Era",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280777,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c9/1"
+  },
+  {
+    "name": "Chapter 5: Blood in the Water",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280777,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c9/2"
+  },
+  {
+    "name": "Chapter 6: Fool's Paradise",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280777,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c9/3"
+  },
+  {
+    "name": "Chapter 7: Those Left Behind",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280777,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c9/4"
+  },
+  {
+    "name": "Chapter 8: All That Glitters",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280777,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c9/5"
+  },
+  {
+    "name": "Chapter 9: The Planet Stirs",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280777,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c9/6"
+  },
+  {
+    "name": "Chapter 10: Watcher of the Vale",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280777,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448c9/7"
+  },
+  {
+    "name": "Chapter 11: The Long Shadow of Shinra",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280778,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448ca/0"
+  },
+  {
+    "name": "Chapter 12: A Golden Key",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280778,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448ca/1"
+  },
+  {
+    "name": "Chapter 13: Where Angels Fear to Tread",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280778,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448ca/2"
+  },
+  {
+    "name": "Chapter 14: End of the World",
+    "region": "General",
+    "category": "General / Cleared Chapters on Hard",
+    "offset": 280778,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/448ca/3"
+  },
+  {
+    "name": "Ned",
+    "region": "Grasslands",
+    "category": "Grasslands / Kalm",
+    "offset": 282564,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc4/1"
+  },
+  {
+    "name": "Nene",
+    "region": "Grasslands",
+    "category": "Grasslands / Kalm",
+    "offset": 282564,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc4/2"
+  },
+  {
+    "name": "Zahira",
+    "region": "Grasslands",
+    "category": "Grasslands / Kalm",
+    "offset": 282564,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc4/3"
+  },
+  {
+    "name": "Isabelle",
+    "region": "Junon",
+    "category": "Junon Region / Under Junon",
+    "offset": 282564,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc4/4"
+  },
+  {
+    "name": "The Moore Twins",
+    "region": "Junon",
+    "category": "Junon Region / Under Junon",
+    "offset": 282564,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc4/5"
+  },
+  {
+    "name": "Zogan",
+    "region": "Junon",
+    "category": "Junon Region / Under Junon",
+    "offset": 282564,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc4/6"
+  },
+  {
+    "name": "Michaela",
+    "region": "Junon",
+    "category": "Junon Region / Crow's Nest",
+    "offset": 282564,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc4/7"
+  },
+  {
+    "name": "Neil",
+    "region": "Junon",
+    "category": "Junon Region / Crow's Nest",
+    "offset": 282565,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc5/1"
+  },
+  {
+    "name": "Cameron",
+    "region": "Junon",
+    "category": "Junon Region / Crow's Nest",
+    "offset": 282565,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc5/0"
+  },
+  {
+    "name": "Dokaccha",
+    "region": "Corel",
+    "category": "Corel Region / Costal Del Sol",
+    "offset": 282565,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc5/2"
+  },
+  {
+    "name": "Maahir",
+    "region": "Corel",
+    "category": "Corel Region / Costal Del Sol",
+    "offset": 282565,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc5/3"
+  },
+  {
+    "name": "Riana",
+    "region": "Corel",
+    "category": "Corel Region / Costal Del Sol",
+    "offset": 282565,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc5/4"
+  },
+  {
+    "name": "Rolf",
+    "region": "Corel",
+    "category": "Corel Region / North Corel",
+    "offset": 282565,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc5/6"
+  },
+  {
+    "name": "Biff",
+    "region": "Corel",
+    "category": "Corel Region / North Corel",
+    "offset": 282565,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc5/7"
+  },
+  {
+    "name": "Navalan",
+    "region": "Corel",
+    "category": "Corel Region / North Corel",
+    "offset": 282565,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc5/5"
+  },
+  {
+    "name": "Specter of the Cards",
+    "region": "Corel",
+    "category": "Corel Region / The Gold Saucer",
+    "offset": 282566,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc6/0"
+  },
+  {
+    "name": "Dax",
+    "region": "Corel",
+    "category": "Corel Region / The Dustbowl",
+    "offset": 282566,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc6/1"
+  },
+  {
+    "name": "Pietro",
+    "region": "Corel",
+    "category": "Corel Region / The Dustbowl",
+    "offset": 282566,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc6/2"
+  },
+  {
+    "name": "Mary",
+    "region": "Corel",
+    "category": "Corel Region / The Dustbowl",
+    "offset": 282566,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc6/3"
+  },
+  {
+    "name": "Wize 3.0 Ver.2.0",
+    "region": "Corel",
+    "category": "Corel Region / The Dustbowl",
+    "offset": 282566,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc6/4"
+  },
+  {
+    "name": "Zhijun",
+    "region": "Gongaga",
+    "category": "Gongaga Region / Gongaga",
+    "offset": 282566,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc6/6"
+  },
+  {
+    "name": "Oscar",
+    "region": "Gongaga",
+    "category": "Gongaga Region / Gongaga",
+    "offset": 282566,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc6/7"
+  },
+  {
+    "name": "Regina",
+    "region": "Gongaga",
+    "category": "Gongaga Region / Gongaga",
+    "offset": 282566,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc6/5"
+  },
+  {
+    "name": "Shadowblood Queen",
+    "region": "Gongaga",
+    "category": "Gongaga Region / Gongaga Ruins",
+    "offset": 282567,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc7/6"
+  },
+  {
+    "name": "Robin",
+    "region": "Cosmo Canyon",
+    "category": "Cosmo Canyon Region / Cosmo Canyon",
+    "offset": 282567,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc7/0"
+  },
+  {
+    "name": "Ka'dina",
+    "region": "Cosmo Canyon",
+    "category": "Cosmo Canyon Region / Cosmo Canyon",
+    "offset": 282567,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc7/1"
+  },
+  {
+    "name": "Bernard",
+    "region": "Cosmo Canyon",
+    "category": "Cosmo Canyon Region / Cosmo Canyon",
+    "offset": 282567,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc7/2"
+  },
+  {
+    "name": "Dale",
+    "region": "Nibel",
+    "category": "Nibel Region / Nibelheim",
+    "offset": 282567,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc7/4"
+  },
+  {
+    "name": "Turner",
+    "region": "Nibel",
+    "category": "Nibel Region / Nibelheim",
+    "offset": 282567,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc7/5"
+  },
+  {
+    "name": "Vincent",
+    "region": "Nibel",
+    "category": "Nibel Region / Shinra Manor",
+    "offset": 282567,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44fc7/3"
+  },
+  {
+    "name": "Activation 1: Bill's Ranch Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282045,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbd/7"
+  },
+  {
+    "name": "Activation 2: Eastern Seaboard Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282046,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbe/4"
+  },
+  {
+    "name": "Activation 3: Swamplands Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282047,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbf/1"
+  },
+  {
+    "name": "Activation 4: Plains Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282047,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbf/6"
+  },
+  {
+    "name": "Activation 5: Kalm Outskirts Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282048,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc0/3"
+  },
+  {
+    "name": "Activation 6: Wastelands Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282049,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc1/0"
+  },
+  {
+    "name": "Chocobo: All-Rounders of the Grasslands",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282046,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbe/3"
+  },
+  {
+    "name": "Moogle: Prairie Moogle",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282047,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbf/0"
+  },
+  {
+    "name": "Expedition 1: Cragshade Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282046,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbe/1"
+  },
+  {
+    "name": "Expedition 2: Wetlands Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282047,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbf/2"
+  },
+  {
+    "name": "Expedition 3: Morass Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282047,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbf/5"
+  },
+  {
+    "name": "Expedition 4: Grasswastes Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282048,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc0/0"
+  },
+  {
+    "name": "Expedition 5: Mako Pipeline Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282048,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc0/7"
+  },
+  {
+    "name": "Expedition 6: Cavern Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282049,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc1/2"
+  },
+  {
+    "name": "Divine 1: Titan Sanctuary α",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282046,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbe/5"
+  },
+  {
+    "name": "Divine 2: Titan Sanctuary β",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282047,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbf/3"
+  },
+  {
+    "name": "Divine 3: Titan Sanctuary γ",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282049,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc1/1"
+  },
+  {
+    "name": "Excavation 1: Bygone Settlement",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282048,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc0/1"
+  },
+  {
+    "name": "Excavation 2: Pipeline Depository",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282048,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc0/5"
+  },
+  {
+    "name": "Fiend 1: Voracious and Venomous",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282046,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbe/0"
+  },
+  {
+    "name": "Fiend 2: Bearer of Grudges",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282046,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbe/7"
+  },
+  {
+    "name": "Fiend 3: Keepers of the Burrow",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282047,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbf/4"
+  },
+  {
+    "name": "Fiend 4: Wailing Weed",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282047,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbf/7"
+  },
+  {
+    "name": "Fiend 5: Picky Eater",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282048,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc0/6"
+  },
+  {
+    "name": "Fiend 6: Voltaic Canine",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282049,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc1/3"
+  },
+  {
+    "name": "Classified: Winged Lacertilian of Yore",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282049,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc1/5"
+  },
+  {
+    "name": "Phenomenon 1: Coastal Lookout",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282046,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dbe/6"
+  },
+  {
+    "name": "Phenomenon 2: Pipeline Management Facility",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282048,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc0/2"
+  },
+  {
+    "name": "Phenomenon 3: Abandoned Republic Factory",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282049,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc1/4"
+  },
+  {
+    "name": "Phenomenon 4: The Hideout",
+    "region": "Grasslands",
+    "category": "World Intel / Discovered",
+    "offset": 282048,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dc0/4"
+  },
+  {
+    "name": "Activation 1: Bill's Ranch Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281015,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b7/2"
+  },
+  {
+    "name": "Activation 2: Eastern Seaboard Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281015,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b7/7"
+  },
+  {
+    "name": "Activation 3: Swamplands Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281016,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b8/4"
+  },
+  {
+    "name": "Activation 4: Plains Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281017,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b9/1"
+  },
+  {
+    "name": "Activation 5: Kalm Outskirts Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281017,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b9/6"
+  },
+  {
+    "name": "Activation 6: Wastelands Tower",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281018,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ba/3"
+  },
+  {
+    "name": "Chocobo: All-Rounders of the Grasslands",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281015,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b7/6"
+  },
+  {
+    "name": "Moogle: Prairie Moogle",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281016,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b8/3"
+  },
+  {
+    "name": "Expedition 1: Cragshade Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281015,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b7/4"
+  },
+  {
+    "name": "Expedition 2: Wetlands Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281016,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b8/5"
+  },
+  {
+    "name": "Expedition 3: Morass Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281017,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b9/0"
+  },
+  {
+    "name": "Expedition 4: Grasswastes Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281017,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b9/3"
+  },
+  {
+    "name": "Expedition 5: Mako Pipeline Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281018,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ba/2"
+  },
+  {
+    "name": "Expedition 6: Cavern Lifespring",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281018,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ba/5"
+  },
+  {
+    "name": "Divine 1: Titan Sanctuary α",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281016,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b8/0"
+  },
+  {
+    "name": "Divine 2: Titan Sanctuary β",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281016,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b8/6"
+  },
+  {
+    "name": "Divine 3: Titan Sanctuary γ",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281018,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ba/4"
+  },
+  {
+    "name": "Excavation 1: Bygone Settlement",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281017,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b9/4"
+  },
+  {
+    "name": "Excavation 2: Pipeline Depository",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281018,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ba/0"
+  },
+  {
+    "name": "Fiend 1: Voracious and Venomous",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281015,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b7/3"
+  },
+  {
+    "name": "Fiend 2: Bearer of Grudges",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281016,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b8/2"
+  },
+  {
+    "name": "Fiend 3: Keepers of the Burrow",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281016,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b8/7"
+  },
+  {
+    "name": "Fiend 4: Wailing Weed",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281017,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b9/2"
+  },
+  {
+    "name": "Fiend 5: Picky Eater",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281018,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ba/1"
+  },
+  {
+    "name": "Fiend 6: Voltaic Canine",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281018,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ba/6"
+  },
+  {
+    "name": "Classified: Winged Lacertilian of Yore",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281019,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bb/0"
+  },
+  {
+    "name": "Phenomenon 1: Wild Bandit Chase",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281016,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b8/1"
+  },
+  {
+    "name": "Phenomenon 2: One Badass Barbecue",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281017,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b9/5"
+  },
+  {
+    "name": "Phenomenon 3: Diversionary Tactics",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281018,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ba/7"
+  },
+  {
+    "name": "Phenomenon 4: Taking Care of Business",
+    "region": "Grasslands",
+    "category": "World Intel / Completed",
+    "offset": 281017,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449b9/7"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282014,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44d9e/0"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282014,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44d9e/1"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282014,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44d9e/2"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282014,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44d9e/3"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282014,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44d9e/4"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282014,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44d9e/5"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282014,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44d9e/6"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282014,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44d9e/7"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281019,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bb/1"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281019,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bb/2"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281019,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bb/3"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281019,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bb/4"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281019,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bb/5"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281019,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bb/6"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281019,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bb/7"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Grasslands",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281020,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bc/0"
+  },
+  {
+    "name": "Activation 1: Seabreeze Tower",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282105,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44df9/2"
+  },
+  {
+    "name": "Activation 2: Buffeted Cape Tower",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282105,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44df9/7"
+  },
+  {
+    "name": "Activation 3: Batteryhill Tower",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282106,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfa/4"
+  },
+  {
+    "name": "Activation 4: Piedmont Tower",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282107,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfb/1"
+  },
+  {
+    "name": "Activation 5: Prospect Tower",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282107,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfb/6"
+  },
+  {
+    "name": "Chocobo: Birds of the Mountain",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282105,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44df9/3"
+  },
+  {
+    "name": "Moogle: Mariner Moogle",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282107,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfb/0"
+  },
+  {
+    "name": "Expedition 1: Chocobluff Lifespring",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282105,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44df9/4"
+  },
+  {
+    "name": "Expedition 2: Castaway Lifespring",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282106,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfa/7"
+  },
+  {
+    "name": "Expedition 3: Mountain Outpost Lifespring",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282107,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfb/4"
+  },
+  {
+    "name": "Expedition 4: Pharecape Lifespring",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282108,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfc/1"
+  },
+  {
+    "name": "Divine 1: Phoenix Sanctuary α",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282105,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44df9/6"
+  },
+  {
+    "name": "Divine 2: Phoenix Sanctuary β",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282107,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfb/2"
+  },
+  {
+    "name": "Divine 3: Phoenix Sanctuary γ",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282108,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfc/0"
+  },
+  {
+    "name": "Excavation: The Scars of War",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282106,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfa/3"
+  },
+  {
+    "name": "Fiend 1: Cacophonic Corvid",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282105,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44df9/5"
+  },
+  {
+    "name": "Fiend 2: Zemze Breakes",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282106,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfa/6"
+  },
+  {
+    "name": "Fiend 3: Scroched Earth",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282107,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfb/5"
+  },
+  {
+    "name": "Fiend 4: Weather the Storm",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282108,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfc/2"
+  },
+  {
+    "name": "Classified: The Whisperer in the Darkness",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282108,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfc/3"
+  },
+  {
+    "name": "Phenomenon 1: Wrack and Ruin",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282106,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfa/2"
+  },
+  {
+    "name": "Phenomenon 2: Flotsam and Jetsam",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282106,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfa/5"
+  },
+  {
+    "name": "Phenomenon 3: Crumbling Fastness",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282107,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfb/7"
+  },
+  {
+    "name": "Phenomenon 4: Encampment Vestiges",
+    "region": "Junon",
+    "category": "World Intel / Discovered",
+    "offset": 282107,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44dfb/3"
+  },
+  {
+    "name": "Activation 1: Seabreeze Tower",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281022,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449be/6"
+  },
+  {
+    "name": "Activation 2: Buffeted Cape Tower",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281023,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bf/3"
+  },
+  {
+    "name": "Activation 3: Batteryhill Tower",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281024,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c0/0"
+  },
+  {
+    "name": "Activation 4: Piedmont Tower",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281024,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c0/5"
+  },
+  {
+    "name": "Activation 5: Prospect Tower",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281025,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c1/2"
+  },
+  {
+    "name": "Chocobo: Birds of the Mountain",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281022,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449be/7"
+  },
+  {
+    "name": "Moogle: Mariner Moogle",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281024,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c0/4"
+  },
+  {
+    "name": "Expedition 1: Chocobluff Lifespring",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281023,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bf/0"
+  },
+  {
+    "name": "Expedition 2: Castaway Lifespring",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281024,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c0/3"
+  },
+  {
+    "name": "Expedition 3: Mountain Outpost Lifespring",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281025,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c1/0"
+  },
+  {
+    "name": "Expedition 4: Pharecape Lifespring",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281025,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c1/5"
+  },
+  {
+    "name": "Divine 1: Phoenix Sanctuary α",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281023,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bf/2"
+  },
+  {
+    "name": "Divine 2: Phoenix Sanctuary β",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281024,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c0/6"
+  },
+  {
+    "name": "Divine 3: Phoenix Sanctuary γ",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281025,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c1/4"
+  },
+  {
+    "name": "Excavation: The Scars of War",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281023,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bf/7"
+  },
+  {
+    "name": "Fiend 1: Cacophonic Corvid",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281023,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bf/1"
+  },
+  {
+    "name": "Fiend 2: Zemze Breakes",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281024,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c0/2"
+  },
+  {
+    "name": "Fiend 3: Scroched Earth",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281025,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c1/1"
+  },
+  {
+    "name": "Fiend 4: Weather the Storm",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281025,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c1/6"
+  },
+  {
+    "name": "Classified: The Whisperer in the Darkness",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281025,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c1/7"
+  },
+  {
+    "name": "Phenomenon 1: The World of Fort Condor",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281023,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449bf/6"
+  },
+  {
+    "name": "Phenomenon 2: O Captain! My Captain!",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281024,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c0/1"
+  },
+  {
+    "name": "Phenomenon 3: Princess in Another Castle",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281025,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c1/3"
+  },
+  {
+    "name": "Phenomenon 4: Interdimensional Warlock",
+    "region": "Junon",
+    "category": "World Intel / Completed",
+    "offset": 281024,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c0/7"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Junon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282076,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ddc/5"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Junon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282076,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ddc/7"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Junon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282077,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ddd/1"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Junon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282077,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ddd/2"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Junon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282077,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ddd/3"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Junon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282077,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ddd/4"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Junon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282077,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ddd/5"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Junon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282077,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ddd/7"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Junon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281026,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c2/1"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Junon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281026,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c2/3"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Junon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281026,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c2/5"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Junon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281026,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c2/6"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Junon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281026,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c2/7"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Junon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281027,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c3/0"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Junon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281027,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c3/1"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Junon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281027,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c3/3"
+  },
+  {
+    "name": "Activation 1: Costa Port Tower",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282170,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3a/7"
+  },
+  {
+    "name": "Activation 2: Seashell Coast Tower",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282171,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3b/4"
+  },
+  {
+    "name": "Activation 3: Wasteland Tower",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282172,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3c/1"
+  },
+  {
+    "name": "Activation 4: Riverside Tower",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282172,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3c/6"
+  },
+  {
+    "name": "Activation 5: Stonearch Tower",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282173,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3d/3"
+  },
+  {
+    "name": "Activation 6: Ravine Tower",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282174,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3e/0"
+  },
+  {
+    "name": "Moogle 1: Tropical Moogle",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282172,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3c/0"
+  },
+  {
+    "name": "Moogle 2: Wasteland Moogle",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282174,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3e/4"
+  },
+  {
+    "name": "Expedition 1: Secluded Grotto Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282171,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3b/1"
+  },
+  {
+    "name": "Expedition 2: Glencross Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282171,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3b/6"
+  },
+  {
+    "name": "Expedition 3:  Oasis Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282172,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3c/3"
+  },
+  {
+    "name": "Expedition 4: Watermain Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282173,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3d/0"
+  },
+  {
+    "name": "Expedition 5: Stonebowl Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282173,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3d/5"
+  },
+  {
+    "name": "Expedition 6: Rockspout Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282174,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3e/2"
+  },
+  {
+    "name": "Divine 1: Alexander Sanctuary α",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282171,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3b/7"
+  },
+  {
+    "name": "Divine 2: Alexander Sanctuary β",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282173,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3d/2"
+  },
+  {
+    "name": "Divine 3: Alexander Sanctuary γ",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282173,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3d/6"
+  },
+  {
+    "name": "Excavation 1: Valve Factory Ruins",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282171,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3b/2"
+  },
+  {
+    "name": "Excavation 2: Deserted Village",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282173,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3d/1"
+  },
+  {
+    "name": "Fiend 1: Hit the Squids",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282171,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3b/0"
+  },
+  {
+    "name": "Fiend 2: Seahorsing Around",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282171,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3b/5"
+  },
+  {
+    "name": "Fiend 3: Top of the Pecking Order",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282172,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3c/2"
+  },
+  {
+    "name": "Fiend 4: Death from Below",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282172,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3c/7"
+  },
+  {
+    "name": "Fiend 5: Fish out of Water",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282173,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3d/4"
+  },
+  {
+    "name": "Fiend 6: Unholy Union",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282174,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3e/1"
+  },
+  {
+    "name": "Classified: Heavy Lies the Crown",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282174,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3e/5"
+  },
+  {
+    "name": "Phenomenon 1: Modular Reactor 1",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282172,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3c/4"
+  },
+  {
+    "name": "Phenomenon 2: Modular Reactor 2",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282173,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3d/7"
+  },
+  {
+    "name": "Phenomenon 3: Modular Reactor 3",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282172,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3c/5"
+  },
+  {
+    "name": "Phenomenon 4: Modular Reactor 4",
+    "region": "Corel",
+    "category": "World Intel / Discovered",
+    "offset": 282174,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e3e/3"
+  },
+  {
+    "name": "Activation 1: Costa Port Tower",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281030,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c6/2"
+  },
+  {
+    "name": "Activation 2: Seashell Coast Tower",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281030,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c6/7"
+  },
+  {
+    "name": "Activation 3: Wasteland Tower",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281031,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c7/4"
+  },
+  {
+    "name": "Activation 4: Riverside Tower",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281032,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c8/1"
+  },
+  {
+    "name": "Activation 5: Stonearch Tower",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281032,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c8/6"
+  },
+  {
+    "name": "Activation 6: Ravine Tower",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281033,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c9/3"
+  },
+  {
+    "name": "Moogle 1: Tropical Moogle",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281031,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c7/3"
+  },
+  {
+    "name": "Moogle 2: Wasteland Moogle",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281033,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c9/7"
+  },
+  {
+    "name": "Expedition 1: Secluded Grotto Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281030,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c6/4"
+  },
+  {
+    "name": "Expedition 2: Glencross Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281031,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c7/1"
+  },
+  {
+    "name": "Expedition 3:  Oasis Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281031,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c7/6"
+  },
+  {
+    "name": "Expedition 4: Watermain Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281032,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c8/3"
+  },
+  {
+    "name": "Expedition 5: Stonebowl Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281033,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c9/0"
+  },
+  {
+    "name": "Expedition 6: Rockspout Lifespring",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281033,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c9/5"
+  },
+  {
+    "name": "Divine 1: Alexander Sanctuary α",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281031,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c7/2"
+  },
+  {
+    "name": "Divine 2: Alexander Sanctuary β",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281032,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c8/5"
+  },
+  {
+    "name": "Divine 3: Alexander Sanctuary γ",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281033,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c9/1"
+  },
+  {
+    "name": "Excavation 1: Valve Factory Ruins",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281030,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c6/5"
+  },
+  {
+    "name": "Excavation 2: Deserted Village",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281032,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c8/4"
+  },
+  {
+    "name": "Fiend 1: Hit the Squids",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281030,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c6/3"
+  },
+  {
+    "name": "Fiend 2: Seahorsing Around",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281031,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c7/0"
+  },
+  {
+    "name": "Fiend 3: Top of the Pecking Order",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281031,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c7/5"
+  },
+  {
+    "name": "Fiend 4: Death from Below",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281032,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c8/2"
+  },
+  {
+    "name": "Fiend 5: Fish out of Water",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281032,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c8/7"
+  },
+  {
+    "name": "Fiend 6: Unholy Union",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281033,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c9/4"
+  },
+  {
+    "name": "Classified: Heavy Lies the Crown",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281034,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ca/0"
+  },
+  {
+    "name": "Phenomenon 1: Treasure Protector G",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281031,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c7/7"
+  },
+  {
+    "name": "Phenomenon 2: Kid G's Trial",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281033,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c9/2"
+  },
+  {
+    "name": "Phenomenon 3: Enfriendly Competition",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281032,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c8/0"
+  },
+  {
+    "name": "Phenomenon 4: Bladesman of Legend",
+    "region": "Corel",
+    "category": "World Intel / Completed",
+    "offset": 281033,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449c9/6"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Corel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282139,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e1b/0"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Corel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282139,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e1b/1"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Corel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282139,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e1b/2"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Corel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282139,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e1b/3"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Corel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282139,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e1b/4"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Corel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282139,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e1b/5"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Corel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282139,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e1b/6"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Corel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282139,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e1b/7"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Corel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281034,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ca/1"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Corel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281034,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ca/2"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Corel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281034,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ca/3"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Corel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281034,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ca/4"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Corel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281034,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ca/5"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Corel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281034,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ca/6"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Corel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281034,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ca/7"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Corel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281035,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cb/0"
+  },
+  {
+    "name": "Activation 1: Midriver Isle Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282231,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e77/6"
+  },
+  {
+    "name": "Activation 2: Old Pipeline Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282232,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e78/3"
+  },
+  {
+    "name": "Activation 3: Verdant Plateau Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282233,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e79/0"
+  },
+  {
+    "name": "Activation 4: Gongaga Ruins Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282233,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e79/5"
+  },
+  {
+    "name": "Activation 5: Fungi Forest Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282234,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7a/2"
+  },
+  {
+    "name": "Moogle: Woodland Moogle",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282234,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7a/6"
+  },
+  {
+    "name": "Expedition 1: Clearwater Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282231,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e77/7"
+  },
+  {
+    "name": "Expedition 2: Fallbasin Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282232,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e78/4"
+  },
+  {
+    "name": "Expedition 3: Valefloor Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282233,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e79/1"
+  },
+  {
+    "name": "Expedition 4: Grotto Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282233,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e79/6"
+  },
+  {
+    "name": "Expedition 5: Holy Ruins Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282234,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7a/3"
+  },
+  {
+    "name": "Expedition 6: Cavern Lake Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282235,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7b/0"
+  },
+  {
+    "name": "Divine 1: Kujata Sanctuary α",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282232,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e78/1"
+  },
+  {
+    "name": "Divine 2: Kujata Sanctuary β",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282233,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e79/4"
+  },
+  {
+    "name": "Divine 3: Kujata Sanctuary γ",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282234,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7a/0"
+  },
+  {
+    "name": "Excavation 1: Mako-Laden Canyon",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282232,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e78/7"
+  },
+  {
+    "name": "Excavation 2: Wildgrove Ruins",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282234,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7a/1"
+  },
+  {
+    "name": "Fiend 1: A Croaking Chorus",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282232,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e78/0"
+  },
+  {
+    "name": "Fiend 2: Mean Green Mother",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282232,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e78/5"
+  },
+  {
+    "name": "Fiend 3: Shake the Earth",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282233,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e79/3"
+  },
+  {
+    "name": "Fiend 4: Maddened by Mako",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282233,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e79/7"
+  },
+  {
+    "name": "Fiend 5: A Two-Pronged Assault",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282234,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7a/5"
+  },
+  {
+    "name": "Fiend 6: Reactor Royalty",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282235,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7b/1"
+  },
+  {
+    "name": "Classified: The Sultan of Stench",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282234,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7a/7"
+  },
+  {
+    "name": "Phenomenon 1: Training Facility V-B",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282234,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e7a/4"
+  },
+  {
+    "name": "Phenomenon 2: Training Facility A-D",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282232,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e78/6"
+  },
+  {
+    "name": "Phenomenon 3: Training Facility W-T",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282232,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e78/2"
+  },
+  {
+    "name": "Phenomenon 4: Training Facility B-T",
+    "region": "Gongaga",
+    "category": "World Intel / Discovered",
+    "offset": 282233,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e79/2"
+  },
+  {
+    "name": "Activation 1: Midriver Isle Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281037,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cd/6"
+  },
+  {
+    "name": "Activation 2: Old Pipeline Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281038,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ce/3"
+  },
+  {
+    "name": "Activation 3: Verdant Plateau Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281039,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cf/0"
+  },
+  {
+    "name": "Activation 4: Gongaga Ruins Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281039,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cf/5"
+  },
+  {
+    "name": "Activation 5: Fungi Forest Tower",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281040,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d0/2"
+  },
+  {
+    "name": "Moogle: Woodland Moogle",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281040,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d0/6"
+  },
+  {
+    "name": "Expedition 1: Clearwater Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281037,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cd/7"
+  },
+  {
+    "name": "Expedition 2: Fallbasin Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281038,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ce/4"
+  },
+  {
+    "name": "Expedition 3: Valefloor Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281039,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cf/1"
+  },
+  {
+    "name": "Expedition 4: Grotto Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281039,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cf/6"
+  },
+  {
+    "name": "Expedition 5: Holy Ruins Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281040,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d0/3"
+  },
+  {
+    "name": "Expedition 6: Cavern Lake Lifespring",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281042,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d2/2"
+  },
+  {
+    "name": "Divine 1: Kujata Sanctuary α",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281038,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ce/1"
+  },
+  {
+    "name": "Divine 2: Kujata Sanctuary β",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281039,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cf/4"
+  },
+  {
+    "name": "Divine 3: Kujata Sanctuary γ",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281040,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d0/0"
+  },
+  {
+    "name": "Excavation 1: Mako-Laden Canyon",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281038,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ce/7"
+  },
+  {
+    "name": "Excavation 2: Wildgrove Ruins",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281040,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d0/1"
+  },
+  {
+    "name": "Fiend 1: A Croaking Chorus",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281038,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ce/0"
+  },
+  {
+    "name": "Fiend 2: Mean Green Mother",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281038,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ce/5"
+  },
+  {
+    "name": "Fiend 3: Shake the Earth",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281039,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cf/3"
+  },
+  {
+    "name": "Fiend 4: Maddened by Mako",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281039,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cf/7"
+  },
+  {
+    "name": "Fiend 5: A Two-Pronged Assault",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281040,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d0/5"
+  },
+  {
+    "name": "Fiend 6: Reactor Royalty",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281042,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d2/3"
+  },
+  {
+    "name": "Classified: The Sultan of Stench",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281040,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d0/7"
+  },
+  {
+    "name": "Phenomenon 1: Turks Training",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281040,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d0/4"
+  },
+  {
+    "name": "Phenomenon 2: Dissident Destruction",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281038,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ce/6"
+  },
+  {
+    "name": "Phenomenon 3: His Personal Escorts",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281038,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449ce/2"
+  },
+  {
+    "name": "Phenomenon 4: The Deadliest Game",
+    "region": "Gongaga",
+    "category": "World Intel / Completed",
+    "offset": 281039,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449cf/2"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282201,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e59/4"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282201,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e59/5"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282201,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e59/6"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282201,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e59/7"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282202,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e5a/0"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282202,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e5a/1"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282202,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e5a/2"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282202,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e5a/3"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281041,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d1/0"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281041,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d1/1"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281041,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d1/2"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281041,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d1/3"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281041,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d1/4"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281041,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d1/5"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281041,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d1/6"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Gongaga",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281041,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d1/7"
+  },
+  {
+    "name": "Activation 1: Kamaria's Ranch Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282295,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb7/7"
+  },
+  {
+    "name": "Activation 2: Crimson Earth Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282296,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb8/2"
+  },
+  {
+    "name": "Activation 3: Dried Oasis Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282297,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb9/1"
+  },
+  {
+    "name": "Activation 4: Gliding Range Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282297,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb9/5"
+  },
+  {
+    "name": "Activation 5: Spiritwastes Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282298,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eba/2"
+  },
+  {
+    "name": "Activation 6: Ancient Capital Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282298,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eba/7"
+  },
+  {
+    "name": "Moogle: Highlands Moogle",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282298,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eba/0"
+  },
+  {
+    "name": "Chocobo: Cosmo Canyon's Soaring Birds",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282296,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb8/0"
+  },
+  {
+    "name": "Expedition 1: Gulch Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282296,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb8/1"
+  },
+  {
+    "name": "Expedition 2: Templeway Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282296,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb8/3"
+  },
+  {
+    "name": "Expedition 3: Dawnvale Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282297,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb9/2"
+  },
+  {
+    "name": "Expedition 4: Blustercave Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282297,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb9/6"
+  },
+  {
+    "name": "Expedition 5: Shrouded Ruins Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282298,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eba/3"
+  },
+  {
+    "name": "Expedition 6: Plateau Ruins Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282299,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ebb/0"
+  },
+  {
+    "name": "Divine 1: Bahamut Arisen Sanctuary α",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282296,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb8/7"
+  },
+  {
+    "name": "Divine 2: Bahamut Arisen Sanctuary β",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282298,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eba/6"
+  },
+  {
+    "name": "Divine 3: Bahamut Arisen Sanctuary γ",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282299,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ebb/3"
+  },
+  {
+    "name": "Excavation 1: Dilapidated Ship",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282298,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eba/1"
+  },
+  {
+    "name": "Excavation 2: Cosmo Range Ruins",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282299,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ebb/4"
+  },
+  {
+    "name": "Fiend 1: Wizards of the Waste",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282296,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb8/6"
+  },
+  {
+    "name": "Fiend 2: Fury Takes Flight",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282296,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb8/5"
+  },
+  {
+    "name": "Fiend 3: Guardian of Gold",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282297,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb9/3"
+  },
+  {
+    "name": "Fiend 4: Too Hot to Handle",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282297,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb9/7"
+  },
+  {
+    "name": "Fiend 5: The Shapeless Assassin",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282298,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eba/4"
+  },
+  {
+    "name": "Fiend 6: Forgotten Toys",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282299,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ebb/1"
+  },
+  {
+    "name": "Classified: The Wyvern Awoken",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282299,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ebb/5"
+  },
+  {
+    "name": "Phenomenon 1: Planetological Ruins",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282296,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb8/4"
+  },
+  {
+    "name": "Phenomenon 2: Empyrean Ruins",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282298,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eba/5"
+  },
+  {
+    "name": "Phenomenon 3: Capital Ruins",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282299,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ebb/2"
+  },
+  {
+    "name": "Phenomenon 4: Temple Ruins",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Discovered",
+    "offset": 282297,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44eb9/0"
+  },
+  {
+    "name": "Activation 1: Kamaria's Ranch Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281045,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d5/2"
+  },
+  {
+    "name": "Activation 2: Crimson Earth Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281045,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d5/5"
+  },
+  {
+    "name": "Activation 3: Dried Oasis Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281046,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d6/4"
+  },
+  {
+    "name": "Activation 4: Gliding Range Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281046,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d6/7"
+  },
+  {
+    "name": "Activation 5: Spiritwastes Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281047,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d7/4"
+  },
+  {
+    "name": "Activation 6: Ancient Capital Tower",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281048,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d8/1"
+  },
+  {
+    "name": "Moogle: Highlands Moogle",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281047,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d7/2"
+  },
+  {
+    "name": "Chocobo: Cosmo Canyon's Soaring Birds",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281045,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d5/3"
+  },
+  {
+    "name": "Expedition 1: Gulch Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281045,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d5/4"
+  },
+  {
+    "name": "Expedition 2: Templeway Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281045,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d5/6"
+  },
+  {
+    "name": "Expedition 3: Dawnvale Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281046,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d6/5"
+  },
+  {
+    "name": "Expedition 4: Blustercave Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281047,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d7/0"
+  },
+  {
+    "name": "Expedition 5: Shrouded Ruins Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281047,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d7/5"
+  },
+  {
+    "name": "Expedition 6: Plateau Ruins Lifespring",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281048,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d8/2"
+  },
+  {
+    "name": "Divine 1: Bahamut Arisen Sanctuary α",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281046,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d6/2"
+  },
+  {
+    "name": "Divine 2: Bahamut Arisen Sanctuary β",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281048,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d8/0"
+  },
+  {
+    "name": "Divine 3: Bahamut Arisen Sanctuary γ",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281048,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d8/5"
+  },
+  {
+    "name": "Excavation 1: Dilapidated Ship",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281047,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d7/3"
+  },
+  {
+    "name": "Excavation 2: Cosmo Range Ruins",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281048,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d8/6"
+  },
+  {
+    "name": "Fiend 1: Wizards of the Waste",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281046,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d6/1"
+  },
+  {
+    "name": "Fiend 2: Fury Takes Flight",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281046,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d6/0"
+  },
+  {
+    "name": "Fiend 3: Guardian of Gold",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281046,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d6/6"
+  },
+  {
+    "name": "Fiend 4: Too Hot to Handle",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281047,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d7/1"
+  },
+  {
+    "name": "Fiend 5: The Shapeless Assassin",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281047,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d7/6"
+  },
+  {
+    "name": "Fiend 6: Forgotten Toys",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281048,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d8/3"
+  },
+  {
+    "name": "Classified: The Wyvern Awoken",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281048,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d8/7"
+  },
+  {
+    "name": "Phenomenon 1: Avalanche HQ",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281045,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d5/7"
+  },
+  {
+    "name": "Phenomenon 2: Left Behind",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281047,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d7/7"
+  },
+  {
+    "name": "Phenomenon 3: Memories of the Fallen",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281048,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d8/4"
+  },
+  {
+    "name": "Phenomenon 4: The River of Lights",
+    "region": "Cosmo Canyon",
+    "category": "World Intel / Completed",
+    "offset": 281046,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d6/3"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282264,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e98/0"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282264,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e98/1"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282264,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e98/2"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282264,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e98/3"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282264,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e98/4"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282264,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e98/5"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282264,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e98/6"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282264,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44e98/7"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281049,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d9/1"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281049,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d9/2"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281049,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d9/3"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281049,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d9/4"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281049,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d9/5"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281049,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d9/6"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281049,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449d9/7"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Cosmo Canyon",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281050,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449da/0"
+  },
+  {
+    "name": "Activation 1: Airstrip Tower",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282354,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef2/1"
+  },
+  {
+    "name": "Activation 2: Gull Bridge Tower",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282354,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef2/7"
+  },
+  {
+    "name": "Activation 3: Beacon Hill Tower",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282355,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef3/5"
+  },
+  {
+    "name": "Activation 4: Whitecap Reef Tower",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282356,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef4/2"
+  },
+  {
+    "name": "Chocobo: Feathered Waverunners",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282354,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef2/2"
+  },
+  {
+    "name": "Moogle: Highland Moogle",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282355,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef3/4"
+  },
+  {
+    "name": "Expedition 1: Estuary Bluff Lifespring",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282354,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef2/3"
+  },
+  {
+    "name": "Expedition 2: Gunnthra Terrace Lifespring",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282355,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef3/0"
+  },
+  {
+    "name": "Expedition 3: Coastal Lifespring",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282355,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef3/6"
+  },
+  {
+    "name": "Expedition 4: Delta Island Lifespring",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282356,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef4/3"
+  },
+  {
+    "name": "Divine 1: Odin Sanctuary α",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282354,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef2/6"
+  },
+  {
+    "name": "Divine 2: Odin Sanctuary β",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282356,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef4/1"
+  },
+  {
+    "name": "Divine 3: Odin Sanctuary γ",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282356,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef4/6"
+  },
+  {
+    "name": "Excavation: Island Base",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282356,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef4/5"
+  },
+  {
+    "name": "Fiend 1: Roaring Flames",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282354,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef2/4"
+  },
+  {
+    "name": "Fiend 2: Gluttonous Devourer",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282355,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef3/2"
+  },
+  {
+    "name": "Fiend 3 Mako-Cursed Abomination",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282356,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef4/0"
+  },
+  {
+    "name": "Fiend 4: Stone-Cold Spitter",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282356,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef4/4"
+  },
+  {
+    "name": "Classified: Avian Tyrant",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282357,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef5/1"
+  },
+  {
+    "name": "Phenomenon 1: Adumbral Throng",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282355,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef3/1"
+  },
+  {
+    "name": "Phenomenon 2: Airstrip Amblers",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282356,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef4/7"
+  },
+  {
+    "name": "Phenomenon 3: River Mouth Mob",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282355,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef3/7"
+  },
+  {
+    "name": "Phenomenon 4: Shoreline Shamblers",
+    "region": "Nibel",
+    "category": "World Intel / Discovered",
+    "offset": 282357,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ef5/0"
+  },
+  {
+    "name": "Activation 1: Airstrip Tower",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281052,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449dc/6"
+  },
+  {
+    "name": "Activation 2: Gull Bridge Tower",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281053,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449dd/4"
+  },
+  {
+    "name": "Activation 3: Beacon Hill Tower",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281054,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449de/2"
+  },
+  {
+    "name": "Activation 4: Whitecap Reef Tower",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281054,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449de/7"
+  },
+  {
+    "name": "Chocobo: Feathered Waverunners",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281052,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449dc/7"
+  },
+  {
+    "name": "Moogle: Highland Moogle",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281054,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449de/1"
+  },
+  {
+    "name": "Expedition 1: Estuary Bluff Lifespring",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281053,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449dd/0"
+  },
+  {
+    "name": "Expedition 2: Gunnthra Terrace Lifespring",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281053,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449dd/5"
+  },
+  {
+    "name": "Expedition 3: Coastal Lifespring",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281054,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449de/3"
+  },
+  {
+    "name": "Expedition 4: Delta Island Lifespring",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281055,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449df/0"
+  },
+  {
+    "name": "Divine 1: Odin Sanctuary α",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281053,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449dd/3"
+  },
+  {
+    "name": "Divine 2: Odin Sanctuary β",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281054,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449de/6"
+  },
+  {
+    "name": "Divine 3: Odin Sanctuary γ",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281055,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449df/3"
+  },
+  {
+    "name": "Excavation: Island Base",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281055,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449df/2"
+  },
+  {
+    "name": "Fiend 1: Roaring Flames",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281053,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449dd/1"
+  },
+  {
+    "name": "Fiend 2: Gluttonous Devourer",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281053,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449dd/7"
+  },
+  {
+    "name": "Fiend 3 Mako-Cursed Abomination",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281054,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449de/5"
+  },
+  {
+    "name": "Fiend 4: Stone-Cold Spitter",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281055,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449df/1"
+  },
+  {
+    "name": "Classified: Avian Tyrant",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281055,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449df/6"
+  },
+  {
+    "name": "Phenomenon 1: Testing the Waters",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281053,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449dd/6"
+  },
+  {
+    "name": "Phenomenon 2: Disquiet on the Docks",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281055,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449df/4"
+  },
+  {
+    "name": "Phenomenon 3: Cursed Confidant",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281054,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449de/4"
+  },
+  {
+    "name": "Phenomenon 4: Wayward Soul",
+    "region": "Nibel",
+    "category": "World Intel / Completed",
+    "offset": 281055,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449df/5"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282326,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ed6/4"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282326,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ed6/5"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282326,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ed6/6"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282326,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ed6/7"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282327,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ed7/0"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282327,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ed7/1"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282327,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ed7/2"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Discovered",
+    "offset": 282327,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/44ed7/3"
+  },
+  {
+    "name": "Chocobo Stop 1",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281055,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449df/7"
+  },
+  {
+    "name": "Chocobo Stop 2",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281056,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449e0/0"
+  },
+  {
+    "name": "Chocobo Stop 3",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281056,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449e0/1"
+  },
+  {
+    "name": "Chocobo Stop 4",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281056,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449e0/2"
+  },
+  {
+    "name": "Chocobo Stop 5",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281056,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449e0/3"
+  },
+  {
+    "name": "Chocobo Stop 6",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281056,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449e0/4"
+  },
+  {
+    "name": "Chocobo Stop 7",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281056,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449e0/5"
+  },
+  {
+    "name": "Chocobo Stop 8",
+    "region": "Nibel",
+    "category": "Chocobo Stops / Repaired",
+    "offset": 281056,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts",
+    "id": "rebirth/449e0/6"
+  }
+]

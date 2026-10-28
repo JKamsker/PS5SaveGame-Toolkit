@@ -6,9 +6,9 @@ namespace SaveToolkit.Plugins.FinalFantasy7;
 
 public sealed class FinalFantasy7Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("ff7r", "Final Fantasy VII Remake / Rebirth", "0.2.0")
+    public PluginInfo Info { get; } = new("ff7r", "Final Fantasy VII Remake / Rebirth", "0.3.0")
     {
-        Description = "Experimental linked-record explorer with guarded scalar edits plus read-only character and owned-item relationship views.",
+        Description = "Experimental linked-record editor with attributed catalogs, queryable inventories/progress and previewed AP edits within the original star tier.",
         Games =
         [
             new GameTitle("PPSA01911", "Final Fantasy VII Remake Intergrade"),
@@ -21,6 +21,8 @@ public sealed class FinalFantasy7Plugin : IGamePlugin
             "https://github.com/Xeeynamo/KingdomSaveEditor/tree/master/KHSave.LibFf7Remake",
             "https://github.com/RyudoSynbios/game-tools-collection/tree/master/src/lib/templates/final-fantasy-vii-rebirth",
             "https://github.com/RyudoSynbios/game-tools-collection/tree/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils",
+            "https://github.com/RyudoSynbios/game-tools-collection/tree/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor",
+            "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
             "https://github.com/sterben-Dev10/SaveWizard-Resources/blob/main/SaveWizard-Codes/FFVII-Remake%20Codes%20%5BSaveWizard%5D.txt",
             "https://game-tools-collection.com/final-fantasy-vii-remake/save-editor",
             "https://game-tools-collection.com/final-fantasy-vii-rebirth/save-editor",
