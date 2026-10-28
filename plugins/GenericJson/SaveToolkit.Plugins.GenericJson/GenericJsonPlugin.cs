@@ -13,7 +13,9 @@ public sealed class GenericJsonPlugin : IGamePlugin
         Games = [],
         Maturity = PluginMaturity.Experimental,
         References = ["https://www.rfc-editor.org/rfc/rfc8259", "https://learn.microsoft.com/dotnet/api/system.text.json.utf8jsonreader",
-            "https://prosperopatches.com/PPSA02343", "https://github.com/andshrew/PlayStation-PS1HD"],
+            "https://prosperopatches.com/PPSA02343", "https://github.com/andshrew/PlayStation-PS1HD",
+            "https://json-schema.org/understanding-json-schema/", "https://johnssaveeditors.com/games/it-takes-two/",
+            "https://github.com/steliosc/Cyberpunk-2077-Custom-Controls-Guide/blob/main/UserSettings.json"],
     };
 
     public ProbeResult Probe(ISaveFile file)

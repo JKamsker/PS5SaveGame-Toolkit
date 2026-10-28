@@ -3,7 +3,7 @@ using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Plugins.GenericJson;
 
-/// <summary>Writes original token/trivia slices; only modified scalars and array punctuation change.</summary>
+/// <summary>Writes original token/trivia slices, replacing only explicit value, name and structure edits.</summary>
 internal static class JsonTreeWriter
 {
     private const long MaxRetainedSourceBytes = 32L * 1024 * 1024;
@@ -53,7 +53,16 @@ internal static class JsonTreeWriter
                 var child = node.Children[i];
                 if (i > 0) Append(child.SeparatorBefore.IsEmpty ? node.DefaultSeparator.Span : child.SeparatorBefore.Span);
                 if (node.Kind == JsonTokenType.StartObject)
-                    Append(child.Source.AsSpan(child.MemberOffset, child.Offset - child.MemberOffset));
+                {
+                    if (child.Label == child.OriginalLabel)
+                        Append(child.Source.AsSpan(child.MemberOffset, child.Offset - child.MemberOffset));
+                    else
+                    {
+                        Append(JsonSerializer.SerializeToUtf8Bytes(child.Label));
+                        var triviaOffset = child.MemberOffset + child.MemberNameLength;
+                        Append(child.Source.AsSpan(triviaOffset, child.Offset - triviaOffset));
+                    }
+                }
                 WriteNode(child);
             }
             Append(node.Trailing.Span);

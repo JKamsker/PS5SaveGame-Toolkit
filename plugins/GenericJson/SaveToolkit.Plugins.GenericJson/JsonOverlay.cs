@@ -6,7 +6,8 @@ namespace SaveToolkit.Plugins.GenericJson;
 /// <summary>Conservative, read-only interpretations. No third-party name dictionary is embedded.</summary>
 internal sealed record JsonOverlay(string Title, string Evidence, IReadOnlyList<JsonValueToken> Groups)
 {
-    internal const string Provenance = "Labels and values are read from this imported save; interpretation is inferred, not console validated.";
+    internal const string Provenance = "Names, types, bounds and values come from this imported save; friendly labels split raw words only. Interpretation is inferred, not console validated. No external name dictionary is embedded.";
+    public bool IsProfile { get; init; }
 
     public static JsonOverlay? Match(ISaveFile file, JsonTokenTree tree)
     {
@@ -31,10 +32,11 @@ internal sealed record JsonOverlay(string Title, string Evidence, IReadOnlyList<
             && Unique(root, "CloudSettings") is not null && Unique(root, "LocalSettings") is not null)
         {
             var gameplay = profile.Children.Where(n => n.Label.StartsWith("Minigame.", StringComparison.Ordinal)
+                || n.Label.StartsWith("MinigameFlag.", StringComparison.Ordinal) || n.Label.StartsWith("MinigameCounter.", StringComparison.Ordinal)
                 || n.Label is "FurthestUnlockedChapter" or "LastSaveProgressPoint" or "LastSaveChapter").ToArray();
             if (gameplay.Length > 128) return null;
             return new("It Takes Two profile", "PPSA02343: observed nested string profile. Missing keys remain absent, not false. "
-                + "Chapter/checkpoint dependencies and score meanings are unconfirmed. Identification: https://prosperopatches.com/PPSA02343", gameplay);
+                + "Chapter/checkpoint dependencies and score meanings are unconfirmed. Identification: https://prosperopatches.com/PPSA02343", gameplay) { IsProfile = true };
         }
 
         if (title == "PPSA07696" && file.FileName == "imgui_emu_option.json"
@@ -48,12 +50,12 @@ internal sealed record JsonOverlay(string Title, string Evidence, IReadOnlyList<
         return null;
     }
 
-    private static JsonValueToken? Unique(JsonValueToken parent, string name)
+    internal static JsonValueToken? Unique(JsonValueToken parent, string name)
     {
         var matches = parent.Children.Where(n => n.Label == name).Take(2).ToArray();
         return matches.Length == 1 ? matches[0] : null;
     }
 
-    private static bool HasType(JsonValueToken? node, string type) =>
+    internal static bool HasType(JsonValueToken? node, string type) =>
         node is { IsContainer: false, Current.Kind: SaveToolkit.Sdk.Values.FieldValueKind.Union } && node.Current.AsUnion().Type == type;
 }

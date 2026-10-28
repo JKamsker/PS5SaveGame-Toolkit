@@ -7,6 +7,8 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
 {
     public int Index { get; set; } = index;
     public string Label { get; set; } = label;
+    public string OriginalLabel { get; set; } = label;
+    public int MemberNameLength { get; set; }
     public JsonTokenType Kind { get; } = kind;
     public int Offset { get; } = offset;
     public int Length { get; set; } = length;
@@ -40,6 +42,7 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
             SeparatorBefore = SeparatorBefore, DefaultSeparator = DefaultSeparator, Parent = parent,
             Imported = Imported, Spec = Spec, Original = Original, Current = Current, Warning = Warning,
             Position = Position, Occurrence = Occurrence,
+            OriginalLabel = OriginalLabel, MemberNameLength = MemberNameLength,
         };
         clone.Children.AddRange(Children.Select(child => child.Clone(clone)));
         return clone;

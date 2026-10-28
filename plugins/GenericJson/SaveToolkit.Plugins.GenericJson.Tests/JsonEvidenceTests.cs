@@ -61,6 +61,7 @@ public sealed class JsonEvidenceTests(ITestOutputHelper output)
     private static SemanticTree GameplayOnly(SemanticTree tree) => tree with
     {
         Values = tree.Values.Where(v => v.Path.StartsWith("Profile/Minigame.", StringComparison.Ordinal)
+            || v.Path.StartsWith("Profile/MinigameFlag.", StringComparison.Ordinal) || v.Path.StartsWith("Profile/MinigameCounter.", StringComparison.Ordinal)
             || v.Path is "Profile/LastSaveChapter" or "Profile/LastSaveProgressPoint" or "Profile/FurthestUnlockedChapter").ToArray(),
     };
 }
