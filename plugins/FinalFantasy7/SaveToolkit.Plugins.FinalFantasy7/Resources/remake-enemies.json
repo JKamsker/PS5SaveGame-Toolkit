@@ -1,0 +1,807 @@
+[
+  {
+    "index": 109,
+    "name": "001 Security Officer",
+    "category": "Main Story"
+  },
+  {
+    "index": 22,
+    "name": "002 Elite Security Officer",
+    "category": "Main Story"
+  },
+  {
+    "index": 545,
+    "name": "003 Grenadier",
+    "category": "Main Story"
+  },
+  {
+    "index": 602,
+    "name": "004 Elite Grenadier",
+    "category": "Main Story"
+  },
+  {
+    "index": 326,
+    "name": "005 Riot Trooper",
+    "category": "Main Story"
+  },
+  {
+    "index": 5,
+    "name": "006 Elite Riot Trooper",
+    "category": "Main Story"
+  },
+  {
+    "index": 227,
+    "name": "007 Flametrooper",
+    "category": "Main Story"
+  },
+  {
+    "index": 591,
+    "name": "008 Shock Trooper",
+    "category": "Main Story"
+  },
+  {
+    "index": 402,
+    "name": "009 Elite Shock Trooper",
+    "category": "Main Story"
+  },
+  {
+    "index": 127,
+    "name": "010 Armored Shock Trooper",
+    "category": "Main Story"
+  },
+  {
+    "index": 846,
+    "name": "011 Enhanced Shock Trooper",
+    "category": "Main Story"
+  },
+  {
+    "index": 145,
+    "name": "012 Helitrooper",
+    "category": "Main Story"
+  },
+  {
+    "index": 84,
+    "name": "013 Elite Helitrooper",
+    "category": "Main Story"
+  },
+  {
+    "index": 494,
+    "name": "014 3-C Solider Operator",
+    "category": "Main Story"
+  },
+  {
+    "index": 126,
+    "name": "015 Guard Dog",
+    "category": "Main Story"
+  },
+  {
+    "index": 320,
+    "name": "016 Wrath Hound",
+    "category": "Main Story"
+  },
+  {
+    "index": 633,
+    "name": "017 Bloodhound",
+    "category": "Main Story"
+  },
+  {
+    "index": 512,
+    "name": "018 Monodrive",
+    "category": "Main Story"
+  },
+  {
+    "index": 4,
+    "name": "019 Mark II Monodrive",
+    "category": "Main Story"
+  },
+  {
+    "index": 677,
+    "name": "020 Sentry Ray",
+    "category": "Main Story"
+  },
+  {
+    "index": 650,
+    "name": "021 Laser Cannon",
+    "category": "Main Story"
+  },
+  {
+    "index": 814,
+    "name": "022 Sentry Launcher",
+    "category": "Main Story"
+  },
+  {
+    "index": 379,
+    "name": "023 Sentry Gun Prototype",
+    "category": "Main Story"
+  },
+  {
+    "index": 419,
+    "name": "024 Sentry Gun",
+    "category": "Main Story"
+  },
+  {
+    "index": 316,
+    "name": "025 Slug-Ray",
+    "category": "Main Story"
+  },
+  {
+    "index": 334,
+    "name": "026 Shock-Ray",
+    "category": "Main Story"
+  },
+  {
+    "index": 76,
+    "name": "027 Blast-Ray",
+    "category": "Main Story"
+  },
+  {
+    "index": 492,
+    "name": "028 Sweeper",
+    "category": "Main Story"
+  },
+  {
+    "index": 385,
+    "name": "029 Sweeper Prototype",
+    "category": "Main Story"
+  },
+  {
+    "index": 383,
+    "name": "030 Cutter",
+    "category": "Main Story"
+  },
+  {
+    "index": 720,
+    "name": "031 Jury-Rigged Cutter",
+    "category": "Main Story"
+  },
+  {
+    "index": 882,
+    "name": "032 M.O.T.H. Unit",
+    "category": "Main Story"
+  },
+  {
+    "index": 95,
+    "name": "033 Zenene",
+    "category": "Main Story"
+  },
+  {
+    "index": 128,
+    "name": "034 Sledgeworm",
+    "category": "Main Story"
+  },
+  {
+    "index": 503,
+    "name": "035 Brain Pod",
+    "category": "Main Story"
+  },
+  {
+    "index": 396,
+    "name": "036 Swordipede",
+    "category": "Main Story"
+  },
+  {
+    "index": 313,
+    "name": "037 Hoodlum",
+    "category": "Main Story"
+  },
+  {
+    "index": 834,
+    "name": "038 Corneo Lackey",
+    "category": "Main Story"
+  },
+  {
+    "index": 358,
+    "name": "039 Beastmaster",
+    "category": "Main Story"
+  },
+  {
+    "index": 528,
+    "name": "040 Bandit",
+    "category": "Main Story"
+  },
+  {
+    "index": 731,
+    "name": "041 Beck",
+    "category": "Main Story"
+  },
+  {
+    "index": 267,
+    "name": "042 Butch",
+    "category": "Main Story"
+  },
+  {
+    "index": 239,
+    "name": "043 Burke",
+    "category": "Main Story"
+  },
+  {
+    "index": 286,
+    "name": "044 Grungy Bandit",
+    "category": "Main Story"
+  },
+  {
+    "index": 718,
+    "name": "045 Wererat",
+    "category": "Main Story"
+  },
+  {
+    "index": 425,
+    "name": "046 Doomrat",
+    "category": "Main Story"
+  },
+  {
+    "index": 816,
+    "name": "047 Gorger",
+    "category": "Main Story"
+  },
+  {
+    "index": 703,
+    "name": "048 Ringmaw",
+    "category": "Main Story"
+  },
+  {
+    "index": 761,
+    "name": "049 Lesser Drake",
+    "category": "Main Story"
+  },
+  {
+    "index": 616,
+    "name": "050 Cerulean Drake",
+    "category": "Main Story"
+  },
+  {
+    "index": 983,
+    "name": "051 Rust Drake",
+    "category": "Main Story"
+  },
+  {
+    "index": 691,
+    "name": "052 Grashtrike",
+    "category": "Main Story"
+  },
+  {
+    "index": 693,
+    "name": "053 Queend Grashtrike",
+    "category": "Main Story"
+  },
+  {
+    "index": 478,
+    "name": "054 Venomantis",
+    "category": "Main Story"
+  },
+  {
+    "index": 940,
+    "name": "055 Blugu",
+    "category": "Main Story"
+  },
+  {
+    "index": 215,
+    "name": "056 Terpsicolt",
+    "category": "Main Story"
+  },
+  {
+    "index": 890,
+    "name": "057 Hedgehog Pie",
+    "category": "Main Story"
+  },
+  {
+    "index": 294,
+    "name": "058 Hedgehog Pie King",
+    "category": "Main Story"
+  },
+  {
+    "index": 743,
+    "name": "059 Smogger",
+    "category": "Main Story"
+  },
+  {
+    "index": 45,
+    "name": "060 Chromogger",
+    "category": "Main Story"
+  },
+  {
+    "index": 536,
+    "name": "061 Scissorclaw",
+    "category": "Main Story"
+  },
+  {
+    "index": 130,
+    "name": "062 Sahagin",
+    "category": "Main Story"
+  },
+  {
+    "index": 884,
+    "name": "063 Sahagin Prince",
+    "category": "Main Story"
+  },
+  {
+    "index": 656,
+    "name": "064 Cripshay",
+    "category": "Main Story"
+  },
+  {
+    "index": 878,
+    "name": "065 Ghost",
+    "category": "Main Story"
+  },
+  {
+    "index": 131,
+    "name": "066 Phantom",
+    "category": "Main Story"
+  },
+  {
+    "index": 94,
+    "name": "067 Tonberry",
+    "category": "Main Story"
+  },
+  {
+    "index": 115,
+    "name": "068 Bugaboo",
+    "category": "Main Story"
+  },
+  {
+    "index": 972,
+    "name": "069 Varghidpolis",
+    "category": "Main Story"
+  },
+  {
+    "index": 269,
+    "name": "070 Trypapolis",
+    "category": "Main Story"
+  },
+  {
+    "index": 309,
+    "name": "071 Byobapolis",
+    "category": "Main Story"
+  },
+  {
+    "index": 563,
+    "name": "072 Hellhound",
+    "category": "Main Story"
+  },
+  {
+    "index": 243,
+    "name": "073 Bomb",
+    "category": "Main Story"
+  },
+  {
+    "index": 936,
+    "name": "074 Malboro",
+    "category": "Main Story"
+  },
+  {
+    "index": 245,
+    "name": "075 The Huntsman",
+    "category": "Main Story"
+  },
+  {
+    "index": 101,
+    "name": "076 Roche",
+    "category": "Main Story"
+  },
+  {
+    "index": 729,
+    "name": "077 Reno",
+    "category": "Main Story"
+  },
+  {
+    "index": 185,
+    "name": "078 Rude",
+    "category": "Main Story"
+  },
+  {
+    "index": 266,
+    "name": "079 Rufus",
+    "category": "Main Story"
+  },
+  {
+    "index": 16,
+    "name": "080 Darkstar",
+    "category": "Main Story"
+  },
+  {
+    "index": 406,
+    "name": "081 Scorption Sentinel",
+    "category": "Main Story"
+  },
+  {
+    "index": 576,
+    "name": "082 Crab Warden",
+    "category": "Main Story"
+  },
+  {
+    "index": 157,
+    "name": "083 Airbuster",
+    "category": "Main Story"
+  },
+  {
+    "index": 835,
+    "name": "084 The Valkyrie",
+    "category": "Main Story"
+  },
+  {
+    "index": 295,
+    "name": "085 The Arsenal",
+    "category": "Main Story"
+  },
+  {
+    "index": 626,
+    "name": "086 Pride and Joy Prototype",
+    "category": "Main Story"
+  },
+  {
+    "index": 783,
+    "name": "087 Specimen H0512",
+    "category": "Main Story"
+  },
+  {
+    "index": 152,
+    "name": "088 H0512-OPT",
+    "category": "Main Story"
+  },
+  {
+    "index": 90,
+    "name": "089 Jenova Dreamweaver",
+    "category": "Main Story"
+  },
+  {
+    "index": 987,
+    "name": "090 Hell House",
+    "category": "Main Story"
+  },
+  {
+    "index": 342,
+    "name": "091 Abzu",
+    "category": "Main Story"
+  },
+  {
+    "index": 624,
+    "name": "092 Abzu Shoat",
+    "category": "Main Story"
+  },
+  {
+    "index": 955,
+    "name": "093 Mischievous Shoat",
+    "category": "Main Story"
+  },
+  {
+    "index": 418,
+    "name": "094 Ghoul",
+    "category": "Main Story"
+  },
+  {
+    "index": 111,
+    "name": "095 Eligor",
+    "category": "Main Story"
+  },
+  {
+    "index": 628,
+    "name": "096 Failed Experiment",
+    "category": "Main Story"
+  },
+  {
+    "index": 929,
+    "name": "097 Unknown Entity",
+    "category": "Main Story"
+  },
+  {
+    "index": 588,
+    "name": "098 Type-O Behemoth",
+    "category": "Main Story"
+  },
+  {
+    "index": 142,
+    "name": "099 Shiva",
+    "category": "Main Story"
+  },
+  {
+    "index": 493,
+    "name": "100 Fat Chocobo",
+    "category": "Main Story"
+  },
+  {
+    "index": 946,
+    "name": "101 ????",
+    "category": "Main Story"
+  },
+  {
+    "index": 728,
+    "name": "102 ????????",
+    "category": "Main Story"
+  },
+  {
+    "index": 744,
+    "name": "103 Cactuar",
+    "category": "Main Story"
+  },
+  {
+    "index": 868,
+    "name": "104 Leviathan",
+    "category": "Main Story"
+  },
+  {
+    "index": 193,
+    "name": "105 Bahamut",
+    "category": "Main Story"
+  },
+  {
+    "index": 317,
+    "name": "106 Ifrit",
+    "category": "Main Story"
+  },
+  {
+    "index": 30,
+    "name": "107 Mysterious Spectre",
+    "category": "Main Story"
+  },
+  {
+    "index": 876,
+    "name": "108 Enigmatic Spectre",
+    "category": "Main Story"
+  },
+  {
+    "index": 866,
+    "name": "109 Whisper Harbinger",
+    "category": "Main Story"
+  },
+  {
+    "index": 364,
+    "name": "110 Whisper Rubrum",
+    "category": "Main Story"
+  },
+  {
+    "index": 979,
+    "name": "111 Whisper Viridi",
+    "category": "Main Story"
+  },
+  {
+    "index": 149,
+    "name": "112 Whisper Croceo",
+    "category": "Main Story"
+  },
+  {
+    "index": 167,
+    "name": "113 Whisper Bahamut",
+    "category": "Main Story"
+  },
+  {
+    "index": 897,
+    "name": "114 Sephiroth",
+    "category": "Main Story"
+  },
+  {
+    "index": 771,
+    "name": "001 Security Officer",
+    "category": "INTERmission"
+  },
+  {
+    "index": 707,
+    "name": "002 Elite Security Officer",
+    "category": "INTERmission"
+  },
+  {
+    "index": 598,
+    "name": "003 Deepground SOLDIER",
+    "category": "INTERmission"
+  },
+  {
+    "index": 122,
+    "name": "004 Elite Grenadier",
+    "category": "INTERmission"
+  },
+  {
+    "index": 290,
+    "name": "005 Riot Trooper",
+    "category": "INTERmission"
+  },
+  {
+    "index": 574,
+    "name": "006 Shock Trooper",
+    "category": "INTERmission"
+  },
+  {
+    "index": 991,
+    "name": "007 Armored Shock Trooper",
+    "category": "INTERmission"
+  },
+  {
+    "index": 898,
+    "name": "008 Armored Magitrooper",
+    "category": "INTERmission"
+  },
+  {
+    "index": 562,
+    "name": "009 Enhances Shock Trooper",
+    "category": "INTERmission"
+  },
+  {
+    "index": 902,
+    "name": "010 Enhanced Magitrooper",
+    "category": "INTERmission"
+  },
+  {
+    "index": 398,
+    "name": "011 Helitrooper",
+    "category": "INTERmission"
+  },
+  {
+    "index": 666,
+    "name": "012 3-C SOLDIER OPERATOR",
+    "category": "INTERmission"
+  },
+  {
+    "index": 661,
+    "name": "013 Wrath Hound",
+    "category": "INTERmission"
+  },
+  {
+    "index": 826,
+    "name": "014 Wayward Wold",
+    "category": "INTERmission"
+  },
+  {
+    "index": 807,
+    "name": "015 Monodrive",
+    "category": "INTERmission"
+  },
+  {
+    "index": 431,
+    "name": "017 Sentry Ray",
+    "category": "INTERmission"
+  },
+  {
+    "index": 980,
+    "name": "018 Sentry Launcher",
+    "category": "INTERmission"
+  },
+  {
+    "index": 344,
+    "name": "019 Slug-Ray",
+    "category": "INTERmission"
+  },
+  {
+    "index": 525,
+    "name": "020 Shock-Ray",
+    "category": "INTERmission"
+  },
+  {
+    "index": 566,
+    "name": "021 Blast-Ray",
+    "category": "INTERmission"
+  },
+  {
+    "index": 133,
+    "name": "022 Sweeper",
+    "category": "INTERmission"
+  },
+  {
+    "index": 110,
+    "name": "023 Cutter",
+    "category": "INTERmission"
+  },
+  {
+    "index": 799,
+    "name": "024 Deathwheel",
+    "category": "INTERmission"
+  },
+  {
+    "index": 61,
+    "name": "025 Projector",
+    "category": "INTERmission"
+  },
+  {
+    "index": 785,
+    "name": "026 M.O.T.H. Unit",
+    "category": "INTERmission"
+  },
+  {
+    "index": 178,
+    "name": "027 Diabolic Creation",
+    "category": "INTERmission"
+  },
+  {
+    "index": 596,
+    "name": "028 Zenene",
+    "category": "INTERmission"
+  },
+  {
+    "index": 820,
+    "name": "029 Corneo Lackey",
+    "category": "INTERmission"
+  },
+  {
+    "index": 296,
+    "name": "030 Wererat",
+    "category": "INTERmission"
+  },
+  {
+    "index": 990,
+    "name": "031 Toxirat",
+    "category": "INTERmission"
+  },
+  {
+    "index": 270,
+    "name": "032 Terpsicolt",
+    "category": "INTERmission"
+  },
+  {
+    "index": 516,
+    "name": "033 Gorger",
+    "category": "INTERmission"
+  },
+  {
+    "index": 280,
+    "name": "034 Lesser Drake",
+    "category": "INTERmission"
+  },
+  {
+    "index": 891,
+    "name": "035 Venomantis",
+    "category": "INTERmission"
+  },
+  {
+    "index": 68,
+    "name": "036 Cripshay",
+    "category": "INTERmission"
+  },
+  {
+    "index": 704,
+    "name": "037 Horned Cripshay",
+    "category": "INTERmission"
+  },
+  {
+    "index": 335,
+    "name": "038 Levrikon",
+    "category": "INTERmission"
+  },
+  {
+    "index": 69,
+    "name": "039 Bugaboo",
+    "category": "INTERmission"
+  },
+  {
+    "index": 15,
+    "name": "040 The Crimson Mare",
+    "category": "INTERmission"
+  },
+  {
+    "index": 706,
+    "name": "041 Pride and Joy Mk 0.5",
+    "category": "INTERmission"
+  },
+  {
+    "index": 773,
+    "name": "042 Gigantipede",
+    "category": "INTERmission"
+  },
+  {
+    "index": 117,
+    "name": "043 Unknown Entity",
+    "category": "INTERmission"
+  },
+  {
+    "index": 450,
+    "name": "044 Type-0 Behemoth",
+    "category": "INTERmission"
+  },
+  {
+    "index": 192,
+    "name": "045 Bahamut",
+    "category": "INTERmission"
+  },
+  {
+    "index": 51,
+    "name": "046 Ifrit",
+    "category": "INTERmission"
+  },
+  {
+    "index": 86,
+    "name": "047 Ramuh",
+    "category": "INTERmission"
+  },
+  {
+    "index": 83,
+    "name": "048 Nero",
+    "category": "INTERmission"
+  }
+]

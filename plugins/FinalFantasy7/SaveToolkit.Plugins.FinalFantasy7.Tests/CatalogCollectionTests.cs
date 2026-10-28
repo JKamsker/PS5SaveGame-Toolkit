@@ -12,6 +12,21 @@ namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 public sealed class CatalogCollectionTests
 {
     [Fact]
+    public void OptionalImportedImageCellsRetainAttributionAndUseTheDocumentAssetRoute()
+    {
+        var file = SampleSaves.Load("PPSA08664").AllDiskFiles.First(file => file.FileName == "ff7rebirth000");
+        using var document = new FinalFantasy7Plugin().Open(file, new OverrideContext());
+        var row = Assert.Single(((IQueryableDocument)document).Query("catalog-weapons", new() { Text = "Imported Sword" }).Rows);
+        var details = Assert.IsType<SectionNode>(row.Cells["details"]);
+        var image = Assert.Single(details.Children.OfType<ImageNode>());
+        Assert.Equal("test.overrides:fixture.png", image.AssetId);
+        Assert.Equal("Imported Sword", image.Alt);
+        Assert.Contains(details.Children.OfType<TextNode>(), text => text.Text.Contains("Fixture contributors", StringComparison.Ordinal));
+        Assert.Equal(new byte[] { 1, 2, 3 }, document.GetAsset(image.AssetId)!.Content.ToArray());
+        Assert.Null(document.GetAsset("missing:fixture.png"));
+        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+    }
+    [Fact]
     public void ImportedNamesKeepTheirOwnProvenanceInCharactersAndOwnedItems()
     {
         var file = SampleSaves.Load("PPSA08664").AllDiskFiles.First(file => file.FileName == "ff7rebirth000");
@@ -156,7 +171,7 @@ public sealed class CatalogCollectionTests
             "ff7r-characters" => new OverrideCatalog(catalogId, "0", "Imported Cloud"),
             _ => null,
         };
-        public AssetContent? GetAsset(string assetId) => null;
+        public AssetContent? GetAsset(string assetId) => assetId == "test.overrides:fixture.png" ? new("image/png", new byte[] { 1, 2, 3 }) : null;
         public ReferenceDatasetInfo? AssetProvenance(string assetId) => null;
     }
 
@@ -168,7 +183,10 @@ public sealed class CatalogCollectionTests
             new("https://example.com/fixture", "Fixture contributors", "MIT", "https://opensource.org/license/mit", new(2026, 10, 28), "None"));
         public int Count => 1;
         public IReadOnlyList<string> Categories => [];
-        public ReferenceRecord? Find(string requested) => requested == key ? new(key, name) { Dataset = Dataset } : null;
+        public ReferenceRecord? Find(string requested) => requested == key ? new(key, name)
+        {
+            Dataset = Dataset, AssetId = id == "ff7r-weapons" ? "test.overrides:fixture.png" : null,
+        } : null;
         public ReferencePage Search(ReferenceQuery query) => new(query.Offset == 0 ? [Find(key)!] : [], 1, query.Offset);
     }
 }

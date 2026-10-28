@@ -1,0 +1,39 @@
+{
+  "format": "savetoolkit-fixtures/1",
+  "description": "Artifact self-comparison regression fixtures, not controlled in-game events. No bytes or private data. All generations and backup twins must remain unchanged.",
+  "fixtures": [
+    {
+      "id": "ff7r-remake-self-comparison",
+      "titleId": "PPSA01911",
+      "event": "Re-read identical archived generations; tool repeatability only",
+      "notes": "Patch/build not supplied; this asserts no gameplay causality.",
+      "before": { "archive": "PPSA01911_saves_dec.zip" },
+      "after": { "archive": "PPSA01911_saves_dec.zip" },
+      "files": ["ff7remake*"],
+      "strict": true,
+      "expected": [{ "file": "ff7remake*", "offset": 0, "length": 40, "changed": false }]
+    },
+    {
+      "id": "ff7r-rebirth-self-comparison",
+      "titleId": "PPSA08664",
+      "event": "Re-read identical archived generations; tool repeatability only",
+      "notes": "Patch/build not supplied; this asserts no gameplay causality.",
+      "before": { "archive": "PPSA08664_saves_dec.zip" },
+      "after": { "archive": "PPSA08664_saves_dec.zip" },
+      "files": ["ff7rebirth*"],
+      "strict": true,
+      "expected": [{ "file": "ff7rebirth*", "offset": 0, "length": 40, "changed": false }]
+    },
+    {
+      "id": "ff7r-demo-self-comparison",
+      "titleId": "PPSA18936",
+      "event": "Re-read identical archived generations; tool repeatability only",
+      "notes": "Patch/build not supplied; this asserts no gameplay causality.",
+      "before": { "archive": "PPSA18936_saves_dec.zip" },
+      "after": { "archive": "PPSA18936_saves_dec.zip" },
+      "files": ["ff7rebirth*"],
+      "strict": true,
+      "expected": [{ "file": "ff7rebirth*", "offset": 0, "length": 40, "changed": false }]
+    }
+  ]
+}

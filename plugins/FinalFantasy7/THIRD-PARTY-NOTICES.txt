@@ -1,5 +1,6 @@
 Item, materia, character and weapon names/categories/AP tables and character XP curves, and progress candidate
-labels/offsets derived from RyudoSynbios/game-tools-collection.
+labels/offsets, folio/crafting/minigame candidate labels and equipment reference offsets
+derived from RyudoSynbios/game-tools-collection.
 
 The MIT License (MIT)
 
@@ -31,3 +32,13 @@ No CC BY-SA wiki material or NC/unlicensed datamine content is included.
 Write-enable character XP curves and inferred Rebirth weapon-family grouping use the same
 pinned MIT resource.ts datasets. Source sidecar: Resources/character-curves.source.md.
 Parser/dependency staging is independently implemented; no downloaded code was executed.
+
+Completion-round folio and crafting/minigame extracts use the same pinned template.ts,
+with utils.ts consulted for the global folio shift override. Hidden flags, dynamic
+offsets and duplicate addresses were excluded; Queen's Blood aliases were not duplicated.
+No prerequisites, SP costs, coordinates, game artwork or effect prose were imported.
+Source sidecar: Resources/spatial-research.source.md.
+PowerPyx regional maps are linked externally only; their content is not redistributed.
+Completion also extracts 161 Remake and 230 Rebirth enemy indices/names and source
+groups from pinned MIT resource.ts, with read-only enemy record layouts, five Rebirth
+relationship words and one deliberately unclassified craftsmanship word from template.ts.

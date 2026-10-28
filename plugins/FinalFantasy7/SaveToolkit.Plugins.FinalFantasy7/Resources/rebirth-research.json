@@ -1,0 +1,3494 @@
+[
+  {
+    "id": "research/44a33/0",
+    "name": "Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281139,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a33/5",
+    "name": "Hi-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281139,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a34/4",
+    "name": "Mega-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281140,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a35/1",
+    "name": "Giga-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281141,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3a/5",
+    "name": "X-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281146,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a34/0",
+    "name": "Mixed Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281140,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a34/1",
+    "name": "Mixed Hi-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281140,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a33/4",
+    "name": "Mist Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281139,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a34/2",
+    "name": "Mist Hi-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281140,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a34/5",
+    "name": "Mist Mega-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281140,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a35/3",
+    "name": "Mist Giga-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281141,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a33/7",
+    "name": "Ether",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281139,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a34/7",
+    "name": "Hi-Ether",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281140,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a35/2",
+    "name": "Dry Ether",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281141,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a33/6",
+    "name": "Phoenix Draft",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281139,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a33/1",
+    "name": "Antidote",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281139,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a33/2",
+    "name": "Smelling Salts",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281139,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a33/3",
+    "name": "Echo Mist",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281139,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3f/6",
+    "name": "Adrelanine",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281151,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3f/5",
+    "name": "Sedative",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281151,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a34/3",
+    "name": "Gold Needle",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281140,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3f/7",
+    "name": "Maiden's Kiss",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281151,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a34/6",
+    "name": "Remedy",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281140,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a35/0",
+    "name": "Celeris",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281141,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3f/4",
+    "name": "Cushion",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281151,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a49/4",
+    "name": "Planet's Favor",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281161,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a49/5",
+    "name": "Planet's Benison",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281161,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a49/6",
+    "name": "Planet's Splendor",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281161,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a49/7",
+    "name": "Planet's Mercy",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281161,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a4a/0",
+    "name": "Planet's Spirit",
+    "region": "Item Transmuter",
+    "category": "Items / Unlocked",
+    "offset": 281162,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a58/4",
+    "name": "Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281176,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a59/1",
+    "name": "Hi-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281177,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5a/0",
+    "name": "Mega-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281178,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5a/5",
+    "name": "Giga-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281178,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a60/1",
+    "name": "X-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281184,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a59/4",
+    "name": "Mixed Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281177,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a59/5",
+    "name": "Mixed Hi-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281177,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a59/0",
+    "name": "Mist Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281177,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a59/6",
+    "name": "Mist Hi-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281177,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5a/1",
+    "name": "Mist Mega-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281178,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5a/7",
+    "name": "Mist Giga-Potion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281178,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a59/3",
+    "name": "Ether",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281177,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5a/3",
+    "name": "Hi-Ether",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281178,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5a/6",
+    "name": "Dry Ether",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281178,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a59/2",
+    "name": "Phoenix Draft",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281177,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a58/5",
+    "name": "Antidote",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281176,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a58/6",
+    "name": "Smelling Salts",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281176,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a58/7",
+    "name": "Echo Mist",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281176,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a65/2",
+    "name": "Adrelanine",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281189,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a65/1",
+    "name": "Sedative",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281189,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a59/7",
+    "name": "Gold Needle",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281177,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a65/3",
+    "name": "Maiden's Kiss",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281189,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5a/2",
+    "name": "Remedy",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281178,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5a/4",
+    "name": "Celeris",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281178,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a65/0",
+    "name": "Cushion",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281189,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6f/0",
+    "name": "Planet's Favor",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281199,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6f/1",
+    "name": "Planet's Benison",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281199,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6f/2",
+    "name": "Planet's Splendor",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281199,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6f/3",
+    "name": "Planet's Mercy",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281199,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6f/4",
+    "name": "Planet's Spirit",
+    "region": "Item Transmuter",
+    "category": "Items / Done",
+    "offset": 281199,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a35/4",
+    "name": "Copper Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281141,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a35/7",
+    "name": "Woodsprite Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281141,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a36/4",
+    "name": "Sailor's Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281142,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a36/7",
+    "name": "Gold Coral Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281142,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a37/4",
+    "name": "Fortress Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281143,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a37/7",
+    "name": "Beguiling Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281143,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a38/4",
+    "name": "Crucible Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281144,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a38/7",
+    "name": "Witch's Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281144,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a39/4",
+    "name": "Commander's Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281145,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a39/7",
+    "name": "Spiritbound Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281145,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3a/4",
+    "name": "Resplendent Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281146,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3a/7",
+    "name": "Yggdrasil Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Unlocked",
+    "offset": 281146,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5b/0",
+    "name": "Copper Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281179,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5b/3",
+    "name": "Woodsprite Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281179,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5c/0",
+    "name": "Sailor's Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281180,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5c/3",
+    "name": "Gold Coral Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281180,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5d/0",
+    "name": "Fortress Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281181,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5d/3",
+    "name": "Beguiling Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281181,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5e/0",
+    "name": "Crucible Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281182,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5e/3",
+    "name": "Witch's Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281182,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5f/0",
+    "name": "Commander's Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281183,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a5f/3",
+    "name": "Spiritbound Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281183,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a60/0",
+    "name": "Resplendent Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281184,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a60/3",
+    "name": "Yggdrasil Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor / Done",
+    "offset": 281184,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a42/0",
+    "name": "Enhanced Copper Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281154,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a42/1",
+    "name": "Enhanced Hunter's Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281154,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a42/2",
+    "name": "Enhanced Bone Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281154,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a42/3",
+    "name": "Enhanced Woodsprite Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281154,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a43/0",
+    "name": "Enhanced Sailor's Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281155,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a43/1",
+    "name": "Enhanced Elphadunk Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281155,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a43/2",
+    "name": "Enhanced Wisefox Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281155,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a43/3",
+    "name": "Enhanced Gold Coral Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281155,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a44/0",
+    "name": "Enhanced Fortress Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281156,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a44/1",
+    "name": "Enhanced Abyssal Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281156,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a44/2",
+    "name": "Enhanced Oldebeast Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281156,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a44/3",
+    "name": "Enhanced Beguiling Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281156,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a45/0",
+    "name": "Enhanced Crucible Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281157,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a45/1",
+    "name": "Enhanced Outlaw Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281157,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a45/2",
+    "name": "Enhanced Crocodile Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281157,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a45/3",
+    "name": "Enhanced Witch's Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281157,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a46/0",
+    "name": "Enhanced Commander's Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281158,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a46/1",
+    "name": "Enhanced Road Warrior Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281158,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a46/2",
+    "name": "Enhanced Snailshell Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281158,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a46/3",
+    "name": "Enhanced Spiritbound Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281158,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a47/0",
+    "name": "Enhanced Resplendent Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281159,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a47/1",
+    "name": "Enhanced Garm Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281159,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a47/2",
+    "name": "Enhanced Varvados Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281159,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a47/3",
+    "name": "Enhanced Yggdrasil Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Unlocked",
+    "offset": 281159,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a67/4",
+    "name": "Enhanced Copper Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281191,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a67/5",
+    "name": "Enhanced Hunter's Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281191,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a67/6",
+    "name": "Enhanced Bone Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281191,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a67/7",
+    "name": "Enhanced Woodsprite Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281191,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a68/4",
+    "name": "Enhanced Sailor's Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281192,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a68/5",
+    "name": "Enhanced Elphadunk Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281192,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a68/6",
+    "name": "Enhanced Wisefox Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281192,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a68/7",
+    "name": "Enhanced Gold Coral Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281192,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a69/4",
+    "name": "Enhanced Fortress Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281193,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a69/5",
+    "name": "Enhanced Abyssal Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281193,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a69/6",
+    "name": "Enhanced Oldebeast Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281193,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a69/7",
+    "name": "Enhanced Beguiling Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281193,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6a/4",
+    "name": "Enhanced Crucible Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281194,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6a/5",
+    "name": "Enhanced Outlaw Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281194,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6a/6",
+    "name": "Enhanced Crocodile Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281194,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6a/7",
+    "name": "Enhanced Witch's Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281194,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6b/4",
+    "name": "Enhanced Commander's Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281195,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6b/5",
+    "name": "Enhanced Road Warrior Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281195,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6b/6",
+    "name": "Enhanced Snailshell Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281195,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6b/7",
+    "name": "Enhanced Spiritbound Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281195,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6c/4",
+    "name": "Enhanced Resplendent Bracer",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281196,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6c/5",
+    "name": "Enhanced Garm Bangle",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281196,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6c/6",
+    "name": "Enhanced Varvados Bracelet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281196,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6c/7",
+    "name": "Enhanced Yggdrasil Armlet",
+    "region": "Item Transmuter",
+    "category": "Armor Upgrades / Done",
+    "offset": 281196,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3b/4",
+    "name": "Power Wristguards",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281147,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3b/5",
+    "name": "Bulletproof Vest",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281147,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3b/6",
+    "name": "Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281147,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3b/7",
+    "name": "Talisman",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281147,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3c/0",
+    "name": "Supernatural Wristguards",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281148,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3c/1",
+    "name": "Survival Vest",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281148,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3c/2",
+    "name": "Platinum Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281148,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3c/3",
+    "name": "Timeworn Talisman",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281148,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a41/2",
+    "name": "Malboro Orb",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281153,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a40/1",
+    "name": "Star Pendant",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281152,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a40/0",
+    "name": "Headband",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281152,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a40/3",
+    "name": "Protective Boots",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281152,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a41/3",
+    "name": "Expeditionary Medal",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281153,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a41/4",
+    "name": "Draconic Ring",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281153,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a40/4",
+    "name": "Camaraderie Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281152,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a40/5",
+    "name": "Psychic's Charm",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281152,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a40/6",
+    "name": "Jeweled Ring",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281152,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a40/7",
+    "name": "White Cape",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281152,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a41/0",
+    "name": "Safety Bit",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281153,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a41/1",
+    "name": "Karmic Cowl",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281153,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a4a/7",
+    "name": "Corsair's Compass",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281162,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a41/5",
+    "name": "Genji Gloves",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281153,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a41/6",
+    "name": "Genji Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281153,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a41/7",
+    "name": "Genji Ring",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281153,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a3c/4",
+    "name": "Revival Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281148,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a40/2",
+    "name": "Healing Carcanet",
+    "region": "Item Transmuter",
+    "category": "Accessories / Unlocked",
+    "offset": 281152,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a61/0",
+    "name": "Power Wristguards",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281185,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a61/1",
+    "name": "Bulletproof Vest",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281185,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a61/2",
+    "name": "Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281185,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a61/3",
+    "name": "Talisman",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281185,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a61/4",
+    "name": "Supernatural Wristguards",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281185,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a61/5",
+    "name": "Survival Vest",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281185,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a61/6",
+    "name": "Platinum Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281185,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a61/7",
+    "name": "Timeworn Talisman",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281185,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a66/6",
+    "name": "Malboro Orb",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281190,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a65/5",
+    "name": "Star Pendant",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281189,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a65/4",
+    "name": "Headband",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281189,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a65/7",
+    "name": "Protective Boots",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281189,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a66/7",
+    "name": "Expeditionary Medal",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281190,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a67/0",
+    "name": "Draconic Ring",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281191,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a66/0",
+    "name": "Camaraderie Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281190,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a66/1",
+    "name": "Psychic's Charm",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281190,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a66/2",
+    "name": "Jeweled Ring",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281190,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a66/3",
+    "name": "White Cape",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281190,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a66/4",
+    "name": "Safety Bit",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281190,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a66/5",
+    "name": "Karmic Cowl",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281190,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a70/3",
+    "name": "Corsair's Compass",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281200,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a67/1",
+    "name": "Genji Gloves",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281191,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a67/2",
+    "name": "Genji Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281191,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a67/3",
+    "name": "Genji Ring",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281191,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a62/0",
+    "name": "Revival Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281186,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a65/6",
+    "name": "Healing Carcanet",
+    "region": "Item Transmuter",
+    "category": "Accessories / Done",
+    "offset": 281189,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a48/0",
+    "name": "Hi-Power Wristguards",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281160,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a48/1",
+    "name": "Bulletproof Vest Mk. II",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281160,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a48/2",
+    "name": "Magical Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281160,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a48/3",
+    "name": "Talisman of Focus",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281160,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a48/4",
+    "name": "Full Throttle Wristguards",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281160,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a48/5",
+    "name": "Riot Vest",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281160,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a48/6",
+    "name": "Sorcerer's Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281160,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a48/7",
+    "name": "Cetra Talisman",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281160,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a4a/1",
+    "name": "Enhanced Camaraderie Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281162,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a4a/2",
+    "name": "Enhanced Psychic's Charm",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281162,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a4a/3",
+    "name": "Enhanced Karmic Cowl",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281162,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a4a/4",
+    "name": "Enhanced Malboro Orb",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281162,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a4a/5",
+    "name": "Enhanced Dragonic Ring",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281162,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a4a/6",
+    "name": "Enhanced Expeditionary Medal",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Unlocked",
+    "offset": 281162,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6d/4",
+    "name": "Hi-Power Wristguards",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281197,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6d/5",
+    "name": "Bulletproof Vest Mk. II",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281197,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6d/6",
+    "name": "Magical Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281197,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6d/7",
+    "name": "Talisman of Focus",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281197,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6e/0",
+    "name": "Full Throttle Wristguards",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281198,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6e/1",
+    "name": "Riot Vest",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281198,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6e/2",
+    "name": "Sorcerer's Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281198,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6e/3",
+    "name": "Cetra Talisman",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281198,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6f/5",
+    "name": "Enhanced Camaraderie Earrings",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281199,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6f/6",
+    "name": "Enhanced Psychic's Charm",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281199,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6f/7",
+    "name": "Enhanced Karmic Cowl",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281199,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a70/0",
+    "name": "Enhanced Malboro Orb",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281200,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a70/1",
+    "name": "Enhanced Dragonic Ring",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281200,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a70/2",
+    "name": "Enhanced Expeditionary Medal",
+    "region": "Item Transmuter",
+    "category": "Accessory Upgrades / Done",
+    "offset": 281200,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a49/1",
+    "name": "Boiler Valve",
+    "region": "Item Transmuter",
+    "category": "Key Items / Unlocked",
+    "offset": 281161,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a49/2",
+    "name": "Bird Trap",
+    "region": "Item Transmuter",
+    "category": "Key Items / Unlocked",
+    "offset": 281161,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a49/3",
+    "name": "Legendary Bait",
+    "region": "Item Transmuter",
+    "category": "Key Items / Unlocked",
+    "offset": 281161,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a49/0",
+    "name": "Windmill Gear",
+    "region": "Item Transmuter",
+    "category": "Key Items / Unlocked",
+    "offset": 281161,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6e/5",
+    "name": "Boiler Valve",
+    "region": "Item Transmuter",
+    "category": "Key Items / Done",
+    "offset": 281198,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6e/6",
+    "name": "Bird Trap",
+    "region": "Item Transmuter",
+    "category": "Key Items / Done",
+    "offset": 281198,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6e/7",
+    "name": "Legendary Bait",
+    "region": "Item Transmuter",
+    "category": "Key Items / Done",
+    "offset": 281198,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44a6e/4",
+    "name": "Windmill Gear",
+    "region": "Item Transmuter",
+    "category": "Key Items / Done",
+    "offset": 281198,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdd/6",
+    "name": "Fat Moogle",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Availables",
+    "offset": 281565,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdd/7",
+    "name": "Dio",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Availables",
+    "offset": 281565,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bde/0",
+    "name": "Shiva",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Availables",
+    "offset": 281566,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bde/1",
+    "name": "Ifrit",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Availables",
+    "offset": 281566,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bde/2",
+    "name": "Sephiroth",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Availables",
+    "offset": 281566,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bde/4",
+    "name": "Fat Moogle",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Unlocked",
+    "offset": 281566,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bde/5",
+    "name": "Dio",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Unlocked",
+    "offset": 281566,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bde/6",
+    "name": "Shiva",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Unlocked",
+    "offset": 281566,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bde/7",
+    "name": "Ifrit",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Unlocked",
+    "offset": 281566,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdf/0",
+    "name": "Sephiroth",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Unlocked",
+    "offset": 281567,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdf/6",
+    "name": "Saucer Brawler",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Rewards",
+    "offset": 281567,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdf/7",
+    "name": "Fat Moogle",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Rewards",
+    "offset": 281567,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44be0/0",
+    "name": "Dio",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Rewards",
+    "offset": 281568,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44be0/1",
+    "name": "Shiva",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Rewards",
+    "offset": 281568,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44be0/2",
+    "name": "Ifrit",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Rewards",
+    "offset": 281568,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44be0/3",
+    "name": "Sephiroth",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Rewards",
+    "offset": 281568,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fba/0",
+    "name": "Saucer Brawler",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Perfects",
+    "offset": 282554,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fba/1",
+    "name": "Fat Moogle",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Perfects",
+    "offset": 282554,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fba/2",
+    "name": "Dio",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Perfects",
+    "offset": 282554,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fba/3",
+    "name": "Shiva",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Perfects",
+    "offset": 282554,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fba/4",
+    "name": "Ifrit",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Perfects",
+    "offset": 282554,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fba/5",
+    "name": "Sephiroth",
+    "region": "Mini-Games",
+    "category": "3D Brawler / Perfects",
+    "offset": 282554,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506c/6",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 1 / Rank Rewards",
+    "offset": 282732,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506c/7",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 1 / Rank Rewards",
+    "offset": 282732,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506d/0",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 1 / Rank Rewards",
+    "offset": 282733,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fe6/4",
+    "name": "Hard",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 1 / Rank Rewards",
+    "offset": 282598,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506d/1",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 2 / Rank Rewards",
+    "offset": 282733,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506d/2",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 2 / Rank Rewards",
+    "offset": 282733,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506d/3",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 2 / Rank Rewards",
+    "offset": 282733,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fe6/5",
+    "name": "Hard",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 2 / Rank Rewards",
+    "offset": 282598,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506d/4",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 3 / Rank Rewards",
+    "offset": 282733,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506d/5",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 3 / Rank Rewards",
+    "offset": 282733,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506d/6",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 3 / Rank Rewards",
+    "offset": 282733,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fe6/6",
+    "name": "Hard",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 3 / Rank Rewards",
+    "offset": 282598,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506d/7",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 4 / Rank Rewards",
+    "offset": 282733,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506e/0",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 4 / Rank Rewards",
+    "offset": 282734,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506e/1",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 4 / Rank Rewards",
+    "offset": 282734,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fe6/7",
+    "name": "Hard",
+    "region": "Mini-Games",
+    "category": "Cactuar Crush / Reactor 4 / Rank Rewards",
+    "offset": 282598,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fc9/5",
+    "name": "Three-Card Stud",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Easy Card Puzzles",
+    "offset": 282569,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fc9/6",
+    "name": "Go for Choco-Broke",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Easy Card Puzzles",
+    "offset": 282569,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fc9/7",
+    "name": "Mischief-Making Moogles",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Easy Card Puzzles",
+    "offset": 282569,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fca/1",
+    "name": "Spears and Needles",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Advanced Card Puzzles",
+    "offset": 282570,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fca/2",
+    "name": "Sea Devil by Night",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Advanced Card Puzzles",
+    "offset": 282570,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45009/5",
+    "name": "A Kingly Clash",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Advanced Card Puzzles",
+    "offset": 282633,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fca/3",
+    "name": "One Shot, One Kill",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Advanced Card Puzzles",
+    "offset": 282570,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fca/4",
+    "name": "Curse of the Gi",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Advanced Card Puzzles",
+    "offset": 282570,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fca/5",
+    "name": "Collector's Card: Cloud",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Collection Challenges",
+    "offset": 282570,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fca/6",
+    "name": "Collector's Card: Barret",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Collection Challenges",
+    "offset": 282570,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fca/7",
+    "name": "Collector's Card: Tifa",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Collection Challenges",
+    "offset": 282570,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcb/0",
+    "name": "Collector's Card: Aerith",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Collection Challenges",
+    "offset": 282571,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcb/1",
+    "name": "Collector's Card: Red XIII",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Collection Challenges",
+    "offset": 282571,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcb/2",
+    "name": "Collector's Card: Yuffie",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Collection Challenges",
+    "offset": 282571,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcb/3",
+    "name": "Collector's Card: Cait Sith",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Collection Challenges",
+    "offset": 282571,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45009/2",
+    "name": "Collector's Card: Cid",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Collection Challenges",
+    "offset": 282633,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45009/3",
+    "name": "Collector's Card: Vincent",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Collection Challenges",
+    "offset": 282633,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45009/6",
+    "name": "Power-Down Practice",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Skill Drills",
+    "offset": 282633,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45009/7",
+    "name": "Chain Reactions",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Skill Drills",
+    "offset": 282633,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4500a/0",
+    "name": "Major Power Outage",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Skill Drills",
+    "offset": 282634,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4500a/1",
+    "name": "Back to Replace-ics",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Skill Drills",
+    "offset": 282634,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4500a/2",
+    "name": "Replacement Test",
+    "region": "Mini-Games",
+    "category": "Card Carnival / Skill Drills",
+    "offset": 282634,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/36d924/0",
+    "name": "Grade II",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / General / Unlocked Grades",
+    "offset": 3594532,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505c/3",
+    "name": "Grade I",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / General / Unlocked Grades",
+    "offset": 282716,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/449f6/1",
+    "name": "Mecha-Chocobo",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / General / Unlocked Chocobos",
+    "offset": 281078,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505c/5",
+    "name": "The Carbuncle Classic",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade III",
+    "offset": 282716,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505c/6",
+    "name": "The Moogle Oaks",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade III",
+    "offset": 282716,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505c/7",
+    "name": "The Cactuar Derby",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade III",
+    "offset": 282716,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505d/0",
+    "name": "The Bomb Blowout",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade III",
+    "offset": 282717,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505d/1",
+    "name": "The Malboro Memorial",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade III",
+    "offset": 282717,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505d/2",
+    "name": "The Tonberry Derby",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade III",
+    "offset": 282717,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505d/3",
+    "name": "The Coeurl Championship",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade III",
+    "offset": 282717,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505d/4",
+    "name": "The Behemoth Grand Prix",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade III",
+    "offset": 282717,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505d/5",
+    "name": "The Ultima Stakes",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade III",
+    "offset": 282717,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505d/6",
+    "name": "The Ifrit Blaze",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282717,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505d/7",
+    "name": "The Shiva Icefields",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282717,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505e/0",
+    "name": "The Leviathan Riptide",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282718,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505e/1",
+    "name": "The Ramuh Bolt",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282718,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505e/2",
+    "name": "The Titan Slam",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282718,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505e/3",
+    "name": "The Kujata Stampede",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282718,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505e/4",
+    "name": "The Odin Straights",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282718,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505e/5",
+    "name": "The Alexander Siege",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282718,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505e/6",
+    "name": "The Phoenix Trial",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282718,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4505e/7",
+    "name": "The Bahamut Skirmish",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade II",
+    "offset": 282718,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45063/3",
+    "name": "The Gold Cup",
+    "region": "Mini-Games",
+    "category": "Chocobo Races / Grade I",
+    "offset": 282723,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c03/7",
+    "name": "Basic",
+    "region": "Mini-Games",
+    "category": "Crunch-Off / Rank Rewards",
+    "offset": 281603,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c04/0",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Crunch-Off / Rank Rewards",
+    "offset": 281604,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c04/1",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Crunch-Off / Rank Rewards",
+    "offset": 281604,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c04/2",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Crunch-Off / Rank Rewards",
+    "offset": 281604,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b9a/4",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Desert Rush / Standard / Rank Rewards",
+    "offset": 281498,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b9a/5",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Desert Rush / Standard / Rank Rewards",
+    "offset": 281498,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b9a/6",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Desert Rush / Standard / Rank Rewards",
+    "offset": 281498,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b9a/7",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Desert Rush / Challenging / Rank Rewards",
+    "offset": 281498,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b9b/0",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Desert Rush / Challenging / Rank Rewards",
+    "offset": 281499,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b9b/1",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Desert Rush / Challenging / Rank Rewards",
+    "offset": 281499,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b58/5",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Dolphin Show / Rank Rewards",
+    "offset": 281432,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b58/4",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Dolphin Show / Rank Rewards",
+    "offset": 281432,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b58/3",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Dolphin Show / Rank Rewards",
+    "offset": 281432,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fdd/7",
+    "name": "Stage 1",
+    "region": "Mini-Games",
+    "category": "Fort Condor / Cleared Stages on Hard",
+    "offset": 282589,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fde/0",
+    "name": "Stage 2",
+    "region": "Mini-Games",
+    "category": "Fort Condor / Cleared Stages on Hard",
+    "offset": 282590,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fde/1",
+    "name": "Stage 3",
+    "region": "Mini-Games",
+    "category": "Fort Condor / Cleared Stages on Hard",
+    "offset": 282590,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fde/2",
+    "name": "Stage 4",
+    "region": "Mini-Games",
+    "category": "Fort Condor / Cleared Stages on Hard",
+    "offset": 282590,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdd/1",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "G-Bike / Standard / Rank Rewards",
+    "offset": 281565,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdd/0",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "G-Bike / Standard / Rank Rewards",
+    "offset": 281565,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdc/7",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "G-Bike / Standard / Rank Rewards",
+    "offset": 281564,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdd/4",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "G-Bike / Expert / Rank Rewards",
+    "offset": 281565,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdd/3",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "G-Bike / Expert / Rank Rewards",
+    "offset": 281565,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdd/2",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "G-Bike / Expert / Rank Rewards",
+    "offset": 281565,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdc/3",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Galactic Saviors / Standard / Rank Rewards",
+    "offset": 281564,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdc/2",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Galactic Saviors / Standard / Rank Rewards",
+    "offset": 281564,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdc/1",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Galactic Saviors / Standard / Rank Rewards",
+    "offset": 281564,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdc/6",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Galactic Saviors / Expert / Rank Rewards",
+    "offset": 281564,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdc/5",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Galactic Saviors / Expert / Rank Rewards",
+    "offset": 281564,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44bdc/4",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Galactic Saviors / Expert / Rank Rewards",
+    "offset": 281564,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fe3/0",
+    "name": "Stage 1 Hard Mode",
+    "region": "Mini-Games",
+    "category": "Gears and Gambits",
+    "offset": 282595,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fe3/1",
+    "name": "Stage 2 Hard Mode",
+    "region": "Mini-Games",
+    "category": "Gears and Gambits",
+    "offset": 282595,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fe3/2",
+    "name": "Stage 3 Hard Mode",
+    "region": "Mini-Games",
+    "category": "Gears and Gambits",
+    "offset": 282595,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fe3/3",
+    "name": "Stage 4 Hard Mode",
+    "region": "Mini-Games",
+    "category": "Gears and Gambits",
+    "offset": 282595,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506f/0",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Glide de Chocobo / Training Course No. 1 / Rank Rewards",
+    "offset": 282735,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506e/7",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Glide de Chocobo / Training Course No. 1 / Rank Rewards",
+    "offset": 282734,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506e/6",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Glide de Chocobo / Training Course No. 1 / Rank Rewards",
+    "offset": 282734,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506f/3",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Glide de Chocobo / Training Course No. 2 / Rank Rewards",
+    "offset": 282735,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506f/2",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Glide de Chocobo / Training Course No. 2 / Rank Rewards",
+    "offset": 282735,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506f/1",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Glide de Chocobo / Training Course No. 2 / Rank Rewards",
+    "offset": 282735,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506f/6",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Glide de Chocobo / Training Course No. 3 / Rank Rewards",
+    "offset": 282735,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506f/5",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Glide de Chocobo / Training Course No. 3 / Rank Rewards",
+    "offset": 282735,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/4506f/4",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Glide de Chocobo / Training Course No. 3 / Rank Rewards",
+    "offset": 282735,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45050/2",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Hustle de Chocobo / Rank Rewards",
+    "offset": 282704,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45050/1",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Hustle de Chocobo / Rank Rewards",
+    "offset": 282704,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45050/0",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Hustle de Chocobo / Rank Rewards",
+    "offset": 282704,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b57/5",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Jumpfrog / Whirligig Whack / Rank Rewards",
+    "offset": 281431,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b57/4",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Jumpfrog / Whirligig Whack / Rank Rewards",
+    "offset": 281431,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b57/3",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Jumpfrog / Whirligig Whack / Rank Rewards",
+    "offset": 281431,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b58/0",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Jumpfrog / Ribbiting Rollers / Rank Rewards",
+    "offset": 281432,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b57/7",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Jumpfrog / Ribbiting Rollers / Rank Rewards",
+    "offset": 281431,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44b57/6",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Jumpfrog / Ribbiting Rollers / Rank Rewards",
+    "offset": 281431,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45066/5",
+    "name": "Talk with Dorian",
+    "region": "Mini-Games",
+    "category": "Piano",
+    "offset": 282726,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45066/6",
+    "name": "Piano Quest Complete",
+    "region": "Mini-Games",
+    "category": "Piano",
+    "offset": 282726,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45068/5",
+    "name": "Tifa can play Piano",
+    "region": "Mini-Games",
+    "category": "Piano",
+    "offset": 282728,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45068/6",
+    "name": "Aerith can play Piano",
+    "region": "Mini-Games",
+    "category": "Piano",
+    "offset": 282728,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/45068/7",
+    "name": "Yuffie can play Piano",
+    "region": "Mini-Games",
+    "category": "Piano",
+    "offset": 282728,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c05/2",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Pirate Rampage / Brigantine / Rank Rewards",
+    "offset": 281605,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c05/3",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Pirate Rampage / Brigantine / Rank Rewards",
+    "offset": 281605,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c05/4",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Pirate Rampage / Brigantine / Rank Rewards",
+    "offset": 281605,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c05/6",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Pirate Rampage / Ghost Ship / Rank Rewards",
+    "offset": 281605,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c05/7",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Pirate Rampage / Ghost Ship / Rank Rewards",
+    "offset": 281605,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c06/0",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Pirate Rampage / Ghost Ship / Rank Rewards",
+    "offset": 281606,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c04/3",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Run Wild / Free-for-All / Rank Rewards",
+    "offset": 281604,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c04/4",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Run Wild / Free-for-All / Rank Rewards",
+    "offset": 281604,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c04/5",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Run Wild / Free-for-All / Rank Rewards",
+    "offset": 281604,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c04/6",
+    "name": "Rank I",
+    "region": "Mini-Games",
+    "category": "Run Wild / Time Trial / Rank Rewards",
+    "offset": 281604,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c04/7",
+    "name": "Rank II",
+    "region": "Mini-Games",
+    "category": "Run Wild / Time Trial / Rank Rewards",
+    "offset": 281604,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c05/0",
+    "name": "Rank III",
+    "region": "Mini-Games",
+    "category": "Run Wild / Time Trial / Rank Rewards",
+    "offset": 281605,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcb/4",
+    "name": "Support Card: Luxury Real Estate",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Easy",
+    "offset": 282571,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcb/5",
+    "name": "Support Card: Succulent Succor",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Easy",
+    "offset": 282571,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcb/6",
+    "name": "Gimmick Battlefield: Behind Enemy Lines",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Easy",
+    "offset": 282571,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcb/7",
+    "name": "Support Card: Chadley the Callous",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Easy",
+    "offset": 282571,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcc/0",
+    "name": "Gimmick Battlefield: Ifrit's 32-Bit Flames",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Easy",
+    "offset": 282572,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcc/1",
+    "name": "Gimmick Battlefield: High Ground",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Advanced",
+    "offset": 282572,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcc/2",
+    "name": "Support Card: Don't Fear: MAI's Here",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Advanced",
+    "offset": 282572,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcc/3",
+    "name": "Gimmick Battlefield: Outflanked",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Advanced",
+    "offset": 282572,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcc/4",
+    "name": "Gimmick Battlefield: Vertical Integration",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Advanced",
+    "offset": 282572,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcc/5",
+    "name": "Gimmick Battlefield: Back to the Wall",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Advanced",
+    "offset": 282572,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcc/6",
+    "name": "Boot Camp",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Survival",
+    "offset": 282572,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcc/7",
+    "name": "Extreme",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Survival",
+    "offset": 282572,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44fcd/0",
+    "name": "Nightmare",
+    "region": "Mini-Games",
+    "category": "The Gold Saucer / Survival",
+    "offset": 282573,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c0d/3",
+    "name": "Rookie License",
+    "region": "Mini-Games",
+    "category": "Wheelie Event / Licenses",
+    "offset": 281613,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c0d/4",
+    "name": "Veteran License",
+    "region": "Mini-Games",
+    "category": "Wheelie Event / Licenses",
+    "offset": 281613,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c0d/5",
+    "name": "Expert License",
+    "region": "Mini-Games",
+    "category": "Wheelie Event / Licenses",
+    "offset": 281613,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "research/44c0d/6",
+    "name": "Master License",
+    "region": "Mini-Games",
+    "category": "Wheelie Event / Licenses",
+    "offset": 281613,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  }
+]

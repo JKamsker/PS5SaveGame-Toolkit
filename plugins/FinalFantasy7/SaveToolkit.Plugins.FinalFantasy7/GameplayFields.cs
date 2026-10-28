@@ -30,6 +30,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
     public int Level(int slot) => bytes[_layout.MateriaLevelOffset + slot * GameplayLayout.MateriaStride];
     public int Quantity(int slot) => BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(IdOffset(false, slot) + GameplayLayout.QuantityDelta));
     public IntegerSpec? ApRange(int slot) => _materiaPolicy.Range(slot);
+    public IntegerSpec? QuantityRange(int slot) => _quantityPolicy.Range(slot);
     public int StarLevel(int slot, uint ap) => _materiaPolicy.Level(slot, ap);
 
     public IReadOnlyList<ViewNode> Summary(Func<ScalarField, FieldNode> bind)
