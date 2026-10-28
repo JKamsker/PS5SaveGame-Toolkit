@@ -1,3 +1,0 @@
-#!/bin/sh
-# Optional hook for this plugin; the repository owner can chain it from a shared hook.
-exec pwsh -NoProfile -File plugins/GenericJson/scripts/check-source-lines.ps1

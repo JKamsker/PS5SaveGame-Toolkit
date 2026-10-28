@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "id": "genericjson.cp2077.v136",
+  "title": "Cyberpunk v136 recorded choice annotations",
+  "titleIds": [
+    "PPSA04027"
+  ],
+  "schema": 1,
+  "plugins": [
+    "format.json"
+  ],
+  "datasets": [
+    {
+      "title": "Difficulty choices",
+      "files": [
+        {
+          "sha256": "e9d6167d21dbc84676c529e8cba543f92b1f040e994f39a3658ea4fbafdaf2ce",
+          "path": "difficulty.json"
+        }
+      ],
+      "attribution": {
+        "modifications": "Original factual annotations for documented v136 IDs; original categories, word splitting and descriptions. No save payload or third-party prose copied.",
+        "author": "PS5 Save Game Toolkit contributors",
+        "retrieved": "2026-10-28",
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/plans/GenericJson.md",
+        "license": "GPL-3.0-or-later",
+        "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html"
+      },
+      "id": "cp2077-v136-difficulty",
+      "kind": "records"
+    },
+    {
+      "title": "Display choices",
+      "files": [
+        {
+          "sha256": "3ccf864a742355c8a53900ff8ec77f1214e98d131223c56ce78d06a42522a00b",
+          "path": "display.json"
+        }
+      ],
+      "attribution": {
+        "modifications": "Original factual annotations for documented v136 IDs; original categories, word splitting and descriptions. No save payload or third-party prose copied.",
+        "author": "PS5 Save Game Toolkit contributors",
+        "retrieved": "2026-10-28",
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/plans/GenericJson.md",
+        "license": "GPL-3.0-or-later",
+        "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html"
+      },
+      "id": "cp2077-v136-display",
+      "kind": "records"
+    }
+  ],
+  "locale": "en",
+  "gameBuilds": [
+    "136"
+  ]
+}

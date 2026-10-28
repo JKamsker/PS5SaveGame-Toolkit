@@ -17,13 +17,21 @@ internal static class JsonStructureActions
 
     public static FieldValue StructureValue(JsonValueToken node)
     {
-        var entries = node.Children.Select(n => node.Kind == JsonTokenType.StartObject
-            ? $"{n.ValueId}:{JsonSerializer.Serialize(n.Label)}" : n.ValueId).ToArray();
-        var digest = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(string.Join(", ", entries))));
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        var displayed = new List<string>();
+        for (var i = 0; i < node.Children.Count; i++)
+        {
+            var child = node.Children[i];
+            var entry = node.Kind == JsonTokenType.StartObject ? $"{child.ValueId}:{JsonSerializer.Serialize(child.Label)}" : child.ValueId;
+            if (i > 0) hash.AppendData(", "u8);
+            hash.AppendData(Encoding.UTF8.GetBytes(entry));
+            if (i < DisplayedIds) displayed.Add(entry.Length <= 160 ? entry : entry[..160] + "…");
+        }
+        var digest = Convert.ToHexStringLower(hash.GetHashAndReset());
         // Bound the displayed names as well as their count. The digest covers every complete name.
-        var prefix = string.Join(", ", entries.Take(DisplayedIds).Select(s => s.Length <= 160 ? s : s[..160] + "…"));
-        return FieldValue.Of($"{(node.Kind == JsonTokenType.StartArray ? "array" : "object")} ({entries.Length} entries): "
-            + prefix + (entries.Length > DisplayedIds ? ", …" : "") + $"; order/name SHA-256 {digest}");
+        var prefix = string.Join(", ", displayed);
+        return FieldValue.Of($"{(node.Kind == JsonTokenType.StartArray ? "array" : "object")} ({node.Children.Count} entries): "
+            + prefix + (node.Children.Count > DisplayedIds ? ", …" : "") + $"; order/name SHA-256 {digest}");
     }
 
     public static ActionPlan Plan(JsonTokenTree tree, string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)

@@ -85,7 +85,14 @@ For future built-in title insertion schemas, complete presets or F7 groups (not 
       Only the owner may promote maturity to Stable. Do not claim trophy guarantees or cross-platform
       conversion from syntax validity or PC editor behavior.
 
-Current framework status: F10/F5/F6/F8 are used; tagged review formatting is fixed in `03b66b7`.
+Completion round: the F9 present-minigame location list uses Unknown state and an attributed
+external guide, without imported art/coordinates. Confirm exact internal-key/display aliases and
+chapter/checkpoint prerequisite relationships before proposing a full graph. The two Cyberpunk F2
+catalogues describe the six already documented v136 difficulty/display IDs; verify menu localization
+and in-game effects in the same existing choice/index checks above. These add no new write family.
+
+Current framework status: F1/F2/F3/F4/F5/F6/F8/F9/F10/F12/F13 are used; tagged review formatting is fixed in `03b66b7`.
 F7 is available (`7ff21ad`), but no clearly coupled companion invariant is identified for the enabled
 GenericJson writes. Co-location and identical backup twins do not create such an invariant.
-There is no new blocking SDK request.
+F6 parameter reference triggers currently lack valueId/actionId; README contains the central SDK/UI
+request. The plugin ships a working attributed enum fallback and a separate browse-only F4 picker.

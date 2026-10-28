@@ -1,0 +1,6 @@
+{
+  "records": [
+    { "id": "Performance", "name": "Performance", "category": "Display mode", "description": "Recorded v136 display-mode ID. No resolution or frame-rate guarantee is inferred." },
+    { "id": "Quality", "name": "Quality", "category": "Display mode", "description": "Recorded v136 display-mode ID. No resolution or frame-rate guarantee is inferred." }
+  ]
+}

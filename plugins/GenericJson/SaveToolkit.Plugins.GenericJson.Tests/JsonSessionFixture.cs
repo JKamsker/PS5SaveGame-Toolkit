@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -12,14 +13,15 @@ internal sealed class JsonSessionFixture : IDisposable
 {
     private readonly string _storage = Path.Combine(Path.GetTempPath(), "SaveToolkit.GenericJson.Tests", Guid.NewGuid().ToString("N"));
 
-    public JsonSessionFixture(string source, DocumentSessionOptions? options = null, string title = "PPSA00000", string fileName = "data.json")
+    public JsonSessionFixture(string source, DocumentSessionOptions? options = null, string title = "PPSA00000", string fileName = "data.json", bool useReferences = false)
     {
         var bytes = Encoding.UTF8.GetBytes(source);
         var set = SaveSetImporter.Import([new ImportSource($"{title}/sdimg_fixture/{fileName}", () => new MemoryStream(bytes))], _storage);
         var file = set.AllDiskFiles.Single();
         var plugin = new GenericJsonPlugin();
-        Document = plugin.Open(file);
-        Session = new DocumentSession("fixture", file, plugin, Document, options);
+        var references = useReferences ? new ReferencePackStore([plugin]).Pin(plugin, title) : ReferenceContext.None;
+        Document = plugin.Open(file, references);
+        Session = new DocumentSession("fixture", file, plugin, Document, options, references: references);
     }
 
     public ISaveDocument Document { get; }

@@ -1,11 +1,14 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk.Diff;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.GenericJson;
 
-public sealed class GenericJsonPlugin : IGamePlugin
+public sealed class GenericJsonPlugin : IGamePlugin, ISaveDecoderProvider
 {
     private const int ProbeHeaderBytes = 64;
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new JsonTitleDecoder()];
 
     public PluginInfo Info { get; } = new("format.json", "Generic JSON", "0.2.0")
     {
@@ -15,6 +18,8 @@ public sealed class GenericJsonPlugin : IGamePlugin
         References = ["https://www.rfc-editor.org/rfc/rfc8259", "https://learn.microsoft.com/dotnet/api/system.text.json.utf8jsonreader",
             "https://prosperopatches.com/PPSA02343", "https://github.com/andshrew/PlayStation-PS1HD",
             "https://json-schema.org/understanding-json-schema/", "https://johnssaveeditors.com/games/it-takes-two/",
+            JsonProfileMap.GuideUrl,
+            "https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/plans/GenericJson.md",
             "https://github.com/steliosc/Cyberpunk-2077-Custom-Controls-Guide/blob/main/UserSettings.json"],
     };
 
@@ -54,7 +59,9 @@ public sealed class GenericJsonPlugin : IGamePlugin
         }
     }
 
-    public ISaveDocument Open(ISaveFile file)
+    public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         if (file.Length is <= 0 or > JsonTokenTree.MaxBytes)
         {
@@ -63,6 +70,6 @@ public sealed class GenericJsonPlugin : IGamePlugin
 
         var bytes = file.ReadAllBytes();
         var tree = JsonTokenTree.Parse(bytes);
-        return new JsonSaveDocument(file, tree);
+        return new JsonSaveDocument(file, tree, references);
     }
 }

@@ -17,11 +17,13 @@ internal sealed class JsonSemanticActions
     internal const string ProgressId = "semantic/progress";
     internal const string WrapperId = "semantic/wrapper-imported";
     private readonly List<JsonSemanticTarget> _targets = [];
+    private readonly Dictionary<int, JsonSemanticTarget> _byId = [];
     private readonly List<string> _unsupported = [];
     private readonly string? _title;
     private readonly bool _truncated;
+    public bool IsMatched => _title is not null;
 
-    public JsonSemanticActions(ISaveFile file, JsonTokenTree tree)
+    public JsonSemanticActions(ISaveFile file, JsonTokenTree tree, JsonReferenceChoices? references = null)
     {
         var overlay = JsonOverlay.Match(file, tree);
         if (overlay is null) return;
@@ -31,7 +33,7 @@ internal sealed class JsonSemanticActions
             var options = overlay.Groups.SelectMany(g => JsonOverlay.Unique(g, "options")!.Children).Take(JsonResetActions.MaxChanges + 1).ToArray();
             _truncated = options.Length > JsonResetActions.MaxChanges;
             foreach (var option in options.Take(JsonResetActions.MaxChanges))
-                if (JsonCyberpunkWrites.Create(option) is { } target) _targets.Add(target);
+                if (JsonCyberpunkWrites.Create(option, references) is { } target) _targets.Add(target);
                 else if (JsonOverlay.Unique(option, "value") is { } value) _unsupported.Add(value.ValueId);
         }
         else
@@ -44,13 +46,19 @@ internal sealed class JsonSemanticActions
                     _targets.Add(overlay.IsProfile ? target : target with { Confidence = Confidence.Unknown });
                 else _unsupported.Add(node.ValueId);
         }
+        foreach (var target in _targets) _byId.Add(target.Node.Index, target);
     }
 
     public IReadOnlyList<ViewNode> ForNode(JsonValueToken node)
     {
-        var target = _targets.Find(t => t.Node.Index == node.Index);
+        var target = _byId.GetValueOrDefault(node.Index);
         if (target is null) return [];
-        return target.Defaults is null ? [target.View()] : [target.View(), Action($"semantic/{node.Index}/default", "Restore recorded default")];
+        var result = new List<ViewNode> { target.View() };
+        if (target.Spec is ReferenceSpec spec)
+            result.Add(new FieldNode("catalogue/" + node.Index, "Browse choice catalogue (imported ID)", spec with { ReadOnly = true }, FieldValue.Of(node.Original.ToString()))
+                { Confidence = target.Confidence, Description = "Anchored to the imported ID; the current stored value is shown above. " + target.Evidence });
+        if (target.Defaults is not null) result.Add(Action($"semantic/{node.Index}/default", "Restore recorded default"));
+        return result;
     }
 
     public IReadOnlyList<ViewNode> Presets() => _title switch
@@ -68,7 +76,7 @@ internal sealed class JsonSemanticActions
         try
         {
             if (_title is null) throw new ArgumentException("No supported title/role/schema matches this action.");
-            if (scope.QueryScope is { CollectionId: not JsonSearch.CollectionId } || scope.QueryScope is not null && scope.RowKeys is null)
+            if (scope.QueryScope is { } query && (!JsonSearch.ValidScope(tree, query.CollectionId) || scope.RowKeys is null))
                 throw new ArgumentException("Use a resolved JSON tree selection.");
             var selected = scope.RowKeys?.ToHashSet(StringComparer.Ordinal);
             if (_truncated && selected is null) throw new ArgumentException("Title adapter coverage exceeds 5,000 fields; use an explicit bounded selection.");
@@ -112,7 +120,7 @@ internal sealed class JsonSemanticActions
             {
                 var parts = actionId.Split('/');
                 if (parts.Length != 3 || !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var id)) throw new ArgumentException("Unknown semantic action.");
-                var target = _targets.SingleOrDefault(t => t.Node.Index == id) ?? throw new ArgumentException("Field no longer has a supported semantic adapter.");
+                var target = _byId.GetValueOrDefault(id) ?? throw new ArgumentException("Field no longer has a supported semantic adapter.");
                 if (selected is not null) throw new ArgumentException("A single-field adapter requires document scope.");
                 var values = parts[2] == "set" ? target.Changes(parameters) : parts[2] == "default" && target.Defaults is { } defaults
                     ? defaults : throw new ArgumentException("No supported recorded default/action.");

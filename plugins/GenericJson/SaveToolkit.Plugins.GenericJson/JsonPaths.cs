@@ -26,14 +26,11 @@ internal static class JsonPaths
     private static IEnumerable<(JsonValueToken Node, string Path)> Walk(JsonValueToken parent, string path)
     {
         yield return (parent, path);
-        var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
         for (var i = 0; i < parent.Children.Count; i++)
         {
             var child = parent.Children[i];
-            occurrences.TryGetValue(child.Label, out var previous);
-            occurrences[child.Label] = previous + 1;
             var segment = parent.Kind == JsonTokenType.StartArray ? $"[{i}]"
-                : $"[{JsonSerializer.Serialize(Clip(child.Label, MaxDisplayKey))}]#{previous + 1}";
+                : $"[{JsonSerializer.Serialize(Clip(child.Label, MaxDisplayKey))}]#{child.Occurrence}";
             var childPath = Clip(path + segment, MaxDisplayPath);
             if (childPath.EndsWith('…')) childPath += $" ({child.ValueId})";
             foreach (var descendant in Walk(child, childPath)) yield return descendant;

@@ -8,9 +8,15 @@ internal static class JsonCyberpunkWrites
 {
     private const int MaxChoices = 128;
 
-    public static JsonSemanticTarget? Create(JsonValueToken option)
+    public static JsonSemanticTarget? Create(JsonValueToken option, JsonReferenceChoices? references = null)
     {
-        try { return CreateCore(option); }
+        try
+        {
+            var target = CreateCore(option);
+            if (target is null) return null;
+            target = references?.Annotate(option, target) ?? target;
+            return target with { Defaults = Defaults(option, target) };
+        }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or OverflowException)
         {
             // A valid generic JSON document may contain malformed or unsupported title metadata.
@@ -68,7 +74,7 @@ internal static class JsonCyberpunkWrites
             target = target with { Index = index, Confidence = SaveToolkit.Sdk.Views.Confidence.Unknown, Evidence = "Dynamic choice list missing: edit bounded raw text and explicit index only. "
                 + "Index domain is limited to 0..imported index; no named choice or compatibility is inferred." };
         }
-        return target with { Defaults = Defaults(option, target) };
+        return target;
     }
 
     private static IReadOnlyDictionary<string, FieldValue>? Defaults(JsonValueToken option, JsonSemanticTarget target)
@@ -77,7 +83,7 @@ internal static class JsonCyberpunkWrites
         {
             var index = JsonOverlay.Unique(option, "default_index");
             if (index is null || !int.TryParse(index.Current.ToString(), NumberStyles.None, CultureInfo.InvariantCulture, out var i) || i >= choices.Count) return null;
-            return target.Changes(new Dictionary<string, FieldValue> { ["value"] = FieldValue.Of(i.ToString(CultureInfo.InvariantCulture)) });
+            return target.Changes(new Dictionary<string, FieldValue> { ["value"] = target.ChoiceParameter(i) });
         }
         var value = JsonOverlay.Unique(option, "default_value");
         if (target.Index is not null || value is null || value.IsContainer || value.Current.IsNull

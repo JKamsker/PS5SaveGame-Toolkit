@@ -17,7 +17,7 @@ internal static class JsonResetActions
 
     public static ActionPlan Plan(JsonTokenTree tree, ActionScope scope)
     {
-        if (scope.QueryScope is { CollectionId: not JsonSearch.CollectionId } || scope.QueryScope is not null && scope.RowKeys is null)
+        if (scope.QueryScope is { } query && (!JsonSearch.ValidScope(tree, query.CollectionId) || scope.RowKeys is null))
             return new() { Errors = [new(ActionId, "Use the JSON tree collection with a resolved selection.")] };
         var selected = scope.RowKeys?.ToHashSet(StringComparer.Ordinal);
         if (selected is not null && (selected.Count > MaxChanges || selected.Any(key => tree.FindValue(key) is null)))

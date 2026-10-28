@@ -142,15 +142,19 @@ internal sealed class JsonTokenTree
             node.Parent = parent;
             Nodes.Add(node);
             ById.Add(node.Index, node);
-            var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
+            var occurrences = node.Kind == JsonTokenType.StartObject ? new Dictionary<string, int>(StringComparer.Ordinal) : null;
             for (var i = 0; i < node.Children.Count; i++)
             {
                 if (node.Kind == JsonTokenType.StartArray) node.Children[i].Label = $"[{i}]";
                 var child = node.Children[i];
                 child.Position = i;
-                occurrences.TryGetValue(child.Label, out var previous);
-                child.Occurrence = previous + 1;
-                occurrences[child.Label] = child.Occurrence;
+                child.Occurrence = 1;
+                if (occurrences is not null)
+                {
+                    occurrences.TryGetValue(child.Label, out var previous);
+                    child.Occurrence = previous + 1;
+                    occurrences[child.Label] = child.Occurrence;
+                }
                 Visit(node.Children[i], node);
             }
         }
@@ -193,6 +197,9 @@ internal sealed class JsonTokenTree
                 node.Warning = "Number exceeds SDK lexeme/exponent resource limits; preserved verbatim and read-only.";
                 return;
             }
+            node.Spec = JsonScalar.Spec;
+            node.Current = FieldValue.Union(JsonScalar.Number, FieldValue.ExactNumber(raw));
+            return;
         }
 
         node.Spec = JsonScalar.Spec;

@@ -10,6 +10,7 @@ internal sealed record JsonSemanticTarget(JsonValueToken Node, FieldSpec Spec, F
 {
     public JsonValueToken? Index { get; init; }
     public IReadOnlyList<FieldValue>? Choices { get; init; }
+    public IReadOnlyList<string>? ChoiceKeys { get; init; }
     public IReadOnlyDictionary<string, FieldValue>? Defaults { get; init; }
     public bool IsFlag { get; init; }
     public bool IsCounter { get; init; }
@@ -32,8 +33,18 @@ internal sealed record JsonSemanticTarget(JsonValueToken Node, FieldSpec Spec, F
             ? [Parameter(), new FieldNode("index", "Explicit raw index (domain unknown)",
                 new IntegerSpec(0, JsonSemanticValues.IndexCeiling(Index)), FieldValue.Of(JsonSemanticValues.IndexCurrent(Index)))
                 { Confidence = Confidence.Unknown, Warning = JsonSemanticActions.Warning, Description = JsonOverlay.Provenance + " " + JsonSemanticActions.Warning }]
-            : [Parameter()],
+            : [ViewParameter()],
     };
+
+    private FieldNode ViewParameter()
+    {
+        var parameter = Parameter();
+        // F6's shared dialog currently omits valueId/actionId, disabling ReferenceSpec controls.
+        // Keep the browse-only F4 field; use the same attributed raw IDs in the planned edit form.
+        return Spec is ReferenceSpec && ChoiceKeys is { } keys
+            ? parameter with { Spec = new EnumSpec(keys.Select(key => new EnumOption(key, JsonLabels.Friendly(key))).ToArray()) }
+            : parameter;
+    }
 
     public IReadOnlyDictionary<string, FieldValue> Changes(IReadOnlyDictionary<string, FieldValue> parameters)
     {
@@ -42,10 +53,14 @@ internal sealed record JsonSemanticTarget(JsonValueToken Node, FieldSpec Spec, F
         var result = new Dictionary<string, FieldValue>(StringComparer.Ordinal) { [Node.ValueId] = Encode(value) };
         if (Index is not null)
         {
-            var position = Choices is not null ? int.Parse(value.AsString(), System.Globalization.CultureInfo.InvariantCulture)
+            var position = ChoiceKeys is not null ? ChoiceKeys.ToList().IndexOf(value.AsString())
+                : Choices is not null ? int.Parse(value.AsString(), System.Globalization.CultureInfo.InvariantCulture)
                 : JsonStructureActions.ReadIndex(parameters, "index", JsonSemanticValues.IndexCeiling(Index));
             result[Index.ValueId] = JsonSemanticValues.Number(position.ToString(System.Globalization.CultureInfo.InvariantCulture));
         }
         return result;
     }
+
+    public FieldValue ChoiceParameter(int index) => FieldValue.Of(ChoiceKeys is { } keys ? keys[index]
+        : index.ToString(System.Globalization.CultureInfo.InvariantCulture));
 }
