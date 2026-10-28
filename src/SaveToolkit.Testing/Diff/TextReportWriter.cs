@@ -13,7 +13,7 @@ public static class TextReportWriter
         Line(w, $"after:  {Describe(report.After)}");
         var t = report.Totals;
         Line(w, $"files:  {t.Changed} changed, {t.Added} added, {t.Removed} removed, {t.ChurnOnly} churn-only, {t.MirrorsMain} mirror main, {t.Unchanged} unchanged");
-        Line(w, $"bytes:  {t.ChangedBytes} changed, {t.IgnoredBytes} masked as churn; semantic: {t.SemanticChanges} changes, {t.SemanticIgnored} masked");
+        Line(w, $"bytes:  {t.ChangedBytes} changed, {t.IgnoredBytes} masked as churn; semantic: {t.SemanticChanges} changes, {t.SemanticIgnored} masked, {t.SemanticErrors} decode failures");
         foreach (var rule in report.IgnoreRules)
         {
             Line(w, $"ignore: {rule}");

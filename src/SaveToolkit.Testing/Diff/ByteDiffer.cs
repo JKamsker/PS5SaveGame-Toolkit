@@ -188,8 +188,14 @@ public static class ByteDiffer
 
         private void AddTail(long offset, long length, ByteChangeKind kind)
         {
-            ChangedBytes += length;
-            Record(new ByteChange(offset, length, kind) { DifferingBytes = length });
+            // Masked ranges also cover bytes that exist on one side only (e.g. a trailing timestamp).
+            var masked = ignored.Sum(i => Math.Max(0, Math.Min(i.End, offset + length) - Math.Max(i.Start, offset)));
+            IgnoredBytes += masked;
+            ChangedBytes += length - masked;
+            if (length > masked)
+            {
+                Record(new ByteChange(offset, length, kind) { DifferingBytes = length - masked });
+            }
         }
 
         private void Record(ByteChange change)

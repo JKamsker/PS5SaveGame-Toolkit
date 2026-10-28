@@ -116,6 +116,45 @@ public sealed class FixtureManifestTests
     }
 
     [Fact]
+    public void StrictMode_FlagsAChangeRightNextToAnExpectedOne()
+    {
+        // A counter at 8 is expected; a "checksum" byte at 10 is within the default merge gap but not expected.
+        var data = Bytes(32);
+        using var before = Load((Primary("data.bin"), data));
+        using var after = Load((Primary("data.bin"), With(data, 8, 1, 0, 7)));
+        var fixture = Fixture([new ExpectedChange { File = "data.bin", Offset = 8, Length = 1 }]) with { Strict = true };
+
+        var verification = Verify(fixture, before, after, decoder: null);
+
+        Assert.Contains(verification.Unexpected, u => u.Contains("0xA+1", StringComparison.Ordinal));
+        Assert.False(verification.Passed);
+    }
+
+    [Fact]
+    public void StrictMode_RequiresADecodableFile_ForPathExpectations()
+    {
+        using var before = Load((Primary("p.json"), Utf8("""{"a":1}""")));
+        using var after = Load((Primary("p.json"), Utf8("""{"a":2""")));
+        var fixture = Fixture([new ExpectedChange { Path = "a" }]) with { Strict = true };
+
+        var verification = Verify(fixture, before, after, new JsonSaveDecoder());
+
+        Assert.Contains(verification.Unexpected, u => u.Contains("decode failed", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ByteExpectations_ComparePartlyPresentRanges()
+    {
+        using var before = Load((Primary("data.bin"), Bytes(10)));
+        using var after = Load((Primary("data.bin"), With(Bytes(12), 9, 5)));
+        var fixture = Fixture([new ExpectedChange { File = "data.bin", Offset = 8, Length = 4, Changed = false }]);
+
+        var verification = Verify(fixture, before, after, decoder: null);
+
+        Assert.Contains("expected unchanged", Assert.Single(verification.Expectations).Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SemanticExpectation_WithoutDecoder_Fails()
     {
         using var set = Load((Primary("p.json"), Utf8("{}")));

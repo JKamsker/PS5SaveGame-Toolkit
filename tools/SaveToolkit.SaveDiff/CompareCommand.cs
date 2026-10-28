@@ -8,6 +8,7 @@ internal static class CompareCommand
     {
         args.ExpectPositionals(2, "savediff compare <before> <after> [options]");
         var json = CliApp.WantsJson(args);
+        var output = CliApp.OutputPath(args, [.. args.Positionals, .. args.GetAll("ignore")]);
         var options = BuildOptions(args, resolver);
 
         // The same path on both sides (two generations of one dump) is imported once.
@@ -17,7 +18,7 @@ internal static class CompareCommand
         var after = afterOwned ?? before;
 
         var report = SaveSetDiffer.Compare(before.Set, after.Set, options, args.Positionals[0], args.Positionals[1]);
-        CliApp.Emit(args, stdout, json ? DiffJson.Serialize(report) + "\n" : TextReportWriter.Render(report, args.Has("all")));
+        CliApp.Emit(output, stdout, json ? DiffJson.Serialize(report) + "\n" : TextReportWriter.Render(report, args.Has("all")));
         return report.HasChanges ? CliApp.ExitDifferent : CliApp.ExitSame;
     }
 

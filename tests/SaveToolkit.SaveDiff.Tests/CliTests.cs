@@ -90,7 +90,8 @@ public sealed class CliTests
                "expected":[{"file":"data.bin","offset":4,"length":1,"before":"01","after":"02"}],"strict":true},
               {"id":"bad","titleId":"PPSA99999","event":"e","before":{"archive":"before.zip"},"after":{"archive":"after.zip"},
                "expected":[{"file":"data.bin","offset":5,"length":1}]},
-              {"id":"absent","titleId":"PPSA99999","event":"e","before":{"archive":"nope.zip"},"after":{"archive":"after.zip"}}
+              {"id":"absent","titleId":"PPSA99999","event":"e","before":{"archive":"nope.zip"},"after":{"archive":"after.zip"}},
+              {"id":"undecodable","titleId":"PPSA99999","event":"e","decoder":"no-such-plugin","before":{"archive":"before.zip"},"after":{"archive":"after.zip"}}
             ]}
             """);
 
@@ -98,7 +99,7 @@ public sealed class CliTests
         var onlyGood = Run("verify", manifest, "--artifacts", dir, "--fixture", "ok", "--fixture", "absent");
 
         Assert.Equal(CliApp.ExitDifferent, all.Exit);
-        Assert.Contains("1 passed, 1 failed, 1 skipped", all.Out, StringComparison.Ordinal);
+        Assert.Contains("1 passed, 2 failed, 1 skipped", all.Out, StringComparison.Ordinal);
         Assert.Equal(CliApp.ExitSame, onlyGood.Exit);
     }
 
@@ -143,5 +144,7 @@ public sealed class CliTests
         Assert.Equal(CliApp.ExitSame, outside.Exit);
         Assert.True(File.Exists(Path.Combine(dir, "report.txt")));
         Assert.False(Directory.Exists(Path.Combine(repo, "sub")));
+        Assert.Equal(CliApp.ExitError, Run("compare", a, a, "--out", a).Exit);
+        Assert.True(File.Exists(a) && new FileInfo(a).Length > 0);
     }
 }

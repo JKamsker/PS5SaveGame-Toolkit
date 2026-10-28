@@ -64,7 +64,7 @@ public static class FixtureVerifier
             FixtureId = fixture.Id,
             Report = report,
             Expectations = results,
-            Unexpected = fixture.Strict ? Unexpected(fixture, files) : [],
+            Unexpected = fixture.Strict ? Unexpected(fixture, files, options) : [],
         };
     }
 
@@ -158,13 +158,14 @@ public static class FixtureVerifier
 
     private static byte[]? ReadRange(ISaveFile file, long offset, int length)
     {
-        if (offset + length > file.Length)
+        // Absent only when the range starts past the end; a partly present range compares its prefix.
+        if (offset >= file.Length)
         {
             return null;
         }
 
         using var stream = file.OpenRead();
-        var buffer = new byte[length];
+        var buffer = new byte[(int)Math.Min(length, file.Length - offset)];
         if (stream.CanSeek)
         {
             stream.Position = offset;
@@ -188,7 +189,7 @@ public static class FixtureVerifier
         return buffer;
     }
 
-    private static List<string> Unexpected(Fixture fixture, IReadOnlyList<(PairedFile Pair, FileDiff Diff)> files)
+    private static List<string> Unexpected(Fixture fixture, IReadOnlyList<(PairedFile Pair, FileDiff Diff)> files, SaveDiffOptions options)
     {
         var unexpected = new List<string>();
         foreach (var (pair, diff) in files.Where(f => f.Diff.IsChange))
@@ -201,32 +202,62 @@ public static class FixtureVerifier
             }
 
             var ranges = covering.Where(x => x.IsByteRange).ToList();
-            if (ranges.Count > 0 && diff.Bytes is { } bytes)
+            if (ranges.Count > 0 && pair is { Before: { } b, After: { } a })
             {
-                if (bytes.Truncated)
-                {
-                    unexpected.Add($"{diff.DisplayPath}: {bytes.RangeCount} ranges exceed the report cap; strict check incomplete");
-                }
-
-                unexpected.AddRange(bytes.Ranges
-                    .Where(r => !ranges.Any(x => x.Offset < r.End && r.Offset < x.Offset + x.Length))
-                    .Select(r => $"{diff.DisplayPath}: unexpected change at 0x{r.Offset:X}+{r.Length}"));
+                unexpected.AddRange(UncoveredBytes(diff, b.File, a.File, ranges, options));
             }
 
             var paths = covering.Where(x => x.Path is not null).Select(x => x.Path!).ToHashSet(StringComparer.Ordinal);
-            if (paths.Count > 0 && diff.Semantic is { } semantic)
+            if (paths.Count > 0)
             {
-                if (semantic.Truncated)
-                {
-                    unexpected.Add($"{diff.DisplayPath}: {semantic.Total} semantic changes exceed the report cap; strict check incomplete");
-                }
-
-                unexpected.AddRange(semantic.Changes
-                    .Where(c => !paths.Contains(c.Path))
-                    .Select(c => $"{diff.DisplayPath}: unexpected {c.Kind.ToString().ToLowerInvariant()} {c.Path}"));
+                unexpected.AddRange(UncoveredPaths(diff, paths));
             }
         }
 
         return unexpected;
+    }
+
+    /// <summary>
+    /// Byte-exact coverage: re-diffs with the expected ranges masked and no merge gap, so a change next
+    /// to an expected one (a checksum after a counter) is still reported.
+    /// </summary>
+    private static IEnumerable<string> UncoveredBytes(FileDiff diff, ISaveFile before, ISaveFile after, IReadOnlyList<ExpectedChange> ranges, SaveDiffOptions options)
+    {
+        var churn = options.Churn.ForFile(diff.TitleId, diff.Directory, diff.Path);
+        var masked = FileChurn.Merge(churn.ByteIntervals.Concat(ranges.Select(x => new ByteInterval(x.Offset!.Value, x.Offset.Value + x.Length!.Value))));
+        var rest = ByteDiffer.Compare(before.OpenRead, after.OpenRead, masked, new ByteDiffOptions { MergeGap = 0, MaxRanges = 20, MaxPreviewBytes = 1, ContextBytes = 0 });
+        foreach (var r in rest.Ranges)
+        {
+            yield return $"{diff.DisplayPath}: unexpected {r.Kind.ToString().ToLowerInvariant()} bytes at 0x{r.Offset:X}+{r.Length}";
+        }
+
+        if (rest.Truncated)
+        {
+            yield return $"{diff.DisplayPath}: {rest.RangeCount - rest.Ranges.Count} more unexpected byte ranges";
+        }
+    }
+
+    private static IEnumerable<string> UncoveredPaths(FileDiff diff, IReadOnlySet<string> paths)
+    {
+        if (diff.Semantic is not { } semantic)
+        {
+            yield return $"{diff.DisplayPath}: has path expectations but was not decoded; strict check impossible";
+            yield break;
+        }
+
+        if (semantic.Error is { } error)
+        {
+            yield return $"{diff.DisplayPath}: decode failed ({error}); strict check impossible";
+        }
+
+        if (semantic.InputTruncated || semantic.Truncated)
+        {
+            yield return $"{diff.DisplayPath}: semantic trees or change list were cut by limits; strict check incomplete";
+        }
+
+        foreach (var c in semantic.Changes.Where(c => !paths.Contains(c.Path)))
+        {
+            yield return $"{diff.DisplayPath}: unexpected {c.Kind.ToString().ToLowerInvariant()} {c.Path}";
+        }
     }
 }

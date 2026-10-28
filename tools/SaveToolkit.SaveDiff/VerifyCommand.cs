@@ -26,6 +26,7 @@ internal static class VerifyCommand
         var manifestPath = Path.GetFullPath(args.Positionals[0]);
         var manifest = FixtureManifest.Load(manifestPath);
         var artifacts = ArtifactsDirectory(args, manifestPath);
+        var output = CliApp.OutputPath(args, manifestPath, artifacts);
         var only = args.GetAll("fixture");
         var fixtures = manifest.Fixtures.Where(f => only.Count == 0 || only.Contains(f.Id, StringComparer.OrdinalIgnoreCase)).ToList();
         if (fixtures.Count == 0)
@@ -37,8 +38,8 @@ internal static class VerifyCommand
         var cache = new Dictionary<string, LoadedSaveSet>(StringComparer.OrdinalIgnoreCase);
         try
         {
-            var results = fixtures.Select(f => VerifyOne(f, manifest, artifacts, decoders, cache)).ToList();
-            CliApp.Emit(args, stdout, json ? DiffJson.Serialize(results) + "\n" : Render(results, artifacts));
+            var results = fixtures.Select(f => SafeVerifyOne(f, manifest, artifacts, decoders, cache)).ToList();
+            CliApp.Emit(output, stdout, json ? DiffJson.Serialize(results) + "\n" : Render(results, artifacts));
             return results.Any(r => r.Outcome == FixtureOutcome.Fail) ? CliApp.ExitDifferent : CliApp.ExitSame;
         }
         finally
@@ -47,6 +48,19 @@ internal static class VerifyCommand
             {
                 loaded.Dispose();
             }
+        }
+    }
+
+    /// <summary>One broken fixture (unreadable archive, unknown decoder) fails alone instead of aborting the run.</summary>
+    private static FixtureResult SafeVerifyOne(Fixture fixture, FixtureManifest manifest, string artifacts, Lazy<DecoderResolver> decoders, Dictionary<string, LoadedSaveSet> cache)
+    {
+        try
+        {
+            return VerifyOne(fixture, manifest, artifacts, decoders, cache);
+        }
+        catch (Exception ex) when (ex is UsageException or IOException or UnauthorizedAccessException or InvalidDataException or Core.Storage.ImportException)
+        {
+            return new FixtureResult(fixture.Id, FixtureOutcome.Fail, ex.Message, null);
         }
     }
 

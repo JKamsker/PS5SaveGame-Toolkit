@@ -75,7 +75,31 @@ public sealed class SemanticDiffTests
 
         Assert.Equal(10, tree.Values.Count);
         Assert.True(tree.Truncated);
-        Assert.Equal("abcd…", Assert.Single(longValue.Values).Value);
+        Assert.StartsWith("abcd…[8 chars, sha256 ", Assert.Single(longValue.Values).Value, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void LongValues_ThatDifferOnlyPastTheCut_StillDiffer()
+    {
+        var limits = new DecodeLimits { MaxValueLength = 4 };
+        var before = new JsonSaveDecoder().Decode(Utf8("""{"s":"abcdXXXX"}"""), limits);
+        var after = new JsonSaveDecoder().Decode(Utf8("""{"s":"abcdYYYY"}"""), limits);
+
+        Assert.Equal(1, SemanticDiffer.Compare(before, after).Changed);
+    }
+
+    [Fact]
+    public void SemanticChange_UnderMaskedBytes_StillMarksTheFileChanged()
+    {
+        using var before = Load((Primary("p.json"), Utf8("""{"a":1}""")));
+        using var after = Load((Primary("p.json"), Utf8("""{"a":2}""")));
+        var churn = new ChurnFilter([new ChurnRule { File = "p.json", Offset = 0, Length = 100, Reason = "over-broad rule" }]);
+
+        var report = SaveSetDiffer.Compare(before.Set, after.Set, new SaveDiffOptions { Churn = churn, Decoder = new JsonSaveDecoder() });
+
+        var file = Assert.Single(report.Files);
+        Assert.Equal(0, file.Bytes!.ChangedBytes);
+        Assert.Equal(FileDiffStatus.Changed, file.Status);
     }
 
     [Fact]

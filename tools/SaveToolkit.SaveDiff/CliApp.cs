@@ -66,21 +66,25 @@ internal static class CliApp
                 _ => throw new UsageException($"Unknown command '{args[0]}'. Run 'savediff help'."),
             };
         }
-        catch (Exception ex) when (ex is UsageException or FileNotFoundException or DirectoryNotFoundException
-                                       or ImportException or FixtureManifestException or InvalidDataException or ArgumentException)
+        catch (Exception ex) when (ex is UsageException or IOException or UnauthorizedAccessException
+                                       or InvalidDataException or ImportException or FixtureManifestException or ArgumentException)
         {
             stderr.WriteLine($"savediff: {ex.Message}");
             return ExitError;
         }
     }
 
-    /// <summary>Writes the rendered report to <c>--out</c> (guarded) or stdout.</summary>
-    public static void Emit(CliArguments args, TextWriter stdout, string text)
+    /// <summary>Validates <c>--out</c> before any work is done; returns the full path, or null for stdout.</summary>
+    public static string? OutputPath(CliArguments args, params IEnumerable<string> inputs) =>
+        args.Get("out") is { } path ? OutputGuard.Check(path, inputs) : null;
+
+    /// <summary>Writes the rendered report to the checked <paramref name="outputPath"/> or stdout.</summary>
+    public static void Emit(string? outputPath, TextWriter stdout, string text)
     {
-        if (args.Get("out") is { } path)
+        if (outputPath is { } path)
         {
-            File.WriteAllText(OutputGuard.Check(path), text);
-            stdout.WriteLine($"Report written to {Path.GetFullPath(path)}");
+            File.WriteAllText(path, text);
+            stdout.WriteLine($"Report written to {path}");
         }
         else
         {

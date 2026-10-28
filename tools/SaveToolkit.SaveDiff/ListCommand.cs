@@ -15,6 +15,7 @@ internal static class ListCommand
     {
         args.ExpectPositionals(1, "savediff list <save>");
         var json = CliApp.WantsJson(args);
+        var output = CliApp.OutputPath(args, args.Positionals);
         using var loaded = SaveSetLoader.Load(args.Positionals[0]);
         var directories = loaded.Set.Directories.Select(d => new ListedDirectory(
             d.TitleId,
@@ -26,7 +27,7 @@ internal static class ListCommand
             d.ParamSfo?.SubTitle,
             [.. d.Files.Concat(d.SystemFiles).Cast<Core.Storage.DiskSaveFile>().Select(f => new ListedFile(f.PathInDirectory, f.Length, f.Sha256))])).ToList();
 
-        CliApp.Emit(args, stdout, json ? DiffJson.Serialize(new { source = loaded.Source, directories }) + "\n" : Render(loaded.Source, directories));
+        CliApp.Emit(output, stdout, json ? DiffJson.Serialize(new { source = loaded.Source, directories }) + "\n" : Render(loaded.Source, directories));
         return CliApp.ExitSame;
     }
 

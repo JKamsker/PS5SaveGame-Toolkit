@@ -128,6 +128,9 @@ public sealed record DiffTotals
     public long IgnoredBytes { get; init; }
     public int SemanticChanges { get; init; }
     public int SemanticIgnored { get; init; }
+
+    /// <summary>Files whose semantic decode failed (the byte diff is still reported).</summary>
+    public int SemanticErrors { get; init; }
 }
 
 public sealed record SaveDiffReport

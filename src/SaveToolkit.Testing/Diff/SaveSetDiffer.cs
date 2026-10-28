@@ -30,9 +30,11 @@ public static class SaveSetDiffer
             diffs[pair] = Diff(pair, options, fingerprints, mirror: null);
         }
 
+        var mains = pairs.Where(p => !p.Any.IsBackup).ToDictionary(p => (p.Any.PathKey, p.Any.Rank));
         foreach (var pair in pairs.Where(p => p.Any.IsBackup))
         {
-            var main = options.CollapseMirroredBackups ? MainOf(pair, pairs) : null;
+            var e = pair.Any;
+            var main = options.CollapseMirroredBackups ? mains.GetValueOrDefault((SetEntry.MakeKey(e.TitleId, e.Directory, false, e.Path), e.Rank)) : null;
             diffs[pair] = Diff(pair, options, fingerprints, main);
         }
 
@@ -47,13 +49,6 @@ public static class SaveSetDiffer
             IgnoreRules = [.. options.Churn.Rules.Select(r => r.ToString())],
         };
         return (report, files);
-    }
-
-    private static PairedFile? MainOf(PairedFile backup, IReadOnlyList<PairedFile> pairs)
-    {
-        var e = backup.Any;
-        var key = SetEntry.MakeKey(e.TitleId, e.Directory, false, e.Path);
-        return pairs.FirstOrDefault(p => p.Any.PathKey == key && p.Any.Rank == e.Rank);
     }
 
     private static FileDiff Diff(PairedFile pair, SaveDiffOptions options, Fingerprints fingerprints, PairedFile? mirror)
@@ -98,11 +93,15 @@ public static class SaveSetDiffer
         }
 
         var bytes = ByteDiffer.Compare(b.File.OpenRead, a.File.OpenRead, churn.ByteIntervals, options.Bytes);
+        var semantic = options.Decoder is { } decoder ? Semantic(decoder, b.File, a.File, churn, options) : null;
+
+        // Masked bytes must not hide a value change the decoder still sees.
+        var changed = bytes.HasChanges || semantic is { Total: > 0 };
         return diff with
         {
-            Status = bytes.HasChanges ? FileDiffStatus.Changed : FileDiffStatus.ChurnOnly,
+            Status = changed ? FileDiffStatus.Changed : FileDiffStatus.ChurnOnly,
             Bytes = bytes,
-            Semantic = options.Decoder is { } decoder ? Semantic(decoder, b.File, a.File, churn, options) : null,
+            Semantic = semantic,
         };
     }
 
@@ -150,5 +149,6 @@ public static class SaveSetDiffer
         IgnoredBytes = files.Sum(f => f.Bytes?.IgnoredBytes ?? 0),
         SemanticChanges = files.Sum(f => f.Semantic?.Total ?? 0),
         SemanticIgnored = files.Sum(f => f.Semantic?.Ignored ?? 0),
+        SemanticErrors = files.Count(f => f.Semantic?.Error is not null),
     };
 }

@@ -28,6 +28,7 @@ public static class Glob
         }
 
         regex.Append('$');
-        return new Regex(regex.ToString(), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+        // Patterns come from manifests; a timeout keeps a pathological pattern from hanging the tool.
+        return new Regex(regex.ToString(), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline, TimeSpan.FromSeconds(1));
     }
 }

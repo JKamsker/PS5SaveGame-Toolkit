@@ -7,10 +7,11 @@ namespace SaveToolkit.Testing.Diff;
 /// <summary>A file of one side, with its logical identity and its rank among the selected generations.</summary>
 internal sealed record SetEntry(ISaveFile File, string TitleId, string Directory, bool IsBackup, string Path, int Generation, int Rank)
 {
-    public string PathKey => MakeKey(TitleId, Directory, IsBackup, Path);
+    /// <summary>Case-insensitive identity of the logical path (computed once; copied by <c>with</c>).</summary>
+    public string PathKey { get; } = MakeKey(TitleId, Directory, IsBackup, Path);
 
     public static string MakeKey(string titleId, string directory, bool isBackup, string path) =>
-        string.Join('\u0001', titleId.ToUpperInvariant(), directory, isBackup ? "bu" : "main", path.ToUpperInvariant());
+        string.Join('\u0001', titleId.ToUpperInvariant(), directory.ToUpperInvariant(), isBackup ? "bu" : "main", path.ToUpperInvariant());
 }
 
 internal sealed record PairedFile(SetEntry? Before, SetEntry? After)
@@ -81,6 +82,7 @@ internal static class SaveSetPairing
         static string TwinKey(SetEntry e) => $"{SetEntry.MakeKey(e.TitleId, e.Directory, false, e.Path)}\u0002{e.Generation}";
         var mains = entries.Where(e => !e.IsBackup).GroupBy(TwinKey, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
         var backups = entries.Where(e => e.IsBackup).GroupBy(TwinKey, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+        var directories = entries.Select(e => DirKey(e, e.IsBackup)).ToHashSet(StringComparer.Ordinal);
         var identical = 0;
         var mismatches = new List<TwinCheck>();
         foreach (var (key, main) in mains)
@@ -89,7 +91,7 @@ internal static class SaveSetPairing
             {
                 // Directories without any backup twin are common (not every title uses one); only report
                 // missing files when the backup directory itself exists.
-                if (entries.Any(e => e.IsBackup && e.Generation == main.Generation && SameDirectory(e, main)))
+                if (directories.Contains(DirKey(main, isBackup: true)))
                 {
                     mismatches.Add(Check(main, TwinStatus.MissingBackup));
                 }
@@ -108,12 +110,11 @@ internal static class SaveSetPairing
         }
 
         mismatches.AddRange(backups.Where(kv => !mains.ContainsKey(kv.Key)
-                && entries.Any(e => !e.IsBackup && e.Generation == kv.Value.Generation && SameDirectory(e, kv.Value)))
+                && directories.Contains(DirKey(kv.Value, isBackup: false)))
             .Select(kv => Check(kv.Value, TwinStatus.MissingMain)));
         return new TwinSummary { Identical = identical, Mismatches = mismatches };
 
-        static bool SameDirectory(SetEntry a, SetEntry b) =>
-            string.Equals(a.TitleId, b.TitleId, StringComparison.OrdinalIgnoreCase) && a.Directory == b.Directory;
+        static string DirKey(SetEntry e, bool isBackup) => SetEntry.MakeKey(e.TitleId, e.Directory, isBackup, "") + e.Generation;
 
         static TwinCheck Check(SetEntry e, TwinStatus status) => new(e.TitleId, e.Directory, e.Path, e.Generation, status);
     }

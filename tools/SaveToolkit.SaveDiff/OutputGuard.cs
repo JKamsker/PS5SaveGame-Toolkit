@@ -6,9 +6,19 @@ namespace SaveToolkit.SaveDiff;
 /// </summary>
 internal static class OutputGuard
 {
-    public static string Check(string path)
+    /// <param name="inputs">Save sets and manifests read by the command; the report may not overwrite or land inside them.</param>
+    public static string Check(string path, IEnumerable<string> inputs)
     {
         var full = Path.GetFullPath(path);
+        foreach (var input in inputs.Select(Path.GetFullPath))
+        {
+            if (string.Equals(full, input, StringComparison.OrdinalIgnoreCase)
+                || full.StartsWith(input.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UsageException($"Refusing to write the report over or into an input ({input}).");
+            }
+        }
+
         for (var dir = new DirectoryInfo(Path.GetDirectoryName(full)!); dir is not null; dir = dir.Parent)
         {
             if (dir.Name.Equals("artifacts", StringComparison.OrdinalIgnoreCase))

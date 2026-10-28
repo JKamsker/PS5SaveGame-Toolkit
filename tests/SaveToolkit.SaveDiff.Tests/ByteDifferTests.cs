@@ -92,6 +92,18 @@ public sealed class ByteDifferTests
     }
 
     [Fact]
+    public void MaskedRanges_AlsoApplyToGrownTails()
+    {
+        var before = Bytes(10);
+        var after = Bytes(18);
+
+        var result = ByteDiffer.Compare(before, after, [new ByteInterval(10, 14)]);
+
+        Assert.Equal((4L, 4L), (result.ChangedBytes, result.IgnoredBytes));
+        Assert.Equal(4, Assert.Single(result.Ranges).DifferingBytes);
+    }
+
+    [Fact]
     public void RangeCap_KeepsMemoryBounded_ButCountsEverything()
     {
         var before = Bytes(10_000);

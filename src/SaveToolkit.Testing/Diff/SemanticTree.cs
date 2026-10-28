@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Testing.Diff;
@@ -93,7 +95,9 @@ public sealed class SemanticTreeBuilder(string decoder, DecodeLimits limits)
 
         if (value.Length > limits.MaxValueLength)
         {
-            value = string.Concat(value.AsSpan(0, limits.MaxValueLength), "…");
+            // Keep a fingerprint of the full value so long values that differ only past the cut still differ.
+            var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(value)), 0, 4);
+            value = string.Concat(value.AsSpan(0, limits.MaxValueLength), $"…[{value.Length} chars, sha256 {hash}]");
         }
 
         _values.Add(new SemanticValue(path, kind, value) { Label = label });

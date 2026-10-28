@@ -98,7 +98,8 @@ public sealed class FileChurn
     public ChurnRule? MatchPath(string semanticPath) =>
         Rules.FirstOrDefault(r => r.Path is { } glob && Glob.IsMatch(glob, semanticPath));
 
-    private static List<ByteInterval> Merge(IEnumerable<ByteInterval> intervals)
+    /// <summary>Sorts and merges overlapping or touching intervals.</summary>
+    internal static List<ByteInterval> Merge(IEnumerable<ByteInterval> intervals)
     {
         var merged = new List<ByteInterval>();
         foreach (var next in intervals.OrderBy(i => i.Start))

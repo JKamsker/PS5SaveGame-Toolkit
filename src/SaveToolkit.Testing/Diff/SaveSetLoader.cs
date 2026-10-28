@@ -76,9 +76,19 @@ public static class SaveSetLoader
         }
         catch
         {
-            if (Directory.Exists(temp))
+            // Remove the partial import; cleanup problems must not replace the original error.
+            try
             {
-                Directory.Delete(temp, recursive: true);
+                if (Directory.Exists(temp))
+                {
+                    Directory.Delete(temp, recursive: true);
+                }
+            }
+            catch (IOException)
+            {
+            }
+            catch (UnauthorizedAccessException)
+            {
             }
 
             throw;
