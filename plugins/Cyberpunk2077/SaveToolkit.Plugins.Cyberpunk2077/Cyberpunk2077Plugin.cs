@@ -1,10 +1,11 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077;
 
-public sealed class Cyberpunk2077Plugin : IGamePlugin
+public sealed class Cyberpunk2077Plugin : IGamePlugin, ISaveDecoderProvider
 {
     public PluginInfo Info { get; } = new("cyberpunk2077", "Cyberpunk 2077", "0.6.0")
     {
@@ -35,6 +36,8 @@ public sealed class Cyberpunk2077Plugin : IGamePlugin
             "https://cyberpunk.fandom.com/wiki/Constitutional_Arms_Unity?oldid=290048",
             "https://community.fandom.com/wiki/Help:Licensing?oldid=3983537"],
     };
+
+    public IReadOnlyList<ISaveDecoderHook> Decoders => [new CyberpunkEvidenceDecoder()];
 
     public ProbeResult Probe(ISaveFile file)
     {

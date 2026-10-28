@@ -7,8 +7,8 @@ No controlled console capture or load test was performed. The plugin remains Exp
 
 Plugin 0.6.0 adopts F9 GraphNode/MapNode and F10 NullableSpec without adding a write category.
 The complete requirement/acceptance classification is in [COMPLETION.md](COMPLETION.md), and the
-README contains the required F1–F11 adoption table. F12/F13 remain pending [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)
-/ [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33), absent from the starting main baseline.
+README contains the F1–F13 adoption table. The follow-up adopts the merged F12 decoder hook
+and F13 read-only catalogue inspection; see the README for concrete scope and validation.
 
 - Six saved modern perk groups, no allocated perks: graph states Unknown; no edges, prerequisites,
   costs, effects or entitlement inferred. Populated ranks use independent synthetic fixtures only.
@@ -70,19 +70,20 @@ The nonprivate corpus manifest is embedded in tests as `Evidence/corpus.json`:
 - F2 joins: 22/22 item IDs and 1,129/2,750 fact entries. Hashes repeat across fact tables;
   counting all entries is distinct from counting unique fact hashes.
 
-`CyberpunkEvidenceDecoder` is a read-only **test-side F1 `ISaveDecoder` hook**, independent
-of UI pages. It emits version fields, quantities by container + full 16-byte instance identity,
+`CyberpunkEvidenceDecoder` is a read-only **production F12 `ISaveDecoderHook`**, registered as
+`cyberpunk2077-evidence` and independent of UI pages. It emits version fields, quantities by container + full 16-byte instance identity,
 opaque instance-body fingerprints, and raw facts scoped by table node + hash. Table node IDs
 are an explicit current-tree scope, not a proven persistent cross-save table identity.
 The standard F1 builder reports duplicate identities rather than silently overwriting values.
-The hook honors file/value bounds and produces a truncated tree when limits are reached.
+The hook honors file/value/depth bounds and produces a truncated tree when limits are reached.
 It intentionally does not claim complete RED-property/gear-stat decoding.
 
 Tests decode the real sample explicitly and use `SemanticDiffer` to detect a locally constructed
 600→601 ammo patch by full identity, plus its changed body fingerprint. That synthetic change
 tests the hook and writer; it is **not** evidence from firing ammunition on a console.
-The shared CLI `PluginViewDecoder` does not visit F8 rows yet; use the test-side hook for complete
-inventory/fact comparisons, rather than treating UI-loaded pages as the whole model.
+The shared CLI `PluginViewDecoder` now traverses bounded F8 rows. Select the native hook through
+`--decoder cyberpunk2077-evidence` for presentation-independent inventory/fact evidence. Tests use
+the framework `HookSaveDecoder` adapter; no test-only decoder implementation remains.
 
 ## Verification
 
