@@ -13,6 +13,30 @@ namespace SaveToolkit.Plugins.Gearbox.Tests;
 
 public sealed class ItemBrowserTests
 {
+    [Fact]
+    public void CommunityExportRecords_ArePinnedAttributedAndKeptOutOfArtworkAssets()
+    {
+        var plugin = new GearboxPlugin();
+        var store = new ReferencePackStore([plugin]);
+        var bl3 = store.Pin(plugin, "PPSA01463");
+        var ttwl = store.Pin(plugin, "PPSA01493");
+        const string unlicensed = "No licence published; reused with attribution per owner decision 2026-10-28";
+
+        Assert.Equal(499, bl3.Catalog("localized-cards")!.Count);
+        Assert.Equal(2100, bl3.Catalog("part-labels")!.Count);
+        Assert.Equal(3, bl3.Catalog("skill-crosswalk")!.Count);
+        Assert.Equal(4327, ttwl.Catalog("part-labels")!.Count);
+        Assert.Equal(7, ttwl.Catalog("skill-crosswalk")!.Count);
+        foreach (var catalog in new[] { bl3.Catalog("localized-cards")!, bl3.Catalog("part-labels")!, bl3.Catalog("skill-crosswalk")!, ttwl.Catalog("part-labels")!, ttwl.Catalog("skill-crosswalk")! })
+        {
+            Assert.Equal(unlicensed, catalog.Dataset.Attribution.License);
+            Assert.Contains("github.com", catalog.Dataset.Attribution.SourceUrl, StringComparison.OrdinalIgnoreCase);
+        }
+        var tree = bl3.Catalog("skill-crosswalk")!.Search(new() { Limit = 1 }).Items.Single();
+        Assert.Equal("Inferred", tree.Attributes["joinConfidence"]);
+        Assert.DoesNotContain("art", tree.Name, StringComparison.OrdinalIgnoreCase);
+    }
+
     [Theory]
     [InlineData("PPSA01463", 2803, 11453)]
     [InlineData("PPSA01493", 2030, 13674)]
@@ -28,8 +52,8 @@ public sealed class ItemBrowserTests
         Assert.Equal(indexCount, references.Catalog("serial-indices")!.Count);
         Assert.All(pack.Datasets, dataset =>
         {
-            Assert.True(dataset.Attribution.License is "Zlib" or "MIT");
-            Assert.Contains("2026-10-28", dataset.Attribution.ToShortText());
+            Assert.True(dataset.Attribution.License is "Zlib" or "MIT" or "No licence published; reused with attribution per owner decision 2026-10-28");
+            Assert.Contains(dataset.Attribution.Retrieved.ToString("yyyy-MM-dd"), dataset.Attribution.ToShortText());
         });
         var file = Character(title);
         using var document = plugin.Open(file, references);

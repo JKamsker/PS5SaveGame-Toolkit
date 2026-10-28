@@ -1,0 +1,7 @@
+# Community data provenance
+
+This sidecar records the factual/text-only community export additions for the Gearbox plugin. The source revision is `c6d701ec4a5ae1c115017de54d39df4813c035c1` (`https://github.com/somefunguy/TTWLSaveEditor/tree/c6d701ec4a5ae1c115017de54d39df4813c035c1`). The imported records are pinned by the SHA-256 values in `pack.json`.
+
+The data has no published licence. It is reused with attribution under the owner decision dated 2026-10-28: **No licence published; reused with attribution per owner decision 2026-10-28**. The converter reimplemented the reader and did not copy upstream code.
+
+part mapping labels: 4327; tree prefixes: 7. Balance labels and part descriptions are display references only. They do not assert game legality, DLC/hotfix coverage, rarity, or generated effects. Artwork, icons, screenshots, proprietary game assets, and extracted game text remain excluded. Skill crosswalks are bounded path-prefix joins; a skill name is shown only when the stored tier and rank cap produce one candidate.

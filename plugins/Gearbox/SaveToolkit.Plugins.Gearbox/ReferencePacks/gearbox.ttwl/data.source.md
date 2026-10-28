@@ -6,7 +6,7 @@ Author: CJ Kucera / apocalyptech and Abram Hindle. Licence: [zlib](https://githu
 
 Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 59.
 
-Upstream resource generation provenance is described in [ttwlsave/resources/README.md](https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/resources/README.md). Only the resources bundled in the licensed editor revision were converted; no NC bl3data/wldata exports, wiki text, icons or external generated datasets were imported. Underlying game asset identifiers remain Gearbox/2K game facts.
+Upstream resource generation provenance is described in [ttwlsave/resources/README.md](https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/resources/README.md). The licensed editor resources remain the binary source. This pack also includes factual mapping labels from the pinned [TTWLSaveEditor revision](https://github.com/somefunguy/TTWLSaveEditor/tree/c6d701ec4a5ae1c115017de54d39df4813c035c1); no code, icons, artwork, screenshots or extracted game assets were imported. The unlicensed records use the exact attribution **No licence published; reused with attribution per owner decision 2026-10-28**. Underlying game asset identifiers remain Gearbox/2K game facts.
 
 Original compressed-file SHA-256:
 

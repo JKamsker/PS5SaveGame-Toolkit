@@ -10,13 +10,13 @@ been removed. Edited files have not been loaded on a console.
 | --- | --- | --- |
 | Character | Editable name; class asset paths; Wonderlands primary/secondary branches | Schema names and sample strings; class display names are not guessed |
 | Level / XP | Editable; BL3 levels 1–72, Wonderlands 1–40; existing recorded-level stat updated | Upstream exact XP tables; all sample XP/stat values agree |
-| Skills | Editable unspent points/tree grade; F8 stored allocations and 425 named reference skills; F9 allocation/calculator graphs | Stored subobject paths remain raw; calculator names are a separate reference, never joined by order |
+| Skills | Editable unspent points/tree grade; F8 stored allocations and 425 named reference skills; F9 allocation/calculator graphs | Stored paths get bounded class/tree joins from pinned community prefixes; exact skill names still require an unambiguous match |
 | Currency | Money, eridium / moon orbs | Documented hashes `618814354` / `3679636065` match all character samples |
 | Keys | Golden / skeleton keys; create absent category only on a nonzero edit | Published path/hash algorithm; `2420693941`; all supplied profiles omit this record |
 | Ammo | Editable finite resource-pool amounts | Schema floats and full resource paths; game capacity may clamp them |
 | SDUs | Edit existing known purchased tiers | Pinned upstream tier bounds; conservative capacity policy rejects overflowing reductions |
 | World | Edit existing Mayhem/Chaos levels and Chaos unlocked ceiling; F8 missions and F9 external-map checklist | BL3 0–11, TTWL 0–100 editor bounds; unlock challenges/rewards remain unchanged; no coordinates/art imported |
-| Inventory | Named, queryable backpack/bank/lost loot; lazy serial/part details, original codes, level, CRC/layout status, raw flags/pickup/equipment indices | Attributed upstream **family** labels, not complete generated item names; level/reroll/Chaos and favourite/junk editing; equipment indices repaired on removal |
+| Inventory | Named, queryable backpack/bank/lost loot; lazy serial/part details, original codes, level, CRC/layout status, raw flags/pickup/equipment indices | Attributed family labels plus 499 community localized balance labels and factual part descriptions; generated effects/legal combinations remain unknown |
 | Reference browser | F2 title-scoped packs, F4 inspection and constrained existing-part replacement, F8 catalogues | Offline, versioned, attributed zlib/MIT data; raw fallback; inspection makes no save changes |
 | Profile | Planned bank/lost-loot operations; existing Guardian/Myth edits inside F7 | Unknown mirror precedence and budgets are explicitly warned, never inferred |
 | Coordinated group | Explicit character + profile selection from one title/imported generation/backup status; bank, progression and account mirrors in one writable transaction | F7 ownership/fingerprint/conflict handling; separate PS5 save directories supported; generation numbers alone do not establish gameplay compatibility |
@@ -80,8 +80,9 @@ not enumerated. Every displayed label carries its record attribution, including 
 Game patch, DLC/hotfix state and completeness are **unknown**; internal serial database versions are
 not PS5 build numbers. Every dataset has attribution and a hash in `pack.json`, plus a source sidecar
 with pinned source revision, original compressed-file SHA-256 and conversion notes. NC bl3data/wldata
-exports and unlicensed artwork were not imported. The data shipped in the zlib editor revisions is
-used under those distributions' terms; underlying game asset identifiers remain Gearbox/2K game facts.
+exports are used only for factual/text display records under the owner decision dated 2026-10-28:
+**No licence published; reused with attribution per owner decision 2026-10-28**. Artwork, icons,
+screenshots, proprietary game assets and extracted game text remain excluded.
 
 The serial envelope is capped at 4,096 bytes; bit reads and part/additional counts are bounded. It
 retains the signed seed, checksum, all trailing bits and original serial bytes. Unsupported versions,
@@ -103,7 +104,9 @@ The new MIT `skills` datasets contain **315 BL3** and **110 Wonderlands** skills
 community calculators: names, plain-text descriptions, calculator tiers and rank caps. BL3 covers
 the trees actually present upstream, including its partial DLC coverage; missing fourth trees
 stay unknown. Class feats, images and executable combat-effect formulas were not imported.
-Reference IDs are calculator slugs, never save IDs. Every reference graph state is Unknown.
+Reference IDs are calculator slugs, never save IDs. The additional crosswalk records map known tree
+prefixes to class/tree and mark the join `Inferred`; unresolved paths remain raw and every reference
+graph state is Unknown.
 Gate→skill edges mean a calculator's cumulative earlier-tier point requirement, **not** that every
 preceding skill must be bought. These are upstream build facts, not verified PS5/hotfix rules.
 Targets open attributed read-only controls; the text alternative contains the same facts.
@@ -159,11 +162,11 @@ counts against the intended model; transfer/import regressions assert persisted 
 
 | Plan requirements / acceptance | Final disposition |
 | --- | --- |
-| R1, R8 names/parts/skills | Added offline MIT skill data and attributed part-token details. Complete localized cards, opaque skill-subobject joins and DLC legality require a source crosswalk/build corpus; unknowns remain explicit |
+| R1, R8 names/parts/skills | Added MIT skill text, 499 localized BL3 balance labels, 2,100 BL3 part descriptions, 4,327 TTWL mapping labels and bounded class/tree prefixes. Generated effects, exact joins and DLC legality remain explicit unknowns |
 | R3–R7, R9–R12 framework/evidence/editor | Supported implementations retained and verified; constrained existing-part picker, F8/F9 and performance/bookkeeping fixes completed |
 | R13 legal pools/dependent builds | Existing-slot binary edits enabled with warnings; unrestricted construction, class replacement and respec require a reliable compatibility/dependency model and controlled captures (#31) |
 | R2, R15–R17 captures/console/account precedence | Owner-blocked (#31); writes already enabled where a bounded writer exists, with Experimental warnings |
-| R14 redistribution | Applied owner policy; MIT/zlib datasets embedded with notices. Unlicensed/NC artwork and exports are not imported; link-only map sources |
+| R14 redistribution | Applied owner policy; MIT/zlib datasets and attributed factual/text-only unlicensed exports are embedded. Artwork, icons, screenshots and proprietary extracted game assets remain excluded; map sources stay link-only |
 | R18–R19, R22 BL4 | Owner-blocked (#31): unknown PS5 codec and file role; research-only feasibility evidence retained, no writes |
 | R20 mission/collectible repair | Owner-blocked (#31): named observation/checklist shipped; safe reward/branch recipes require isolated game captures |
 | R21 world maps + requested skill trees | F9 delivered without unlicensed art/coordinates or invented prerequisites; actual location transforms remain unknown |
@@ -393,13 +396,13 @@ the CLI's `PluginViewDecoder`. No sample bytes, decoded payloads or account iden
 - Mission repair, arbitrary part-count/balance construction, slot compatibility and platform conversion are not implemented.
 - Other regions/builds need samples. PPSA01494 is a separate BL4 format and never claimed.
 - Inventory/reference/evidence work and bounded F9 observation are delivered. Complete cosmetic,
-  skill-subobject/mission/challenge crosswalks, localized item cards and licensed icons remain open. Enabled writes remain Experimental;
+  exact skill-subobject/mission/challenge crosswalks, generated item effects and licensed icons remain open. Enabled writes remain Experimental;
   full gameplay dependency/budget models and console validation remain open.
 - BL4 codec/file-role research and the exact owner checklist are in [BL4 feasibility](BL4-feasibility.md).
 
 ## Sources and attribution
 
-Research date: 2026-10-28. Downloaded source was read as untrusted text, never executed. Implementation
+Research date: 2026-10-29. Downloaded source was read as untrusted text, never executed. Implementation
 code is independently written; reference resources contain schema/numeric facts. Notices are retained
 under [Notices](Notices/). Serial envelope/layout code is explicitly marked as an altered C# adaptation
 of the pinned zlib `datalib.py` implementations. No downloaded implementation was executed.
@@ -420,6 +423,12 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 | TTWL `world-labels` | [Constants][ttwl-constants] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | 459 mission/map/travel/class/Myth/Hero/backstory records; embedded caps used as Inferred editor policies |
 | BL3 `skills` | [BL3Skills 66b0bd0](https://github.com/seigler/bl3skills.com/tree/66b0bd08777452abd05e5d9246c27f2a8096ca13) | Joshua Seigler and contributors | [MIT](https://github.com/seigler/bl3skills.com/blob/66b0bd08777452abd05e5d9246c27f2a8096ca13/LICENSE), retained notice | 2026-10-28 | 315 names/descriptions, calculator tiers/rank caps; no effect code/art or save-ID joins |
 | TTWL `skills` | [Wonderlands calculator d57e7aa](https://github.com/Lothrik/wonderlands-skill-calc/tree/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8) | Joshua Seigler / Lothrik and contributors | [MIT](https://github.com/Lothrik/wonderlands-skill-calc/blob/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8/LICENSE), retained notice | 2026-10-28 | 110 skills, plain-text descriptions, calculator tiers/rank caps; no artwork or save-ID joins |
+| BL3 `localized-cards` | [Sandsmark editor labels](https://github.com/sandsmark/borderlands3-save-editor/tree/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data) | Sandsmark / community contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | 499 human labels joined to pinned balance object tokens; no artwork or extracted game text |
+| BL3 `part-labels` | [Sandsmark description tables](https://github.com/sandsmark/borderlands3-save-editor/tree/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data/descriptions) | Sandsmark / community contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | 2,100 factual part labels/effect notes; raw fallback retained |
+| BL3 `skill-crosswalk` | [Sandsmark editor data](https://github.com/sandsmark/borderlands3-save-editor/tree/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data) | Sandsmark / community contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | Three Beastmaster tree-prefix joins; exact skill names are never inferred by order |
+| TTWL `part-labels` | [TTWLSaveEditor mapping](https://github.com/somefunguy/TTWLSaveEditor/tree/c6d701ec4a5ae1c115017de54d39df4813c035c1/BL3Tools/GameData/Items/Mappings) | somefunguy / contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | 4,327 raw path-to-token labels; not presented as localized game text |
+| TTWL `skill-crosswalk` | [TTWLSaveEditor mapping](https://github.com/somefunguy/TTWLSaveEditor/tree/c6d701ec4a5ae1c115017de54d39df4813c035c1/BL3Tools/GameData/Items/Mappings) | somefunguy / contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | Seven class tree-prefix joins; exact skill names are never inferred by order |
+| BL3/TTWL export provenance | [`bl3data`](https://github.com/apocalyptech/bl3data/tree/b0bfc16865d82d01bed7104bb357561c702c2561), [`wldata`](https://github.com/apocalyptech/wldata/tree/7d1d53ff86f227b4574fd8b1a294590b42b5f7aa) | apocalyptech / community contributors | No licence published for the game exports; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | Object/path conventions were cross-checked; no proprietary export payloads, artwork or icons are redistributed |
 | External community map links | [BL3](https://mapgenie.io/borderlands-3), [Wonderlands](https://mapgenie.io/tiny-tinas-wonderlands) | Map Genie | Reuse unverified; **link only** | 2026-10-28 | No art, coordinates, map content or descriptions imported; current host blocks automated access |
 | SDU tiers, item flags and new-record metadata policy | [BL3 constants][bl3-constants], [TTWL constants][ttwl-constants], BL3 `bl3save.py`, TTWL `datalib.py` in the pinned repositories | CJ Kucera / Abram Hindle | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Altered C# definitions/flag handling; capacity formulas are original conservative editor policies |
 | Serial envelope / layout adapter | [BL3][bl3-serial], [TTWL][ttwl-serial] | CJ Kucera / Abram Hindle; upstream credits Baysix | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Altered bounded C# adaptation with exact-bit writes and original-seed CRC repair |

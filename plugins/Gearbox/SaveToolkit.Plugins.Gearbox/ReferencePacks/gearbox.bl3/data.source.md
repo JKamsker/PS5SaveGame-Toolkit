@@ -6,7 +6,7 @@ Author: CJ Kucera / apocalyptech. Licence: [zlib](https://github.com/apocalyptec
 
 Converted the three bundled editor databases to keyed F2 records; retained asset paths, 1-based indices and all version widths. Names are family labels, not complete item cards. No artwork. Game patch/DLC/hotfix state unknown; serial database version 62.
 
-Upstream resource generation provenance is described in [bl3save/resources/README.md](https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/resources/README.md). Only the resources bundled in the licensed editor revision were converted; no NC bl3data/wldata exports, wiki text, icons or external generated datasets were imported. Underlying game asset identifiers remain Gearbox/2K game facts.
+Upstream resource generation provenance is described in [bl3save/resources/README.md](https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/resources/README.md). The licensed editor resources remain the binary source. This pack also includes factual/text-only community labels from the pinned [Sandsmark editor revision](https://github.com/sandsmark/borderlands3-save-editor/tree/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2); no code, icons, artwork, screenshots or extracted game assets were imported. The unlicensed records use the exact attribution **No licence published; reused with attribution per owner decision 2026-10-28**. Underlying game asset identifiers remain Gearbox/2K game facts.
 
 Original compressed-file SHA-256:
 

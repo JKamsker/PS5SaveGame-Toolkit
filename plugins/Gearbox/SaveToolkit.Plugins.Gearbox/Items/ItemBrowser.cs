@@ -45,7 +45,7 @@ internal sealed class ItemBrowser
 
     public IReadOnlyList<ViewNode> Build()
     {
-        List<ViewNode> result = [new TextNode("Experimental serial editing. Family labels are not full generated item names. CRC/layout validation does not prove legal gear. Unknown serials and tails are preserved.") { Tone = Tone.Info }];
+        List<ViewNode> result = [new TextNode("Experimental serial editing. Community labels and effect notes are references, not full generated item names or legal gear. CRC/layout validation does not prove legal gear. Unknown serials and tails are preserved.") { Tone = Tone.Info }];
         result.Add(new TextNode(SerialWrites.Warning) { Tone = Tone.Warning });
         result.AddRange(GearboxItemActions.Build(rootWonderlands: _document.Root.Schema.Wonderlands));
         result.Add(new TextNode(_references.Database.Records(ItemCatalogs.Widths).First().AttributionText) { Tone = Tone.Muted });
@@ -89,7 +89,7 @@ internal sealed class ItemBrowser
         }
         var entries = collectionId == "catalogue"
             ? _references.Database.Records(ItemCatalogs.Balances).Select(r => new BrowserEntry(r.Key,
-                new Dictionary<string, string> { ["name"] = ItemReferences.Label(_references.Balance(r.Key), r.Key), ["category"] = r.Category ?? "Unmapped", ["asset"] = r.Key }, null))
+                new Dictionary<string, string> { ["name"] = _references.Label(_references.Balance(r.Key), r.Key), ["category"] = r.Category ?? "Unmapped", ["asset"] = r.Key }, null))
             : _items.Where(i => i.List == collectionId).Select(Entry);
         entries = entries.Where(e => (string.IsNullOrEmpty(query.Text) || e.Values.Values.Any(v => v.Contains(query.Text, StringComparison.OrdinalIgnoreCase))
                 || e.Item?.Info.Value.Balance?.Path?.Contains(query.Text, StringComparison.OrdinalIgnoreCase) == true)
@@ -121,7 +121,7 @@ internal sealed class ItemBrowser
         var record = _references.Balance(info.Balance?.Path);
         return new(item.Id, new Dictionary<string, string>
         {
-            ["index"] = item.Index.ToString(CultureInfo.InvariantCulture), ["name"] = ItemReferences.Label(record, info.Balance?.Path),
+            ["index"] = item.Index.ToString(CultureInfo.InvariantCulture), ["name"] = _references.Label(record, info.Balance?.Path),
             ["category"] = record?.Category ?? "Unmapped", ["level"] = info.Level?.ToString(CultureInfo.InvariantCulture) ?? "—",
             ["status"] = info.Complete ? "CRC / header / parts" : info.ChecksumValid ? "CRC / partial layout" : "Unknown / invalid",
         }, item);
@@ -131,8 +131,10 @@ internal sealed class ItemBrowser
     {
         var cells = entry.Values.ToDictionary(p => p.Key, p => (ViewNode)new TextNode(p.Value));
         var record = _references.Balance(entry.Item?.Info.Value.Balance?.Path ?? entry.Key);
-        cells["name"] = ReadOnly(entry.Key + "/name", "Family label", entry.Values["name"],
-            record?.Attributes.GetValueOrDefault("displayKind") == "family" ? Confidence.Inferred : Confidence.Unknown, record?.AttributionText);
+        cells["name"] = ReadOnly(entry.Key + "/name", "Item card label", entry.Values["name"],
+            _references.CardDescription(record) is not null ? Confidence.Inferred :
+            record?.Attributes.GetValueOrDefault("displayKind") == "family" ? Confidence.Inferred : Confidence.Unknown,
+            _references.CardDescription(record) is { } card ? card + " " + record?.AttributionText : record?.AttributionText);
         cells["category"] = ReadOnly(entry.Key + "/category", "Raw part family", entry.Values["category"], Confidence.Unknown,
             _references.Database.Find(ItemCatalogs.Families, record?.Key ?? entry.Key)?.AttributionText ?? record?.AttributionText);
         if (entry.Item is { } item)
@@ -147,6 +149,7 @@ internal sealed class ItemBrowser
         List<ViewNode> nodes = [new TextNode(info.Diagnostic) { Tone = info.Complete ? Tone.Info : Tone.Warning },
             _document.InspectionReference(item.Id + "/balance", "Balance asset", info.Balance?.Path?.ToLowerInvariant() ?? $"index {info.Balance?.Index}",
                 ItemCatalogs.Balances, Confidence.Unknown, record?.AttributionText),
+            new TextNode($"Card label: {_references.Label(record, info.Balance?.Path)}. {_references.CardDescription(record) ?? "No community localized card label."}") { Tone = Tone.Muted },
             new TextNode($"Serial v{info.Version}; database {info.DatabaseVersion}; flags {item.Flags}; pickup order {item.Pickup}."),
             AssetField(item.Id + "/inventory", "Inventory asset", info.Inventory),
             AssetField(item.Id + "/manufacturer", "Manufacturer asset", info.Manufacturer),
@@ -172,11 +175,14 @@ internal sealed class ItemBrowser
                 }));
         var parts = info.Parts.Concat(info.GenericParts).Select((p, i) => new TableRow(i.ToString(CultureInfo.InvariantCulture),
             new Dictionary<string, ViewNode> { ["category"] = new TextNode(p.Category), ["index"] = new TextNode(p.Index.ToString(CultureInfo.InvariantCulture)),
+                ["name"] = new TextNode(_references.Part(p.Path)?.Name ?? p.Path?.Split('.').LastOrDefault() ?? "Unknown part"),
+                ["effects"] = new TextNode(_references.Part(p.Path)?.Description ?? "Community part effect text unavailable."),
                 ["asset"] = info.Complete ? SerialParts.Field(_document, item.Id, i,
                     _references.Database.Find(ItemCatalogs.Indices, p.Key)!.AttributionText) :
                     _document.InspectionReference(item.Id + "/part/" + i, "Raw part asset", p.Key, ItemCatalogs.Indices, p.Path is null ? Confidence.Unknown : Confidence.Verified,
                     _references.Database.Find(ItemCatalogs.Indices, p.Key)?.AttributionText) })).ToArray();
-        nodes.Add(new TableNode([new("category", "Category"), new("index", "Index"), new("asset", "Raw asset")], parts));
+        nodes.Add(new TableNode([new("category", "Category"), new("index", "Index"), new("name", "Community label"),
+            new("effects", "Community effect text"), new("asset", "Raw asset")], parts));
         return nodes;
     }
 
@@ -198,7 +204,7 @@ internal sealed class ItemBrowser
         if (actionId != InspectAction) return null;
         if (!parameters.TryGetValue("balance", out var value) || value.Kind != FieldValueKind.Text || _references.Balance(value.AsString()) is not { } record)
             throw new SaveFormatException("Choose a known balance from the catalogue.");
-        return new ActionOutcome { Message = $"{ItemReferences.Label(record, record.Key)}\n{record.Key}\n{record.Description}\n{record.AttributionText}" };
+        return new ActionOutcome { Message = $"{_references.Label(record, record.Key)}\n{record.Key}\n{_references.CardDescription(record) ?? record.Description}\n{record.AttributionText}" };
     }
 
     private sealed record BrowserItem(string Id, string List, int Index, byte[] Serial, long? Flags, long? Pickup, Lazy<SerialInfo> Info);
