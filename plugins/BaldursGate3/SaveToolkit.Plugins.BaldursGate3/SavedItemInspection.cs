@@ -1,4 +1,5 @@
 using System.Globalization;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -27,6 +28,42 @@ internal sealed class SavedItemInspection
         new TextNode("Original saved Item nodes from Globals.lsf, including world/trader items. Ownership, equipment and quantity are unresolved; no party gold total is calculated. Reference names are candidates from an exact template GUID lookup.") { Tone = Tone.Info },
         SectionNode.Lazy("Browse saved items (all owners)", Prefix + "all"),
     ];
+
+    internal QueryableCollection Collection => new(
+        "bg3.saved-items", "Saved item occurrences",
+        [
+            new QueryableColumn("name", "Candidate name") { Width = ColumnWidth.Wide },
+            new QueryableColumn("template", "CurrentTemplate") { Width = ColumnWidth.Wide },
+            new QueryableColumn("stats", "Stats ID"),
+            new QueryableColumn("ownership", "Owner / quantity") { Width = ColumnWidth.Wide },
+        ], _items.Value.Count)
+    {
+        Description = "All original Globals.lsf Item nodes, including world and trader items. Ownership and quantity are shown only when an explicit LSF attribute is present; no positional join is inferred.",
+    };
+
+    internal QueryableCollectionPage Query(QueryableCollectionQuery query)
+    {
+        var items = _items.Value;
+        var text = query.Text?.Trim();
+        var filtered = items.Where(item => string.IsNullOrEmpty(text) ||
+            item.Template.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+            item.Stats.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+            (_references.Template(item.Template)?.Name.Contains(text, StringComparison.OrdinalIgnoreCase) ?? false));
+        var ordered = query.SortColumn switch
+        {
+            null => filtered.OrderBy(item => item.Key, StringComparer.Ordinal),
+            "name" => query.Descending ? filtered.OrderByDescending(item => _references.Template(item.Template)?.Name ?? item.Template, StringComparer.OrdinalIgnoreCase) : filtered.OrderBy(item => _references.Template(item.Template)?.Name ?? item.Template, StringComparer.OrdinalIgnoreCase),
+            "template" => query.Descending ? filtered.OrderByDescending(item => item.Template, StringComparer.Ordinal) : filtered.OrderBy(item => item.Template, StringComparer.Ordinal),
+            "stats" => query.Descending ? filtered.OrderByDescending(item => item.Stats, StringComparer.Ordinal) : filtered.OrderBy(item => item.Stats, StringComparer.Ordinal),
+            "ownership" => query.Descending ? filtered.OrderByDescending(item => Ownership(item), StringComparer.Ordinal) : filtered.OrderBy(item => Ownership(item), StringComparer.Ordinal),
+            _ => throw new ArgumentException($"Unknown BG3 saved-item sort column '{query.SortColumn}'.", nameof(query)),
+        };
+        var total = ordered.LongCount();
+        var pageItems = ordered.ThenBy(item => item.Key, StringComparer.Ordinal).Skip(query.Offset).Take(query.Limit).ToArray();
+        var rows = pageItems.Select(Row).ToArray();
+        return new QueryableCollectionPage("bg3.saved-items", Collection.Columns, rows,
+            items.Count, total, query.Offset, query.Limit);
+    }
 
     internal IReadOnlyList<ViewNode> Expand(string id)
     {
@@ -69,9 +106,13 @@ internal sealed class SavedItemInspection
             ["template"] = _bind($"{item.Key}/template", "CurrentTemplate", FieldValue.Of(item.Template)),
             ["stats"] = _bind($"{item.Key}/stats", "Stats ID", FieldValue.Of(item.Stats)),
             ["provenance"] = new TextNode($"Globals entry {item.Entry}, node {item.Node}; template occurrence {item.Occurrence}"),
-            ["ownership"] = new TextNode("Unknown / unknown"),
+            ["ownership"] = new TextNode(Ownership(item)),
         });
     }
+
+    private static string Ownership(Item item) => item.Owner is null && item.Quantity is null
+        ? "Unknown / unknown"
+        : $"Candidate owner: {item.Owner ?? "unknown"}; candidate quantity: {item.Quantity ?? "unknown"}. Explicit attributes only; join is unverified.";
 
     private static IReadOnlyList<Item> Read(IReadOnlyList<DocumentEntry> entries)
     {
@@ -89,7 +130,9 @@ internal sealed class SavedItemInspection
                 var template = Value(resource, current, "CurrentTemplate", uuid: true) ?? "(missing template)";
                 var occurrence = occurrences.GetValueOrDefault(template) + 1;
                 occurrences[template] = occurrence;
-                items.Add(new Item(entry, node, template, Value(resource, current, "Stats", uuid: false) ?? "(missing Stats)", occurrence));
+                items.Add(new Item(entry, node, template, Value(resource, current, "Stats", uuid: false) ?? "(missing Stats)", occurrence,
+                    Candidate(resource, current, ["Owner", "OwnerId", "OwnerEntity", "InventoryOwner"]),
+                    Candidate(resource, current, ["Quantity", "Amount", "Count", "StackAmount", "StackCount"])));
             }
         }
 
@@ -104,7 +147,25 @@ internal sealed class SavedItemInspection
         return AttributeDecoder.Read(attribute).AsString();
     }
 
-    private sealed record Item(int Entry, int Node, string Template, string Stats, int Occurrence)
+    private static string? Candidate(LarianResource resource, ResourceNode node, IReadOnlyList<string> names)
+    {
+        foreach (var name in names)
+        {
+            var value = node.Attributes.Select(index => resource.Attributes[index]).Where(a => a.Name == name).Take(2).ToArray();
+            if (value is [var attribute] && attribute.Data.Length <= ResourceExplorer.MaxInlineBytes &&
+                (AttributeDecoder.IsString(attribute.Type) || attribute.Type is LarianAttributeType.Byte or LarianAttributeType.Short or
+                    LarianAttributeType.UShort or LarianAttributeType.Int or LarianAttributeType.UInt or LarianAttributeType.Int8 or
+                    LarianAttributeType.Int64 or LarianAttributeType.Long or LarianAttributeType.ULongLong))
+            {
+                return AttributeDecoder.Read(attribute).ToString();
+            }
+        }
+
+        return null;
+    }
+
+    private sealed record Item(int Entry, int Node, string Template, string Stats, int Occurrence,
+        string? Owner, string? Quantity)
     {
         internal string Key => $"saved-item/{Entry}/{Uri.EscapeDataString(Template)}/occurrence/{Occurrence}";
     }

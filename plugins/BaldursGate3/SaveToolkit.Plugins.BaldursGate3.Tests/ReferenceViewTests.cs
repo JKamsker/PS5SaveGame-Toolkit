@@ -1,6 +1,7 @@
 using System.Text;
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -33,6 +34,41 @@ public sealed class ReferenceViewTests
         }
 
         Assert.Null(templates.Find("OBJ_GoldCoin")); // quantity or a similar Stats name is not identity
+    }
+
+    [Fact]
+    public void ExpandedCatalogsAreAttributedPinnedAndBounded()
+    {
+        var (_, store, context) = References();
+        Assert.Empty(store.LoadErrors);
+        foreach (var id in new[] { Bg3References.Items, Bg3References.Equipment, Bg3References.Spells,
+                     Bg3References.Passives, Bg3References.Companions, Bg3References.CampSupplies })
+        {
+            var catalog = context.Catalog(id);
+            Assert.NotNull(catalog);
+            Assert.True(catalog.Count > 0);
+            Assert.Equal("CC-BY-SA-4.0", catalog.Dataset.Attribution.License);
+            Assert.Contains("oldid=", catalog.Search(new ReferenceQuery { Limit = 1 }).Items[0].Source!, StringComparison.Ordinal);
+            Assert.All(catalog.Search(new ReferenceQuery { Limit = ReferenceQuery.MaxLimit }).Items,
+                record => Assert.Contains("candidate label only", record.Description!, StringComparison.Ordinal));
+        }
+    }
+
+    [Fact]
+    public void CatalogQueryUsesReferenceSpecAndStableRows()
+    {
+        var (plugin, _, context) = References();
+        var file = MemorySaveSet.SingleFile("test.lsv", PackageFixture.Create(payloads: [("SaveInfo.json", "{}"u8.ToArray())]));
+        using var document = Assert.IsType<BaldursGate3Document>(plugin.Open(file, context));
+        var collection = Assert.Single(document.Collections, c => c.Id == Bg3References.Spells);
+        var page = document.Query(collection.Id, new QueryableCollectionQuery { Text = "Guidance", Limit = 10 });
+        var row = Assert.Single(page.Rows);
+        var rawId = Assert.IsType<FieldNode>(row.Cells["id"]);
+        Assert.IsType<ReferenceSpec>(rawId.Spec);
+        Assert.Equal("Target_Guidance", rawId.Value.AsString());
+        Assert.Equal(1, page.FilteredCount);
+        Assert.Equal(row.Key, Assert.Single(document.Query(collection.Id,
+            new QueryableCollectionQuery { Text = "Guidance", Limit = 10 }).Rows).Key);
     }
 
     [Fact]

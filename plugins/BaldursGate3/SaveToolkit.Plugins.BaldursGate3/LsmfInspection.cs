@@ -59,6 +59,7 @@ internal sealed class LsmfInspection
                         Description = "Fingerprint of every original NewAge byte, including unknown regions; no integrity algorithm is implied.",
                     },
                     new TextNode("Owner lists, packed Stats/Health, enum pools and stack groups are not interpreted. Unknown components remain untouched. Format facts: https://github.com/DanFinchUK/bg3-savefile-parser/tree/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8 (research only; no implementation copied)."),
+                    SectionNode.Lazy("Live state candidates (read-only)", $"{prefix}/state"),
                     .. ResourceExplorer.Pages("Components", $"{prefix}/components", model.Components.Count),
                     SectionNode.Lazy("EntityId occurrences (not party identities)", $"{prefix}/entities"),
                     new HexNode($"attribute/{source.Entry}/{source.Attribute}", model.Bytes.Length) { Title = "Original NewAge bytes" },
@@ -67,6 +68,8 @@ internal sealed class LsmfInspection
 
             if (parts is [_, _, _, "entities"])
                 return ResourceExplorer.Pages("Entity occurrences", $"{prefix}/entities", source.Entities.Value.Count);
+            if (parts is [_, _, _, "state"])
+                return [State(model, prefix)];
             if (parts.Length != 6 || !int.TryParse(parts[4], NumberStyles.None, CultureInfo.InvariantCulture, out var start) ||
                 !int.TryParse(parts[5], NumberStyles.None, CultureInfo.InvariantCulture, out var count))
                 throw new KeyNotFoundException("Invalid BG3 NewAge page.");
@@ -119,6 +122,45 @@ internal sealed class LsmfInspection
                 ["copies"] = new TextNode($"{entity.Occurrence}/{entity.Copies}; identity join unresolved"),
             });
         }).ToArray()) { Title = "EntityId occurrence provenance", Description = "Duplicate GUIDs remain separate. No party, component-owner or body/stats join is inferred." };
+
+    private static TableNode State(LsmfModel model, string prefix) => new(
+        [new("component", "Component"), new("rows", "Rows"), new("bytes", "Element bytes"), new("interpretation", "Read-only interpretation")],
+        model.Components.Where(c => IsStateComponent(c.Name)).Select(component => new TableRow(
+            $"{prefix}/state/{Uri.EscapeDataString(component.Name)}",
+            new Dictionary<string, ViewNode>
+            {
+                ["component"] = new TextNode(component.Name),
+                ["rows"] = new TextNode(component.Rows.ToString(CultureInfo.InvariantCulture)),
+                ["bytes"] = new TextNode(component.ElementBytes.ToString(CultureInfo.InvariantCulture)),
+                ["interpretation"] = new TextNode(Interpretation(component.Name)),
+            })).ToArray())
+    {
+        Title = "Live-state component candidates",
+        Description = "Component families are present in the bounded NewAge directory. Values, owner joins and authoritative-vs-cache semantics remain unproven without controlled native save pairs.",
+    };
+
+    private static bool IsStateComponent(string name) =>
+        name.Contains("Character", StringComparison.OrdinalIgnoreCase) ||
+        name.Contains("Health", StringComparison.OrdinalIgnoreCase) ||
+        name.Contains("Classes", StringComparison.OrdinalIgnoreCase) ||
+        name.Contains("Stats", StringComparison.OrdinalIgnoreCase) ||
+        name.Contains("SpellBook", StringComparison.OrdinalIgnoreCase) ||
+        name.Contains("Container", StringComparison.OrdinalIgnoreCase) ||
+        name.Contains("IsOwned", StringComparison.OrdinalIgnoreCase) ||
+        name.Contains("NewStack", StringComparison.OrdinalIgnoreCase) ||
+        name.Contains("StackEntry", StringComparison.OrdinalIgnoreCase);
+
+    private static string Interpretation(string name) => name switch
+    {
+        var value when value.Contains("Character", StringComparison.OrdinalIgnoreCase) => "Character identity candidate; no party/avatar join inferred.",
+        var value when value.Contains("Health", StringComparison.OrdinalIgnoreCase) => "Health-family candidate; base/current/temp semantics are unknown.",
+        var value when value.Contains("Classes", StringComparison.OrdinalIgnoreCase) => "Class-family candidate; progression and respec semantics are unknown.",
+        var value when value.Contains("SpellBook", StringComparison.OrdinalIgnoreCase) => "Spell selection candidate; source/prepared/virtual slots are unknown.",
+        var value when value.Contains("Container", StringComparison.OrdinalIgnoreCase) => "Container membership candidate; recursive ownership is not decoded.",
+        var value when value.Contains("Stack", StringComparison.OrdinalIgnoreCase) => "Stack-group candidate; member sums and settled state are not decoded.",
+        var value when value.Contains("IsOwned", StringComparison.OrdinalIgnoreCase) => "Ownership flag candidate; owner identity is not decoded.",
+        _ => "Raw component candidate; no gameplay meaning assigned.",
+    };
 
     private static string Hash(ReadOnlySpan<byte> bytes) => Convert.ToHexStringLower(SHA256.HashData(bytes));
 

@@ -39,17 +39,32 @@ without inventing a gameplay interpretation. Synthetic
 tests cover version/count/range corruption, truncation, GUID byte order, repeated
 GUIDs/templates, bounded pages, no-pack/build-mismatch fallbacks and attribution.
 
+Round 2 adds six catalog datasets (`bg3_items`, `bg3_equipment`, `bg3_spells`,
+`bg3_passives`, `bg3_companions`, `bg3_camp_supplies`) with pinned page revisions,
+record-level source links and CC BY-SA attribution. The catalogs contain factual
+labels and technical candidates only; no legacy wiki prose, icons or game assets are
+embedded. Catalog and all-owner inventory collections implement bounded SDK query
+pages with stable row IDs. Explicit owner/quantity attributes are surfaced as
+unverified candidates when present; positional and quantity-only joins remain rejected.
+The NewAge view now groups character/health/classes/spellbook/container/stack families
+as read-only component candidates. StorySave inspection reports only bounded ASCII
+database markers (`DB_ApprovalRating`, roster/team families and related names); it does
+not decode Osiris tuples or claim approval, quest, camp or romance state.
+
 ## Phase status for this round
 
 - **Phase 1, partial:** directory/arena range validation, duplicate EntityId
   provenance, independent census, bounded views and F1 baseline shipped. Ownerlist,
   packed-stream and character/Creator joins remain open; full phase exit is not met.
-- **Phase 2, starter subset:** F2 integration and seven attributed English labels
-  shipped. No matching full game-data pack, localization/inheritance/override
+- **Phase 2, expanded subset:** F2 integration and attributed English catalogs for
+  items, equipment, spells/passives, origins/companions and camp supplies shipped.
+  No matching full game-data pack, localization/inheritance/override
   resolver, icons, limits or mod/build corpus is available; full phase exit is open.
-- **Phase 3, starter subset:** named read-only metadata party and all-owner saved
-  item views shipped. Live character sheets, actual inventories/equipment/camp,
-  quantities, recursive containers and story are open; full phase exit is open.
+- **Phase 3, expanded read-only subset:** metadata party, all-owner inventory candidates,
+  queryable catalogs, component-family live-state candidates and bounded story marker
+  inspection shipped. Live character sheets, proven inventories/equipment/camp,
+  quantities, recursive containers and story tuple values remain open; full phase exit
+  is open.
 - **Phases 4–7:** no new gameplay writes, structural actions or story actions.
   Existing experimental primitive editing is unchanged. No console compatibility
   claim or maturity promotion is made.
@@ -78,6 +93,9 @@ Follow `docs/SAMPLES.md`; put dumps only in the external artifacts directory.
 7. **Character/story (later):** separate damage/heal/temp-HP, boosted-gear,
    learn/prepare-spell, level-up/respec, quest accept/complete/fail, approval ±,
    rest/romance and recipe/waypoint event pairs before enabling those features.
+   Include one dump whose StorySave marker set is unchanged by a no-action resave and
+   one controlled approval/quest event with the corresponding visible UI outcome; this
+   is required before marker presence can be promoted to a tuple decoder.
 8. **Reference rights:** provide build/language/module-matched permitted template,
    stats/LOCA data and a rights manifest; decide icon/commercial scope, legacy
    wiki content, spoiler policy and required write-validation standard.
@@ -88,7 +106,7 @@ Follow `docs/SAMPLES.md`; put dumps only in the external artifacts directory.
    Supply warnings/failures as well as successful results. Only the owner promotes
    maturity to Stable.
 
-No new SDK request blocks this subset. F1's existing view adapter, F2 packs/context
-and plain tables suffice. F4, F6 and F8 remain framework work; no local substitutes
-were added. Future full parser/evidence work is still required before those UI
-features could safely expose gameplay operations.
+No new SDK request blocks this subset. F1's existing view adapter, F2 packs/context,
+F4 reference fields and F8 queryable collections are used read-only. F6 and structural
+undo remain framework-owned. Future full parser/evidence work is still required before
+those UI features could safely expose gameplay operations.

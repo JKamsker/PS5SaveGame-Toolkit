@@ -1,0 +1,101 @@
+{
+  "records": [
+    {
+      "id": "LOOT_Camp_Pack",
+      "name": "Supply Pack",
+      "category": "Food / camp supplies",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Supply_Pack&oldid=423731",
+      "attributes": {
+        "mapping": "UID candidate; UUID is stored separately",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uuid": "398e7328-ce90-4c02-94a2-93341fac499a",
+        "supplyValue": "40"
+      }
+    },
+    {
+      "id": "CONT_GEN_CampSupplySack",
+      "name": "Camp Supply Sack",
+      "category": "Container",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Camp_Supply_Sack&oldid=416884",
+      "attributes": {
+        "mapping": "UID candidate; UUID is stored separately",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uuid": "efcb70b7-868b-4214-968a-e23f6ad586bc"
+      }
+    },
+    {
+      "id": "Heavy Supply Pack",
+      "name": "Heavy Supply Pack",
+      "category": "Camp supplies",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "supplyValue": "80"
+      }
+    },
+    {
+      "id": "Owlbear Egg",
+      "name": "Owlbear Egg",
+      "category": "Camp supplies",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "supplyValue": "40"
+      }
+    },
+    {
+      "id": "Haggis",
+      "name": "Haggis",
+      "category": "Camp supplies",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "supplyValue": "21"
+      }
+    },
+    {
+      "id": "Pizza",
+      "name": "Pizza",
+      "category": "Camp supplies",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "supplyValue": "15"
+      }
+    },
+    {
+      "id": "Raw Steak",
+      "name": "Raw Steak",
+      "category": "Camp supplies",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "supplyValue": "10"
+      }
+    },
+    {
+      "id": "Banana",
+      "name": "Banana",
+      "category": "Camp supplies",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "supplyValue": "3"
+      }
+    }
+  ]
+}

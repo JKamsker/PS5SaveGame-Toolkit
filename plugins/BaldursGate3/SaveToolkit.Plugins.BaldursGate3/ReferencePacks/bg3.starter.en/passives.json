@@ -1,0 +1,59 @@
+{
+  "records": [
+    {
+      "id": "Darkvision",
+      "name": "Darkvision",
+      "category": "Passive",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "Fey Ancestry",
+      "name": "Fey Ancestry",
+      "category": "Passive",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "Hellish Resistance",
+      "name": "Hellish Resistance",
+      "category": "Passive",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "Opportunity Attack",
+      "name": "Opportunity Attack",
+      "category": "Passive/action",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "Civil Militia",
+      "name": "Civil Militia",
+      "category": "Passive",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706",
+      "attributes": {
+        "mapping": "display key; technical ID unresolved",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    }
+  ]
+}

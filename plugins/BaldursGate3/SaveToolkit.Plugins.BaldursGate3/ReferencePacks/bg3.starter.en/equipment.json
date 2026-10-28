@@ -1,0 +1,73 @@
+{
+  "records": [
+    {
+      "id": "1865323f-b428-4791-a0a9-578841e57463",
+      "name": "Longsword",
+      "category": "Weapon",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Longsword&oldid=420599",
+      "attributes": {
+        "mapping": "exact-template-guid",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uid": "WPN_HUM_Longsword_A_0"
+      }
+    },
+    {
+      "id": "c5403c1d-f372-43e1-927a-9189e9e3545d",
+      "name": "Shortbow",
+      "category": "Weapon",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Shortbow&oldid=423168",
+      "attributes": {
+        "mapping": "exact-template-guid",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uid": "WPN_HUM_Shortbow_A_0"
+      }
+    },
+    {
+      "id": "efcb70b7-868b-4214-968a-e23f6ad586bc",
+      "name": "Camp Supply Sack",
+      "category": "Container",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Camp_Supply_Sack&oldid=416884",
+      "attributes": {
+        "mapping": "exact-template-guid",
+        "rights": "factual label/technical identifier subset; no wiki prose or images",
+        "uid": "CONT_GEN_CampSupplySack"
+      }
+    },
+    {
+      "id": "WPN_HUM_Dagger_A_0",
+      "name": "Dagger",
+      "category": "Weapon",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Equipment&oldid=405329",
+      "attributes": {
+        "mapping": "UID candidate; technical id not pinned on the category page",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "EQ_Shadowheart",
+      "name": "Shadowheart equipment set",
+      "category": "Equipment set",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Shadowheart&oldid=438521",
+      "attributes": {
+        "mapping": "equipment-set UID; not an item identity",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    },
+    {
+      "id": "EQ_Laezel",
+      "name": "Lae'zel equipment set",
+      "category": "Equipment set",
+      "description": "Original annotation: candidate label only; build, ownership and gameplay semantics remain unverified.",
+      "source": "https://bg3.wiki/w/index.php?title=Lae%27zel&oldid=409907",
+      "attributes": {
+        "mapping": "equipment-set UID; not an item identity",
+        "rights": "factual label/technical identifier subset; no wiki prose or images"
+      }
+    }
+  ]
+}
