@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.SuckerPunch;
 
 public sealed class SuckerPunchPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.5.0")
+    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.6.0")
     {
         Description = "Experimental Tsushima quantity/play-time editing with action previews and attributed wiki guides; Yōtei inspection.",
         Games =
@@ -30,6 +30,7 @@ public sealed class SuckerPunchPlugin : IGamePlugin
             "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
             "https://ghostfranchise.fandom.com/wiki/Shinto_Shrines?oldid=29432",
             "https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796",
+            "https://www.powerpyx.com/ghost-of-tsushima-wiki-strategy-guide/",
         ],
     };
 

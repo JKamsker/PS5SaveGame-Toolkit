@@ -1,7 +1,7 @@
 # Sucker Punch save plugin (`suckerpunch`)
 
 Titles: **PPSA02225** (Ghost of Tsushima, Director's Cut) and **PPSA26344** (Ghost of Yōtei).
-Version 0.5.0 is **Experimental**: Tsushima inventory and play-time edits pass conformance and exact byte-difference
+Version 0.6.0 is **Experimental**: Tsushima inventory and play-time edits pass conformance and exact byte-difference
 tests, but have not been tested in-game. Yōtei documents remain **read-only**. No sample bytes,
 extracted saves, or third-party implementation code are included in this plugin.
 
@@ -74,13 +74,37 @@ Still disabled for structural safety, rather than pending console approval:
   explicit Unknown ownership/equipped/progression relationships. Identifier presence is not treated as
   ownership, a loadout, a prerequisite, or an editable value. Raw record words remain read-only.
 * Inventory retains a visible raw-ID column alongside friendly reference labels, categories and mapping
-  confidence. Equipment and Techniques retain Unknown ownership/state. Lazy reference guides cover
-  resources, charms, armor, sword kits and techniques. The World tab provides 17 region-scoped Shinto
-  shrine references; discovered/completed/rewarded state is Unknown for every entry. Edits invalidate
-  raw block snapshots. Guide views are capped at 200 rows and report truncation if a larger pack is used.
+  confidence. Equipment uses the F8 `equipment/identifiers` collection with stable row IDs, server-side
+  text/category/state filtering, deterministic sorting and bounded pages; Techniques remains a small
+  eager table. Both retain Unknown ownership/state. Lazy reference guides cover resources, charms, armor,
+  sword kits and techniques. The Techniques tab adds an F9 read-only `GraphNode` over observed identifiers;
+  every item links back to its reference field, and no prerequisite edge is invented while the state is
+  unproven. The World tab adds an F9 external-link-first `MapNode` over 17 region-scoped Shinto shrine
+  references plus an eager text table for row navigation. It is a schematic list with no imported art or
+  coordinates: discovered/completed/rewarded state is Unknown for every entry, and the external PowerPyx
+  guide is link-only. Edits invalidate raw block snapshots. Guide views are capped at 200 rows and report
+  truncation if a larger pack is used.
 * Opening copies the input; exports and hex pages are isolated copies. No-op exports are byte-identical,
   including unknown data, console metadata and padding. Only the selected document's file is returned;
   sibling saves, backup slots and `param.sfo` are preserved.
+
+## Framework feature adoption
+
+| Feature | Status | Concrete adoption or reason |
+| --- | --- | --- |
+| F1 SaveDiff | Used | `fixtures.json` records the uncontrolled Tsushima generation pair; plugin-view decoding and bounded semantic paths are exercised by `TsushimaDifferentialTests`, while byte-span tests use `ByteDiffer`. No fixture embeds save bytes. |
+| F2 reference packs | Used | Embedded `suckerpunch.tsushima` v2.0.0 catalogs are loaded through `IReferenceContext`; per-record and UI descriptions carry attribution and the Sources panel exposes each dataset. |
+| F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. Images are intentionally absent because no icon licence is cleared; the SDK has no separate detail-cell node, and actions remain dedicated planned controls rather than blank table cells. |
+| F4 reference pickers | Used | Every catalog-backed inventory, equipment and technique ID is a read-only `ReferenceSpec` field with raw-ID fallback, category/description metadata and attribution. |
+| F5 structural edits | N/A | No safe add/remove/reorder writer exists: enclosing sizes, references, ownership and acquisition side effects are unproven, so a plugin-local structural substitute would risk data loss. |
+| F6 planned actions | Used | Existing resource/ammo target actions provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. |
+| F7 document groups | N/A | No controlled capture proves that `memory.dat`, `dis.dat`, `param.sfo` or a backup must change with a supported edit; the safe contract rewrites only the selected file. |
+| F8 queryable collections | Added this round | The 122-row equipment identifier view is now `equipment/identifiers`, with stable IDs, bounded pages, search, filters and deterministic sorting. Small inventory/technique/world views remain eager because they are below the paging threshold. |
+| F9 maps and graphs | Added this round | Techniques publish a validated read-only `GraphNode` with field targets and a text alternative; World publishes a validated external-link-first `MapNode` with row targets, Unknown statuses, and a schematic/list fallback. |
+| F10 exact numbers and nullable/union specs | N/A | Supported edits are fixed-width uint32 quantities and an observed float32 timer; no save field carries an exact JSON number lexeme, nullable value or union that this plugin could preserve. |
+| F11 shared codecs | N/A | Tsushima/Yōtei samples are fixed-size plaintext containers; no Kraken, Oodle or SQLite codec is involved. |
+| F12 SaveDiff traversal/decoder hooks | Pending #32 | The shared traversal and decoder-hook expansion is not on `main`; this plugin keeps the bounded F1 manifest and `PluginViewDecoder` coverage without a substitute. |
+| F13 inspect actions/picker filtering/duration | Pending #33 | Non-mutating inspect actions, browse-only picker behavior, richer catalog filtering and float-duration presentation are shared work not on `main`; no plugin-local substitute is added. |
 
 `CanEdit` is per document: a validated Tsushima container with the recognised inventory is writable;
 containers without its anchor can be inspected without edits. Yōtei and empty placeholders cannot edit.
@@ -287,6 +311,7 @@ quantity parser; no third-party code or new reference dataset was imported in th
 | `suckerpunch_sword_guide` | 41 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356) | CC-BY-SA-3.0 |
 | `suckerpunch_technique_guide` | 18 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271) | CC-BY-SA-3.0 |
 | `suckerpunch_world_guide` | 17 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Shinto_Shrines?oldid=29432) | CC-BY-SA-3.0 |
+| External collectible map link (no imported data) | 17 linked markers | [PowerPyx Tsushima guide](https://www.powerpyx.com/ghost-of-tsushima-wiki-strategy-guide/) | Link only; licence not asserted |
 
 Every row above is a separate dataset in embedded pack `suckerpunch.tsushima` v2.0.0, retrieved
 2026-10-28. Wiki-derived data and the adapted mappings retain
@@ -385,6 +410,10 @@ locked/malformed/ambiguous records, rollback/undo, non-zero padding, isolated re
 pack validity/attribution, unjoined guide state, F6 purity/scope/stale/forged plans, and Core one-step
 undo/redo plus semantic review. Production code depends only on the SDK and performs no I/O.
 New C# files stay below 300 physical lines; no hooks, build targets or repository tooling were added.
+Completion-round checks on 2026-10-28: **111 passed, 0 failed, 0 skipped** with the artifacts variable
+exported in the invocation. The API build passed with **0 warnings and 0 errors**. F1 fixture/decoder,
+F8 query-page/filter/sort/session, and F9 graph/map validation tests cover the new presentation paths;
+all existing exact-byte and no-op checks remain green.
 
 ## Open questions
 
@@ -396,9 +425,10 @@ New C# files stay below 300 physical lines; no hooks, build targets or repositor
 
 ## SDK requests
 
-None for this round: F2/F4 references and F6 planning are used directly. F8 is unnecessary for these
-small lazy guides (maximum 79 rows); larger imported guides are bounded to one 200-row page.
-Equipment/progression/world blockers require sample evidence rather than new SDK substitutes.
+None for this round: F2/F4 references and F6 planning are used directly, and F8 now serves the 122-row
+equipment identifier collection. The smaller inventory, technique and world lists remain bounded eager
+views; larger imported guides are bounded to one 200-row page. Equipment/progression/world blockers
+require sample evidence rather than new SDK substitutes.
 Float timers have no Duration display equivalent to `IntegerSpec`,
 so the timer is presented in seconds. A future metadata-edit contract/policy could clarify
 whether changing play time or difficulty should update `param.sfo SUBTITLE`; this plugin leaves it intact.
