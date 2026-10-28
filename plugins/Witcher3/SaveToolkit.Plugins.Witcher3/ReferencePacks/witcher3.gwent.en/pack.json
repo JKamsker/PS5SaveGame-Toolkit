@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "id": "witcher3.gwent.en",
+  "version": "1.0.0",
+  "title": "Witcher 3 Gwent community index catalog (English)",
+  "plugins": [
+    "witcher3"
+  ],
+  "titleIds": [
+    "PPSA04018"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "gwent",
+      "kind": "records",
+      "title": "Base, Hearts of Stone and Blood and Wine Gwent indices",
+      "files": [
+        {
+          "path": "gwent.json",
+          "sha256": "c10a6c670504d9600fc520f753210785b98aa1f7a759a782ca6e36738e27807e"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/vishalgupta-git/GwentTracker/blob/d8eab8c25c409be42a0ea7b43b901a43dfefed18/data/catalog",
+        "author": "Chris (rfvgyhn/gwent-tracker); vishalgupta-git/GwentTracker contributors; PS5 Save Game Toolkit contributors",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/vishalgupta-git/GwentTracker/blob/d8eab8c25c409be42a0ea7b43b901a43dfefed18/data/catalog/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Retained native indices, names, factions, types, acquisition/missable notes and tracker targets; expanded explicit aliases; annotated distinctions between tracker targets and legal limits. Added reference row/strength/ability annotations from same-revision card-stats.json. Omitted all flavor text, images, scripts and achievement-rule execution."
+      }
+    }
+  ]
+}

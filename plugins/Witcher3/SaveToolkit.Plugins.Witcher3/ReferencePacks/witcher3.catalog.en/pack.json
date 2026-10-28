@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "id": "witcher3.catalog.en",
+  "version": "1.0.0",
+  "title": "Witcher 3 wiki item and pre-overhaul ability catalog (English)",
+  "plugins": [
+    "witcher3"
+  ],
+  "titleIds": [
+    "PPSA04018"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "items",
+      "kind": "records",
+      "title": "Revision-pinned item names, categories and descriptions",
+      "files": [
+        {
+          "path": "items.json",
+          "sha256": "6feb7057b262e4d4c8975b7d639d19c0341c9d504d2e3ff8f8b3e3d7c59460b1"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://witcher.fandom.com/wiki/Category:The_Witcher_3_items",
+        "author": "Witcher Wiki contributors; PS5 Save Game Toolkit contributors (normalization and annotations)",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted exact wiki native IDs and names, normalized categories, adapted wiki-authored introductory descriptions and wrote short ability summaries. Every record pins a page revision. No artwork, game tooltips, script bodies, flavor text or legal write limits included. Derived data remains CC BY-SA 3.0. Retained wiki entries with unpublished native IDs as explicit wiki-entry reference keys; these are not save IDs."
+      }
+    },
+    {
+      "id": "abilities",
+      "kind": "records",
+      "title": "Pre-overhaul skills and Blood and Wine mutations",
+      "files": [
+        {
+          "path": "abilities.json",
+          "sha256": "8c717a5731a9b091794c8a86bdd93ba95f069fcf4228258860ce0d3b8e53ae35"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://witcher.fandom.com/wiki/The_Witcher_3_abilities_(obsolete)",
+        "author": "Witcher Wiki contributors; PS5 Save Game Toolkit contributors (normalization and annotations)",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted exact wiki native IDs and names, normalized categories, adapted wiki-authored introductory descriptions and wrote short ability summaries. Every record pins a page revision. No artwork, game tooltips, script bodies, flavor text or legal write limits included. Derived data remains CC BY-SA 3.0."
+      }
+    }
+  ]
+}

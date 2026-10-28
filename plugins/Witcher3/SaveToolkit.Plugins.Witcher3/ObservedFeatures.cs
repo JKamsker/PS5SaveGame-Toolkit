@@ -1,23 +1,29 @@
 using System.Security.Cryptography;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.Witcher3;
 
 /// <summary>Optional readers fail independently, preserving the raw explorer and original-image writer.</summary>
 internal sealed class ObservedFeatures
 {
-    private const int PageSize = 128;
+    private const int PageSize = 64;
     private readonly byte[] _data;
     private readonly IReadOnlyList<string> _names;
+    private readonly IReferenceCatalog? _abilities;
+    private readonly IReferenceCatalog? _gwent;
     public IReadOnlyList<AbilityArray> Abilities { get; } = [];
     public IReadOnlyList<GwentCard>? Cards { get; }
     public IReadOnlyList<string> Warnings { get; }
 
-    public ObservedFeatures(PlayerData? player, Sav3Tree tree, byte[] data, IReadOnlyList<string> names)
+    public ObservedFeatures(PlayerData? player, Sav3Tree tree, byte[] data, IReadOnlyList<string> names,
+        IReferenceCatalog? abilities = null, IReferenceCatalog? gwent = null)
     {
         _data = data;
         _names = names;
+        _abilities = abilities;
+        _gwent = gwent;
         var warnings = new List<string>();
         if (player is not null)
         {
@@ -39,7 +45,8 @@ internal sealed class ObservedFeatures
         .. (Cards is null ? new ViewNode[] { new TextNode("No supported Gwent collection was decoded.") } : [
             new StatsNode([new Stat("Gwent indices", Cards.Count.ToString()), new Stat("Saved copies", Cards.Sum(c => (long)c.Copies).ToString())]),
             SectionNode.Lazy("Gwent collection (native indices)", "gwent/0", Cards.Count.ToString()),
-            new TextNode("Collection pairs stop at SBSelectedDeckIndex. Deck contents, achievements and missing-card expectations are not inferred."),
+            new TextNode("Collection pairs stop at SBSelectedDeckIndex. Catalog targets are community expectations, not legal limits or achievement guarantees. " +
+                "Not recorded does not prove a card is obtainable in this build. Deck contents remain separate."),
         ]),
     ];
 
@@ -49,24 +56,31 @@ internal sealed class ObservedFeatures
         if (parts.Length == 3 && parts[0] == "ability" && int.TryParse(parts[2], out var start) &&
             Abilities.SingleOrDefault(a => a.Name == parts[1]) is { } array && start >= 0 && start <= array.Entries.Count)
         {
-            return [new TableNode([new("id", "Saved identity"), new("properties", "Saved properties (read-only)")],
+            return [new TableNode([new("id", "Saved identity"), new("name", "Reference name"), new("properties", "Saved properties (read-only)")],
                 array.Entries.Skip(start).Take(PageSize).Select(entry => new TableRow(entry.Id, new Dictionary<string, ViewNode> {
                     ["id"] = new TextNode(entry.Id),
+                    ["name"] = ReferenceCell(_abilities?.Find(entry.Id), entry.Id),
                     ["properties"] = new SectionNode("Encoded properties", entry.Record.Properties.Select(p => (ViewNode)new TextNode($"{p.Name}: {Value(p)}")).ToArray()) { Collapsed = true },
                 })).ToArray()) { Title = array.Name }, .. Next($"ability/{array.Name}", start, array.Entries.Count)];
         }
 
         if (parts.Length == 2 && parts[0] == "gwent" && int.TryParse(parts[1], out start) && Cards is { } cards && start >= 0 && start <= cards.Count)
         {
-            return [new TableNode([new("index", "Native card index"), new("copies", "Saved copies"), new("kind", "Collection group")],
+            return [new TableNode([new("index", "Native card index"), new("name", "Reference name"), new("copies", "Saved copies"), new("kind", "Collection group")],
                 cards.Skip(start).Take(PageSize).Select(card => new TableRow(card.Index.ToString(), new Dictionary<string, ViewNode> {
                     ["index"] = new TextNode(card.Index.ToString()), ["copies"] = new TextNode(card.Copies.ToString()),
+                    ["name"] = ReferenceCell(_gwent?.Find(card.Index.ToString(System.Globalization.CultureInfo.InvariantCulture)), card.Index.ToString()),
                     ["kind"] = new TextNode(card.Leader ? "Leader collection" : "Ordinary collection"),
                 })).ToArray()), .. Next("gwent", start, cards.Count)];
         }
 
         throw new KeyNotFoundException($"Unknown feature page '{lazyId}'.");
     }
+
+    private static ViewNode ReferenceCell(ReferenceRecord? record, string raw) => record is null
+        ? new TextNode($"{raw} (unmapped; source: save-native identity)")
+        : new SectionNode(record.Name, [new TextNode(record.Category ?? "Reference"), new TextNode(record.Description ?? ""),
+            new TextNode(record.AttributionText)]) { Collapsed = true, Badge = "Inferred mapping" };
 
     private string Value(TaggedProperty property)
     {

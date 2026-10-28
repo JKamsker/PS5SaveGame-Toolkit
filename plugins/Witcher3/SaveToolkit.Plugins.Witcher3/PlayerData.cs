@@ -6,6 +6,7 @@ internal sealed record PlayerData(PlayerProgress Progress, PlayerInventory? Inve
 {
     public string EntityId { get; init; } = "";
     public Sav3Node? AbilityManager { get; init; }
+    public Sav3Node? Entity { get; init; }
     public static PlayerData? Read(WitcherContainer container, Sav3Directory directory, Sav3Tree tree)
     {
         var data = container.Payload;
@@ -69,6 +70,7 @@ internal sealed record PlayerData(PlayerProgress Progress, PlayerInventory? Inve
         return new PlayerData(progress, inventory) {
             EntityId = Convert.ToHexString(playerId.Span),
             AbilityManager = abilities.Length == 1 ? abilities[0] : null,
+            Entity = entities[0],
         };
 
         IEnumerable<Sav3Node> Children(Sav3Node node) => node.Children.Select(id => tree.Nodes[id]);

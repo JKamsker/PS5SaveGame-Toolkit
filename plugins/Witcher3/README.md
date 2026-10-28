@@ -1,16 +1,19 @@
 # The Witcher 3: Wild Hunt – Complete Edition (`witcher3`)
 
-Title: **PPSA04018**. Version: **0.3.0**. Maturity: **Experimental**.
+Title: **PPSA04018**. Version: **0.4.0**. Maturity: **Experimental**.
 Supports player level, unspent XP, available ability points, Crowns and inventory quantity edits for the
 supplied PS5 SAV3 schema **64 / 23 / 163**. The preserving writer passes edit conformance and sample
 round trips; **edited saves have not been loaded on a console**. When the outer parser recognizes the
 container/directory, other SAV3 versions and saves without an unambiguous player identity retain the
 read-only explorer; arbitrary future formats are not guaranteed to open. Stable requires human in-game testing.
 
-This round adds attributed item names/categories/descriptions, searchable inventory details, a
-catalog lookup picker, and read-only saved ability/Gwent collections. See [EVIDENCE.md](EVIDENCE.md)
-for the compatibility matrix, identity-aligned F1 comparisons and remaining capture gates.
-These deliver the requested foundations and **parts of Phases 1 and 2**; neither whole phase is complete.
+Round 2 replaces the 18-item starter pack with **4,011 item references, 107 abilities/mutations and
+225 Gwent indices**, with revision-pinned CC BY-SA attribution and retained MIT notices. It adds
+full-catalog browsing, named saved ability/card joins, community Gwent acquisition/copy advice, and
+read-only recipes, journal paths and facts. See [CATALOG.md](CATALOG.md) for coverage and licensing;
+[EVIDENCE.md](EVIDENCE.md) records sample evidence and remaining gates. The Phase 1 rich-read slice
+is implemented for supplied fixtures; broader compatibility metadata still needs owner captures.
+Phases 2–4 remain partial. No new gameplay write class or bulk action is enabled.
 
 ## File roles
 
@@ -142,11 +145,11 @@ stable ID, so the two views cannot diverge.
 
 ## Views
 
-Tabs provide overview, player progression, inventory, abilities/Gwent, variable tree, MANU dictionary
-and container details. F8 inventory queries search the complete model by label, native ID, category,
+Tabs provide overview, player progression, inventory, abilities/Gwent, reference catalogs, saved
+recipes/journal/facts, variable tree, MANU dictionary and container details. F8 inventory queries search the complete model by label, native ID, category,
 slot and instance ID, with exact name/ID/category/slot/equipped filters, numeric quantity/durability
 sorting and deterministic instance-ID tie breaks. Pages contain at most 200 rows; raw/ability/Gwent
-lists page 128 entries. Chunk tables are bounded to 4096 rows. Existing quantity IDs remain
+lists page 64 ability/Gwent entries or 128 raw entries. Chunk tables are bounded to 4096 rows. Existing quantity IDs remain
 `inventory/<instance>/quantity`, including the Crowns summary; raw explorer IDs use input offsets.
 
 F3 detail cells show raw durability (including -1), saved flags/slot, unknown prefix data, raw
@@ -155,30 +158,55 @@ ordinary equipment: internal appearance and scabbard records remain visible. F4'
 item** picker browses the pinned `items` catalog and returns attributed descriptions without modifying
 the save. Replacement, equipping, add/remove and refill actions are deliberately absent.
 
-F2 embeds 18 reviewed English mappings in `witcher3.starter.en` under CC BY-SA 3.0. Each has a name,
-category, concise description and source URL. The original `Open(file)` overload uses an empty context
-and retains raw IDs; the host calls `Open(file, references)` to resolve packs. Unknown/modded IDs stay
-unmapped. Only build-agnostic packs or packs explicitly tagged `sav3-64.23.163` are selected for the
-supported schema; this token identifies the tuple, **not a known PS5 patch version**. Imported packs
-remain pinned per document. Optional pack images show their separate asset attribution; no icons or
-CD PROJEKT resources are embedded. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+F2 embeds `witcher3.catalog.en` (CC BY-SA 3.0 items/abilities) and `witcher3.gwent.en` (MIT cards).
+The item catalog contains 3,670 explicit native keys and 341 additional wiki references with unpublished
+native IDs, explicitly marked with non-native `wiki-entry` keys. Includes base/HoS/B&W and documented
+NG+ variants/cut content; not a promise of every internal or current-patch PS5 ID. The pre-overhaul
+ability catalog avoids the 2026 skill redesign. Every record includes a name, category, description,
+confidence and pinned source. See [CATALOG.md](CATALOG.md) for extraction, crosswalks and gaps.
+
+F8 catalog and saved-data queries search the complete selected dataset, filter and sort with stable
+row keys and at most 200 returned rows. Facts and journal path details page 64 entries. F4 catalog
+pickers inspect references without edits. Inventory, skill/card and recipe joins show attribution;
+Sources exposes dataset licenses and modifications. Wiki-only keys never join inventory native IDs.
+The original `Open(file)` uses an empty context and retains raw IDs; the host supplies pinned packs
+through `Open(file, references)`. Unknown/modded IDs stay unmapped. Compatible packs are build-agnostic
+or explicitly tagged `sav3-64.23.163`; the tuple is not a known PS5 patch. No icons or CD PROJEKT
+resources are embedded. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 The bounded ability reader reaches the player's `W3PlayerAbilityManager` through its owning Entity
 and consumes each observed tagged array exactly: 102 skills, 16 skill slots, 4 mutagen slots,
 13 mutations, 6 base stats and 14 resistance entries. Sixteen level-1 core definitions are not sixteen
 purchased skills. Entries without native keys retain explicitly unnamed slot labels, with no invented
-skill identity. Saved localization/icon keys remain identifiers. Unknown nested values retain hashes
+skill identity. Ninety-five named skills and 12 mutations join the reference catalog; core bookkeeping
+`S_Perk_08` and sentinels remain unmapped. Saved localization/icon keys remain identifiers. Unknown nested values retain hashes
 and lengths; no skill/stat/mutation edits are enabled.
 
 The Gwent reader validates declared ordinary/leader collection counts and each bounded pair, stops at
 the manager's `SBSelectedDeckIndex` boundary and excludes deck nodes. All samples contain 27 indices /
-35 copies, including 4 leaders. Valid zero-length collections are supported. Card names, decks,
-achievement eligibility and missing-card expectations are unresolved. Optional reader failures show
-warnings and leave the existing explorer/writer available.
+35 copies, including 4 leaders. All observed indices join the catalog; valid empty collections work.
+The tracker distinguishes saved copies from community copy expectations and acquisition/missable
+advice. Aliases remain separate native indices. Not recorded means availability unknown; deck contents,
+actual quest cutoffs and achievement eligibility remain unresolved. No grant/deck/count edits exist.
+
+Recipes read two explicit counted `array:2,0,CName` player properties, validating exact length, unique
+names and indices: 54 crafting schematics and 14 alchemy recipes in every fixture. Missing arrays do
+not imply an empty known-recipe list. Unknown IDs remain raw rather than guessed from display names.
+Journal reads exactly counted `SJournalEntryStatus` records and GUID/resource/flags path triples,
+including empty-resource GUID-only descendants. It displays native status/unread fields without
+inventing localized quest names. Counts are 170, 181, 192 and 198 across the four snapshots.
+
+Facts validate the structurally reached SS stream, nested tuple, `SXAP`/`SBDF`, declared count, compact
+narrow/wide name lengths, opaque uint16 words, counted ten-byte entries and exact `EBDF` consumption.
+Counts are 429, 611, 614 and 617. Entries retain int16 value and exact uint32 time/expiry bits; no sum
+or timestamp becomes quest completion. Some bounded wide-name payloads contain control bytes/invalid
+surrogates: their bytes are retained and displayed through explicit hash identities. Their meaning
+is Unknown. Later saves have 183 nonzero opaque words. No fact or journal write is enabled.
+Optional reader failures show independent warnings and preserve the existing explorer/writer.
 
 The raw explorer remains read-only and shows the **input image**, while Player/Inventory show pending
 edits. It decodes scalar bool/integer/finite float/double, CName, GUID and validated short ASCII strings.
-Other handles/arrays, ROTS/SBDF, unsupported strings and unknown remainder blocks remain opaque. No
+Other handles/arrays, ROTS, unsupported strings and unknown remainder blocks remain opaque. No
 SAVY signature is assumed. Unsupported inventory tails are retained without inventory controls.
 
 ## Checksums and remaining integrity limits
@@ -226,11 +254,12 @@ Tests cover:
 
 Missing samples skip via `SampleSaves`; all synthetic tests remain runnable. No sample data is committed.
 
-Validation for this round: **64 plugin tests passed, 0 failed, 0 skipped**, with the artifacts variable
-exported in the same command. Full API build: **zero warnings/errors**. New coverage includes all
-ability counts, bounded empty/corrupt Gwent groups, F1 identity alignment, exact F2 pack validity and
-joins, F3 provenance/detail cells, F4 unknown-ID rejection, F8 search beyond row 128, numeric sorting,
-deterministic pages, missing-pack fallback and atomic zero-quantity rejection. Missing-sample behavior
+Validation for round 2: **79 plugin tests passed, 0 failed, 0 skipped**, with the artifacts variable
+exported in the same command. Full API build: **zero warnings/errors**. Round-2 coverage audits every
+catalog record and source pin, unknown native-ID distinctions, ability/card sample joins, full-catalog
+paging/search, exact recipe/fact/journal counts, bit preservation, narrow/wide encoding vectors,
+corrupt lengths/counts/links, independent reader fallback and byte-identical sample no-op exports.
+Existing conformance, preserving-write, F1, inventory paging and undo coverage still passes. Missing-sample behavior
 continues to use `SampleSaves`; no absent-sample run is counted as validation here.
 
 ```powershell
@@ -242,7 +271,7 @@ dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 
 Console testing is outstanding. Character edits do not implement level-up rewards/dependencies.
 Higher-level/paragon schemas, absent/new inventory stacks, wider money encodings, additional component
-prefixes, native inventory extensions, generic saved handles/arrays, ROTS/SBDF, RB word semantics and
+prefixes, native inventory extensions, generic saved handles/arrays, ROTS, opaque fact names/words, RB semantics and
 other string encodings need further research and samples. Unsupported data stays preserved and opaque.
 
 ## Sources and attribution
@@ -252,7 +281,9 @@ text; no downloaded editor/script was run. The plugin is independently written b
 
 | Dataset / code | Source / author | License / notices | Modifications and UI provenance |
 | --- | --- | --- | --- |
-| 18 item labels, categories and descriptions | [Witcher Wiki contributors](https://witcher.fandom.com/wiki/Category:The_Witcher_3_items), individual article in each record; retrieved 2026-10-28 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); [data.source.md](SaveToolkit.Plugins.Witcher3/ReferencePacks/witcher3.starter.en/data.source.md), [third-party notice](THIRD-PARTY-NOTICES.md); [Fandom policy](https://www.fandom.com/licensing) | Selected exact IDs and factual labels; normalized categories; wrote short uncertainty-aware descriptions. Source/license in inventory cells, lookup results and Sources panel. No artwork or creative game text. |
+| 4,011 item references and 107 abilities/mutations | [Witcher Wiki contributors](https://witcher.fandom.com/wiki/Category:The_Witcher_3_items); each record pins a page revision; 2026-10-28 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), [sidecar](SaveToolkit.Plugins.Witcher3/ReferencePacks/witcher3.catalog.en/data.source.md), [source index](SaveToolkit.Plugins.Witcher3/ReferencePacks/witcher3.catalog.en/source-index.json), [Fandom policy](https://www.fandom.com/licensing) | Normalized labels/categories, adapted wiki introductions and skill concepts, retained explicit unknown-ID references. Attribution in rich cells, pickers and Sources. Share-alike retained; [methodology](CATALOG.md). |
+| 225 Gwent indices, source/copy/missable advice and reference stats; facts framing research | [GwentTracker at d8eab8c](https://github.com/vishalgupta-git/GwentTracker/tree/d8eab8c25c409be42a0ea7b43b901a43dfefed18/data), Chris and Vishal Gupta | MIT; [catalog notice](GwentCatalog-LICENSE.txt), [project notice](GwentTracker-LICENSE.txt), [sidecar](SaveToolkit.Plugins.Witcher3/ReferencePacks/witcher3.gwent.en/data.source.md) | Expanded explicit aliases, normalized descriptions, separated tracker expectations from legal limits. Source in card cells/catalog/pickers/Sources. |
+| Journal GUID/resource/status and facts research | [w3-quest-tracker format notes, 6078f8f](https://github.com/dodojesuslol/w3-quest-tracker/blob/6078f8f64a1ede3a304452bfe3cff710ae1d554e/docs/save-format.md), dodojesuslol | MIT; [notice](QuestTracker-LICENSE.txt) | Independent bounded PS5 readers; save-native provenance. No PC compatibility or completion heuristics adopted. |
 | SAV3 framing/primitive layout adaptation | [Atvaark/W3SavegameEditor](https://github.com/Atvaark/W3SavegameEditor/tree/cff905189d565606aed9058b2804eb4c5ee9f540/W3SavegameEditor.Core) | MIT, [notice](W3SavegameEditor-LICENSE.txt) | Bounded parser and preserving writer; stored names have save-native provenance. |
 | Native inventory/tagged property research and layout adaptation | [cahian converter](https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter/tree/7ae8b6fe71c4b36e571246ad25629d03c7ec8219/w3save) | MIT, [notice](SaveConverter-LICENSE.txt) | Independently bounded PS5 readers; retained raw attributes/flags/prefixes; no PC schema conversion. |
 | Raw LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT, existing managed package | No copied source or reference dataset. |

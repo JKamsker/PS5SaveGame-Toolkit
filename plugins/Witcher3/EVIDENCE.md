@@ -83,11 +83,11 @@ does not enumerate F8 collections, so the native hook is exercised through the s
 
 ## Remaining implementation and owner checklist
 
-Phase 1 still needs typed recipes, journal resource/GUID/status joins and exactly consumed facts
-including opaque words/time entries. They remain in the preserving raw explorer; prior planning
-observations are not claimed as implemented readers. Phase 2 still needs controlled durability/stack
-rules and actual stash/Roach identity joins. Phases 3–6 write dependencies remain open. The current
-pack intentionally covers 18 reviewed IDs, not a comprehensive installed-game catalog.
+Round 2 implements the remaining observed Phase 1 recipe/journal/facts readers described below.
+Phase 1's broader compatibility matrix still needs exact owner metadata and additional fixture classes.
+Phase 2 needs controlled durability/stack rules and actual stash/Roach identity joins. Phases 3–6
+write dependencies remain open. The catalogs cover the complete reviewed wiki/community snapshot,
+with unpublished native IDs explicit; this is not an installed-game database.
 
 For every capture, supply title ID, console patch/version, outer/nested tuple if available, DLC list,
 NG/NG+, mods, the complete decrypted spare slot and companions, plus an exact action log. Capture
@@ -110,3 +110,53 @@ independent before/after pairs (and a save→reload→save control pair):
 
 No story write is enabled. Any later story preset requires its own exact branch/objective pair plus
 quest continuation and world revisit; a parseable file is insufficient evidence.
+
+## Round 2 — catalogs and remaining observed rich reads
+
+Version 0.4.0 replaces the starter catalog with 4,011 item references (3,670 native keys and 341
+explicit wiki-only keys), 107 named abilities/mutations and 225 Gwent native indices. See
+[CATALOG.md](CATALOG.md) for extraction, pinned revisions/commits, share-alike/MIT terms and exact
+coverage limits. All 95 named skill definitions and all 27 saved Gwent indices join in all eight
+fixtures. Bookkeeping/default/sentinel identities remain raw. Wiki-only keys never become native IDs.
+
+F2/F3/F4/F8 expose complete catalogs, attributed descriptions and read-only lookup pickers. Gwent
+shows saved copies separately from community copy targets, acquisition and missable advice; aliases
+are separate indices. Missing records do not prove obtainability or achievement eligibility. Three
+unmapped numeric stats entries (26/27/28) remain unnamed; no sampled card index is unresolved.
+
+Independent scratch Python inspection and the new C# readers agree on these counts for the four
+primary snapshots, with identical results on each backup twin:
+
+| Primary suffix | Crafting / alchemy recipes | Journal entries | Facts | Nonzero opaque fact words |
+| --- | --- | ---: | ---: | ---: |
+| `313c5b3` | 54 / 14 | 170 | 429 | 0 |
+| `317a3e7` | 54 / 14 | 181 | 611 | 183 |
+| `31c45eb` | 54 / 14 | 192 | 614 | 183 |
+| `31c94f5` | 54 / 14 | 198 | 617 | 183 |
+
+- Recipes: player-owned Entity `craftingSchematics` and `alchemyRecipes`, explicit counted
+  `array:2,0,CName`; exact size, unique valid dictionary indices. Absent arrays are unavailable,
+  not an inferred empty list. No recipe initialization/grant dependencies are established.
+- Journal: root `CJournalManager` → counted `JActiveEntries` → `SJournalEntryStatus`. Each path
+  consumes GUID/resource/flags triples; native status enum and unread bool are validated. Empty
+  resources are present on GUID-only descendants and retained in the full path. Other entry data,
+  including advanced-info payloads, remains in the raw image. Path hashes are stable row identities;
+  no GUID-to-localized-title or completion claim is made.
+- Facts: root `facts` → unique SS → matching SXAP tuple → SBDF count → compact-length names,
+  opaque uint16, entry count, ten-byte int16/uint32/uint32 entries → exact EBDF end. Time and expiry
+  remain exact bits, including nonfinite synthetic vectors. Some bounded wide-name payloads contain
+  controls/invalid surrogates; their meaning is Unknown. Their original bytes are retained and hashed,
+  never normalized into invented names. A positive entry or sum is not interpreted as quest completion.
+
+These are independent optional projections. Unsupported/corrupt readers warn separately and leave
+raw data and the existing preserving writer available. Queries return at most 200 rows; fact-entry
+and journal-path detail tables page 64 rows. No new writer, bulk preset or plugin-local transaction
+mechanism was added. Any later bulk action must use F6 planning and existing evidence gates.
+
+Validation: **79 plugin tests passed, 0 failed, 0 skipped** with `SAVETOOLKIT_ARTIFACTS` exported in
+the test command; full API build **0 warnings / 0 errors**. New coverage audits every catalog record,
+licenses/pins/unknown keys, full bounded paging, friendly joins, exact sample counts, unchanged no-op
+exports, malformed recipe indices/counts, facts markers/counts/encodings, journal strings/status/bools,
+opaque name preservation and independent fallback. Existing edit conformance and byte-preservation
+tests still pass. No console was accessed. The owner checklist above remains required for new writes
+and for approving Stable. No blocking SDK request; the earlier F1 CLI collection visitor request remains.

@@ -51,7 +51,7 @@ public sealed class WitcherRichSampleTests
         Assert.Empty(store.LoadErrors);
         var references = store.Pin(plugin, "PPSA04018");
         var catalog = Assert.IsAssignableFrom<SaveToolkit.Sdk.References.IReferenceCatalog>(references.Catalog("items"));
-        Assert.Equal(18, catalog.Count);
+        Assert.Equal(4011, catalog.Count);
         var file = SampleSaves.Load("PPSA04018").AllDiskFiles.First(f => f.FileName.StartsWith("Manual.", StringComparison.Ordinal) && f.FileName.EndsWith(".sav", StringComparison.Ordinal));
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("witcher-rich", file, plugin, document, references: references);
@@ -80,7 +80,10 @@ public sealed class WitcherRichSampleTests
     {
         var plugin = new Witcher3Plugin();
         var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
-        var mapped = context.Catalog("items")!.Search(new SaveToolkit.Sdk.References.ReferenceQuery { Limit = 200 }).Items;
+        string[] starterIds = ["Bread", "Bottled water", "Crowns", "Torch", "Long Steel Sword", "Witcher Silver Sword",
+            "Starting Armor", "Starting Boots", "Starting Pants", "Starting Gloves", "Bodkin Bolt", "Wolf Hour", "Tawny Owl 1",
+            "q001_letter_from_yenn", "Monstrous eye", "Monstrous claw", "Venom extract", "Ghoul blood"];
+        var mapped = starterIds.Select(id => context.Catalog("items")!.Find(id)!);
         var observed = new HashSet<string>(StringComparer.Ordinal);
         foreach (var file in SampleSaves.Load("PPSA04018").AllDiskFiles.Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)))
         {
