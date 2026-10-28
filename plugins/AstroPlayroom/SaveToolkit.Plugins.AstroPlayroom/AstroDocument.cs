@@ -35,6 +35,7 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
         _locations = new AstroLocations(_schema, _references);
         _spatial = new AstroSpatialViews(_schema, _fields, _references, _locations, Current);
         _collections = new AstroCollectionBrowser(_schema, _locations, Current, CatalogueLabel,
+            CatalogueReference,
             () => AstroFields.Coins(_fields) is { } coins
                 ? Current(coins).AsInt64() : null);
         Register(allocation.Root);
@@ -102,6 +103,9 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
         AstroPlanning.Plan(actionId, parameters, scope, _schema, _fields, Current, _locations);
+
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        _references.Handles(actionId) ? _references.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters,
         ActionScope scope, ActionPlan plan) =>
@@ -213,6 +217,10 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
 
     private FieldNode CatalogueLabel(string id, string label, string value, string description, Confidence confidence) =>
         Field(id, label, new TextSpec(), () => FieldValue.Of(value)) with
+        { Description = description, Confidence = confidence };
+
+    private FieldNode CatalogueReference(string id, string label, string value, string description, Confidence confidence) =>
+        Field(id, label, new ReferenceSpec(AstroReferences.Collectibles), () => FieldValue.Of(value)) with
         { Description = description, Confidence = confidence };
 
     private TableNode Table(params string[] groups) => new([

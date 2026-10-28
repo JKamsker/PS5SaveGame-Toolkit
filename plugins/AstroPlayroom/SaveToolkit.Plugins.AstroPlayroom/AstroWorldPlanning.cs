@@ -16,11 +16,7 @@ internal static class AstroWorldPlanning
             .DistinctBy(world => world.Key, StringComparer.Ordinal).OrderBy(world => world.Key, StringComparer.Ordinal)
             .ToArray();
         if (worlds.Length == 0) return [];
-        // F6's PlannedActionButton currently omits valueId/actionId on FieldControl, disabling
-        // ReferenceSpec parameters in the browser. Keep the small candidate list usable until
-        // the central fix; see README SDK requests for the exact reproduction.
-        var spec = new EnumSpec(worlds.Select(world => new EnumOption(world.Key, world.Name + " (Inferred)")
-            { Description = world.AttributionText }).ToArray());
+        var spec = new ReferenceSpec(AstroReferences.Worlds) { Assess = locations.AssessWorld };
         return [new ActionNode(ActionId, "Collect existing records in candidate world")
         {
             SupportsPlanning = true,

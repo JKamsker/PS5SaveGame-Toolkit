@@ -1,12 +1,48 @@
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.AstroPlayroom.Tests;
 
 public sealed class AstroCatalogueSessionTests
 {
+    [Fact]
+    public void CatalogueInspectionIsReadOnlyAndReferencePickerSupportsBrowseFilteringAndSorting()
+    {
+        var (plugin, _, context) = AstroCatalogueTestData.References();
+        var file = AstroTestData.Samples()[0];
+        var document = plugin.Open(file, context);
+        using var session = new DocumentSession("astro-inspect", Assert.IsType<DiskSaveFile>(file), plugin, document, references: context);
+        _ = session.BuildView();
+        var catalogue = AstroCatalogueTestData.Catalogue(document);
+        var section = Assert.Single(catalogue.Children.OfType<SectionNode>(), node => node.Title == "All saved collectibles");
+        var action = Assert.Single(section.Children.OfType<ActionNode>(), node => node.ActionId == "collectibles/inspect");
+        Assert.False(action.Mutates);
+        var parameter = Assert.Single(action.Parameters);
+        var spec = Assert.IsType<ReferenceSpec>(parameter.Spec);
+        Assert.True(spec.ReadOnly);
+        Assert.Equal(file.ReadAllBytes(), AstroTestData.Output(document));
+
+        var revision = session.State.Revision;
+        var result = session.InvokeAction(action.ActionId, new Dictionary<string, System.Text.Json.JsonElement>(), revision);
+        Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
+        Assert.Contains("Inspection only", result.Message, StringComparison.Ordinal);
+        Assert.Equal(revision, session.State.Revision);
+        Assert.False(session.State.CanUndo);
+        Assert.Equal(file.ReadAllBytes(), AstroTestData.Output(document));
+
+        var page = session.SearchReferences(parameter.ValueId,
+            new ReferenceQuery { Category = "Memory Meadow", SortBy = ReferenceSortKey.Name, Limit = 200 },
+            revision: session.State.Revision, actionId: action.ActionId);
+        Assert.Equal(25, page.Total);
+        Assert.NotEmpty(page.Items);
+        Assert.Equal(page.Items.OrderBy(item => item.Label, StringComparer.OrdinalIgnoreCase).ThenBy(item => item.RawId, StringComparer.Ordinal), page.Items);
+        Assert.All(page.Items, item => Assert.Equal("Memory Meadow", item.Category));
+    }
+
     [Fact]
     public void RawEditUndoAndRedoRefreshCatalogueStatusCountsAndDetailsWithoutChangingCinematics()
     {

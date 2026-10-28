@@ -18,7 +18,7 @@ public sealed class AstroDifferentialEvidenceTests
         Assert.True(verification.Passed, string.Join('\n', verification.Expectations.Where(e => !e.Passed).Select(e => e.Message)));
         Assert.Equal(96, verification.Expectations.Count);
         Assert.Equal(27999, verification.Report.Totals.ChangedBytes);
-        Assert.Equal(94, verification.Report.Totals.SemanticChanges);
+        Assert.Equal(107, verification.Report.Totals.SemanticChanges);
         Assert.Equal(0, verification.Report.Totals.SemanticErrors);
         Assert.Equal(1, verification.Report.Totals.MirrorsMain);
         Assert.Empty(verification.Report.Before.Twins.Mismatches);

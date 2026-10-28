@@ -3,6 +3,7 @@ using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -15,7 +16,7 @@ public sealed class AstroQueryTests
     private const string MemoryWorld = "World/MEMORY_HEAVEN";
 
     [Fact]
-    public void WorldChoiceFallbackIncludesOnlyAttributedEligibleWorldsAndRejectsStageOrUnknownIdsThroughCore()
+    public void WorldReferenceChoiceIncludesOnlyMappedWorldsAndRejectsStageOrUnknownIdsThroughCore()
     {
         var (plugin, _, context) = AstroCatalogueTestData.References();
         var file = AstroTestData.Samples()[0];
@@ -24,10 +25,13 @@ public sealed class AstroQueryTests
         _ = session.BuildView();
         var action = Assert.Single(AstroCatalogueTestData.Catalogue(document).Children.OfType<ActionNode>(), action => action.ActionId == WorldAction);
         var parameter = Assert.Single(action.Parameters);
-        var options = Assert.IsType<EnumSpec>(parameter.Spec).Options;
-        Assert.Equal("Memory Meadow (Inferred)", Assert.Single(options, option => option.Value == MemoryWorld).Label);
+        var spec = Assert.IsType<ReferenceSpec>(parameter.Spec);
+        Assert.Equal("astro_worlds", spec.CatalogId);
         Assert.Contains("CC-BY-SA-3.0", parameter.Description, StringComparison.Ordinal);
-        Assert.DoesNotContain(options, option => option.Value == MemoryWorld + "/WEATHER");
+        var candidates = session.SearchReferences("world", new ReferenceQuery { Limit = 200 }, actionId: WorldAction);
+        Assert.Contains(candidates.Items, candidate => candidate.RawId == MemoryWorld && candidate.Eligibility.Selectable);
+        Assert.Contains(candidates.Items, candidate => !candidate.Eligibility.Selectable);
+        Assert.DoesNotContain(candidates.Items, candidate => candidate.RawId == MemoryWorld + "/WEATHER" && candidate.Eligibility.Selectable);
         foreach (var id in new[] { MemoryWorld + "/WEATHER", "World/Unknown" })
         {
             var preview = session.PlanAction(WorldAction, new Dictionary<string, JsonElement> { ["world"] = JsonSerializer.SerializeToElement(id) });
