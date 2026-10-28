@@ -1,6 +1,6 @@
 # Ratchet & Clank: Rift Apart (`insomniac`)
 
-Version **0.6.0**, **Experimental**, for decrypted **PPSA01474** saves. Phase 1 of
+Version **0.7.0**, **Experimental**, for decrypted **PPSA01474** saves. Phase 1 of
 [#20](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/20) is implemented;
 Round 2 delivers Phase 2's read-only weapons, armour, upgrades, collectibles and
 world views. Controlled ownership/equipment, upgrade-node and precise pickup joins
@@ -42,7 +42,10 @@ See [COMPLETION-AUDIT.md](COMPLETION-AUDIT.md) for every requirement and accepta
   or exact gold-bolt hash joins are invented.
   F9 lists all 64 spybot storage bits with links to exact read-only controls and an
   attributed external planet-map index. All pickup statuses stay Unknown; bit set/clear
-  is explicit in each description. No community artwork or coordinates are embedded.
+  is explicit in each description. A separate **Community guide maps** section lazily
+  opens nine regional F9 maps with 403 attributed Guides4Gamers markers, categories
+  and pixel coordinates. These reference maps have no save-bit joins: every pickup
+  status is Unknown. Publisher backgrounds, icons, screenshots and prose are excluded.
 - **Inventory:** 27 sequentially bounded TVNI containers per measured gameplay save,
   lazy F8 record tables, five F4 schema type joins, GUID/config byte-token candidates,
   candidate counts and candidate per-weapon XP/checkpoint-ammo/loaded-ammo state.
@@ -100,6 +103,7 @@ See [EVIDENCE.md](EVIDENCE.md) for the measured layouts and F1 comparisons.
 | Armour collection and spybot labels | Inferred schema ordinals; base armour bit population matches LevelVanityPickups and spybot bit-to-location counts match LevelRYNOPlans in all 36 primary records |
 | Mission/dimension states | Verified stored fields; mission-code joins use current-save CRC identities; viewed entries are not completion proof |
 | Raw DDL semantics, mission/planet/collectible joins | Unknown unless separately described; stored bytes remain available |
+| Community guide coordinates | Inferred factual reference locations in source map pixels; all pickup states Unknown; no PS5 fog/world transform or save-bit join |
 | Fog set-bit count | Inferred interpretation of byte population counts, including padding; not an exploration percentage |
 
 ## Integrity and writing
@@ -160,18 +164,18 @@ The additional F6 action exposes the same career atom, rather than a new storage
 | Feature | Adoption | Where / concrete applicability |
 | --- | --- | --- |
 | F1 SaveDiff | **Used** | RiftEvidenceDecoder and differential/write/planning tests retain DDL identities, widths, generations and identical backup collapse; no private save bytes committed. |
-| F2 reference packs | **Used** | Five embedded catalogs, immutable Open context, source sidecars, per-record UI provenance and Sources-panel attribution; no plugin I/O. |
+| F2 reference packs | **Used** | Six embedded catalogs across two packs, immutable Open context, source sidecars, per-record UI provenance and Sources-panel attribution; no plugin I/O. |
 | F3 rich cells | **Used; extended this round** | Inventory lazy detail cells and confidence/warnings; F9 diagrams expand from F8 detail cells. No image cells because no safely licensed game art is supplied. |
 | F4 reference pickers | **Used; extended this round** | Four loadout paths plus arsenal config paths, armour/world identity candidates and raw inventory type IDs. Unjoined opaque GUID/config bytes are retained rather than falsely treated as catalog keys. |
 | F5 structural undo | **N/A** | No lossless record constructor/remover/string relocation/dependency repair exists. Existing writes preserve size and use scalar undo; speculative structure mutation would violate data preservation. |
 | F6 action planning | **Added this round** | Explicit calculated-bolt target, primary/derived previews, warnings, no-op explanation, stale/forged-plan rejection and Core grouped undo. #27 query scopes are inapplicable to a document-wide wallet target; row/query scopes reject explicitly. Ammo/refill/loadout/upgrade actions lack ownership, legal caps and dependency recipes. |
 | F7 document groups | **N/A** | Gameplay and preferences have no identified coupled invariant; each writer affects one existing file. No transaction over unrelated files is invented. |
 | F8 queryable tables | **Used; extended this round** | Arsenal/armour/upgrades/collectibles/objectives/dimensions/globals plus upgrade-diagram lists and every populated raw inventory container; bounded pages, search/filter/sort and lazy cell bindings. Raw DDL arrays retain bounded diagnostic pages. |
-| F9 maps/graphs | **Added this round** | Read-only stored upgrade-row graphs with field targets; external-link-only spybot map/list with all bits, text alternatives and explicit Unknown semantics. Physical coordinates/fog/prerequisites require owner captures. |
+| F9 maps/graphs | **Added this round** | Read-only stored upgrade-row graphs with field targets; spybot storage map/list plus nine lazy regional community maps (403 markers), text alternatives and explicit Unknown semantics. Save-to-guide joins, fog transforms and prerequisites require owner captures. |
 | F10 exact/nullable numbers | **Used** | Width-specific integer specs and exact UInt64/128-bit transport preserve IDs/masks above 2^53 (including UInt64.MaxValue vectors). DDL floats retain their actual binary precision. DDL type-19 is an empty array, not a nullable scalar or union; no artificial nullable/union control. |
 | F11 shared codecs | **N/A** | These measured DAT1/DDL/TVNI files are uncompressed, with no Kraken or SQLite payload; no local codec implementation exists to replace. |
 | F12 SaveDiff F8 traversal/hooks | **Added** | Production `ISaveDecoderProvider` exposes SDK-only `insomniac-evidence`; existing F1 tests use a thin `HookSaveDecoder` adapter. Host sink/file/depth bounds stop decoding; the ordinary `insomniac` view decoder also benefits from bounded F8 traversal. |
-| F13 browse/inspect/filter/duration | **Used** | Existing read-only F4 IDs open browse-only pickers; all five F2 catalogs use framework category filtering and declared Key/Name/Category sorting. Playtime publishes a float duration hint with inferred seconds and unchanged float32 precision. Inspection actions are N/A: current inspection is already represented by views; the only action changes bolts and remains mutating. |
+| F13 browse/inspect/filter/duration | **Used** | Existing read-only F4 IDs open browse-only pickers; all six F2 catalogs use framework category filtering and declared Key/Name/Category sorting. Playtime publishes a float duration hint with inferred seconds and unchanged float32 precision. Inspection actions are N/A: current inspection is already represented by views; the only action changes bolts and remains mutating. |
 
 Historical research tested 41,652 CRC/FNV/Murmur section-digest candidates across
 36 primary gameplay records without finding a nondegenerate outside-range match.
@@ -199,8 +203,8 @@ Repeated container tags retain their measured stored-occurrence identity and emi
 warning: reordered containers are not proven semantic matches. This evidence remains
 storage research, with no new claims about ownership, integrity or game acceptance.
 
-All five embedded catalogs (`rift-weapons`, `rift-armor`, `rift-world`, `rift-schema`,
-`rift-item-types`) use F13's shared category/search/sort/paging implementation, without
+All six embedded catalogs (`rift-weapons`, `rift-armor`, `rift-world`, `rift-schema`,
+`rift-item-types`, `rift-guide-markers`) use F13's shared category/search/sort/paging implementation, without
 a second plugin-side metadata index. The arsenal's hash-to-record dictionary remains
 an identity join, not a browsing/filter index. Existing read-only reference controls
 retain raw unknown IDs, descriptions and provenance; browsing offers no save mutation.
@@ -219,7 +223,7 @@ dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Latest sample-backed plugin run: **124 passed, 0 failed, 0 skipped**. All **76** game
+Latest sample-backed plugin run: **128 passed, 0 failed, 0 skipped**. All **76** game
 records round-trip byte-identically, including duplicate generations and backup twins.
 The tests cover all 36 primary inventories, field/name vectors, nested alignment,
 parent bounds/depth/count corruption, unknown payloads, embedded pack hashes/licensing,
@@ -279,12 +283,22 @@ The Sources panel lists the F2 datasets resolved by the document.
 | Asset path identity algorithm research | [ALERT crc64.py, bc90ed9b](https://raw.githubusercontent.com/Tkachov/ALERT/bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb/dat1lib/crc64.py) | GPL research only; independently written bitwise mathematical CRC, no copied lookup table/code. Verified against PS5 inventory tokens; unrelated to integrity |
 | Section strategies / format research | Neptuwunium / [Rivet SaveData, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs) and [save CLI](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.CLI/Utility/RivetSaveCommand.cs) | EUPL-1.2 reference only; no implementation copied or executed. Write-round recheck still does not establish PS5 integrity |
 | Earlier DAT1 and integrity research | [ALERT format wiki](https://github.com/Tkachov/ALERT/wiki/Formats), [RiftRipper](https://github.com/VELD-Dev/riftripper), [NinjaSaves](https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474) | Research only; no source/artwork port or proven integrity routine |
-| F9 external planet-map index | [Guides4Gamers interactive maps](https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/), accessed 2026-10-28 | Link only, reuse licence unconfirmed; no coordinates, art, marker descriptions or scripts imported. Graph descriptions/layout are original presentations of attributed CC0 schema facts and measured stored row masks. See SPATIAL-SOURCES.md. |
+| `insomniac.rift.maps.en/markers.json`: 403 marker IDs, labels, categories and pixel coordinates across nine regions | [Guides4Gamers interactive maps](https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/), 2026-10-28 UTC snapshots pinned by map ID/version and raw SHA-256 in [markers.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/markers.source.md) | No licence published; reused with attribution per owner decision 2026-10-28. Selected facts only, original uncertainty notes; no HTML descriptions, publisher art, scripts or save-progress joins. |
 
 See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and the reference pack's
 [data.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.en/data.source.md).
 CC BY-SA data keeps its attribution and share-alike terms; those terms do not relicense
 the plugin code. No EUPL/GPL implementation is incorporated.
+
+## Licence exclusions
+
+The audit of README, spatial notes, source sidecars, notices, evidence, research and
+completion notes found one source previously refused solely for licence status.
+
+| Source (revision) | Licence found | Disposition / reason | Alternative | What would unblock it |
+| --- | --- | --- | --- | --- |
+| Guides4Gamers community coordinates/markers, nine 2026-10-28 UTC map ID/version + SHA-256 snapshots ([pins](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/markers.source.md)) | No licence published; footer: "All rights reserved." | **Resolved: imported** 403 factual markers under owner decision 2026-10-28 | Attributed F2 pack and F9 regional maps, all pickup states Unknown | Resolved by owner decision; no claim of an upstream licence grant |
+| Publisher-derived map tiles, icons and screenshots in the same source | Copyright retained by respective owners; no reusable game-asset licence established | Excluded: proprietary game artwork, outside the community-data decision | Coordinate-only diagrams and click-through source links | Explicit publisher permission or replacement with original art |
 
 ## Open work and exact owner capture checklist
 

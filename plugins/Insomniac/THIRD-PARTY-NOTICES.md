@@ -23,6 +23,15 @@ must remain with redistributed/adapted data. No game artwork is included.
 These data licenses do not relicense the plugin implementation.
 
 F9 graph descriptions are original presentations of the attributed CC0 schema and
-measured save row masks. The external Guides4Gamers map index is linked only; no
-third-party map art, coordinates or marker descriptions are redistributed. See
-[SPATIAL-SOURCES.md](SPATIAL-SOURCES.md) for the source, retrieval and scope notice.
+measured save row masks. Guides4Gamers community factual marker data is now embedded:
+403 records across nine maps, retrieved 2026-10-28 UTC, pinned by map ID/version and
+raw-response SHA-256 in [markers.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/markers.source.md).
+
+**No licence published; reused with attribution per owner decision 2026-10-28**.
+The source footer says "All rights reserved." The owner decision is a reuse
+instruction, not a claim that Guides4Gamers granted a licence. Retain author,
+source links, retrieval/pin details and modification notices with these data.
+Only factual labels/categories/coordinates/IDs/dimensions are selected. Upstream
+HTML descriptions, source code, publisher map tiles, icons and screenshots are
+excluded. All guide pickup states are Unknown, without a save identity join.
+See [SPATIAL-SOURCES.md](SPATIAL-SOURCES.md) for presentation and evidence limits.
