@@ -11,7 +11,7 @@ public sealed class FaithContextTests
     private readonly FinalFantasy16Plugin _plugin = new();
 
     [Fact]
-    public void ArraysAreSeparateReadOnlyAndPreserveUnknownEquipment()
+    public void ArraysAreSeparateExperimentalAndPreserveUnknownEquipment()
     {
         var equipment = new byte[FaithSchema.EquipmentLength];
         BinaryPrimitives.WriteInt32LittleEndian(equipment, 100029);
@@ -38,8 +38,9 @@ public sealed class FaithContextTests
         Assert.Equal(0x81, document.GetValue("skills/new/0").AsInt32());
         Assert.Equal(0x42, document.GetValue("skills/protect/0").AsInt32());
         Assert.Equal(0xFF, document.GetValue("skills/protect/11").AsInt32());
-        Assert.All(fields.Values, field => Assert.True(field.Spec.ReadOnly));
-        Assert.False(document.ApplyEdits([new ValueEdit("skills/ranks/0", FieldValue.Of(1))]).Succeeded);
+        Assert.All(fields.Values.Where(field => !field.Spec.ReadOnly), field => Assert.Contains("Not validated on console", field.Warning));
+        Assert.True(document.ApplyEdits([new ValueEdit("skills/ranks/0", FieldValue.Of(1))]).Succeeded);
+        Assert.True(document.ApplyEdits([new ValueEdit("skills/ranks/0", FieldValue.Of(3))]).Succeeded);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
@@ -83,8 +84,8 @@ public sealed class FaithContextTests
             Assert.NotNull(FaithSchema.Unique(container, FaithSchema.SkillType, FaithSchema.SupportsSkills));
             using var document = _plugin.Open(file, store.Pin(_plugin, title));
             var fields = FaithViewFields.All(document.BuildView()).GroupBy(field => field.ValueId).Select(group => group.First()).ToArray();
-            Assert.All(fields.Where(field => !field.ValueId.EndsWith("/quantity", StringComparison.Ordinal)),
-                field => Assert.True(field.Spec.ReadOnly));
+            Assert.All(fields.Where(field => !field.Spec.ReadOnly && !field.ValueId.EndsWith("/quantity", StringComparison.Ordinal)),
+                field => Assert.Contains("Not validated on console", field.Description));
             foreach (var item in FaithInventory.Parse(bytes, container).Items)
             {
                 ids.Add(item.Id);
@@ -140,13 +141,13 @@ public sealed class FaithContextTests
         Assert.Contains("MIT", map.Description);
         Assert.Contains("d3ad062", map.Description);
         Assert.Equal(Confidence.Inferred, map.Confidence);
-        Assert.True(map.Spec.ReadOnly);
+        Assert.False(map.Spec.ReadOnly);
         Assert.Equal("Phoenix", references.Catalog("ffxvi_summons")?.Find("1")?.Name);
         Assert.Contains("15020", references.Catalog("ffxvi_maps")?.Find("602000")?.Attributes["variantNote"]);
     }
 
     [Fact]
-    public void SecondaryBankPreservesZeroIdAndHasNoWritableBindings()
+    public void SecondaryBankPreservesZeroIdentityButEnablesItsFixedWidthQuantity()
     {
         const int SecondaryOffset = 33624;
         const int SecondaryCapacity = 100;
@@ -159,7 +160,18 @@ public sealed class FaithContextTests
         var bytes = FaithTestData.Container((FaithSchema.ItemType, FaithSchema.ItemVersion, payload));
         using var document = _plugin.Open(FaithTestData.File(bytes));
         var fields = FaithViewFields.All(document.BuildView()).Where(field => field.ValueId.StartsWith("secondary/", StringComparison.Ordinal)).ToArray();
-        var item = Assert.Single(fields);
+        var item = Assert.Single(fields, field => field.ValueId.EndsWith("/item", StringComparison.Ordinal));
+        var quantity = Assert.Single(fields, field => field.ValueId.EndsWith("/quantity", StringComparison.Ordinal));
+        Assert.False(quantity.Spec.ReadOnly);
+        Assert.Equal(Confidence.Unknown, quantity.Confidence);
+        Assert.True(document.ApplyEdits([new ValueEdit(quantity.ValueId, FieldValue.Of(124))]).Succeeded);
+        var output = Assert.Single(document.Serialize()).Content.ToArray();
+        FaithWriteTests.AssertOnlyRanges(bytes, output, [(FaithContainer.HeaderSize + FaithBlock.HeaderSize + SecondaryOffset + sizeof(int), sizeof(int))]);
+        using var reopened = _plugin.Open(FaithTestData.File(output));
+        _ = reopened.BuildView();
+        Assert.Equal(124, reopened.GetValue(quantity.ValueId).AsInt32());
+        Assert.Equal("0", reopened.GetValue(item.ValueId).AsString());
+        Assert.True(document.ApplyEdits([new ValueEdit(quantity.ValueId, FieldValue.Of(123))]).Succeeded);
         Assert.Equal("0", item.Value.AsString());
         Assert.True(item.Spec.ReadOnly);
         Assert.Equal("Unknown item 0", item.Label);

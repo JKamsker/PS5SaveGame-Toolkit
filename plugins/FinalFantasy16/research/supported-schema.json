@@ -30,13 +30,13 @@
         272
       ],
       "role": "gameplay",
-      "verifiedReadOnly": [
+      "opaque": "Extended palette suffix at 272, 1264 bytes. No growth thresholds or skill-ID-to-rank-index mapping.",
+      "referenceOnly": "Separate default/child growth pairs; optional growth labels do not establish ParamGrow keys or XP semantics; feats are reference relationships only.",
+      "inferredExperimentalWrite": [
         "level@0",
         "xp@4",
         "childLevel@8",
-        "childXp@12"
-      ],
-      "inferredReadOnly": [
+        "childXp@12",
         "hp@16",
         "recovery@20",
         "lb@24",
@@ -45,9 +45,7 @@
         "summonModes[3]@40",
         "commandIds[22]@52",
         "shortcutItems[4]@140"
-      ],
-      "opaque": "Extended palette suffix at 272, 1264 bytes. No growth thresholds or skill-ID-to-rank-index mapping.",
-      "referenceOnly": "Separate default/child growth pairs; optional growth labels do not establish ParamGrow keys or XP semantics; feats are reference relationships only."
+      ]
     },
     {
       "type": 2,
@@ -56,13 +54,13 @@
         168
       ],
       "role": "gameplay",
-      "inferredReadOnly": [
+      "opaque": "enterRange, member transforms; map subrow selection not resolved",
+      "inferredExperimentalWrite": [
         "sceneId@0",
         "mapId@4",
         "partyId@16",
         "memberCount@20"
-      ],
-      "opaque": "enterRange, member transforms; map subrow selection not resolved"
+      ]
     },
     {
       "type": 6,
@@ -75,11 +73,15 @@
         "existing nonnegative main dense-record stack i32 at record+4"
       ],
       "readOnly": [
-        "main IDs/flags/allocator",
-        "secondary dense-bank diagnostic at 33624; zero ID retained"
+        "new flags, indices, keys, padding, allocation/free lists",
+        "secondary ID-zero identities (unconfirmed sentinel role; quantities writable)"
       ],
       "confidence": "Dense storage layout Verified; secondary role and gameplay caps Unknown; reference names Inferred",
-      "legacyPolicy": "Manual existing-stack storage range only; per-resource/category dependency warnings. IDs 506-509 have read-only allocated-quantity diagnostics, not activation/capacity conclusions. F6 bulk actions disabled until active-bank/capacity/dependency evidence is proven."
+      "legacyPolicy": "Inherited main manual stack range 0..int.MaxValue is a storage range. F6 explicit targets use 0..127811 observed corpus ceiling, never legal-max/refill. All dependencies remain warned and unreconciled.",
+      "inferredExperimentalWrite": [
+        "existing nonzero main/secondary item IDs i32 at record+0; named replacements; no new duplicate IDs",
+        "existing secondary stack i32 at record+4; observed ceiling 152"
+      ]
     },
     {
       "type": 7,
@@ -88,7 +90,7 @@
         104
       ],
       "role": "gameplay",
-      "verifiedReadOnly": [
+      "inferredExperimentalWrite": [
         "playTimeSeconds@0"
       ]
     },
@@ -99,12 +101,12 @@
         72
       ],
       "role": "gameplay",
-      "inferredReadOnly": [
+      "unknown": "Active bank, slot semantics and unknown ID 900000",
+      "inferredExperimentalWrite": [
         "itemArray[6]@0",
         "itemArrayBoyhood[6]@24",
         "virtualEquip[6]@48"
-      ],
-      "unknown": "Active bank, slot semantics and unknown ID 900000"
+      ]
     },
     {
       "type": 27,
@@ -113,15 +115,15 @@
         96
       ],
       "role": "gameplay",
-      "unknownReadOnly": [
+      "opaque": "padding@92; array index is not a verified skill ID",
+      "unknownExperimentalWrite": [
         "skillLv bytes[68]@0",
         "newFlags bytes[12]@68",
         "protectFlags bytes[12]@80"
-      ],
-      "opaque": "padding@92; array index is not a verified skill ID"
+      ]
     }
   ],
-  "policy": "Absent, duplicate (including mixed-version), or unrecognized blocks stay opaque. No ID, equipment, ability, progression or structural writes.",
+  "policy": "Owner enabled writes with warnings (2026-10-28). Every new write remains Experimental with Inferred/Unknown confidence; no console validation. Type ranges plus conservative observed ceilings; original outliers restorable. Unknown replacements rejected except zero/original IDs in fixed context arrays. Duplicate/absent/unknown block schemas stay opaque. No structural allocator or multi-file writer.",
   "catalogs": {
     "ffxvi_items": "234 attributed English labels; 131/172 retail observed main IDs; 26/67 round-2 gaps resolved, 41 Unknown; CC-BY-SA-3.0 adaptation, MIT notices retained; no caps/art",
     "ffxvi_maps": "107 MIT Nex research annotations; incomplete subrows; Inferred",
@@ -130,5 +132,14 @@
     "ffxvi_growth": "Optional label/context only; no derived stats or cap calculation",
     "ffxvi_feats": "8 MIT summon-mode-to-vanilla-feat reference associations; keys are summon IDs, not saved commands",
     "ffxvi_skills": "3 explicit MIT Nex skill IDs, 39/45/49; separate reference sheet, no rank-index/flag/AP association"
+  },
+  "writeEnable": {
+    "ownerTracking": "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31",
+    "newWriteFamilies": 15,
+    "rangeEvidence": "write-ranges.json",
+    "rangeReproducer": "measure_write_ranges.py",
+    "integrity": "CRC-32/ISO-HDLC repaired, then container and both inventory allocators reparsed inside Serialize",
+    "bulk": "F6 deterministic explicit main-quantity preview/apply with skipped rows, warnings, derived aliases/CRC and one undo/redo",
+    "preserved": "Unsupported blocks, system role, unknown bytes, flags outside explicitly edited arrays, padding, trailer, allocator metadata and palette suffix"
   }
 }

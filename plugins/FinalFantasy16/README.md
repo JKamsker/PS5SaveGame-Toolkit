@@ -4,12 +4,69 @@ Supports **PPSA10665** (retail PS5) and **PPSA13803** (PS5 demo), using the oute
 folder title ID. Unrelated values in supplied retail `param.sfo` files are not
 schema evidence. PPSA01288 is not an FF16 title.
 
-**Maturity: Experimental.** Existing main-bank quantities can be patched in place,
-including gil, AP and renown. No modified save has been validated on a console.
-Equipment, ability arrays, location, growth context, item identity and the
-secondary bank are read-only. System/empty/unsupported saves preserve every byte.
+**Maturity: Experimental.** Supported existing fields can be patched in place,
+including inventory identities/stacks, equipment, raw ability arrays, player and
+party context. No modified save has been validated on a console. Every new write
+retains an Inferred/Unknown label and a console-validation warning. System and
+unsupported schemas remain read-only; empty gameplay saves may expose independent
+supported context fields. No-op output preserves every byte.
 
-## Delivered through round 2 (#15)
+## Enabled writes and their evidence
+
+The owner authorized **"Enable writes. Keep warnings."** on 2026-10-28. This round
+enables **15 write families** below, in addition to the inherited manual main-stack
+writer. Fixed-width layout is checked against the attributed MIT Nenkai template
+and actual PS5 samples; gameplay meaning remains unproven. New numeric writes use
+the native type intersected with conservative observed maxima, documented in
+[write-ranges.json](research/write-ranges.json) and reproduced by
+[measure_write_ranges.py](research/measure_write_ranges.py). Nonnegative fields
+have a zero lower bound; observed `-1` HP/recovery/LB values are retained without
+inventing a sentinel meaning. Original outliers can be restored exactly. A field
+whose observed interval is constant (demo LB) has no alternative value enabled.
+These are experimental bounds, **not legal gameplay caps**.
+
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
+| --- | --- | --- | --- | --- |
+| Main existing item ID replacement | Inferred / Unknown original | Dense identity-key layout; named F2 IDs; complete candidate duplicate-ID check | CRC repaired; container/allocators reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): replace one unequipped item, inspect quantity/flags/dependencies, use/sell, save/reload |
+| Secondary existing stack | Unknown | Same fixed i32 record layout; observed 0..152; bank role unconfirmed | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): edit one stack, identify active adult/child/stage behavior |
+| Secondary existing item ID | Inferred / Unknown original | Dense records; ID-zero records excluded; duplicate-ID check | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): replace one nonzero ID; compare both banks after save/reload |
+| All three equipment ID arrays | Inferred / Unknown original | Type 13 version/length gate; 18 fixed i32 values; equipment-category picker | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one slot/bank at a time; verify adult/boyhood/virtual behavior and ownership |
+| 68 stored rank bytes | Unknown | Type 27 gate; retail 0..3, demo 0..1 observed | CRC repaired; reparsed; padding untouched | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): identify each index; learn/upgrade/master/reset with exact AP deltas |
+| 12 newFlags bytes | Unknown | Separate 96-bit stored array; byte range 0..255 | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): change one bit and observe skill notifications/state |
+| 12 protectFlags bytes | Unknown | Independent 96-bit array, including bits beyond rank count | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): change one bit and observe protection/reset behavior |
+| Adult/child stored level and XP pairs | Inferred | Supported common PlayerData prefix; independent stored pairs | CRC repaired; reparsed; no stat calculation | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one value/branch at a time; verify XP basis, level/HP/stats and save/reload |
+| Stored HP, recovery and LB | Inferred | Common prefix offsets; observed ranges/sentinels | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small change to one field; verify battle/recovery behavior |
+| Summon index, raw learned/revealed flags and 3 IDs | Inferred / Unknown unmapped IDs | Fixed slot count and observed bounds; named summon catalog | CRC repaired; reparsed; no unlock reconciliation | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one index/ID/bit at a time; verify Eikon availability and active loadout |
+| 22 stored command IDs | Inferred / Unknown unmapped IDs | Common-prefix array; named reference choices within observed range | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one command at a time; verify slot, mastery and AP behavior |
+| 4 item shortcuts | Inferred / Unknown original | Fixed i32 array; consumable-only named choices, observed IDs <=9 | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): replace one shortcut, use item, verify ownership and persistence |
+| Party scene/map/party IDs and member count | Inferred / Unknown unmapped map | Type 2 gate; fixed fields and observed bounds | CRC repaired; reparsed; transforms/quests untouched | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one ID/count at a time; verify location/member consistency; this is not validated teleportation |
+| Stored play-time seconds | Inferred | UserData gate; sample timestamp delta relationship | CRC repaired; reparsed; timestamps untouched | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): verify displayed duration and save/reload |
+| F6 explicit main-stack quantity action | Inferred policy | Existing fixed-width writer, 0..127811 corpus ceiling; deterministic selected/document scope | Exact CRC preview, atomic apply, one undo/redo | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small target on two selected rows; use/spend/sell, save/reload/re-export |
+
+All these writes can produce gameplay-inconsistent state that the game rejects or
+resets despite a valid CRC. No quest, ownership, AP/refund, stat/growth, capacity,
+unlock or loadout dependencies are reconciled. Unknown replacement IDs are rejected;
+original unknown IDs (including 900000) remain restorable. Main/secondary identity
+replacement never allocates/removes a record. New duplicate IDs are rejected after
+validating the complete batch, so an atomic identity swap remains possible.
+
+The F6 action requires a preview, lists unchanged/negative rows as skipped, keeps
+per-resource/category warnings and shows the derived CRC. Empty selection means
+no rows; null selection means all supported main records. Stale/forged plans,
+foreign/duplicate row keys and invalid targets are rejected without mutation.
+It sets an **explicit stored target**, not a legal-max, refill or activation preset.
+
+Still off for structural safety: add/remove/reorder/free-list edits (slot reuse,
+generation/index rules and dependent references are unknown), secondary ID-zero
+identities (possible sentinel; their fixed-width quantities remain editable), opaque extended palettes, and unmapped progression
+structures. Feat/skill research labels and upgrade diagnostics have no separate
+storage setter. No prepared multi-file writer exists and no cross-file dependency
+has been established; F7 is therefore not used. These are not owner-evidence gates.
+
+## Prior rounds (#15)
+
+The following records the earlier read-only delivery. Its evidence gates were
+superseded by the write-enable round above; unresolved semantic research remains.
 
 - Phase 1 foundation: named categorized inventory, F2 attribution, F4 catalog
   lookup, explicit unknown IDs, separate secondary-bank diagnostic, deterministic
@@ -43,8 +100,9 @@ secondary bank are read-only. System/empty/unsupported saves preserve every byte
 
 Phase 1's full-name ambition remains open for the 41 missing observed labels.
 Phase 2's controlled field identification, skill-index mapping, matched growth
-curves and human-observed acceptance remain open. Phase 3's writes/actions are
-evidence-blocked; Phases 4–6 are not implemented. No new write path was introduced.
+curves and human-observed acceptance remain open. The write round delivers raw
+fixed-width controls and an explicit F6 action, not complete contextual gameplay
+policies or progression reconciliation from Phases 3–6.
 
 ## File roles and platform boundary
 
@@ -82,11 +140,11 @@ for supported fields, title/role gates, provenance and evidence status.
 
 | Type | Version / payload length | Interpretation |
 | --- | --- | --- |
-| 1 PlayerData | `202211161` / 272; retail also 1536 | Level/XP, child level/XP Verified read-only; common context Inferred; suffix opaque |
-| 2 PartyData | `2021112401` / 168 | Scene +0, map +4, party +16, member count +20; Inferred read-only |
+| 1 PlayerData | `202211161` / 272; retail also 1536 | Stored level/XP and common context writable Inferred; suffix opaque |
+| 2 PartyData | `2021112401` / 168 | Scene +0, map +4, party +16, member count +20; writable Inferred |
 | 6 ItemData | `2021110401` / 36448 | Main allocator +0, secondary +33624; dense storage layout Verified |
-| 7 UserData | `2021061001` / 104 | Play time +0, seconds; Verified read-only |
-| 13 EquipmentData | `20220104` / 72 | Three six-word arrays +0/+24/+48; Inferred read-only |
+| 7 UserData | `2021061001` / 104 | Play time +0, seconds; writable Inferred |
+| 13 EquipmentData | `20220104` / 72 | Three six-word arrays +0/+24/+48; writable Inferred |
 | 27 SkillData | `20210422` / 96 | 68 rank bytes +0; newFlags +68; protectFlags +80; index meaning Unknown |
 
 Demo never inherits the extended retail player schema. Each block is gated
@@ -96,15 +154,16 @@ flag meaning, AP costs/refunds, XP semantics and growth thresholds are unproven.
 Equipment value **900000** and ID zero remain unknown; no sentinel is invented.
 
 Main/secondary capacities are 1200/100, with 16-byte records. Only the substantiated
-dense identity-key arrangement enables main-stack writes. IDs, new flags, indices,
-keys, padding, the secondary bank and dependent equipment state are never patched.
+dense identity-key arrangement enables existing-record writes. New flags, indices,
+keys and padding are never patched; dependent equipment state is not reconciled.
 Allocated zero stacks remain visible; allocation does not prove current ownership.
-The secondary bank has an **unconfirmed role** and its quantities are read-only.
+The secondary bank has an **unconfirmed role**, warned on every new writable field.
 
 The existing manual quantity policy remains experimental: nonnegative signed i32
 storage range only, with a warning. `int.MaxValue` is not a proven gameplay cap.
-Reference-pack limits do not authorize new bounds or max/refill presets. Unknown
-caps, unique/key-item effects and progression dependencies prevent bulk controls.
+Reference-pack limits do not authorize max/refill presets. The new F6 explicit
+target uses a conservative observed ceiling and warns about all unknown caps,
+unique/key-item effects and progression dependencies.
 
 ## Reference data and presentation
 
@@ -159,15 +218,35 @@ python -I plugins/FinalFantasy16/research/build_catalog.py
 python -I plugins/FinalFantasy16/research/build_layout_catalog.py '<scratch>/ffxvi-nex-layouts'
 python -I plugins/FinalFantasy16/research/build_feat_catalog.py
 python -I plugins/FinalFantasy16/research/verify_reference_audit.py
+python -I plugins/FinalFantasy16/research/measure_write_ranges.py
 ```
 
 Tests cover conformance, every archive occurrence, CRC vectors, corruption,
 allocator gates, byte-identical no-op/undo, edits confined to stack/CRC, context
 values, schema length/version/duplicate rejection, independent skill flag arrays,
 zero IDs/stacks, unknown 900000, locale fallback, F2 hash/ID validation, attribution,
-F4 read-only identities/nonmutating lookup, literal markup and the shared F1 fixture.
+F4 bounded identity replacements/nonmutating lookup, literal markup and the shared F1 fixture.
 Sample tests explicitly skip when archives are absent; validation requires 0 skipped.
 No sample bytes, extracted saves or downloaded third-party code are committed.
+
+Write-enable validation (2026-10-28): **92 passed, 0 failed, 0 skipped**, including
+conformance, with `SAVETOOLKIT_ARTIFACTS` exported in the same command:
+
+```powershell
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/FinalFantasy16/SaveToolkit.Plugins.FinalFantasy16.Tests --configuration Release
+```
+
+Every newly writable, nonconstant field in the first retail/demo autosaves is
+edited, serialized, reopened, checked with F1 for unrelated-byte preservation,
+rejected on invalid input, and exercised through session undo/redo. Synthetic
+boundary tests cover ID-zero quantity persistence, unknown/negative original IDs,
+outliers, identity swaps/duplicates, category restrictions, live derived aliases,
+trailing bytes and the system-role boundary. F6 tests cover exact CRC/diagnostic
+previews, selection/document/empty scopes, skips, invalid/forged/stale plans and
+one-step group undo/redo. Final API build: **0 warnings/errors**. F1 fixture:
+**1 passed, 0 failed, 0 skipped**. Range metadata, all 72 independent CRC/framing
+checks and 60 inherited fixed-width preservation checks reproduce. None of these
+checks establish console acceptance.
 
 Round-2 validation (2026-10-28): **75 passed, 0 failed, 0 skipped**, with the
 artifacts variable exported in the test command; API build **0 warnings/errors**;
@@ -189,7 +268,7 @@ text; no upstream code/templates were executed. Notices are retained in
 | Map/summon annotations | [Nenkai Nex layouts, d3ad062](https://github.com/Nenkai/ffxvi-nex-layouts/tree/d3ad0627a29af168916ad574dadbca6759e2ac48) | MIT (2025 Nenkai); extracted 107/10 research annotations, grouped subrows; [sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.nex.en/data.source.md) |
 | Three named skill IDs | [Nenkai Skill.layout, d3ad062](https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/Skill.layout) | MIT (2025 Nenkai); explicit annotations for IDs 39/45/49 only; no rank/flag association; same Nex sidecar |
 | Vanilla Eikonic feat/command crosswalk | [Logos-Unleashed Mod.cs, 6424cb4](https://github.com/mThund3R/Logos-Unleashed/blob/6424cb4e60bd31005ef7f0cfb42d4e5360660fc6/LogosUnleashed/Mod.cs) | MIT (2025 mThund3R); selected vanilla restoration relationships, omitted custom IDs/ambiguous paths; [sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.feats.en/data.source.md), full original notice retained |
-| Save block/allocator/context layout | [Nenkai 010 template, 4a3685f](https://github.com/Nenkai/010GameTemplates/blob/4a3685f9b63f72ca49e24ac2f18420aaad2762b8/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt) | MIT (2024 Nenkai); composed gated PS5 readers and fixed-width writer; measured against actual bytes |
+| Save block/allocator/context layout | [Nenkai 010 template, 4a3685f](https://github.com/Nenkai/010GameTemplates/blob/4a3685f9b63f72ca49e24ac2f18420aaad2762b8/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt) | MIT (2024 Nenkai); composed gated PS5 readers, shared context layout and fixed-width writers; measured against actual bytes |
 | CRC/platform boundary research | [FF16Tools, b87c2f2](https://github.com/Nenkai/FF16Tools/blob/b87c2f22a8ea630cb03f7b2198af84c7709a1b0c/FF16Tools.Files/Save/FaithSaveFile.cs) | MIT (2025 Nenkai); independent CRC checked on 72 records; PC wrapper excluded |
 | Numeric identifier research only | [Published IDs, 4b5e7eb](https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids) | No dataset licence found; CSV files are not vendored/re-licensed. Wiki-derived labels are a separately curated extract; ID associations remain Inferred |
 | Dependency/growth research only | Nex Item, EquipItem, UseItem, Skill, ParamGrow layouts at d3ad062 | MIT; schemas reviewed, no game data, costs/caps or unproved setters imported |
@@ -232,6 +311,23 @@ filename/slot and exact UI values. First capture a save/reload/save no-action pa
    ability's learn/upgrade/master/reset independently with exact AP deltas,
    displayed rank and Eikon assignment. Supply all rank bytes and both flag
    arrays through the original save; do not assume equal numeric IDs/indices.
+10. Validate each newly enabled family from the table above on a **separate spare
+    slot/copy**: one main identity replacement; one nonzero secondary identity;
+    one small secondary stack change; one equipment ID in each of the three
+    banks; one rank byte; one newFlags bit; one protectFlags bit; one level or XP
+    value in each branch; one HP/recovery/LB value; one summon slot/index/flag;
+    one command; one shortcut; one party scene/map/ID/count; and play-time seconds.
+    For each experiment, load, inspect the exact displayed/behavioral effect,
+    perform one relevant use/spend/reset/battle or stage transition, save, reload
+    and re-export. Include failures or automatic resets; compare both banks and
+    unrelated quest/AP/stat/loadout state with F1. Do not combine these changes
+    into one trial. For demo LB's constant range, supply a controlled nonzero
+    capture before requesting a wider write range.
+11. Validate F6 on two explicitly selected ordinary main rows with target **1**:
+    inspect before/after, skipped rows, dependency warnings and CRC in the preview;
+    apply, undo once (original bytes), redo once, export, load, use/sell/spend,
+    save/reload and re-export. Separately test zero selection and document scope.
+    Report all results to [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 
 Still needed: cleared names for 41 observed IDs; matched skill/command/growth data;
 normal/FF NG+/DLC/legacy/extended coverage; controlled bank/flag semantics and
@@ -239,9 +335,8 @@ on-console acceptance. Only the owner may promote maturity to Stable.
 
 ## SDK requests
 
-None for this round. F1/F2/F4 and existing table/field/asset contracts suffice.
-F6 planning and F8 bounded query scopes are already available; they are not the
-blocker. Future bulk actions must use F6, preview every included/skipped row and
-derived CRC, apply atomically, and restore exact bytes with one undo. Their first
-prerequisite is a proven current capacity/dependency policy. No local substitute
-or non-applicable preview action was built.
+None for this round. F1/F2/F4/F6 and existing table/field contracts suffice.
+The bounded eager inventory uses explicit row keys; no F8 query scope is advertised.
+Structural and multi-file work needs a substantiated format/dependency model,
+not another SDK API. Owner validation is tracked in #31 rather than gating the
+enabled experimental fixed-width writes.

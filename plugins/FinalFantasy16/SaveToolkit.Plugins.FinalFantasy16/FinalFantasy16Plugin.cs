@@ -7,9 +7,9 @@ namespace SaveToolkit.Plugins.FinalFantasy16;
 
 public sealed class FinalFantasy16Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.3.0")
+    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.4.0")
     {
-        Description = "Named PS5 inventories, experimental stack edits, and read-only gear, abilities and location context.",
+        Description = "Named PS5 inventories and experimental fixed-width inventory, equipment, ability and player-context writes with F6 quantity previews. Not console-validated.",
         Games = [new GameTitle("PPSA10665", "Final Fantasy XVI"), new GameTitle("PPSA13803", "Final Fantasy XVI Demo")],
         Maturity = PluginMaturity.Experimental,
         References = [
