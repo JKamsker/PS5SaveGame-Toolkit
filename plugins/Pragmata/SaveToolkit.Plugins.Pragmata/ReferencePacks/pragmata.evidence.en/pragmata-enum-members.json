@@ -1,0 +1,2764 @@
+{
+  "records": [
+    {
+      "id": "app.GadgetSlotType:-1",
+      "name": "Invalid",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "-1",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:0",
+      "name": "Primary",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "0",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:1",
+      "name": "Secondary",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "1",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:2",
+      "name": "Secondary_2",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "2",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:3",
+      "name": "Secondary_3",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "3",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:4",
+      "name": "Secondary_4",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "4",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:5",
+      "name": "Secondary_5",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "5",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:6",
+      "name": "Secondary_6",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "6",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:7",
+      "name": "Secondary_7",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "7",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:8",
+      "name": "Max",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "8",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:9",
+      "name": "Pick",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "9",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.GadgetSlotType:10",
+      "name": "Event",
+      "category": "app.GadgetSlotType",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.GadgetSlotType",
+        "value": "10",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshMaterialControlObject.UseParamBits:0",
+      "name": "None",
+      "category": "app.MeshMaterialControlObject.UseParamBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshMaterialControlObject.UseParamBits",
+        "value": "0",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshMaterialControlObject.UseParamBits:1",
+      "name": "Param_00",
+      "category": "app.MeshMaterialControlObject.UseParamBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshMaterialControlObject.UseParamBits",
+        "value": "1",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshMaterialControlObject.UseParamBits:2",
+      "name": "Param_01",
+      "category": "app.MeshMaterialControlObject.UseParamBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshMaterialControlObject.UseParamBits",
+        "value": "2",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshMaterialControlObject.UseParamBits:4",
+      "name": "Param_02",
+      "category": "app.MeshMaterialControlObject.UseParamBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshMaterialControlObject.UseParamBits",
+        "value": "4",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshMaterialControlObject.UseParamBits:8",
+      "name": "Param_03",
+      "category": "app.MeshMaterialControlObject.UseParamBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshMaterialControlObject.UseParamBits",
+        "value": "8",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshMaterialControlObject.UseParamBits:16",
+      "name": "Param_04",
+      "category": "app.MeshMaterialControlObject.UseParamBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshMaterialControlObject.UseParamBits",
+        "value": "16",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshMaterialControlObject.UseParamBits:32",
+      "name": "Param_05",
+      "category": "app.MeshMaterialControlObject.UseParamBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshMaterialControlObject.UseParamBits",
+        "value": "32",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshMaterialControlObject.UseParamBits:64",
+      "name": "Param_06",
+      "category": "app.MeshMaterialControlObject.UseParamBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshMaterialControlObject.UseParamBits",
+        "value": "64",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshMaterialControlObject.UseParamBits:128",
+      "name": "Param_07",
+      "category": "app.MeshMaterialControlObject.UseParamBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshMaterialControlObject.UseParamBits",
+        "value": "128",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshPartsControlPropDriver.PresetBits:0",
+      "name": "None",
+      "category": "app.MeshPartsControlPropDriver.PresetBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshPartsControlPropDriver.PresetBits",
+        "value": "0",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshPartsControlPropDriver.PresetBits:1",
+      "name": "Preset_00",
+      "category": "app.MeshPartsControlPropDriver.PresetBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshPartsControlPropDriver.PresetBits",
+        "value": "1",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshPartsControlPropDriver.PresetBits:2",
+      "name": "Preset_01",
+      "category": "app.MeshPartsControlPropDriver.PresetBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshPartsControlPropDriver.PresetBits",
+        "value": "2",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshPartsControlPropDriver.PresetBits:4",
+      "name": "Preset_02",
+      "category": "app.MeshPartsControlPropDriver.PresetBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshPartsControlPropDriver.PresetBits",
+        "value": "4",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshPartsControlPropDriver.PresetBits:8",
+      "name": "Preset_03",
+      "category": "app.MeshPartsControlPropDriver.PresetBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshPartsControlPropDriver.PresetBits",
+        "value": "8",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshPartsControlPropDriver.PresetBits:16",
+      "name": "Preset_04",
+      "category": "app.MeshPartsControlPropDriver.PresetBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshPartsControlPropDriver.PresetBits",
+        "value": "16",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshPartsControlPropDriver.PresetBits:32",
+      "name": "Preset_05",
+      "category": "app.MeshPartsControlPropDriver.PresetBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshPartsControlPropDriver.PresetBits",
+        "value": "32",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshPartsControlPropDriver.PresetBits:64",
+      "name": "Preset_06",
+      "category": "app.MeshPartsControlPropDriver.PresetBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshPartsControlPropDriver.PresetBits",
+        "value": "64",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.MeshPartsControlPropDriver.PresetBits:128",
+      "name": "Preset_07",
+      "category": "app.MeshPartsControlPropDriver.PresetBits",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.MeshPartsControlPropDriver.PresetBits",
+        "value": "128",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.ObjectiveState:0",
+      "name": "Wait",
+      "category": "app.ObjectiveState",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.ObjectiveState",
+        "value": "0",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.ObjectiveState:1",
+      "name": "Process",
+      "category": "app.ObjectiveState",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.ObjectiveState",
+        "value": "1",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.ObjectiveState:2",
+      "name": "End",
+      "category": "app.ObjectiveState",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.ObjectiveState",
+        "value": "2",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.ObjectiveState:3",
+      "name": "Stayback",
+      "category": "app.ObjectiveState",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.ObjectiveState",
+        "value": "3",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.ObjectiveState:4",
+      "name": "Suspend",
+      "category": "app.ObjectiveState",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.ObjectiveState",
+        "value": "4",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.structure.StructureDataResetTiming:0",
+      "name": "None",
+      "category": "app.structure.StructureDataResetTiming",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.structure.StructureDataResetTiming",
+        "value": "0",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.structure.StructureDataResetTiming:1",
+      "name": "Resumed",
+      "category": "app.structure.StructureDataResetTiming",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.structure.StructureDataResetTiming",
+        "value": "1",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.structure.StructureDataResetTiming:2",
+      "name": "Suspended",
+      "category": "app.structure.StructureDataResetTiming",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.structure.StructureDataResetTiming",
+        "value": "2",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "app.structure.StructureDataResetTiming:4",
+      "name": "Maintenance",
+      "category": "app.structure.StructureDataResetTiming",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "app.structure.StructureDataResetTiming",
+        "value": "4",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:0",
+      "name": "None",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "0",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:1",
+      "name": "LUp",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "1",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:2",
+      "name": "LDown",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "2",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:4",
+      "name": "LLeft",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "4",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:8",
+      "name": "LRight",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "8",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:16",
+      "name": "RUp",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "16",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:32",
+      "name": "RDown",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "32",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:64",
+      "name": "RLeft",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "64",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:128",
+      "name": "RRight",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "128",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:256",
+      "name": "LTrigTop",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "256",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:512",
+      "name": "LTrigBottom",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "512",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:1024",
+      "name": "RTrigTop",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "1024",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:2048",
+      "name": "RTrigBottom",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "2048",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:4096",
+      "name": "LStickPush",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "4096",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:8192",
+      "name": "RStickPush",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "8192",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:16384",
+      "name": "CLeft",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "16384",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:32768",
+      "name": "CRight",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "32768",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:65536",
+      "name": "CCenter",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "65536",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:131072",
+      "name": "Decide",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "131072",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:262144",
+      "name": "Cancel",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "262144",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:524288",
+      "name": "PlatformHome",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "524288",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:1048576",
+      "name": "EmuLup",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "1048576",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:2097152",
+      "name": "EmuLright",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "2097152",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:4194304",
+      "name": "EmuLdown",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "4194304",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:8388608",
+      "name": "EmuLleft",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "8388608",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:16777216",
+      "name": "EmuRup",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "16777216",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:33554432",
+      "name": "EmuRright",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "33554432",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:67108864",
+      "name": "EmuRdown",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "67108864",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:134217728",
+      "name": "EmuRleft",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "134217728",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:267386880",
+      "name": "EmuAll",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "267386880",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:268435456",
+      "name": "LSL / LSide",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "268435456",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:536870912",
+      "name": "LSR / RSide",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "536870912",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:1073741824",
+      "name": "RSL",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "1073741824",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:2147483648",
+      "name": "RSR",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "2147483648",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.GamePadButton:4294967295",
+      "name": "All",
+      "category": "via.hid.GamePadButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.GamePadButton",
+        "value": "4294967295",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:0",
+      "name": "None",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "0",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:1",
+      "name": "LButton",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "1",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:2",
+      "name": "RButton",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "2",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:3",
+      "name": "Cancel",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "3",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:4",
+      "name": "MButton",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "4",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:5",
+      "name": "XButton1",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "5",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:6",
+      "name": "XButton2",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "6",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:8",
+      "name": "Back",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "8",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:9",
+      "name": "Tab",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "9",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:12",
+      "name": "Clear",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "12",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:13",
+      "name": "Enter / Return",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "13",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:16",
+      "name": "Shift",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "16",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:17",
+      "name": "Control",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "17",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:18",
+      "name": "Menu",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "18",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:19",
+      "name": "Pause",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "19",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:20",
+      "name": "Capital",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "20",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:21",
+      "name": "Kana",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "21",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:23",
+      "name": "Junja",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "23",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:24",
+      "name": "Final",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "24",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:25",
+      "name": "Hanja",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "25",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:27",
+      "name": "Escape",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "27",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:28",
+      "name": "Convert",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "28",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:29",
+      "name": "NonConvert",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "29",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:30",
+      "name": "Accept",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "30",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:31",
+      "name": "ModeChange",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "31",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:32",
+      "name": "Space",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "32",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:33",
+      "name": "Prior",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "33",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:34",
+      "name": "Next",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "34",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:35",
+      "name": "End",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "35",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:36",
+      "name": "Home",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "36",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:37",
+      "name": "Left",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "37",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:38",
+      "name": "Up",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "38",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:39",
+      "name": "Right",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "39",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:40",
+      "name": "Down",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "40",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:41",
+      "name": "Select",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "41",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:42",
+      "name": "Print",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "42",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:43",
+      "name": "Execute",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "43",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:44",
+      "name": "SnapShot",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "44",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:45",
+      "name": "Insert",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "45",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:46",
+      "name": "Delete",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "46",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:47",
+      "name": "Help",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "47",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:48",
+      "name": "Alpha0",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "48",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:49",
+      "name": "Alpha1",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "49",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:50",
+      "name": "Alpha2",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "50",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:51",
+      "name": "Alpha3",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "51",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:52",
+      "name": "Alpha4",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "52",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:53",
+      "name": "Alpha5",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "53",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:54",
+      "name": "Alpha6",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "54",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:55",
+      "name": "Alpha7",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "55",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:56",
+      "name": "Alpha8",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "56",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:57",
+      "name": "Alpha9",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "57",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:65",
+      "name": "A",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "65",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:66",
+      "name": "B",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "66",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:67",
+      "name": "C",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "67",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:68",
+      "name": "D",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "68",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:69",
+      "name": "E",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "69",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:70",
+      "name": "F",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "70",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:71",
+      "name": "G",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "71",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:72",
+      "name": "H",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "72",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:73",
+      "name": "I",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "73",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:74",
+      "name": "J",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "74",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:75",
+      "name": "K",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "75",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:76",
+      "name": "L",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "76",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:77",
+      "name": "M",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "77",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:78",
+      "name": "N",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "78",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:79",
+      "name": "O",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "79",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:80",
+      "name": "P",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "80",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:81",
+      "name": "Q",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "81",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:82",
+      "name": "R",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "82",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:83",
+      "name": "S",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "83",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:84",
+      "name": "T",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "84",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:85",
+      "name": "U",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "85",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:86",
+      "name": "V",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "86",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:87",
+      "name": "W",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "87",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:88",
+      "name": "X",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "88",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:89",
+      "name": "Y",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "89",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:90",
+      "name": "Z",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "90",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:91",
+      "name": "LWin",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "91",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:92",
+      "name": "RWin",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "92",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:93",
+      "name": "Apps",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "93",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:95",
+      "name": "Sleep",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "95",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:96",
+      "name": "NumPad0",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "96",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:97",
+      "name": "NumPad1",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "97",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:98",
+      "name": "NumPad2",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "98",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:99",
+      "name": "NumPad3",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "99",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:100",
+      "name": "NumPad4",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "100",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:101",
+      "name": "NumPad5",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "101",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:102",
+      "name": "NumPad6",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "102",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:103",
+      "name": "NumPad7",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "103",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:104",
+      "name": "NumPad8",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "104",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:105",
+      "name": "NumPad9",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "105",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:106",
+      "name": "Multiply",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "106",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:107",
+      "name": "Add",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "107",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:108",
+      "name": "Separator",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "108",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:109",
+      "name": "Subtract",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "109",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:110",
+      "name": "Decimal",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "110",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:111",
+      "name": "Divide",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "111",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:112",
+      "name": "F1",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "112",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:113",
+      "name": "F2",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "113",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:114",
+      "name": "F3",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "114",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:115",
+      "name": "F4",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "115",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:116",
+      "name": "F5",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "116",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:117",
+      "name": "F6",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "117",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:118",
+      "name": "F7",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "118",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:119",
+      "name": "F8",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "119",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:120",
+      "name": "F9",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "120",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:121",
+      "name": "F10",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "121",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:122",
+      "name": "F11",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "122",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:123",
+      "name": "F12",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "123",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:124",
+      "name": "F13",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "124",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:125",
+      "name": "F14",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "125",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:126",
+      "name": "F15",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "126",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:127",
+      "name": "F16",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "127",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:128",
+      "name": "F17",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "128",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:129",
+      "name": "F18",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "129",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:130",
+      "name": "F19",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "130",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:131",
+      "name": "F20",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "131",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:132",
+      "name": "F21",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "132",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:133",
+      "name": "F22",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "133",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:134",
+      "name": "F23",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "134",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:135",
+      "name": "F24",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "135",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:144",
+      "name": "NumLock",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "144",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:145",
+      "name": "Scroll",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "145",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:146",
+      "name": "NumPadEnter",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "146",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:160",
+      "name": "LShift",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "160",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:161",
+      "name": "RShift",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "161",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:162",
+      "name": "LControl",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "162",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:163",
+      "name": "RControl",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "163",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:164",
+      "name": "LMenu",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "164",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:165",
+      "name": "RMenu",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "165",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:186",
+      "name": "OEM_1",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "186",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:187",
+      "name": "OEM_Plus",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "187",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:188",
+      "name": "OEM_Comma",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "188",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:189",
+      "name": "OEM_Minus",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "189",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:190",
+      "name": "OEM_Period",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "190",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:191",
+      "name": "OEM_2 / Slash",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "191",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:192",
+      "name": "OEM_3",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "192",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:193",
+      "name": "US_Grave",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "193",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:194",
+      "name": "FR_LeftAngleBracket",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "194",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:219",
+      "name": "OEM_4",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "219",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:220",
+      "name": "OEM_5 / BackSlash",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "220",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:221",
+      "name": "OEM_6",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "221",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:222",
+      "name": "OEM_7",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "222",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:223",
+      "name": "OEM_8",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "223",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:226",
+      "name": "OEM_102",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "226",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:254",
+      "name": "DefinedEnter",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "254",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.KeyboardKey:255",
+      "name": "DefinedCancel",
+      "category": "via.hid.KeyboardKey",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.KeyboardKey",
+        "value": "255",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.MouseButton:0",
+      "name": "NONE",
+      "category": "via.hid.MouseButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.MouseButton",
+        "value": "0",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.MouseButton:1",
+      "name": "L",
+      "category": "via.hid.MouseButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.MouseButton",
+        "value": "1",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.MouseButton:2",
+      "name": "R",
+      "category": "via.hid.MouseButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.MouseButton",
+        "value": "2",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.MouseButton:4",
+      "name": "C",
+      "category": "via.hid.MouseButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.MouseButton",
+        "value": "4",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.MouseButton:8",
+      "name": "UP",
+      "category": "via.hid.MouseButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.MouseButton",
+        "value": "8",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.MouseButton:16",
+      "name": "DOWN",
+      "category": "via.hid.MouseButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.MouseButton",
+        "value": "16",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.MouseButton:32",
+      "name": "EX0",
+      "category": "via.hid.MouseButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.MouseButton",
+        "value": "32",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.MouseButton:64",
+      "name": "EX1",
+      "category": "via.hid.MouseButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.MouseButton",
+        "value": "64",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "via.hid.MouseButton:4294967295",
+      "name": "All",
+      "category": "via.hid.MouseButton",
+      "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+      "attributes": {
+        "enumType": "via.hid.MouseButton",
+        "value": "4294967295",
+        "confidence": "Inferred"
+      }
+    }
+  ]
+}

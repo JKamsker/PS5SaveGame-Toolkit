@@ -15,7 +15,7 @@ internal sealed class RawExplorer(PragmataDocument document, LazyPages pages)
             var title = node.Type == FieldTags.Class ? $"{label} · {HashNames.Label(node.ClassHash)}" : label;
             return pages.Section($"tree/{node.Path}", title, node.Children.Count,
                 (start, count) => node.Children.Skip(start).Take(count).Select(Node).ToArray()) with
-            { Description = $"{HashNames.Provenance(node.Hash)} Class: {HashNames.Provenance(node.ClassHash)}" };
+            { Description = $"{HashNames.Provenance(node.Hash)} Class: {HashNames.Provenance(node.ClassHash)} {document.References.SchemaDescription(node)}" };
         }
         if (node.IsPrimitive)
         {

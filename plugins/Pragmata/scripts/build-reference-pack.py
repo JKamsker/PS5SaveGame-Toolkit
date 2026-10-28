@@ -1,4 +1,4 @@
-"""Build attributed reference data from a reviewed MIT RE_RSZ schema and the evidence manifest.
+"""Build attributed reference data from reviewed, SHA-pinned community inputs.
 
 No downloads, no upstream code execution, no save payload reads. Run with python -I.
 """
@@ -12,16 +12,84 @@ SOURCE = "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63
 LICENSE = "https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/LICENSE"
 MISSION_SOURCE = "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json"
 MISSION_LICENSE = "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/LICENSE"
+COMMUNITY_REVISION = "4125e497f1ae84cc746bb4a99da612c48bea161e"
+COMMUNITY_ROOT = f"https://github.com/kvasszn/ree-save-editor/blob/{COMMUNITY_REVISION}/assets/pragmata/"
+COMMUNITY_LICENSE = "No licence published; reused with attribution per owner decision 2026-10-28"
+COMMUNITY_HASHES = {
+    "rszpragmata.json": "0857b7c165e10e9ceeef65eab80ef84157262bcc03f3da8f50108a3b95d4dad8",
+    "strings_pragmata.txt": "ce4616cd876ac4b02a5fc541782c49d00a5f55b8b46eac8956aa46d5f709665d",
+    "enumspragmata.json": "c6a828b65ca065cd05003395e6d1b7a8d08872190dacca904899a615f9527c3b",
+}
+RESTORED_NAMES = {"27945a5a": "Slot", "619456d1": "_IsFirstGetWeapon",
+                  "6f1ca4a8": "_IsFirstGetActiveSkill", "bc922b61": "Detail",
+                  "e205fff9": "_AcquireContentsHashes"}
 
 
 def write(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
+def community_datasets(directory, plugin, known):
+    inputs = {}
+    for filename, digest in COMMUNITY_HASHES.items():
+        raw = (directory / filename).read_bytes()
+        if hashlib.sha256(raw).hexdigest() != digest:
+            raise ValueError(f"Community input does not match pinned revision: {filename}")
+        inputs[filename] = raw
+    strings = set(inputs["strings_pragmata.txt"].decode("utf-8").splitlines())
+    if not set(RESTORED_NAMES.values()).issubset(strings):
+        raise ValueError("Restored identifiers are missing from the pinned string dump")
+    write(plugin / "Resources/RestoredHashNames.json", RESTORED_NAMES)
+    restored = [{"id": h, "name": name, "category": "field",
+                 "description": "Hash-verified identifier spelling; PS5 gameplay meaning and legal values remain Unknown.",
+                 "attributes": {"confidence": "Inferred"}, "source": COMMUNITY_ROOT + "strings_pragmata.txt"}
+                for h, name in RESTORED_NAMES.items()]
+    hashes = {name: h for h, name in (known | RESTORED_NAMES).items()}
+    enums = json.loads(inputs["enumspragmata.json"])
+    fields = []
+    enum_types = set()
+    for entry in json.loads(inputs["rszpragmata.json"]).values():
+        if entry["name"] not in hashes:
+            continue
+        for field in entry["fields"]:
+            if field["name"] not in hashes:
+                continue
+            declared = field["original_type"]
+            if declared in enums:
+                enum_types.add(declared)
+            fields.append({
+                "id": f"{hashes[entry['name']]}/{hashes[field['name']]}",
+                "name": field["name"], "category": entry["name"],
+                "description": "Community RSZ declaration for a known save class/field; PC/PS5 schema equivalence and gameplay meaning are unverified.",
+                "source": COMMUNITY_ROOT + "rszpragmata.json",
+                "attributes": {"classHash": hashes[entry["name"]], "fieldHash": hashes[field["name"]],
+                               "declaredType": declared, "storageType": field["type"],
+                               "isArray": str(field["array"]).lower(), "size": str(field["size"]),
+                               "alignment": str(field["align"]), "confidence": "Inferred"},
+            })
+    members = []
+    for enum_type in sorted(enum_types):
+        # Preserve aliases: the reverse numeric-to-name half loses alias spellings.
+        aliases = {}
+        for name, value in enums[enum_type].items():
+            if not re.fullmatch(r"-?\d+", name):
+                aliases.setdefault(str(int(value)), []).append(name)
+        for value, names in sorted(aliases.items(), key=lambda pair: int(pair[0])):
+            members.append({"id": f"{enum_type}:{value}", "name": " / ".join(names), "category": enum_type,
+                            "description": "Declared enum member; not evidence of legal PS5 values, flag combinations or gameplay effects.",
+                            "source": COMMUNITY_ROOT + "enumspragmata.json",
+                            "attributes": {"enumType": enum_type, "value": value, "confidence": "Inferred"}})
+    author = "kvasszn / REE Save Editor; praydog (RSZ dump tooling)"
+    return [("pragmata-restored-identifiers", restored, author, COMMUNITY_LICENSE, COMMUNITY_ROOT + "strings_pragmata.txt", COMMUNITY_ROOT + "strings_pragmata.txt"),
+            ("pragmata-field-schema", sorted(fields, key=lambda row: row["id"]), author, COMMUNITY_LICENSE, COMMUNITY_ROOT + "rszpragmata.json", COMMUNITY_ROOT + "rszpragmata.json"),
+            ("pragmata-enum-members", members, author, COMMUNITY_LICENSE, COMMUNITY_ROOT + "enumspragmata.json", COMMUNITY_ROOT + "enumspragmata.json")]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--rsz", type=Path, required=True)
     parser.add_argument("--missions", type=Path, required=True)
+    parser.add_argument("--community-dir", type=Path, required=True, help="Directory with the three reviewed REE dumps")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     plugin = root / "SaveToolkit.Plugins.Pragmata"
@@ -99,19 +167,27 @@ def main():
          "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21"),
         ("pragmata-item-evidence", mission_items, "Egg Targaryen / dzxrly; Save Toolkit contributors (PS5 cross-index)", "MIT", MISSION_LICENSE, MISSION_SOURCE),
         ("pragmata-missions", mission_records, "Egg Targaryen / dzxrly; Save Toolkit contributors (reference labels)", "MIT", MISSION_LICENSE, MISSION_SOURCE),
-    ]:
+    ] + community_datasets(args.community_dir, plugin, known):
         filename = catalog + ".json"
         write(pack / filename, {"records": rows})
+        modifications = "Selected observed hashes; verified spelling; original group labels and explicit unknown-ID descriptions. No game text or artwork."
+        if catalog in ("pragmata-item-evidence", "pragmata-missions"):
+            modifications = "Selected numeric mission IDs, opening conditions and reference metadata; cross-indexed PS5 inventory observations. No localized text or artwork."
+        elif license_name == COMMUNITY_LICENSE:
+            modifications = "Selected identifier spellings, class/field declarations and enum members/aliases; cross-indexed known save hashes. No localized game text, artwork or code."
         datasets.append({"id": catalog, "kind": "records", "title": catalog,
                          "files": [{"path": filename, "sha256": hashlib.sha256((pack / filename).read_bytes()).hexdigest()}],
                          "attribution": {"sourceUrl": source, "author": author, "license": license_name,
                                          "licenseUrl": license_url, "retrieved": "2026-10-28",
-                                         "modifications": "Selected numeric mission IDs, opening conditions and reference metadata; cross-indexed PS5 inventory observations. No localized text or artwork."
-                                         if catalog in ("pragmata-item-evidence", "pragmata-missions") else "Selected observed hashes; verified spelling; original group labels and explicit unknown-ID descriptions. No game text or artwork."}})
-    write(pack / "pack.json", {"schema": 1, "id": "pragmata.evidence.en", "version": "1.2.0",
+                                         "modifications": modifications}})
+    write(pack / "pack.json", {"schema": 1, "id": "pragmata.evidence.en", "version": "1.3.0",
                                "title": "Pragmata observed identifiers (not a gameplay dictionary)", "plugins": ["pragmata"],
                                "titleIds": ["PPSA02530"], "gameBuilds": [], "locale": "en", "datasets": datasets})
     print(f"Built {len(identifiers)} identifiers, {len(sections)} sections, {len(items)} unknown item IDs, {len(mission_items)} mission item cross-references, {len(mission_records)} missions.")
+    for dataset in datasets:
+        if dataset["attribution"]["license"] == COMMUNITY_LICENSE:
+            record_count = len(json.loads((pack / dataset['files'][0]['path']).read_bytes())["records"])
+            print(f"Built {dataset['id']}: {record_count} records.")
 
 
 if __name__ == "__main__":

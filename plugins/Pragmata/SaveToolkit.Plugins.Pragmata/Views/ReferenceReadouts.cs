@@ -19,7 +19,9 @@ internal sealed class ReferenceReadouts
     private readonly IReferenceCatalog? _itemEvidence;
     private readonly IReferenceCatalog? _sections;
     private readonly IReferenceCatalog? _identifiers;
+    private readonly IReferenceCatalog? _restoredIdentifiers;
     private readonly IReferenceCatalog? _missions;
+    private readonly SchemaReadouts _schema;
     private readonly Dictionary<string, FieldValue> _readOnly = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (SaveNode Node, bool Reference)> _bindings = new(StringComparer.Ordinal);
 
@@ -31,7 +33,9 @@ internal sealed class ReferenceReadouts
         _itemEvidence = context.Catalog(ItemEvidenceCatalog);
         _sections = context.Catalog("pragmata-sections");
         _identifiers = context.Catalog("pragmata-identifiers");
+        _restoredIdentifiers = context.Catalog("pragmata-restored-identifiers");
         _missions = context.Catalog(MissionsCatalog);
+        _schema = new SchemaReadouts(context);
     }
 
     public ReferenceRecord? Item(uint id) => _items?.Find(id.ToString(CultureInfo.InvariantCulture));
@@ -39,9 +43,10 @@ internal sealed class ReferenceReadouts
     public ReferenceRecord? Section(uint hash) => _sections?.Find($"{hash:x8}");
     public string IdentifierSource(uint hash)
     {
-        var record = _identifiers?.Find($"{hash:x8}");
+        var record = _identifiers?.Find($"{hash:x8}") ?? _restoredIdentifiers?.Find($"{hash:x8}");
         return record is not null && record.Name == HashNames.All.GetValueOrDefault(hash) ? record.AttributionText : HashNames.Provenance(hash);
     }
+    public string SchemaDescription(SaveNode node) => _schema.Describe(node, _document);
     public ResolvedEdit? Resolve(string id, FieldValue value)
     {
         if (_readOnly.ContainsKey(id)) return new ResolvedEdit(null, value, "Reference evidence is browse-only.");
@@ -98,6 +103,7 @@ internal sealed class ReferenceReadouts
         {
             Confidence = Confidence.Unknown,
             Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x}. Identifier: {IdentifierSource(node.Hash)} " +
+                $"{SchemaDescription(node)} " +
                 $"{_document.Bounds.Description(node)} Bounds use matching typed fields in this save, including 0 and 1; game limits and dependencies remain unknown. {PragmataDocument.EditWarning}",
         };
     }

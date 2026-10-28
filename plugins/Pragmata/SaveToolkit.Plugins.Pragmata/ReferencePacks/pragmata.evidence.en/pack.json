@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "pragmata.evidence.en",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "title": "Pragmata observed identifiers (not a gameplay dictionary)",
   "plugins": [
     "pragmata"
@@ -105,6 +105,63 @@
         "licenseUrl": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/LICENSE",
         "retrieved": "2026-10-28",
         "modifications": "Selected numeric mission IDs, opening conditions and reference metadata; cross-indexed PS5 inventory observations. No localized text or artwork."
+      }
+    },
+    {
+      "id": "pragmata-restored-identifiers",
+      "kind": "records",
+      "title": "pragmata-restored-identifiers",
+      "files": [
+        {
+          "path": "pragmata-restored-identifiers.json",
+          "sha256": "60e006d2ade2d552c3230f7b64ffc7f780b0e008ad3f8dae95a61e6a2507d1bd"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt",
+        "author": "kvasszn / REE Save Editor; praydog (RSZ dump tooling)",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected identifier spellings, class/field declarations and enum members/aliases; cross-indexed known save hashes. No localized game text, artwork or code."
+      }
+    },
+    {
+      "id": "pragmata-field-schema",
+      "kind": "records",
+      "title": "pragmata-field-schema",
+      "files": [
+        {
+          "path": "pragmata-field-schema.json",
+          "sha256": "9702153463cb20c4df09579eec73fa9144914711e26cc314eb913bd2f1b935cf"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/rszpragmata.json",
+        "author": "kvasszn / REE Save Editor; praydog (RSZ dump tooling)",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/rszpragmata.json",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected identifier spellings, class/field declarations and enum members/aliases; cross-indexed known save hashes. No localized game text, artwork or code."
+      }
+    },
+    {
+      "id": "pragmata-enum-members",
+      "kind": "records",
+      "title": "pragmata-enum-members",
+      "files": [
+        {
+          "path": "pragmata-enum-members.json",
+          "sha256": "3cca7f2a5a0c0ade27fe903be8c662121c61cd74563322f5dab0ab85beb2cc9a"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+        "author": "kvasszn / REE Save Editor; praydog (RSZ dump tooling)",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected identifier spellings, class/field declarations and enum members/aliases; cross-indexed known save hashes. No localized game text, artwork or code."
       }
     }
   ]

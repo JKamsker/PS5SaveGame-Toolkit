@@ -1,0 +1,54 @@
+{
+  "records": [
+    {
+      "id": "27945a5a",
+      "name": "Slot",
+      "category": "field",
+      "description": "Hash-verified identifier spelling; PS5 gameplay meaning and legal values remain Unknown.",
+      "attributes": {
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt"
+    },
+    {
+      "id": "619456d1",
+      "name": "_IsFirstGetWeapon",
+      "category": "field",
+      "description": "Hash-verified identifier spelling; PS5 gameplay meaning and legal values remain Unknown.",
+      "attributes": {
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt"
+    },
+    {
+      "id": "6f1ca4a8",
+      "name": "_IsFirstGetActiveSkill",
+      "category": "field",
+      "description": "Hash-verified identifier spelling; PS5 gameplay meaning and legal values remain Unknown.",
+      "attributes": {
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt"
+    },
+    {
+      "id": "bc922b61",
+      "name": "Detail",
+      "category": "field",
+      "description": "Hash-verified identifier spelling; PS5 gameplay meaning and legal values remain Unknown.",
+      "attributes": {
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt"
+    },
+    {
+      "id": "e205fff9",
+      "name": "_AcquireContentsHashes",
+      "category": "field",
+      "description": "Hash-verified identifier spelling; PS5 gameplay meaning and legal values remain Unknown.",
+      "attributes": {
+        "confidence": "Inferred"
+      },
+      "source": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt"
+    }
+  ]
+}

@@ -1,5 +1,8 @@
 # Round 2 evidence and remaining work — 2026-10-28
 
+Historical note: the [unlicensed-source unblock](unlicensed.md) supersedes the
+licence-only REE dataset refusal below; attributed factual subsets are now imported.
+
 This round extends Phase 2 read-only integration and the existing quantity
 operation's Phase 3 review/validation. It does not complete the causal mapping
 or console requirements of either phase. Maturity remains Experimental.

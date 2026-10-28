@@ -3,6 +3,9 @@
 Base: main `ab748cf` including F13. Issue #21 and all roadmap/write handoffs were
 reviewed. Historical round-2 statements describe that round; the current README
 and this audit supersede its read-only fields and unsupported inventory-query claims.
+The later [community-source unblock](unlicensed.md) restores five names and adds
+459 schema declarations plus 230 enum values with attribution; historical research
+notes here do not impose a licence-only exclusion.
 
 | Requirement | Final status | Evidence / remaining condition |
 | --- | --- | --- |

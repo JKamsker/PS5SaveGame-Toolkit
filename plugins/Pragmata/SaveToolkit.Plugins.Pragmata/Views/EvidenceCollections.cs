@@ -27,7 +27,8 @@ internal sealed class EvidenceCollections(PragmataDocument document)
         var id = $"evidence/array-at-{array.Offset:x}";
         var metadata = new QueryableCollection(id, HashNames.Label(array.Hash), Columns, array.Children.Count)
         {
-            Description = $"Identifier names: {HashNames.Attribution} Counts are stored records, not completion totals. " +
+            Description = $"Identifier names: {HashNames.Attribution} Restored identifiers: {HashNames.RestoredAttribution} " +
+                "Counts are stored records, not completion totals. " +
                 $"Search covers raw IDs, types and the first {MaximumSummaryFields} direct stored fields. Gameplay meanings are Unknown. " +
                 "Row keys identify fixed plaintext offsets; they do not establish a gameplay identity.",
         };

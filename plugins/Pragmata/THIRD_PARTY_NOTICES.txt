@@ -33,16 +33,31 @@ https://github.com/kvasszn/ree-save-editor
   src/sdk/type_map.rs
 No substantial Rust source or complete game-data dumps are distributed here.
 
-Resources/HashNames.json and the identifier/section reference datasets now
+Resources/HashNames.json and the MIT identifier/section reference datasets
 contain only the subset confirmed against the MIT RE_RSZ schema, pinned to:
 https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json
 Authors: alphazolam; praydog (RSZ dumps). Retrieved 2026-10-28.
 Selected observed spellings; independently checked Murmur3, seed 0xffffffff;
-extracted declared types and wrote descriptive group labels. The five old
-identifier names absent from this source are no longer embedded.
+extracted declared types and wrote descriptive group labels. Their original MIT
+provenance is retained separately from the restored community identifiers below.
 Original unmapped-item descriptions/computed sample facts by Save Toolkit
 contributors are dedicated under CC0-1.0:
 https://creativecommons.org/publicdomain/zero/1.0/
+
+Resources/RestoredHashNames.json and the reference datasets
+pragmata-restored-identifiers.json, pragmata-field-schema.json and
+pragmata-enum-members.json derive from REE Save Editor community dumps:
+https://github.com/kvasszn/ree-save-editor/tree/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata
+Authors/project: kvasszn / REE Save Editor; praydog (RSZ dump tooling).
+No licence published; reused with attribution per owner decision 2026-10-28.
+Retrieved 2026-10-28. Inputs: strings_pragmata.txt, rszpragmata.json,
+enumspragmata.json. Exact input hashes and transformations are recorded beside
+the derived data in ReferencePacks/pragmata.evidence.en/community.source.md.
+Selected five technical identifier names, 459 class/field declarations and
+230 enum values across eight types; preserved aliases and added original
+uncertainty/context descriptions. No executable source, localized game text,
+artwork, icons or screenshots copied. These declarations do not establish
+PS5 gameplay effects, legal bounds, completion or unlock rules.
 
 ReferencePacks/pragmata.evidence.en/pragmata-item-evidence.json and
 pragmata-missions.json derive from:
