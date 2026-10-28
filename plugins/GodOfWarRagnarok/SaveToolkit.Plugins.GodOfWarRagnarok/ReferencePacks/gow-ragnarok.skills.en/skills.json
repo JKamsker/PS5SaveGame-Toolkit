@@ -1,0 +1,1381 @@
+{
+  "records": [
+    {
+      "id": "axe/frost-awaken-i",
+      "name": "Frost Awaken I",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "0",
+        "weaponLevel": "1",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/frozen-breach",
+      "name": "Frozen Breach",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "0",
+        "weaponLevel": "1",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/frozen-ascent",
+      "name": "Frozen Ascent",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "750",
+        "weaponLevel": "2",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/frost-awaken-ii",
+      "name": "Frost Awaken II",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "1500",
+        "weaponLevel": "4",
+        "prerequisites": "axe/frozen-ascent",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/frozen-spike",
+      "name": "Frozen Spike",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "0",
+        "weaponLevel": "1",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/frozen-lance",
+      "name": "Frozen Lance",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "1000",
+        "weaponLevel": "3",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/frost-awaken-iii",
+      "name": "Frost Awaken III",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "3000",
+        "weaponLevel": "5",
+        "prerequisites": "axe/frozen-lance",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/frost-awaken-iv",
+      "name": "Frost Awaken IV",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "5000",
+        "weaponLevel": "6",
+        "prerequisites": "axe/frost-awaken-ii;axe/frost-awaken-iii",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/extinguish-flames",
+      "name": "Extinguish Flames",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "250",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/permafrost",
+      "name": "Permafrost",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "500",
+        "weaponLevel": "2",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/glacial-permafrost",
+      "name": "Glacial Permafrost",
+      "category": "Leviathan Axe / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Technique",
+        "xp": "1500",
+        "weaponLevel": "3",
+        "prerequisites": "axe/permafrost",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/axe-throw",
+      "name": "Axe Throw",
+      "category": "Leviathan Axe / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Ranged",
+        "xp": "0",
+        "weaponLevel": "1",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/vengeful-sickle-i",
+      "name": "Vengeful Sickle I",
+      "category": "Leviathan Axe / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Ranged",
+        "xp": "500",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/vengeful-sickle-ii",
+      "name": "Vengeful Sickle II",
+      "category": "Leviathan Axe / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Ranged",
+        "xp": "1500",
+        "weaponLevel": "3",
+        "prerequisites": "axe/vengeful-sickle-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/freezing-throw-i",
+      "name": "Freezing Throw I",
+      "category": "Leviathan Axe / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Ranged",
+        "xp": "0",
+        "weaponLevel": "1",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/freezing-throw-ii",
+      "name": "Freezing Throw II",
+      "category": "Leviathan Axe / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Ranged",
+        "xp": "750",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/returning-whirlwind",
+      "name": "Returning Whirlwind",
+      "category": "Leviathan Axe / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Ranged",
+        "xp": "1000",
+        "weaponLevel": "3",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/returning-storm",
+      "name": "Returning Storm",
+      "category": "Leviathan Axe / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Ranged",
+        "xp": "2000",
+        "weaponLevel": "4",
+        "prerequisites": "axe/returning-whirlwind",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/frost-rush",
+      "name": "Frost Rush",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "0",
+        "weaponLevel": "1",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/leviathans-fury",
+      "name": "Leviathan's Fury",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "0",
+        "weaponLevel": "1",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/whirling-storm",
+      "name": "Whirling Storm",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "500",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/evasive-storm",
+      "name": "Evasive Storm",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "500",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/glacial-rake",
+      "name": "Glacial Rake",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "750",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/serpents-snare",
+      "name": "Serpent's Snare",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "1000",
+        "weaponLevel": "2",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/whirlwind-sweep",
+      "name": "Whirlwind Sweep",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "1000",
+        "weaponLevel": "3",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/whirlwind-throw",
+      "name": "Whirlwind Throw",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "2000",
+        "weaponLevel": "4",
+        "prerequisites": "axe/whirlwind-sweep",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/pride-of-the-frost-i",
+      "name": "Pride of the Frost I",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "2000",
+        "weaponLevel": "4",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "axe/pride-of-the-frost-ii",
+      "name": "Pride of the Frost II",
+      "category": "Leviathan Axe / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+      "attributes": {
+        "weapon": "axe",
+        "weaponName": "Leviathan Axe",
+        "branch": "Melee",
+        "xp": "4000",
+        "weaponLevel": "5",
+        "prerequisites": "axe/pride-of-the-frost-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/flame-whiplash-i",
+      "name": "Flame Whiplash I",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/vaporize-frost",
+      "name": "Vaporize Frost",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/scorched-sweep-i",
+      "name": "Scorched Sweep I",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "0",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/scorched-earth-i",
+      "name": "Scorched Earth I",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "750",
+        "weaponLevel": "2",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/scorched-sweep-ii",
+      "name": "Scorched Sweep II",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/scorched-earth-ii",
+      "name": "Scorched Earth II",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/immolation",
+      "name": "Immolation",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/furious-immolation",
+      "name": "Furious Immolation",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/scorched-sweep-iii",
+      "name": "Scorched Sweep III",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/scorched-earth-iii",
+      "name": "Scorched Earth III",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/flame-whiplash-ii",
+      "name": "Flame Whiplash II",
+      "category": "Blades of Chaos / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/hyperion-pull",
+      "name": "Hyperion Pull",
+      "category": "Blades of Chaos / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Ranged",
+        "xp": "0",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/blazing-surge",
+      "name": "Blazing Surge",
+      "category": "Blades of Chaos / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Ranged",
+        "xp": "0",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/hyperion-grapple-i",
+      "name": "Hyperion Grapple I",
+      "category": "Blades of Chaos / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Ranged",
+        "xp": "750",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/blazing-explosion-i",
+      "name": "Blazing Explosion I",
+      "category": "Blades of Chaos / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Ranged",
+        "xp": "1000",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/hyperion-grapple-ii",
+      "name": "Hyperion Grapple II",
+      "category": "Blades of Chaos / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Ranged",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/blazing-explosion-ii",
+      "name": "Blazing Explosion II",
+      "category": "Blades of Chaos / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Ranged",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/rushing-chaos",
+      "name": "Rushing Chaos",
+      "category": "Blades of Chaos / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Melee",
+        "xp": "500",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/spinning-chaos",
+      "name": "Spinning Chaos",
+      "category": "Blades of Chaos / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Melee",
+        "xp": "750",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/chaotic-rampage-i",
+      "name": "Chaotic Rampage I",
+      "category": "Blades of Chaos / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Melee",
+        "xp": "750",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/chaos-slam",
+      "name": "Chaos Slam",
+      "category": "Blades of Chaos / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Melee",
+        "xp": "0",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/evasive-embers",
+      "name": "Evasive Embers",
+      "category": "Blades of Chaos / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Melee",
+        "xp": "750",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/chaotic-rampage-ii",
+      "name": "Chaotic Rampage II",
+      "category": "Blades of Chaos / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Melee",
+        "xp": "1500",
+        "weaponLevel": "2",
+        "prerequisites": "blades/chaotic-rampage-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/rising-chaos",
+      "name": "Rising Chaos",
+      "category": "Blades of Chaos / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Melee",
+        "xp": "0",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/chaotic-rampage-iii",
+      "name": "Chaotic Rampage III",
+      "category": "Blades of Chaos / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Melee",
+        "xp": "3000",
+        "weaponLevel": "3",
+        "prerequisites": "blades/chaotic-rampage-ii",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "blades/plume-of-chaos",
+      "name": "Plume of Chaos",
+      "category": "Blades of Chaos / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+      "attributes": {
+        "weapon": "blades",
+        "weaponName": "Blades of Chaos",
+        "branch": "Melee",
+        "xp": "4000",
+        "weaponLevel": "4",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/draupnirs-call-i",
+      "name": "Draupnir's Call I",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/draupnirs-wail",
+      "name": "Draupnir's Wail",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "1000",
+        "weaponLevel": "Unknown",
+        "prerequisites": "spear/draupnirs-call-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/draupnirs-call-ii",
+      "name": "Draupnir's Call II",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "6",
+        "prerequisites": "spear/draupnirs-call-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/draupnirs-call-iii",
+      "name": "Draupnir's Call III",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "6",
+        "prerequisites": "spear/draupnirs-call-ii",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/spear-arsenal-i",
+      "name": "Spear Arsenal I",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "2000",
+        "weaponLevel": "Unknown",
+        "prerequisites": "spear/draupnirs-call-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/spear-arsenal-ii",
+      "name": "Spear Arsenal II",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "6",
+        "prerequisites": "spear/spear-arsenal-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/spear-arsenal-iii",
+      "name": "Spear Arsenal III",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "7",
+        "prerequisites": "spear/spear-arsenal-ii",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/spear-swiftness",
+      "name": "Spear Swiftness",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "7",
+        "prerequisites": "spear/draupnirs-call-iii;spear/spear-arsenal-iii",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/maelstrom",
+      "name": "Maelstrom",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "500",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/violent-maelstrom",
+      "name": "Violent Maelstrom",
+      "category": "Draupnir Spear / Technique",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Technique",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "spear/maelstrom",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/spear-throw",
+      "name": "Spear Throw",
+      "category": "Draupnir Spear / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Ranged",
+        "xp": "0",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/spear-drill",
+      "name": "Spear Drill",
+      "category": "Draupnir Spear / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Ranged",
+        "xp": "3000",
+        "weaponLevel": "6",
+        "prerequisites": "spear/spear-throw",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/gale-force-i",
+      "name": "Gale Force I",
+      "category": "Draupnir Spear / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Ranged",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/gale-force-ii",
+      "name": "Gale Force II",
+      "category": "Draupnir Spear / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Ranged",
+        "xp": "1500",
+        "weaponLevel": "Unknown",
+        "prerequisites": "spear/gale-force-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/gale-force-iii",
+      "name": "Gale Force III",
+      "category": "Draupnir Spear / Ranged",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Ranged",
+        "xp": "Unknown",
+        "weaponLevel": "6",
+        "prerequisites": "spear/gale-force-ii",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/hoplite-lunge-i",
+      "name": "Hoplite Lunge I",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "500",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/hoplite-lunge-ii",
+      "name": "Hoplite Lunge II",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "Unknown",
+        "weaponLevel": "Unknown",
+        "prerequisites": "spear/hoplite-lunge-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/generals-advance",
+      "name": "General's Advance",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "750",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/generals-deception",
+      "name": "General's Deception",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "750",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/impaling-thrust-i",
+      "name": "Impaling Thrust I",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "1000",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/impaling-thrust-ii",
+      "name": "Impaling Thrust II",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "2000",
+        "weaponLevel": "Unknown",
+        "prerequisites": "spear/impaling-thrust-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/impaling-thrust-iii",
+      "name": "Impaling Thrust III",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "4000",
+        "weaponLevel": "6",
+        "prerequisites": "spear/impaling-thrust-ii",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/phalanx-breaker",
+      "name": "Phalanx Breaker",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "500",
+        "weaponLevel": "6",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/elemental-siphon-i",
+      "name": "Elemental Siphon I",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "500",
+        "weaponLevel": "Unknown",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/elemental-siphon-ii",
+      "name": "Elemental Siphon II",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "Unknown",
+        "weaponLevel": "6",
+        "prerequisites": "spear/elemental-siphon-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/rising-wind-i",
+      "name": "Rising Wind I",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "1000",
+        "weaponLevel": "6",
+        "prerequisites": "",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    },
+    {
+      "id": "spear/rising-wind-ii",
+      "name": "Rising Wind II",
+      "category": "Draupnir Spear / Melee",
+      "description": "Base-game skill reference; saved unlock state and hash mapping are unknown. Missing costs, level requirements and prerequisite edges are not claims of no requirement.",
+      "source": "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+      "attributes": {
+        "weapon": "spear",
+        "weaponName": "Draupnir Spear",
+        "branch": "Melee",
+        "xp": "Unknown",
+        "weaponLevel": "7",
+        "prerequisites": "spear/rising-wind-i",
+        "savedState": "Unknown",
+        "saveHash": "Unknown"
+      }
+    }
+  ]
+}

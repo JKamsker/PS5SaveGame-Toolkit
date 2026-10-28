@@ -28,9 +28,11 @@ internal sealed class RagnarokReferences
     private readonly IReferenceCatalog? _catalog;
     private readonly IReferenceCatalog? _collectibles;
     private readonly IReferenceCatalog? _evidence;
+    public RagnarokSkillReferences Skills { get; }
 
     public RagnarokReferences(IReferenceContext context)
     {
+        Skills = new(context);
         _catalog = context.Catalog(CatalogId, Build);
         _collectibles = context.Catalog("gow-ragnarok-collectibles", Build);
         _evidence = context.Catalog("gow-ragnarok-community-ids", Build);
@@ -78,6 +80,9 @@ internal sealed class RagnarokReferences
 
     public string Attribution(ulong id) => Find(id)?.AttributionText ??
         "No licensed name mapping is available; the raw ID is preserved.";
+
+    public string? Catalog(ulong id) => Find(id)?.Dataset.Id is { } catalog &&
+        catalog is CatalogId or "gow-ragnarok-collectibles" or "gow-ragnarok-community-ids" ? catalog : null;
 
     public static string Key(ulong id)
     {

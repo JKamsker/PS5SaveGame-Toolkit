@@ -1,12 +1,14 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
-public sealed class GodOfWarRagnarokPlugin : IGamePlugin
+public sealed class GodOfWarRagnarokPlugin : IGamePlugin, ISaveDecoderProvider
 {
-    public PluginInfo Info { get; } = new("gow-ragnarok", "God of War Ragnarök", "0.3.0")
+    public IReadOnlyList<ISaveDecoderHook> Decoders => [new RagnarokEvidenceDecoder()];
+    public PluginInfo Info { get; } = new("gow-ragnarok", "God of War Ragnarök", "0.4.0")
     {
         Description = "Experimental PS5 existing wallet counter/play-time edits and planned restore, with paged research views. " + RagnarokWrites.IntegrityWarning,
         Games = [.. new[] { "PPSA08329", "PPSA08330", "PPSA08331", "PPSA08332", "PPSA08333", "PPSA08334", "PPSA25043", "PPSA25044" }
@@ -22,6 +24,12 @@ public sealed class GodOfWarRagnarokPlugin : IGamePlugin
             "https://github.com/bucanero/apollo-patches/blob/273f032b4c31c017fed5c1588f209b8faf87ba6c/PS4/CUSA34384.savepatch",
             "https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py",
             "https://www.gnu.org/licenses/gpl-3.0.html",
+            "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+            "https://godofwar.fandom.com/wiki/Blades_of_Chaos",
+            "https://godofwar.fandom.com/wiki/Draupnir_Spear",
+            "https://godofwar.fandom.com/wiki/Skill_Labors_%28Ragnar%C3%B6k%29",
+            "https://creativecommons.org/licenses/by-sa/3.0/",
+            "https://mapgenie.io/god-of-war-ragnarok",
         ],
     };
 
