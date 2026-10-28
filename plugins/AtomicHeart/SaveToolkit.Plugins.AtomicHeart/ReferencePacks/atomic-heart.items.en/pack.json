@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "atomic-heart.items.en",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Atomic Heart public runtime item labels (inferred on PS5)",
   "plugins": [
     "atomic-heart"
@@ -19,7 +19,7 @@
       "files": [
         {
           "path": "items.json",
-          "sha256": "aa4289f15303a6a9c3f028ad9db447907ba3c31bbfd5aeabd6750ed569212bfb"
+          "sha256": "b3f8ad1ca61d86fd61a366c56daabb7e90d3f989a317930675d24833da03c028"
         }
       ],
       "attribution": {
@@ -28,7 +28,7 @@
         "license": "GPL-3.0-or-later",
         "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html",
         "retrieved": "2026-10-28",
-        "modifications": "Selected 12 weapon and 8 ammunition label/object-name pairs; normalized duplicated object names to exact short asset IDs; added categories and original caution text. No runtime code, offsets, limits or images copied."
+        "modifications": "Selected all 37 weapon and 8 ammunition label/object-name pairs; normalized duplicated object names to exact short asset IDs; added categories and original caution text. No runtime code, offsets, limits or images copied."
       }
     }
   ]

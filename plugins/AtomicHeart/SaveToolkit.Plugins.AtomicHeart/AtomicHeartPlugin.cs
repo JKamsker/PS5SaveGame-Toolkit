@@ -7,9 +7,9 @@ namespace SaveToolkit.Plugins.AtomicHeart;
 public sealed class AtomicHeartPlugin : IGamePlugin
 {
     private const int ProbeHeaderBytes = 4096;
-    public PluginInfo Info { get; } = new("atomic-heart", "Atomic Heart", "0.3.0")
+    public PluginInfo Info { get; } = new("atomic-heart", "Atomic Heart", "0.4.0")
     {
-        Description = "Experimental existing inventory edits with stored Kraken output, SHA-1 repair and explicit console-compatibility warnings.",
+        Description = "Experimental inventory editor with paged queries, attributed item choices, skill/weapon evidence graphs and an external location index. Stored Kraken output retains console-compatibility warnings.",
         Games = [new GameTitle("PPSA10695", "Atomic Heart")],
         Maturity = PluginMaturity.Experimental,
         References = [
@@ -23,6 +23,8 @@ public sealed class AtomicHeartPlugin : IGamePlugin
             "https://github.com/powzix/ooz/blob/05038060aa68f9187ae9923b2388ca8db40e58d1/kraken.cpp",
             "https://github.com/producedbytmsh/hl-savetools/blob/e568dedcda2611f54cc793e6d0237c749ae25094/hlsave.py",
             "https://www.rfc-editor.org/rfc/rfc3174",
+            "https://atomicheart.fandom.com/wiki/Locations",
+            "https://atomicheart.fandom.com/wiki/Skills",
         ],
     };
 

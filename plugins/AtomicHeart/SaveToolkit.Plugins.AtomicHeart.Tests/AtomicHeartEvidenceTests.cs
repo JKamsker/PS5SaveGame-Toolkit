@@ -83,7 +83,7 @@ public sealed class AtomicHeartEvidenceTests
         var context = packs.Pin(plugin, "PPSA10695");
         var catalog = context.Catalog("items");
         Assert.NotNull(catalog);
-        Assert.Equal(20, catalog.Count);
+        Assert.Equal(45, catalog.Count);
         Assert.Equal("GPL-3.0-or-later", catalog.Dataset.Attribution.License);
         var swede = catalog.Find("DA_Item_Shved");
         Assert.NotNull(swede);

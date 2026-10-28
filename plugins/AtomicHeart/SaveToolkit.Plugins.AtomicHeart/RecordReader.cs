@@ -16,6 +16,7 @@ internal sealed class RecordReader(byte[] plain)
     private readonly List<LevelRecord> levels = [];
     private readonly Dictionary<string, int> identities = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> recordPositions = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> levelOccurrences = new(StringComparer.Ordinal);
     private int identityUnits;
 
     internal RecordIndex Read()
@@ -40,7 +41,11 @@ internal sealed class RecordReader(byte[] plain)
         if (name.Length == 0) throw new SaveFormatException("Empty Atomic Heart level name.");
         var count = reader.Count(RecordIndex.MaxRecords);
         for (var index = 0; index < count; index++) ReadActor(name);
-        levels.Add(new LevelRecord(name, new(start, reader.Position - start), count));
+        var occurrence = levelOccurrences.GetValueOrDefault(name);
+        levelOccurrences[name] = occurrence + 1;
+        // Hash the name/occurrence pair, not a suffixed name that could collide with a literal '#2'.
+        var id = RecordIdentity.Compact("level", name + "\0" + occurrence);
+        levels.Add(new LevelRecord(id, name, new(start, reader.Position - start), count));
     }
 
     private void ReadActor(string owner)

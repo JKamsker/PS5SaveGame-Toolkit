@@ -219,6 +219,281 @@
         "confidence": "Inferred",
         "objectName": "DA_PlasmagunAmmo.DA_PlasmagunAmmo"
       }
+    },
+    {
+      "id": "DA_Item_Zvezdochka_DLC1",
+      "name": "Zvezdochka DLC1",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Zvezdochka_DLC1.DA_Item_Zvezdochka_DLC1"
+      }
+    },
+    {
+      "id": "DA_Item_ShotgunKS23_DLC1",
+      "name": "KS-23 Shotgun DLC1",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_ShotgunKS23_DLC1.DA_Item_ShotgunKS23_DLC1"
+      }
+    },
+    {
+      "id": "DA_Item_PM_DLC1",
+      "name": "PM DLC1",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_PM_DLC1.DA_Item_PM_DLC1"
+      }
+    },
+    {
+      "id": "DA_Item_BasePistol",
+      "name": "Base Pistol",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_BasePistol.DA_Item_BasePistol"
+      }
+    },
+    {
+      "id": "DA_Item_Plasmagun",
+      "name": "Plasmagun",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Plasmagun.DA_Item_Plasmagun"
+      }
+    },
+    {
+      "id": "DA_Item_Krepysh",
+      "name": "Krepysh",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Krepysh.DA_Item_Krepysh"
+      }
+    },
+    {
+      "id": "DA_Item_Machinegun",
+      "name": "Machinegun",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Machinegun.DA_Item_Machinegun"
+      }
+    },
+    {
+      "id": "DA_Item_PTRD",
+      "name": "PTRD",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_PTRD.DA_Item_PTRD"
+      }
+    },
+    {
+      "id": "DA_Item_Bidonist",
+      "name": "Bidonist",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Bidonist.DA_Item_Bidonist"
+      }
+    },
+    {
+      "id": "DA_Item_Flamethrower",
+      "name": "Flamethrower",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Flamethrower.DA_Item_Flamethrower"
+      }
+    },
+    {
+      "id": "DA_Item_Shprits",
+      "name": "Shprits",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Shprits.DA_Item_Shprits"
+      }
+    },
+    {
+      "id": "DA_Item_Signalka",
+      "name": "Signalka",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Signalka.DA_Item_Signalka"
+      }
+    },
+    {
+      "id": "DA_Item_Axe",
+      "name": "Axe",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Axe.DA_Item_Axe"
+      }
+    },
+    {
+      "id": "DA_Item_Abzac",
+      "name": "Abzac",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Abzac.DA_Item_Abzac"
+      }
+    },
+    {
+      "id": "DA_Item_Bober",
+      "name": "Bober",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Bober.DA_Item_Bober"
+      }
+    },
+    {
+      "id": "DA_Item_Dikobraz",
+      "name": "Dikobraz",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Dikobraz.DA_Item_Dikobraz"
+      }
+    },
+    {
+      "id": "DA_Item_Hipar",
+      "name": "Hipar",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Hipar.DA_Item_Hipar"
+      }
+    },
+    {
+      "id": "DA_Item_Hirurg",
+      "name": "Hirurg",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Hirurg.DA_Item_Hirurg"
+      }
+    },
+    {
+      "id": "DA_Item_Karusel",
+      "name": "Karusel",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Karusel.DA_Item_Karusel"
+      }
+    },
+    {
+      "id": "DA_Item_Kilka",
+      "name": "Kilka",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Kilka.DA_Item_Kilka"
+      }
+    },
+    {
+      "id": "DA_Item_Lapta",
+      "name": "Lapta",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Lapta.DA_Item_Lapta"
+      }
+    },
+    {
+      "id": "DA_Item_Molot",
+      "name": "Molot",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Molot.DA_Item_Molot"
+      }
+    },
+    {
+      "id": "DA_Item_Neptun",
+      "name": "Neptun",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Neptun.DA_Item_Neptun"
+      }
+    },
+    {
+      "id": "DA_Item_Petuh",
+      "name": "Petuh",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Petuh.DA_Item_Petuh"
+      }
+    },
+    {
+      "id": "DA_Item_Zinger",
+      "name": "Zinger",
+      "category": "weapon",
+      "description": "PC runtime catalog label. Exact asset-name join only; may be unused, debug-only or DLC-dependent. PS5 availability, compatibility and safe limits are unverified.",
+      "source": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+      "attributes": {
+        "confidence": "Inferred",
+        "objectName": "DA_Item_Zinger.DA_Item_Zinger"
+      }
     }
   ]
 }

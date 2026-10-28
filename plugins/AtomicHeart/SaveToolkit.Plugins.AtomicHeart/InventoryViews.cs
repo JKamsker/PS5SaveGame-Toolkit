@@ -12,12 +12,19 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
 {
     internal const string CatalogId = "items";
 
+    internal void RegisterBindings()
+    {
+        foreach (var item in state.Items) _ = Fields(item);
+    }
+
     internal IReadOnlyList<ViewNode> BuildView() => [
         new TextNode("Existing player/storage inventory slots only. Empty slots remain read-only; world loot is excluded. Amount limits use the original maximum in each serialized container, not a proven stack cap. " + InventoryState.WriteWarning) { Tone = Tone.Warning },
         new TextNode(state.Catalog is null ? "No item pack loaded; exact raw IDs are shown. Asset replacement requires the attributed pack." :
             $"Names: {state.Catalog.Dataset.Attribution.SourceUrl}. Exact object-name joins; PC-derived labels are inferred on PS5. No icons or limits are bundled."),
         InventoryPlanning.Action(),
-        SectionNode.Lazy($"Serialized inventory slots ({state.Items.Count})", "inventory/0"),
+        new InventoryCollection(state, this).View,
+        // Keep the existing bounded inspection path until F12 traverses queryable fields for F1.
+        SectionNode.Lazy("Slot details and original bytes", "inventory/0"),
     ];
 
     internal IReadOnlyList<ViewNode> Expand(string lazyId)
@@ -28,13 +35,34 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
         var rows = state.Items.Skip(start).Take(AtomicHeartDocument.PageSize).Select(Row).ToArray();
         var nodes = new List<ViewNode> { new TableNode([
             new("container", "Container"), new("asset", "Item reference"), new("raw", "Saved object path"),
-            new("instance", "ItemId"), new("amount", "Amount"), new("action", "Bulk edit"), new("span", "Original decoded span")], rows) };
+            new("category", "Category"), new("instance", "ItemId"), new("amount", "Amount"), new("action", "Bulk edit"),
+            new("details", "Details"), new("span", "Original decoded span")], rows) };
         if (start + AtomicHeartDocument.PageSize < state.Items.Count)
             nodes.Add(SectionNode.Lazy("More slots", $"inventory/{start + AtomicHeartDocument.PageSize}"));
         return nodes;
     }
 
-    private TableRow Row(InventoryItem item)
+    internal TableRow Row(InventoryItem item)
+    {
+        var rawId = InventoryState.ShortId(state.Asset(item));
+        var reference = state.Catalog?.Find(rawId);
+        var (referenceField, amount) = Fields(item);
+        return new TableRow(item.Key, new Dictionary<string, ViewNode> {
+            ["container"] = new TextNode(item.Container), ["asset"] = referenceField, ["raw"] = new TextNode(state.Asset(item)),
+            ["category"] = new TextNode(InventoryLabels.Category(item, state)),
+            ["instance"] = new TextNode(item.InstanceId.ToString()), ["amount"] = amount,
+            ["action"] = InventoryPlanning.Action(), ["span"] = new TextNode(RecordViews.Span(item.Element.Tag)),
+            ["details"] = new SectionNode("Item details", [
+                new TextNode(reference?.Name ?? InventoryLabels.Name(rawId)),
+                new TextNode(reference?.Description ?? "Formatted asset identifier, not a confirmed localized game label. Category is inferred from the serialized container; raw ID is retained."),
+                new TextNode(reference?.AttributionText ?? "Original toolkit identifier formatting; source is this save's explicit ItemDataAsset and container tags."),
+                new TextNode($"Raw ID: {rawId}; instance: {item.InstanceId}. {InventoryState.WriteWarning}"),
+                RecordViews.Hex(item.Element.Tag, "Original slot bytes"),
+            ]) { Collapsed = true },
+        });
+    }
+
+    private (FieldNode Reference, FieldNode Amount) Fields(InventoryItem item)
     {
         var rawId = InventoryState.ShortId(state.Asset(item));
         var reference = state.Catalog?.Find(rawId);
@@ -57,10 +85,6 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
                 $"Based on explicit inventory tags; bounded to 0–{state.Limit(item)} (original container maximum). No dependent state is guessed. " + InventoryState.WriteWarning,
             Warning = InventoryState.WriteWarning,
         };
-        return new TableRow(item.Key, new Dictionary<string, ViewNode> {
-            ["container"] = new TextNode(item.Container), ["asset"] = referenceField, ["raw"] = new TextNode(state.Asset(item)),
-            ["instance"] = new TextNode(item.InstanceId.ToString()), ["amount"] = amount,
-            ["action"] = InventoryPlanning.Action(), ["span"] = new TextNode(RecordViews.Span(item.Element.Tag)),
-        });
+        return (referenceField, amount);
     }
 }
