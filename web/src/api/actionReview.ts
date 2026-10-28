@@ -36,5 +36,12 @@ export const actionReview = {
 };
 
 export function reviewValue(value: FieldValue, exists = true): string {
-  return exists ? (value === null ? "null" : String(value)) : "(absent)";
+  return exists ? formatValue(value) : "(absent)";
+}
+
+/** Plain text for any wire value, including tagged exact numbers and union choices (F10). */
+function formatValue(value: FieldValue): string {
+  if (value === null) return "null";
+  if (typeof value !== "object") return String(value);
+  return value.kind === "exactNumber" ? value.text : `${value.type}: ${formatValue(value.value)}`;
 }
