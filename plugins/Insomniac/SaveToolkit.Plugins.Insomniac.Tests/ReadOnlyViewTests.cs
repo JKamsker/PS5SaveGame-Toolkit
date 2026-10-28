@@ -116,6 +116,24 @@ public sealed class ReadOnlyViewTests
     }
 
     [Fact]
+    public void SystemsTabKeepsLazyRootsCollapsedAndEagerSurfaceBounded()
+    {
+        using var document = new InsomniacPlugin().Open(PlayerCorpusTests.Find("i29slot0-s-autosave", 1));
+        var systems = Assert.Single(Assert.IsType<TabsNode>(document.BuildView()).Tabs, t => t.Title == "Systems");
+
+        Assert.All(systems.Children, node =>
+        {
+            var root = Assert.IsType<SectionNode>(node);
+            Assert.True(root.Collapsed);
+            Assert.NotNull(root.LazyId);
+        });
+        Assert.InRange(CountEagerNodes(systems.Children), 1, 100);
+
+        static int CountEagerNodes(IEnumerable<ViewNode> nodes) => nodes.Sum(node =>
+            node is SectionNode section ? 1 + CountEagerNodes(section.Children) : 1);
+    }
+
+    [Fact]
     public void WorldTablesShowStoredKeysAndHonestConfidence()
     {
         using var document = new InsomniacPlugin().Open(PlayerCorpusTests.Find("i29slot0-s-autosave", 0));
