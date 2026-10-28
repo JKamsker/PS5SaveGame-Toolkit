@@ -136,6 +136,82 @@ rebuilt with the view after every structural change, so they never point at remo
 `tests/SaveToolkit.Core.Tests/Fakes/RosterPlugin.cs` is a complete example with add, remove and
 move actions.
 
+## Planned actions and semantic review
+
+Existing actions keep their current behavior. For a bulk action or preset that needs review,
+implement the optional `IActionPlanningDocument` interface and set
+`ActionNode.SupportsPlanning = true`. Core rejects direct invocation of opted-in actions, so a
+caller cannot bypass the preview. No change to `IGamePlugin.Open` or the value-spec vocabulary is needed.
+
+The two methods are:
+
+- `PlanAction(actionId, parameters, scope)` returns an `ActionPlan` **without mutating anything**.
+  Include every named direct and derived effect in `PlannedChange`, and include skipped row keys
+  with reasons, warnings and validation errors. `OldExists` / `NewExists` distinguish an absent
+  field from a real null value. Labels must reflect what is actually known about the field.
+- `ApplyActionPlan(actionId, parameters, scope, plan)` returns an `EditOutcome`. It must be atomic:
+  an error or exception leaves the document unchanged. Return every scalar change, including
+  derived values, or a structural `Revert` memento as described above. Structural planned actions
+  must support mementos; this interface has no non-undoable opt-out.
+
+`ActionScope.RowKeys == null` means document scope. An **empty list means no selected rows**;
+never reinterpret it as all rows. Keys are the stable `TableRow.Key` values from F3 selection,
+not visible positions. A table-cell action takes the enclosing table's selection, including
+selected rows hidden by filters. Outside a table, the dialog explicitly shows document scope.
+Validate that every requested key belongs to the intended collection and is eligible. Do not
+retain or mutate the supplied parameters, scope or plan.
+
+For a value-only action, the apply implementation can pass its planned direct changes through
+`ApplyEdits`; the document's normal derived-value logic still runs:
+
+```csharp
+public EditOutcome ApplyActionPlan(string actionId,
+    IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
+    ApplyEdits(plan.Changes.Where(c => !c.Derived)
+        .Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray());
+```
+
+Use this only when every direct effect is an existing scalar; additions/removals require the
+structural path. The test fixture `tests/SaveToolkit.Core.Tests/Fakes/PlanningPlugin.cs` exercises
+both kinds of action, selected-row scope and a derived total.
+
+Core retains only the latest preview per document. The response includes an opaque `PlanId` and
+`DocumentState.Revision`; apply sends both, never client-supplied consequences. Any intervening
+scalar edit, action, structural change, undo or redo invalidates the revision. A stale apply
+returns HTTP 409 with `stale: true` and `code: "stale"`. Tokens are single-use, including failed
+applies, and previews in another tab replace the previous token. Apply reruns `PlanAction` under
+the document lock and requires the same effects, exclusions, warnings and errors. Planning must
+therefore be deterministic for the same request and document. A successful apply runs inside
+`DocumentSession.RunGroup`, giving one undo entry (subject to the existing undo-memory budget).
+Planning works on read-only documents, but applying does not. The retained request plus preview
+is limited to 4 MiB and selection to 5,000 distinct keys; ask users to narrow larger operations.
+Review lists page at 100 entries to keep the browser DOM bounded.
+
+The API adds `POST /actions/plan`, `POST /actions/apply`, `GET /changes` and
+`POST /changes/revert` below each document route. Revert requires the change log's revision.
+
+The Changes panel compares the current semantic field values with a separate original baseline,
+not with the top undo entry. Core captures that baseline before the first mutation (or on the
+first changes query), including lazy views and derived read-only fields. The baseline walk uses
+a separate disposable document opened from the original file, so registering lazy aliases cannot
+change the live document's legacy edit/action behavior. The optional `DocumentSession` constructor
+argument `openOriginal` can supply a factory that preserves reference-pack or other opening context;
+it must return a new document with the same initial identities. The default calls `plugin.Open(file)`.
+The live current-view walk occurs only when review is requested, and registers the reviewed fields
+like normal view expansion. Scalar changes reported for unexposed fields also retain their first
+old value where original identity can be proven; these use their raw ID and have no jump target until exposed. The baseline survives undo-history
+eviction. `DocumentSessionOptions.MaxOriginalBytes` defaults to 16 MiB of estimated retained
+field data; walks are also bounded to 100,000 nodes/rows/tabs and depth 128. Exceeding a bound,
+failure to open the original, failing lazy expansion, or unmatchable internal identities yields
+`Complete = false` with a visible warning. Missing coverage is never reported as a proven addition
+or removal. This is a field-level review; it does not describe binary differences or record order. Use structural
+undo for reorder-only changes.
+
+Jump opens parent sections/tabs and lazy views, clears table filters, scrolls virtual rows and
+focuses the field. Individual revert restores an **existing editable field** through normal
+validation, so dependent values are recomputed and the revert itself can be undone. Added,
+removed, read-only and unexposed fields require undo rather than guessed inverse edits.
+
 ## Hard rules
 
 1. **Depend on `SaveToolkit.Sdk` only.** Never reference Core/Api. NuGet packages are fine when they
