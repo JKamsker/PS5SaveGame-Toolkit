@@ -2,12 +2,48 @@ using System.Buffers.Binary;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.References;
+using System.Security.Cryptography;
 
 namespace SaveToolkit.Plugins.EldenRing;
 
-internal sealed class EldenRingDocument(string path, byte[] bytes, ParsedSave save) : BoundSaveDocument
+internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument
 {
-    private readonly EldenRingHexExplorer _hex = new(bytes, save);
+    private readonly string path;
+    private readonly byte[] bytes;
+    private readonly ParsedSave save;
+    private readonly EldenRingHexExplorer _hex;
+    private readonly IReferenceContext _references;
+    private readonly ReferenceBrowser _catalog;
+    private readonly InventoryBrowser _inventory;
+    private readonly SemanticViews _semantic;
+    private readonly Lazy<IReadOnlyList<ViewNode>> _regulation;
+
+    public EldenRingDocument(string path, byte[] bytes, ParsedSave save, IReferenceContext references)
+    {
+        this.path = path;
+        this.bytes = bytes;
+        this.save = save;
+        _references = references;
+        _hex = new(bytes, save);
+        var characters = save.Slots.Where(slot => slot.Active && slot.Version == EldenRingLayout.WritableSlotVersion)
+            .Select(slot => SemanticReader.Read(bytes, slot)).ToArray();
+        // An actual content fingerprint, not a guessed application/regulation version number.
+        var fingerprint = Convert.ToHexStringLower(SHA256.HashData(
+            bytes.AsSpan(EldenRingLayout.RegulationOffset, EldenRingLayout.RegulationSize)));
+        _catalog = new(references.Catalog(ReferenceBrowser.CatalogId, fingerprint));
+        _inventory = new(characters, _catalog, asset => references.AssetProvenance(asset)?.Attribution.ToShortText());
+        _semantic = new(bytes, characters);
+        _regulation = new(() => RegulationViews.Read(bytes));
+    }
+
+    public IReadOnlyList<QueryableCollection> Collections => [.. _inventory.Collections, _catalog.Collection];
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        collectionId == ReferenceBrowser.CollectionId ? _catalog.Query(query) : _inventory.Query(collectionId, query, ItemField);
+
+    public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 
     public override string Title => "Elden Ring · PlayStation character slots";
     public override bool CanEdit => save.CanEdit;
@@ -30,11 +66,14 @@ internal sealed class EldenRingDocument(string path, byte[] bytes, ParsedSave sa
         ]),
         new Tab("Characters", save.Slots.Select(slot => (ViewNode)SectionNode.Lazy(
             $"Slot {slot.Index}", $"characters/{slot.Index}", slot.Active ? "Active" : "Inactive")).ToArray()),
+        new Tab("Inventory / storage", _inventory.Collections.Select(Table).ToArray()),
+        new Tab("Reference catalog", CatalogView()),
         new Tab("Raw", _hex.BuildSections()),
     ]);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        if (lazyId == "regulation/metadata") return _regulation.Value;
         foreach (var slot in save.Slots)
         {
             if (lazyId == $"characters/{slot.Index}")
@@ -107,7 +146,45 @@ internal sealed class EldenRingDocument(string path, byte[] bytes, ParsedSave sa
                 });
         }
 
+        fields.AddRange(_semantic.Character(slot, (id, label, spec, get) => Field(id, label, spec, get)));
         return fields;
+    }
+
+    private static QueryableTableNode Table(QueryableCollection collection) =>
+        new(collection.Id, collection.Title, collection.Columns, collection.TotalCount) { Description = collection.Description };
+
+    private FieldNode ItemField(InventoryEntry entry, int slot)
+    {
+        var record = _catalog.Find(entry.RawId);
+        return Field(entry.Key(slot) + "/item", record?.Name ?? entry.RawId,
+            new ReferenceSpec(ReferenceBrowser.CatalogId), () => FieldValue.Of(entry.RawId)) with
+        {
+            Confidence = entry.ItemId.HasValue ? Confidence.Inferred : Confidence.Unknown,
+            Description = record?.AttributionText ?? "Unknown name; raw identity preserved. No compatible reference record.",
+            Warning = "Read-only. Item replacement, quantities and equipment relationships need controlled captures.",
+        };
+    }
+
+    private IReadOnlyList<ViewNode> CatalogView()
+    {
+        var nodes = new List<ViewNode> { Table(_catalog.Collection), SectionNode.Lazy("Embedded regulation directory", "regulation/metadata") };
+        // A reference lookup has no save effects and reports no changes, preserving undo history.
+        if (CanEdit && _catalog.Collection.TotalCount > 0)
+            nodes.Add(new ActionNode("references/inspect", "Inspect an item reference")
+            {
+                Description = "Search the shared reference picker and read its provenance. This changes no save bytes.",
+                Parameters = [new FieldNode("item", "Reference item", new ReferenceSpec(ReferenceBrowser.CatalogId), FieldValue.Of("0x400050F0"))],
+            });
+        return nodes;
+    }
+
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
+    {
+        if (actionId != "references/inspect") return base.InvokeAction(actionId, parameters);
+        if (parameters.Count != 1 || !parameters.TryGetValue("item", out var value) || value.Kind != FieldValueKind.Text
+            || _catalog.Find(value.AsString()) is not { } record)
+            throw new ArgumentException("Choose a known reference item; unknown ids are not lookup candidates.", nameof(parameters));
+        return new ActionOutcome { Message = $"{record.Name} ({record.Key}) · {ReferenceBrowser.Details(record)}" };
     }
 
     private FieldNode Name(CharacterSlot slot) => Field($"slots/{slot.Index}/name", "Name",

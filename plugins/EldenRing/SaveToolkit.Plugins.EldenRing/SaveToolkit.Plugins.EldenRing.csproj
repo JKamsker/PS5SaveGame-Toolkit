@@ -6,4 +6,8 @@
     <!-- Plugins depend on the SDK only (never on Core/Api). -->
     <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ReferencePacks\**\*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" />
+    <InternalsVisibleTo Include="SaveToolkit.Plugins.EldenRing.Tests" />
+  </ItemGroup>
 </Project>

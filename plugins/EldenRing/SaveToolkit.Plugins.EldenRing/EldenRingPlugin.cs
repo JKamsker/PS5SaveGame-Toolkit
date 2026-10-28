@@ -1,13 +1,14 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.EldenRing;
 
 public sealed class EldenRingPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.1.0")
+    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.2.0")
     {
-        Description = "PlayStation memory.dat character profiles, attributes and bounded rune editing.",
+        Description = "PlayStation profiles, inferred inventory/storage and equipment browsing, attributed references, and bounded rune editing.",
         Games =
         [
             new GameTitle("PPSA03169", "Elden Ring") { Region = "JP" },
@@ -19,6 +20,10 @@ public sealed class EldenRingPlugin : IGamePlugin
         References =
         [
             "https://github.com/ClayAmore/ER-Save-Editor",
+            "https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/weapon_name.rs",
+            "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/item_name.rs",
+            "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/14",
             "https://github.com/Hapfel1/er-save-manager",
             "https://soulsmodding.com/doku.php?id=format:sl2",
             "https://prosperopatches.com/PPSA03169",
@@ -40,7 +45,9 @@ public sealed class EldenRingPlugin : IGamePlugin
             : ProbeResult.None;
     }
 
-    public ISaveDocument Open(ISaveFile file)
+    public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         if (!IsTargetFile(file))
         {
@@ -48,7 +55,7 @@ public sealed class EldenRingPlugin : IGamePlugin
         }
 
         var bytes = file.ReadAllBytes();
-        return new EldenRingDocument(file.RelativePath, bytes, EldenRingParser.Parse(bytes));
+        return new EldenRingDocument(file.RelativePath, bytes, EldenRingParser.Parse(bytes), references);
     }
 
     private bool IsTargetFile(ISaveFile file) =>

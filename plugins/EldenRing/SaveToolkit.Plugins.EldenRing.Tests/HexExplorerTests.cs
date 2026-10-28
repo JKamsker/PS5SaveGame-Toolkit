@@ -11,7 +11,7 @@ public sealed class HexExplorerTests
         var fixture = new SyntheticSave([9]);
         using var document = fixture.Open();
         var tabs = Assert.IsType<TabsNode>(document.BuildView());
-        Assert.All(tabs.Tabs[2].Children, node => Assert.NotNull(Assert.IsType<SectionNode>(node).LazyId));
+        Assert.All(tabs.Tabs.Single(tab => tab.Title == "Raw").Children, node => Assert.NotNull(Assert.IsType<SectionNode>(node).LazyId));
         var hex = Assert.IsType<HexNode>(Assert.Single(document.ExpandNode("raw/slots/9")));
         Assert.Equal(SyntheticSave.SlotSize, hex.Length);
         var first = document.ReadBlob(hex.BlobId, 0, sizeof(uint));

@@ -57,7 +57,7 @@ internal static class EldenRingParser
                 }
 
                 var data = bytes.Slice(offset, EldenRingLayout.SlotSize);
-                player = offset + FindPlayerData(data, version);
+                player = offset + ItemMapReader.Read(data, version).PlayerOffset;
                 ValidateCharacter(bytes, index, offset, player.Value, profile);
             }
 
@@ -95,32 +95,6 @@ internal static class EldenRingParser
         }
 
         throw new SaveFormatException("Character name is missing its UTF-16 terminator.");
-    }
-
-    private static int FindPlayerData(ReadOnlySpan<byte> slot, uint version)
-    {
-        var itemCount = version <= EldenRingLayout.LastLegacyVersion
-            ? EldenRingLayout.LegacyItemCount : EldenRingLayout.ItemCount;
-        var cursor = EldenRingLayout.ItemMapOffset;
-        for (var index = 0; index < itemCount; index++)
-        {
-            var itemId = ReadUInt32(slot, cursor + sizeof(uint));
-            cursor += EldenRingLayout.ItemHeaderSize;
-            if (itemId == 0)
-            {
-                continue;
-            }
-
-            cursor += (itemId & EldenRingLayout.ItemTypeMask) switch
-            {
-                0 => EldenRingLayout.WeaponExtraSize,
-                EldenRingLayout.ArmorType => EldenRingLayout.ArmorExtraSize,
-                _ => 0,
-            };
-        }
-
-        // Even 5120 maximum-size entries fit comfortably in a 0x280000-byte slot.
-        return cursor;
     }
 
     private static void ValidateCharacter(ReadOnlySpan<byte> bytes, int index, int slot, int player, int profile)

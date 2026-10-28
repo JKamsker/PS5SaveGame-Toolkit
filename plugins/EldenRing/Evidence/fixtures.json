@@ -1,0 +1,32 @@
+{
+  "format": "savetoolkit-fixtures/1",
+  "description": "PPSA03169 baseline identity check: generation 0 and latest are the SAME snapshot. This is not an independent control/event pair. No save bytes, account identifiers or passwords are stored.",
+  "fixtures": [
+    {
+      "id": "ppsa03169-baseline-self-check",
+      "titleId": "PPSA03169",
+      "game": "Elden Ring",
+      "build": "Unknown app/regulation version; character 150/profile 90",
+      "platform": "PS5",
+      "region": "JP",
+      "slot": "0",
+      "dlc": [],
+      "event": "None: one snapshot, identical primary/backup; NOT temporal evidence",
+      "control": false,
+      "notes": "Do not promote any editing hypothesis from this self-comparison. Acquisition/event structures remain candidate ranges only.",
+      "before": { "archive": "PPSA03169_saves_dec.zip", "generation": "0" },
+      "after": { "archive": "PPSA03169_saves_dec.zip", "generation": "latest" },
+      "decoder": "eldenring-evidence",
+      "files": ["memory.dat"],
+      "expected": [
+        { "file": "memory.dat", "path": "profile/version", "before": "90", "after": "90", "changed": false },
+        { "file": "memory.dat", "path": "slots/0/held/common-count", "before": "63", "after": "63", "changed": false },
+        { "file": "memory.dat", "path": "slots/0/held/key-count", "before": "2", "after": "2", "changed": false },
+        { "file": "memory.dat", "path": "slots/0/storage/common-count", "before": "0", "after": "0", "changed": false },
+        { "file": "memory.dat", "offset": 42659, "length": 4, "changed": false },
+        { "file": "memory.dat", "offset": 80478, "length": 4, "changed": false }
+      ],
+      "strict": true
+    }
+  ]
+}
