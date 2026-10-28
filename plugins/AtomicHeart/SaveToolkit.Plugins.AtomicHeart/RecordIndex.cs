@@ -31,7 +31,7 @@ internal sealed record ObjectRecord(string Id, string Kind, string Owner, string
     IReadOnlyList<string> Tags, IReadOnlyList<TaggedProperty> Properties,
     ByteSpan UnknownTail, IReadOnlyList<string> PrefixIds);
 
-internal sealed record LevelRecord(string Name, ByteSpan Span, int ActorCount);
+internal sealed record LevelRecord(string Id, string Name, ByteSpan Span, int ActorCount);
 
 internal sealed record RecordIndex(byte[] Plain, IReadOnlyList<TaggedProperty> Properties,
     IReadOnlyList<ObjectRecord> Objects, IReadOnlyList<LevelRecord> Levels)

@@ -17,14 +17,29 @@ bytes, extracted records, game images or private asset dumps are embedded.
   both class-path strings, tags, byte spans, native payloads and unknown tails.
 - Search/filter/sort all 4,063 records through F8, with at most 200 rows per query.
   Open record details for bounded lazy properties and original hex.
-- Inspect 90 serialized inventory slots: resources, special resources, ammunition,
+- Query 90 serialized inventory slots through F8: resources, special resources, ammunition,
   auxiliary items, quest items and the player grid. Empty slots stay visible.
   Storage has no populated inspected slot records in this snapshot.
-- F2 supplies 20 attributed public weapon/ammunition labels. F4 `ReferenceSpec`
+- F2 supplies 45 attributed public weapon/ammunition labels (37 weapons, 8 ammunition).
+  F3 details show descriptions, raw identifiers, provenance and original bytes.
+  Unknown identifiers get explicitly authored formatting in details; inferred
+  container/path categories never pretend to be localized game labels.
+  F4 `ReferenceSpec`
   fields keep exact short asset IDs; unknown IDs stay raw. Existing populated
   references accept same-category catalog assets with unambiguous full object
   paths already present in the input. No path or DLC availability is invented.
-- F1 can walk all 9,107 exposed scalar values with `PluginViewDecoder`. Native
+- F4 also annotates catalog-matched `PrimaryAssetName` and `ItemDataAsset` fields
+  in the read-only record explorer; raw full paths remain in their descriptions.
+- F9 shows the three saved skill collections and two weapon references with
+  **Unknown** states, no invented prerequisite edges or upgrade levels, and links
+  to bounded evidence fields/hex. The sample skill sets/maps contain two zero
+  counts each; that does not establish skill ownership semantics. Weapon labels
+  update after reference edits and undo. Missing packs retain identifier fallbacks.
+- F9's external-only location map lists all 262 saved levels, 99 per lazy page,
+  with Unknown completion/discovery and links to the matching level rows and
+  the community location guide. No geographical transform, map art, community
+  coordinates, collectible crosswalk or fast-travel availability is asserted.
+- F1 can walk over 9,100 exposed scalar values with `PluginViewDecoder`. Native
   state, opaque properties, transforms and velocities still require byte diffs.
   A synthetic relocated-property pair proves identity alignment and detection
   of a single changed value. The actual primary/backup have no differences.
@@ -37,15 +52,21 @@ upgrade prerequisites, skill ownership or quest completion are invented.
 
 Existing populated slots expose bounded Amount edits and an F6 target-Amount
 action. Preview lists direct changes, skipped rows and warnings; selected rows
-and whole-document scopes are supported. An empty selection changes nothing.
+and whole-document scopes are supported. F8 select-all-matching scopes resolve
+unloaded rows on the server and honor explicit exclusions (#27). An empty
+selection or a query with no matches changes nothing.
 Each apply is one undo group. Empty slots, raw metadata, record-explorer fields,
 native data and instance IDs remain read-only.
 
 `Serialize()` patches explicit payloads and enclosing byte counts, reuses unchanged
 compressed chunks, emits changed chunks through `SaveToolkit.Codecs.EncodeStored`,
 repairs framing/SHA-1, fully decodes/reparses the output and compares every plain
-byte with the intended result. No-op serialization (including undoing all edits)
-returns a fresh byte-identical copy of the original, without recompression.
+byte with the intended result. The framing writer calculates reuse and output
+size before allocating one exact output buffer. One validated edited result is
+cached per document; changed values invalidate it, and callers always receive a
+fresh copy. Every serialization reparses outer framing/SHA-1. No-op serialization
+(including undoing all edits) reuses the immutable decode already validated at
+Open and returns a fresh byte-identical original, without decoding/recompression.
 Original download and full-set export are already supported by the host.
 
 ## Enabled writes and their evidence
@@ -58,7 +79,7 @@ They are not blocked on captures tracked in [#31](https://github.com/JKamsker/PS
 | --- | --- | --- | --- | --- |
 | Existing populated slot `Amount` | Inferred | Explicit signed IntProperty/Int64Property tags. Values must be 0 through the original maximum in that container, bounded by storage width. Zero changes only the scalar; it does not remove a slot. | SHA-1 and byte counts repaired; output decoded/reparsed. Unknown inner integrity/duplicates and stored-block acceptance mean **the game may reject the edited save**. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small material/ammo/resource edit, observe/use/spend, save/restart/reload and diff. Observed bounds are not proven game caps. |
 | Existing populated `ItemDataAsset` replacement | Inferred | Exact catalog join plus unambiguous full path already observed in this save, same catalog category. ItemId, Amount, grid position, native instance data and unknown bytes are retained. | FString encoding and affected property/struct-array/object/array lengths repaired; SHA-1 repaired; output decoded/reparsed. **The game may reject the save**, or dependent equipment/module/ownership state may not match. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one known weapon/ammo reference, inspect equipment/modules/capacity, use/equip, save/restart/reload. Category matching does not prove compatibility. |
-| F6 `inventory/set-amount` | Inferred | Same existing Amount bindings; selected or whole-document preview. Empty/unsupported slots, over-limit targets and unchanged values are listed as skipped. | Same repairs and rejection warning as individual amounts. Plans/outcomes retain warnings; stale/tampered plans fail; one undo/redo covers the batch. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): selected and full eligible batches, compare intended and unrelated values after use/resave/reload. |
+| F6 `inventory/set-amount` | Inferred | Same existing Amount bindings; selected, document or server-resolved F8 query preview. Empty/unsupported slots, over-limit targets and unchanged values are listed as skipped. | Same repairs and rejection warning as individual amounts. Plans/outcomes retain warnings; stale/tampered plans fail; one undo/redo covers the batch. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): selected, filtered with exclusions and full eligible batches, compare intended and unrelated values after use/resave/reload. |
 
 Every newly writable description, outcome and action preview says **not validated
 on console** and **the game may reject the edited save**. Stored output can grow
@@ -74,6 +95,44 @@ text cannot prevent losing those unknown structures. This single-file document
 does not declare unrelated partners; identical backup mirroring remains the host's
 normal export behavior. Evidence is a validation request, not a gate on the three
 enabled paths.
+
+## Framework feature adoption
+
+| Feature | Status | Adoption or concrete limit |
+| --- | --- | --- |
+| F1 SaveDiff | Used | `PluginViewDecoder`, real twin/generation evidence and authored relocated-property fixtures in the evidence tests. Existing lazy slot inspection remains available so F1 and conformance still reach all writable fields until F12. |
+| F2 reference packs | Used; expanded this round | Immutable host-loaded, hashed 45-entry GPL-3.0-or-later catalog with per-field provenance and Sources-panel attribution. No per-view pack loading. |
+| F3 rich cells | Added this round | Inventory details, descriptions/provenance/hex; existing action cells and field confidence badges. Images omitted because no safely licensed item artwork was established. |
+| F4 reference pickers | Used; expanded this round | Existing inventory asset replacements; read-only catalog-matched blueprint/asset IDs in the record explorer. Unknown IDs remain raw and never become invented choices. Read-only picker browsing awaits F13. |
+| F5 structural undo | N/A | No safe add/remove/move/split writer exists: opaque instance allocation, grid/indices, equipment and ownership references cannot be reconstructed from this snapshot. Scalar edits use normal undo. |
+| F6 planned actions | Used; query scopes added this round | `inventory/set-amount` previews selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Skill/loadout/spend/refund presets have no safe underlying writer. |
+| F7 document groups | N/A | One self-contained gameplay file is rewritten. No coupled partner with a proved transaction contract exists; identical console backups are mirrored by the host. |
+| F8 queryable tables | Used; inventory added this round | All 4,063 records and all inventory slots; whole-model search/filter/sort, numeric Amount/ItemId ordering, stable IDs and bounded 200-row pages. Lazy original-byte inspection is retained separately. |
+| F9 maps/graphs | Added this round | Paged skill/weapon evidence graphs and external-only saved-level map, compact stable IDs, text alternatives, confidence and tested navigation. Prerequisites/coordinates/discovery remain unknown. |
+| F10 exact/nullable/union values | N/A | The decoded UE tags use fixed-width signed/unsigned integers and IEEE floating-point scalars; no JSON numeric lexemes, nullable scalar storage or tagged union is rewritten. Existing Int128 SDK values preserve all integer bits. |
+| F11 shared codecs | Used; optimized this round | `SaveToolkit.Codecs` Kraken decode/stored encode; retained compressed frames, exact output allocation, validated serialization cache and byte-identical no-op. No local codec. |
+| F12 SaveDiff F8 traversal/hooks | Pending #32 | Absent on the starting main checkout; retained the existing bounded lazy inspection path. No replacement traversal framework added. |
+| F13 inspect/browse/filter/duration | Pending #33 | Absent on the starting main checkout; no local substitute for non-mutating actions or browse-only pickers. |
+
+## Completion audit against the plan
+
+| Requirements / acceptance | Result / remaining owner work |
+| --- | --- |
+| AH-R1, AH-R2; exact decoding, integrity, spans and unknown retention | Shared codec/grammar/preservation implementation complete; serialization optimized and regression tested. Independent original compressed-Kraken agreement and unknown inner integrity/duplicate-state investigation remain validation items in #31. |
+| AH-R3, AH-R5, AH-R18; known-state observations and console/patch coverage | Owner-blocked (#31): controlled captures, exact effects/bounds, independent states/builds/DLC and restore/use/resave/reload observations. No Stable claim. |
+| AH-R4, AH-R8; catalog/reference enrichment | Public licensed catalog expanded to 45; formatting and inferred categories cover uncataloged IDs without importing private data. Exact localized resource/consumable/skill/module names, descriptions, caps, costs, prerequisites, DLC and icons require a matching attributed asset/localization pack. No cleared source for those exact joins was established. |
+| AH-R6, AH-R7 | Won't do: conditional native/proprietary codec infrastructure is unnecessary because F11's bounded managed route works. |
+| AH-R9, AH-R10, AH-R13; pickers/rich cells/bulk review | Implemented with F2/F3/F4/F6/F8, including query scopes, live search, exclusions and group undo. Coupled equipment/skill presets await the owner-backed serialization/dependency model. |
+| AH-R11, AH-R12; structural/story rollback | Owner-blocked on exact empty/new/drop/transfer/skill/story pairs and dependent-state mapping. Warning text cannot make invented opaque instances safe. F5/F7 exist centrally but there is no safe writer to adopt here. |
+| AH-R14; progress/collectible map | External-only level index implemented. Actual quest/Chirper/Testing Ground/blueprint ownership and reward crosswalks remain owner-blocked (#31). Saved level presence is not completion. |
+| AH-R15, AH-R16; accessible graph/map views | F9 adopted with bounded views, Unknown states, evidence navigation and text alternatives. Real prerequisite trees and regional collectible coordinates need the asset/capture crosswalks above. No edges or location transforms are fabricated. |
+| AH-R17; semantic diff, corruption and conformance | Existing F1 and parser/write suites retained; completion tests add spatial bounds/navigation, live inventory queries, large authored lists, query scope undo and cache isolation. |
+| AH-R19; scope/permissions/acceptance documentation | Embedding and experimental writes approved by owner; notices retained. All changes stay in this plugin; no artifacts, game dumps, tooling or framework edits. Original download/full-set export remain host features. |
+
+Agent work complete for the available framework and supplied corpus. Remaining
+game-format/compatibility items require the captures, assets or console checks in
+[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). F12/F13 remain
+separate framework work in #32/#33.
 
 ## Outer format and integrity
 
@@ -172,8 +231,13 @@ agreement and PS5 console reload remain open. Amount writes get an F1 byte diff
 limited to the intended payload; reference writes test growing/shrinking strings
 and retention of unrelated records, leaf payloads and opaque tails. Scalar and
 selected-bulk session tests cover undo/redo, stale plans and atomic invalid batches.
-The write-round suite passed **46 tests, 0 failed, 0 skipped**; API build passed
-with **0 warnings and 0 errors**.
+The completion suite passed **59 tests, 0 failed, 0 skipped**, with
+`SAVETOOLKIT_ARTIFACTS` exported in the test command. API build passed with
+**0 warnings and 0 errors**. No timing assertions are used. A diagnostic run on
+the largest (and only unique) sample
+measured a first changed export at about 136 ms / 29.1 MB allocated and ten repeated
+validated exports at about 0.6 ms / 0.50 MB allocated per export; this includes
+returned-buffer copies and test overhead and is not a cross-machine benchmark.
 
 ## Sources and attribution
 
@@ -182,7 +246,9 @@ The repository and derived public-tool label dataset are GPL-3.0-or-later.
 
 | Dataset / reference | Source and author | Licence / changes and use |
 | --- | --- | --- |
-| Embedded weapon/ammunition names | [AtomicHeartMenu features.cpp, fe36f468](https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp), Copyright (C) 2026 Skorchekd | [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html), including [upstream attribution terms](https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/NOTICE). Selected 12 weapon and 8 ammunition label/object-name pairs; normalized repeated object names to exact short keys; added categories and original caution text. No runtime code/offsets, limits, artwork or game descriptions copied. Credits retained: Skorchekd; Dumper-7 by Encryqed; MinHook by Tsuda Kageyu; Dear ImGui by Omar Cornut (ocornut). Dataset stays GPL-3.0-or-later. |
+| Embedded weapon/ammunition names | [AtomicHeartMenu features.cpp, fe36f468](https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp), Copyright (C) 2026 Skorchekd | [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html), including [upstream attribution terms](https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/NOTICE). All 37 weapon and 8 ammunition label/object-name pairs; normalized repeated object names to exact short keys; added categories and original caution text, including unused/debug/DLC warnings. No runtime code/offsets, limits, artwork or game descriptions copied. Credits retained: Skorchekd; Dumper-7 by Encryqed; MinHook by Tsuda Kageyu; Dear ImGui by Omar Cornut (ocornut). Dataset stays GPL-3.0-or-later. |
+| Identifier formatting and container/path categories | Toolkit-authored algorithms in `InventoryLabels.cs`; current save tags only | Original GPL-3.0-or-later presentation logic, not localized game text or an extracted private dataset. Raw IDs and Unknown confidence are retained. |
+| External location/skill guides | [Atomic Heart Wiki locations](https://atomicheart.fandom.com/wiki/Locations), [skills](https://atomicheart.fandom.com/wiki/Skills), wiki contributors | Links only. Fetches were restricted (402); no page text, costs, prerequisites, images or coordinates imported. These links are not evidence of PS5 field semantics or embedding rights. |
 | SaveExtension format research | [FileAdapter.cpp](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/FileAdapter.cpp), [Records.cpp](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/Records.cpp), [SlotData.cpp](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/SlotData.cpp), [LevelRecords.cpp](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/LevelRecords.cpp); Copyright 2015–2020 Piperift | [Apache-2.0](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/LICENSE). Structural reference for original C# implementation; fork order and boundaries measured independently. No verbatim C++ port. |
 | Shared Kraken implementation | [TekkenMusicModManager, 8737709](https://github.com/AaryanKh/TekkenMusicModManager/blob/8737709e840c74efc935e23ac0d33cdb6aaef8f5/src/Tmm.Core/Pak/Kraken.cs), [Powzix ooz, 0503806](https://github.com/powzix/ooz/blob/05038060aa68f9187ae9923b2388ca8db40e58d1/kraken.cpp) | GPL-3.0-or-later. Used through the shared codec, no plugin-local port. See [codec notices](../../src/SaveToolkit.Codecs/README.md) and root THIRD-PARTY-NOTICES. |
 | Stored-block framing research | [hl-savetools hlsave.py, e568ded](https://github.com/producedbytmsh/hl-savetools/blob/e568dedcda2611f54cc793e6d0237c749ae25094/hlsave.py) | MIT. Comparative framing lead, rechecked for the write round; not evidence that a rewritten PS5 Atomic Heart save loads. No Python writer ported; output uses the existing shared managed codec. |
@@ -207,6 +273,10 @@ not embedded. No permission decision is pending for the shipped catalog.
   amount and cell positions. Include an empty→populated slot transition.
 - [ ] Buy/refund one skill; equip/upgrade one weapon; learn one blueprint, each
   in a separate pair. Record resource costs, level and effects.
+  Include the skill/upgrade menu and a matching build/locale asset/localization
+  pack so exact skill/module IDs, prerequisites, friendly resource/consumable
+  labels and costs can be mapped. Current skill collections are empty; weapon
+  references alone do not identify upgrade levels.
 - [ ] Collect one Chirper, one Testing Ground reward and one objective advance,
   separately. Provide early/open-world/late/NG+/DLC states before broad claims.
 - [ ] Compare original compressed chunks with a separately reviewed independent
@@ -223,6 +293,9 @@ not embedded. No permission decision is pending for the shipped catalog.
   separately, with F6 preview/skipped rows. Observe/use/spend, save/restart/reload;
   compare intended and unrelated decoded spans against an idle control. Include
   Amount zero; check normalization without assuming structural removal.
+  Also test an F8 filtered whole-query batch with an excluded row; verify the
+  excluded row and unloaded matching rows after resave/reload. For the location
+  index, identify the active region separately from saved-but-unvisited levels.
 - [ ] Record title/build/region/DLC/slot, visible before/after values, growth,
   normalization, rejection and persistence on
   [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31) and
@@ -231,8 +304,12 @@ not embedded. No permission decision is pending for the shipped catalog.
 
 ## SDK requests
 
-None for these writes: F1/F2/F4/F6/F8 and F11 suffice. F11's managed Kraken decoder
+None blocking the enabled writes or the new F9 views: F1/F2/F4/F6/F8/F9 and F11 suffice. F11's managed Kraken decoder
 and stored writer are used directly. Non-Kraken variants remain unsupported.
 Independent compressed-codec agreement and console captures are validation
 requests. Coupled skill/loadout, structural and story operations need a safe
 serialization/dependency model; no framework changes are requested here.
+Pending #32/#33: the existing F1 walker does not traverse F8 collections, and
+read-only reference fields do not yet have F13's browse-only inspection flow.
+The original bounded lazy inspection path remains reachable for F1/conformance;
+the main inventory uses F8. No framework files or plugin-local substitutes added.

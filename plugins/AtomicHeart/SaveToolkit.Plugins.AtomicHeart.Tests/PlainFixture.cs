@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 internal static class PlainFixture
 {
     internal static byte[] Create(bool nativeTail = false, bool secondClassPath = false, long amount = 4,
-        bool reversed = false, int repeatedRecords = 1, bool duplicateProperties = false)
+        bool reversed = false, int repeatedRecords = 1, bool duplicateProperties = false, IReadOnlyList<string>? sublevelNames = null)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
@@ -33,7 +33,8 @@ internal static class PlainFixture
             writer.Write(1); SlotFixture.String(writer, "SyntheticTag");
         }
         SlotFixture.String(writer, "Persistent"); writer.Write(0); // Main level and actors.
-        writer.Write(0); // Sublevels.
+        writer.Write(sublevelNames?.Count ?? 0);
+        foreach (var name in sublevelNames ?? []) { SlotFixture.String(writer, name); writer.Write(0); }
         writer.Flush();
         var bytes = stream.ToArray();
         System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(bytes, bytes.Length - sizeof(int));

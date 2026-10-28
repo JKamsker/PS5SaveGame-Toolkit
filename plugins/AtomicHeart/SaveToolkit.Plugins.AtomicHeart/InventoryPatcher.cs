@@ -55,7 +55,6 @@ internal static class InventoryPatcher
             source = patch.Span.End;
         }
         index.Plain.AsSpan(source).CopyTo(output.AsSpan(target));
-        _ = new RecordReader(output).Read();
         return output;
 
         void AddSize(int offset, int delta) => sizes[offset] = checked(sizes.GetValueOrDefault(offset) + delta);

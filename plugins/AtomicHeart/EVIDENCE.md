@@ -1,6 +1,6 @@
 # Atomic Heart evidence, 2026-10-28
 
-Current branch: `plugin/atomicheart-writes` (preceded by `plugin/atomicheart-roadmap`). Scope: PPSA10695 only, observed engine 4.27.2,
+Current branch: `plugin/atomicheart-completion` (preceded by roadmap and write rounds). Scope: PPSA10695 only, observed engine 4.27.2,
 package 522. Patch/region/DLC and known in-game counts are unknown.
 
 ## Corpus and F1
@@ -22,7 +22,7 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-To
 Observed F1 result: 2 unchanged files, 1 identical backup twin, 0 changed bytes,
 0 semantic changes and 0 decode errors. F1 short-circuits identical files; the
 sample tests additionally decode and walk both plugin views with a 20,000-section
-budget. Both expose 9,107 scalar values without truncation or duplicate-path
+budget. The write-round views exposed 9,107 scalar values without truncation or duplicate-path
 warnings, and their semantic diff is empty.
 
 An entirely authored fixture reorders two tagged properties while changing only
@@ -66,7 +66,7 @@ No scratch program, decoded dump or private sample was added to the repository.
   bounded indexes, F8 search, span/opaque inspection and F1 corpus evidence done.
   Independent codec agreement remains an open acceptance item.
 - Phase 2 partial: explicit serialized inventory fields, exact asset joins, unknown
-  retention and an attributed 20-entry F2 public-label pack. Controlled gameplay
+  retention and an attributed 45-entry F2 public-label pack. Controlled gameplay
   observations and wider build/NG+/DLC coverage remain open.
 - F4 integration: existing populated references now accept same-category catalog
   assets whose unambiguous full paths occur in the input. Unmapped/empty references
@@ -74,7 +74,7 @@ No scratch program, decoded dump or private sample was added to the repository.
 - Phase 3 implementation: explicit Amount edits plus F6 selected/document target
   quantities, bounded to original container maxima; stored changed chunks, retained
   unchanged compressed chunks, all affected lengths and SHA-1 repaired. No-op and
-  complete undo serialize byte-identically. `Serialize()` decodes/reparses output
+  complete undo serialize byte-identically. `Serialize()` decodes/reparses each new edited output
   and compares all intended plain bytes. Maturity moved to Experimental only after
   sample-backed edit conformance passed.
 - Phases 4–5: no allocation, structural move/split/removal, skill/loadout, event
@@ -117,3 +117,44 @@ the save because PS5 stored-block acceptance and inner integrity are unproven.
 
 See [README.md](README.md) for the exact owner capture/console checklist, source
 attribution, format safety limits and remaining SDK/evidence requests.
+
+## Completion round
+
+- F8 inventory queries cover all 90 slots before paging, search current catalog
+  names/IDs/categories and numeric values, filter exactly, sort Amount/ItemId
+  numerically and retain stable keys. An authored 450-slot model verifies paging
+  and a match beyond the first 200 rows. F6 #27 session tests resolve unloaded
+  matching rows, honor exclusions, preserve empty selections and undo/redo as one
+  group. The original bounded lazy inspection path remains for F1 until #32.
+- F2's catalog is now 45 public label pairs (37 weapons, 8 ammunition), retaining
+  the same pinned GPL source/credits. F3 detail cells expose raw IDs, provenance,
+  descriptions and bytes. Unmapped labels/categories are explicitly identifier
+  formatting/container/path inference. No private ID dictionary is embedded.
+  F4 read-only record fields annotate exact catalog-matched item/blueprint IDs.
+- F9 inspects three top-level skill collections; all have two serialized zero
+  counts. Two existing weapon references are also linked to their original slot
+  bytes. Every graph state stays Unknown, with no prerequisites, upgrade levels
+  or costs fabricated. Weapon labels track replacements and undo. The map lists
+  262 saved levels in 99-marker pages with Unknown status and external guide links;
+  no coordinates/artwork imported. Tests resolve every sample graph/map target
+  and validate maximum-length identifiers, duplicate skill tags and 4,096 levels.
+- Compact level identities include the full name and duplicate occurrence;
+  navigation IDs fit F9's bounds without relying on offsets. Level inspection
+  pages are directly reachable under the Levels section.
+- Each distinct edited export still uses shared EncodeStored, repairs framing
+  and SHA-1, decodes/reparses and compares all intended plain bytes. Frame reuse
+  decisions determine an exact allocation before writing. The document retains
+  one private validated result and compares actual edits before reuse; every
+  output reparses outer integrity and returns a fresh buffer. No-op/complete undo
+  reuse the original Open-validated decode and remain byte-identical. Cache tests
+  cover returned-buffer damage, changed Amount/reference, complete undo and redo.
+- Diagnostic only, one run on the sole unique sample: first changed export about
+  135.7 ms / 29.1 MB allocated; ten repeated validated exports about 0.57 ms / 0.50 MB
+  per export. Test assertions/returned-buffer copies are included; no flaky timing
+  thresholds are enforced and this is not a cross-machine benchmark.
+
+Final completion validation: **59 passed, 0 failed, 0 skipped**, with the artifacts
+environment variable exported in the same command. Full API build: **0 warnings,
+0 errors**. No file outside `plugins/AtomicHeart` changed. See README's complete
+AH-R1–R19 audit and F1–F13 adoption table; missing owner evidence remains #31 and
+unavailable F12/F13 remain pending framework issues #32/#33.

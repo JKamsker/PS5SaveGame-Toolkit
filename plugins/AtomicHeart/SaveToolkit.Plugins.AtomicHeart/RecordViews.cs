@@ -1,6 +1,7 @@
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.AtomicHeart;
 
@@ -10,6 +11,7 @@ internal sealed class RecordViews
     private readonly RecordIndex index;
     private readonly Func<string, string, FieldSpec, Func<FieldValue>, FieldNode> bind;
     private readonly Func<TaggedProperty, FieldValue> current;
+    private readonly IReferenceCatalog? catalog;
     private readonly List<PropertyGroup> groups = [];
     private readonly Dictionary<TaggedProperty, int> childGroups = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<string, int> objectGroups = new(StringComparer.Ordinal);
@@ -17,11 +19,12 @@ internal sealed class RecordViews
     private int pathUnits;
 
     internal RecordViews(RecordIndex index, Func<string, string, FieldSpec, Func<FieldValue>, FieldNode> bind,
-        Func<TaggedProperty, FieldValue> current)
+        Func<TaggedProperty, FieldValue> current, IReferenceCatalog? catalog = null)
     {
         this.index = index;
         this.bind = bind;
         this.current = current;
+        this.catalog = catalog;
         AddGroup("SlotData", index.Properties);
         foreach (var record in index.Objects) objectGroups.Add(record.Id, AddGroup(record.Id, record.Properties));
     }
@@ -29,7 +32,9 @@ internal sealed class RecordViews
     internal IReadOnlyList<ViewNode> BuildView() => [
         new TextNode("Offsets refer to decoded SlotData. Class strings and serialized names are raw. Native values and unknown tails remain available as hex; world records do not imply player ownership."),
         SectionNode.Lazy("SlotData tagged properties", "inspect/group/0/0"),
-        SectionNode.Lazy("Levels", "inspect/levels/0"),
+        new SectionNode("Levels", Enumerable.Range(0, (index.Levels.Count + AtomicHeartDocument.PageSize - 1) / AtomicHeartDocument.PageSize)
+            .Select(page => (ViewNode)SectionNode.Lazy($"Level records {page * AtomicHeartDocument.PageSize + 1}–{Math.Min((page + 1) * AtomicHeartDocument.PageSize, index.Levels.Count)}",
+                $"inspect/levels/{page * AtomicHeartDocument.PageSize}")).ToArray()),
         SectionNode.Lazy("Objects", "inspect/records/0"),
     ];
 
@@ -51,11 +56,10 @@ internal sealed class RecordViews
         if (parts[1] == "object" && ordinal < index.Objects.Count) return Object(index.Objects[ordinal]);
         if (parts[1] == "levels" && (ordinal == 0 || ordinal < index.Levels.Count))
         {
-            var rows = index.Levels.Skip(ordinal).Take(AtomicHeartDocument.PageSize).Select(l => new TableRow(l.Name,
+            var rows = index.Levels.Skip(ordinal).Take(AtomicHeartDocument.PageSize).Select(l => new TableRow(l.Id,
                 new Dictionary<string, ViewNode> { ["name"] = new TextNode(l.Name), ["actors"] = new TextNode(l.ActorCount.ToString()),
                     ["span"] = new TextNode(Span(l.Span)) })).ToArray();
             var nodes = new List<ViewNode> { new TableNode([new("name", "Level"), new("actors", "Actors"), new("span", "Decoded span")], rows) };
-            Continue(nodes, ordinal, index.Levels.Count, "levels");
             return nodes;
         }
         throw new KeyNotFoundException(lazyId);
@@ -85,9 +89,13 @@ internal sealed class RecordViews
                 return (ViewNode)SectionNode.Lazy($"{property.Name} · {property.Detail} · {Span(property.Payload)}", $"inspect/group/{childGroups[property]}/0");
             if (property.Value is not { } value)
                 return new SectionNode($"{property.Name} · {property.Type} {property.Detail}", [Hex(property.Payload, "Opaque property payload")]);
-            return bind(id, property.Name, Spec(value), () => current(property)) with {
-                Confidence = Confidence.Verified,
-                Description = $"{property.Type} {property.Detail}; tag {Span(property.Tag)}; payload {Span(property.Payload)}.",
+            var reference = property.Name is "PrimaryAssetName" or "ItemDataAsset" && value.Kind == FieldValueKind.Text
+                ? catalog?.Find(InventoryState.ShortId(current(property).AsString())) : null;
+            return bind(id, reference?.Name ?? property.Name, reference is null ? Spec(value) : new ReferenceSpec(InventoryViews.CatalogId),
+                () => reference is null ? current(property) : FieldValue.Of(InventoryState.ShortId(current(property).AsString()))) with {
+                Confidence = reference is null ? Confidence.Verified : Confidence.Inferred,
+                Description = $"{property.Type} {property.Detail}; tag {Span(property.Tag)}; payload {Span(property.Payload)}. " +
+                    (reference is null ? "" : $"Exact asset: {current(property).AsString()}. Inferred display label only; no blueprint ownership claim. {reference.AttributionText}"),
                 Warning = "Serialized value only; gameplay meaning and edit limits are unverified.",
             };
         }).ToList();

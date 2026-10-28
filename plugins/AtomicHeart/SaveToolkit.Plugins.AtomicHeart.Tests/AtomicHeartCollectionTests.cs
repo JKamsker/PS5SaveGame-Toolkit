@@ -13,7 +13,7 @@ public sealed class AtomicHeartCollectionTests
         var bytes = SlotFixture.Create(plain: PlainFixture.Create(repeatedRecords: 250));
         using var document = new AtomicHeartPlugin().Open(MemorySaveSet.SingleFile("slot", bytes));
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
-        var info = Assert.Single(queryable.Collections);
+        var info = Assert.Single(queryable.Collections, c => c.Id == RecordCollection.Id);
         var page = queryable.Query(info.Id, new() { Text = "Subsystem2", SortColumn = "name", Limit = 1 });
         Assert.Equal(250, page.TotalCount);
         Assert.Equal(61, page.FilteredCount); // 2, 20..29, 200..249.
@@ -38,7 +38,7 @@ public sealed class AtomicHeartCollectionTests
         var file = SampleSaves.Load("PPSA10695").AllDiskFiles.First(f => !f.IsSystemFile);
         using var document = new AtomicHeartPlugin().Open(file);
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
-        var info = Assert.Single(queryable.Collections);
+        var info = Assert.Single(queryable.Collections, c => c.Id == RecordCollection.Id);
         var page = queryable.Query(info.Id, new() { Text = "BP_PlayerInventory", Filters = new Dictionary<string, string> { ["kind"] = "component" } });
         Assert.Equal(4063, page.TotalCount);
         Assert.Equal(1, page.FilteredCount);

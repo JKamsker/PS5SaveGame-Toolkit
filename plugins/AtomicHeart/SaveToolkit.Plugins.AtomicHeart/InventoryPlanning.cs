@@ -17,8 +17,9 @@ internal static class InventoryPlanning
     internal static ActionPlan Plan(InventoryState state, string actionId,
         IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
-        if (actionId != ActionId || scope.QueryScope is not null)
-            return Error(actionId, "Unknown action or unsupported record-explorer query scope; select inventory rows.");
+        if (actionId != ActionId || (scope.QueryScope is { } query &&
+            (query.CollectionId != InventoryCollection.Id || scope.RowKeys is null)))
+            return Error(actionId, "Choose inventory rows or a server-resolved inventory query scope.");
         if (parameters.Count != 1 || !parameters.TryGetValue("amount", out var amount) ||
             amount.Kind != FieldValueKind.Integer || amount.AsInteger() < 0 || amount.AsInteger() > long.MaxValue)
             return Error("amount", "Target Amount must be a nonnegative signed 64-bit integer.");

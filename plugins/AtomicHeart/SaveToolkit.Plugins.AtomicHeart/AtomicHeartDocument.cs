@@ -18,6 +18,9 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
     private readonly InventoryViews inventory;
     private readonly RecordCollection collection;
     private readonly InventoryState state;
+    private readonly InventoryCollection inventoryCollection;
+    private readonly SpatialViews spatial;
+    private readonly SlotSerialization serialization;
 
     internal AtomicHeartDocument(string path, byte[] bytes, SaveExtensionFile parsed, RecordIndex index, IReferenceContext references)
     {
@@ -27,17 +30,21 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
         this.index = index;
         this.references = references;
         state = new InventoryState(index, references.Catalog(InventoryViews.CatalogId));
-        records = new RecordViews(index, BindReadOnly, state.Current);
+        records = new RecordViews(index, BindReadOnly, state.Current, state.Catalog);
         inventory = new InventoryViews(state, BindInventory);
+        inventoryCollection = new InventoryCollection(state, inventory);
+        spatial = new SpatialViews(index, state, BindReadOnly);
+        serialization = new SlotSerialization(bytes, parsed, index);
         // Register eligible fields even when a whole-document action precedes lazy expansion.
-        for (var start = 0; start < state.Items.Count; start += PageSize) _ = inventory.Expand($"inventory/{start}");
+        inventory.RegisterBindings();
         collection = new RecordCollection(index);
     }
 
     public override string Title => "Atomic Heart slot";
     public override bool CanEdit => state.Items.Any(state.CanSetAmount);
-    public IReadOnlyList<QueryableCollection> Collections => [collection.Info];
-    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collection.Query(collectionId, query);
+    public IReadOnlyList<QueryableCollection> Collections => [collection.Info, inventoryCollection.Info];
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId == InventoryCollection.Id
+        ? inventoryCollection.Query(query) : collection.Query(collectionId, query);
 
     public override ViewNode BuildView() => new TabsNode([
         new Tab("Overview", [
@@ -51,6 +58,7 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
             new TextNode("Experimental existing inventory writes. Chunk sizes, decoded array length and record boundaries are validated; unknown bytes are retained. " + InventoryState.WriteWarning) { Tone = Tone.Warning },
         ]),
         new Tab("Inventory inspection", inventory.BuildView()),
+        new Tab("Skills and world", spatial.BuildView()),
         new Tab("Slot metadata", [SectionNode.Lazy("Tagged properties", "metadata/0")]),
         new Tab("Record explorer", [collection.View, .. records.BuildView()]),
         new Tab("Raw data", [SectionNode.Lazy("Compression chunks", "chunks/0"),
@@ -62,6 +70,7 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
     {
         if (lazyId.StartsWith("inspect/", StringComparison.Ordinal)) return records.Expand(lazyId);
         if (lazyId.StartsWith("inventory/", StringComparison.Ordinal)) return inventory.Expand(lazyId);
+        if (lazyId.StartsWith("spatial/", StringComparison.Ordinal)) return spatial.Expand(lazyId);
         var parts = lazyId.Split('/');
         if (parts.Length != 2 || !int.TryParse(parts[1], out var start) || start < 0) throw new KeyNotFoundException(lazyId);
         if (parts[0] == "metadata" && (start == 0 || start < parsed.Properties.Count))
@@ -146,11 +155,6 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
-        var plain = InventoryPatcher.Apply(index, state.Edits());
-        var output = SlotDataWriter.Write(bytes, parsed, index.Plain, plain);
-        var validated = SaveExtensionFile.Parse(output);
-        var reopened = SlotDataDecoder.Decode(output, validated);
-        if (!reopened.Plain.AsSpan().SequenceEqual(plain)) throw new SaveFormatException("Re-decoded SlotData differs from the intended edited bytes.");
-        return [new FileOutput(path, output)];
+        return [new FileOutput(path, serialization.Serialize(state.Edits()))];
     }
 }
