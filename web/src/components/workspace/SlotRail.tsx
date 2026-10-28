@@ -12,7 +12,8 @@ interface SlotRailProps {
 /** Save directories as slots with their console key art; files of the selected slot unfold below. */
 export function SlotRail({ workspace, activeFileId, onOpen }: SlotRailProps) {
   const [showBackups, setShowBackups] = useState(false);
-  const dirtyFiles = new Set(workspace.documents.filter((d) => d.isDirty).map((d) => d.fileId));
+  const dirtyFiles = new Set(workspace.documents.filter((d) => d.isDirty)
+    .flatMap((d) => d.groupMembers?.map(member => member.fileId) ?? [d.fileId]));
   const activeDir = workspace.titles.flatMap((t) => t.directories).find((d) => d.files.some((f) => f.id === activeFileId));
   const [expanded, setExpanded] = useState<string | undefined>(activeDir?.id);
   const hiddenBackups = workspace.titles.flatMap((t) => t.directories).filter((d) => d.isBackup && d.twinIdentical).length;

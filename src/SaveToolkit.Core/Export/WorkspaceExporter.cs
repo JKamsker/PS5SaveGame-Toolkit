@@ -40,22 +40,29 @@ public sealed class ExportException(string message) : Exception(message);
 public static class WorkspaceExporter
 {
     public static ExportPlan Plan(Workspace workspace, ExportOptions options)
+        => workspace.WithOwnershipLock(() => PlanLocked(workspace, options));
+
+    private static ExportPlan PlanLocked(Workspace workspace, ExportOptions options)
     {
         var set = workspace.Set;
         var overrides = new Dictionary<string, ReadOnlyMemory<byte>>(StringComparer.OrdinalIgnoreCase);
         var reasons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var dirty = workspace.Documents.Where(d => d.State.IsDirty).ToList();
+        var groups = workspace.DocumentGroups;
+        foreach (var group in groups) group.CheckFingerprints();
 
         foreach (var session in dirty)
         {
             foreach (var output in session.Serialize())
             {
+                if (groups.Any(g => g.Session.Id != session.Id && g.Owns(output.RelativePath)))
+                    throw new ExportException($"'{output.RelativePath}' is owned by another document group.");
                 if (((ISaveSet)set).FindFile(output.RelativePath) is null)
                 {
                     throw new ExportException($"Plugin '{session.Plugin.Info.Id}' tried to write unknown file '{output.RelativePath}'.");
                 }
 
-                if (!overrides.TryAdd(output.RelativePath, output.Content))
+                if (!overrides.TryAdd(output.RelativePath, output.Content.ToArray()))
                 {
                     throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
                 }
@@ -68,7 +75,10 @@ public static class WorkspaceExporter
 
         if (options.MirrorBackups)
         {
-            MirrorBackups(set, overrides, reasons);
+            var protectedPaths = groups.SelectMany(g => g.Members.Select(m => m.RelativePath))
+                .Concat(workspace.Documents.Select(d => d.File.RelativePath)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var groupPaths = groups.SelectMany(g => g.Members.Select(m => m.RelativePath)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            MirrorBackups(set, overrides, reasons, protectedPaths, groupPaths);
         }
 
         var included = Select(set, overrides, options.Scope);
@@ -110,6 +120,19 @@ public static class WorkspaceExporter
         var overlay = new OverlaySaveSet(workspace.Set, overrides);
         foreach (var session in dirty)
         {
+            if (workspace.DocumentGroups.FirstOrDefault(g => g.Session.Id == session.Id) is { } group)
+            {
+                try
+                {
+                    group.VerifyOutputs(overrides.Where(o => group.Owns(o.Key))
+                        .ToDictionary(o => o.Key, o => o.Value, StringComparer.OrdinalIgnoreCase), overlay);
+                }
+                catch (Exception ex) when (ex is not OutOfMemoryException)
+                {
+                    throw new ExportException($"Group verification failed: {ex.Message}");
+                }
+                continue;
+            }
             var reopened = ((ISaveSet)overlay).FindFile(session.File.RelativePath)!;
             try
             {
@@ -123,10 +146,13 @@ public static class WorkspaceExporter
         }
     }
 
-    private static void MirrorBackups(DiskSaveSet set, Dictionary<string, ReadOnlyMemory<byte>> overrides, Dictionary<string, string> reasons)
+    private static void MirrorBackups(DiskSaveSet set, Dictionary<string, ReadOnlyMemory<byte>> overrides,
+        Dictionary<string, string> reasons, HashSet<string> protectedPaths, HashSet<string> groupPaths)
     {
         foreach (var (path, content) in overrides.ToList())
         {
+            // Group backups are explicit members. Independent open backup sessions also retain ownership.
+            if (groupPaths.Contains(path)) continue;
             if (((ISaveSet)set).FindFile(path) is not DiskSaveFile original || original.Directory.IsBackup)
             {
                 continue;
@@ -135,7 +161,8 @@ public static class WorkspaceExporter
             var twin = set.Twin(original.Directory)?.Files
                 .OfType<DiskSaveFile>()
                 .FirstOrDefault(f => string.Equals(f.PathInDirectory, original.PathInDirectory, StringComparison.OrdinalIgnoreCase));
-            if (twin is not null && twin.Sha256 == original.Sha256 && !overrides.ContainsKey(twin.RelativePath))
+            if (twin is not null && twin.Sha256 == original.Sha256 && !overrides.ContainsKey(twin.RelativePath)
+                && !protectedPaths.Contains(twin.RelativePath))
             {
                 overrides[twin.RelativePath] = content;
                 reasons[twin.RelativePath] = "mirrored to console backup";

@@ -204,6 +204,14 @@ public sealed partial class DocumentSession : IDisposable
         }
     }
 
+    /// <summary>Atomically closes a clean session; an in-flight edit is either completed or rejected by disposal.</summary>
+    internal bool TryCloseClean() => Locked(() =>
+    {
+        if (StateUnlocked().IsDirty) return false;
+        Dispose();
+        return true;
+    });
+
     private EditOutcome Revert(IReadOnlyList<ValueChange> batch, bool useOld)
     {
         // Derived values are usually read-only; re-applying the primary edits recomputes them.

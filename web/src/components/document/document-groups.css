@@ -1,0 +1,7 @@
+.document-group { margin-bottom: var(--space-4); font-size: var(--text-sm); }
+.document-group h2 { margin: var(--space-3) 0 var(--space-2); font-size: var(--text-md); }
+.document-group h3 { margin: var(--space-3) 0 var(--space-2); font-size: var(--text-base); }
+.document-group p { max-width: 80ch; margin: var(--space-2) 0; color: var(--ink-soft); }
+.document-group ul { padding-left: var(--space-4); overflow-wrap: anywhere; }
+.document-group .btn { margin: var(--space-1) var(--space-2) var(--space-1) 0; }
+.document-group [role="alert"] { color: var(--danger); }

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SaveToolkit.Core.Export;
 using SaveToolkit.Core.Sessions;
+using SaveToolkit.Core.Sessions.Groups;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Views;
 
@@ -16,7 +17,10 @@ public sealed record PluginDto(
     string? Description,
     PluginMaturity Maturity,
     IReadOnlyList<GameTitle> Games,
-    IReadOnlyList<string> References);
+    IReadOnlyList<string> References)
+{
+    public bool SupportsGroups { get; init; }
+}
 
 public sealed record WorkspaceSummaryDto(string Id, string Name, DateTimeOffset CreatedAt, int DirectoryCount, int FileCount, IReadOnlyList<string> TitleIds);
 
@@ -48,7 +52,10 @@ public sealed record PluginMatchDto(string PluginId, string PluginName, int Scor
 
 public sealed record FileDto(string Id, string Path, long Length, IReadOnlyList<PluginMatchDto> Matches, string? OpenDocumentId);
 
-public sealed record DocumentSummaryDto(string Id, string FileId, string FilePath, string Title, string PluginId, bool IsDirty);
+public sealed record DocumentSummaryDto(string Id, string FileId, string FilePath, string Title, string PluginId, bool IsDirty)
+{
+    public IReadOnlyList<GroupMemberInfo>? GroupMembers { get; init; }
+}
 
 public sealed record DocumentDto(
     string Id,
@@ -58,7 +65,10 @@ public sealed record DocumentDto(
     PluginDto Plugin,
     bool CanEdit,
     DocumentState State,
-    ViewNode View);
+    ViewNode View)
+{
+    public IReadOnlyList<GroupMemberInfo>? GroupMembers { get; init; }
+}
 
 public sealed record OpenRequest(string? PluginId);
 

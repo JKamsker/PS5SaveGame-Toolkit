@@ -24,6 +24,10 @@ export function WorkspacePage() {
   const open = useCallback(
     async (file: SaveFileInfo, pluginId?: string) => {
       try {
+        if (file.openDocumentId && !pluginId) {
+          setSearch({ doc: file.openDocumentId });
+          return;
+        }
         const doc = await api.open(workspaceId, file.id, pluginId);
         queryClient.setQueryData(["document", workspaceId, doc.id], doc);
         setSearch({ doc: doc.id });

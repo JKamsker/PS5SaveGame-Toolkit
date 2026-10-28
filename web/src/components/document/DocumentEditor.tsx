@@ -7,6 +7,7 @@ import { SourcesPanel } from "./SourcesPanel";
 import { ChangesPanel } from "./review/ChangesPanel";
 import { ReviewNavigationProvider } from "./review/navigation";
 import { ViewRenderer } from "./ViewRenderer";
+import { DocumentGroupControls } from "./DocumentGroupControls";
 
 interface DocumentEditorProps {
   workspaceId: string;
@@ -109,14 +110,14 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
             <span className="editor__file mono">{doc.filePath}</span>
           </div>
           <HistoryButtons store={context.store} onUndo={() => run(() => api.undo(workspaceId, documentId))} onRedo={() => run(() => api.redo(workspaceId, documentId))} />
-          <a className="btn btn--small btn--quiet" href={api.downloadUrl(workspaceId, documentId)} download>
+          {!doc.groupMembers && <a className="btn btn--small btn--quiet" href={api.downloadUrl(workspaceId, documentId)} download>
             Download file
-          </a>
+          </a>}
           <div className="editor__plugin">
             <span>
               {doc.plugin.name} <span className={`tag tag--${doc.plugin.maturity.toLowerCase()}`}>{maturityText[doc.plugin.maturity]}</span>
             </span>
-            {file && file.matches.length > 1 && (
+            {!doc.groupMembers && file && file.matches.length > 1 && (
               <label>
                 <span className="visually-hidden">Open with</span>
                 <select value={doc.plugin.id} onChange={(e) => onSwitchPlugin(e.target.value)}>
@@ -130,6 +131,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
             )}
           </div>
         </header>
+        {(doc.plugin.supportsGroups || doc.groupMembers) && <DocumentGroupControls document={doc} />}
         <SourcesPanel
           workspaceId={workspaceId}
           documentId={documentId}

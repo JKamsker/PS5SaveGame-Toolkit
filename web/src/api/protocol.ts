@@ -106,6 +106,7 @@ export type Maturity = "ReadOnly" | "Experimental" | "Stable";
 export interface GameTitle { titleId: string; name: string; region?: string }
 
 export interface Plugin {
+  supportsGroups?: boolean;
   id: string;
   name: string;
   version: string;
@@ -134,7 +135,7 @@ export interface SaveDirectory {
 
 export interface TitleGroup { titleId: string; gameName?: string; directories: SaveDirectory[] }
 
-export interface DocumentSummary { id: string; fileId: string; filePath: string; title: string; pluginId: string; isDirty: boolean }
+export interface DocumentSummary { id: string; fileId: string; filePath: string; title: string; pluginId: string; isDirty: boolean; groupMembers?: import("./groups").GroupMember[] }
 
 export interface Workspace { id: string; name: string; createdAt: string; titles: TitleGroup[]; documents: DocumentSummary[] }
 
@@ -144,6 +145,7 @@ export interface WorkspaceSummary { id: string; name: string; createdAt: string;
 export interface DocumentState { canUndo: boolean; canRedo: boolean; isDirty: boolean; revision?: number }
 
 export interface SaveDocument {
+  groupMembers?: import("./groups").GroupMember[];
   id: string;
   fileId: string;
   filePath: string;
