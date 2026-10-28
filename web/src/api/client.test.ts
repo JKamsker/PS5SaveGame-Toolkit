@@ -3,6 +3,16 @@ import { api, ApiError, isStaleError } from "./client";
 
 afterEach(() => vi.unstubAllGlobals());
 
+it("passes lazy expansion cancellation to fetch and preserves opaque IDs", async () => {
+  const fetch = vi.fn().mockResolvedValue(new Response("[]", { headers: { "content-type": "application/json" } }));
+  vi.stubGlobal("fetch", fetch);
+  const controller = new AbortController();
+  await api.expand("w", "d", "tree/%2F?#", controller.signal);
+  const [path, init] = fetch.mock.calls[0]!;
+  expect(new URL(path as string, "http://localhost").searchParams.get("id")).toBe("tree/%2F?#");
+  expect(init.signal).toBe(controller.signal);
+});
+
 describe("collection requests", () => {
   it.each(["gvas/properties", "literal%2Fitems", "inventory/#? + items"])("preserves the opaque ID %s in the query string", async collectionId => {
     const fetch = vi.fn().mockResolvedValue(new Response("{}", { headers: { "content-type": "application/json" } }));

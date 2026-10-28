@@ -94,8 +94,8 @@ export const api = {
     request<SaveDocument>(`${ws(wsId)}/files/${encodeURIComponent(fileId)}/open`, json({ pluginId: pluginId ?? null })),
   document: (wsId: string, docId: string) => request<SaveDocument>(doc(wsId, docId)),
   closeDocument: (wsId: string, docId: string) => request<void>(doc(wsId, docId), { method: "DELETE" }),
-  expand: (wsId: string, docId: string, lazyId: string) =>
-    request<ViewNode[]>(`${doc(wsId, docId)}/nodes?id=${encodeURIComponent(lazyId)}`),
+  expand: (wsId: string, docId: string, lazyId: string, signal?: AbortSignal) =>
+    request<ViewNode[]>(`${doc(wsId, docId)}/nodes?id=${encodeURIComponent(lazyId)}`, { signal }),
   queryCollection: (wsId: string, docId: string, collectionId: string, query: CollectionQuery = {}, revision?: number) => {
     const params = new URLSearchParams({ collectionId });
     if (query.q) params.set("q", query.q);
