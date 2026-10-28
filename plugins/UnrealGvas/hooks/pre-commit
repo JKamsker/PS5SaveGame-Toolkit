@@ -1,0 +1,3 @@
+#!/bin/sh
+# Optional plugin-scoped hook; chain from an existing repository pre-commit hook.
+exec pwsh -NoProfile -File "$(git rev-parse --show-toplevel)/plugins/UnrealGvas/scripts/check-csharp-size.ps1"

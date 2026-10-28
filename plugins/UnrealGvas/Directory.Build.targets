@@ -1,0 +1,6 @@
+<Project>
+  <!-- Keep enforcement scoped to this plugin; inherited by its production and test projects. -->
+  <Target Name="CheckUnrealGvasFileSizes" BeforeTargets="CoreCompile">
+    <Exec Command="pwsh -NoProfile -File &quot;$(MSBuildThisFileDirectory)scripts/check-csharp-size.ps1&quot;" />
+  </Target>
+</Project>
