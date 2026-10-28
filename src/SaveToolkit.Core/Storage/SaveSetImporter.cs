@@ -1,0 +1,189 @@
+using System.IO.Compression;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
+using SaveToolkit.Sdk.Saves;
+
+namespace SaveToolkit.Core.Storage;
+
+/// <summary>An uploaded file: a .zip dump or a single file whose name may carry a relative path.</summary>
+public sealed record ImportSource(string Name, Func<Stream> Open);
+
+public sealed record ImportLimits
+{
+    public long MaxTotalBytes { get; init; } = 8L * 1024 * 1024 * 1024;
+    public int MaxEntries { get; init; } = 50_000;
+}
+
+public sealed class ImportException(string message) : Exception(message);
+
+/// <summary>
+/// Turns decrypted PS5 save dumps (as produced by common save managers:
+/// <c>PPSAxxxxx/sdimg_[sce_bu_]&lt;dir&gt;/...</c>) into a <see cref="DiskSaveSet"/>.
+/// Paths that occur several times (appended snapshots) are split into generations.
+/// Content is copied into numbered blobs so archive names never touch the file system.
+/// </summary>
+public static partial class SaveSetImporter
+{
+    private const string UnknownTitle = "UNKNOWN";
+
+    public static DiskSaveSet Import(IEnumerable<ImportSource> sources, string storageRoot, ImportLimits? limits = null)
+    {
+        limits ??= new ImportLimits();
+        System.IO.Directory.CreateDirectory(storageRoot);
+        var builder = new Builder(storageRoot, limits);
+        foreach (var source in sources)
+        {
+            if (source.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            {
+                using var stream = source.Open();
+                using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
+                foreach (var entry in zip.Entries)
+                {
+                    if (entry.FullName.EndsWith('/'))
+                    {
+                        continue;
+                    }
+
+                    using var entryStream = entry.Open();
+                    builder.Add(entry.FullName, entryStream);
+                }
+            }
+            else
+            {
+                using var stream = source.Open();
+                builder.Add(source.Name, stream);
+            }
+        }
+
+        return builder.Build();
+    }
+
+    internal sealed record ParsedPath(string? TitleId, string RawDirectory, string PathInDirectory);
+
+    /// <summary>Splits an archive path into title / save directory / path inside the directory.</summary>
+    internal static ParsedPath? ParsePath(string path)
+    {
+        var segments = path.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length == 0 || segments.Any(s => !IsSafeSegment(s)) || segments[0] == "__MACOSX")
+        {
+            return null;
+        }
+
+        var dirIndex = Array.FindIndex(segments, s => s.StartsWith("sdimg_", StringComparison.OrdinalIgnoreCase));
+        if (dirIndex >= 0)
+        {
+            if (dirIndex == segments.Length - 1)
+            {
+                return null;
+            }
+
+            var title = dirIndex > 0 && TitleIdRegex().IsMatch(segments[dirIndex - 1]) ? segments[dirIndex - 1].ToUpperInvariant() : null;
+            return new ParsedPath(title, segments[dirIndex], string.Join('/', segments[(dirIndex + 1)..]));
+        }
+
+        var anyTitle = segments.FirstOrDefault(s => TitleIdRegex().IsMatch(s))?.ToUpperInvariant();
+        return segments.Length >= 2
+            ? new ParsedPath(anyTitle, segments[^2], segments[^1])
+            : new ParsedPath(anyTitle, "loose", segments[0]);
+    }
+
+    private static bool IsSafeSegment(string s) =>
+        s is not ("." or "..") && s.IndexOfAny(['\0', ':', '*', '?', '"', '<', '>', '|']) < 0 && s.Length <= 255;
+
+    [GeneratedRegex("^[A-Z]{4}[0-9]{5}$", RegexOptions.IgnoreCase)]
+    private static partial Regex TitleIdRegex();
+
+    private sealed class Builder(string storageRoot, ImportLimits limits)
+    {
+        private readonly Dictionary<string, int> _occurrences = new(StringComparer.OrdinalIgnoreCase);
+        private readonly List<PendingFile> _files = [];
+        private long _totalBytes;
+
+        public void Add(string archivePath, Stream content)
+        {
+            var parsed = ParsePath(archivePath);
+            if (parsed is null)
+            {
+                return;
+            }
+
+            if (_files.Count >= limits.MaxEntries)
+            {
+                throw new ImportException($"Too many files (limit {limits.MaxEntries}).");
+            }
+
+            var key = $"{parsed.TitleId}/{parsed.RawDirectory}/{parsed.PathInDirectory}";
+            var generation = _occurrences.GetValueOrDefault(key);
+            _occurrences[key] = generation + 1;
+
+            var index = _files.Count;
+            var blobPath = Path.Combine(storageRoot, $"{index:D6}.blob");
+            var (length, sha) = CopyToBlob(content, blobPath);
+            _files.Add(new PendingFile(parsed, generation, blobPath, length, sha));
+        }
+
+        private (long Length, string Sha256) CopyToBlob(Stream content, string blobPath)
+        {
+            using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            using var output = new FileStream(blobPath, FileMode.CreateNew, FileAccess.Write);
+            var buffer = new byte[81920];
+            long length = 0;
+            int read;
+            while ((read = content.Read(buffer)) > 0)
+            {
+                length += read;
+                _totalBytes += read;
+                if (_totalBytes > limits.MaxTotalBytes)
+                {
+                    throw new ImportException($"Upload exceeds {limits.MaxTotalBytes / (1024 * 1024)} MiB.");
+                }
+
+                output.Write(buffer, 0, read);
+                hash.AppendData(buffer, 0, read);
+            }
+
+            return (length, Convert.ToHexStringLower(hash.GetHashAndReset()));
+        }
+
+        public DiskSaveSet Build()
+        {
+            if (_files.Count == 0)
+            {
+                throw new ImportException("No save files found in the upload.");
+            }
+
+            var set = new DiskSaveSet(storageRoot);
+            var groups = _files
+                .GroupBy(f => (f.Path.TitleId, Raw: f.Path.RawDirectory, f.Generation))
+                .OrderBy(g => g.Key.Generation)
+                .ThenBy(g => g.Key.TitleId, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(g => DiskSaveDirectory.SplitRawName(g.Key.Raw).Name, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(g => g.Key.Raw.Length);
+
+            var dirIndex = 0;
+            var fileIndex = 0;
+            foreach (var group in groups)
+            {
+                var sfoFile = group.FirstOrDefault(f => string.Equals(f.Path.PathInDirectory, "sce_sys/param.sfo", StringComparison.OrdinalIgnoreCase));
+                var sfo = sfoFile is null ? null : ParamSfo.TryParse(File.ReadAllBytes(sfoFile.BlobPath));
+                var title = group.Key.TitleId ?? NormalizeTitle(sfo?.TitleId) ?? UnknownTitle;
+
+                var directory = new DiskSaveDirectory(set, $"d{dirIndex++}", title, group.Key.Raw, group.Key.Generation) { ParamSfo = sfo };
+                foreach (var f in group.OrderBy(f => f.Path.PathInDirectory, StringComparer.OrdinalIgnoreCase))
+                {
+                    var file = new DiskSaveFile(directory, $"f{fileIndex++}", f.Path.PathInDirectory, f.BlobPath, f.Length, f.Sha256);
+                    (file.IsSystemFile ? directory.SystemFileList : directory.FileList).Add(file);
+                }
+
+                set.Add(directory);
+            }
+
+            return set;
+        }
+
+        private static string? NormalizeTitle(string? id) =>
+            id is not null && TitleIdRegex().IsMatch(id) ? id.ToUpperInvariant() : null;
+
+        private sealed record PendingFile(ParsedPath Path, int Generation, string BlobPath, long Length, string Sha256);
+    }
+}

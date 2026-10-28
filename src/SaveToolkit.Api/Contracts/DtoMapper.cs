@@ -1,0 +1,71 @@
+using SaveToolkit.Core.Plugins;
+using SaveToolkit.Core.Sessions;
+using SaveToolkit.Core.Storage;
+using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Saves;
+
+namespace SaveToolkit.Api.Contracts;
+
+internal static class DtoMapper
+{
+    public static PluginDto ToDto(this IGamePlugin plugin) => new(
+        plugin.Info.Id,
+        plugin.Info.Name,
+        plugin.Info.Version,
+        plugin.Info.Description,
+        plugin.Info.Maturity,
+        plugin.Info.Games,
+        plugin.Info.References);
+
+    public static WorkspaceSummaryDto ToSummary(this Workspace ws) => new(
+        ws.Id,
+        ws.Name,
+        ws.CreatedAt,
+        ws.Set.Directories.Count,
+        ws.Set.Directories.Sum(d => d.Files.Count),
+        [.. ws.Set.Directories.Select(d => d.TitleId).Distinct(StringComparer.OrdinalIgnoreCase)]);
+
+    public static WorkspaceDto ToDto(this Workspace ws, PluginCatalog catalog)
+    {
+        var openByFile = ws.Documents.ToDictionary(d => d.File.Id, d => d.Id, StringComparer.Ordinal);
+        var titles = ws.Set.Directories
+            .GroupBy(d => d.TitleId, StringComparer.OrdinalIgnoreCase)
+            .Select(g => new TitleDto(
+                g.Key,
+                GameName(catalog, g.Key),
+                [.. g.Cast<DiskSaveDirectory>().Select(d => ToDto(ws, d, openByFile))]))
+            .ToList();
+        return new WorkspaceDto(ws.Id, ws.Name, ws.CreatedAt, titles, [.. ws.Documents.Select(ToSummary)]);
+    }
+
+    public static DocumentSummaryDto ToSummary(this DocumentSession d) =>
+        new(d.Id, d.File.Id, d.File.RelativePath, d.Title, d.Plugin.Info.Id, d.State.IsDirty);
+
+    public static DocumentDto ToDto(this DocumentSession d) =>
+        new(d.Id, d.File.Id, d.File.RelativePath, d.Title, d.Plugin.ToDto(), d.CanEdit, d.State, d.BuildView());
+
+    private static DirectoryDto ToDto(Workspace ws, DiskSaveDirectory dir, Dictionary<string, string> openByFile)
+    {
+        var twin = ws.Set.Twin(dir);
+        var identical = twin is not null
+            && twin.Files.Count == dir.Files.Count
+            && dir.Files.Cast<DiskSaveFile>().All(f => twin.Files.Cast<DiskSaveFile>().Any(t => t.PathInDirectory == f.PathInDirectory && t.Sha256 == f.Sha256));
+        var sfo = dir.ParamSfo is { } p ? new SfoDto(p.MainTitle, p.SubTitle, p.Detail, p.SaveDataDirectory) : null;
+        var files = dir.Files.Cast<DiskSaveFile>()
+            .Select(f => new FileDto(
+                f.Id,
+                f.PathInDirectory,
+                f.Length,
+                [.. ws.Probe(f).Select(m => new PluginMatchDto(m.Plugin.Info.Id, m.Plugin.Info.Name, m.Result.Score, m.Result.Label, m.Plugin.Info.Maturity))],
+                openByFile.GetValueOrDefault(f.Id)))
+            .ToList();
+        return new DirectoryDto(dir.Id, dir.Name, dir.RawName, dir.IsBackup, dir.Generation, twin?.Id, identical, Icon(dir) is not null, sfo, files);
+    }
+
+    public static ISaveFile? Icon(ISaveDirectory dir) =>
+        dir.SystemFiles.FirstOrDefault(f => string.Equals(f.PathInDirectory, "sce_sys/icon0.png", StringComparison.OrdinalIgnoreCase));
+
+    private static string? GameName(PluginCatalog catalog, string titleId) => catalog.Plugins
+        .SelectMany(p => p.Info.Games)
+        .FirstOrDefault(g => string.Equals(g.TitleId, titleId, StringComparison.OrdinalIgnoreCase))?.Name;
+}

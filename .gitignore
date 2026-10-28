@@ -1,0 +1,15 @@
+# Sample saves are large and private; never commit them.
+/artifacts/
+/.worktrees/
+/data/
+
+bin/
+obj/
+*.user
+.vs/
+.idea/
+TestResults/
+
+node_modules/
+web/dist/
+src/SaveToolkit.Api/wwwroot/

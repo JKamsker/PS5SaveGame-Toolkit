@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>SaveToolkit.Api</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />
+    <!-- Every plugin under plugins/<Name>/SaveToolkit.Plugins.<Name>/ is picked up automatically; no edits needed when adding one. -->
+    <ProjectReference Include="..\..\plugins\*\*\SaveToolkit.Plugins.*.csproj" Exclude="..\..\plugins\**\*.Tests.csproj" />
+  </ItemGroup>
+</Project>

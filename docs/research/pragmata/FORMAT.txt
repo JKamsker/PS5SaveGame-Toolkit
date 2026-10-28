@@ -1,0 +1,286 @@
+PRAGMATA PPSA02530: VERIFIED SAVE FORMAT NOTES
+===========================================
+Analysis scope: the 12 data*.bin files in PPSA02530_saves_dec.zip, checked
+2026-10-27. No game executable or console was available. Any semantic label
+not explicitly confirmed below is a hypothesis, not a proven game contract.
+
+1. FILES AND THEIR ROLES
+
+data00-1.bin: system/settings data, 10,484 plaintext bytes, 4 root records.
+  Root system data contains 8 class records. Observed text includes controller
+  settings such as Trigger, Hold, Medium and Auto. Do not infer the complete
+  setting-to-value mapping from those strings alone.
+
+data000.bin: gameplay save with displayed slot index 0. It is the newest save
+  by its embedded date (2026-10-26), approximately 25.698 hours played.
+  Whether slot 0 is an autosave is not independently established.
+
+data001Slot.bin through data010Slot.bin: gameplay saves with displayed slot
+  indices 1 through 10. Each contains 27 top-level gameplay section records
+  and 90 inventory item records in this sample set.
+
+Each directory also has sce_sys/param.sfo, keystone and icon0.png. Those are
+PS5 save metadata, not the game's serialized inventory/progression payload.
+
+2. OUTER DSSS CONTAINER
+
+All integers in this document are little-endian unless stated otherwise.
+Let F = complete .bin file size.
+
+File offset 0x00: 4 bytes ASCII "DSSS".
+File offset 0x04: uint32 version = 2.
+File offset 0x08: uint32 flags = 0x10 (Mandarin).
+File offset 0x0c: 4 bytes observed zero padding.
+File offset 0x10: first Mandarin block.
+File offset F-0x8c: 0x80-byte key/RSA trailer, preserved unchanged by the tool.
+File offset F-0x0c: uint64 exact decrypted payload length.
+File offset F-0x04: uint32 MurmurHash3 x86-32 of bytes [0, F-4), seed 0xffffffff.
+
+There is no DEFLATE compression flag in these files. The game payload remains
+encrypted even though the ZIP name contains "dec". That name describes the
+removed PS5 container encryption, not removal of Mandarin.
+
+3. MANDARIN BLOCKS AND CHECKSUMS
+
+Verified PS5 ID/key input: 526253637 (0x1f5dfe45).
+Verified PRAGMATA encryption PRNG seed: 0x7da24a9e1479f3d7.
+The upstream RSA generation seed is 0x3f90d767f13abe2e; this tool preserves
+the existing trailer and does not need to generate a new one.
+
+Each block:
+  +0x000..+0x1ff: four 128-byte ElGamal-style key/IV metadata pairs.
+  +0x200..+0x207: uint64 CityHash64 of the valid plaintext bytes in this block.
+  +0x208..+0x20f: 8 unknown metadata bytes, preserved.
+  +0x210 onward: AES-128-OFB ciphertext.
+
+The entire first 0x210 metadata bytes are XOR-masked with generated PRNG bytes.
+AES keys and IVs are derived deterministically from the same PRNG and key input.
+Block ciphertext capacities vary from 1 to 8 multiples of 0x4000 bytes.
+The last block can contain unused capacity; preserve it when making edits.
+
+Exact sequence:
+  N = ceil(plaintext_length / 0x4000).
+  Start state = encryption seed.
+  Generate ALL N potential block sizes first:
+    capacity[i] = ((state & 7) + 1) * 0x4000;
+    state = mix(state + 0x9e3779b97f4a7c15), modulo 2^64.
+  Only enough of these capacities to cover plaintext_length become real blocks.
+  Add bitwise NOT of the 64-bit key input to the final state, modulo 2^64.
+  For each real block, take 16 next-state outputs; the low byte is an AES key
+  byte and the next byte is an IV byte. Then take 0x210 further outputs for
+  metadata XOR-mask bytes. Continue with the next block.
+
+mix(z):
+  z = (z XOR (z >> 30)) * 0xbf58476d1ce4e5b9 modulo 2^64
+  z = (z XOR (z >> 27)) * 0x94d049bb133111eb modulo 2^64
+  return z XOR (z >> 31)
+
+Important: the MIXED OUTPUT is assigned back as the next state. Treating
+this as a conventional SplitMix64 state progression produces wrong keys.
+
+For a size-preserving edit, AES-OFB allows:
+  new_ciphertext = old_ciphertext XOR old_plaintext XOR new_plaintext
+Then update the masked CityHash64 of each changed block and the outer Murmur3.
+No new key/IV, ElGamal pairs or RSA trailer are needed when the layout and key
+remain unchanged. This avoids re-creating unknown metadata and padding.
+
+4. DECRYPTED SERIALIZATION
+
+The plaintext is a typed, hash-addressed class stream, not JSON, SQLite,
+Unreal GVAS or an ordinary list of fixed offsets.
+
+Root record:
+  uint32 native/root field hash
+  uint32 field count
+  uint32 class/type hash
+  repeated fields
+
+Field:
+  uint32 field-name hash
+  int32 type tag
+  type-specific payload
+  align to 4 bytes after the field
+
+Primitive payload: uint32 byte size, alignment, then the primitive bytes.
+Class payload: uint32 field count, uint32 class hash, repeated fields.
+String payload: uint32 UTF-16 code-unit count, followed by UTF-16LE bytes.
+Strings are counted, not necessarily zero-terminated.
+Struct payload: uint32 byte size, alignment, then opaque bytes.
+
+Array payload:
+  int32 member type
+  uint32 member size
+  uint32 element count
+  int32 array type (0=value elements, 1=class elements)
+  optional uint32 marker 0xffeeffee and element_count uint32 hashes
+  elements, followed by alignment to 4
+The optional marker/hash list applies to class arrays. Class elements carry
+their own field-count/class-hash records, not ordinary per-element field headers.
+
+Type tags:
+  -1 array; 0 unknown/unsupported; 1 enum; 2 bool;
+   3 int8; 4 uint8; 5 int16; 6 uint16; 7 int32; 8 uint32;
+   9 int64; 10 uint64; 11 float32; 12 float64;
+  13 char8; 14 char16; 15 UTF-16 string; 16 struct; 17 class.
+
+Field-name hashes match MurmurHash3 x86-32 over UTF-8 names with seed
+0xffffffff. Confirmed type-name matches are listed in verified_save_map.json.
+
+CRITICAL ALIGNMENT FINDING
+The serializer aligns its original cursor INCLUDING the 16-byte DSSS header.
+When parsing a headerless plaintext dump, retain origin = 16:
+
+  absolute = plaintext_offset + 16
+  aligned = ((absolute + size - 1) & ~(size - 1)) - 16
+
+This deliberately reproduces the observed bit-mask rule even for struct sizes
+such as 24. It is not interchangeable with generic rounding to a multiple of
+size, or with simply aligning plaintext_offset itself.
+
+The earlier attached transcript's parser used origin 0. It stopped partway
+through slots 2, 4, 6, 8 and 10 when it encountered affected structs. With
+origin 16, every supplied file parses exactly to the declared payload length.
+The attached JSON summaries are numerically useful, but were not a complete
+reproducible format specification.
+
+5. ROOT MAP
+
+Common roots, shown as native/root hash -> class/type hash:
+  282b8920 -> b99c6c24: app.SaveDataManager.RegionSaveData
+  09158136 -> 84d521e7: one integer, value 1; exact semantic name unknown
+  54fa76ae -> 16edacee: gameplay save header (9 fields)
+  7c416083 -> a2d10871: app.SaveDataManager.GameSaveData
+  85e904c1 -> 2b1634eb: via.storage.saveService.SaveFileDetail
+
+System file uses e1d997cd -> 2c5e1288 (app.SaveDataManager.SystemSaveData)
+instead of the gameplay header and GameSaveData roots.
+
+GameSaveData contains field 7c018857, hash match "_GameSaveDataList", an
+array of 27 class records. Their ORDER VARIES between slots. Locate sections
+by class hash rather than a hardcoded array index.
+
+6. GAMEPLAY HEADER / SHARED METADATA
+
+Offsets below are VALUE offsets in the DECRYPTED HEADERLESS payload and
+are observed across all supplied gameplay saves. They are NOT offsets that
+can be edited directly in the encrypted .bin.
+
+0x18 uint32, field a4e87d84: _RegionHash = 3208943443 (0xbf449753), confirmed.
+0x34 int32,  field 781ee97a: value 1, semantic name unknown.
+0x50 uint32, field 6182c62b: value 0; "stage_id" is an unconfirmed old label.
+0x60 uint32, field 49864485: value 0; purpose unknown.
+0x70 uint32, field a6eaf825: changing hashed ID; "description_id" unconfirmed.
+0x80 int64,  field d628891d: _SaveDate, .NET-style ticks (100 ns since 0001-01-01).
+0x98 uint64, field 4e8845ca: displayed playtime in microseconds, inferred from
+  the clock relation below; divide by 3,600,000,000 for hours.
+0xac int32,  field 957de5af: "playthrough_count_field" in the prior summary;
+  exact gameplay meaning is unresolved. Do not equate it to NG+ without a test.
+0xbc bool,   field c7119340: _ClearedSave, confirmed field-name hash.
+0xcc uint32, field 4c5f732d: _DifficultyHash, name hash confirmed; ID-name map unknown.
+0xdc uint32, field d686b6dc: _InheritModeHash, name hash confirmed; ID-name map unknown.
+
+The save date does not contain a timezone; do not treat it as known UTC.
+All gameplay saves here have difficulty ID 1948795948. That alone does not
+prove whether it means Normal, Casual, etc.
+
+SaveFileDetail fields are at the END of the plaintext and move with file size:
+  b6182d04 "Title": "Pragmata"
+  c2468a16 "SubTitle": "Speicherstand Slot_N" ("Systemdaten" in system file)
+  bc922b61 "Detail": localized description
+  27945a5a "Slot": signed int32 slot index (-1 for system data)
+Their field-name hashes are confirmed.
+
+7. INVENTORY
+
+Class/type hash 3a83076c matches "app.InventoryManager.SaveData".
+  d34b7230 _EquippedItem: uint32 equipped item ID.
+  3185b7a5 _InventoryItems: class array, 90 records in every gameplay sample.
+  ecfd6e74: 6-record class array, exact purpose unresolved.
+  0e32cc88: 4-record class array, exact purpose unresolved.
+  fc801b42: uint64, meaning unresolved; do not assume it is spendable money.
+  41a3979a _Hash and ef10b158 _Version: section metadata.
+
+Each inventory item contains:
+  1b5a30c0 "_ID": uint32 item ID.
+  d18b252d "_Quantity": int32 quantity.
+Both names are hash-confirmed. These records are 0x28 bytes apart in these
+files, but an editor should still parse them rather than assume fixed offsets.
+
+Example from data000.bin ONLY:
+  Item ID 2870192522: quantity 7. Quantity plaintext offset 0x0a9b04.
+  Item ID 2227368435: quantity 2575. Quantity plaintext offset 0x0a9bcc.
+  The latter quantity's encrypted ciphertext offset is 0x0aac5c, but writing
+  a plaintext integer there would corrupt the save: OFB encryption and both
+  checksum layers still need to be handled.
+  Exact path: 7c416083/7c018857[6]/3185b7a5[5]/d18b252d.
+
+Item display names and legal stack limits are UNKNOWN. ID 2227368435 has
+larger counts, but calling it a specific currency is not justified yet.
+
+8. CLOCK AND OTHER SECTIONS
+
+Class 7d74c37a matches "app.GameClock.GameSaveData":
+  0c6dbd95 _GameElapsedTime: uint64
+  61ca51b7 _DemoSpendingTime: uint64
+  a4fd8835 _PauseSpendingTime: uint64
+
+Across ALL 11 gameplay files:
+  header playtime = GameElapsedTime - DemoSpendingTime - PauseSpendingTime
+Units are consistent with microseconds and displayed hours.
+
+Class c0116a49 matches "app.ItemManager.SaveData", but contains only metadata
+in these files; it is not the 90-entry inventory section.
+
+The remaining gameplay classes are fully parsed and their section/field
+hashes, array lengths and per-file offsets are listed in verified_save_map.json.
+Their exact names and gameplay semantics are not yet established. This report
+does not claim to have identified all health, ammo, upgrade, quest, world-state
+or unlock fields.
+
+9. EDITOR IMPLEMENTATION STRATEGY
+
+1. Validate DSSS version/flags and outer MurmurHash3.
+2. Read exact plaintext length; derive block layout, keys and metadata masks.
+3. Decrypt with AES-128-OFB; validate each block's CityHash64.
+4. Parse the typed tree with alignment origin 16; require complete consumption.
+5. Locate inventory by class 3a83076c, then _InventoryItems and an existing _ID.
+6. Patch the fixed-size int32 _Quantity value in the original plaintext bytes.
+7. Apply the OFB XOR delta to the corresponding ciphertext bytes, update the
+   affected masked CityHash64 value(s), then the outer MurmurHash3.
+8. Re-decrypt and re-parse the output before writing it as a separate file.
+
+Preserve unknown fields, padding, block metadata and the RSA trailer.
+Do not resize arrays, reorder sections, regenerate the whole object tree or
+copy offsets from one slot into another for a first implementation.
+
+For user-friendly item names, obtain a matching game-data ID dictionary or
+compare controlled in-game before/after saves changing one known item only.
+For console validation, first try an unchanged roundtrip restore, then one
+small legal quantity change in a spare slot.
+
+10. SOURCES / REPRODUCIBILITY
+
+Primary evidence: the supplied save bytes and the included verified_save_map.json.
+All 12 saves fully parse (519,872 class records in total).
+503/503 block CityHash64 and embedded key/IV checks pass.
+12/12 no-op roundtrips are identical.
+11/11 gameplay quantity edits pass verification and reverse identically.
+No console load test has been performed.
+
+Upstream format/crypto reference:
+https://github.com/kvasszn/ree-save-editor
+  src/save/crypto/mandarin.rs
+  src/save/crypto/util.rs
+  src/save/game.rs
+  src/save/mod.rs
+  src/save/types.rs
+
+Source blob SHAs fetched for this analysis:
+  types.rs: 0d17834929c4bfe3b8f4f1fcec3bb3b474db816f
+  game.rs: 7037bcb8c33339599af2ce78e6755f7ae156526d
+
+CityHash reference:
+https://github.com/google/cityhash/blob/master/src/city.cc
+
+The attached prior conversation was used as a lead, not as proof. The values
+and structures described as verified were reproduced from the original files.
