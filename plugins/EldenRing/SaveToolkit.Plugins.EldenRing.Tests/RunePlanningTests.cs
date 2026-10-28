@@ -26,7 +26,7 @@ public sealed class RunePlanningTests
         var document = plugin.Open(file);
         using var session = new DocumentSession("rune-plan", file, plugin, document);
         _ = session.BuildView();
-        var action = Assert.Single(session.Expand("characters/0").OfType<ActionNode>());
+        var action = Assert.Single(session.Expand("characters/0").OfType<ActionNode>(), action => action.ActionId == ActionId);
         Assert.Equal(ActionId, action.ActionId);
         Assert.True(action.SupportsPlanning);
         var preview = session.PlanAction(ActionId, Incoming(1148));

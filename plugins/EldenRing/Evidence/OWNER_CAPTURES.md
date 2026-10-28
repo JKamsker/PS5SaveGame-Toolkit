@@ -12,25 +12,31 @@ the action under study. Quit/save normally, export, and record any unavoidable t
 Primary/backup twins do **not** replace an independent before/after pair. Controlled no-action pairs
 are needed before classifying timer/settings differences as churn.
 
-## Round-2 capability decisions
+## Write-enable decisions (2026-10-28)
+
+The owner authorized **“Enable writes. Keep warnings.”** Console evidence is tracked in
+[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31), separately from implementation.
+The enabled operations below do not wait for these captures; all remain Experimental/Inferred.
+Unknown integrity/dependency rules may make the game reject an edited save.
 
 The complete pinned MIT name catalog is now embedded under the owner's issue #14 policy. No new
 permission decision is needed for those lists or properly attributed CC BY-SA text. Catalog labels
 do not establish legal stack limits, equip eligibility, upgrade paths or temporal dependencies.
 
-| Family | Round-2 result | Missing proof before expanding writes |
+| Family | Current result | Owner validation / remaining implementation |
 | --- | --- | --- |
-| Held runes | Existing four-byte edit plus shared F6 preview/review/undo | Console load/resave/reload; history guard unchanged |
-| Quantities/refill | Disabled | `buy-one-dagger`, `use-one-dagger`, storage pairs; matching carry/storage/container caps |
-| Live/menu name | Disabled | Unicode/max-length/shortening pairs proving both mirrors, terminator vs padding and trailing-byte behavior |
-| Attributes/respec | Disabled | Class minima and Vigor/Mind/Endurance pairs with modifier-aware current/effective/base vitals |
-| Linked rune history | Disabled | Earn/spend/death/recovery and unrecovered-loss pairs |
-| Owned equipment/loadout | Read-only four-representation/quick/pouch joins | Controlled equip/swap/selector/slot-unlock pairs and all side effects |
-| Upgrades/affinity/AoW | Disabled | Normal/somber transitions, compatibility and maximum-ever matchmaking-history behavior |
+| Held runes | Enabled field and held-only F6 preview/review/undo | Console load/resave/reload; final balance <= history |
+| Quantities/refill | Enabled positive existing Rowa Fruit <=12 and Smithing Stone [1] <=3, in held/storage; shared F6 refill | Legal carry/storage caps remain unverified; nonempty storage has synthetic coverage only; validate both IDs and grouped undo |
+| Live/menu name | Enabled both UTF-16LE mirrors, 1–16 code units, strict surrogate/control checks, original trailing bytes and exact undo | Unicode/max-length/shortening pairs and menu/reload behavior |
+| Attributes/respec | No complete writer: read-only | Missing class-aware modifier/vital transaction; sample 504/504/476 cannot safely become one base value; capture attribute/modifier pairs |
+| Linked rune history | Enabled manual history mirrors and F6 linked increase; max(imported history, observed 4427), held additionally <=999999999 | Earn/spend/death/recovery/loss semantics; test raising balance beyond prior history and resaving |
+| Owned equipment/loadout | Read-only four-representation/quick/pouch joins | Missing profile-summary mirror/empty/unarmed/unlock/modifier writer; changing only displayed joins would leave inconsistent state |
+| Upgrades/affinity/AoW | No complete writer: read-only | Missing compatible PARAM rules and maximum-ever matchmaking-history transaction |
+| Structural/F5 and grouped/F7 | No prepared writer | Free handles, growth/count/acquisition and dependent-reference cleanup unmodeled; only one memory.dat is currently modified; backups remain framework-owned |
 
-F6 is implemented in the framework and used for the supported rune operation. Loadout/build/refill
-apply actions stay unpublished until the dependencies below are proven; there is no local preview
-substitute or hidden item creation. One snapshot's agreeing mirrors cannot prove a writer.
+F6 handles held-only runes, linked history and ordinary refill with shared review/group undo.
+The remaining restrictions protect unmodeled dependent structure; owner evidence alone is not their
+only missing ingredient. No local preview substitute or hidden item creation is published.
 
 ## First pairs (ELDENRING-R2/R12)
 
@@ -82,8 +88,9 @@ substitute or hidden item creation. One snapshot's agreeing mirrors cannot prove
 - [ ] `rename-shorten` / `rename-max`: shorten a longer name to two code units, then separately
   set exactly 16 UTF-16 code units. Where the game permits it, include a non-BMP character and record
   the displayed result. Prove live/profile behavior for the two bytes following the 16-unit buffer;
-  upstream labels them padding, while the current parser requires a terminating zero. No guessing
-  about clearing trailing bytes or accepting unpaired surrogates is authorized by a no-op round trip.
+  upstream labels them padding, while the current parser requires a terminating zero. The enabled
+  writer changes the requested string plus its terminator, retains each original tail and rejects
+  unpaired surrogates; confirm that behavior survives the game's own resave.
 - [ ] `vigor-one`, `mind-one`, `endurance-one`: separately level only the named attribute by one;
   record all eight attributes, displayed level, HP/FP/stamina current/max, class, equipment and effects.
 - [ ] `respec`: respec a fixed total level, record all before/after attributes and HP/FP/stamina;
@@ -126,8 +133,8 @@ substitute or hidden item creation. One snapshot's agreeing mirrors cannot prove
 
 ## Console acceptance (ELDENRING-R1)
 
-This round adds no gameplay edit family; shared F6 now previews the existing held-rune edit.
-Validate the existing edit separately:
+Validate each enabled operation from its own restorable duplicate, recording exact intended values.
+Repeat the load → inspect → quit/resave → toolkit reopen → console reload sequence for each:
 
 - [ ] From a restorable duplicate, record held runes N and choose a small change within the existing
   lifetime-history cap; export with the toolkit and retain the original.
@@ -138,7 +145,22 @@ Validate the existing edit separately:
   Only the owner can use these observations to decide Stable maturity. Parser tests are insufficient.
 - [ ] Repeat the held-rune change through **Review held-rune change**; verify the preview's old/new
   balance, one undo restoring the original export and redo restoring the same proposed output.
+- [ ] Set a Unicode name, separately shorten it, then set exactly 16 UTF-16 code units. Check both
+  character/menu names, resave/reload and toolkit re-open. Verify one undo restores original bytes.
+- [ ] Change an existing held Rowa Fruit stack within 1–12, then an existing Smithing Stone [1]
+  stack within 1–3. Validate both menus and quantities; do not create/remove rows or use zero.
+- [ ] Supply nonempty storage for each supported ID; edit only its existing quantity within the same
+  conservative bound. Confirm held quantities, record counts and equipment remain unchanged.
+- [ ] Reduce both supported stacks, use **Refill supported ordinary stacks**, inspect old/new values,
+  protected/skipped rows and warnings. Confirm both changes apply together and one undo/redo restores
+  the exact pre/post export. Repeat with a filtered selection excluding one supported stack.
+- [ ] Change lifetime history within max(imported history, 4427), keeping it >= held runes. Verify both
+  copies persist and normal save/reopen never repeatedly adds to history. Record earn/spend/loss behavior.
+- [ ] On a save whose history is below the conservative ceiling, use **Review linked rune/history
+  increase** to request a balance just above previous history. Inspect the derived history change,
+  confirm both copies, and validate one-step undo/redo plus load/resave/reload.
 
-Any future quantity/name/stat/equipment edit family needs the same load → inspect → resave → reopen
-→ reload sequence, exact changed-range review and undo equality before it is enabled. Phases 3–6
-remain gated; none of these checklist requests grants permission to guess those writes.
+These captures validate the enabled Experimental writes; they are no longer prerequisites for
+enabling them. Only an owner can use console results to promote maturity. Future stat/equipment,
+upgrade/progress or structural writers still need complete dependency/structure implementations;
+their current readers cannot safely be turned into partial writes merely by changing a setter.

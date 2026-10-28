@@ -21,7 +21,8 @@ public sealed class LayoutTests
             var fields = document.ExpandNode($"characters/{index}").OfType<FieldNode>().ToArray();
             Assert.Equal($"Hero {index}", document.GetValue($"slots/{index}/name").AsString());
             Assert.Equal(SyntheticSave.InitialRunes, document.GetValue($"slots/{index}/runes").AsUInt32());
-            Assert.Single(fields, field => !field.Spec.ReadOnly);
+            Assert.Equal(["slots/" + index + "/name", "slots/" + index + "/runes", "slots/" + index + "/rune-memory"],
+                fields.Where(field => !field.Spec.ReadOnly).Select(field => field.ValueId));
         }
     }
 
@@ -40,7 +41,9 @@ public sealed class LayoutTests
         Assert.Equal(name, document.GetValue("slots/9/name").AsString());
         Assert.Equal(writable, document.CanEdit);
         Assert.Equal(!writable, fields.Single(field => field.ValueId == "slots/9/runes").Spec.ReadOnly);
-        Assert.Equal(Confidence.Verified, fields.Single(field => field.ValueId == "slots/9/name").Confidence);
+        Assert.Equal(Confidence.Inferred, fields.Single(field => field.ValueId == "slots/9/name").Confidence);
+        Assert.Equal(!writable, fields.Single(field => field.ValueId == "slots/9/name").Spec.ReadOnly);
+        Assert.Equal(!writable, fields.Single(field => field.ValueId == "slots/9/rune-memory").Spec.ReadOnly);
         Assert.True(fixture.Bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
     }
 

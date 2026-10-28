@@ -20,6 +20,8 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     private readonly SemanticViews _semantic;
     private readonly Lazy<IReadOnlyList<ViewNode>> _regulation;
     private readonly RunePlanning _runes;
+    private readonly ValueWrites _writes;
+    private readonly WritePlanning _writePlans;
 
     public EldenRingDocument(string path, byte[] bytes, ParsedSave save, IReferenceContext references)
     {
@@ -31,11 +33,13 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
         _hex = new(bytes, save);
         var characters = save.Slots.Where(slot => slot.Active && slot.Version == EldenRingLayout.WritableSlotVersion)
             .Select(slot => SemanticReader.Read(bytes, slot)).ToArray();
+        _writes = new(bytes, save, characters);
         // An actual content fingerprint, not a guessed application/regulation version number.
         var fingerprint = Convert.ToHexStringLower(SHA256.HashData(
             bytes.AsSpan(EldenRingLayout.RegulationOffset, EldenRingLayout.RegulationSize)));
         _catalog = new(references.Catalog(ReferenceBrowser.CatalogId, fingerprint));
-        _inventory = new(characters, _catalog, asset => references.AssetProvenance(asset)?.Attribution.ToShortText());
+        _inventory = new(characters, _catalog, asset => references.AssetProvenance(asset)?.Attribution.ToShortText(), _writes.Current);
+        _writePlans = new(bytes, save, characters, _writes, _catalog);
         _semantic = new(bytes, characters, _catalog);
         _regulation = new(() => RegulationViews.Read(bytes));
     }
@@ -43,7 +47,8 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     public IReadOnlyList<QueryableCollection> Collections => [.. _inventory.Collections, _catalog.Collection];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
-        collectionId == ReferenceBrowser.CollectionId ? _catalog.Query(query) : _inventory.Query(collectionId, query, ItemField);
+        collectionId == ReferenceBrowser.CollectionId ? _catalog.Query(query) : _inventory.Query(collectionId, query, ItemField,
+            (entry, slot) => _writes.Quantity(entry, slot, Field));
 
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 
@@ -58,10 +63,10 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
             [
                 new Stat("Characters", $"{save.Slots.Count(slot => slot.Active)} / {EldenRingLayout.SlotCount}"),
                 new Stat("Format", "PlayStation memory.dat"),
-                new Stat("Editing", CanEdit ? "Held runes only" : "Read-only version"),
+                new Stat("Editing", CanEdit ? "Experimental names, runes/history and ordinary stacks" : "Read-only version"),
             ]),
             new TextNode(CanEdit
-                ? "Experimental: held runes can be changed up to the existing lifetime rune total. Changes have not been tested in-game."
+                ? ValueWrites.Warning
                 : "This character/profile version has not been verified for writing. All fields are read-only.") { Tone = Tone.Warning },
             new TextNode("Slot indices are zero-based. Level and attributes are read-only: level = sum(attributes) − 79."),
             Profiles(),
@@ -91,9 +96,36 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
-        // No PS per-slot MD5 exists. Recheck structure and profile mirrors before returning patched bytes.
-        _ = EldenRingParser.Parse(bytes);
+        ValidateOutput();
         return [new FileOutput(path, bytes.ToArray())];
+    }
+
+    public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
+    {
+        if (!CanEdit) return EditOutcome.Rejected("document", "This character/profile version is read-only.");
+        if (edits.Select(edit => edit.ValueId).Distinct(StringComparer.Ordinal).Count() != edits.Count)
+            return EditOutcome.Rejected("document", "Duplicate field edits are not supported.");
+        var original = bytes.ToArray();
+        try
+        {
+            var result = base.ApplyEdits(edits);
+            if (result.Succeeded) ValidateOutput();
+            else original.CopyTo(bytes, 0);
+            return result;
+        }
+        catch (SaveFormatException exception)
+        {
+            original.CopyTo(bytes, 0);
+            return EditOutcome.Rejected("document", exception.Message);
+        }
+    }
+
+    private void ValidateOutput()
+    {
+        // PS has no known per-slot MD5. Check all modeled structure/mirrors before publication/export.
+        var parsed = EldenRingParser.Parse(bytes);
+        foreach (var slot in parsed.Slots.Where(slot => slot.Active && slot.Version == EldenRingLayout.WritableSlotVersion))
+            _ = SemanticReader.Read(bytes, slot);
     }
 
     private TableNode Profiles() => new(
@@ -120,8 +152,7 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
         }
 
         var player = slot.PlayerOffset!.Value;
-        var memory = Read(player + EldenRingLayout.RuneMemoryOffset);
-        var maximumRunes = Math.Min(memory, EldenRingLayout.MaximumRunes);
+        var maximumRunes = _writes.RuneCeiling(slot);
         var fields = new List<ViewNode>
         {
             Name(slot), Level(slot), PlayTime(slot),
@@ -131,10 +162,11 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
                 value => value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 || value.AsInteger() > maximumRunes
                     ? $"Runes must be a whole number from 0 to {maximumRunes}." : null) with
                 {
-                    Confidence = Confidence.Verified,
-                    Warning = "Limited to the existing lifetime rune total; lifetime history and its profile copy remain unchanged.",
+                    Confidence = Confidence.Inferred,
+                    Description = ValueWrites.Warning + " Must not exceed lifetime history. Use linked F6 planning to raise history when needed.",
+                    Warning = ValueWrites.Warning,
                 },
-            ReadOnlyInteger($"slots/{slot.Index}/rune-memory", "Lifetime rune total", player + EldenRingLayout.RuneMemoryOffset),
+            _writes.History(slot, Field),
             ReadOnlyInteger($"slots/{slot.Index}/version", "Character format version", slot.Offset, Confidence.Unknown),
         };
         string[] attributeNames = ["Vigor", "Mind", "Endurance", "Strength", "Dexterity", "Intelligence", "Faith", "Arcane"];
@@ -150,6 +182,7 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
 
         fields.AddRange(_semantic.Character(slot, (id, label, spec, get) => Field(id, label, spec, get)));
         fields.Add(_runes.Action(slot));
+        fields.AddRange(_writePlans.Actions(slot));
         return fields;
     }
 
@@ -164,7 +197,7 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
         {
             Confidence = entry.ItemId.HasValue ? Confidence.Inferred : Confidence.Unknown,
             Description = record?.AttributionText ?? "Unknown name; raw identity preserved. No compatible reference record.",
-            Warning = "Read-only. Item replacement, quantities and equipment relationships need controlled captures.",
+            Warning = "Read-only identity. Only allowlisted positive ordinary-stack quantities can change; equipment relationships remain protected.",
         };
     }
 
@@ -183,7 +216,7 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
-        if (save.Slots.Any(slot => slot.Active && RunePlanning.ActionId(slot) == actionId))
+        if (_writePlans.Owns(actionId) || save.Slots.Any(slot => slot.Active && RunePlanning.ActionId(slot) == actionId))
             throw new InvalidOperationException("Review and apply this action through F6 planning.");
         if (actionId != "references/inspect") return base.InvokeAction(actionId, parameters);
         if (parameters.Count != 1 || !parameters.TryGetValue("item", out var value) || value.Kind != FieldValueKind.Text
@@ -193,22 +226,21 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        _runes.Plan(actionId, parameters, scope);
+        _writePlans.Owns(actionId) ? _writePlans.Plan(actionId, parameters, scope) : _runes.Plan(actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
-        var current = _runes.Plan(actionId, parameters, scope);
+        var current = PlanAction(actionId, parameters, scope);
         if (current.Errors.Count > 0) return new EditOutcome { Errors = current.Errors };
         if (plan.Errors.Count > 0 || !current.Changes.SequenceEqual(plan.Changes)
-            || !current.Warnings.SequenceEqual(plan.Warnings) || plan.SkippedRows.Count > 0)
-            return EditOutcome.Rejected(actionId, "The preview no longer matches the requested rune change.");
-        _ = CharacterFields(_runes.Slot(actionId)); // Register scalar undo bindings even if opened through a direct API request.
+            || !current.Warnings.SequenceEqual(plan.Warnings) || !current.SkippedRows.SequenceEqual(plan.SkippedRows))
+            return EditOutcome.Rejected(actionId, "The preview no longer matches the requested changes.");
+        _ = CharacterFields(_writePlans.Owns(actionId) ? _writePlans.Slot(actionId) : _runes.Slot(actionId));
+        _writes.RegisterQuantities(Field); // Bind unopened rows for complete preview/apply/undo.
         return ApplyEdits(current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray());
     }
 
-    private FieldNode Name(CharacterSlot slot) => Field($"slots/{slot.Index}/name", "Name",
-        new TextSpec { MaxLength = EldenRingLayout.NameCharacters },
-        () => FieldValue.Of(EldenRingParser.ReadName(bytes, slot.ProfileOffset))) with { Confidence = Confidence.Verified };
+    private FieldNode Name(CharacterSlot slot) => _writes.Name(slot, Field);
 
     private FieldNode Level(CharacterSlot slot) => ReadOnlyInteger($"slots/{slot.Index}/level", "Level",
         slot.PlayerOffset!.Value + EldenRingLayout.LevelOffset) with { Description = "Sum of the eight attributes minus 79; matched to the profile summary." };
