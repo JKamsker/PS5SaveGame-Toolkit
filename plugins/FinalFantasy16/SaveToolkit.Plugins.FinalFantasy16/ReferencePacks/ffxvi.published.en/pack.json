@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "id": "ffxvi.published.en",
+  "version": "1.0.0",
+  "title": "FFXVI published community identifiers (Inferred)",
+  "plugins": [
+    "ffxvi"
+  ],
+  "titleIds": [
+    "PPSA10665",
+    "PPSA13803"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "description": "Published names only; unknown game-build coverage, no gameplay caps or save-index joins.",
+  "datasets": [
+    {
+      "id": "ffxvi_published_items",
+      "kind": "records",
+      "title": "ffxvi published items",
+      "files": [
+        {
+          "path": "ffxvi_published_items.json",
+          "sha256": "9aacd53b5ef27319852d7b106c46ed99f8e4ac6f873ea41876e12aa184903d20"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv",
+        "author": "Nenkai and ffxvi-modding contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03",
+        "retrieved": "2026-10-29",
+        "modifications": "Imported published identifier/name facts from item_ids.csv, equip_item_ids.csv; omitted unnamed placeholders, removed documented display tags, grouped map variants, added original inferred categories and mapping warnings. No art, prose or game assets."
+      }
+    },
+    {
+      "id": "ffxvi_published_maps",
+      "kind": "records",
+      "title": "ffxvi published maps",
+      "files": [
+        {
+          "path": "ffxvi_published_maps.json",
+          "sha256": "d2758375760c85e3145b036d099fefb8bfa868ea96f61410e40c51c7c5a41a41"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/gamemap_ids.csv",
+        "author": "Nenkai and ffxvi-modding contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03",
+        "retrieved": "2026-10-29",
+        "modifications": "Imported published identifier/name facts from gamemap_ids.csv; omitted unnamed placeholders, removed documented display tags, grouped map variants, added original inferred categories and mapping warnings. No art, prose or game assets."
+      }
+    },
+    {
+      "id": "ffxvi_published_bnpc",
+      "kind": "records",
+      "title": "ffxvi published bnpc",
+      "files": [
+        {
+          "path": "ffxvi_published_bnpc.json",
+          "sha256": "ae6b7b3248ca3f5cb148cce796eee13cd71f89310705d6c09016d77e85ba36ce"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/bnpc_ids.csv",
+        "author": "Nenkai and ffxvi-modding contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03",
+        "retrieved": "2026-10-29",
+        "modifications": "Imported published identifier/name facts from bnpc_ids.csv; omitted unnamed placeholders, removed documented display tags, grouped map variants, added original inferred categories and mapping warnings. No art, prose or game assets."
+      }
+    },
+    {
+      "id": "ffxvi_published_enpc",
+      "kind": "records",
+      "title": "ffxvi published enpc",
+      "files": [
+        {
+          "path": "ffxvi_published_enpc.json",
+          "sha256": "be5fe44793b248fd92f3a90913d25e3b64b4405c8b6c2d53be27875fa1bfa8db"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/enpc_ids.csv",
+        "author": "Nenkai and ffxvi-modding contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03",
+        "retrieved": "2026-10-29",
+        "modifications": "Imported published identifier/name facts from enpc_ids.csv; omitted unnamed placeholders, removed documented display tags, grouped map variants, added original inferred categories and mapping warnings. No art, prose or game assets."
+      }
+    }
+  ]
+}

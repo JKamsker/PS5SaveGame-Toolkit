@@ -1,5 +1,11 @@
 # English item/equipment label extract — CC BY-SA 3.0
 
+Historical pack scope: the 41 gaps described below were subsequently resolved in
+the separately attributed [published-ID pack](../ffxvi.published.en/data.source.md)
+under the owner decision 2026-10-28. This wiki pack stays unchanged and does not
+claim to license those imported CSV facts. Current observed coverage is 172/172
+retail, 2/2 demo; the counts below describe this pack alone.
+
 Author: Final Fantasy Wiki contributors; original selection and factual ID crosswalk
 by PS5 Save Game Toolkit contributors. Retrieved 2026-10-28.
 
@@ -29,8 +35,8 @@ are included. Missing labels are never generated from ID ranges or copied from
 uncleared CSVs. The 41 remaining observed gaps stay numeric.
 
 Nenkai's [published numeric ID research](https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids)
-was consulted to research identifier associations. Its unlicensed CSV files are not
-vendored or claimed to be licensed by the wiki. This pack is an independently
+was consulted to research identifier associations. Its CSV facts are now retained
+separately; they are not claimed to be licensed by the wiki. This pack is an independently
 curated selection of wiki-derived labels and factual identifiers, not a copy of the
 CSV dataset. Those joins remain **Inferred**, pending controlled gameplay checks.
 

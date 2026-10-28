@@ -18,7 +18,7 @@ MAIN_CAPACITY = 1200
 RECORD_SIZE = 16
 ALLOCATION_METADATA = MAIN_CAPACITY * 20
 ARTIFACTS = Path(os.environ["SAVETOOLKIT_ARTIFACTS"])
-PACK = Path(__file__).resolve().parents[1] / "SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.wiki.en/items.json"
+PACK = Path(__file__).resolve().parents[1] / "SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.published.en/ffxvi_published_items.json"
 NAMES = {int(row["id"]) for row in json.loads(PACK.read_text(encoding="utf-8"))["records"]}
 
 

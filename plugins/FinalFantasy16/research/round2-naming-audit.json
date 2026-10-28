@@ -1,5 +1,7 @@
 {
   "format": "ffxvi-round2-naming-audit/1",
+  "historical": true,
+  "supersededBy": "unlicensed-naming-audit.json (owner decision 2026-10-28; all 41 remaining labels imported)",
   "reviewedOn": "2026-10-28",
   "baselineObservedUnnamedIds": 67,
   "resolved": 26,

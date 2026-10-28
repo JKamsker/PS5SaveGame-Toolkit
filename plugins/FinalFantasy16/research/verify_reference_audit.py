@@ -1,4 +1,4 @@
-"""Check the 67-ID naming decision ledger against the generated licensed catalog.
+"""Check the historical wiki ledger and the subsequent published-ID resolutions.
 
 python -I plugins/FinalFantasy16/research/verify_reference_audit.py
 Metadata only; no downloads, game files or third-party code execution.
@@ -33,9 +33,18 @@ def main():
     if resolved != audit["resolved"] or 67 - resolved != audit["stillUnknown"]:
         raise ValueError("Stale audit totals")
     corpus = json.loads((PLUGIN / "research/corpus-summary.json").read_bytes())["titles"][0]
-    if corpus["namedMainIds"] != 105 + resolved or corpus["explicitUnknownMainIds"] != audit["stillUnknown"]:
+    published_audit = json.loads((PLUGIN / "research/unlicensed-naming-audit.json").read_bytes())
+    published_pack = PLUGIN / "SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.published.en/ffxvi_published_items.json"
+    published = {int(row["id"]): row for row in json.loads(published_pack.read_bytes())["records"]}
+    newly_named = published_audit["newlyNamedObservedIds"]
+    if {row["id"] for row in newly_named} != {row["id"] for row in rows if row["status"] == "Unknown"}:
+        raise ValueError("Published-ID audit does not cover precisely the previous 41 gaps")
+    for row in newly_named:
+        if any(row[key] != published[row["id"]][key] for key in ("name", "source")) or row["confidence"] != "Inferred":
+            raise ValueError(f"Stale published reference for {row['id']}")
+    if corpus["namedMainIds"] != 105 + resolved + len(newly_named) or corpus["explicitUnknownMainIds"] != 0:
         raise ValueError("Stale corpus name coverage")
-    print(f"67 decisions verified: {resolved} licensed Inferred labels, {67-resolved} explicit Unknowns; no inferred caps")
+    print(f"67 historical decisions verified: {resolved} wiki/MIT labels; {len(newly_named)} subsequent published-ID resolutions; no inferred caps")
 
 
 if __name__ == "__main__":

@@ -75,8 +75,8 @@ share-alike terms when redistributing or adapting this data. No wiki prose,
 images, game icons or art are included. Third-party media can have different terms.
 The source URL/version, per-record provenance, modifications and coverage are
 listed in the pack's `data.source.md` and `pack.json`, and in README.
-The unlicensed published ID CSVs were consulted as research and are not vendored
-or re-licensed by these notices.
+The published ID CSVs are now imported in a separate pack under the owner decision
+below. They are not relicensed by the wiki pack's CC BY-SA notice.
 
 Round 2 extends the CC BY-SA adaptation with pinned Fafnir, Wall of Memories,
 Journal, Patron's Whisper and Joshua Rosfield labels, normalized aliases and
@@ -84,6 +84,28 @@ factual upgrade suffixes. Four explicitly named item IDs from Nenkai's MIT
 UseItem.layout are included with their original notice above and per-record
 origin. Skill.layout's three explicit skill-ID annotations remain in the MIT Nex
 pack, separate from the save-rank bytes. All joined labels remain Inferred.
+
+## Published community identifiers — Nenkai/ffxvi-modding
+
+Author: Nenkai and ffxvi-modding contributors. Retrieved 2026-10-29 from
+[revision 4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03](https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids).
+
+**No licence published; reused with attribution per owner decision 2026-10-28**.
+This is an owner-authorized data import, not a claim of an MIT or CC BY-SA grant.
+The licence fields and source-tree links state the actual source status.
+
+`research/published-ids` retains the five identifier CSVs and their pinned hashes;
+`ReferencePacks/ffxvi.published.en` contains 879 named item/equipment IDs, 98 map
+IDs (110 variant rows), 1,758 battle NPC IDs and 1,085 event NPC IDs. Named facts
+are imported; unnamed rows are omitted in derived catalogs, documented display
+tags are removed, map variants grouped, and original inferred categories/warnings
+added. The raw CSV facts remain unchanged. Source sidecars and README record
+per-file provenance, modifications and hashes. Every dataset/record carries
+attribution through F2 and the UI, and Info.References lists all five pinned files.
+
+No upstream code, art, icons, images, prose, save bytes or map coordinates were
+imported. Earlier CC BY-SA and MIT packs keep their own notices and licences.
+No other community source was refused solely for lacking a licence in this plugin.
 
 ## Eikon ability reference progression (completion round)
 
