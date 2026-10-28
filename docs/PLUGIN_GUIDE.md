@@ -45,6 +45,10 @@ and `plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests/` with the conformance suit
 `BoundSaveDocument` implements the bookkeeping (binding registry, atomic apply with rollback,
 `GetValue`). Prefer it: build views with `Field(id, label, spec, get, set, validate)`.
 See `tests/SaveToolkit.Core.Tests/Fakes/CounterPlugin.cs` for the smallest complete example.
+Its `ApplyEdits` rollback includes setters that throw after changing their bound value, failed
+readbacks and failures while enumerating `DerivedChanges`. Setters must accept their previous value
+for rollback; `DerivedChanges` reports consequences and must not independently mutate state outside
+those bindings. Custom `ApplyEdits` and action implementations still own their atomicity.
 
 ## View vocabulary (src/SaveToolkit.Sdk/Views)
 
@@ -755,6 +759,15 @@ Add your own tests for: crypto/hash test vectors, known values read from specifi
 
 Samples live in `artifacts/<TITLE>_saves_dec.zip` (not committed). `SampleSaves.Load("PPSA02530")`
 imports one; tests skip when it is missing. See `docs/SAMPLES.md`.
+For a complete sample-backed run in PowerShell, set the sample location in the same shell:
+
+```powershell
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/path/to/artifacts'
+./scripts/test.ps1
+```
+
+Check each project's summary for zero skipped tests. `MemorySaveSet` copies input file buffers;
+mutating the original byte array after creating a synthetic file does not edit that file.
 
 ## Plugin README
 
