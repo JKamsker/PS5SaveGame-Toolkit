@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "id": "atomic-heart.items.en",
+  "version": "1.0.0",
+  "title": "Atomic Heart public runtime item labels (inferred on PS5)",
+  "plugins": [
+    "atomic-heart"
+  ],
+  "titleIds": [
+    "PPSA10695"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "items",
+      "kind": "records",
+      "title": "Public weapon and ammunition labels",
+      "files": [
+        {
+          "path": "items.json",
+          "sha256": "aa4289f15303a6a9c3f028ad9db447907ba3c31bbfd5aeabd6750ed569212bfb"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
+        "author": "Skorchekd (Atomic Heart Menu); credits: Dumper-7 / Encryqed, MinHook / Tsuda Kageyu, Dear ImGui / Omar Cornut (ocornut)",
+        "license": "GPL-3.0-or-later",
+        "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected 12 weapon and 8 ammunition label/object-name pairs; normalized duplicated object names to exact short asset IDs; added categories and original caution text. No runtime code, offsets, limits or images copied."
+      }
+    }
+  ]
+}

@@ -26,6 +26,8 @@ internal sealed class SaveCursor(ReadOnlyMemory<byte> data, int start = 0, int? 
     internal int Int32() => BinaryPrimitives.ReadInt32LittleEndian(Take(4));
     internal long Int64() => BinaryPrimitives.ReadInt64LittleEndian(Take(8));
     internal ulong UInt64() => BinaryPrimitives.ReadUInt64LittleEndian(Take(8));
+    internal float Single() => BinaryPrimitives.ReadSingleLittleEndian(Take(4));
+    internal double Double() => BinaryPrimitives.ReadDoubleLittleEndian(Take(8));
 
     internal int Count(int maximum)
     {
@@ -34,11 +36,11 @@ internal sealed class SaveCursor(ReadOnlyMemory<byte> data, int start = 0, int? 
         return count;
     }
 
-    internal string String()
+    internal string String(int maximumUnits = MaxStringUnits)
     {
         var length = Int32();
         if (length == 0) return string.Empty;
-        if (length == int.MinValue || Math.Abs(length) > MaxStringUnits) throw new SaveFormatException("SaveExtension string is too long.");
+        if (length == int.MinValue || Math.Abs(length) > maximumUnits) throw new SaveFormatException("SaveExtension string is too long.");
         var wide = length < 0;
         var bytes = Take(Math.Abs(length) * (wide ? 2 : 1));
         var terminator = wide ? 2 : 1;
