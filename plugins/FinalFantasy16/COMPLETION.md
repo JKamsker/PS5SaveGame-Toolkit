@@ -14,7 +14,7 @@ in the historical plan/comments. The 15 raw write families remain enabled/Experi
 | R5 inventory UI | Done within plugin scope: F3 details/confidence/actions, F8 complete-model queries, unknown-safe F4 identities. Won't do: unlicensed icons. |
 | R6 reference choices | Done: F4 on catalogue-backed IDs, preserved original unknowns, native/category bounds. |
 | R7 reference context | Done: injected F2 and immutable embedded fallback; no runtime file/network I/O. |
-| R8 evidence tools | Done: corpus/schema/range metadata, F1 fixture, deterministic converters and format/sample tests. F12 traversal pending framework #32. |
+| R8 evidence tools | Done: corpus/schema/range metadata, F1 fixture, deterministic converters, format/sample tests and the native F12 `ffxvi` decoder hook. |
 | R9 compatibility | Measured triples and retail/demo/empty/system/legacy/extended coverage retained. Owner-blocked: additional region/build/mode/DLC captures before expanding schemas. |
 | R10 allocation | Owner-blocked: create/remove/reacquire/slot reuse/capacity/dependency pairs. No safe structural writer exists yet. |
 | R11 candidate validation | Done for raw edits: atomic validation, identity swaps/duplicate rejection and rollback. Owner-blocked: gameplay dependencies require semantic data. |
@@ -44,9 +44,11 @@ never console evidence. New labels, costs and diagrams are reference data only.
 
 Won't do: import unlicensed CSV/art/coordinate data; manufacture ID/rank/quest
 associations; assume companion-file coupling; add unrelated platform wrappers.
-F12/F13 were absent on starting main and remain central framework work (#32/#33).
+F12/F13 are consumed from merged framework support: the native `ffxvi` decoder hook
+feeds bounded SaveDiff traversal, and the catalogue lookup is a read-only F13 inspect
+action with browse-only read-only ID pickers.
 
-Agent work complete; remaining items are owner-blocked (#31), with pending central
-F12/F13 work explicitly recorded above. Final plugin validation: 106 passed,
+Agent work complete; remaining items are owner-blocked (#31), with F12/F13 adoption
+recorded above. Final plugin validation: 108 passed,
 0 failed, 0 skipped with samples configured; API Release build 0 warnings/errors;
 F1 fixture 1 passed, 0 failed/skipped. No files outside this plugin were changed.

@@ -16,7 +16,7 @@ internal sealed class FaithAbilityView(FaithCatalog catalog)
 
     public IReadOnlyList<ViewNode> Build(FaithContextField field)
     {
-        var abilities = catalog.Abilities().OrderBy(ability => ability.Key, StringComparer.Ordinal).ToArray();
+        var abilities = catalog.Abilities().ToArray();
         var items = new List<GraphItem>();
         var edges = new List<GraphEdge>();
         foreach (var ability in abilities)

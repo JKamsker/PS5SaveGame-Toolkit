@@ -1,5 +1,7 @@
 using System.Buffers.Binary;
+using System.Text.Json;
 using SaveToolkit.Core.References;
+using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -125,6 +127,28 @@ public sealed class FaithContextTests
         Assert.Throws<ArgumentException>(() => document.InvokeAction(FaithCatalog.LookupActionId,
             new Dictionary<string, FieldValue> { [FaithCatalog.LookupParameter] = FieldValue.Of("900000") }));
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+    }
+
+    [Fact]
+    public void CatalogLookupIsAnF13InspectionWithUnchangedSessionState()
+    {
+        var file = FaithSamples.Snapshot("PPSA10665");
+        using var fixture = new FaithSessionFile(file.ReadAllBytes());
+        var references = new ReferencePackStore([_plugin]).Pin(_plugin, "PPSA10665");
+        using var document = _plugin.Open(fixture.File, references);
+        using var session = new DocumentSession("ffxvi-inspect", fixture.File, _plugin, document, references: references);
+        _ = session.BuildView();
+        var revision = session.State.Revision;
+        var result = session.InvokeAction(FaithCatalog.LookupActionId,
+            new Dictionary<string, JsonElement>
+            {
+                [FaithCatalog.LookupParameter] = JsonSerializer.SerializeToElement("100029"),
+            });
+        Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
+        Assert.Contains("Defender", result.Message);
+        Assert.Equal(revision, result.State.Revision);
+        Assert.False(result.State.CanUndo);
+        Assert.Equal(fixture.File.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
 
     [Theory]

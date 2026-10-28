@@ -13,9 +13,37 @@ internal static class FaithEmbeddedCatalogs
     public static ReferenceRecord? Find(string catalog, string key) =>
         Catalogs.GetValueOrDefault(catalog)?.GetValueOrDefault(key);
 
-    public static IReadOnlyList<ReferenceRecord> Records(string catalog, int limit) =>
-        Catalogs.TryGetValue(catalog, out var records)
-            ? records.Values.OrderBy(row => row.Key, StringComparer.Ordinal).Take(limit).ToArray() : [];
+    public static ReferencePage Search(string catalog, ReferenceQuery query)
+    {
+        if (!Catalogs.TryGetValue(catalog, out var records)) return new([], 0, Math.Max(0, query.Offset));
+        var offset = Math.Max(0, query.Offset);
+        var limit = Math.Clamp(query.Limit, 1, ReferenceQuery.MaxLimit);
+        var text = string.IsNullOrWhiteSpace(query.Text) ? null : query.Text.Trim();
+        IEnumerable<ReferenceRecord> matches = records.Values.Where(record =>
+            (query.Category is null || string.Equals(record.Category, query.Category, StringComparison.OrdinalIgnoreCase)) &&
+            (text is null || record.Name.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+             record.Key.Contains(text, StringComparison.OrdinalIgnoreCase)));
+        if (query.SortBy is { } sort)
+        {
+            Func<ReferenceRecord, string?> key = sort switch
+            {
+                ReferenceSortKey.Key => record => record.Key,
+                ReferenceSortKey.Name => record => record.Name,
+                ReferenceSortKey.Category => record => record.Category,
+                _ => throw new ArgumentException("Unknown reference sort key.", nameof(query)),
+            };
+            matches = (query.Descending
+                ? matches.OrderByDescending(key, StringComparer.OrdinalIgnoreCase)
+                : matches.OrderBy(key, StringComparer.OrdinalIgnoreCase)).ThenBy(record => record.Key, StringComparer.Ordinal);
+        }
+        else
+        {
+            matches = matches.OrderBy(record => record.Key, StringComparer.Ordinal);
+        }
+
+        var all = matches.ToArray();
+        return new(all.Skip(offset).Take(limit).ToArray(), all.Length, offset);
+    }
 
     private static FrozenDictionary<string, FrozenDictionary<string, ReferenceRecord>> Load()
     {

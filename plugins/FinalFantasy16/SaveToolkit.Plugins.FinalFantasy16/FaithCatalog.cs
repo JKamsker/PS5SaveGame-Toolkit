@@ -17,15 +17,17 @@ internal sealed class FaithCatalog(IReferenceContext references)
     public const string LookupActionId = "lookup-item";
     public const string LookupParameter = "item";
     public ReferenceRecord? Find(string catalog, int id) => references.Catalog(catalog)?.Find(Key(id)) ?? FaithEmbeddedCatalogs.Find(catalog, Key(id));
+    public IReadOnlyList<ReferenceRecord> Search(string catalog, ReferenceQuery query) =>
+        references.Catalog(catalog)?.Search(query).Items ?? FaithEmbeddedCatalogs.Search(catalog, query).Items;
     public ReferenceRecord? Item(int id) => Find(ItemsId, id);
     public string Name(int id) => Item(id) is { } record ? PlainText(record.Name) : $"Unknown item {id}";
     public string Category(int id) => Item(id)?.Category ?? "unmapped";
     public string Provenance(int id) => Item(id) is { } record ? Describe(record) : "No licensed name mapping is available; raw ID is preserved.";
     public static string Describe(ReferenceRecord record) => $"{record.AttributionText} Mapping confidence: Inferred. {record.Description}";
-    public IReadOnlyList<ReferenceRecord> SkillReferences() => references.Catalog(SkillsId)?.Search(new ReferenceQuery { Limit = 68 }).Items
-        ?? FaithEmbeddedCatalogs.Records(SkillsId, 68);
-    public IReadOnlyList<ReferenceRecord> Abilities() => references.Catalog(AbilitiesId)?.Search(new ReferenceQuery { Limit = 100 }).Items
-        ?? FaithEmbeddedCatalogs.Records(AbilitiesId, 100);
+    public IReadOnlyList<ReferenceRecord> SkillReferences() => Search(SkillsId,
+        new ReferenceQuery { Category = "skill-research", SortBy = ReferenceSortKey.Key, Limit = 68 });
+    public IReadOnlyList<ReferenceRecord> Abilities() => Search(AbilitiesId,
+        new ReferenceQuery { SortBy = ReferenceSortKey.Category, Limit = 100 });
     public static string Key(int id) => id.ToString(CultureInfo.InvariantCulture);
 
     // Remove only documented game presentation tags. Unknown markup remains literal text;

@@ -30,9 +30,10 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
             "F6 explicit-quantity previews use an observed corpus ceiling; they do not calculate a legal max or refill capacity.") { Tone = Tone.Warning },
         new TextNode($"Named main records: {inventory.Items.Count(item => catalog.Item(item.Id) is not null)}/{inventory.Items.Count}. " +
             "Unmapped IDs remain visible. Categories describe the reference source, not ownership or availability."),
-        new ActionNode(FaithCatalog.LookupActionId, "Look up an item")
+        new ActionNode(FaithCatalog.LookupActionId, "Inspect an item reference")
         {
-            Description = "Search the attributed catalog by name or category and inspect a record. This lookup changes no save bytes.",
+            Mutates = false,
+            Description = "Browse the attributed catalog by name or category and inspect a record. This action changes no save bytes or history.",
             Parameters = [new FieldNode(FaithCatalog.LookupParameter, "Catalog item",
                 new ReferenceSpec(FaithCatalog.ItemsId), FieldValue.Of("1"))],
         },

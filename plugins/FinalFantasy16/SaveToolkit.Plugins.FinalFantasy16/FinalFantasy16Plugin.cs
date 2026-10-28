@@ -1,12 +1,15 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.Saves;
 using System.Buffers.Binary;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.FinalFantasy16;
 
-public sealed class FinalFantasy16Plugin : IGamePlugin
+public sealed class FinalFantasy16Plugin : IGamePlugin, ISaveDecoderProvider
 {
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new FaithEvidenceDecoder()];
+
     public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.5.0")
     {
         Description = "Paged PS5 inventories, filtered quantity previews, Eikon ability reference trees and a location guide; experimental fixed-width writes. Not console-validated.",
