@@ -1,0 +1,1540 @@
+{
+  "records": [
+    {
+      "id": "artifact:10-off-general-store",
+      "name": "10% Off General Store",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: 10% Off General Store\nAcquisition Method: DLC: Premium Item Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:20-cp-cost",
+      "name": "-20% CP Cost",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: -20% CP Cost\nAcquisition Method: DLC: Starter Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:20-exp-boost",
+      "name": "20% EXP Boost",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: 20% EXP Boost\nAcquisition Method: DLC: Premium Item Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:20-sp-boost",
+      "name": "20% SP Boost",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: 20% SP Boost\nAcquisition Method: DLC: Premium Item Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:30-off-general-store",
+      "name": "30% Off General Store",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: 30% Off General Store\nAcquisition Method: DLC: Premium Travel Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:50-off-engraver",
+      "name": "50% Off Engraver",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: 50% Off Engraver\nAcquisition Method: DLC: Premium Travel Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:99-consumables",
+      "name": "99 Consumables",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: 99 Consumables\nAcquisition Method: DLC: Relief Support Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:add-very-easy-difficulty",
+      "name": "Add Very Easy Difficulty",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Add Very Easy Difficulty\nAcquisition Method: DLC: Add Difficulties (2 Types)",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:ancient-excavator",
+      "name": "Ancient Excavator",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Carry Over Levels\nAcquisition Method: Sub-Event: Locate the Owl in Autelina Palace - Guard Room",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:battle-maiden-s-shield",
+      "name": "Battle Maiden's Shield",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Carry Over Equipment\nAcquisition Method: Sub-Event: Locate the Owl in Glanymede Castle - Lord's Castle",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:blade-of-sealing",
+      "name": "Blade of Sealing",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: 1 Damage\nAcquisition Method: Chest: Adan Lake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:broken-machine-gun",
+      "name": "Broken Machine Gun",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Carry Over Money and Items\nAcquisition Method: Sub-Event: Locate the Owl in Riville Prison Tower - Hidden Chamber",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:crocodile-crusher",
+      "name": "Crocodile Crusher",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Arte Set + 1\nAcquisition Method: Event: After Prehendere tutorial",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:devil-sculpture",
+      "name": "Devil Sculpture",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Added Chaos Difficulty\nAcquisition Method: Coliseum: Dohalim 's Advanced Solo Battle",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:double-combat-points",
+      "name": "Double Combat Points",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Double Combat Points\nAcquisition Method: DLC: Growth Boost Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:double-cooking-effect-time",
+      "name": "Double Cooking Effect Time",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Double Cooking Effect Time\nAcquisition Method: DLC: Premium Travel Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:double-exp",
+      "name": "Double EXP",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Double EXP\nAcquisition Method: DLC: Growth Boost Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:double-sp",
+      "name": "Double SP",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Double SP\nAcquisition Method: DLC: Growth Boost Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:drum-of-the-legend",
+      "name": "Drum of the Legend",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Super Combat Point Boost\nAcquisition Method: Sub-Event: Farewell, Mage",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:drums-of-the-master",
+      "name": "Drums of the Master",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Combat Point Boost\nAcquisition Method: Chest: Aureum Falls - Top Level",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:glutton-s-code",
+      "name": "Glutton's Code",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Cooking Effect Boost 2\nAcquisition Method: Event: Cooking Effect Boost 2",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:glutton-s-guidebook",
+      "name": "Glutton's Guidebook",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Cooking Effect Boost 3\nAcquisition Method: Sub-Event: The Phantom Flower of Nevira",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:glutton-s-maze",
+      "name": "Glutton's Maze",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Cooking Effect Boost 1\nAcquisition Method: Sub-Event: Gourmet Saga: Prairie Scent",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:golden-fairy-statue",
+      "name": "Golden Fairy Statue",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: More Ore\nAcquisition Method: Sub-Event: A Humbling Lesson",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:golden-lucky-cat-statue",
+      "name": "Golden Lucky Cat Statue",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Super SP Boost\nAcquisition Method: Sub-Event: Untamabale Rage",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:golden-suit-of-armor",
+      "name": "Golden Suit of Armor",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Super EXP Boost\nAcquisition Method: Sub-Event: Spirit Temple",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:hellmask-fiend-skull",
+      "name": "Hellmask Fiend Skull",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Reckless Abandon\nAcquisition Method: Coliseum: Dohalim 's Advanced Solo Battle",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:lucky-cat-statue",
+      "name": "Lucky Cat Statue",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: SP Boost\nAcquisition Method: Sub-Event: Echoes",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:machine-beast-statue",
+      "name": "Machine Beast Statue",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Carry Over Outfits\nAcquisition Method: Sub-Event: Find all owls, then talk to the Owl King in the Owl Forest",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:mechanical-doll-accessory",
+      "name": "Mechanical Doll Accessory",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Off The Radar\nAcquisition Method: Chest: Otherworld",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:metal-miner-s-cap",
+      "name": "Metal Miner's Cap",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Carry Over Arte Proficiencies\nAcquisition Method: Sub-Event: Locate the Owl on the Uninhabited Island",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:minimalist-cooking",
+      "name": "Minimalist Cooking",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Minimalist Cooking\nAcquisition Method: DLC: Premium Travel Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:minimalist-weapon-forging",
+      "name": "Minimalist Weapon Forging",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Minimalist Weapon Forging\nAcquisition Method: DLC: Premium Travel Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:quivering-candles",
+      "name": "Quivering Candles",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: More Ore\nAcquisition Method: Sub-Event: The Mysterious Pair",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:silver-suit-of-armor",
+      "name": "Silver Suit of Armor",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: EXP Boost\nAcquisition Method: Sub-Event: Their Future",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:swordsman-s-memories",
+      "name": "Swordsman's Memories",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Special Mystic Arte Swap\nAcquisition Method: Coliseum: Centoria Trainee Fight (Primary Swordsman Trainee, First clear bonus)",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:trident",
+      "name": "Trident",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Carry Over Skills\nAcquisition Method: Sub-Event: Locate the Owl in Del Fharis Castle - Lord's Chamber",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:unknown-difficulty-level",
+      "name": "Unknown Difficulty Level",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Add \"Unknown\" Difficulty\nAcquisition Method: DLC: Add Difficulties (2 Types)",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "artifact:vivid-sphere",
+      "name": "Vivid Sphere",
+      "category": "Artifact",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+      "description": "Effect: Carry Over Records\nAcquisition Method: Sub-Event: Locate the Owl in Iglia Wastes",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "381166",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:amber-mackerel",
+      "name": "Amber Mackerel",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Cave of Solitude\nBest Lure: Flaptrap\nBest Luring Actions: Soft Shake, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:aqfotle-arowana",
+      "name": "Aqfotle Arowana",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Adan Ruins\nBest Lure: Stick Lure\nBest Luring Actions: Hard Shake, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:armored-sturgeon",
+      "name": "Armored Sturgeon",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 3\nFishing Spot: Nevira Snowplains\nBest Lure: Mieu Sinker\nBest Luring Actions: Hard Shake, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:aureum-arowana",
+      "name": "Aureum Arowana",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 3\nFishing Spot: Adan Lake\nBest Lure: Teepo Lure\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:azure-tilapia",
+      "name": "Azure Tilapia",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Frozen Valley Adan Lake Fogwharl Limestone Caverns\nBest Lure: Disarming Lure\nBest Luring Actions: Reel In, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:berserker-piranha",
+      "name": "Berserker Piranha",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Nevira Snowplains Overseer Hill Adan Lake\nBest Lure: Flaptrap\nBest Luring Actions: Soft Shake, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:blueback-tuna",
+      "name": "Blueback Tuna",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Hidden Wharf\nBest Lure: Celestial Whale\nBest Luring Actions: Soft Shake, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:cave-sea-bass",
+      "name": "Cave Sea Bass",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Cave of Solitude Adan Ruins\nBest Lure: Marine Floater\nBest Luring Actions: Hard Shake, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:cobalt-trout",
+      "name": "Cobalt Trout",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 3\nFishing Spot: Lavtu Marshlands\nBest Lure: Rappig Minnow\nBest Luring Actions: Soft Shake, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:coral-flatfish",
+      "name": "Coral Flatfish",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Cave of Solitude\nBest Lure: Elegant Swimmer\nBest Luring Actions: Soft Shake, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:cygni-pirarucu",
+      "name": "Cygni Pirarucu",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 3\nFishing Spot: Fogwharl Limestone Caverns\nBest Lure: Zapie Doppelganger\nBest Luring Actions: Reel In, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:cyslodian-salmon",
+      "name": "Cyslodian Salmon",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Frozen Valley\nBest Lure: Uber Spinner\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:dahnan-bass",
+      "name": "Dahnan Bass",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Talka Pond Road Adan Lake Shinefall Woods Lavtu Marshlands\nBest Lure: Beginner's Popper\nBest Luring Actions: Reel In, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:emerald-salmon",
+      "name": "Emerald Salmon",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Adan Ruins\nBest Lure: Trembling Lure\nBest Luring Actions: Soft Shake, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:fogwharl-pike",
+      "name": "Fogwharl Pike",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Fogwharl Limestone Caverns\nBest Lure: Portly Mudslinger\nBest Luring Actions: Reel In, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:ganath-haros-catfish",
+      "name": "Ganath Haros Catfish",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Fogwharl Limestone Caverns\nBest Lure: Round Popper\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:ganath-haros-piranha",
+      "name": "Ganath Haros Piranha",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Shinefall Woods Fogwharl Limestone Caverns\nBest Lure: Stick Lure\nBest Luring Actions: Soft Shake, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:garnet-sea-bream",
+      "name": "Garnet Sea Bream",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Hidden Wharf\nBest Lure: Disarming Lure\nBest Luring Actions: Reel In, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:gluttonous-barracuda",
+      "name": "Gluttonous Barracuda",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Uninhabited Island\nBest Lure: Elegant Swimmer\nBest Luring Actions: Reel In, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:golden-catfish",
+      "name": "Golden Catfish",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 3\nFishing Spot: Overseer Hill\nBest Lure: Bienfu Lure\nBest Luring Actions: Soft Shake, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:green-pike",
+      "name": "Green Pike",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Shinefall Woods\nBest Lure: Rock Slapper\nBest Luring Actions: Reel In, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:hawksbill-trout",
+      "name": "Hawksbill Trout",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Frozen Valley Overseer Hill Talka Pond Road Adan Ruins\nBest Lure: Trembling Lure\nBest Luring Actions: Soft Shake, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:karasuba-sea-bream",
+      "name": "Karasuba Sea Bream",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Cave of Solitude\nBest Lure: Marine Floater\nBest Luring Actions: Reel In, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:lacerda-salmon",
+      "name": "Lacerda Salmon",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Cave of Solitude\nBest Lure: Subsurface Mirage\nBest Luring Actions: Soft Shake, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:lavtu-arowana",
+      "name": "Lavtu Arowana",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Lavtu Marshlands\nBest Lure: Rock Slapper\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:lavtu-tilapia",
+      "name": "Lavtu Tilapia",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Lavtu Marshlands\nBest Lure: Celestial Whale\nBest Luring Actions: Soft Shake, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:lesser-pirarucu",
+      "name": "Lesser Pirarucu",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Adan Ruins Lavtu Marshlands\nBest Lure: Charming Lure\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:mahag-saar-barracuda",
+      "name": "Mahag Saar Barracuda",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Hidden Wharf\nBest Lure: Uber Spinner\nBest Luring Actions: Reel In, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:mahag-saar-flatfish",
+      "name": "Mahag Saar Flatfish",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Uninhabited Island\nBest Lure: Charming Lure\nBest Luring Actions: Soft Shake, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:menancian-bass",
+      "name": "Menancian Bass",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Overseer Hill\nBest Lure: Trembling Lure\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:menancian-catfish",
+      "name": "Menancian Catfish",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Talka Pond Road\nBest Lure: Round Popper\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:muddy-pirarucu",
+      "name": "Muddy Pirarucu",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Adan Lake\nBest Lure: Charming Lure\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:nevira-piranha",
+      "name": "Nevira Piranha",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Nevira Snowplains\nBest Lure: Disarming Lure\nBest Luring Actions: Reel In, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:pearly-pike",
+      "name": "Pearly Pike",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Frozen Valley Fogwharl Limestone Caverns\nBest Lure: Uber Spinner\nBest Luring Actions: Hard Shake, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:polar-bass",
+      "name": "Polar Bass",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Frozen Valley Nevira Snowplains\nBest Lure: Rock Slapper\nBest Luring Actions: Reel In, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:pond-tilapia",
+      "name": "Pond Tilapia",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Nevira Snowplains Overseer Hill Talka Pond Road\nBest Lure: Subsurface Mirage\nBest Luring Actions: Reel In, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:sardonyx-grouper",
+      "name": "Sardonyx Grouper",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Hidden Wharf\nBest Lure: Subsurface Mirage\nBest Luring Actions: Hard Shake, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:silver-marlin",
+      "name": "Silver Marlin",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 3\nFishing Spot: Hidden Wharf\nBest Lure: Silver Fang Lure\nBest Luring Actions: Hard Shake, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:talka-trout",
+      "name": "Talka Trout",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Talka Pond Road\nBest Lure: Celestial Whale\nBest Luring Actions: Soft Shake, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:traslida-arowana",
+      "name": "Traslida Arowana",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 2\nFishing Spot: Overseer Hill\nBest Lure: Stick Lure\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:tricolored-catfish",
+      "name": "Tricolored Catfish",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Nevira Snowplains Adan Lake Shinefall Woods Lavtu Marshlands\nBest Lure: Portly Mudslinger\nBest Luring Actions: Reel In, Hard Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:tsuyukusa-mackerel",
+      "name": "Tsuyukusa Mackerel",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Uninhabited Island\nBest Lure: Flaptrap\nBest Luring Actions: Reel In, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:vesper-sea-bass",
+      "name": "Vesper Sea Bass",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Hidden Wharf Uninhabited Island\nBest Lure: Marine Floater\nBest Luring Actions: Hard Shake, Reel In",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "fish:zesti-grouper",
+      "name": "Zesti Grouper",
+      "category": "Fish",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354",
+      "description": "Rarity: 1\nFishing Spot: Uninhabited Island\nBest Lure: Round Popper\nBest Luring Actions: Hard Shake, Soft Shake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "350354",
+        "section": ""
+      }
+    },
+    {
+      "id": "recipe:apple-pie",
+      "name": "Apple Pie",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Elemental Attack Up T\nTime: 21 minutes\nRequired Ingredients: Wheat x2 Apple x2\nCharacter: Rinwell\nAcquisition Method: Sub-Event: Gourmet Saga: Berry Scavenging",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:beef-stew",
+      "name": "Beef Stew",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Heal HP After Battle S\nTime: 25 minutes\nRequired Ingredients: Potato x2 Tomato x2 Beef x1 Mushroom x1\nCharacter: Dohalim\nAcquisition Method: Sub-Event: Gourmet Saga: Palace Delicacy",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Meat"
+      }
+    },
+    {
+      "id": "recipe:bouillabaisse",
+      "name": "Bouillabaisse",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Heal CP After Battle S\nTime: 21 minutes\nRequired Ingredients: Tomato x2 Salmon x1 Mushroom x1 Mackerel x1\nCharacter: Dohalim\nAcquisition Method: Chest: Adan Lake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Fish"
+      }
+    },
+    {
+      "id": "recipe:cheese-fondue",
+      "name": "Cheese Fondue",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Earned Combat Points Up S\nTime: 21 minutes\nRequired Ingredients: Wheat x2 Milk x1 Egg x1\nCharacter: Shionne\nAcquisition Method: Event: Kelzalik's Uprising",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:curry",
+      "name": "Curry",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Defense Up M\nTime: 21 minutes\nRequired Ingredients: Potato x2 Beef x2 Pepper x2 Rice x2\nCharacter: Alphen Law\nAcquisition Method: Sub-Event: Kisara's Initiaition",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:dohalim-pancakes",
+      "name": "Dohalim Pancakes",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Rare Ore Rate Up L\nTime: 21 minutes\nRequired Ingredients: Wheat x3 Milk x1 Egg x1 Rappig Meat x1\nCharacter: Dohalim\nAcquisition Method: Sub-Event: Dahna's Tastiest Pancake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:eastern-rice",
+      "name": "Eastern Rice",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: More Dropped Items L\nTime: 20 minutes\nRequired Ingredients: Rice x1 Pork x1 Pepper x1 Egg x1\nCharacter: Law\nAcquisition Method: DLC: Dual Wings Pack, Elegant Costume Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:fancy-parfait",
+      "name": "Fancy Parfait",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Elemental Attack Up M\nTime: 21 minutes\nRequired Ingredients: Apple x2 Milk x3 Egg x3 Strawberry x5\nCharacter: Rinwell\nAcquisition Method: Event: Heal a person at Lenegis - Residential Zone 16",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:fish-steak",
+      "name": "Fish Steak",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: EXP Boost M\nTime: 25 minutes\nRequired Ingredients: Pepper x2 Boss Fish x1\nCharacter: Kisara\nAcquisition Method: Sub-Event: Peligon's Zeugle Mascot",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Fish"
+      }
+    },
+    {
+      "id": "recipe:fisherman-s-hot-pot",
+      "name": "Fisherman's Hot Pot",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Heal HP After Battle L\nTime: 20 minutes\nRequired Ingredients: Salmon x1 Mackerel x1 Tofu x1 Mushroom x1\nCharacter: Kisara\nAcquisition Method: DLC: Dual Wings Pack, Elegant Costume Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Fish"
+      }
+    },
+    {
+      "id": "recipe:fruit-sandwich",
+      "name": "Fruit Sandwich",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: EXP Boost L\nTime: 20 minutes\nRequired Ingredients: Wheat x1 Strawberry x1 Lemon x1 Milk x1\nCharacter: Rinwell\nAcquisition Method: DLC: Dual Wings Pack, Elegant Costume Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:glady-s-donuts",
+      "name": "Glady's Donuts",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Earned Combat Points Up L\nTime: 21 minutes\nRequired Ingredients: Wheat x2 Egg x2\nCharacter: Alphen Shionne\nAcquisition Method: Sub-Event: Gourmet Saga: Soft and Fluffy",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:gnocchi",
+      "name": "Gnocchi",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Elemental Defense Up S\nTime: 21 minutes\nRequired Ingredients: Potato x2 Wheat x2 Egg x1\nCharacter: Shionne Kisara\nAcquisition Method: Event: Kisara's Ideals",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:grilled-fish",
+      "name": "Grilled Fish",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Heal CP After Battle T\nTime: 10 minutes\nRequired Ingredients: Carp x1\nCharacter: Kisara\nAcquisition Method: Chest: Mosgul",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Fish"
+      }
+    },
+    {
+      "id": "recipe:grilled-mushrooms",
+      "name": "Grilled Mushrooms",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Elemental Defense Up T\nTime: 16 minutes\nRequired Ingredients: Mushroom x3\nCharacter: Alphen\nAcquisition Method: Chest: Kyrd Garrison",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Vegetable"
+      }
+    },
+    {
+      "id": "recipe:grilled-rappig",
+      "name": "Grilled Rappig",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Earned Combat Points Up M\nTime: 25 minutes\nRequired Ingredients: Pepper x2 Rappig Meat x1\nCharacter: Dohalim\nAcquisition Method: Sub-Event: Missing Lover",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Meat"
+      }
+    },
+    {
+      "id": "recipe:hamburger",
+      "name": "Hamburger",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Elemental Defense Up L\nTime: 25 minutes\nRequired Ingredients: Wheat x2 Lettuce x1 Tomato x2 Sheep Meat x1\nCharacter: Law\nAcquisition Method: Chest: Forland Mountains - South Hiking Trail",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:hootle-pancakes",
+      "name": "Hootle Pancakes",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: More Dropped Items L\nTime: 21 minutes\nRequired Ingredients: Wheat x3 Milk x1 Egg x1 Strawberry x1\nCharacter: Rinwell\nAcquisition Method: Sub-Event: Dahna's Tastiest Pancake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:horse-sashimi",
+      "name": "Horse Sashimi",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Attack Up M\nTime: 6 minutes\nRequired Ingredients: Horse Meat x3\nCharacter: Law Dohalim\nAcquisition Method: Chest: Niez - Dark Wings Headquarters",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Meat"
+      }
+    },
+    {
+      "id": "recipe:ice-cream",
+      "name": "Ice Cream",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Elemental Attack Up S\nTime: 21 minutes\nRequired Ingredients: Milk x1 Egg x1\nCharacter: Rinwell\nAcquisition Method: Chest: Adan Ruins",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:kebab",
+      "name": "Kebab",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Attack Up T\nTime: 10 minutes\nRequired Ingredients: Scrap Meat x1 Pepper x2 Tofu x1 Mushroom x1\nCharacter: Law\nAcquisition Method: Sub-Event: Doc's Secret Ingredient",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Meat"
+      }
+    },
+    {
+      "id": "recipe:leaf-wrapped-fish",
+      "name": "Leaf-Wrapped Fish",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: EXP Boost T\nTime: 21 minutes\nRequired Ingredients: Lettuce x2 Sea Bream x1\nCharacter: Kisara\nAcquisition Method: Event: Kisara's Ideals",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Fish"
+      }
+    },
+    {
+      "id": "recipe:lohikeitto",
+      "name": "Lohikeitto",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: More Dropped Items S\nTime: 8 minutes\nRequired Ingredients: Potato x2 Salmon x1 Milk x1\nCharacter: Kisara\nAcquisition Method: Sub-Event: Hard Liquor",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Fish"
+      }
+    },
+    {
+      "id": "recipe:mabo-curry",
+      "name": "Mabo Curry",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Heal CP After Battle M\nTime: 31 minutes\nRequired Ingredients: Pepper x2 Rice x3 Tofu x1 Rappig Meat x1\nCharacter: Alphen\nAcquisition Method: Sub-Event: Gourmet Saga: Soft and Fluffy",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:mabo-curry-bun",
+      "name": "Mabo Curry Bun",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Attack Up L\nTime: 20 minutes\nRequired Ingredients: Wheat x1 Pork x1 Tofu x1 Pepper x1\nCharacter: Dohalim\nAcquisition Method: DLC: Dual Wings Pack, Elegant Costume Pack",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:meuniere",
+      "name": "Meuniere",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Defense Up\nTime: 10 minutes\nRequired Ingredients: Salmon x1 Pepper x2\nCharacter: Kisara\nAcquisition Method: Chest: Uninhabited Island",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Fish"
+      }
+    },
+    {
+      "id": "recipe:murus-flegit-porridge",
+      "name": "Murus Flegit Porridge",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Heal CP After Battle L\nTime: 21 minutes\nRequired Ingredients: Chicken x1 Mushroom x2 Egg x1 Rice x2\nCharacter: Shionne\nAcquisition Method: Sub-Event: Dahna's Tastiest Pancake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:new-era-gnocchi",
+      "name": "New-Era Gnocchi",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Elemental Attack UP XL\nTime: 10 minutes\nRequired Ingredients: Potato x2 Wheat x2 Milk x1 Egg x1\nCharacter: Shionne Kisara\nAcquisition Method: Sub-Event: Gourmet Saga: Wind of the New World",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:omelette",
+      "name": "Omelette",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Defense Up S\nTime: 25 minutes\nRequired Ingredients: Tomato x2 Egg x1\nCharacter: Kisara\nAcquisition Method: Chest: Autelina Palace - Library",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:pancake",
+      "name": "Pancake",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Obtained Ore Up L\nTime: 21 minutes\nRequired Ingredients: Wheat x3 Milk x1 Egg x1\nCharacter: Shionne Rinwell\nAcquisition Method: Sub-Event: Bibliophile",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:pork-bun",
+      "name": "Pork Bun",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Attack Up S\nTime: 21 minutes\nRequired Ingredients: Wheat x2 Pork x1\nCharacter: Law\nAcquisition Method: Chest: Autelina Palace - Guard Room",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Meat"
+      }
+    },
+    {
+      "id": "recipe:porridge",
+      "name": "Porridge",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Defense Up T\nTime: 20 minutes\nRequired Ingredients: Wheat x3\nCharacter: Shionne\nAcquisition Method: Event: Available at the beginning",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:roasted-chicken",
+      "name": "Roasted Chicken",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Dark Mark\nTime: 10 minutes\nRequired Ingredients: Chicken x1 Pepper x1\nCharacter: Alphen\nAcquisition Method: Sub-Event: City Renewal",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Meat"
+      }
+    },
+    {
+      "id": "recipe:roughly-squeezed-juice",
+      "name": "Roughly Squeezed Juice",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Heal CP After Battle XL\nTime: 21 minutes\nRequired Ingredients: Lemon x5 Apple x5 Milk x1 Strawberry x5\nCharacter: Law Dohalim\nAcquisition Method: Sub-Event: A New Juice",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:sandwich",
+      "name": "Sandwich",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Holy Mark\nTime: 21 minutes\nRequired Ingredients: Wheat x2 Lettuce x2 Tomato x1 Chicken x1\nCharacter: Kisara\nAcquisition Method: Sub-Event: Owl Sanctuary (Big Bag)",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:sashimi",
+      "name": "Sashimi",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: EXP Boost S\nTime: 21 minutes\nRequired Ingredients: Salmon x1 Mackerel x1 Sea Bream x1 Flatfish x1\nCharacter: Kisara\nAcquisition Method: Event: Heal a woman in Lavtu Marshlands",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Fish"
+      }
+    },
+    {
+      "id": "recipe:shionne-pancakes",
+      "name": "Shionne Pancakes",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Heal HP After Battle L\nTime: 21 minutes\nRequired Ingredients: Wheat x3 Apple x1 Milk x1 Egg x1\nCharacter: Shionne\nAcquisition Method: Sub-Event: Dahna's Tastiest Pancake",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:shortcake",
+      "name": "Shortcake",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Elemental Attack Up\nTime: 21 minutes\nRequired Ingredients: Wheat x2 Milk x1 Egg x1 Strawberry x1\nCharacter: Rinwell\nAcquisition Method: Chest: Lenegis - Maintenance Passageway",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Dessert"
+      }
+    },
+    {
+      "id": "recipe:social-mabo-curry",
+      "name": "Social Mabo Curry",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: All Elemental Damage -30%\nTime: 15 minutes\nRequired Ingredients: Rice x3 Tofu x1 Rappig Meat x1 Adan Pepper x2\nCharacter: Kisara\nAcquisition Method: DLC: Beyond the Dawn",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Other"
+      }
+    },
+    {
+      "id": "recipe:steamed-potatoes",
+      "name": "Steamed Potatoes",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Heal HP After Battle T\nTime: 16 minutes\nRequired Ingredients: Potato x4\nCharacter: Shionne\nAcquisition Method: Sub-Event: Hunger Averted",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Vegetable"
+      }
+    },
+    {
+      "id": "recipe:sushi",
+      "name": "Sushi",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: EXP Boost L\nTime: 10 minutes\nRequired Ingredients: Salmon x1 Rice x3 Sea Bream x1 Tuna x1\nCharacter: Kisara Dohalim\nAcquisition Method: Sub-Event: Untamable Rage",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Fish"
+      }
+    },
+    {
+      "id": "recipe:vegetable-juice",
+      "name": "Vegetable Juice",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Obtained Ore Up S\nTime: 21 minutes\nRequired Ingredients: Lettuce x1 Tomato x1 Apple x2\nCharacter: Kisara\nAcquisition Method: Event: Land of Glistening Radiance",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Vegetable"
+      }
+    },
+    {
+      "id": "recipe:vegetable-soup",
+      "name": "Vegetable Soup",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Rare Ore Rate Up S\nTime: 16 minutes\nRequired Ingredients: Tomato x2 Potato x1\nCharacter: Alphen Law Kisara\nAcquisition Method: Event: Land of Glistening Radiance",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Vegetable"
+      }
+    },
+    {
+      "id": "recipe:vitamin-smoothie",
+      "name": "Vitamin Smoothie",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Elemental Defense Up M\nTime: 21 minutes\nRequired Ingredients: Lettuce x2 Lemon x2 Apple x1\nCharacter: Kisara\nAcquisition Method: Sub-Event: Gourmet Saga: Prairie Scent",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Vegetable"
+      }
+    },
+    {
+      "id": "recipe:wiener",
+      "name": "Wiener",
+      "category": "Recipe",
+      "source": "https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806",
+      "description": "Cooking Effect: Attack Up L\nTime: 10 minutes\nRequired Ingredients: Pork x1 Pepper x2 Sheep Meat x4 Horse Meat x1\nCharacter: Alphen Law\nAcquisition Method: Sub-Event: Into the Grotto",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "379806",
+        "section": "Meat"
+      }
+    }
+  ]
+}

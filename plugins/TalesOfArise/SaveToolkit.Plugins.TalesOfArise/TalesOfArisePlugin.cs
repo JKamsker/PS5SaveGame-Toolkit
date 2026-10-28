@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.TalesOfArise;
 
 public sealed class TalesOfArisePlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("tales-of-arise", "Tales of Arise", "0.1.0")
+    public PluginInfo Info { get; } = new("tales-of-arise", "Tales of Arise", "0.2.0")
     {
         Description = "PS5 gameplay decryption, integrity verification and experimental fixed-size editing.",
         Games = [new GameTitle("PPSA02745", "Tales of Arise") { Region = "EU" }],
@@ -14,10 +14,10 @@ public sealed class TalesOfArisePlugin : IGamePlugin
         References =
         [
             "https://github.com/ItsAllAboutTheCode/save-converters/tree/main/save_convert/tales_of/arise",
+            AriseSchema.SectionSource,
             "https://web.save-editor.com/bbs/patchcode/ps4/bbs.cgi?list=pickup&num=30070",
             "https://github.com/Sora3100/Tales_of_Cheat_Tables/blob/master/Arise.CT",
-            "https://aselia.fandom.com/wiki/ToA_-_Consumables",
-            "https://aselia.fandom.com/wiki/Category:Weapon_Lists",
+            .. AriseSchema.CatalogSources,
         ],
     };
 

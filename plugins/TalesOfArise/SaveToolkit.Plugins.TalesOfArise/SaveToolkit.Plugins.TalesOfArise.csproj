@@ -8,6 +8,7 @@
     <EmbeddedResource Include="Resources\Characters.csv" />
     <EmbeddedResource Include="Resources\EvidenceLedger.csv" />
     <EmbeddedResource Include="ReferencePacks\**\*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Update="ReferencePacks\talesofarise.catalog\source-revisions.json" LogicalName="refpacks/talesofarise.catalog/source-revisions.json" />
     <InternalsVisibleTo Include="SaveToolkit.Plugins.TalesOfArise.Tests" />
   </ItemGroup>
   <ItemGroup>

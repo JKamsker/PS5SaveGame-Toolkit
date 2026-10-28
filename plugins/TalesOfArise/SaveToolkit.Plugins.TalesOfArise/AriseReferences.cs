@@ -1,42 +1,48 @@
-using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.TalesOfArise;
 
-/// <summary>Read-only catalog enrichment. Catalog records never authorize save construction or replacement.</summary>
+/// <summary>Read-only catalog enrichment; a reference identity never authorizes a save mutation.</summary>
 internal sealed class AriseReferences(IReferenceContext context)
 {
     public const string ItemsCatalogId = "items";
     public const string EquipmentCatalogId = "equipment";
+    public const string ArtesCatalogId = "artes";
+    public const string SkillsCatalogId = "skills";
+    public const string TitlesCatalogId = "titles";
+    public const string SkillNodesCatalogId = "skill-nodes";
+    public const string CharactersCatalogId = "characters";
+    public const string ProgressCatalogId = "progress";
     private const string InspectPrefix = "references/inspect/";
-    private readonly IReferenceContext _context = context;
-    private readonly IReferenceCatalog? _items = context.Catalog(ItemsCatalogId);
-    private readonly IReferenceCatalog? _equipment = context.Catalog(EquipmentCatalogId);
+    private static readonly string[] CatalogIds =
+        [ItemsCatalogId, EquipmentCatalogId, ArtesCatalogId, SkillsCatalogId, TitlesCatalogId, SkillNodesCatalogId, CharactersCatalogId, ProgressCatalogId];
+    private readonly IReadOnlyDictionary<string, IReferenceCatalog?> _catalogs =
+        CatalogIds.ToDictionary(id => id, id => context.Catalog(id), StringComparer.Ordinal);
 
-    public IReferenceCatalog? Items => _items;
-    public IReferenceCatalog? Equipment => _equipment;
+    public IReferenceCatalog? Items => _catalogs[ItemsCatalogId];
+
+    public ReferenceRecord? Character(int index) => _catalogs[CharactersCatalogId]?
+        .Search(new ReferenceQuery { Category = "Playable", Limit = ReferenceQuery.MaxLimit }).Items
+        .SingleOrDefault(record => record.Attributes.GetValueOrDefault("statusIndex") == index.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
     public IReadOnlyList<ViewNode> BuildView() =>
     [
-        new TextNode("Catalog names and categories are attributed factual references. They do not prove ownership, serialized equipment IDs, compatibility, availability or safe replacement. Unknown save IDs remain visible.") { Tone = Tone.Info },
-        CatalogSection(ItemsCatalogId, _items),
-        CatalogSection(EquipmentCatalogId, _equipment),
+        new TextNode("Pinned Aselia Wiki reference data, CC BY-SA 3.0. Catalog keys do not establish saved ownership, recruitment, learned skills, completion or safe replacement. Published DLC entries do not establish DLC save support.") { Tone = Tone.Info },
+        CatalogSection(ItemsCatalogId),
+        CatalogSection(EquipmentCatalogId),
+        CatalogSection(CharactersCatalogId),
     ];
 
     public bool Handles(string actionId) => actionId.StartsWith(InspectPrefix, StringComparison.Ordinal);
 
     public ActionOutcome Inspect(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
-        var catalogId = actionId[InspectPrefix.Length..];
-        var catalog = catalogId switch
-        {
-            ItemsCatalogId => _items,
-            EquipmentCatalogId => _equipment,
-            _ => null,
-        } ?? throw new KeyNotFoundException($"Reference catalog '{catalogId}' is unavailable.");
+        var id = actionId[InspectPrefix.Length..];
+        var catalog = Catalog(id);
         if (!parameters.TryGetValue("record", out var value) || value.Kind != FieldValueKind.Text ||
             catalog.Find(value.AsString()) is not { } record)
         {
@@ -46,89 +52,51 @@ internal sealed class AriseReferences(IReferenceContext context)
         return new ActionOutcome
         {
             Message = $"{record.Name} · ID {record.Key} · {record.Category ?? "Uncategorised"}\n" +
-                $"{record.AttributionText}\nInspection only; the save was not changed.",
+                $"{record.Description}\n{record.AttributionText}\nInspection only; save state is unknown and no bytes were changed.",
         };
     }
 
-    public IReadOnlyList<QueryableCollection> Collections =>
-    [
-        Collection(ItemsCatalogId, "Items", _items),
-        Collection(EquipmentCatalogId, "Equipment", _equipment),
-    ];
+    public IReadOnlyList<QueryableCollection> Collections => CatalogIds.Select(id =>
+        new QueryableCollection(id, _catalogs[id]?.Dataset.Title ?? id, AriseCatalogQuery.Columns(id), _catalogs[id]?.Count ?? 0)
+        {
+            Description = _catalogs[id]?.Dataset.Attribution.ToShortText() ?? "No matching reference pack is pinned.",
+        }).ToArray();
 
-    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
+    public QueryableCollectionPage Query(string id, QueryableCollectionQuery query)
     {
-        var catalog = collectionId switch
+        if (!_catalogs.TryGetValue(id, out var catalog))
         {
-            ItemsCatalogId => _items,
-            EquipmentCatalogId => _equipment,
-            _ => null,
-        } ?? throw new KeyNotFoundException($"Unknown Tales of Arise catalog '{collectionId}'.");
-        var category = query.Filters.GetValueOrDefault("category");
-        var character = query.Filters.GetValueOrDefault("character");
-        var limit = Math.Clamp(query.Limit, 1, ReferenceQuery.MaxLimit);
-        var all = catalog.Search(new ReferenceQuery
-        {
-            Text = query.Text,
-            Category = category,
-            Limit = ReferenceQuery.MaxLimit,
-        });
-        var filtered = all.Items.Where(record => character is null ||
-            string.Equals(record.Attributes.GetValueOrDefault("character"), character, StringComparison.OrdinalIgnoreCase)).ToArray();
-        var records = filtered.Skip(Math.Max(0, query.Offset)).Take(limit).ToArray();
-        var rows = records.Select(record => new TableRow(record.Key, new Dictionary<string, ViewNode>
-        {
-            ["id"] = ReadOnlyId(collectionId, record),
-            ["name"] = new TextNode($"{record.Name} · {record.AttributionText}"),
-            ["category"] = new TextNode(record.Category ?? "Unknown"),
-            ["character"] = new TextNode(record.Attributes.GetValueOrDefault("character") ?? "All"),
-        })).ToArray();
-        return new QueryableCollectionPage(collectionId, Columns(collectionId), rows, catalog.Count, filtered.Length,
-            Math.Max(0, query.Offset), rows.Length);
+            throw new KeyNotFoundException($"Unknown Tales of Arise catalog '{id}'.");
+        }
+
+        return catalog is null
+            ? new QueryableCollectionPage(id, AriseCatalogQuery.Columns(id), [], 0, 0,
+                Math.Max(0, query.Offset), Math.Clamp(query.Limit, 1, ReferenceQuery.MaxLimit))
+            : AriseCatalogQuery.Query(id, catalog, query);
     }
 
-    public FieldNode ReferenceField(string valueId, string label, string rawId, string catalogId, string? description = null) =>
-        new(valueId, label, new ReferenceSpec(catalogId) { ReadOnly = true, AllowCustom = true }, FieldValue.Of(rawId))
-        {
-            Description = description ?? "Catalog lookup is informational; replacement is not enabled until serialized identity and compatibility are proven.",
-            Confidence = Confidence.Inferred,
-            Warning = "Read-only reference lookup. The numeric or symbolic ID is preserved exactly.",
-        };
+    public ViewNode CatalogSection(string id, string? character = null)
+    {
+        var catalog = _catalogs[id];
+        return catalog is null
+            ? new SectionNode(id, [new TextNode("No matching reference pack is pinned. Raw save identities remain available.") { Tone = Tone.Muted }])
+            : new SectionNode(catalog.Dataset.Title ?? id,
+            [
+                new TextNode($"{catalog.Count} records · {catalog.Pack.Id} {catalog.Pack.Version} · {catalog.Dataset.Attribution.ToShortText()}"),
+                new QueryableTableNode(id, catalog.Dataset.Title ?? id, AriseCatalogQuery.Columns(id), catalog.Count)
+                {
+                    Description = "Search names, IDs, prerequisites and facts; exact column filters and deterministic sorting cover every catalog page." +
+                        (character is null ? "" : $" Use the Character filter: {character}."),
+                },
+                new ActionNode(InspectPrefix + id, "Inspect a reference record")
+                {
+                    Description = catalog.Dataset.Attribution.ToShortText(),
+                    Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(id),
+                        FieldValue.Of(catalog.Search(new ReferenceQuery { Limit = 1 }).Items.FirstOrDefault()?.Key ?? ""))],
+                },
+            ]);
+    }
 
-    private ViewNode CatalogSection(string id, IReferenceCatalog? catalog) => catalog is null
-        ? new SectionNode(id, [new TextNode("No matching reference pack is pinned. Raw save identities remain available.") { Tone = Tone.Muted }])
-        : new SectionNode(id,
-        [
-            new TextNode($"{catalog.Count} records · {catalog.Pack.Id} {catalog.Pack.Version} · {catalog.Dataset.Attribution.ToShortText()}"),
-            new QueryableTableNode(id, catalog.Dataset.Title ?? id, Columns(id), catalog.Count)
-            {
-                Description = "Search by name or ID. Filter category exactly; equipment additionally supports the character filter.",
-            },
-            new ActionNode(InspectPrefix + id, "Inspect a catalog record")
-            {
-                Description = catalog.Dataset.Attribution.ToShortText(),
-                Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(id), FieldValue.Of(catalog.Search(new ReferenceQuery { Limit = 1 }).Items.FirstOrDefault()?.Key ?? ""))],
-            },
-        ]);
-
-    private static QueryableCollection Collection(string id, string title, IReferenceCatalog? catalog) =>
-        new(id, title, Columns(id), catalog?.Count ?? 0)
-        {
-            Description = catalog is null ? "No reference pack is pinned." : catalog.Dataset.Attribution.ToShortText(),
-        };
-
-    private static IReadOnlyList<QueryableColumn> Columns(string id) =>
-    [
-        new("id", "ID", new ReferenceSpec(id) { AllowCustom = true }) { Width = ColumnWidth.Wide },
-        new("name", "Name", new TextSpec()),
-        new("category", "Category", new TextSpec()),
-        new("character", "Character", new TextSpec()),
-    ];
-
-    private static FieldNode ReadOnlyId(string catalogId, ReferenceRecord record) =>
-        new($"catalog/{catalogId}/{record.Key}/id", "ID", new ReferenceSpec(catalogId) { ReadOnly = true, AllowCustom = true }, FieldValue.Of(record.Key))
-        {
-            Description = record.AttributionText,
-            Confidence = Confidence.Inferred,
-        };
+    private IReferenceCatalog Catalog(string id) => _catalogs.GetValueOrDefault(id)
+        ?? throw new KeyNotFoundException($"Tales of Arise catalog '{id}' is unavailable.");
 }

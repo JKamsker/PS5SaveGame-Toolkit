@@ -1,41 +1,167 @@
 {
   "schema": 1,
   "id": "talesofarise.catalog",
-  "version": "1.0.0",
-  "title": "Tales of Arise item and equipment catalog",
-  "description": "English factual names and broad categories for the base-game PS5 schema. Keys are catalog identities; they do not authorize save construction or replacement.",
-  "plugins": ["tales-of-arise"],
-  "titleIds": ["PPSA02745"],
+  "version": "2.0.0",
+  "title": "Tales of Arise reference catalogs",
+  "plugins": [
+    "tales-of-arise"
+  ],
+  "titleIds": [
+    "PPSA02745"
+  ],
   "locale": "en",
   "datasets": [
     {
       "id": "items",
       "kind": "records",
-      "title": "Consumable items",
-      "files": [{ "path": "items.json", "sha256": "88c28e4e6827f4c56117bb06462db4a636121a33bb265473a128e7c9fa4789d9" }],
+      "title": "Items",
+      "files": [
+        {
+          "path": "items.json",
+          "sha256": "13de9b207a1e0592b00bb9247c81965d146d0bf23702910ce90a117f6769e6c0"
+        }
+      ],
       "attribution": {
-        "sourceUrl": "https://aselia.fandom.com/wiki/ToA_-_Consumables",
+        "sourceUrl": "https://aselia.fandom.com/wiki/ToA_-_Accessory_Materials?oldid=379795",
         "author": "Aselia Wiki contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Names and broad item categories transcribed into the toolkit record format; no guide prose or artwork included. Numeric IDs 1-13 are independently observed in the PS5 sample corpus."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
       }
     },
     {
       "id": "equipment",
       "kind": "records",
-      "title": "Equipment names",
-      "files": [{ "path": "equipment.json", "sha256": "c8db085d23850747faceb827e121aa58f1a1272a624c059c3c51465465997212" }],
+      "title": "Equipment",
+      "files": [
+        {
+          "path": "equipment.json",
+          "sha256": "f9171e3c43b4d4237110866d02dc5be7534bbe3dc7aa2a6f921e181ca2a96633"
+        }
+      ],
       "attribution": {
-        "sourceUrl": "https://aselia.fandom.com/wiki/Category:Weapon_Lists",
+        "sourceUrl": "https://aselia.fandom.com/wiki/ToA_-_Accessories?oldid=361384",
         "author": "Aselia Wiki contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "A small name-only starter subset grouped by playable character; symbolic catalog keys are deliberately not claimed to be PS5 serialized IDs."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+      }
+    },
+    {
+      "id": "artes",
+      "kind": "records",
+      "title": "Artes",
+      "files": [
+        {
+          "path": "artes.json",
+          "sha256": "752e5eb95caaf6560cc77aac7c546d658198a972d6be60a520fc80d3643caa22"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://aselia.fandom.com/wiki/ToA_-_Almeidrea_Kaineris:_Artes?oldid=350002",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+      }
+    },
+    {
+      "id": "skills",
+      "kind": "records",
+      "title": "Skills",
+      "files": [
+        {
+          "path": "skills.json",
+          "sha256": "9ef6bdb8aa9f5d810ef2029639b6996444f3a498a550805c5eb2749bd824ebea"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://aselia.fandom.com/wiki/ToA_-_Skills?oldid=378099",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+      }
+    },
+    {
+      "id": "titles",
+      "kind": "records",
+      "title": "Title panels",
+      "files": [
+        {
+          "path": "titles.json",
+          "sha256": "73db08f2c976ea61270a1e78c08fcacdf4260965f763ead2274f4936e8b4add9"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://aselia.fandom.com/wiki/ToA_-_Alphen:_Skill_Panels?oldid=378024",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+      }
+    },
+    {
+      "id": "skill-nodes",
+      "kind": "records",
+      "title": "Title skill nodes",
+      "files": [
+        {
+          "path": "skill-nodes.json",
+          "sha256": "4a751b1290cf3103eb17236d7366065741ffb17be6335de7f2868a24ceb1b7f5"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://aselia.fandom.com/wiki/ToA_-_Alphen:_Skill_Panels?oldid=378024",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+      }
+    },
+    {
+      "id": "characters",
+      "kind": "records",
+      "title": "Characters",
+      "files": [
+        {
+          "path": "characters.json",
+          "sha256": "ecd47e4960fc3aba50c6aff0b1e7f67b52585964c2500ed6006fa37b164e6d5b"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+      }
+    },
+    {
+      "id": "progress",
+      "kind": "records",
+      "title": "Recipe, fish and artifact guides",
+      "files": [
+        {
+          "path": "progress.json",
+          "sha256": "04c5364d29bb22f664386c8ad7b6737020375e86013df198c1ecc04d6c0afea7"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
       }
     }
   ]
 }
-

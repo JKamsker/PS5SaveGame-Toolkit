@@ -1,0 +1,766 @@
+{
+  "records": [
+    {
+      "id": "character:almeidrea-kaineris",
+      "name": "Almeidrea Kaineris",
+      "category": "Major Antagonists Five Lords",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "major_antagonists_five_lords",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:alphen",
+      "name": "Alphen",
+      "category": "Playable",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "protagonists",
+        "sourceRevision": "300086",
+        "character": "Alphen",
+        "statusIndex": "0",
+        "mappingConfidence": "Inferred"
+      }
+    },
+    {
+      "id": "character:asuna",
+      "name": "Asuna",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:avakhir",
+      "name": "Avakhir",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:baephon",
+      "name": "Baephon",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:balseph",
+      "name": "Balseph",
+      "category": "Major Antagonists Five Lords",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "major_antagonists_five_lords",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:bogdel",
+      "name": "Bogdel",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:bregon",
+      "name": "Bregon",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:bureau-of-civil-observation",
+      "name": "Bureau of Civil Observation",
+      "category": "Minor Antagonists",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "minor_antagonists",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:cagari",
+      "name": "Cagari",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:crimson-crows",
+      "name": "Crimson Crows",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:dahna-s-will",
+      "name": "Dahna's Will",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:dark-wings",
+      "name": "Dark Wings",
+      "category": "Minor Antagonists",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "minor_antagonists",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:dedyme",
+      "name": "Dedyme",
+      "category": "Minor Antagonists",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "minor_antagonists",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:doc",
+      "name": "Doc",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:dohalim",
+      "name": "Dohalim il Qaras",
+      "category": "Playable",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "protagonists",
+        "sourceRevision": "300086",
+        "character": "Dohalim",
+        "statusIndex": "5",
+        "mappingConfidence": "Inferred"
+      }
+    },
+    {
+      "id": "character:drashin",
+      "name": "Drashin",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:dyron",
+      "name": "Dyron",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:efreet-malum",
+      "name": "Efreet Malum",
+      "category": "Spirits",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "spirits",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:fahria",
+      "name": "Fahria",
+      "category": "Minor Antagonists",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "minor_antagonists",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:fishing-expert",
+      "name": "Fishing Expert",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:ganabelt-valkyris",
+      "name": "Ganabelt Valkyris",
+      "category": "Major Antagonists Five Lords",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "major_antagonists_five_lords",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:ganye",
+      "name": "Ganye",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:giselle",
+      "name": "Giselle",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:gold-dust-cats",
+      "name": "Gold Dust Cats",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:gourdeno",
+      "name": "Gourdeno",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:grand-gnome",
+      "name": "Grand Gnome",
+      "category": "Spirits",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "spirits",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:great-astral-spirit",
+      "name": "Great Astral Spirit",
+      "category": "Major Antagonists",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "major_antagonists",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:grenar",
+      "name": "Grenar",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:hanfriecht-milgrasse",
+      "name": "Hanfriecht Milgrasse",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:helganquil",
+      "name": "Helganquil",
+      "category": "Major Antagonists",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "major_antagonists",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:hevrekt-35",
+      "name": "Hevrekt-35",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:hootle",
+      "name": "Hootle",
+      "category": "Protagonists",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "protagonists",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:kelzalik",
+      "name": "Kelzalik",
+      "category": "Major Antagonists",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "major_antagonists",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:kirito",
+      "name": "Kirito",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:kisara",
+      "name": "Kisara",
+      "category": "Playable",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "protagonists",
+        "sourceRevision": "300086",
+        "character": "Kisara",
+        "statusIndex": "4",
+        "mappingConfidence": "Inferred"
+      }
+    },
+    {
+      "id": "character:kohl",
+      "name": "Kohl",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:lagill",
+      "name": "Lagill",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:law",
+      "name": "Law",
+      "category": "Playable",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "protagonists",
+        "sourceRevision": "300086",
+        "character": "Law",
+        "statusIndex": "3",
+        "mappingConfidence": "Inferred"
+      }
+    },
+    {
+      "id": "character:luo-undine",
+      "name": "Luo Undine",
+      "category": "Spirits",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "spirits",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:mahavar",
+      "name": "Mahavar",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:meneck",
+      "name": "Meneck",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:migal",
+      "name": "Migal",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:naori-imeris",
+      "name": "Naori Imeris",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:nayth",
+      "name": "Nayth",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:nazamil-hildris",
+      "name": "Nazamil Hildris",
+      "category": "Protagonists Beyond The Dawn",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "protagonists_beyond_the_dawn",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:nottio",
+      "name": "Nottio",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:patvo",
+      "name": "Patvo",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:procella-sylph",
+      "name": "Procella Sylph",
+      "category": "Spirits",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "spirits",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:rinwell",
+      "name": "Rinwell",
+      "category": "Playable",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "protagonists",
+        "sourceRevision": "300086",
+        "character": "Rinwell",
+        "statusIndex": "2",
+        "mappingConfidence": "Inferred"
+      }
+    },
+    {
+      "id": "character:service-corps",
+      "name": "Service Corps",
+      "category": "Supporting Characters Beyond The Dawn",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters_beyond_the_dawn",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:shionne",
+      "name": "Shionne Vymer Imeris Daymore",
+      "category": "Playable",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "protagonists",
+        "sourceRevision": "300086",
+        "character": "Shionne",
+        "statusIndex": "1",
+        "mappingConfidence": "Inferred"
+      }
+    },
+    {
+      "id": "character:silver-swords",
+      "name": "Silver Swords",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:tarnigen",
+      "name": "Tarnigen",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:tigrina",
+      "name": "Tigrina",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:tilsa",
+      "name": "Tilsa",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:torvin",
+      "name": "Torvin",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:urwagil-hildris",
+      "name": "Urwagil Hildris",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:vholran-igniseri",
+      "name": "Vholran Igniseri",
+      "category": "Major Antagonists Five Lords",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "major_antagonists_five_lords",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:wonder-bard",
+      "name": "Wonder Bard",
+      "category": "Other Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "other_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:zareh",
+      "name": "Zareh",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    },
+    {
+      "id": "character:zephyr",
+      "name": "Zephyr",
+      "category": "Supporting Characters",
+      "source": "https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "supporting_characters",
+        "sourceRevision": "300086"
+      }
+    }
+  ]
+}
