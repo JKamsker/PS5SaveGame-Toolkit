@@ -5,30 +5,54 @@ using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.Insomniac;
 
-/// <summary>Reads root DDL fields; nested objects remain opaque, bounded byte ranges.</summary>
-internal sealed class DdlReader(Dat1Container container, Dat1Section section)
+/// <summary>Reads bounded DDL trees without rewriting any stored bytes or metadata.</summary>
+internal sealed class DdlReader(Dat1Container container, Dat1Section section, int prefixLength = 0)
 {
     private const uint Magic = 0x0315_0044;
     private const uint CrcPolynomial = 0xEDB8_8320;
     private const int HeaderSize = 16;
     private const int DescriptorSize = 12;
     private const int MaxFields = 1024;
-    private const int MaxValues = 4096;
+    private const int MaxValues = 524288;
+    private const int MaxObjects = 32768;
+    private const int MaxDepth = 32;
+    private const int MaxTotalFields = 65536;
+    private const int MaxTextBytes = 4 * 1024 * 1024;
     private const int MaxStringLength = 65536;
     private readonly UTF8Encoding _utf8 = new(false, true);
     private readonly int _end = checked((int)section.End);
-    private int _position = checked((int)section.Offset);
+    private int _position = checked((int)section.Offset + prefixLength);
+    private int _limit = checked((int)section.End);
+    private int _totalValues;
+    private int _totalObjects;
+    private int _totalFields;
+    private int _textBytes;
+    private readonly Dictionary<uint, string> _names = [];
 
     internal IReadOnlyDictionary<string, DdlField> Read()
     {
+        var root = ReadObject(0);
+        if (_position != _end) throw Invalid("Root object size does not match its section.");
+        return root.Fields;
+    }
+
+    private DdlObject ReadObject(int depth)
+    {
+        if (depth > MaxDepth || ++_totalObjects > MaxObjects)
+            throw Invalid("Object depth or node budget exceeded.");
         var start = _position;
         var (count, size) = ReadHeader();
-        if (start + HeaderSize + size != _end)
-            throw Invalid("Root object size does not match its section.");
+        _totalFields = checked(_totalFields + count);
+        if (_totalFields > MaxTotalFields) throw Invalid("Total field budget exceeded.");
+        var parentLimit = _limit;
+        _limit = checked(_position + size);
 
         var descriptors = Take(checked(count * DescriptorSize));
+        // PS5 nested objects can begin unaligned; their descriptor/value boundary is
+        // aligned to the file, while individual scalar fields remain packed.
+        if (count > 0 && Take((4 - _position % 4) % 4).ContainsAnyExcept((byte)0))
+            throw Invalid("Nonzero padding before object values.");
         var fields = new Dictionary<string, DdlField>(StringComparer.Ordinal);
-        var totalValues = 0;
         for (var index = 0; index < count; index++)
         {
             var hash = BinaryPrimitives.ReadUInt32LittleEndian(descriptors[(index * 8)..]);
@@ -40,12 +64,13 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section)
 
             var kind = (DdlValueKind)(meta >> 24);
             var length = checked((int)((meta >> 4) & 0xFFFFF));
-            totalValues += length;
-            if (!Enum.IsDefined(kind) || totalValues > MaxValues || (meta & 0xF) > 3)
+            _totalValues = checked(_totalValues + length);
+            if (!Enum.IsDefined(kind) || _totalValues > MaxValues || (meta & 0xF) > 3)
                 throw Invalid("Unsupported field count or array kind.");
 
             var offset = _position;
             var values = new List<FieldValue>();
+            var objects = new List<DdlObject>();
             if (kind == DdlValueKind.Null)
             {
                 // Empty arrays use type 19, count zero, and one stored null byte on PS5.
@@ -55,18 +80,19 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section)
             {
                 for (var valueIndex = 0; valueIndex < length; valueIndex++)
                 {
-                    if (kind == DdlValueKind.Object) SkipObject();
+                    if (kind == DdlValueKind.Object) objects.Add(ReadObject(depth + 1));
                     else values.Add(ReadValue(kind));
                 }
             }
 
-            if (!fields.TryAdd(name, new DdlField(name, kind, length, offset, values)))
+            if (!fields.TryAdd(name, new DdlField(name, kind, length, offset, values) { Objects = objects }))
                 throw Invalid("Duplicate field name.");
         }
 
-        if (_end - _position > 3 || Take(_end - _position).ContainsAnyExcept((byte)0))
-            throw Invalid("Unexpected bytes after the root fields.");
-        return fields;
+        if (_limit - _position > 3 || Take(_limit - _position).ContainsAnyExcept((byte)0))
+            throw Invalid("Unexpected bytes after the object fields.");
+        _limit = parentLimit;
+        return new DdlObject(start, HeaderSize + size, fields);
     }
 
     internal static uint NameHash(ReadOnlySpan<byte> name)
@@ -88,15 +114,9 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section)
         var size = BinaryPrimitives.ReadUInt32LittleEndian(bytes[12..]);
         if (BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0 ||
             BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..]) != Magic ||
-            count > MaxFields || size > _end - _position || (ulong)count * DescriptorSize > size)
+            count > MaxFields || size > _limit - _position || (ulong)count * DescriptorSize > size)
             throw Invalid("Invalid object header or bounds.");
         return (checked((int)count), checked((int)size));
-    }
-
-    private void SkipObject()
-    {
-        var (_, size) = ReadHeader();
-        _ = Take(size);
     }
 
     private FieldValue ReadValue(DdlValueKind kind) => kind switch
@@ -133,6 +153,7 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section)
         // The 32/64-bit words describe the string, not a checksum of this section.
         var length = BinaryPrimitives.ReadUInt32LittleEndian(Take(HeaderSize));
         if (length > MaxStringLength) throw Invalid("String is too long.");
+        CountText(checked((int)length));
         var bytes = Take(checked((int)length));
         if (Take(1)[0] != 0) throw Invalid("String terminator is missing.");
         // Padding is relative to this string's payload, even at unaligned addresses.
@@ -142,12 +163,22 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section)
 
     private string ReadName(uint offset)
     {
+        if (_names.TryGetValue(offset, out var name)) return name;
         if (offset < container.DescriptorEnd || offset >= container.DataStart)
             throw Invalid("Field name points outside the string table.");
         var bytes = container.Bytes.AsSpan(checked((int)offset), container.DataStart - checked((int)offset));
         var length = bytes.IndexOf((byte)0);
         if (length is < 1 or > MaxStringLength) throw Invalid("Invalid field name.");
-        return Decode(bytes[..length]);
+        CountText(length);
+        name = Decode(bytes[..length]);
+        _names.Add(offset, name);
+        return name;
+    }
+
+    private void CountText(int length)
+    {
+        _textBytes = checked(_textBytes + length);
+        if (_textBytes > MaxTextBytes) throw Invalid("Text budget exceeded.");
     }
 
     private string Decode(ReadOnlySpan<byte> bytes)
@@ -158,7 +189,7 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section)
 
     private ReadOnlySpan<byte> Take(int length)
     {
-        if (length < 0 || length > _end - _position) throw Invalid("Field exceeds the section bounds.");
+        if (length < 0 || length > _limit - _position) throw Invalid("Field exceeds the object bounds.");
         var bytes = container.Bytes.AsSpan(_position, length);
         _position += length;
         return bytes;

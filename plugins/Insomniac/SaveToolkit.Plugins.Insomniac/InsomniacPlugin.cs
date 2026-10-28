@@ -1,17 +1,23 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.Insomniac;
 
 public sealed class InsomniacPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.2.0")
+    public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.3.0")
     {
-        Description = "Read-only Player fields and lossless DAT1/DDL exploration for Rift Apart saves.",
+        Description = "Read-only loadout, preferences, world state and lossless DAT1/DDL exploration for Rift Apart saves.",
         Games = [new GameTitle("PPSA01474", "Ratchet & Clank: Rift Apart")],
         Maturity = PluginMaturity.ReadOnly,
         References =
         [
+            DdlSections.SchemaSource,
+            "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json.license",
+            "https://ratchetandclank.fandom.com/wiki/Burst_Pistol",
+            "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript",
+            "https://ratchetandclank.fandom.com/wiki/Warmonger",
             "https://github.com/Tkachov/ALERT/blob/main/dat1lib/types/dat1.py",
             "https://github.com/Tkachov/ALERT/wiki/Formats",
             "https://github.com/VELD-Dev/riftripper",
@@ -45,11 +51,13 @@ public sealed class InsomniacPlugin : IGamePlugin
         }
     }
 
-    public ISaveDocument Open(ISaveFile file)
+    public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
         try
         {
-            return new InsomniacDocument(file.RelativePath, Dat1Container.Parse(file.ReadAllBytes()), file.FileName);
+            return new InsomniacDocument(file.RelativePath, Dat1Container.Parse(file.ReadAllBytes()), file.FileName, references);
         }
         catch (SaveFormatException)
         {
