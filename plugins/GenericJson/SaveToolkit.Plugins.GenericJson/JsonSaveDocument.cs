@@ -1,9 +1,10 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.GenericJson;
 
-internal sealed class JsonSaveDocument(string name, string path, byte[] original, JsonTokenTree tree, JsonOverlay? overlay) : BoundSaveDocument
+internal sealed class JsonSaveDocument(string name, string path, byte[] original, JsonTokenTree tree, JsonOverlay? overlay) : BoundSaveDocument, IQueryableDocument
 {
     private const int PageSize = 128;
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
@@ -11,12 +12,22 @@ internal sealed class JsonSaveDocument(string name, string path, byte[] original
 
     public override string Title => name;
 
+    public IReadOnlyList<QueryableCollection> Collections => [JsonSearch.Metadata(tree.Nodes.Count)];
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        collectionId == JsonSearch.CollectionId ? JsonSearch.Query(tree.Nodes[0], query, ScalarField)
+            : throw new KeyNotFoundException("Unknown JSON collection.");
+
     public override ViewNode BuildView() => new TabsNode([
         new Tab("Overview", [
             new StatsNode([new Stat("Bytes", original.Length.ToString()), new Stat("Values", tree.Nodes.Count.ToString())]),
             new TextNode("Generic JSON editor. Field names come from the file; game semantics and allowed values are unknown.") { Tone = Tone.Warning },
         ]),
         new Tab("JSON", [NodeView(tree.Nodes[0])]),
+        new Tab("Search", [new QueryableTableNode(JsonSearch.CollectionId, "Whole-tree search", JsonSearch.Columns, tree.Nodes.Count)
+        {
+            Description = JsonSearch.Metadata(tree.Nodes.Count).Description,
+        }]),
         .. overlay is null ? Array.Empty<Tab>() : [new Tab(overlay.Title, [
             new TextNode(overlay.Evidence) { Tone = Tone.Warning },
             new TextNode(JsonOverlay.Provenance),
@@ -98,12 +109,19 @@ internal sealed class JsonSaveDocument(string name, string path, byte[] original
             return new TextNode($"{node.Label}: null");
         }
 
-        return Field(node.ValueId, node.Label, spec, () => node.Current,
+        return ScalarField(node, node.Label);
+    }
+
+    private FieldNode ScalarField(JsonValueToken node, string label)
+    {
+        var spec = node.Spec ?? throw new InvalidOperationException("Expected a JSON scalar.");
+        return Field(node.ValueId, label, spec, () => node.Current,
             spec.ReadOnly ? null : value => node.Current = value, node.Validate) with
         {
             Confidence = Confidence.Unknown,
             Warning = node.Warning ?? "Game-specific constraints and dependencies are unknown.",
-            Description = $"Original UTF-8 value token at byte offset 0x{node.Offset:X}.",
+            Description = $"{label}; session identity {node.ValueId}. Original UTF-8 token at 0x{node.Offset:X}. "
+                + "Explicit type changes affect JSON syntax only; game compatibility is unknown.",
         };
     }
 
