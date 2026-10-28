@@ -1,11 +1,13 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.TalesOfArise;
 
-internal sealed class AriseDocument(string path, string fileName, AriseSave save) : BoundSaveDocument
+internal sealed class AriseDocument(string path, string fileName, AriseSave save, IReferenceContext references) : BoundSaveDocument, IQueryableDocument
 {
     private const int GaldOffset = 0x18;
     private const int PlaySecondsOffset = 0xAF8;
@@ -26,6 +28,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     private const int ItemRecordCount = 0x3A6; // Count in the cited PS4 inventory patch; later regions are not item stacks.
     private const int ConsumableStackLimit = 15;
     private const string ExperimentalWarning = "PS5 field mapping is inferred from PS4 research. Edits have not been tested in-game.";
+    private readonly AriseReferences _references = new(references);
 
     public override string Title => $"Tales of Arise · {fileName}";
 
@@ -55,6 +58,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                     { Tone = Tone.Warning },
                 SectionNode.Lazy("Owned inventory records", "inventory"),
             ]),
+            new Tab("Catalogs", _references.BuildView()),
             new Tab("Explorer",
             [
                 new TextNode("Decrypted sections and primitive words are read-only. Offsets are relative to the gameplay block at file offset 0x32058."),
@@ -64,6 +68,13 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             ]),
         ]);
     }
+
+    public IReadOnlyList<QueryableCollection> Collections => _references.Collections;
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => _references.Query(collectionId, query);
+
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        _references.Handles(actionId) ? _references.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
@@ -139,6 +150,15 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
 
             var name = AriseSchema.ConsumableName(id);
             var valueId = $"inventory/{relative / ItemRecordSize}/quantity";
+            var idField = Field($"inventory/{relative / ItemRecordSize}/id", $"0x{id:X4}",
+                new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true, AllowCustom = true },
+                () => FieldValue.Of(id.ToString())) with
+                {
+                    Confidence = Confidence.Inferred,
+                    Description = name is null
+                        ? "Unknown item/equipment identity; raw numeric ID is preserved."
+                        : $"{name}; raw numeric ID is preserved. Catalog attribution is shown in the Catalogs tab.",
+                };
             var spec = new IntegerSpec(0, Math.Max(ConsumableStackLimit, (int)save.Payload[offset]));
             var canWrite = name is not null && save.Payload[offset] <= ConsumableStackLimit;
             var quantity = Field(valueId, "Quantity", spec,
@@ -148,7 +168,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                 with { Confidence = Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
             rows.Add(new TableRow(valueId, new Dictionary<string, ViewNode>
             {
-                ["id"] = new TextNode($"0x{id:X4}"),
+                ["id"] = idField,
                 ["name"] = new TextNode(name ?? "Unknown item / equipment"),
                 ["quantity"] = quantity,
                 ["flags"] = new TextNode($"0x{save.Payload[offset + ItemFlagsOffset]:X2}"),

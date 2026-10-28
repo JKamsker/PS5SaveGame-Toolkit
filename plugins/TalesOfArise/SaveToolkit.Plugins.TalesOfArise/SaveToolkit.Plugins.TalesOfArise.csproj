@@ -6,6 +6,8 @@
     <EmbeddedResource Include="Resources\Sections.csv" />
     <EmbeddedResource Include="Resources\Consumables.csv" />
     <EmbeddedResource Include="Resources\Characters.csv" />
+    <EmbeddedResource Include="Resources\EvidenceLedger.csv" />
+    <EmbeddedResource Include="ReferencePacks\**\*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" />
     <InternalsVisibleTo Include="SaveToolkit.Plugins.TalesOfArise.Tests" />
   </ItemGroup>
   <ItemGroup>

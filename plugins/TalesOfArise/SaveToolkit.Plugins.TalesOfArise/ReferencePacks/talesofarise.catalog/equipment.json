@@ -1,0 +1,18 @@
+{
+  "records": [
+    { "id": "weapon:alphen:iron-pipe", "name": "Iron Pipe", "category": "Weapon", "source": "https://aselia.fandom.com/wiki/ToA_-_Weapons_%28Swords%29", "attributes": { "character": "Alphen", "serializedId": "Unknown" } },
+    { "id": "weapon:alphen:dull-sword", "name": "Dull Sword", "category": "Weapon", "source": "https://aselia.fandom.com/wiki/ToA_-_Weapons_%28Swords%29", "attributes": { "character": "Alphen", "serializedId": "Unknown" } },
+    { "id": "weapon:alphen:long-sword", "name": "Long Sword", "category": "Weapon", "source": "https://aselia.fandom.com/wiki/ToA_-_Weapons_%28Swords%29", "attributes": { "character": "Alphen", "serializedId": "Unknown" } },
+    { "id": "weapon:shionne:infantry-rifle", "name": "Infantry Rifle", "category": "Weapon", "source": "https://aselia.fandom.com/wiki/ToA_-_Weapons_%28Rifles%29", "attributes": { "character": "Shionne", "serializedId": "Unknown" } },
+    { "id": "weapon:rinwell:secrets-of-the-stars", "name": "Secrets of the Stars", "category": "Weapon", "source": "https://aselia.fandom.com/wiki/ToA_-_Weapons_%28Books%29", "attributes": { "character": "Rinwell", "serializedId": "Unknown" } },
+    { "id": "weapon:law:beast-fists", "name": "Beast Fists", "category": "Weapon", "source": "https://aselia.fandom.com/wiki/ToA_-_Weapons_%28Gauntlets%29", "attributes": { "character": "Law", "serializedId": "Unknown" } },
+    { "id": "weapon:kisara:imperial-shield", "name": "Imperial Shield", "category": "Weapon", "source": "https://aselia.fandom.com/wiki/ToA_-_Weapons_%28Shields%29", "attributes": { "character": "Kisara", "serializedId": "Unknown" } },
+    { "id": "weapon:dohalim:pulque-shaft", "name": "Pulque Shaft", "category": "Weapon", "source": "https://aselia.fandom.com/wiki/ToA_-_Weapons_%28Rods%29", "attributes": { "character": "Dohalim", "serializedId": "Unknown" } },
+    { "id": "armor:alphen:bone-fragment", "name": "Bone Fragment Armor", "category": "Armor", "source": "https://aselia.fandom.com/wiki/Category:Weapon_Lists", "attributes": { "character": "Alphen", "serializedId": "Unknown" } },
+    { "id": "armor:shionne:bone-fragment", "name": "Bone Fragment Dress", "category": "Armor", "source": "https://aselia.fandom.com/wiki/Category:Weapon_Lists", "attributes": { "character": "Shionne", "serializedId": "Unknown" } },
+    { "id": "armor:rinwell:sapphire", "name": "Sapphire Cloak", "category": "Armor", "source": "https://aselia.fandom.com/wiki/Category:Weapon_Lists", "attributes": { "character": "Rinwell", "serializedId": "Unknown" } },
+    { "id": "armor:law:sapphire", "name": "Sapphire Vest", "category": "Armor", "source": "https://aselia.fandom.com/wiki/Category:Weapon_Lists", "attributes": { "character": "Law", "serializedId": "Unknown" } },
+    { "id": "armor:kisara:sapphire", "name": "Sapphire Guard", "category": "Armor", "source": "https://aselia.fandom.com/wiki/Category:Weapon_Lists", "attributes": { "character": "Kisara", "serializedId": "Unknown" } },
+    { "id": "armor:dohalim:sapphire", "name": "Sapphire Cape", "category": "Armor", "source": "https://aselia.fandom.com/wiki/Category:Weapon_Lists", "attributes": { "character": "Dohalim", "serializedId": "Unknown" } }
+  ]
+}

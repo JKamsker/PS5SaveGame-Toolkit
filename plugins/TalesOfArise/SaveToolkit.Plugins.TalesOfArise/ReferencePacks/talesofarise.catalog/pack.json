@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "id": "talesofarise.catalog",
+  "version": "1.0.0",
+  "title": "Tales of Arise item and equipment catalog",
+  "description": "English factual names and broad categories for the base-game PS5 schema. Keys are catalog identities; they do not authorize save construction or replacement.",
+  "plugins": ["tales-of-arise"],
+  "titleIds": ["PPSA02745"],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "items",
+      "kind": "records",
+      "title": "Consumable items",
+      "files": [{ "path": "items.json", "sha256": "88c28e4e6827f4c56117bb06462db4a636121a33bb265473a128e7c9fa4789d9" }],
+      "attribution": {
+        "sourceUrl": "https://aselia.fandom.com/wiki/ToA_-_Consumables",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Names and broad item categories transcribed into the toolkit record format; no guide prose or artwork included. Numeric IDs 1-13 are independently observed in the PS5 sample corpus."
+      }
+    },
+    {
+      "id": "equipment",
+      "kind": "records",
+      "title": "Equipment names",
+      "files": [{ "path": "equipment.json", "sha256": "c8db085d23850747faceb827e121aa58f1a1272a624c059c3c51465465997212" }],
+      "attribution": {
+        "sourceUrl": "https://aselia.fandom.com/wiki/Category:Weapon_Lists",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "A small name-only starter subset grouped by playable character; symbolic catalog keys are deliberately not claimed to be PS5 serialized IDs."
+      }
+    }
+  ]
+}
+

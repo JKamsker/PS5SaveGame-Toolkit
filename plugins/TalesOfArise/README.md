@@ -23,6 +23,14 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
   Even no-op serialization runs the actual cipher and is byte-identical on all six files.
 - Preserves the entire outer region `0..0x32057`, including screenshot/header bytes.
   Unknown fields, record flags, IDs, padding and unvisited bytes remain unchanged in plaintext.
+- Ships the versioned `talesofarise.catalog` F2 pack for `PPSA02745` (English, v1.0.0), with
+  13 observed numeric consumable IDs and a clearly marked symbolic equipment starter subset.
+  The Catalogs tab is searchable and queryable by exact category; equipment also supports a
+  character filter. Inventory IDs use read-only `ReferenceSpec` fields so the picker preserves
+  unknown numeric values instead of offering unsafe replacement.
+- Records section-relative evidence in `Resources/EvidenceLedger.csv`. `AriseDiff` aligns
+  decrypted bodies by schema ID and reports relative changed offsets, so shuffled physical
+  addresses do not become false field evidence. No new gameplay meaning is promoted by this ledger.
 
 `SystemSaveData.sav` is a separate **4,096-byte opaque system blob**. It is not claimed,
 decrypted or rewritten; the framework's raw viewer remains available. Each document
@@ -150,7 +158,7 @@ dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Test
 dotnet test --project tests/SaveToolkit.Core.Tests
 ```
 
-Plugin suite: **39 passed**, including the six inherited conformance tests.
+Plugin suite: **45 passed, 0 skipped**, including the six inherited conformance tests.
 Core suite: **43 passed**. API build: **zero warnings/errors**.
 Tests cover independent cipher vectors with short feedback updates and key evolution,
 SHA1 `abc`, independently calculated whole-plaintext SHA256 digests, all six real
@@ -159,7 +167,8 @@ other plaintext byte and outer bytes, atomic rejection, corruption, valid-SHA1
 malformed encrypted structures, unsupported modes/schema, and every explorer page.
 Sample tests use `SampleSaves` and skip when the archive is unavailable.
 An explicit missing-archive run passed 9 independent tests and skipped 30 sample tests.
-No sample data or downloaded reference implementation is embedded in this plugin.
+The embedded catalog is factual name/category data only; no sample data or downloaded reference
+implementation is embedded in this plugin.
 
 ## Open questions
 
@@ -198,7 +207,13 @@ are the SDK and .NET cryptography only, with no added NuGet packages.
   consulted for existing tools; this is a PC memory table, not PS5 save-layout evidence.
 - [Local reconnaissance](../../docs/formats/PPSA02745.md) and
   [method](../../docs/formats/README.md): initial archive measurements and offset discrepancy.
+- [Aselia ToA consumables](https://aselia.fandom.com/wiki/ToA_-_Consumables) and
+  [Aselia weapon-list category](https://aselia.fandom.com/wiki/Category:Weapon_Lists):
+  CC BY-SA 3.0 factual names and broad categories used by the v1.0.0 F2 pack. The pack's
+  `data.source.md` and each `ReferenceRecord` retain per-dataset and per-record attribution.
 
 ## SDK requests
 
-None. The existing bindings, lazy sections, tables and paged blobs support this plugin.
+None. The existing bindings, queryable tables, reference picker, lazy sections and paged blobs
+support this plugin. Equipment replacement remains intentionally unavailable until owner captures
+prove serialized identities, ownership and character compatibility.

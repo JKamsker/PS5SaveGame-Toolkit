@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Plugins.TalesOfArise;
@@ -15,6 +16,8 @@ public sealed class TalesOfArisePlugin : IGamePlugin
             "https://github.com/ItsAllAboutTheCode/save-converters/tree/main/save_convert/tales_of/arise",
             "https://web.save-editor.com/bbs/patchcode/ps4/bbs.cgi?list=pickup&num=30070",
             "https://github.com/Sora3100/Tales_of_Cheat_Tables/blob/master/Arise.CT",
+            "https://aselia.fandom.com/wiki/ToA_-_Consumables",
+            "https://aselia.fandom.com/wiki/Category:Weapon_Lists",
         ],
     };
 
@@ -30,7 +33,10 @@ public sealed class TalesOfArisePlugin : IGamePlugin
             : ProbeResult.None;
     }
 
-    public ISaveDocument Open(ISaveFile file) => new AriseDocument(file.RelativePath, file.FileName, AriseFormat.Decode(file.ReadAllBytes()));
+    public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
+
+    public ISaveDocument Open(ISaveFile file, IReferenceContext references) =>
+        new AriseDocument(file.RelativePath, file.FileName, AriseFormat.Decode(file.ReadAllBytes()), references);
 
     private static bool IsGameplayName(string name) => name.Length == "SaveData_000.sav".Length
         && name.StartsWith("SaveData_", StringComparison.OrdinalIgnoreCase)
