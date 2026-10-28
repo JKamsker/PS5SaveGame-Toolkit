@@ -1,0 +1,30 @@
+{
+  "revision": "c1fd00305e7db905a4e7de8cfa360d4f4efee3b2",
+  "retrieved": "2026-10-28",
+  "files": [
+    {
+      "name": "items.bin",
+      "sha256": "dbe6f314483984a1c0f5d034d76b54e68c387fb805f42ef4e3a5d8b3f050e252"
+    },
+    {
+      "name": "ItemClasses.json",
+      "sha256": "d63d00314f7a86e5a0464abc3773af56a292f6c59a61786e2c819a9fdcbae84c"
+    },
+    {
+      "name": "Facts.json",
+      "sha256": "08aeaeb811d0613bf9baef8f56fc33687455ce9278b6e0e760e903c70fa90ba6"
+    },
+    {
+      "name": "Vehicles.json",
+      "sha256": "f0991f27d919505282ce62941c9e8c57984e2fea1191cc06bee3c0e746518194"
+    },
+    {
+      "name": "FastTravel.json",
+      "sha256": "3830cd7deafcb61020ca8e27411b76e1b018093f031f30a4b657624bf9c0e1d7"
+    },
+    {
+      "name": "LICENSE",
+      "sha256": "a46ccc706fca37b7487bb8f3ac31fe93bd0dcf0572ca150c009d7f78bfc2e37e"
+    }
+  ]
+}

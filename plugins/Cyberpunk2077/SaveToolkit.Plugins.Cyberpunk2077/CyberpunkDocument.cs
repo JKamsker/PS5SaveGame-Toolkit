@@ -2,10 +2,12 @@ using System.Buffers.Binary;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077;
 
-internal sealed class CyberpunkDocument : BoundSaveDocument
+internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
 {
     private const int PageSize = 128;
     private const uint MaximumStack = 999_999; // Editor policy, not a proven game limit.
@@ -14,7 +16,9 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
     private readonly CsavContainer _container;
     private readonly CsavTree _tree;
     private readonly IReadOnlyList<InventoryItem> _items;
-    private readonly Dictionary<int, IReadOnlyList<SaveFact>> _facts;
+    private readonly FactInspection _facts;
+    private readonly InventoryInspection _inventory;
+    private readonly CyberpunkReferences _references;
     private readonly byte[] _edited;
     private readonly InventoryItem? _money;
     private readonly ItemNames _names = new();
@@ -22,7 +26,8 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
     private readonly ProgressionEditor? _progressionEditor;
     private readonly string? _progressionWarning;
 
-    public CyberpunkDocument(string path, CsavContainer container, CsavTree tree, IReadOnlyList<InventoryItem> items)
+    public CyberpunkDocument(string path, CsavContainer container, CsavTree tree, IReadOnlyList<InventoryItem> items,
+        IReferenceContext references)
     {
         _path = path;
         _container = container;
@@ -34,8 +39,12 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
         var candidates = items.Where(i => i.ContainerId == 1 && i.TweakId == InventoryReader.MoneyTweakId &&
             i.QuantityOffset.HasValue && tree.Nodes[i.NodeId].Size == 29 && i.Structure == 0).ToArray();
         _money = candidates.Length == 1 ? candidates[0] : null;
-        _facts = tree.Nodes.Where(n => n.Name == "FactsTable").ToDictionary(n => n.Id,
+        _references = new CyberpunkReferences(references, container.GameVersion);
+        _inventory = new InventoryInspection(items, container, tree, _references, _names, _edited, QuantityField, ReadField);
+        var facts = tree.Nodes.Where(n => n.Name == "FactsTable").ToDictionary(n => n.Id,
             n => FactsReader.Read(BinaryData.Slice(container.Payload, n.Offset, n.Size)));
+        _facts = new FactInspection(facts, _references, ReadField,
+            (id, value) => Field(id, "Raw fact value", IntegerSpec.UInt32, () => FieldValue.Of((ulong)value)));
     }
 
     public override string Title => "Cyberpunk 2077 · CSAV";
@@ -57,8 +66,9 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
         new Tab("Player development", _progressionEditor?.Build(binding => Field(binding.Id, binding.Label, binding.Spec,
             binding.Get, binding.Set, binding.Validate) with { Confidence = Confidence.Verified })
             ?? [new TextNode(_progressionWarning ?? "Player development layout is not verified; edits refused.") { Tone = Tone.Warning }]),
-        new Tab("Inventory", InventoryPages()),
-        new Tab("Facts", _facts.Select(pair => (ViewNode)SectionNode.Lazy($"FactsTable {pair.Key}", $"facts/{pair.Key}/0", pair.Value.Count.ToString())).ToArray()),
+        new Tab("Inventory", _inventory.Build()),
+        new Tab("Facts", [_facts.View()]),
+        new Tab("Reference catalogs", _references.Build(CanEdit)),
         new Tab("Node tree", TreePage(-1, 0)),
         new Tab("Container", [SectionNode.Lazy("Chunk table", "chunks"),
             new HexNode("original", _container.Original.Length) { Title = "Original CSAV bytes" },
@@ -89,14 +99,9 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
                 return TreePage(id, start);
             }
 
-            if (parts[0] == "facts" && _facts.TryGetValue(id, out var facts) && start <= facts.Count)
-            {
-                return FactPage(id, facts, start);
-            }
-
             if (parts[0] == "inventory" && id == 0 && start <= _items.Count)
             {
-                return InventoryPage(start);
+                return _inventory.Page(start);
             }
         }
 
@@ -114,6 +119,22 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
 
         return [new FileOutput(_path, bytes)];
     }
+
+    public IReadOnlyList<QueryableCollection> Collections => [_inventory.Metadata, _facts.Metadata];
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId switch
+    {
+        InventoryInspection.CollectionId => _inventory.Query(query),
+        FactInspection.CollectionId => _facts.Query(query),
+        _ => throw new KeyNotFoundException($"Unknown collection '{collectionId}'."),
+    };
+
+    public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
+
+    public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        _references.IsInspection(actionId) ? _references.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
+
+    private FieldNode ReadField(string id, string label, FieldSpec spec, string value) => Field(id, label, spec, () => FieldValue.Of(value));
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
@@ -175,6 +196,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
             () => FieldValue.Of((ulong)BinaryData.UInt32(_edited, offset)), setter, validate)
         with {
             Confidence = Confidence.Verified,
+            Description = item == _money ? CyberpunkReferences.BaselineAttribution : null,
             Warning = writable ? "Experimental PS5 write; the editor cap is a policy, not a verified game limit." : null,
         };
     }
@@ -182,36 +204,6 @@ internal sealed class CyberpunkDocument : BoundSaveDocument
     private bool IsWritable(InventoryItem item) => item == _money || item.ContainerId == 1 &&
         item.QuantityOffset.HasValue && _tree.Nodes[item.NodeId].Size == 29 && item.Structure == 0 &&
         _names.Find(item.TweakId)?.Kind is "Ammo" or "Component" or "Consumable";
-
-    private IReadOnlyList<ViewNode> InventoryPages() => _items.Count == 0
-        ? [new TextNode("Inventory schema is unsupported; inspect the inventory node bytes.")]
-        : [SectionNode.Lazy("Inventory items", "inventory/0/0", _items.Count.ToString())];
-
-    private IReadOnlyList<ViewNode> InventoryPage(int start)
-    {
-        var rows = _items.Skip(start).Take(PageSize).Select(item => new TableRow(item.NodeId.ToString(), new Dictionary<string, ViewNode>
-        {
-            ["node"] = SectionNode.Lazy($"itemData {item.NodeId}", $"node/{item.NodeId}"),
-            ["container"] = new TextNode(item.ContainerId.ToString()),
-            ["id"] = new TextNode(_names.Find(item.TweakId)?.Name ?? $"0x{item.TweakId:X16}") { Monospace = true },
-            ["hash"] = new TextNode($"0x{item.TweakId:X16}") { Monospace = true },
-            ["quantity"] = item.QuantityOffset.HasValue ? QuantityField(item) : new TextNode("No quantity field"),
-        })).ToArray();
-        return [new TableNode([new("node", "Node"), new("container", "Container ID"), new("id", "Item record name"), new("hash", "TweakDB ID"), new("quantity", "Quantity")], rows),
-            .. NextPage("Inventory", "inventory/0", start, _items.Count)];
-    }
-
-    private IReadOnlyList<ViewNode> FactPage(int id, IReadOnlyList<SaveFact> facts, int start)
-    {
-        var rows = facts.Skip(start).Take(PageSize).Select((fact, relative) => new TableRow((start + relative).ToString(), new Dictionary<string, ViewNode>
-        {
-            ["hash"] = new TextNode($"0x{fact.Hash:X8}") { Monospace = true },
-            ["value"] = Field($"facts/{id}/{start + relative}", "Raw fact value", IntegerSpec.UInt32,
-                () => FieldValue.Of((ulong)fact.Value)) with { Confidence = Confidence.Unknown },
-        })).ToArray();
-        return [new TableNode([new("hash", "Name hash (unresolved)"), new("value", "Value")], rows),
-            .. NextPage("Facts", $"facts/{id}", start, facts.Count)];
-    }
 
     private IReadOnlyList<ViewNode> TreePage(int parent, int start)
     {

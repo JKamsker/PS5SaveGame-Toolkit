@@ -26,7 +26,7 @@ public sealed class InventoryEditingTests
             var field = Assert.Single(fields, f => f.ValueId == $"inventory/{node}/quantity");
             Assert.False(field.Spec.ReadOnly);
             var table = Assert.IsType<TableNode>(document.ExpandNode("inventory/0/0")[0]);
-            Assert.Equal(name, Assert.IsType<TextNode>(Assert.Single(table.Rows, r => r.Key == node.ToString()).Cells["id"]).Text);
+            Assert.Equal(name, Assert.IsType<FieldNode>(Assert.Single(table.Rows, r => r.Key == node.ToString()).Cells["id"]).Value.AsString());
             Assert.True(document.ApplyEdits([new(field.ValueId, FieldValue.Of(456L))]).Succeeded);
             var bytes = Assert.Single(document.Serialize()).Content.ToArray();
             var after = CsavContainer.Parse(bytes);
@@ -63,7 +63,7 @@ public sealed class InventoryEditingTests
         var result = document.ApplyEdits([new(field.ValueId, FieldValue.Of(999L))]);
         Assert.Equal(writable, result.Succeeded);
         var table = Assert.IsType<TableNode>(document.ExpandNode("inventory/0/0")[0]);
-        var label = Assert.IsType<TextNode>(Assert.Single(table.Rows, r => r.Key == "49").Cells["id"]).Text;
+        var label = Assert.IsType<FieldNode>(Assert.Single(table.Rows, r => r.Key == "49").Cells["id"]).Value.AsString();
         Assert.Equal(new ItemNames().Find(hash)?.Name ?? $"0x{hash:X16}", label);
         if (writable)
         {
