@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Core.Export;
+using SaveToolkit.Core.References;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 
@@ -17,6 +18,7 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
             SaveFormatException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ImportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ExportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
+            ReferencePackException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             InvalidDataException e => (StatusCodes.Status422UnprocessableEntity, $"Invalid archive: {e.Message}"),
             InvalidOperationException e => (StatusCodes.Status409Conflict, e.Message),
             BadHttpRequestException e => (e.StatusCode, e.Message),
