@@ -91,7 +91,8 @@ internal sealed class RecordViews
                 return new SectionNode($"{property.Name} · {property.Type} {property.Detail}", [Hex(property.Payload, "Opaque property payload")]);
             var reference = property.Name is "PrimaryAssetName" or "ItemDataAsset" && value.Kind == FieldValueKind.Text
                 ? catalog?.Find(InventoryState.ShortId(current(property).AsString())) : null;
-            return bind(id, reference?.Name ?? property.Name, reference is null ? Spec(value) : new ReferenceSpec(InventoryViews.CatalogId),
+            return bind(id, reference?.Name ?? property.Name, reference is null ? Spec(value) : new ReferenceSpec(InventoryViews.CatalogId)
+                { ReadOnly = true },
                 () => reference is null ? current(property) : FieldValue.Of(InventoryState.ShortId(current(property).AsString()))) with {
                 Confidence = reference is null ? Confidence.Verified : Confidence.Inferred,
                 Description = $"{property.Type} {property.Detail}; tag {Span(property.Tag)}; payload {Span(property.Payload)}. " +
