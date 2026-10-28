@@ -130,15 +130,15 @@ internal static partial class PackManifestValidator
     public static bool IsText(string? value, int maxLength) =>
         !string.IsNullOrWhiteSpace(value) && value.Length <= maxLength && !value.Any(char.IsControl);
 
-    [GeneratedRegex("^[0-9A-Za-z][0-9A-Za-z.+-]{0,31}$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex("^[0-9A-Za-z][0-9A-Za-z.+-]{0,31}\\z", RegexOptions.CultureInvariant)]
     private static partial Regex VersionPattern();
 
-    [GeneratedRegex("^[A-Z]{4}[0-9]{5}$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex("^[A-Z]{4}[0-9]{5}\\z", RegexOptions.CultureInvariant)]
     private static partial Regex TitleIdPattern();
 
-    [GeneratedRegex("^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex("^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*\\z", RegexOptions.CultureInvariant)]
     private static partial Regex LocalePattern();
 
-    [GeneratedRegex("^[0-9a-fA-F]{64}$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex("^[0-9a-fA-F]{64}\\z", RegexOptions.CultureInvariant)]
     private static partial Regex Sha256Pattern();
 }

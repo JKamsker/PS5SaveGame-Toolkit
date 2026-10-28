@@ -33,12 +33,12 @@ internal static partial class PackPaths
         return colon > 0 && IsValidPackId(packId) && IsSafeRelativePath(path);
     }
 
-    [GeneratedRegex("^[a-z0-9][a-z0-9._-]{0,63}$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex("^[a-z0-9][a-z0-9._-]{0,63}\\z", RegexOptions.CultureInvariant)]
     private static partial Regex PackIdPattern();
 
-    [GeneratedRegex("^[a-z0-9][a-z0-9_-]{0,63}$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex("^[a-z0-9][a-z0-9_-]{0,63}\\z", RegexOptions.CultureInvariant)]
     private static partial Regex DatasetIdPattern();
 
-    [GeneratedRegex(@"^[A-Za-z0-9_][A-Za-z0-9._-]*(/[A-Za-z0-9_][A-Za-z0-9._-]*)*$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"^[A-Za-z0-9_][A-Za-z0-9._-]*(/[A-Za-z0-9_][A-Za-z0-9._-]*)*\z", RegexOptions.CultureInvariant)]
     private static partial Regex SafePathPattern();
 }

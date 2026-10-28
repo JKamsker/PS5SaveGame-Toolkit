@@ -89,7 +89,7 @@ public sealed class ReferenceWorkspaceTests : IDisposable
         Assert.All(context.Datasets(), d => Assert.False(d.Used));
         _ = context.Catalog("items");
         Assert.True(context.Datasets().Single(d => d.Dataset.Id == "items").Used);
-        Assert.False(context.Datasets().Single(d => d.Dataset.Id == "icons").Used);
+        Assert.True(context.Datasets().Single(d => d.Dataset.Id == "icons").Used); // icons of a used catalog are attributed too
     }
 
     [Fact]
@@ -133,7 +133,7 @@ public sealed class ReferenceWorkspaceTests : IDisposable
 
         Assert.Contains(second.Packs, p => p.Id == "user.items" && p.Info.Origin == Sdk.References.ReferencePackOrigin.User);
         Assert.True(second.Remove("user.items"));
-        Assert.False(File.Exists(Path.Combine(_packRoot, "user.items.zip")));
+        Assert.False(File.Exists(Path.Combine(_packRoot, "pack-user.items.zip")));
         Assert.Throws<InvalidOperationException>(() => second.Remove("test.items.en"));
         Assert.False(second.Remove("nope"));
     }
@@ -142,12 +142,12 @@ public sealed class ReferenceWorkspaceTests : IDisposable
     public void BrokenStoredPack_IsReportedAsLoadError_NotThrown()
     {
         Directory.CreateDirectory(_packRoot);
-        File.WriteAllBytes(Path.Combine(_packRoot, "broken.zip"), [1, 2, 3]);
+        File.WriteAllBytes(Path.Combine(_packRoot, "pack-broken.zip"), [1, 2, 3]);
 
         var store = new ReferencePackStore([new ItemsPlugin()], new ReferencePackOptions { StorageRoot = _packRoot });
 
         var error = Assert.Single(store.LoadErrors);
-        Assert.Equal("broken.zip", error.Origin);
+        Assert.Equal("pack-broken.zip", error.Origin);
         Assert.Contains(store.Packs, p => p.Id == "test.items.en");
     }
 }

@@ -102,6 +102,22 @@ public sealed class ReferenceApiTests(WebApplicationFactory<Program> factory) : 
     }
 
     [Fact]
+    public async Task ImportFromAnotherSite_IsRejected()
+    {
+        using var form = new MultipartFormDataContent();
+        form.Add(new ByteArrayContent(PackBuilder.WithItems().Zip()), "file", "pack.zip");
+        using var request = new HttpRequestMessage(HttpMethod.Post, new Uri("/api/reference-packs", UriKind.Relative)) { Content = form };
+        request.Headers.Add("Origin", "https://evil.example");
+        request.Headers.Add("Sec-Fetch-Site", "cross-site");
+
+        var response = await _client.SendAsync(request, Ct);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        var list = await _client.GetFromJsonAsync<JsonElement>("/api/reference-packs", Ct);
+        Assert.DoesNotContain(list.GetProperty("packs").EnumerateArray(), p => p.GetProperty("id").GetString() == "user.items");
+    }
+
+    [Fact]
     public async Task ImportInvalidPack_Returns422WithReason()
     {
         var pack = PackBuilder.WithItems() with { Mutate = m => m["datasets"]![0]!["files"]![0]!["sha256"] = new string('0', 64) };

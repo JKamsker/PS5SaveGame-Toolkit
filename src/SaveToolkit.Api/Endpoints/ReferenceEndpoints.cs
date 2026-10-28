@@ -8,12 +8,18 @@ namespace SaveToolkit.Api.Endpoints;
 /// <summary>Reference packs (import/list/remove) and per-document sources, lookups and assets.</summary>
 internal static class ReferenceEndpoints
 {
+    /// <summary>Default archive limit plus room for the multipart envelope; checked again against the store's limits.</summary>
+    private static readonly long MaxImportBody = new ReferencePackLimits().MaxArchiveBytes + (1024 * 1024);
+
     public static void MapReferenceApi(this IEndpointRouteBuilder app)
     {
         var packs = app.MapGroup("/api/reference-packs");
         packs.MapGet("", (ReferencePackStore store) => new ReferencePacksDto([.. store.Packs.Select(p => p.Info)], store.LoadErrors));
-        packs.MapPost("", ImportPack).DisableAntiforgery();
-        packs.MapDelete("/{packId}", (string packId, ReferencePackStore store) => store.Remove(packId) ? Results.NoContent() : Results.NotFound());
+        packs.MapPost("", ImportPack)
+            .DisableAntiforgery()
+            .WithMetadata(new RequestSizeLimitAttribute(MaxImportBody), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxImportBody });
+        packs.MapDelete("/{packId}", (string packId, HttpRequest request, ReferencePackStore store) =>
+            IsCrossSite(request) ? CrossSiteRejected() : store.Remove(packId) ? Results.NoContent() : Results.NotFound());
 
         var doc = app.MapGroup("/api/workspaces/{workspaceId}/documents/{documentId}");
         doc.MapGet("/sources", (DocumentRef d) =>
@@ -66,6 +72,11 @@ internal static class ReferenceEndpoints
 
     private static async Task<IResult> ImportPack(HttpRequest request, ReferencePackStore store, CancellationToken ct)
     {
+        if (IsCrossSite(request))
+        {
+            return CrossSiteRejected();
+        }
+
         if (!request.HasFormContentType)
         {
             return Results.BadRequest(new ErrorDto("Expected multipart/form-data with one pack archive (.zip)."));
@@ -87,4 +98,24 @@ internal static class ReferenceEndpoints
         var pack = await Task.Run(() => store.Import(buffer.ToArray(), Path.GetFileName(file.FileName)), ct);
         return Results.Ok(pack.Info);
     }
+
+    /// <summary>
+    /// Packs change what every later document shows, so only the app's own pages may import or remove them
+    /// (a cross-site form POST needs no CORS preflight).
+    /// </summary>
+    private static bool IsCrossSite(HttpRequest request)
+    {
+        var site = request.Headers["Sec-Fetch-Site"].ToString();
+        if (site.Length > 0 && site is not ("same-origin" or "none"))
+        {
+            return true;
+        }
+
+        var origin = request.Headers.Origin.ToString();
+        return origin.Length > 0
+            && (!Uri.TryCreate(origin, UriKind.Absolute, out var uri) || !string.Equals(uri.Authority, request.Host.Value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static IResult CrossSiteRejected() =>
+        Results.Json(new ErrorDto("Reference packs can only be changed from the toolkit itself."), statusCode: StatusCodes.Status403Forbidden);
 }

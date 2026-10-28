@@ -25,6 +25,8 @@ public sealed record ReferencePackLoadError(string Origin, string Message);
 /// </summary>
 public sealed class ReferencePackStore
 {
+    // "pack-" prefix: ids like "con" or "nul" would be Windows device names on their own.
+    private const string FilePrefix = "pack-";
     private const string PackExtension = ".zip";
 
     private readonly Lock _gate = new();
@@ -113,7 +115,7 @@ public sealed class ReferencePackStore
 
             if (Options.StorageRoot is { } root && PackPaths.IsValidPackId(packId))
             {
-                File.Delete(Path.Combine(root, packId + PackExtension));
+                File.Delete(Path.Combine(root, FileName(packId)));
             }
 
             _packs = _packs.Remove(pack);
@@ -141,7 +143,7 @@ public sealed class ReferencePackStore
         }
 
         var loaded = new List<LoadedReferencePack>(_packs);
-        foreach (var file in Directory.EnumerateFiles(root, "*" + PackExtension).Order(StringComparer.Ordinal))
+        foreach (var file in Directory.EnumerateFiles(root, FilePrefix + "*" + PackExtension).Where(f => f.EndsWith(PackExtension, StringComparison.OrdinalIgnoreCase)).Order(StringComparer.Ordinal))
         {
             var name = Path.GetFileName(file);
             TryLoad(name, () => LoadStoredFile(file, name), loaded);
@@ -178,8 +180,9 @@ public sealed class ReferencePackStore
         {
             _errors.Add(new ReferencePackLoadError(origin, ex.Message));
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
+            // One unreadable pack must never stop the app from starting.
             _errors.Add(new ReferencePackLoadError(origin, $"Could not be read: {ex.Message}"));
         }
     }
@@ -192,11 +195,13 @@ public sealed class ReferencePackStore
         }
 
         Directory.CreateDirectory(root);
-        var target = Path.Combine(root, packId + PackExtension);
+        var target = Path.Combine(root, FileName(packId));
         var temp = target + ".tmp";
         File.WriteAllBytes(temp, archive.ToArray());
         File.Move(temp, target, overwrite: true);
     }
+
+    private static string FileName(string packId) => FilePrefix + packId + PackExtension;
 
     private static IEnumerable<IPackFileSource> EmbeddedSources(Assembly assembly) => EmbeddedPackSource.Discover(assembly);
 

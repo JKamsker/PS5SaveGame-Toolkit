@@ -84,6 +84,7 @@ public sealed class ReferencePackLoaderTests
     [Theory]
     [InlineData("schema", "2", "schema must be 1")]
     [InlineData("id", "\"Bad Id\"", "id must be")]
+    [InlineData("id", "\"trailing\\n\"", "id must be")]
     [InlineData("plugins", "[]", "plugins must list")]
     [InlineData("titleIds", "[\"nope\"]", "titleIds must look like")]
     [InlineData("locale", "\"english!\"", "locale must be")]

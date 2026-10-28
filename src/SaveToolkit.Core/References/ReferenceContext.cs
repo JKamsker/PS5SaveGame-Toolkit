@@ -34,8 +34,16 @@ public sealed class ReferenceContext : IReferenceContext
         var catalog = Select(catalogId, gameBuild);
         if (catalog is not null)
         {
-            _used.TryAdd((catalog.Pack.Id, catalog.Id), 0);
-            _catalogBuilds[catalogId] = gameBuild;
+            MarkUsed(catalog.Pack.Id, catalog.Id);
+
+            // Records point at icons of their pack; the browser may show them, so attribute them too.
+            foreach (var assets in catalog.Pack.Datasets.Where(d => d.Kind == ReferenceDatasetKind.Assets))
+            {
+                MarkUsed(assets.PackId, assets.Id);
+            }
+
+            // Keep the first build the plugin named so host lookups stay on the plugin's pack.
+            _catalogBuilds.AddOrUpdate(catalogId, gameBuild, (_, existing) => existing ?? gameBuild);
         }
 
         return catalog;
@@ -46,7 +54,7 @@ public sealed class ReferenceContext : IReferenceContext
         var asset = FindAsset(assetId);
         if (asset is not null)
         {
-            _used.TryAdd((asset.Dataset.PackId, asset.Dataset.Id), 0);
+            MarkUsed(asset.Dataset.PackId, asset.Dataset.Id);
         }
 
         return asset?.Content;
@@ -61,8 +69,8 @@ public sealed class ReferenceContext : IReferenceContext
     public IReferenceCatalog? CatalogForHost(string catalogId) =>
         Select(catalogId, _catalogBuilds.GetValueOrDefault(catalogId));
 
-    /// <summary>Asset lookup on behalf of the host; restricted to the pinned packs.</summary>
-    public AssetContent? AssetForHost(string assetId) => FindAsset(assetId)?.Content;
+    /// <summary>Asset lookup on behalf of the host; restricted to the pinned packs. Shown icons count as used.</summary>
+    public AssetContent? AssetForHost(string assetId) => GetAsset(assetId);
 
     /// <summary>Every pinned dataset, used ones first.</summary>
     public IReadOnlyList<PinnedDataset> Datasets() =>
@@ -73,6 +81,8 @@ public sealed class ReferenceContext : IReferenceContext
             .ThenBy(d => d.Pack.Id, StringComparer.Ordinal)
             .ThenBy(d => d.Dataset.Id, StringComparer.Ordinal),
     ];
+
+    private void MarkUsed(string packId, string datasetId) => _used.TryAdd((packId, datasetId), 0);
 
     private IReferenceCatalog? Select(string catalogId, string? gameBuild) =>
         ReferenceSelector.Select(_packs, catalogId, gameBuild, _preferredLocales)?.Catalog(catalogId);

@@ -256,6 +256,8 @@ public override AssetContent? GetAsset(string assetId) => references.GetAsset(as
 - The context is immutable and safe to keep in the document. It records which datasets you resolved,
   so the Sources panel lists exactly what the document uses.
 - Always handle `null`. Tests and `Open(file)` see an empty context, and users may have no pack.
+- If `Open(file)` forwards to `Open(file, IReferenceContext.Empty)`, you **must** implement the two-argument
+  overload. Otherwise the default overload calls back into `Open(file)` and recurses forever.
 
 See `tests/SaveToolkit.Core.Tests/Fakes/ItemsPlugin.cs` and its pack under `Fakes/ReferencePacks/`
 for a complete example.
