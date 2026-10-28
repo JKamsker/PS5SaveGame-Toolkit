@@ -9,7 +9,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources/HashNames.json" />
     <InternalsVisibleTo Include="SaveToolkit.Plugins.Pragmata.Tests" />
-    <InternalsVisibleTo Include="SaveToolkit.Plugins.Pragmata.Research" />
     <EmbeddedResource Include="ReferencePacks/**/*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

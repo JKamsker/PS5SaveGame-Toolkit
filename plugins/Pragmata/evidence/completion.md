@@ -13,7 +13,7 @@ and this audit supersede its read-only fields and unsupported inventory-query cl
 | R5 broad corpus | Owner-blocked #31 | Actual empty/full/version/mode saves absent; synthetic 251-row inventory exercises software scale without claiming a real game layout. |
 | R6 runtime capture | Owner-blocked #31 | Runtime resolver API documented; owner must supply game access/extraction. |
 | R7 console/Stable | Owner-blocked #31 | Remains Experimental; unchanged, quantity, ID and five-family console tests outstanding. |
-| R8 diff harness | Agent work complete; pending #32 | Canonical research decoder retained, shared F1 engine, complete all-sample quantity/family deltas. |
+| R8 diff harness | Agent work complete; F12 adopted | Production SDK canonical hook selected by stock savediff, shared bounded F8 inventory traversal, research executable removed; all-sample quantity/family deltas retained. |
 | R9 malformed fixtures | Agent work complete for fixed-size support | Existing truncation, alignment, metadata/hash corruption plus duplicate roots/fields, nesting and oversized array rejection. Structural corpus needs layout-changing captures. |
 | R10 reference context | Agent work complete | F2 pinned packs and attribution; F13 browse-only catalogue search/category/sort tested. |
 | R11 export/groups/diff | Agent work complete for supported operations | Serialize decrypts/reparses; F6 semantic review and single-file export. Coupled-file behavior remains owner-blocked; no proven dependency to claim via F7. |
@@ -64,10 +64,16 @@ exclusion, preview/apply, one undo/redo, export/re-import and console reload; ve
 every intended quantity and that the exclusion remains unchanged.
 
 Agent work complete; remaining items are owner-blocked (#31), with structural
-rewriting explicitly deferred and F12 pending shared issue #32.
+rewriting explicitly deferred. The F12 follow-up adopts the merged SDK hook and
+shared bounded traversal from #32.
 
 ## Final software validation
 
+- F12 follow-up: **132 passed, 0 failed, 0 skipped** with the external samples
+  environment in the test command; API build **0 warnings, 0 errors**. Stock CLI
+  discovery and a real cross-slot comparison select the production canonical hook
+  successfully. F8 inventory paging, last-page edits and shared row/page/byte
+  caps are covered. Positional identity uncertainty is now explicitly incomplete.
 - Plugin suite with `SAVETOOLKIT_ARTIFACTS` exported in the same command:
   **120 passed, 0 failed, 0 skipped**, covering all 12 supplied samples.
 - API build: **0 warnings, 0 errors**.

@@ -1,16 +1,19 @@
 using System.Globalization;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Plugins.Pragmata.Crypto;
 
 namespace SaveToolkit.Plugins.Pragmata;
 
-public sealed class PragmataPlugin : IGamePlugin
+public sealed class PragmataPlugin : IGamePlugin, ISaveDecoderProvider
 {
     private const string SlotDirectoryPrefix = "SAVESERVICE-LINE-0-";
     private const string SlotDirectorySuffix = "Slot";
     private const string GameplaySaveLabel = "Gameplay save";
+
+    public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = Array.AsReadOnly<ISaveDecoderHook>([new Diff.PragmataDecoder()]);
 
     public PluginInfo Info { get; } = new("pragmata", "Pragmata", "0.5.0")
     {

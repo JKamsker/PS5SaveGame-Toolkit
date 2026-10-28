@@ -8,7 +8,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SaveToolkit.Plugins.Pragmata\SaveToolkit.Plugins.Pragmata.csproj" />
-    <ProjectReference Include="../SaveToolkit.Plugins.Pragmata.Research/Pragmata.Research.csproj" />
     <ProjectReference Include="..\..\..\src\SaveToolkit.Testing\SaveToolkit.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>

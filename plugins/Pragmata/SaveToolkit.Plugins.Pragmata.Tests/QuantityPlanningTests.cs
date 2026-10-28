@@ -4,7 +4,6 @@ using SaveToolkit.Core.Storage;
 using SaveToolkit.Plugins.Pragmata.Crypto;
 using SaveToolkit.Plugins.Pragmata.Editing;
 using SaveToolkit.Plugins.Pragmata.Format;
-using SaveToolkit.Plugins.Pragmata.Research;
 using SaveToolkit.Plugins.Pragmata.Views;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
@@ -142,7 +141,7 @@ public sealed class QuantityPlanningTests
     public void EverySampleBulkDeltaContainsOnlyNamedQuantitiesAndReversesByteIdentically()
     {
         // This F1 experiment proves storage preservation, not an in-game causal effect or legal cap.
-        var decoder = new PragmataDecoder();
+        var decoder = new CanonicalTestDecoder();
         var limits = new DecodeLimits { MaxValues = 1_000_000, MaxDepth = 100 };
         foreach (var file in SampleEvidenceTests.Files().Where(file => file.FileName != "data00-1.bin"))
         {
@@ -158,7 +157,9 @@ public sealed class QuantityPlanningTests
             var after = new DsssContainer(modified).Plaintext;
             var delta = SemanticDiffer.Compare(decoder.Decode(before, new SaveLayout(before).Roots, limits),
                 decoder.Decode(after, new SaveLayout(after).Roots, limits), maxChanges: 1000);
-            Assert.False(delta.InputTruncated);
+            Assert.True(delta.InputTruncated);
+            Assert.All(delta.Warnings, warning => Assert.True(warning.Contains("positional fallback", StringComparison.Ordinal)
+                || warning.EndsWith("more warnings suppressed.", StringComparison.Ordinal)));
             Assert.Equal(plan.Changes.Count, delta.Total);
             Assert.All(delta.Changes, change =>
             {
