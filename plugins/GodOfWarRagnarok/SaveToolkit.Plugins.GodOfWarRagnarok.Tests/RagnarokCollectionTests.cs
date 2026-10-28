@@ -34,7 +34,8 @@ public sealed class RagnarokCollectionTests
         Assert.True(quantities.Zip(quantities.Skip(1)).All(pair => pair.First.Value.AsUInt64() >= pair.Second.Value.AsUInt64()));
         Assert.All(quantities, field =>
         {
-            Assert.True(field.Spec.ReadOnly);
+            Assert.False(field.Spec.ReadOnly);
+            Assert.Contains("Integrity unknown", field.Warning);
             Assert.Equal(Confidence.Inferred, field.Confidence);
             Assert.Equal(field.Value, document.GetValue(field.ValueId));
             Assert.NotEmpty(field.Description!);

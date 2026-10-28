@@ -6,12 +6,12 @@ namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
 public sealed class GodOfWarRagnarokPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("gow-ragnarok", "God of War Ragnarök", "0.2.0")
+    public PluginInfo Info { get; } = new("gow-ragnarok", "God of War Ragnarök", "0.3.0")
     {
-        Description = "Read-only PS5 nested wallets, resource/XP/raven counters and grouped flag explorer with paged queries. Integrity is unresolved.",
+        Description = "Experimental PS5 existing wallet counter/play-time edits and planned restore, with paged research views. " + RagnarokWrites.IntegrityWarning,
         Games = [.. new[] { "PPSA08329", "PPSA08330", "PPSA08331", "PPSA08332", "PPSA08333", "PPSA08334", "PPSA25043", "PPSA25044" }
             .Select(id => new GameTitle(id, "God of War Ragnarök"))],
-        Maturity = PluginMaturity.ReadOnly,
+        Maturity = PluginMaturity.Experimental,
         References =
         [
             "https://github.com/sterben-Dev10/SaveWizard-Resources",

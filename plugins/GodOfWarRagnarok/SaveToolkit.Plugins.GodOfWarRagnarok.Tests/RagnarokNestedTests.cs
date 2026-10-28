@@ -35,7 +35,7 @@ public sealed class RagnarokNestedTests
             using var document = new GodOfWarRagnarokPlugin().Open(file);
             var exported = Assert.Single(document.Serialize()).Content.ToArray();
             using var reopened = new GodOfWarRagnarokPlugin().Open(MemorySaveSet.SingleFile(file.FileName, exported, "PPSA08330"));
-            Assert.False(reopened.CanEdit);
+            Assert.True(reopened.CanEdit);
             Assert.Equal(bytes, Assert.Single(reopened.Serialize()).Content.ToArray());
         }
     }

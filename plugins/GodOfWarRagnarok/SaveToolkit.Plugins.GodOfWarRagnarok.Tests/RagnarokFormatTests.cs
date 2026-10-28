@@ -110,13 +110,13 @@ public sealed class RagnarokFormatTests
     }
 
     [Fact]
-    public void ReadOnlyEditsAreAtomicAndOutputAndBlobAreIsolated()
+    public void InvalidEditsAreAtomicAndOutputAndBlobAreIsolated()
     {
         var original = SyntheticGameplay();
         using var document = _plugin.Open(File(original));
         var fields = Flatten(document.BuildView()).OfType<FieldNode>().ToArray();
-        Assert.False(document.CanEdit);
-        Assert.All(fields, f => Assert.True(f.Spec.ReadOnly));
+        Assert.True(document.CanEdit);
+        Assert.All(fields.Where(f => f.ValueId != "metadata/play-seconds"), f => Assert.True(f.Spec.ReadOnly));
         Assert.False(document.ApplyEdits([new(fields[0].ValueId, FieldValue.Of(1L)), new("unknown", FieldValue.Of(2L))]).Succeeded);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         var blob = document.ReadBlob("save", 0, 64);
@@ -170,7 +170,7 @@ public sealed class RagnarokFormatTests
 
     private static SaveToolkit.Sdk.Saves.ISaveFile File(byte[] bytes) => MemorySaveSet.SingleFile("GOWRSAVE0", bytes, "PPSA08330");
 
-    private static byte[] SyntheticGameplay()
+    internal static byte[] SyntheticGameplay()
     {
         var bytes = new byte[2048];
         Write(bytes, 8, 8);

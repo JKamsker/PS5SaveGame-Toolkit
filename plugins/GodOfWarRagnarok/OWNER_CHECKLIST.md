@@ -1,11 +1,46 @@
-# Owner evidence checklist — round 2
+# Owner evidence checklist — write-enable round
 
-All writes remain disabled. Byte-identical no-op serialize/reopen is proven on all supplied gameplay
-records, but authentication, gameplay semantics and an edited-file round trip are not proven.
+The owner authorized enabling writes with warnings on 2026-10-28. Existing decoded counters,
+play time and F6 restoration are enabled at Experimental maturity; this checklist does not gate them.
+Track results in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+**Integrity unknown — the game may reject this save.** Software edit/reparse/preservation and
+undo/redo checks pass, but authentication, gameplay effects and console acceptance remain unproven.
 
 For every pair below, retain the original archive and an untouched backup. Use one fixed PS5 title,
 build, slot and DLC configuration; record title ID, build, slot, filenames, archive generation,
 event and exact UI before/after values. Do not use archive order as a chronology assumption.
+
+## Enabled-write trials
+
+Use a restored spare slot and retain the untouched original. Run each trial independently from
+that baseline. For every trial record load/rejection text, displayed effect, ordinary forward play,
+native re-save, a second clean reload, persistence and a decrypted re-export/F1 diff. Include an
+untouched native re-save control; keep private identity fields out of shared reports.
+
+- [ ] Export/import the untouched save first and verify load, native save and reload. This checks
+  the surrounding restore workflow separately from counter edits.
+- [ ] Reduce one existing positive Hacksilver counter by one; compare balance, purchase/earn behavior
+  and persistence. Separately reduce Rawhide or another existing resource by one and use/acquire it.
+- [ ] Reduce the raw EconomyXP candidate by one. Record all characters' XP/skills before and after;
+  verify skill/menu behavior and normal XP gain. Do not assume the field belongs to a specific hero.
+- [ ] Test each raw raven counter separately, reducing a positive counter by one. Record journal,
+  collected-raven state, reward eligibility and previously claimed chests; then native save/reload.
+  No PS5 completion formula or reward repair is implemented.
+- [ ] Test any selected unmapped-ID counter separately on a disposable slot, identifying the exact
+  container/row ID and u32 value. Record whether any effect can be identified; do not label it a
+  known item/quest without evidence. If a non-hero counter is positive, repeat independently there.
+- [ ] Reduce play time by one second, check slot/menu time, play briefly, native save and reload.
+  Verify seconds versus other units and whether any other timer is rebuilt.
+- [ ] Reduce two existing positive counters in one toolkit document, preview the F6 restore action
+  for those selected rows, inspect old/new values, skipped rows and integrity warnings, then apply.
+  Verify one Undo restores both reduced values and one Redo restores both imported values. Export
+  both states independently from backups and perform the full console trial for each.
+- [ ] Repeat restore for a filtered F8 selection with an excluded row; ensure only the selected
+  counters change. Repeat document scope, which includes inferred XP/raven and unknown-ID counters.
+- [ ] Confirm ranges remain 0..each imported value, including fixed zero imports. Closing/reopening
+  an edited save resets the import ceiling to that file's value. Do not treat this as a legal game cap.
+
+## Further format and integrity captures
 
 - [ ] Capture two no-action save/reload controls in the same location, with the UI unchanged.
   These isolate timestamp/counter/churn ranges from gameplay dependencies.
@@ -35,9 +70,8 @@ event and exact UI before/after values. Do not use archive order as a chronology
   algorithm names, input ranges, field exclusions, seeds and key-derivation *structure* with
   secrets redacted. Never send account credentials or secret key values. Keyed MACs/signatures,
   custom seeds, truncated digests, zeroed/omitted embedded fields and compressed coverage remain open.
-- [ ] Before proposing any write, identify every derived byte/length/authentication dependency;
-  require an edited-file serialize/reopen test that preserves all unrelated bytes. A successful
-  no-op test or the absence of candidate hash matches does not satisfy this gate.
-- [ ] Only after those gates pass, trial one resulting edit on a restored spare slot: load,
-  verify the exact UI effect, re-save, reload, verify persistence, and record rejection text if
-  any. The owner alone approves a maturity change; retain ReadOnly until then.
+- [ ] Identify remaining derived byte/length/authentication dependencies from the captures. The
+  enabled writer changes only bounded u32 words and preserves all other bytes; unknown dependencies
+  are warned about, not silently repaired. An unsuccessful digest search is not acceptance evidence.
+- [ ] Only the owner approves Stable after the independent load/effect/re-save/reload trials.
+  Keep Experimental while authentication or console acceptance remains unresolved.

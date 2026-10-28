@@ -68,8 +68,7 @@ internal static class RagnarokTables
 
     private static TableRow WalletRow(RagnarokDocument document, RagnarokReferences references, int offset) => Row(offset.ToString(),
         ("offset", Offset(offset)), ("name", Text(references.Name(document.ReadId(offset)))), ("id", Id(document, offset)),
-        ("quantity", document.Number(offset + sizeof(ulong), "Quantity (wallet role inferred)", Confidence.Inferred)
-            with { Warning = "Container role transferred from PC research; no PS5 game UI or integrity validation." }),
+        ("quantity", document.CounterField(offset + sizeof(ulong))),
         ("word", document.Number(offset + RagnarokFormat.WalletRowMetadataOffset, "Metadata", Confidence.Unknown)),
         ("source", Text(references.Attribution(document.ReadId(offset)))));
 

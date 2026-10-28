@@ -188,3 +188,25 @@ The updated [owner checklist](OWNER_CHECKLIST.md) includes no-action controls, s
 pairs, raven collection versus reward redemption, exact UI/journal states and redacted algorithm
 tracing. The plugin remains ReadOnly with no setters/actions. Complete named gear/quest models,
 character-specific XP, completion states and write authentication remain open.
+
+## Write-enable round (2026-10-28)
+
+Owner instruction: enable bounded writes and retain warnings; owner-only captures are tracked in
+[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31), separate from implementation #19.
+The prior evidence gate is superseded for existing decoded counters/time. Authentication is still
+unknown: round 2's 4,956 comparisons yielded zero matches. No new algorithm or key is claimed.
+
+Re-read the pinned [Continue? reader, Alexsander720 / contributors, GPL-3.0, 51e19b2a](https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py)
+and [Apollo PS4 patch, bucanero / contributors, GPL-3.0, 273f032b](https://github.com/bucanero/apollo-patches/blob/273f032b4c31c017fed5c1588f209b8faf87ba6c/PS4/CUSA34384.savepatch)
+as text before implementing. The former supplies the PC time/hero-wallet leads; the latter shows
+quantity-at-ID+8 conventions, not PS5 authentication or legal maxima. No downloaded code was run,
+no new dataset/code port was embedded, and existing data attribution is retained. PS4 preset
+quantities and difficulty offsets were not adopted as PS5 limits or setters.
+
+The clean-room writer uses the existing PS5 parser's row boundaries and fixed-width LE u32 patching.
+Each counter is bounded to 0..its own import, including a zero-only range for zero imports. Unknown
+IDs retain raw labels; XP character ownership and raven reward/completion dependencies are not
+invented. F6 previews restore counters after in-session reductions, with skipped rows and explicit
+unknown-integrity warnings. Structural, gear, quest, preference and opaque fields have no writer.
+Serialize re-parses every edited output; all unrelated bytes are preserved. See README for the
+enabled-write evidence table and OWNER_CHECKLIST.md for the exact console trials.

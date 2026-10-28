@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 internal sealed record RagnarokCollectionRow(string Key, int Offset, IReadOnlyDictionary<string, string> Cells,
     string? NumberColumn = null, int NumberOffset = 0, Confidence Confidence = Confidence.Unknown);
 
-/// <summary>Query immutable row facts; bind view cells only for the requested page.</summary>
+/// <summary>Query stable row identities with live counter values; bind only the requested page.</summary>
 internal sealed class RagnarokCollections
 {
     private readonly Dictionary<string, (QueryableCollection Info, IReadOnlyList<RagnarokCollectionRow> Rows)> _collections = new(StringComparer.Ordinal);
@@ -117,7 +117,7 @@ internal sealed class RagnarokCollections
             throw new ArgumentException("Unknown Ragnarök collection column.", nameof(query));
         }
 
-        var matches = collection.Rows.Where(row =>
+        var matches = collection.Rows.Select(row => LiveRow(document, row)).Where(row =>
             (string.IsNullOrWhiteSpace(query.Text) || row.Cells.Values.Any(value => value.Contains(query.Text.Trim(), StringComparison.OrdinalIgnoreCase))) &&
             query.Filters.All(filter => string.Equals(row.Cells.GetValueOrDefault(filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase))).ToArray();
         var sorted = query.SortColumn is { } column
@@ -141,6 +141,7 @@ internal sealed class RagnarokCollections
             "directory" => ["id", "name", "source", "word", "offset"],
             _ => ["container", "name", "id", "category", "quantity", "metadata", "source", "offset"],
         };
+        if (id is "resources" or "xp" or "collectibles") columns = [.. columns, "restore"];
         var info = new QueryableCollection(id, title, columns.Select(key => new QueryableColumn(key, Label(key))).ToArray(), rows.Count)
         { Description = columns.Contains("container", StringComparer.Ordinal) ? description + " " + RagnarokReferences.ContainerSources : description };
         _collections.Add(id, (info, rows));
@@ -168,16 +169,24 @@ internal sealed class RagnarokCollections
         var cells = row.Cells.ToDictionary(pair => pair.Key, pair => (ViewNode)new TextNode(pair.Value), StringComparer.Ordinal);
         if (row.NumberColumn is { } column)
         {
-            cells[column] = document.Number(row.NumberOffset, "Quantity (inferred)", row.Confidence) with
-            { Description = row.Cells["source"], Warning = "Read-only counter. PS5 UI meaning and integrity are unverified." };
+            cells[column] = document.CounterField(row.NumberOffset);
+            cells["restore"] = RagnarokWrites.RestoreAction();
         }
 
         return new(row.Key, cells);
     }
 
+    private static RagnarokCollectionRow LiveRow(RagnarokDocument document, RagnarokCollectionRow row)
+    {
+        if (row.NumberColumn is not { } column) return row;
+        var cells = row.Cells.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        cells[column] = document.ReadWord(row.NumberOffset).ToString(CultureInfo.InvariantCulture);
+        return row with { Cells = cells };
+    }
+
     private static string SortValue(RagnarokCollectionRow row, string key) =>
         key is "quantity" or "metadata" or "word" && ulong.TryParse(row.Cells[key], out var number)
-            ? number.ToString("D20", CultureInfo.InvariantCulture) : row.Cells[key];
+            ? number.ToString("D20", CultureInfo.InvariantCulture) : row.Cells.GetValueOrDefault(key) ?? "";
 
     private static string Hex(int offset) => $"0x{offset:X8}";
     private static string Label(string key) => key switch
