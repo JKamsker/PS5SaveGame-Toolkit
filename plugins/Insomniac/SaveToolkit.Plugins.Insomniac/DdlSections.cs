@@ -16,13 +16,13 @@ internal sealed class DdlSections
     private readonly Dictionary<uint, IReadOnlyDictionary<string, DdlField>> _roots = [];
     private readonly Dictionary<uint, string> _labels = [];
 
-    internal DdlSections(Dat1Container container)
+    internal DdlSections(Dat1Container container, int? maxDepth = null)
     {
         foreach (var section in container.Sections)
         {
             var strategy = Strategy(section.Tag);
             if (strategy is null) continue;
-            if (!_roots.TryAdd(section.Tag, new DdlReader(container, section, strategy.Value.Prefix).Read()))
+            if (!_roots.TryAdd(section.Tag, new DdlReader(container, section, strategy.Value.Prefix, maxDepth).Read()))
                 throw new SaveFormatException($"Duplicate DDL section 0x{section.Tag:X8}.");
             _labels.Add(section.Tag, strategy.Value.Label);
         }

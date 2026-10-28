@@ -84,6 +84,8 @@ internal sealed class RiftPlayerView
         };
         var spec = definition.Name == "RYNOPlansCollected" && field.Spec is IntegerSpec integer
             ? integer with { Format = IntegerFormat.Hex } : field.Spec;
+        if (definition.Name == "Playtime" && spec is FloatSpec timer)
+            spec = timer with { Format = FloatFormat.Duration, UnitsPerSecond = 1 };
         var node = bind($"player/{field.Name}", definition.Label, spec, field.Values[0]);
         return node with
         {

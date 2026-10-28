@@ -170,8 +170,8 @@ The additional F6 action exposes the same career atom, rather than a new storage
 | F9 maps/graphs | **Added this round** | Read-only stored upgrade-row graphs with field targets; external-link-only spybot map/list with all bits, text alternatives and explicit Unknown semantics. Physical coordinates/fog/prerequisites require owner captures. |
 | F10 exact/nullable numbers | **Used** | Width-specific integer specs and exact UInt64/128-bit transport preserve IDs/masks above 2^53 (including UInt64.MaxValue vectors). DDL floats retain their actual binary precision. DDL type-19 is an empty array, not a nullable scalar or union; no artificial nullable/union control. |
 | F11 shared codecs | **N/A** | These measured DAT1/DDL/TVNI files are uncompressed, with no Kraken or SQLite payload; no local codec implementation exists to replace. |
-| F12 SaveDiff F8 traversal/hooks | **Pending #32** | Not on the baseline main; retain existing F1 test adapter without inventing a replacement framework. |
-| F13 browse/inspect/filter/duration | **Pending #33** | Not on the baseline main; ID references stay read-only and float play time remains its stored numeric type. |
+| F12 SaveDiff F8 traversal/hooks | **Added** | Production `ISaveDecoderProvider` exposes SDK-only `insomniac-evidence`; existing F1 tests use a thin `HookSaveDecoder` adapter. Host sink/file/depth bounds stop decoding; the ordinary `insomniac` view decoder also benefits from bounded F8 traversal. |
+| F13 browse/inspect/filter/duration | **Used** | Existing read-only F4 IDs open browse-only pickers; all five F2 catalogs use framework category filtering and declared Key/Name/Category sorting. Playtime publishes a float duration hint with inferred seconds and unchanged float32 precision. Inspection actions are N/A: current inspection is already represented by views; the only action changes bolts and remains mutating. |
 
 Historical research tested 41,652 CRC/FNV/Murmur section-digest candidates across
 36 primary gameplay records without finding a nondegenerate outside-range match.
@@ -184,6 +184,31 @@ probe reparses despite its unrepaired BC60B495 mirror: parser acceptance is insu
 See [RESEARCH.md](RESEARCH.md), [EVIDENCE.md](EVIDENCE.md) and the exact
 [owner acceptance checklist](OWNER-CAPTURES.md).
 
+## F12 evidence and F13 browsing
+
+`savediff list-decoders` now lists `insomniac-evidence` from the production plugin.
+Select it with `savediff compare before.zip after.zip --decoder insomniac-evidence`.
+The hook preserves existing campaign/schema/inventory evidence paths, avoids fog byte
+expansion, and excludes campaign IDs, timestamps and system files. Its probe requires
+PPSA01474, a gameplay/preferences filename and DAT1 framing. It has no Testing dependency
+or I/O beyond the host's save-file abstraction; all output respects the host sink.
+Reduced depth budgets stop DDL parsing or evidence traversal and mark input incomplete.
+The DAT1/DDL/inventory parsers retain their existing fixed allocation/count bounds.
+Opaque record identities or duplicate GUID occurrences mark evidence incomplete.
+Repeated container tags retain their measured stored-occurrence identity and emit a
+warning: reordered containers are not proven semantic matches. This evidence remains
+storage research, with no new claims about ownership, integrity or game acceptance.
+
+All five embedded catalogs (`rift-weapons`, `rift-armor`, `rift-world`, `rift-schema`,
+`rift-item-types`) use F13's shared category/search/sort/paging implementation, without
+a second plugin-side metadata index. The arsenal's hash-to-record dictionary remains
+an identity join, not a browsing/filter index. Existing read-only reference controls
+retain raw unknown IDs, descriptions and provenance; browsing offers no save mutation.
+The `Playtime` field now displays as a duration with one raw unit per inferred second;
+its numeric value, float32 precision, read-only policy and unit warning are unchanged.
+The timer interpretation still comes from the measured corpus, rather than the PC
+schema's different declared numeric width; see [EVIDENCE.md](EVIDENCE.md).
+
 ## Validation
 
 Use the environment assignment and test command in the **same shell invocation**:
@@ -194,7 +219,7 @@ dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Latest sample-backed plugin run: **111 passed, 0 failed, 0 skipped**. All **76** game
+Latest sample-backed plugin run: **124 passed, 0 failed, 0 skipped**. All **76** game
 records round-trip byte-identically, including duplicate generations and backup twins.
 The tests cover all 36 primary inventories, field/name vectors, nested alignment,
 parent bounds/depth/count corruption, unknown payloads, embedded pack hashes/licensing,
@@ -220,6 +245,12 @@ buffers remain isolated. The immutable player-field definitions load once; Seria
 reuses the isolated validation parse instead of making another whole-file copy.
 Sample-dependent
 tests skip when samples are absent.
+
+F12/F13 follow-up tests cover production hook discovery/probing, deterministic decode
+of all 76 game records, immediate sink refusal, file/value/depth caps, uncertain
+inventory identities, filter/sort/paging for all five catalogs, attributed browse-only
+Core sessions with rejected edits, and unchanged float32 fractional Playtime values.
+The CLI lists `insomniac-evidence` as a hook owned by `insomniac`.
 
 API build: **0 warnings / 0 errors**. Core's actual F8 session path is exercised in
 the plugin suite. No frontend/framework source changed; historical round-1 Core and
@@ -296,6 +327,8 @@ None blocking this release. F2/F4 support the attributed read-only path referenc
 F3 renders nested cells and confidence/details. INSOMNIAC-R8/R9 and the old R5 blank
 cell concern are covered for this scope. F6/F9 are now adopted directly. Accurate
 physical maps, prerequisite edges and purchase/refill recipes need the R6/R7/R12
-owner captures; the lack of those joins is not an SDK bug. F12/F13 remain pending
+owner captures; the lack of those joins is not an SDK bug. F12/F13 are adopted from
 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32) /
-[#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33); no substitutes added.
+[#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33). The `63580dc`
+planned-reference fix is N/A: the sole planned action takes a numeric bolt target,
+with no EnumSpec reference fallback to replace.
