@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>SaveToolkit.Plugins.TalesOfArise</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Sections.csv" />
+    <EmbeddedResource Include="Resources\Consumables.csv" />
+    <EmbeddedResource Include="Resources\Characters.csv" />
+    <InternalsVisibleTo Include="SaveToolkit.Plugins.TalesOfArise.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Plugins depend on the SDK only (never on Core/Api). -->
+    <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
+  </ItemGroup>
+</Project>
