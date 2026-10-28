@@ -6,9 +6,9 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 
 public sealed class Cyberpunk2077Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("cyberpunk2077", "Cyberpunk 2077", "0.3.0")
+    public PluginInfo Info { get; } = new("cyberpunk2077", "Cyberpunk 2077", "0.4.0")
     {
-        Description = "CSAV node, inventory and fact explorer; experimental attributes, development points and stack editing for the verified PS5 schema.",
+        Description = "Read-only equipment, cyberware, perk, garage, travel and merged fact inspection; experimental existing PS5 attributes, points and stack edits.",
         Games = [new GameTitle("PPSA04027", "Cyberpunk 2077")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/WolvenKit/CyberCAT", "https://github.com/WolvenKit/WolvenKit/tree/main/WolvenKit.RED4/Save",
@@ -16,7 +16,18 @@ public sealed class Cyberpunk2077Plugin : IGamePlugin
             CyberpunkReferences.Upstream + "/items.bin", CyberpunkReferences.Upstream + "/CP2077SaveEditor/Resources/ItemClasses.json",
             CyberpunkReferences.Upstream + "/CP2077SaveEditor/Resources/Facts.json",
             CyberpunkReferences.Upstream + "/CP2077SaveEditor/Resources/Vehicles.json",
-            CyberpunkReferences.Upstream + "/CP2077SaveEditor/Resources/FastTravel.json"],
+            CyberpunkReferences.Upstream + "/CP2077SaveEditor/Resources/FastTravel.json",
+            ScriptableReader.SourceUrl,
+            "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/Helper/InventoryHelper.cs",
+            "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/Classes/ItemData.cs",
+            "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Archive/IO/ModifiersBufferReader.cs",
+            "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/Parser/PersistencySystem2Parser.cs",
+            "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/Parser/JournalManagerParser.cs",
+            "https://cyberpunk.fandom.com/wiki/Bounce_Back?oldid=297811", "https://cyberpunk.fandom.com/wiki/MaxDoc?oldid=297812",
+            "https://cyberpunk.fandom.com/wiki/F-GX_Frag_Grenade?oldid=301113", "https://cyberpunk.fandom.com/wiki/EMP_Grenade?oldid=301118",
+            "https://cyberpunk.fandom.com/wiki/X-22_Flashbang_Grenade?oldid=287501",
+            "https://cyberpunk.fandom.com/wiki/Constitutional_Arms_Unity?oldid=290048",
+            "https://community.fandom.com/wiki/Help:Licensing?oldid=3983537"],
     };
 
     public ProbeResult Probe(ISaveFile file)

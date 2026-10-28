@@ -24,3 +24,20 @@ MIT; its full notice remains in [CyberCAT-LICENSE.txt](CyberCAT-LICENSE.txt).
 The plugin references `K4os.Compression.LZ4` 1.3.8, MIT:
 <https://github.com/MiloszKrajewski/K4os.Compression.LZ4/blob/master/LICENSE>.
 WolvenKit GPL schemas are research references only, as documented in the README.
+
+## Cyberpunk Wiki base-record labels
+
+`ReferencePacks/cyberpunk2077.wiki-labels.en/item-labels.json` adapts titles and explicit base IDs
+from six Cyberpunk Wiki pages by **Cyberpunk Wiki contributors**, retrieved 2026-10-28.
+The derived dataset remains [CC BY-SA 3.0 Unported](https://creativecommons.org/licenses/by-sa/3.0/).
+Redistributed adaptations must retain attribution, licence/source links and share-alike terms.
+No contributor, Fandom or CD PROJEKT RED endorsement is implied.
+
+Exact source revisions, source-content SHA-256 hashes and modifications are in the pack's
+`data.source.md`, `upstream.json`, F2 manifest and README table. Every named row also exposes the
+record source and attribution. This pack has 15 base-record names, no copied descriptions,
+database prose, images, art or game-resource/localization exports. It does not change the licence
+of unrelated plugin code or the separately attributed MIT technical dictionaries.
+
+Fandom's [Help:Licensing revision 3983537](https://community.fandom.com/wiki/Help:Licensing?oldid=3983537)
+states its default text licence is CC BY-SA 3.0; images/video are not automatically covered.

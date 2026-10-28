@@ -23,7 +23,7 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         using var session = new DocumentSession("inspection", (DiskSaveFile)file, plugin, document, references: context);
         var view = Assert.IsType<TabsNode>(session.BuildView());
         output.WriteLine($"Open + initial view with pinned packs: {timer.Elapsed.TotalMilliseconds:F1} ms");
-        Assert.IsType<QueryableTableNode>(Assert.Single(view.Tabs.Single(tab => tab.Title == "Facts").Children));
+        Assert.All(view.Tabs.Single(tab => tab.Title == "Facts").Children, node => Assert.IsType<QueryableTableNode>(node));
         var inventory = session.QueryCollection("inventory", new QueryableCollectionQuery { Limit = 200 });
         Assert.Equal(22, inventory.TotalCount);
         Assert.Equal(22, inventory.Rows.Count);
@@ -71,6 +71,26 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         Assert.Equal(row.Key, Assert.Single(edited.Rows).Key);
         Assert.True(session.Undo().Ok);
         Assert.Empty(session.QueryCollection("inventory", new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["quantity"] = "789" } }).Rows);
+        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+    }
+
+    [Fact]
+    public void ReadOnlyBudgetQueriesFollowPointEditsAndUndoIncludingOmittedProperties()
+    {
+        var file = ProgressionSampleTests.Files()[0];
+        var (plugin, _, context) = ReferencePackFixture.Embedded();
+        using var document = plugin.Open(file, context);
+        using var session = new DocumentSession("budgets", (DiskSaveFile)file, plugin, document, references: context);
+        _ = session.BuildView();
+        var query = new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["kind"] = "Point budget", ["group"] = "Primary" } };
+        var before = Assert.Single(session.QueryCollection("development", query).Rows);
+        Assert.Equal("0", ReadOnlyInspectionSampleTests.Cell(before, "unspent"));
+        Assert.True(session.ApplyEdits([new("progression/points/Primary", JsonSerializer.SerializeToElement("9"))]).Ok);
+        var after = Assert.Single(session.QueryCollection("development", query).Rows);
+        Assert.Equal(before.Key, after.Key);
+        Assert.Equal("9", ReadOnlyInspectionSampleTests.Cell(after, "unspent"));
+        Assert.True(session.Undo().Ok);
+        Assert.Equal("0", ReadOnlyInspectionSampleTests.Cell(Assert.Single(session.QueryCollection("development", query).Rows), "unspent"));
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
 

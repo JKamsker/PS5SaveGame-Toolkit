@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "id": "cyberpunk2077.wiki-labels.en",
+  "version": "1.0.0",
+  "title": "Cyberpunk Wiki base-record names (English, CC BY-SA 3.0)",
+  "plugins": [
+    "cyberpunk2077"
+  ],
+  "titleIds": [
+    "PPSA04027"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "item-labels",
+      "kind": "records",
+      "title": "Pinned wiki item names",
+      "files": [
+        {
+          "path": "item-labels.json",
+          "sha256": "0e2400ce604ae382ccaf50a62319580b3cf63d17fba7e71f2a9eaf2b9bccace0"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://cyberpunk.fandom.com/wiki/Cyberpunk_Wiki",
+        "author": "Cyberpunk Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Selected six page titles and explicit baseid/name joins only; verified hashes against the technical catalog. No prose, descriptions, limits, art or CDPR localization exported. Derived labels remain CC BY-SA 3.0; each source pins its revision."
+      }
+    }
+  ]
+}

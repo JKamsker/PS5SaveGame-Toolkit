@@ -45,11 +45,11 @@ inventory/fact comparisons, rather than treating UI-loaded pages as the whole mo
 ## Verification
 
 ```powershell
-dotnet test --project plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Roadmap round: **85 passed**, no skips with samples; **31 passed / 54 skipped** with an empty
+Roadmap round 1: **85 passed**, no skips with samples; **31 passed / 54 skipped** with an empty
 sample directory. API build: **zero warnings/errors**. Existing no-op, mixed edit, undo,
 unsupported-version refusal, corruption and opaque preservation tests pass. New tests verify:
 all F2 hashes/attribution and counts; canonical whitespace and conflict rejection; 22 item/1,129
@@ -61,6 +61,13 @@ Final ZIP test: an existing ammo quantity edit is exported through the actual Wo
 the primary and identical gameplay backup receive exactly the intended payload patch, and all
 other exported files remain byte-identical. This verifies software preservation/backup mirroring,
 not console acceptance. Save bytes and extracted game assets are never committed.
+
+Round 2: **107 passed, 0 failed, 0 skipped** with the private samples exported in the same command.
+An additional empty-artifacts run gives **45 passed / 62 skipped**, zero failures, checking only
+missing-sample behavior. The API build succeeds with **0 warnings / 0 errors**. Tests also cover
+all new collections, modern nested perk defaults/ranks, full-identity equipment/refusal, extension
+bounds/encoding, typed garage hashes, item hash vectors/modifier bounds, exact wiki IDs/revisions,
+catalog-only versus saved facts and cyberware, and existing point edit/undo query consistency.
 
 ## Owner capture / validation checklist
 
@@ -85,8 +92,8 @@ slot, exact action and observed item/stat values. Omit account identifiers and c
   value at a time, restore to a spare slot using the owner's existing working path, load, observe
   the effect/use/equip behavior, save and reload, then compare unrelated inventory/progression.
   Log exact build and results. Only the owner can promote Stable.
-- [ ] **Data/rights:** choose the distribution policy for richer text/icons; provide a lawful
-  same-build TweakDB/localization export as a separately attributed local F2 pack if desired.
+- [ ] **Same-build data:** provide a lawful same-build TweakDB/localization export as a separately
+  attributed local F2 pack if desired. Wiki embedding with attribution/share-alike is already approved.
   Include resource hashes, locale, DLC coverage and permissions. No artwork is requested for
   repository bundling without clear redistribution permission; no game/cloud credentials needed.
 
@@ -94,10 +101,66 @@ Later phases still need the plan's level/Street Cred threshold, skill reward, pe
 Relic-access, car acquisition/summon, travel discovery and specific quest-stage pairs, plus later
 PS5 schema samples (277/2500 only if actually obtained). No new writes are enabled for those areas.
 
+### Exact round-2 additions
+
+- [ ] **Duplicate-instance equipment:** obtain two existing items with the same base record; equip
+  one, save, equip the other in the same slot, save, then unequip and save. Record which instance,
+  exact slot and visible tier/stats; retain the equip/unequip pairs separately. Include fists versus
+  weapon/cutscene slots to resolve the sample's unmatched special `RightArm` identity.
+- [ ] **Attachment/stat dependency:** attach exactly one named mod or attachment to an existing
+  item, capture before/after, then remove it in a separate pair. Record attachment slot, displayed
+  old/new stats, tier, quest/removal restrictions and material costs, if any. Do not combine with upgrading.
+- [ ] **Modern perk and Relic ranks:** buy exactly one rank in one named ordinary perk; capture
+  rank, attribute level, unspent/spent budget and visible effect before/after. Refund that rank in
+  a separate pair. Repeat separately for a Relic perk with PL access, and capture access unlock alone.
+  This early save has six modern groups but no stored allocated perks; synthetic ranks are not console evidence.
+- [ ] **Cyberware capacity contributors:** capture install/remove of one named implant as separate
+  events, including slot, capacity used/limit, implant tier, discount/bonus sources and every other
+  implant. Separately change exactly one capacity-granting perk or shard, recording old/new contributor
+  and capacity. Supply at least one mature base-game and one mature PL save with installed cyberware.
+- [ ] **Garage lists:** capture acquisition of one named car; then summon, despawn and favorite it
+  in separate pairs. Record variant, whether purchased/rewarded/stolen, UI ownership/availability,
+  and exact event. The current save has empty active slots and omitted unlock arrays; acquisition
+  behavior and populated spawned/unregistered structures are not demonstrated by that absence.
+- [ ] **Travel registration versus accessibility:** capture discovery of exactly one named dataterm;
+  record map label, district and visible availability. Capture using it separately. If possible capture
+  one quest-controlled travel lock/unlock as its own event; registration alone does not establish accessibility.
+- [ ] **Quest/journal progress:** capture one precise objective transition with displayed quest name,
+  objective text/status and tracking state, including one gig and one base/PL collectible as separate
+  pairs. Also toggle tracking alone in a separate pair. Journal records are opaque and cannot currently
+  be mapped to completion from matching fact prefixes or the tracked-path candidate.
+- [ ] **XP/rewards:** capture a single Level, Street Cred and skill reward threshold separately,
+  with XP, level, points, rewards and newly available perks before/after. No XP/reward transition is inferred.
+
 ## Phase status
 
-Phase 1 identifier/evidence work is complete with explicitly limited coverage. Full licensed
-same-build localization remains CP2077-R2/R8/R18 owner/data work. Phase 2's attributed rich inventory
-inspection, whole-list queries and local-pack integration ship; extended stat/attachment parsing,
-equipment ownership joins and installed-cyberware semantics remain blocked on CP2077-R1/R2 evidence.
-Phases 3–6 remain open. No replacement, structural, world or new progression writers were added.
+Phase 1 identifier/evidence work is complete with limited coverage; full same-build localization
+remains data work, while 15 exact wiki base-record labels now ship under CC BY-SA 3.0.
+Round 2 implements the evidence-supported read-only portions of Phases 2, 4 and 5. It adds bounded
+extended part parsing, item/part stat-key diagnostics, full-identity owner-1 loadout joins, cyberware
+slots with Unknown capacity/rules, all stored skills/point budgets and modern/legacy perk records,
+F8 merged facts, typed garage/travel status and raw journal diagnostics. It does not claim the
+complete gameplay semantics or write-oriented acceptance criteria of those phases.
+Phase 3 actions, allocation/build mutations, world/story changes, structural inventory and new
+versions remain open. No new setters or bulk actions were added; any future bulk action must use F6.
+
+## Round-2 sample observations and limitations
+
+Independent scratch Python framing/package inspection and the C# tests agree on 36 equipment areas,
+7 occupied slots, 6 exact inventory matches, 10 extended records, 3 Unity child parts, 20 proficiencies,
+4 point budgets, 6 modern groups without allocated perks and 116 legacy areas. Every cyberware slot
+in this early save is empty. Item/part stats yield 48 rows; missing part keys are reported rather than
+inferred from base IDs. Read-only budget queries reflect existing point edits and undo.
+
+The 53,742-entry persistency node contains one garage class with 3 empty active slots and omitted
+unlock lists. FastTravelSystem contains one point, exact TweakDB ID `0x0000002486F51E9C`, marker
+`#hey_gle_dataterm_04`. Catalog-only vehicles are not labelled unavailable and catalog-only points
+are not labelled discovered/locked. Populated modern perk/garage records have synthetic format
+coverage; they still need owner captures. Journal diagnostics retain 594 opaque 15-byte records,
+0 extra uint64 entries, 1 extra four-uint32 entry and 16 trailing bytes.
+
+The merged facts collection holds 20,978 rows: 2,750 saved entries plus 18,228 hash-verified catalog
+facts absent from the save. Absence is not zero. Canonical whitespace and all unknown saved hashes
+are preserved, and no quest completion is inferred. Collection query results materialize at most
+200 rows; attachment pages at most 128. Initial open/view measurements were roughly 0.46–0.5 seconds
+in sample tests on the development machine (not a cross-hardware benchmark).

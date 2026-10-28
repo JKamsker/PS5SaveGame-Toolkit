@@ -1,18 +1,20 @@
 # Cyberpunk 2077 (`cyberpunk2077`)
 
-Title: **PPSA04027**. Plugin **0.3.0**, maturity: **Experimental**. Round 2 added five player attributes,
+Title: **PPSA04027**. Plugin **0.4.0**, maturity: **Experimental**. Existing writers cover five player attributes,
 unspent attribute/perk/relic points, and named player ammo/consumable stack quantities. Edits are
 restricted to **save 265 / game 2210 / archive 195** (the supplied PS5 2.21 save). Scriptable progression
 also requires **RED package 4 / flags 0 / sections 6**. Unsupported versions show a reason and retain
 the applicable read-only explorers. No console load has been tested; only a human can set Stable.
 
-This roadmap round completes Phase 1's identifier/evidence work and the supported inventory
-inspection portion of Phase 2: an attributed versioned F2 pack, named read-only facts, F3 instance
-details, F4 catalog inspection pickers, and F8 collections for facts/large inventories. The embedded
-pack contains **5,248 item / 19,357 fact / 105 vehicle / 232 travel identifiers**, with source hashes.
-These are technical identifiers, not licensed localization or proof of gameplay availability.
-The inventory joins **22/22** current items; **1,129/2,750** saved fact entries resolve to names.
-Equipment/stat/cyberware joins and every new write category remain blocked on controlled evidence.
+Roadmap round 2 adds the evidence-supported read-only parts of Phases 2, 4 and 5: extended inventory,
+equipment/cyberware slots, item/part modifiers, skills/perks/budgets, merged facts, garage/travel
+status and opaque journal diagnostics. F8 queries cover each complete collection. Existing F2/F4
+catalogs retain **5,248 item / 19,357 fact / 105 vehicle / 232 travel identifiers**, with source hashes.
+A separate CC BY-SA 3.0 pack adds **15 friendly base-record labels** from six pinned wiki revisions.
+The inventory identifies **22/22** current items; **1,129/2,750** saved fact entries resolve to names.
+The merged facts view has **20,978 rows**, preserving unknown saved hashes and catalog-only facts.
+All new views are read-only. Gameplay effects, slot eligibility/capacity, exact quest completion
+and every new write category still require controlled captures and console evidence.
 See [REFERENCES.md](REFERENCES.md) and [EVIDENCE.md](EVIDENCE.md) for contracts and exact next steps.
 
 **Deliberately incomplete goal:** level, street cred and their current XP are decoded but read-only.
@@ -64,7 +66,8 @@ The verified inventory schema has an int32 sub-inventory count after its node ID
 ID and int32 item count. Each item has matching 16-byte item-info prefixes before and inside its
 `itemData` node: uint64 TweakDB ID, uint32 seed, byte structure, uint16 unique counter, byte flags.
 After the node ID and prefix are byte flags, uint32 creation time and optional uint32 quantity.
-Quantity is at node-relative offset 25. Extended item bodies remain opaque.
+Quantity is at node-relative offset 25. Extended item bodies are decoded read-only where their
+entire bounded schema is understood; unrecognized bodies retain a warning and raw bytes.
 
 The prefix length matters: old MIT CyberCAT uses a 15-byte variant. Its item parser cannot be applied
 literally to this sample. Current WolvenKit's wire layout and the actual PS5 bytes agree on 16 bytes.
@@ -102,6 +105,53 @@ size must agree exactly. The F2 fact catalog verifies exact FNV-1a/32 canonical 
 whitespace-sensitive strings. Hash mismatches retain raw IDs; duplicate catalog keys are rejected.
 Names have Inferred semantic confidence: a debug/absent/named fact does not establish completion.
 All values remain read-only; no generic fact edits or quest-unlock actions are offered.
+
+## Read-only equipment, extended items and world state
+
+`ExtendedItemReader` independently decodes the researched additional-info and recursive slot-part
+wire grammar with exact-end checks, at most 512 parts, depth 12 and bounded UTF-8/UTF-16 strings.
+The sample contains **10 extended items**, including the cutscene Unity's three child parts.
+Inspect raw quest/not-unequippable flag bits, seed/counter/flags, creation time, loot-pool ID,
+appearance, attachment-slot IDs and opaque uint32 members. The stored required-level float uses
+`float.MaxValue` in this sample; it is explicitly not presented as the displayed tier or legal level.
+Attachment tables page at 128 rows. Unknown suffixes disable decoding, preserve bytes and show a reason.
+
+The bounded scriptable reader follows `EquipmentSystem.ownerData` to the unique owner-1 record.
+It reads `gameSLoadout` areas/slots and joins the complete gameplay identity: TweakDBID, seed,
+unique counter and flags, in player container 1. Structure is a wire property, not a gameItemID member.
+The sample has **36 areas, seven occupied slots, six exact inventory matches**; special `RightArm`
+remains unresolved. Duplicate base IDs never resolve by row position. Wardrobe/fists/cutscene slots
+are shown as stored entries without claiming current usability. All sampled cyberware slots are empty.
+The separate cyberware union browses all 232 classified catalog records alongside owned instances
+and unresolved slot identities. This sample has catalog-only rows, no classified owned implants;
+unknown inventory records are never silently excluded from the general inventory explorer.
+Capacity/cost, bonus contributors, prerequisite evaluation and compatible replacement rules remain
+Unknown; an empty slot is not proof of unlocked or eligible cyberware capacity.
+
+Stats inspect the `StatsSystem` key/value arrays and the researched ItemID hash of record/seed/counter,
+separately for each inventory instance and decoded part. Exact unique keys expose constant, combined
+and curve modifier bodies; missing/ambiguous keys and unknown modifier classes stay explicit. The
+sample has **48 diagnostic/modifier rows**; child parts have no saved stats-key match. Stat hashes,
+operations, curve names and raw values do not establish computed final stats, tier or capacity.
+
+Garage inspection walks **53,742** bounded persistency entries by their declared lengths and selects
+the unique `vehicleGarageComponentPS` hash. Typed hashed fields support active, unlocked and favorite
+vehicle ID lists; unfamiliar properties disable garage status rather than scanning through opaque data.
+This save stores three empty active slots and omits unlock arrays. The 105-row catalog consequently
+says **not listed in decoded garage**, rather than claiming unavailable/locked. Nonempty unlocks are
+synthetic format coverage only; owner acquisition/summon captures remain required.
+
+Fast travel follows typed handles from `FastTravelSystem.fastTravelNodes`, preserving record IDs and
+marker refs separately. One saved point is registered: `FastTravelPoints.hey_gle_dataterm_04`, marker
+`#hey_gle_dataterm_04`. The 232-row catalog distinguishes registered from not registered; current map
+locks, discovery cause, DLC entitlement and accessibility remain Unknown. No unlock actions or map
+coordinates are invented. Unknown saved records remain in both world unions with their full IDs.
+
+The F8 merged-facts view has 2,750 saved rows (including 1,621 unknown hashes) plus 18,228 catalog-only
+rows. Every absent row has **no stored value**, distinct from saved zero. Prefix groups are identifiers,
+not quest titles; no completion percentage or stage inference is offered. Journal diagnostics browse
+594 opaque 15-byte records, retain two other planes and a 16-byte suffix, and label the tracked-path
+candidate Unknown. Journal records, facts and mappins are not equated with each other.
 
 ## Player development and dependent stats
 
@@ -167,13 +217,14 @@ This is why maturity remains Experimental.
 
 ## Views and tests
 
-Overview, player development, inventory, facts, reference catalogs, node tree and container tabs
+Overview, player development, inventory, equipment/cyberware, item stats, skills/perks, world,
+journal diagnostics, facts, reference catalogs, node tree and container tabs
 provide attributed labels, confidence/warnings, instance details and paged original/payload/node
 bytes. Inventories up to 128 rows use one lazy rich table; larger inventories and all facts use F8
 whole-model search, exact column filters, numeric sorting and bounded pages (at most 200 rows).
 Query cells are constructed only after filtering/paging. Chunk tables are bounded to 4096 rows.
 Value IDs and row keys stay stable across edits; no structural inventory edits are implemented.
-F4 pickers inspect all four catalogs without modifying saves. See REFERENCES.md for build/locale keys.
+F4 pickers inspect technical catalogs and wiki labels without modifying saves. See REFERENCES.md for build/locale keys.
 
 Sample evidence: **one primary record and its identical backup**, 1,302,721 stored bytes, 22 chunks,
 5,607,178 expanded bytes, 159 nodes and 22 items. This is one distinct save, not a multi-session corpus.
@@ -189,15 +240,18 @@ bounds; and independent package insertion/padding fixtures. Existing CSAV/LZ4 co
 codec-vector tests remain. Hash vectors cover CRC32/TweakDBID and FNV-1a/64.
 
 ```powershell
-dotnet test --project plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests
 ```
 
-Validation for this roadmap round: **85 passed**, no sample skips. With an empty sample directory:
-**31 passed / 54 skipped**, zero failures. API build: zero warnings/errors. Added pack validity,
+Validation for roadmap round 2: **107 passed, 0 failed, 0 skipped** with private samples. With an empty sample directory:
+**45 passed / 62 skipped**, zero failures (absence behavior only). API build: zero warnings/errors. Retained pack validity,
 all-record hash verification, exact canonical whitespace, conflicting-ID rejection, pinned local
 build/fallback tests, attributed sample joins, host F4 inspection/undo, live query edit/undo,
 1,000-row paging, F1 evidence decoder and final ZIP/backup preservation tests. No hooks,
-framework changes or additional NuGet dependencies were added.
+framework changes or additional NuGet dependencies were added. Round 2 adds full-identity equipment
+joins and refusal, extended tree/encoding bounds, modern nested perk fixtures/defaults, typed garage
+hash/terminator refusal, ItemID hash vectors, modifier-buffer refusal, merged-fact absence/whitespace,
+complete bounded paging, wiki attribution/revision/hash joins, local-label precedence and live budget undo.
 
 ## Open problems
 
@@ -210,8 +264,9 @@ framework changes or additional NuGet dependencies were added.
 
 ## Sources and attribution
 
-All new dictionary data is factual technical identifiers/categories from the pinned community
-source, adapted under its MIT notice. This does not license CD PROJEKT RED localization/artwork.
+Technical dictionary data is factual identifiers/categories from the pinned MIT community source.
+The separate wiki-label dataset remains **CC BY-SA 3.0**, with revision links and content hashes.
+Neither licence grants rights to CD PROJEKT RED localization/artwork.
 No icons, textures, localized prose, game-resource exports or GPL implementation are bundled.
 Full per-dataset attribution is also beside the data, in `Info.References`, F2 manifests/Sources,
 and every named field/details view. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
@@ -223,6 +278,7 @@ and every named field/details view. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOT
 | F2 `facts` (19,357) | [Facts.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/Facts.json), same authors | MIT, 2026-10-28; exact canonical strings retained separately, FNV-1a/32 verified, raw identifier category. |
 | F2 `vehicles` (105) | [Vehicles.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/Vehicles.json), same authors | MIT, 2026-10-28; computed TweakDB keys, identifier category; no garage join. |
 | F2 `travel` (232) | [FastTravel.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/FastTravel.json), same authors | MIT, 2026-10-28; computed PointRecord IDs, retained MarkerRef/IsEP1; no coordinates/unlock claim. |
+| F2 `item-labels` (15) | Cyberpunk Wiki contributors: [MaxDoc 297812](https://cyberpunk.fandom.com/wiki/MaxDoc?oldid=297812), [Bounce Back 297811](https://cyberpunk.fandom.com/wiki/Bounce_Back?oldid=297811), [F-GX 301113](https://cyberpunk.fandom.com/wiki/F-GX_Frag_Grenade?oldid=301113), [EMP 301118](https://cyberpunk.fandom.com/wiki/EMP_Grenade?oldid=301118), [X-22 287501](https://cyberpunk.fandom.com/wiki/X-22_Flashbang_Grenade?oldid=287501), [Unity 290048](https://cyberpunk.fandom.com/wiki/Constitutional_Arms_Unity?oldid=290048) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), 2026-10-28; extracted titles and explicit base IDs only; exact hash/catalog intersection. No art/prose/limits or guessed variants. Derived dataset stays share-alike; `cyberpunk2077.wiki-labels.en/data.source.md` and `upstream.json` pin all source hashes. |
 | Localization research only | [CDPR Modding Documentation: translation](https://github.com/CDPR-Modding-Documentation/Cyberpunk-Modding-Docs/blob/main/modding-guides/everything-else/how-to-translate-a-mod.md) | Consulted 2026-10-28 for localization joins; no content/assets copied and no redistribution permission inferred. |
 
 All four F2 datasets have `data.source.md`, upstream input SHA-256 ledger and normalized-LF content
@@ -269,6 +325,14 @@ is attributed to CP2077SaveEditor (MIT); its notice is retained in [CP2077SaveEd
 - [WolvenKit ModifiersBufferReader.cs](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Archive/IO/ModifiersBufferReader.cs)
   and [SaveHashHelper.cs](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/Helper/SaveHashHelper.cs):
   packed class name, FNV-1a stat hash, modifier kind and float value. GPL-3.0; format reference only.
+- Read-only nested schemas at the same pinned WolvenKit revision: `EquipmentSystemPlayerData`,
+  `gameSLoadout`, `gameSEquipArea`, `gameSEquipSlot`, `gameItemID`, `SAttributeData`, `SNewPerk`,
+  `SPerkArea`, `SPerk`, `FastTravelSystem`, `gameFastTravelPointData`, `vehicleGarageComponentPS`,
+  `vehicleGarageVehicleID`, `vehicleUnlockedVehicle`; [schema directory](https://github.com/WolvenKit/WolvenKit/tree/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes).
+  [PersistencySystem2Parser](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/Parser/PersistencySystem2Parser.cs),
+  [JournalManagerParser](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/Parser/JournalManagerParser.cs)
+  and InventoryHelper were read as format research, independently implemented and checked against
+  sample bytes/synthetic fixtures. GPL-3.0; no GPL implementation or generated source bundled.
 - [PixelRick CyberpunkSaveEditor](https://github.com/PixelRick/CyberpunkSaveEditor): alternate tree/
   scriptable-system research lead; no parser copied or schemas inferred from its feature list.
 - [LZ4 block specification](https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md): block grammar

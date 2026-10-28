@@ -25,6 +25,14 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
     private readonly ProgressionData? _progression;
     private readonly ProgressionEditor? _progressionEditor;
     private readonly string? _progressionWarning;
+    private readonly EquipmentInspection _equipment;
+    private readonly DevelopmentInspection _development;
+    private readonly WorldInspection _world;
+    private readonly InspectionTable _factCatalog;
+    private readonly ItemStatsInspection _itemStats;
+    private readonly JournalInspection _journal;
+    private readonly CyberwareInspection _cyberware;
+    private readonly IReadOnlyDictionary<string, InspectionTable> _inspectionTables;
 
     public CyberpunkDocument(string path, CsavContainer container, CsavTree tree, IReadOnlyList<InventoryItem> items,
         IReferenceContext references)
@@ -40,11 +48,31 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
             i.QuantityOffset.HasValue && tree.Nodes[i.NodeId].Size == 29 && i.Structure == 0).ToArray();
         _money = candidates.Length == 1 ? candidates[0] : null;
         _references = new CyberpunkReferences(references, container.GameVersion);
-        _inventory = new InventoryInspection(items, container, tree, _references, _names, _edited, QuantityField, ReadField);
+        ScriptableReader? reader = null;
+        string? inspectionWarning = null;
+        try { reader = new ScriptableReader(container, tree); }
+        catch (SaveFormatException ex) { inspectionWarning = ex.Message; }
+        EquipmentData? equipment = null;
+        string? equipmentWarning = inspectionWarning;
+        if (reader is not null)
+        {
+            try { equipment = EquipmentData.Read(reader, container, tree, items); }
+            catch (SaveFormatException ex) { equipmentWarning = ex.Message; }
+        }
+        _equipment = new EquipmentInspection(equipment, _references, equipmentWarning);
+        _cyberware = new CyberwareInspection(items, equipment, _references, container, tree);
+        _development = new DevelopmentInspection(reader, inspectionWarning, _progression);
+        _world = new WorldInspection(reader, container, tree, _references, inspectionWarning);
+        _itemStats = new ItemStatsInspection(container, tree, items);
+        _journal = new JournalInspection(container, tree);
+        _inventory = new InventoryInspection(items, container, tree, _references, _names, _edited, QuantityField, ReadField, equipment);
         var facts = tree.Nodes.Where(n => n.Name == "FactsTable").ToDictionary(n => n.Id,
             n => FactsReader.Read(BinaryData.Slice(container.Payload, n.Offset, n.Size)));
         _facts = new FactInspection(facts, _references, ReadField,
             (id, value) => Field(id, "Raw fact value", IntegerSpec.UInt32, () => FieldValue.Of((ulong)value)));
+        _factCatalog = FactCatalogInspection.Build(facts, _references);
+        _inspectionTables = new[] { _equipment.Table, _cyberware.Table, _development.Table, _world.Vehicles, _world.Travel, _factCatalog, _itemStats.Table, _journal.Table }
+            .ToDictionary(table => table.Metadata.Id, StringComparer.Ordinal);
     }
 
     public override string Title => "Cyberpunk 2077 · CSAV";
@@ -67,7 +95,12 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
             binding.Get, binding.Set, binding.Validate) with { Confidence = Confidence.Verified })
             ?? [new TextNode(_progressionWarning ?? "Player development layout is not verified; edits refused.") { Tone = Tone.Warning }]),
         new Tab("Inventory", _inventory.Build()),
-        new Tab("Facts", [_facts.View()]),
+        new Tab("Equipment and cyberware", [.. _equipment.Build(), .. _cyberware.Build()]),
+        new Tab("Item stat modifiers", _itemStats.Build()),
+        new Tab("Skills and perks", _development.Build()),
+        new Tab("World", _world.Build()),
+        new Tab("Journal diagnostics", _journal.Build()),
+        new Tab("Facts", [_facts.View(), _factCatalog.View()]),
         new Tab("Reference catalogs", _references.Build(CanEdit)),
         new Tab("Node tree", TreePage(-1, 0)),
         new Tab("Container", [SectionNode.Lazy("Chunk table", "chunks"),
@@ -103,6 +136,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
             {
                 return _inventory.Page(start);
             }
+            if (parts[0] == "item-parts" && _items.Any(item => item.NodeId == id)) return _inventory.Parts(id, start);
         }
 
         throw new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
@@ -120,13 +154,14 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument
         return [new FileOutput(_path, bytes)];
     }
 
-    public IReadOnlyList<QueryableCollection> Collections => [_inventory.Metadata, _facts.Metadata];
+    public IReadOnlyList<QueryableCollection> Collections => [_inventory.Metadata, _facts.Metadata, .. _inspectionTables.Values.Select(table => table.Metadata)];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId switch
     {
         InventoryInspection.CollectionId => _inventory.Query(query),
         FactInspection.CollectionId => _facts.Query(query),
-        _ => throw new KeyNotFoundException($"Unknown collection '{collectionId}'."),
+        _ => _inspectionTables.TryGetValue(collectionId, out var table) ? table.Query(query)
+            : throw new KeyNotFoundException($"Unknown collection '{collectionId}'."),
     };
 
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
