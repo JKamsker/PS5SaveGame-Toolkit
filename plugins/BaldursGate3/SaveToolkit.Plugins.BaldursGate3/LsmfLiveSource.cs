@@ -19,12 +19,13 @@ internal sealed class LsmfLiveSource
     private const int AbilityOffset = 8;
     private const int MaxCharacterRows = 100_000;
     private const int MaxHealthCandidate = 1_000_000;
-    internal const string Warning = "Not validated on console. Inferred PS5 NewAge storage; character/owner joins and dependent caches are unproven. " +
+    internal const string Warning = "Not validated on console. PS5 storage joins are sample-proven, but gameplay authority and dependent caches remain unproven. " +
         "Integrity unknown — the game may reject this save or overwrite the edited value. The known outer v18 digest is repaired.";
     private readonly Dictionary<int, uint> _patches = [];
     private readonly List<LsmfNumber> _numbers = [];
     private readonly List<string> _diagnostics = [];
     private readonly LsmfObjectIndex _objects;
+    private readonly LarianResource? _resource;
     private readonly Lazy<IReadOnlyList<LsmfEntity>> _entities;
     private readonly HashSet<int> _keyOffsets;
 
@@ -32,12 +33,23 @@ internal sealed class LsmfLiveSource
     {
         Entry = entry;
         Attribute = attribute;
+        _resource = resource;
         Access = new LsmfAccess(LsmfReader.Read(bytes));
         _objects = new LsmfObjectIndex(resource);
         _entities = new(() => Access.Model.Entities());
         Owners = Access.Owners();
         Stacks = Optional(() => LsmfInventory.Stacks(Access), "Stacks");
         Slots = Optional(() => LsmfInventory.Slots(Access), "Containers");
+        Identity = null;
+        Inventory = null;
+        try { Identity = new LsmfIdentityGraph(Access, resource); }
+        catch (SaveFormatException exception) { _diagnostics.Add("Identity joins: " + exception.Message); }
+        if (Identity is not null)
+        {
+            try { Inventory = new LsmfInventoryGraph(Access, Identity, resource); }
+            catch (SaveFormatException exception) { _diagnostics.Add("Inventory joins: " + exception.Message); }
+            catch (InvalidDataException exception) { _diagnostics.Add("Inventory joins: " + exception.Message); }
+        }
         _keyOffsets = Slots.Select(slot => slot.KeyOffset).ToHashSet();
         Classes = Optional(() => LsmfClasses.Read(Access), "Classes");
         Books = Optional(() => LsmfSpellBooks.Read(Access), "Spell books");
@@ -62,6 +74,8 @@ internal sealed class LsmfLiveSource
     internal IReadOnlyList<LsmfSlot> Slots { get; }
     internal IReadOnlyList<LsmfClass> Classes { get; }
     internal IReadOnlyList<LsmfSpellBook> Books { get; }
+    internal LsmfIdentityGraph? Identity { get; }
+    internal LsmfInventoryGraph? Inventory { get; }
     internal IReadOnlyList<LsmfNumber> Numbers => _numbers;
     internal IReadOnlyList<string> Diagnostics => _diagnostics;
     internal bool HasEdits => _patches.Count > 0;
@@ -129,7 +143,7 @@ internal sealed class LsmfLiveSource
                 BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), (ushort)value);
             else BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
         }
-        var reopened = new LsmfLiveSource(Entry, Attribute, bytes);
+        var reopened = new LsmfLiveSource(Entry, Attribute, bytes, _resource);
         BinaryData.Require(reopened.Diagnostics.SequenceEqual(Diagnostics) && reopened.Numbers.Count == Numbers.Count &&
             Numbers.Zip(reopened.Numbers).All(pair => pair.First.Key == pair.Second.Key && Get(pair.First) == pair.Second.Original) &&
             Slots.Zip(reopened.Slots).All(pair => Slot(pair.First) == pair.Second.Slot),

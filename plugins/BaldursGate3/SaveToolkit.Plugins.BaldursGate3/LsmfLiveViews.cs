@@ -13,9 +13,16 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
     internal string SlotsId => source.Prefix + "/slots";
     internal string BooksId => source.Prefix + "/books";
     internal string ClassesId => source.Prefix + "/classes";
+    internal string PartyId => source.Prefix + "/party";
+    internal string InventoryId => source.Prefix + "/inventory";
+    internal string GoldId => source.Prefix + "/gold";
 
-    internal IReadOnlyList<QueryableCollection> Collections =>
-    [
+    internal IReadOnlyList<QueryableCollection> Collections
+    {
+        get
+        {
+            var collections = new List<QueryableCollection>
+            {
         new(NumbersId, "NewAge values (all entities)", [new("family", "Family"), new("row", "Source row"),
             new("value", "Stored value"), new("details", "Provenance")], source.Numbers.Count),
         new(SlotsId, "Current container entries (all owners)", [new("container", "Container row"), new("entity", "Item entity row"),
@@ -24,13 +31,28 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
             new("details", "Spell graph and text list")], source.Books.Count),
         new(ClassesId, "Class selections (unjoined)", [new("row", "Source row"), new("class", "Class GUID"),
             new("subclass", "Subclass GUID"), new("level", "Stored class level")], source.Classes.Count),
-    ];
+            };
+            if (source.Identity is { } identity)
+                collections.Add(new(PartyId, "Party identity joins", [new("party", "Party row"), new("body", "Body entity"),
+                    new("state", "State entity"), new("template", "Template GUID"), new("inventory", "Primary inventory")], identity.Party.Count));
+            if (source.Inventory is { } inventory)
+            {
+                collections.Add(new(InventoryId, "Current recursive inventory", [new("container", "Container row"),
+                    new("item", "Item entity"), new("slot", "Slot"), new("owner", "Owner body"), new("path", "Path")], inventory.Entries.Count));
+                collections.Add(new(GoldId, "Gold candidates (ownership required)", [new("item", "Item entity"),
+                    new("stats", "Stats"), new("container", "Container row"), new("owner", "Owner body"), new("confidence", "Confidence")], inventory.Gold.Count));
+            }
+            return collections;
+        }
+    }
 
     internal IReadOnlyList<ViewNode> Build() =>
     [
         new TextNode(LsmfLiveSource.Warning + " Effective abilities are caches, not base-score/respec controls. " +
             "HP/stat rows include NPCs and duplicate epochs; source row is not a party identity. Quantity totals cover all owners.") { Tone = Tone.Warning },
         .. source.Diagnostics.Select(message => (ViewNode)new TextNode(message) { Tone = Tone.Warning }),
+        .. (source.Identity?.Diagnostics ?? []).Concat(source.Inventory?.Diagnostics ?? [])
+            .Select(message => (ViewNode)new TextNode(message) { Tone = Tone.Warning }),
         .. Collections.Select(c => (ViewNode)new QueryableTableNode(c.Id, c.Title, c.Columns, c.TotalCount)),
         new ActionNode(LsmfLiveActions.Restore, "Restore imported stack quantities")
         { SupportsPlanning = true, Description = "Only explicitly decoded positive stack members, within imported ceilings. " + LsmfLiveSource.Warning },
@@ -52,9 +74,13 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
                     column => column switch { "container" => Number(s.ContainerRow), "entity" => Number(s.EntityRow), "slot" => Number(source.Slot(s)), _ => "" }, () => SlotRow(s)))
                 : id == BooksId ? source.Books.Select(b => new QueryRow(source.Prefix + $"/book/{b.Row}", $"{b.Row} {string.Join(' ', b.Spells)}",
                     column => column switch { "row" => Number(b.Row), "count" => Number(b.Spells.Count), _ => "" }, () => BookRow(b)))
-                : source.Classes.Select(c => new QueryRow(source.Prefix + $"/class/{c.Row}/{c.Index}", $"{c.Row} {c.Class} {c.Subclass}",
+                : id == ClassesId ? source.Classes.Select(c => new QueryRow(source.Prefix + $"/class/{c.Row}/{c.Index}", $"{c.Row} {c.Class} {c.Subclass}",
                     column => column switch { "row" => Number(c.Row), "class" => c.Class, "subclass" => c.Subclass,
-                        "level" => c.Level.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => "" }, () => ClassRow(c)));
+                        "level" => c.Level.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => "" }, () => ClassRow(c)))
+                : id == PartyId && source.Identity is { } identity ? identity.Party.Select(PartyRow)
+                : id == InventoryId && source.Inventory is { } inventory ? inventory.Entries.Select(InventoryRow)
+                : id == GoldId && source.Inventory is { } gold ? gold.Gold.Select(GoldRow)
+                : throw new ArgumentException("Unknown NewAge collection.");
         var filtered = items.Where(item => (string.IsNullOrWhiteSpace(query.Text) || item.Text.Contains(query.Text.Trim(), StringComparison.OrdinalIgnoreCase)) &&
             query.Filters.All(filter => string.Equals(item.Value(filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase))).ToArray();
         IEnumerable<QueryRow> ordered = filtered;
@@ -137,4 +163,56 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
             ["level"] = inspect(key + "/level", "Stored class level (unjoined)", FieldValue.Of(item.Level)),
         });
     }
+
+    private QueryRow PartyRow(LsmfPartyJoin join) => new(source.Prefix + $"/party/{join.PartyRow}",
+        $"{join.PartyRow} {join.TemplateId} {join.BodyEntityRow} {join.StateEntityRow}",
+        column => column switch
+        {
+            "party" => Number(join.PartyRow), "body" => Number(join.BodyEntityRow),
+            "state" => join.StateEntityRow is { } state ? Number(state) : "unknown",
+            "template" => join.TemplateId ?? "unknown",
+            "inventory" => join.PrimaryInventoryEntityRow is { } inventory ? Number(inventory) : "unknown",
+            _ => "",
+        }, () => new TableRow(source.Prefix + $"/party/{join.PartyRow}", new Dictionary<string, ViewNode>
+        {
+            ["party"] = new TextNode(Number(join.PartyRow)),
+            ["body"] = new TextNode(Number(join.BodyEntityRow)),
+            ["state"] = new TextNode(join.StateEntityRow is { } state ? Number(state) : "Unknown") { Tone = Tone.Warning },
+            ["template"] = inspect(source.Prefix + $"/party/{join.PartyRow}/template", "Template GUID", FieldValue.Of(join.TemplateId ?? "Unknown")) with
+            {
+                Confidence = join.IsAmbiguous ? Confidence.Unknown : Confidence.Inferred,
+                Description = "Exact LSF Creator → entity → TemplateComponent bridge. It is a save-local identity join; no current-party or console validation is claimed.",
+                Warning = LsmfLiveSource.Warning,
+            },
+            ["inventory"] = new TextNode(join.PrimaryInventoryEntityRow is { } inventory ? Number(inventory) : "Unknown") { Tone = Tone.Warning },
+        }));
+
+    private QueryRow InventoryRow(LsmfInventoryEntry entry) => new(source.Prefix + "/" + entry.Path,
+        $"{entry.ContainerRow} {entry.ItemEntityRow} {entry.Slot} {entry.Path}",
+        column => column switch
+        {
+            "container" => Number(entry.ContainerRow), "item" => Number(entry.ItemEntityRow), "slot" => Number(entry.Slot),
+            "owner" => entry.OwnerBodyEntityRow is { } owner ? Number(owner) : "unknown", "path" => entry.Path, _ => "",
+        }, () => new TableRow(source.Prefix + "/" + entry.Path, new Dictionary<string, ViewNode>
+        {
+            ["container"] = new TextNode(Number(entry.ContainerRow)), ["item"] = new TextNode(Number(entry.ItemEntityRow)),
+            ["slot"] = new TextNode(Number(entry.Slot)), ["owner"] = new TextNode(entry.OwnerBodyEntityRow is { } owner ? Number(owner) : "Unknown") { Tone = Tone.Warning },
+            ["path"] = new TextNode(entry.Path),
+        }));
+
+    private QueryRow GoldRow(LsmfGoldCandidate gold) => new(source.Prefix + $"/gold/{gold.ItemEntityRow}/{gold.Stats}",
+        $"{gold.Stats} {gold.ItemEntityRow}", column => column switch
+        {
+            "item" => Number(gold.ItemEntityRow), "stats" => gold.Stats,
+            "container" => gold.ContainerRow is { } container ? Number(container) : "unknown",
+            "owner" => gold.OwnerBodyEntityRow is { } owner ? Number(owner) : "unknown",
+            "confidence" => gold.IsAmbiguous ? "Unknown" : "Inferred",
+            _ => "",
+        }, () => new TableRow(source.Prefix + $"/gold/{gold.ItemEntityRow}/{gold.Stats}", new Dictionary<string, ViewNode>
+        {
+            ["item"] = new TextNode(Number(gold.ItemEntityRow)), ["stats"] = new TextNode(gold.Stats),
+            ["container"] = new TextNode(gold.ContainerRow is { } container ? Number(container) : "Unknown") { Tone = Tone.Warning },
+            ["owner"] = new TextNode(gold.OwnerBodyEntityRow is { } owner ? Number(owner) : "Unknown") { Tone = Tone.Warning },
+            ["confidence"] = new TextNode(gold.IsAmbiguous ? "Unknown: world/trader or duplicate ownership" : "Inferred: explicit current container path") { Tone = Tone.Warning },
+        }));
 }

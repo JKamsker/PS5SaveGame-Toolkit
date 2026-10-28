@@ -25,4 +25,18 @@ public sealed class StoryInspectionTests
         var table = Assert.Single(inspection.Expand("story/databases").OfType<TableNode>());
         Assert.Empty(table.Rows);
     }
+
+    [Fact]
+    public void LargeStoryPayloadUsesBoundedSinglePassSearch()
+    {
+        var bytes = new byte[2 * 1024 * 1024];
+        Encoding.UTF8.GetBytes("DB_ApprovalRating").CopyTo(bytes, 17);
+        Encoding.Unicode.GetBytes("DB_Quests").CopyTo(bytes, 1_000_000);
+        var inspection = new StoryInspection([new DocumentEntry("StorySave.bin", bytes, null)]);
+
+        var table = Assert.Single(inspection.Expand("story/databases").OfType<TableNode>());
+        Assert.Equal(2, table.Rows.Count);
+        Assert.Contains(table.Rows, row => row.Key == "DB_ApprovalRating");
+        Assert.Contains(table.Rows, row => row.Key == "DB_Quests");
+    }
 }
