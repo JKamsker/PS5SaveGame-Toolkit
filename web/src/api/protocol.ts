@@ -80,8 +80,23 @@ export interface ActionNode {
   parameters?: FieldNode[];
 }
 export interface HexNode { type: "hex"; blobId: string; length: number; title?: string }
+export interface QueryableColumn {
+  key: string;
+  label: string;
+  spec?: FieldSpec;
+  description?: string;
+  width?: "Narrow" | "Normal" | "Wide";
+}
+export interface QueryableTableNode {
+  type: "queryableTable";
+  collectionId: string;
+  title: string;
+  columns: QueryableColumn[];
+  totalCount: number;
+  description?: string;
+}
 
-export type ViewNode = SectionNode | TabsNode | FieldNode | TableNode | TextNode | StatsNode | ImageNode | ActionNode | HexNode;
+export type ViewNode = SectionNode | TabsNode | FieldNode | TableNode | TextNode | StatsNode | ImageNode | ActionNode | HexNode | QueryableTableNode;
 
 // ---- API contracts ----
 
@@ -151,6 +166,28 @@ export interface EditResult {
   /** The request used a view that a structural change replaced; refetch the document and retry. */
   stale?: boolean;
   state: DocumentState;
+}
+
+export interface CollectionQuery {
+  q?: string;
+  filters?: Record<string, string>;
+  sort?: string;
+  descending?: boolean;
+  offset?: number;
+  limit?: number;
+  cursor?: string;
+}
+
+export interface QueryablePage {
+  collectionId: string;
+  columns: QueryableColumn[];
+  rows: TableRow[];
+  totalCount: number;
+  filteredCount: number;
+  offset: number;
+  limit: number;
+  nextCursor?: string;
+  revision: number;
 }
 
 export interface TitleInfo { titleId: string; name: string; support: "None" | "View" | "Edit"; pluginIds: string[] }

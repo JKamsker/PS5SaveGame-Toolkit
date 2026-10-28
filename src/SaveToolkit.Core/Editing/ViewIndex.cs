@@ -1,5 +1,6 @@
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Core.Editing;
 
@@ -87,6 +88,9 @@ public sealed class ViewIndex
                     }
                 }
 
+                break;
+            case QueryableTableNode:
+                // Rows are indexed when a bounded page is queried.
                 break;
             case ActionNode a:
                 _actions[a.ActionId] = a;

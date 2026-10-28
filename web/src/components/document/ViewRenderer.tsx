@@ -7,6 +7,7 @@ import { FieldRow } from "../fields/FieldRow";
 import { ActionButton } from "./ActionButton";
 import { HexView } from "./HexView";
 import { TableView } from "./TableView";
+import { ServerTableView } from "./table/ServerTableView";
 
 export function ViewList({ nodes }: { nodes: ViewNode[] }) {
   return (
@@ -29,6 +30,8 @@ export function ViewRenderer({ node }: { node: ViewNode }) {
       return <FieldRow node={node} />;
     case "table":
       return <TableView node={node} />;
+    case "queryableTable":
+      return <ServerTableView node={node} />;
     case "text":
       return <Text node={node} />;
     case "stats":

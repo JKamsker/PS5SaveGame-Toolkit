@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Sdk.Views;
 
@@ -18,6 +19,7 @@ namespace SaveToolkit.Sdk.Views;
 [JsonDerivedType(typeof(ImageNode), "image")]
 [JsonDerivedType(typeof(ActionNode), "action")]
 [JsonDerivedType(typeof(HexNode), "hex")]
+[JsonDerivedType(typeof(QueryableTableNode), "queryableTable")]
 public abstract record ViewNode;
 
 /// <summary>

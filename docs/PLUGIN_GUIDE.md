@@ -54,6 +54,7 @@ See `tests/SaveToolkit.Core.Tests/Fakes/CounterPlugin.cs` for the smallest compl
 | `TabsNode([Tab])` | Top-level areas (Character / Inventory / World / Raw). |
 | `FieldNode(valueId, label, spec, value)` | One value. `Confidence` (`Verified` / `Inferred` / `Unknown`) and `Warning` are shown to the user. |
 | `TableNode(columns, rows)` | Homogeneous records. Cells are `FieldNode`s (editable) or `TextNode`s. The browser pages, searches and virtualises. Keep below ~5,000 rows per table; split or lazy-load beyond. |
+| `QueryableTableNode(collectionId, title, columns, totalCount)` | Server-backed collection for inventories/catalogues larger than an eager view. The browser sends bounded text/filter/sort queries and receives stable-keyed `TableRow`s a page at a time. |
 | `StatsNode([Stat])` | Read-only headline figures (play time, level, slot). |
 | `TextNode(text)` | Notes and warnings (`Tone`), `Monospace` for hashes/offsets. |
 | `ActionNode(id, label)` | Plugin command, optional `Parameters` form and `Confirm` prompt. |
@@ -175,6 +176,44 @@ What the framework does for you:
   open. It also retires ids that vanished and bumps `DocumentState.Revision`.
 - Requests that use a retired id or an old revision are rejected as **stale** (HTTP 409). The browser
   then refetches the view.
+
+### Paged/queryable collections
+
+Large collections implement the optional `IQueryableDocument` interface from
+`SaveToolkit.Sdk.Collections` and publish a `QueryableTableNode` from `BuildView()`. The interface is
+deliberately read-only at the collection boundary: returned rows still contain ordinary `FieldNode`,
+`TextNode`, `ImageNode` and `ActionNode` cells, so the normal controls, validation and edit routing apply.
+
+```csharp
+public sealed class InventoryDocument : BoundSaveDocument, IQueryableDocument
+{
+    public IReadOnlyList<QueryableCollection> Collections =>
+        [new("inventory", "Inventory", [new("id", "Id", IntegerSpec.UInt32), new("name", "Name", new TextSpec())], items.Count)];
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        BuildInventoryPage(collectionId, query); // filter and sort the complete model, then take the page
+}
+```
+
+Collection ids, column keys and row keys are opaque strings and must be stable for the document's
+lifetime. Never use a page offset as a row key. A query has optional `Text`, exact `Filters`,
+`SortColumn`/`Descending`, and either an `Offset` or an opaque `Cursor`; the framework caps page size at
+200 rows, search text at 256 characters, filters at 32 entries of 256 characters, and cursors at 4 KiB.
+The plugin must return no more than the requested limit, preserve stable keys across pages, and return a
+deterministic tie-break (usually the row key) when sorting. `TotalCount` is the complete collection size;
+`FilteredCount` is the count after the query. Unknown columns, duplicate/empty row keys, and malformed
+pages are rejected. The API also caps one JSON page at 2 MiB.
+
+The `QueryableTableNode` contains column types and the unfiltered total so the browser can render a
+bounded shell immediately. Core registers bindings only for rows returned by a page. An edit from a
+page sends that page's `revision`; after a structural edit, old pages receive the same stale 409 used by
+ordinary views and must be refetched.
+
+The web selection context exposes `queryScope` when the user chooses “select all filtered rows”. It is a
+serialisable object containing `collectionId`, the normalized query (`q`, `filters`, `sort`,
+`descending`, with `offset` reset), the F5 `revision`, `totalCount`, and `excludedRowKeys`. Bulk action
+preview/apply consumers (including F6) must send this scope rather than pretending that loaded rows are
+the whole result; exclusions are explicit when the user unchecks a row.
 - Actions that return `Undoable = false` still work: they clear history explicitly, as before.
 
 **References between records:** until there is a dedicated node, expose a reference as an `EnumSpec`
