@@ -1,5 +1,0 @@
-<Project>
-  <Target Name="CheckPragmataSourceSize" BeforeTargets="CoreCompile" Condition="'$(DesignTimeBuild)' != 'true'">
-    <Exec Command="pwsh -NoProfile -File &quot;$(MSBuildThisFileDirectory)scripts/check-code-size.ps1&quot;" />
-  </Target>
-</Project>

@@ -13,6 +13,22 @@ internal sealed class LazyPages
     public IReadOnlyList<ViewNode> Expand(string id) => _sections.TryGetValue(id, out var expand) ? expand() :
         throw new KeyNotFoundException($"Unknown Pragmata section '{id}'.");
 
+    internal static IReadOnlyList<string> NavigationPath(string id, int count, int index)
+    {
+        if (index < 0 || index >= count) throw new ArgumentOutOfRangeException(nameof(index));
+        var result = new List<string>();
+        var start = 0;
+        while (true)
+        {
+            result.Add($"section:{id}/{start}/{count}");
+            if (count <= PageSize) return result;
+            var group = GroupSize(count);
+            var next = start + (index - start) / group * group;
+            count = Math.Min(group, start + count - next);
+            start = next;
+        }
+    }
+
     private SectionNode Section(string id, string title, int start, int count, Func<int, int, IReadOnlyList<ViewNode>> leaf)
     {
         var key = $"{id}/{start}/{count}";
@@ -24,7 +40,7 @@ internal sealed class LazyPages
     {
         if (count <= PageSize) return leaf(start, count);
         // Recursively group large arrays: both intermediate and leaf expansions are bounded.
-        var groupSize = Math.Max(PageSize, (count + PageSize - 1) / PageSize);
+        var groupSize = GroupSize(count);
         var result = new List<ViewNode>();
         for (var i = start; i < start + count; i += groupSize)
         {
@@ -33,4 +49,6 @@ internal sealed class LazyPages
         }
         return result;
     }
+
+    private static int GroupSize(int count) => Math.Max(PageSize, (count + PageSize - 1) / PageSize);
 }

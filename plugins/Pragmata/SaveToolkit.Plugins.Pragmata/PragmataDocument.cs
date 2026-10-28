@@ -29,9 +29,12 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
     public SaveLayout Layout { get; }
     internal ReferenceReadouts References { get; }
     internal EvidenceCollections Evidence { get; }
+    internal InventoryCollections InventoryRows { get; }
+    internal MissionReferences Missions { get; }
     internal ObservedEditBounds Bounds { get; }
-    public IReadOnlyList<QueryableCollection> Collections => Evidence.Metadata;
-    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => Evidence.Query(collectionId, query);
+    public IReadOnlyList<QueryableCollection> Collections => InventoryRows.Enabled ? [InventoryRows.Metadata, .. Evidence.Metadata] : Evidence.Metadata;
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId == InventoryCollections.CollectionId
+        ? InventoryRows.Query(query) : Evidence.Query(collectionId, query);
     public bool CanEdit => true;
     public string Title => Layout.Header is { } header
         ? FormattableString.Invariant($"Pragmata · Slot {Read(Layout.Detail.Find(KnownHashes.Slot)!)} · {HoursPlayed(header):F1} h")
@@ -46,6 +49,8 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
         Bounds = new ObservedEditBounds(Layout, _plaintext);
         References = new ReferenceReadouts(this, references ?? IReferenceContext.Empty);
         Evidence = new EvidenceCollections(this);
+        InventoryRows = new InventoryCollections(this);
+        Missions = new MissionReferences(this);
         _quantityActions = new QuantityActions(this);
         _views = new PragmataViews(this, _container.BlockCount);
     }
@@ -131,7 +136,8 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
             .Concat(References.Changes(proposed)).ToArray();
 
     public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
-        throw new InvalidOperationException("Pragmata bulk actions require a preview before applying.");
+        actionId == MissionReferences.InspectAction ? Missions.Inspect(parameters) :
+            throw new InvalidOperationException("Pragmata bulk actions require a preview before applying.");
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
         _quantityActions.Plan(actionId, parameters, scope);

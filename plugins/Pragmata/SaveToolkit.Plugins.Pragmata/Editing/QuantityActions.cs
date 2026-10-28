@@ -18,7 +18,8 @@ internal sealed class QuantityActions(PragmataDocument document)
     {
         ActionPlan Reject(string message) => new() { Errors = [new FieldError(actionId, message)], Warnings = [Risk] };
         if (actionId != PragmataViews.QuantityAction || document.Layout.Inventory is null) return Reject("Unknown inventory action.");
-        if (scope.QueryScope is not null) return Reject("This action accepts explicit inventory rows or document scope; evidence query scopes are not inventory selections.");
+        if (scope.QueryScope is { } query && (query.CollectionId != InventoryCollections.CollectionId || scope.RowKeys is null))
+            return Reject("Use an inventory query scope resolved to row keys by the framework; evidence queries are not inventory selections.");
         if (parameters.Count != 1 || !parameters.TryGetValue("quantity", out var target) ||
             target.Kind != FieldValueKind.Integer || target.AsInteger() < 0 || target.AsInteger() > int.MaxValue)
             return Reject("Quantity must be an integer between 0 and 2147483647 (storage range, not a game limit).");
@@ -41,7 +42,9 @@ internal sealed class QuantityActions(PragmataDocument document)
                 { Derived = !primary.ContainsKey(change.ValueId) }).ToArray(),
             SkippedRows = selected.Where(item => document.Read(item.Find(KnownHashes.Quantity)!) == target)
                 .Select(item => new SkippedActionRow(RowKey(item), "Stored quantity already equals the requested value.")).ToArray(),
-            Warnings = [Risk, scope.RowKeys is null
+            Warnings = [Risk, scope.QueryScope is not null
+                ? $"All matching inventory rows: {selected.Length} resolved rows after exclusions, including unloaded pages. No records or unlock flags are added."
+                : scope.RowKeys is null
                 ? $"Document scope: {selected.Length} existing rows, including zero-count records. No records or unlock flags are added."
                 : $"Explicit selection: {selected.Length} existing rows. No records or unlock flags are added."],
         };

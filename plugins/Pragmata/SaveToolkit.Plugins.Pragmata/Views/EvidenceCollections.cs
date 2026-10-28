@@ -38,7 +38,7 @@ internal sealed class EvidenceCollections(PragmataDocument document)
     public QueryableCollectionPage Query(string id, QueryableCollectionQuery query)
     {
         if (!_collections.TryGetValue(id, out var collection)) throw new KeyNotFoundException($"Unknown Pragmata collection '{id}'.");
-        Validate(query);
+        CollectionQueries.Validate(query, Columns);
         // Read live values: raw edits must immediately affect filters and sorting after a view rebuild.
         var rows = collection.Array.Children.Select(Describe);
         if (!string.IsNullOrWhiteSpace(query.Text))
@@ -83,18 +83,6 @@ internal sealed class EvidenceCollections(PragmataDocument document)
         FieldTags.UInt32 => $"{document.Read(node)} / 0x{document.Read(node).AsUInt32():x8}",
         _ => document.Read(node).ToString(),
     };
-
-    private static void Validate(QueryableCollectionQuery query)
-    {
-        if (query.Limit is < 1 or > QueryableCollectionLimits.MaxPageSize || query.Offset < 0)
-            throw new ArgumentOutOfRangeException(nameof(query), "Invalid page size or offset.");
-        if (query.Cursor is not null) throw new ArgumentException("Use offset paging for Pragmata evidence collections.", nameof(query));
-        if (query.Text?.Length > QueryableCollectionLimits.MaxQueryLength || query.Filters.Count > QueryableCollectionLimits.MaxFilterCount ||
-            query.Filters.Any(f => f.Value.Length > QueryableCollectionLimits.MaxFilterLength))
-            throw new ArgumentException("Query exceeds the collection protocol bounds.", nameof(query));
-        if ((query.SortColumn is { } sort && !Columns.Any(c => c.Key == sort)) || query.Filters.Keys.Any(key => !Columns.Any(c => c.Key == key)))
-            throw new ArgumentException("Unknown query column.", nameof(query));
-    }
 
     private sealed record Collection(QueryableCollection Metadata, SaveNode Array, Func<SaveNode, ViewNode> Details);
     private sealed record Row(SaveNode Node, string Key, string Identity, string Type, string Values)

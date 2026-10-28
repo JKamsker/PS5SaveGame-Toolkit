@@ -30,8 +30,8 @@ internal sealed class ObservedEditBounds
                 else if (current is FloatSpec floating && double.IsFinite(value.AsDouble()))
                     _specs[key] = floating with
                     {
-                        Min = Math.Min(floating.Min ?? 0, value.AsDouble()),
-                        Max = Math.Max(floating.Max ?? 1, value.AsDouble()),
+                        Min = Math.Min(_specs.ContainsKey(key) ? floating.Min ?? 0 : 0, value.AsDouble()),
+                        Max = Math.Max(_specs.ContainsKey(key) ? floating.Max ?? 1 : 1, value.AsDouble()),
                     };
             }
     }

@@ -1,4 +1,4 @@
-# Pragmata reference pack 1.1.0
+# Pragmata reference pack 1.2.0
 
 `pragmata-identifiers.json` and `pragmata-sections.json` derive from
 [alphazolam RE_RSZ, revision 871a1d5c4c7b81c60c966d73ee63f4c4413ab56e](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json).
@@ -31,6 +31,16 @@ equivalence and PS5 effects are unverified. Player-facing names and stack limits
 remain **Unknown**. Mission reward/clear counts are never used as inventory limits.
 This MIT dataset remains separate from the CC0 item placeholders.
 
+`pragmata-missions.json` uses the same author, pinned mission source, retrieval
+date, SHA-256 and MIT licence/notice above. Modifications: extract all 43 mission
+ID hashes, category hashes, raw difficulty values, display order (when listed),
+opening-item IDs, chapter-condition/message GUIDs and extra-mission flags.
+Labels and descriptions are original raw-ID context, not localized game text.
+The F9 graph uses only the six existing inventory cross-references and their
+18 target missions. Edges describe PC `OpenConditionItemID` data, one condition
+among others; PS5 unlock, ownership and completion states remain Unknown.
+Read-only F4 catalogue fields and F13 inspection display full record attribution.
+
 Regenerate with `python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz
 <reviewed-MIT-schema.json> --missions <reviewed-MIT-mission.json>`. Both source SHA-256 values are checked; record-file hashes are
 recomputed with LF newlines. Pack version must change when semantic content changes.
@@ -40,8 +50,9 @@ using exact invariant decimal uint32 IDs and a different pack ID. Identifier and
 section catalog keys are eight-digit lower-case hex. Attribution remains mandatory
 for every dataset and image. The plugin forwards assets through the pinned context
 and shows image provenance in row details. No networking or file I/O occurs in the
-plugin. User packs do not authorize writes: item reference fields remain read-only,
-imported mappings are at most Inferred, and quantities retain their existing storage
+plugin. User packs do not authorize new write policies: inventory item references
+are experimentally writable under the owner write-enable decision, while evidence
+catalogue fields are browse-only. Imported mappings are at most Inferred, and quantities retain their existing storage
 bounds rather than treating an imported limit as PS5 evidence. Unknown IDs survive
 without substitution. The current game build string is unconfirmed, so the embedded
 pack is build-agnostic; explicitly verify compatibility before importing other data.

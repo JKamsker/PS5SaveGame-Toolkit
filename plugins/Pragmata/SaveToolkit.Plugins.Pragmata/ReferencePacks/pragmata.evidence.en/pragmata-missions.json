@@ -1,0 +1,778 @@
+{
+  "records": [
+    {
+      "id": "3156353611",
+      "name": "Mission 0xbc22224b",
+      "category": "category-hash-80c95d52",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "1",
+        "displayOrder": "1",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "c225bd62-0c00-445c-a597-39b53c227729",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2123346953",
+      "name": "Mission 0x7e8fb409",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "1",
+        "displayOrder": "2",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "72ca1f9c-ee03-487a-b146-f89e551ededc",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2927551143",
+      "name": "Mission 0xae7ee2a7",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "2",
+        "displayOrder": "3",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "4346ed88-8495-4f0a-8cb1-08867488dd60",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "744963514",
+      "name": "Mission 0x2c673dba",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "2",
+        "displayOrder": "4",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "f6735b51-5440-402c-bbb2-457982b297dc",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2952753280",
+      "name": "Mission 0xafff7080",
+      "category": "category-hash-80c95d52",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "1942031930",
+        "difficultyValue": "3",
+        "displayOrder": "5",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "a6907d0d-d0ee-479d-9cc4-491815a9e272",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "3401612358",
+      "name": "Mission 0xcac07c46",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "1942031930",
+        "difficultyValue": "3",
+        "displayOrder": "6",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "4cff5b4a-fba1-4330-aa9d-6eb5cfa08090",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "752729783",
+      "name": "Mission 0x2cddbeb7",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "1942031930",
+        "difficultyValue": "2",
+        "displayOrder": "7",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "d6fabea2-0485-41e1-8cbe-8c409dc50039",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "476732919",
+      "name": "Mission 0x1c6a5df7",
+      "category": "category-hash-80c95d52",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "3090659029",
+        "difficultyValue": "1",
+        "displayOrder": "8",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "05f9c147-075b-4dee-887a-9fd08d13dbcf",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2888583825",
+      "name": "Mission 0xac2c4a91",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "3090659029",
+        "difficultyValue": "2",
+        "displayOrder": "9",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "95f30041-f372-49c7-be4f-86eb0d0b3c92",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "3300274002",
+      "name": "Mission 0xc4b62f52",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "3090659029",
+        "difficultyValue": "2",
+        "displayOrder": "10",
+        "chapterConditionGuid": "5db69e7b-f507-465e-881d-459dc03a0c02",
+        "nameMessageGuid": "0782879c-ef07-419d-a885-f72dbd065a2e",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2685050003",
+      "name": "Mission 0xa00a9c93",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "2",
+        "displayOrder": "11",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "3b28a08e-0f8e-45fb-b687-d3545c5531c5",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "3207981579",
+      "name": "Mission 0xbf35ea0b",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "2",
+        "displayOrder": "12",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "ae3e829c-e36f-4470-97f1-d4f3db5143f7",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2879651115",
+      "name": "Mission 0xaba3fd2b",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "3",
+        "displayOrder": "13",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "c735b68b-d9dd-455d-8a82-adfb0457630e",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "1801112927",
+      "name": "Mission 0x6b5acd5f",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "3",
+        "displayOrder": "14",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "d82d6b60-5ef6-4245-9a8f-d41a5d7ac2dd",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "966624320",
+      "name": "Mission 0x399d8440",
+      "category": "category-hash-80c95d52",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "558265447",
+        "difficultyValue": "3",
+        "displayOrder": "15",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "13935b87-a70c-44ad-a98c-6f9044c8c327",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "1484235688",
+      "name": "Mission 0x5877a3a8",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "558265447",
+        "difficultyValue": "4",
+        "displayOrder": "16",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "59e5783b-e71d-434d-863b-f9a4dc3e60f4",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2471341895",
+      "name": "Mission 0x934daf47",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "558265447",
+        "difficultyValue": "3",
+        "displayOrder": "17",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "e9ed13f4-eae9-4ba3-91f1-d4d03d04e62d",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2841962320",
+      "name": "Mission 0xa964e750",
+      "category": "category-hash-80c95d52",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "3036423139",
+        "difficultyValue": "2",
+        "displayOrder": "18",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "55e83019-8d2a-4e91-9aa8-8e2b28c04590",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2923721580",
+      "name": "Mission 0xae44736c",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "3036423139",
+        "difficultyValue": "3",
+        "displayOrder": "19",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "0c4f354b-80ad-48b0-b9da-e99bee0a9469",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "1860065396",
+      "name": "Mission 0x6ede5874",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "3036423139",
+        "difficultyValue": "3",
+        "displayOrder": "20",
+        "chapterConditionGuid": "e680efed-f3e5-09af-1065-bd3a11350913",
+        "nameMessageGuid": "86900a06-8c1e-4412-9683-3448eb008591",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "631621281",
+      "name": "Mission 0x25a5c6a1",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "3",
+        "displayOrder": "21",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "9257a5e2-2d00-470b-b447-2fe6636ceb09",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "437057014",
+      "name": "Mission 0x1a0cf5f6",
+      "category": "category-hash-80c95d52",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "3",
+        "displayOrder": "22",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "4b3250d1-ce27-41e5-9c19-f622a05901a3",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "1644169140",
+      "name": "Mission 0x620007b4",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "4",
+        "displayOrder": "23",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "1e62ff60-d19b-43e5-b1bf-0871d301c338",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "208400401",
+      "name": "Mission 0x0c6bf011",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "4",
+        "displayOrder": "24",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "18cab41c-2f15-43c3-ab25-fad6ec80b249",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2232716945",
+      "name": "Mission 0x85148e91",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "1887847758",
+        "difficultyValue": "3",
+        "displayOrder": "25",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "24a60d3f-6a99-4000-85c1-efe5c24c0147",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "133647914",
+      "name": "Mission 0x07f74e2a",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "1887847758",
+        "difficultyValue": "3",
+        "displayOrder": "26",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "76ce5f7d-9a86-410c-9a77-2ad0a2d868d0",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "3337923198",
+      "name": "Mission 0xc6f4aa7e",
+      "category": "category-hash-80c95d52",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "1887847758",
+        "difficultyValue": "2",
+        "displayOrder": "27",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "9e53475c-e4bd-4b68-affe-bb26061e8d04",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2690264370",
+      "name": "Mission 0xa05a2d32",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "3746788365",
+        "difficultyValue": "3",
+        "displayOrder": "28",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "c4336e28-e382-447d-9060-8ded23d19a74",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "1447667506",
+      "name": "Mission 0x5649a732",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "3746788365",
+        "difficultyValue": "4",
+        "displayOrder": "29",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "1eaf6f05-d558-405b-9aa8-0cf32ef11e46",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "107707400",
+      "name": "Mission 0x066b7c08",
+      "category": "category-hash-95137c91",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "3746788365",
+        "difficultyValue": "5",
+        "displayOrder": "30",
+        "chapterConditionGuid": "bf9a22c2-8079-4150-98e6-880ae0e8f41c",
+        "nameMessageGuid": "342780e5-1286-4c53-9f10-3fb4a0cc19aa",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "1341101916",
+      "name": "Mission 0x4fef975c",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "1",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "927ca30b-1335-4ea8-8b96-9556560ec06a",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "729905087",
+      "name": "Mission 0x2b8177bf",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "1",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "57df0689-fafb-4e75-8591-abd05e4eceee",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "1149184579",
+      "name": "Mission 0x447f2a43",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "1",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "93a7be7f-7713-40d6-a0f7-f8611bea12de",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "3314288920",
+      "name": "Mission 0xc58c0918",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "1",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "0cd465a6-2867-45c0-8572-f33e036f0e3e",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2337303262",
+      "name": "Mission 0x8b506ade",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "1",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "e52aae69-9ea3-4ddb-a242-8d651a56c62e",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "165874163",
+      "name": "Mission 0x09e309f3",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "5",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "b34221c6-f68e-42a9-b214-dc8228f6c7ed",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2159140272",
+      "name": "Mission 0x80b1ddb0",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "5",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "88080395-4d8f-47c4-8c12-42ea7395e809",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2609202441",
+      "name": "Mission 0x9b854509",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "5",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "e1aa09c2-8ed7-4055-aec8-1ad68bc4dd51",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "2024692358",
+      "name": "Mission 0x78ae5a86",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "5",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "131be1eb-2ae9-4356-8360-48cbd594e78e",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "3065411913",
+      "name": "Mission 0xb6b67949",
+      "category": "category-hash-ea231b62",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "5",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "c697fd60-afa6-435b-938a-87eb65a38310",
+        "extraMission": "true",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "4259431126",
+      "name": "Mission 0xfde1c2d6",
+      "category": "category-hash-8f8ad04d",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "1",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "00000000-0000-0000-0000-000000000000",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "4082600224",
+      "name": "Mission 0xf3578920",
+      "category": "category-hash-84675c46",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "1",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "00000000-0000-0000-0000-000000000000",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    },
+    {
+      "id": "1595644546",
+      "name": "Mission 0x5f1b9a82",
+      "category": "category-hash-8f8ad04d",
+      "description": "PC mission reference data; localized name and PS5 completion/unlock state are Unknown. OpenConditionItemID is one stored opening condition, not a complete unlock rule.",
+      "source": "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json",
+      "attributes": {
+        "confidence": "Inferred",
+        "nameConfidence": "Unknown",
+        "openingItemId": "0",
+        "difficultyValue": "3",
+        "displayOrder": "not listed",
+        "chapterConditionGuid": "00000000-0000-0000-0000-000000000000",
+        "nameMessageGuid": "00000000-0000-0000-0000-000000000000",
+        "extraMission": "false",
+        "platform": "PC; PS5 semantics unverified"
+      }
+    }
+  ]
+}

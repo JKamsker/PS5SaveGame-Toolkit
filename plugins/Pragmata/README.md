@@ -20,6 +20,18 @@ test has been performed; only a human should promote this plugin to Stable.
 - Six observed inventory IDs cross-reference an MIT PC mission dataset's
   `OpenConditionItemID` fields. This **Inferred** role is shown separately from
   the still-Unknown player-facing names and limits; no PS5 unlock behavior is claimed.
+- F9 mission opening-condition graph: six item references and 18 mission references,
+  with browse-only F4 fields, navigation and text alternatives. All saved mission
+  states stay Unknown. The attributed catalogue contains 43 PC mission IDs with
+  category hashes, difficulty values, display order and unresolved message/chapter
+  GUIDs. F13 inspection reports metadata without changing save values or history.
+- F9 checkpoint map/list: raw hashes link to existing values. Coordinates, locations
+  and discovered/completed states stay Unknown. The community map is an attributed
+  external link; no artwork or coordinates are imported.
+- Inventories above 200 rows use F8 search, exact column filters, numeric quantity
+  sorting and stable physical row keys. F6 all-matching selection includes unloaded
+  pages and exclusions through Core's resolver; querying publishes bindings before
+  planning. The supplied 90-row inventories retain their compact table.
 - A developer-only F1 decoder and differential harness, plus a versioned section/ID
   manifest. Canonical paths align reordered sections and uniquely keyed records.
   See [evidence and exact owner capture checklist](evidence/README.md).
@@ -233,9 +245,11 @@ The F6 action changes existing entries, including zero-count entries, without
 adding records or setting unlock flags. The preview lists raw-ID old/new values,
 aliases, skips and warnings. Explicit empty selection changes nothing; unknown,
 duplicate or non-inventory keys and duplicate item IDs reject the entire action.
-Direct invocation is rejected. Unexposed target quantity pages must be expanded
-before planning so the complete apply remains one undo step. No new editable
-gameplay family, legal-max preset or structural operation is introduced in roadmap round 2.
+Direct bulk invocation is rejected. For large inventories, use all-matching query
+selection to publish target bindings before planning. Explicit row/document scopes
+still reject unbound quantities; internal setters alone would not establish framework
+specs or complete semantic review. No new gameplay write family, legal-max preset
+or structural operation is introduced in the completion round.
 
 Regenerate the pack from a reviewed local copy of the pinned MIT schema:
 
@@ -250,10 +264,11 @@ only the reviewed JSON inputs, current known-hash subset and evidence manifest,
 and does not download/execute upstream code or read saves. HashNames is the
 reviewed observed-hash allowlist; adding new hashes requires reviewing that subset.
 
-The embedded `pragmata.evidence.en` v1.1.0 pack contains `pragmata-identifiers`
+The embedded `pragmata.evidence.en` v1.2.0 pack contains `pragmata-identifiers`
 (408 MIT names), `pragmata-sections` (27 MIT-derived group labels) and
 `pragmata-items` (90 CC0 original unmapped-ID descriptions) and `pragmata-item-evidence`
-(six MIT mission-opening-condition cross-references). User packs can supply
+(six MIT mission-opening-condition cross-references) and `pragmata-missions`
+(43 MIT PC reference records; raw hashes/GUIDs, no localized names). User packs can supply
 names/descriptions/icons under another pack ID; item keys are invariant decimal
 uint32 strings. Identifier and section keys are eight-digit lower-case hex.
 See [pack provenance and import contract](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/data.source.md).
@@ -273,7 +288,6 @@ ordinal text with a stable row-key tie-break; queries use offsets, not cursors.
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
 dotnet test --project tests/SaveToolkit.Core.Tests
-pwsh -NoProfile -File plugins/Pragmata/scripts/check-code-size.ps1
 ```
 
 Conformance covers all 12 distinct files with meaningful quantity edits and a
@@ -336,28 +350,52 @@ Field/action descriptions and F6 plan/apply warnings explicitly cover console an
 RSA limitations. API build passes with zero warnings/errors. No new dataset,
 algorithm port or dependency was added; the original attribution remains intact.
 
-Builds run the plugin-local code-size check: warn above 300 C# lines and fail
-above 500 unless a reviewed justification exists in `code-size-exemptions.json`.
-All current C# files are below 300 lines. The same pre-commit hook can be used
-without changing shared worktree configuration:
+Completion validation: **120 passed, 0 failed, 0 skipped**, with
+`SAVETOOLKIT_ARTIFACTS` exported in the test command and all 12 supplied files
+exercised. Added F9 source/Unknown-state/navigation checks, F13 browse/filter/sort
+and inspection history invariance, 251-row F8/#27 preview/apply/reopen/review/undo,
+float-bound regressions and malformed-input rejection. API build: **0 warnings,
+0 errors**. Pack regeneration is byte-identical. No GUI/browser run is claimed.
+See the [updated requirement audit](evidence/completion.md).
 
-```powershell
-git -c core.hooksPath=plugins/Pragmata/.githooks -c user.name="Codex Worker" -c user.email="codex@localhost" commit ...
-```
+All current C# files are below 300 lines. Completion-round housekeeping removes
+legacy plugin-local hooks, build targets and lint tooling to follow the current
+project rule prohibiting repository tooling inside plugin folders.
+
+## Framework feature adoption
+
+| Feature | Status | Where / concrete limitation |
+| --- | --- | --- |
+| F1 SaveDiff | Used | Research `PragmataDecoder`, shared diff engine and versioned evidence manifest; all-sample synthetic quantity/write isolation. |
+| F2 reference packs | Added this round | Existing 408 identifier/27 section/90 placeholder/six mission-link records plus 43 attributed PC mission references in pack 1.2.0; pinned sources/assets. |
+| F3 rich cells | Used | Inventory reference/quantity confidence, item details with image/provenance when supplied, selection action cells; F8 detail cells. |
+| F4 pickers | Added this round | Writable inventory item IDs; browse-only mission/item-evidence references. Other ID fields have no ID-matched catalogue and remain exact raw values. |
+| F5 structural undo | N/A | Only fixed-size primitive patching exists; no preserve-first resizing writer. Unknown padding/count metadata prevents safe add/remove/reorder. |
+| F6 planned actions / #27 | Added this round | Existing quantity preview/apply; F8 whole-query selection, exclusions, stale-plan checks and one undo unit above 200 rows. No legal-max/loadout/progression preset has proven dependency rules. |
+| F7 document groups | N/A | No proven coupled-file operation or partner identity. Claiming independent slot/system files would invent dependencies and lock unrelated saves. |
+| F8 queryable tables | Added this round | All evidence arrays already queryable; inventory switches above 200 rows, with search/filter/numeric quantity sort. |
+| F9 graphs/maps | Added this round | Unknown-state item-to-mission opening-condition DAG and bounded checkpoint map/list with field targets and external map link. No invented skill edges or locations. |
+| F10 exact/nullable/union | Used / N/A variants | UInt64/Int64 use exact Int128 wire strings; this binary schema has no numeric lexemes, null primitive or discriminated-union storage to expose. |
+| F11 shared codecs | N/A | Supported DSSS flags 0x10 contain uncompressed Mandarin AES-OFB, neither Kraken nor SQLite. Unsupported flags reject. |
+| F12 decoder/traversal | Pending #32 | Keep the canonical research decoder; do not duplicate pending shared discovery/traversal. |
+| F13 inspection/browse/sort/durations | Added this round / N/A float duration | `Mutates=false` mission inspection, browse-only references, catalogue category/sort. Known timers are integer microseconds already using Duration; unidentified floats have no proven time unit. |
 
 ## SDK requests
 
-Optional: publish field specs independently of eager/lazy view nodes. Core undo
-filters changes against specs already indexed from exposed views. All 90 sample
-quantities are eager. For inventories above 200, F6 preflight now rejects unexposed
-target quantity pages instead of applying without undo. Internal bindings alone
-cannot safely promise framework undo. No framework change was required.
+Field metadata publication remains a proposal in
+[`F13-FIELD-SPEC-PUBLISHING.md`](../../docs/plans/F13-FIELD-SPEC-PUBLISHING.md),
+not an implemented capability. Unknown action IDs already replay in Core undo;
+that alone does not classify primary/derived aliases, bind setters, or guarantee
+complete semantic review. The unloaded-quantity guard remains. F8 all-matching
+query resolution safely publishes ordinary fields/specs for every selected row
+before F6 planning; 251-row tests cover apply/reopen, semantic review, byte-only
+quantity deltas and one-step undo/redo. No shared change is needed for that path.
 
 F1's stock CLI resolves plugin IDs through `PluginViewDecoder`; it has no external
 decoder-assembly registration option. The plugin-local research executable consumes
 `ISaveDecoder` directly through the shared F1 engine, so there is no production plugin
-dependency on Testing and no duplicate diff engine. Optional future request: discover
-external decoder hooks in the stock CLI. F2/F3/F4/F5/F6/F8 required no framework changes.
+dependency on Testing and no duplicate diff engine. External decoder discovery and
+F8 traversal are **pending #32**; retain the research decoder until it lands.
 
 ## Sources and attribution
 
@@ -366,6 +404,8 @@ external decoder hooks in the stock CLI. F2/F3/F4/F5/F6/F8 required no framework
 | HashNames; `pragmata-identifiers`; section names / declared types | [Pinned RE_RSZ schema](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/rszpragmata.json), alphazolam / praydog, [MIT](https://github.com/alphazolam/RE_RSZ/blob/871a1d5c4c7b81c60c966d73ee63f4c4413ab56e/LICENSE) | 2026-10-28; observed hash subset; name hashing, group labels, type cross-index. Full notice in THIRD_PARTY_NOTICES.txt. |
 | Item ID placeholders / sample observation statistics | [Issue #21](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21), Save Toolkit contributors, [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) for original descriptions / computed facts | 2026-10-28; no gameplay name mapping; GUIDs fingerprinted; no sample payloads. |
 | `pragmata-item-evidence`: six inventory/mission opening-condition links | [Pinned mission JSON](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json), Egg Targaryen / dzxrly; [MIT](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/LICENSE) | 2026-10-28; exact numeric `OpenConditionItemID`/mission-ID pairs cross-indexed with observed PS5 item IDs. Inferred role; names/limits Unknown. Full notice embedded beside the dataset. |
+| `pragmata-missions`: 43 mission references / graph | Same pinned mission JSON and MIT source above, Egg Targaryen / dzxrly | 2026-10-28; ID/category/difficulty/order/condition/message metadata only. Original raw-ID labels; six item-to-18-mission edges are PC references, not verified PS5 unlock rules. Full notice/attribution in pack, UI, Sources and Info.References. |
+| External community map | [itemaps Pragmata map](https://itemaps.com/maps/pragmata), itemaps contributors; licence unverified | 2026-10-28; link only. No artwork, coordinates, marker labels/descriptions or totals imported. Checkpoint hashes/Unknown statuses are original save observations. |
 | CityHash64 algorithm adaptation | [Google CityHash](https://github.com/google/cityhash), Google, MIT | Existing port; full notice in THIRD_PARTY_NOTICES.txt. |
 | AES-OFB vectors | [NIST SP 800-38A](https://csrc.nist.gov/pubs/sp/800/38/a/final), NIST, US government publication | Existing F.4.1 test vectors. |
 | DSSS / Mandarin / typed-stream observations | [Supplied verified research](../../docs/research/pragmata/README.txt), owner-supplied format evidence | Existing independently implemented crypto/format; no upstream editor code embedded. |

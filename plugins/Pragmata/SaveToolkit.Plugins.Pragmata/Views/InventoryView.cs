@@ -5,12 +5,11 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Pragmata.Views;
 
-internal sealed class InventoryView(PragmataDocument document, LazyPages pages)
+internal sealed class InventoryView(PragmataDocument document)
 {
     public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Player-facing item mappings and legal stack limits are unverified. Attributed reference packs can supply names, descriptions and images; raw IDs are always preserved. Quantities use the stored int32 range.") { Tone = Tone.Warning },
-        document.Layout.Items.Count <= LazyPages.PageSize ? Table(0, document.Layout.Items.Count) :
-            pages.Section("inventory", "_InventoryItems", document.Layout.Items.Count, (start, count) => [Table(start, count)]),
+        document.Layout.Items.Count <= LazyPages.PageSize ? Table() : document.InventoryRows.Table(),
         QuantityAction(),
     ];
 
@@ -20,29 +19,25 @@ internal sealed class InventoryView(PragmataDocument document, LazyPages pages)
             Tone = Tone.Warning,
             Parameters = [new FieldNode("quantity", "N", IntegerSpec.Int32 with { Min = 0 }, FieldValue.Of(1L))],
             Description = PragmataDocument.EditWarning + " Preview selected rows from the table, or every existing row from document scope. Legal limits and game effects remain unverified. " +
-                "Expand target quantity pages first; applying is one undo step. Does not add items or set unlock flags.",
+                "For large inventories, select all matching rows to include unloaded pages. Document scope requires loaded quantity bindings. Applying is one undo step. Does not add items or set unlock flags.",
         };
 
-    private TableNode Table(int start, int count)
+    private TableNode Table() => new(InventoryCollections.Columns.Select(column => new TableColumn(column.Key, column.Label)).ToArray(),
+        document.Layout.Items.Select(item => Row(document, item)).ToArray()) { Title = "_InventoryItems" };
+
+    internal static TableRow Row(PragmataDocument document, SaveNode item)
     {
         var equipped = document.Read(document.Layout.Inventory!.Find(KnownHashes.EquippedItem)!).AsUInt32();
-        var rows = document.Layout.Items.Skip(start).Take(count).Select(item =>
-        {
-            var id = document.Read(item.Find(KnownHashes.ItemId)!).AsUInt32();
-            return new TableRow(QuantityActions.RowKey(item), new Dictionary<string, ViewNode>
+        var id = document.Read(item.Find(KnownHashes.ItemId)!).AsUInt32();
+        return new TableRow(QuantityActions.RowKey(item), new Dictionary<string, ViewNode>
             {
                 ["id"] = new TextNode($"0x{id:x8} / {id}") { Monospace = true },
                 ["name"] = document.References.ItemField(item.Find(KnownHashes.ItemId)!),
+                ["category"] = new TextNode(document.References.Item(id)?.Category ?? "unmapped"),
                 ["quantity"] = document.Field(item.Find(KnownHashes.Quantity)!) with { Label = "Quantity" },
                 ["equipped"] = new TextNode(id == equipped ? "Equipped" : ""),
                 ["details"] = new SectionNode("Item details and sources", document.References.ItemDetails(id)),
                 ["action"] = QuantityAction(),
-            });
-        }).ToArray();
-        return new TableNode([new("name", "Item ID (experimental replacement)"), new("id", "Raw ID (hex / decimal)"),
-            new("quantity", "Quantity"), new("equipped", "Equipped"), new("details", "Details / sources"), new("action", "Selection action")], rows)
-        {
-            Title = "_InventoryItems",
-        };
+        });
     }
 }

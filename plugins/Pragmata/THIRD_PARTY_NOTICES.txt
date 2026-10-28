@@ -44,11 +44,15 @@ Original unmapped-item descriptions/computed sample facts by Save Toolkit
 contributors are dedicated under CC0-1.0:
 https://creativecommons.org/publicdomain/zero/1.0/
 
-ReferencePacks/pragmata.evidence.en/pragmata-item-evidence.json derives from:
+ReferencePacks/pragmata.evidence.en/pragmata-item-evidence.json and
+pragmata-missions.json derive from:
 https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json
 Copyright (c) 2026 Egg Targaryen. MIT; retrieved 2026-10-28.
 Extracted six exact inventory item IDs referenced by OpenConditionItemID and
 their mission IDs; added original context descriptions and a PS5 cross-index.
+Completion round also extracts 43 raw mission ID/category/difficulty/order and
+opening-condition/message metadata records. The graph displays PC references,
+not complete PS5 prerequisite rules or localized names.
 No localized text, artwork, source code or modified mission time limits copied.
 The full MIT notice is included with the data at:
 SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/LICENSE.Mission.MIT.txt

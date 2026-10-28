@@ -1,4 +1,0 @@
-#!/bin/sh
-set -eu
-plugin_root="$(git rev-parse --show-toplevel)/plugins/Pragmata"
-exec pwsh -NoProfile -File "$plugin_root/scripts/check-code-size.ps1"

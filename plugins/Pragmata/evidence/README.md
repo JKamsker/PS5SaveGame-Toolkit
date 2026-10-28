@@ -58,6 +58,11 @@ as identity evidence.
 
 ## Scope and owner checklist
 
+The [completion audit](completion.md) supersedes earlier round-2 read-only/query
+limitations and classifies every requirement. F9 graphs/maps, F13 browse/inspection
+and F8 inventories above 200 now integrate with the fixed-size writer; F12 remains
+pending #32. No structural or new gameplay-family write is added this round.
+
 Phase 1 indexing/harness and Phase 2 reference integration/read-only navigation
 are implemented. Causal semantics, actual item dictionaries, mapped locations and
 verified completion totals remain open. The write-enable decision supersedes the
@@ -102,3 +107,9 @@ available, but no structural operation is exposed and maturity stays Experimenta
 - Validate one existing quantity change through F6 preview/apply, undo, redo,
   export/re-import and console load/re-save/reload. Check displayed quantity,
   equipped state, unlock state and sibling system/gameplay files independently.
+- For a real inventory above 200 rows, repeat with a filtered all-matching scope
+  and one excluded row. Confirm all selected quantities and the unchanged exclusion.
+- Pair a single checkpoint/hatch unlock with its displayed location and raw hash;
+  capture mission selectability/chapter prerequisites separately from inventory
+  quantities. The F9 map/graph deliberately shows Unknown saved states; no geographic
+  mapping or full unlock rule is implied by the reference data.
