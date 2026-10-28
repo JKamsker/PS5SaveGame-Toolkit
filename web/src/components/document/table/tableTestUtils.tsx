@@ -54,6 +54,7 @@ export function renderTable(node: TableNode, options: { canEdit?: boolean } = {}
     structureVersion: 0,
     commit,
     runAction: vi.fn(async () => ({ ok: true, errors: [], changes: [], warnings: [], structureChanged: false, state: store.state })),
+    refresh: vi.fn(async () => {}),
   };
   const utils = render(
     <DocumentContext.Provider value={context}>
