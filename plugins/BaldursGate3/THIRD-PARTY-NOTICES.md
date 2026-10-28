@@ -44,3 +44,23 @@ carry their own notices and transitive dependency licences:
   <https://github.com/oleg-st/ZstdSharp/blob/master/LICENSE>.
 
 No community editor source was copied or executed.
+
+## Starter reference data (separate from code)
+
+`ReferencePacks/bg3.starter.en/templates.json` and `origins.json` contain factual
+labels/identifiers selected from bg3.wiki and original annotations by PS5 Save
+Game Toolkit contributors. Retrieved 2026-10-28. This data adaptation is licensed
+under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); retain its
+attribution, linked sources, modification notice and share-alike terms.
+The complete dataset/source/modification record is beside the embedded data in
+`data.source.md` and `pack.json`, and in the README's Sources and attribution table.
+No wiki descriptive prose, biographies, artwork or icons are included. The wiki's
+[copyright policy](https://bg3.wiki/wiki/bg3wiki:Copyrights) distinguishes legacy
+CC BY-NC-SA expressive content; no blanket redistribution right to that content
+or to game assets is claimed.
+
+LSMF research consulted DanFinchUK/bg3-savefile-parser's pinned format document
+(`9578ff7c46a1aa40c805f6b7beecf907f10fb3b8`), whose implementation licence remains
+unresolved. No implementation was adapted or executed. The new reader is an
+independent implementation of documented and independently measured format facts;
+see `LSMF.md` for its limited scope and validation record.

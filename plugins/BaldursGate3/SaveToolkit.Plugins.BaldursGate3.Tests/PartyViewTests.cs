@@ -36,7 +36,7 @@ public sealed class PartyViewTests
         Assert.All(table.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>(), field =>
         {
             Assert.True(field.Spec.ReadOnly);
-            Assert.Equal(Confidence.Inferred, field.Confidence);
+            Assert.Equal(field.Label == "Origin label" ? Confidence.Unknown : Confidence.Inferred, field.Confidence);
             Assert.Equal(field.Value, document.GetValue(field.ValueId));
             Assert.False(document.ApplyEdits([new ValueEdit(field.ValueId, FieldValue.Of(99L))]).Succeeded);
         });

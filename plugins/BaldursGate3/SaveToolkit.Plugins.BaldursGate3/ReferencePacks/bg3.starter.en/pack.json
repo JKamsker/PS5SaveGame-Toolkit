@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "id": "bg3.starter.en",
+  "version": "1.0.0",
+  "title": "BG3 starter labels (English, CC BY-SA 4.0)",
+  "plugins": [
+    "bg3"
+  ],
+  "titleIds": [
+    "PPSA18463"
+  ],
+  "gameBuilds": [],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "bg3_templates",
+      "kind": "records",
+      "title": "BG3 template labels (four candidates)",
+      "files": [
+        {
+          "sha256": "2713fd93710e545649ab960003f33de8950c6605d00f9abc85869c22481294e6",
+          "path": "templates.json"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://bg3.wiki/",
+        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted factual names and technical identifiers only; mapped SaveInfo origin keys; wrote original uncertainty annotations. No wiki prose or images copied. Adapted pack remains CC BY-SA 4.0."
+      }
+    },
+    {
+      "id": "bg3_origins",
+      "kind": "records",
+      "title": "BG3 origin labels (three candidates)",
+      "files": [
+        {
+          "sha256": "e23f060e63581b1b1ce909a6c84ed4bb4ac9b670aeaf27ea5a4e0796e8de6136",
+          "path": "origins.json"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://bg3.wiki/",
+        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "CC-BY-SA-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted factual names and technical identifiers only; mapped SaveInfo origin keys; wrote original uncertainty annotations. No wiki prose or images copied. Adapted pack remains CC BY-SA 4.0."
+      }
+    }
+  ]
+}
