@@ -1,6 +1,6 @@
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api, isStaleError } from "../../../api/client";
+import { api, ApiError, isStaleError } from "../../../api/client";
 import type { CollectionQuery, QueryableTableNode, TableColumn, TableRow } from "../../../api/protocol";
 import { useDocument, useDocumentState } from "../../../state/documentStore";
 import { RowDetails, rowHasDetails } from "./RowDetails";
@@ -13,7 +13,7 @@ const PAGE_SIZE = 50;
 
 /** Paged table for an SDK IQueryableDocument. Eager TableNode rendering remains in TableView. */
 export function ServerTableView({ node }: { node: QueryableTableNode }) {
-  const { workspaceId, documentId, refresh, store } = useDocument();
+  const { workspaceId, documentId, structureVersion, refresh, store } = useDocument();
   const { version } = useDocumentState(store);
   const [text, setText] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
@@ -27,23 +27,29 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
   );
   const revision = store.state.revision ?? 0;
   const result = useQuery({
-    queryKey: ["collection", workspaceId, documentId, node.collectionId, query, revision, version],
+    queryKey: ["collection", workspaceId, documentId, node.collectionId, query, revision, version, structureVersion],
     queryFn: () => api.queryCollection(workspaceId, documentId, node.collectionId, query, revision),
-    retry: (count, error) => !isStaleError(error) && count < 2,
-    placeholderData: (previous) => previous,
+    retry: (count, error) => !(error instanceof ApiError && error.status >= 400 && error.status < 500) && count < 2,
   });
   const stale = result.isError && isStaleError(result.error);
+  const recoveryAttempted = useRef(false);
   useEffect(() => {
-    if (stale) void refresh();
-  }, [stale, refresh]);
+    if (result.isSuccess) recoveryAttempted.current = false;
+    if (!stale || recoveryAttempted.current) return;
+    recoveryAttempted.current = true;
+    // Keep the failure visible and allow manual retry if refreshing the document also fails.
+    void refresh().catch(() => {});
+  }, [stale, result.isSuccess, refresh]);
 
-  const page = result.data;
+  const page = result.isError || text !== deferredText ? undefined : result.data;
   const columns = useMemo<TableColumn[]>(
     () => (page?.columns ?? node.columns).map((column) => ({ key: column.key, label: column.label, description: column.description, width: column.width })),
     [node.columns, page?.columns],
   );
   const rows = page?.rows ?? [];
   const selection = useQueryableSelection(rows, node.collectionId, query, page?.revision ?? revision, page?.filteredCount ?? 0);
+  const { clear } = selection;
+  useEffect(() => { clear(); }, [revision, node.collectionId, structureVersion, clear]);
   const visibleSelected = rows.reduce((count, row) => count + (selection.isSelected(row.key) ? 1 : 0), 0);
   const canNext = page ? Boolean(page.nextCursor) || page.offset + rows.length < page.filteredCount : false;
   const canPrevious = offset > 0;
@@ -62,7 +68,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
         <div className="table__toolbar">
           <h3 className="table__title">{node.title}</h3>
           <span className="table__count" aria-live="polite">
-            {page ? `${page.filteredCount.toLocaleString()} of ${page.totalCount.toLocaleString()} rows` : "Loading rows…"}
+            {page ? `${page.filteredCount.toLocaleString()} of ${page.totalCount.toLocaleString()} rows` : result.isError ? "Rows unavailable" : "Loading rows…"}
           </span>
           {selection.count > 0 && (
             <span className="table__selected" aria-live="polite">
@@ -92,13 +98,19 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
           {selection.queryScope && <span className="table__scope">All filtered rows selected; edits apply to this query.</span>}
         </div>
         {node.description && <p className="section__description">{node.description}</p>}
-        {result.isError && !stale && <p className="notice notice--Danger">{result.error.message}</p>}
+        {result.isError && <div>
+          <p role="alert" className="notice notice--Danger">{stale ? "This table is out of date. Refresh the document to load current rows." : result.error.message}</p>
+          <button type="button" className="btn btn--small" onClick={() => {
+            if (stale) void refresh().catch(() => {});
+            else void result.refetch();
+          }}>{stale ? "Refresh document" : "Retry rows"}</button>
+        </div>}
         <div className="table__scroller">
-          <div className="table__grid" role="table" aria-label={node.title} aria-rowcount={(page?.filteredCount ?? node.totalCount) + 1} style={{ gridTemplateColumns: `36px repeat(${columns.length}, minmax(160px, 1fr))` }}>
+          <div className="table__grid" role="table" aria-label={node.title} aria-busy={result.isFetching} aria-rowcount={(page?.filteredCount ?? node.totalCount) + 1} style={{ gridTemplateColumns: `36px repeat(${columns.length}, minmax(160px, 1fr))` }}>
             <Header columns={columns} rows={rows} selected={visibleSelected} selection={selection} />
-            {rows.map((row, index) => <ServerRow key={row.key} row={row} columns={columns} rowIndex={index + 2} selected={selection.isSelected(row.key)} onToggle={selection.toggle} />)}
+            {rows.map((row, index) => <ServerRow key={row.key} row={row} columns={columns} rowIndex={(page?.offset ?? 0) + index + 2} selected={selection.isSelected(row.key)} onToggle={selection.toggle} />)}
           </div>
-          {!result.isPending && rows.length === 0 && <p className="table__empty">No rows match the current filters.</p>}
+          {page && rows.length === 0 && <p className="table__empty">No rows match the current filters.</p>}
         </div>
         <nav className="table__pagination" aria-label={`${node.title} pages`}>
           <button type="button" className="btn btn--small" disabled={!canPrevious || result.isFetching} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>Previous</button>

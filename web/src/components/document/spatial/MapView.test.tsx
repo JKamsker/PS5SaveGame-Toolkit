@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ViewRenderer } from "../ViewRenderer";
+import { MapView } from "./MapView";
 import { api } from "../../../api/client";
 import { map, renderSpatial } from "./spatialTestUtils";
 import { ExternalLink, httpsUrl } from "./SpatialShared";
@@ -10,7 +10,7 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 describe("map views", () => {
   it("loads only a local F2 image, transforms markers and retains unpositioned text locations", () => {
     const fetch = vi.spyOn(globalThis, "fetch");
-    const { container } = renderSpatial(<ViewRenderer node={map} />);
+    const { container } = renderSpatial(<MapView node={map} />);
     const image = screen.getByRole("img", { name: "Original courtyard" });
     expect(image.getAttribute("src")).toBe(api.referenceAssetUrl("w1", "d1", "test.spatial:schematic.png"));
     const marker = screen.getByRole("button", { name: "Courtyard cache: Missing, Loot" });
@@ -23,7 +23,7 @@ describe("map views", () => {
   });
 
   it("selects markers with native buttons and exposes details, navigation and attributed external links", () => {
-    renderSpatial(<ViewRenderer node={map} />);
+    renderSpatial(<MapView node={map} />);
     const marker = screen.getByRole("button", { name: "Courtyard cache: Missing, Loot" });
     marker.focus();
     expect(document.activeElement).toBe(marker);
@@ -40,7 +40,7 @@ describe("map views", () => {
   });
 
   it("filters the graphic, list and selection together", () => {
-    renderSpatial(<ViewRenderer node={map} />);
+    renderSpatial(<MapView node={map} />);
     fireEvent.click(screen.getByRole("button", { name: "Courtyard cache: Missing, Loot" }));
     fireEvent.change(screen.getByLabelText("Status"), { target: { value: "Found" } });
     expect(screen.queryByRole("complementary")).toBeNull();
@@ -57,7 +57,7 @@ describe("map views", () => {
     const externalOnly = { ...map, background: undefined, coordinateAttribution: undefined, coordinateEmbeddingPermitted: false,
       markers: map.markers.map(marker => ({ ...marker, x: undefined, y: undefined })),
       externalSource: { url: "https://community.example/region", label: "Open community map", attribution: "Community authors; licence unknown, link only." } };
-    renderSpatial(<ViewRenderer node={externalOnly} />);
+    renderSpatial(<MapView node={externalOnly} />);
     expect(screen.queryByRole("img")).toBeNull();
     expect(screen.queryByRole("region", { name: "Courtyard diagram" })).toBeNull();
     expect(screen.getByRole("link", { name: "Open community map (community.example)" }).getAttribute("rel")).toBe("noopener noreferrer");
@@ -65,12 +65,12 @@ describe("map views", () => {
   });
 
   it("refuses remote/unlicensed backgrounds and unlicensed coordinates; missing assets retain text and pins", () => {
-    const rendered = renderSpatial(<ViewRenderer node={{ ...map, background: { ...map.background!, assetId: "https://remote.example/map.png" }, coordinateEmbeddingPermitted: false }} />);
+    const rendered = renderSpatial(<MapView node={{ ...map, background: { ...map.background!, assetId: "https://remote.example/map.png" }, coordinateEmbeddingPermitted: false }} />);
     expect(screen.queryByRole("img")).toBeNull();
     expect(screen.getByRole("alert").textContent).toContain("local pack asset");
     expect(screen.queryByRole("button", { name: "Courtyard cache: Missing, Loot" })).toBeNull();
     rendered.unmount();
-    renderSpatial(<ViewRenderer node={map} />);
+    renderSpatial(<MapView node={map} />);
     fireEvent.error(screen.getByRole("img"));
     expect(screen.queryByRole("img")).toBeNull();
     expect(screen.getByText(/Background unavailable. The schematic/)).toBeTruthy();
@@ -78,7 +78,7 @@ describe("map views", () => {
   });
 
   it("rejects oversized marker lists before rendering", () => {
-    renderSpatial(<ViewRenderer node={{ ...map, markers: Array.from({ length: 513 }, () => map.markers[0]!) }} />);
+    renderSpatial(<MapView node={{ ...map, markers: Array.from({ length: 513 }, () => map.markers[0]!) }} />);
     expect(screen.getByRole("alert").textContent).toContain("limits");
     expect(screen.queryByRole("img")).toBeNull();
   });

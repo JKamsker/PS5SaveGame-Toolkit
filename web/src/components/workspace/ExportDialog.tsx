@@ -25,6 +25,8 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
     queryKey: ["export-plan", workspaceId, scope, mirror],
     queryFn: () => api.exportPlan(workspaceId, scope, mirror),
     enabled: open,
+    // Edits can occur while this mounted dialog is closed, even inside the global freshness window.
+    staleTime: 0,
     retry: false,
   });
 
@@ -71,8 +73,9 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
           <input type="checkbox" checked={mirror} onChange={(e) => setMirror(e.target.checked)} />
           Also update the console backup copy (sce_bu) when it matched the original
         </label>
-        {plan.isError && <p className="notice notice--Danger">{plan.error.message}</p>}
-        {plan.data && (
+        {plan.isFetching && <p role="status">Checking current export…</p>}
+        {plan.isError && <p role="alert" className="notice notice--Danger">{plan.error.message}</p>}
+        {plan.data && !plan.isFetching && !plan.isError && (
           <div className="notice notice--Info">
             {plan.data.changedCount === 0 ? (
               "Nothing has been changed yet."
@@ -95,7 +98,7 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
         <button type="button" className="btn btn--quiet" onClick={onClose}>
           Cancel
         </button>
-        <button type="button" className="btn btn--primary" disabled={busy || !plan.data || (plan.data.changedCount === 0 && scope !== "Everything")} onClick={() => void download()}>
+        <button type="button" className="btn btn--primary" disabled={busy || plan.isFetching || plan.isError || !plan.data || (plan.data.changedCount === 0 && scope !== "Everything")} onClick={() => void download()}>
           {busy ? "Packing…" : "Download zip"}
         </button>
       </div>

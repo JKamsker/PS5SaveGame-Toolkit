@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { ViewRenderer } from "../ViewRenderer";
+import { GraphView } from "./GraphView";
 import { graphLayout } from "./graphLayout";
 import { graph, renderSpatial } from "./spatialTestUtils";
 
@@ -8,7 +8,7 @@ afterEach(cleanup);
 
 describe("graph views", () => {
   it("renders states, costs, directed prerequisites and a full text alternative", () => {
-    const { container } = renderSpatial(<ViewRenderer node={graph} />);
+    const { container } = renderSpatial(<GraphView node={graph} />);
     expect(screen.getByRole("button", { name: "Dash: Available, cost 2 points, jump to control" }).tagName).toBe("BUTTON");
     expect(container.querySelectorAll("svg line")).toHaveLength(2);
     const list = screen.getByRole("list");
@@ -22,7 +22,7 @@ describe("graph views", () => {
   });
 
   it("filters both graphic and text by status, branch and search", () => {
-    const { container } = renderSpatial(<ViewRenderer node={graph} />);
+    const { container } = renderSpatial(<GraphView node={graph} />);
     fireEvent.change(screen.getByLabelText("Status"), { target: { value: "Locked" } });
     expect(screen.getAllByRole("listitem")).toHaveLength(1);
     expect(screen.getByRole("list").textContent).toContain("Glide");
@@ -36,7 +36,7 @@ describe("graph views", () => {
   });
 
   it("supports bounded zoom, keyboard panning and reset without intercepting control keys", () => {
-    renderSpatial(<ViewRenderer node={graph} />);
+    renderSpatial(<GraphView node={graph} />);
     const diagram = screen.getByRole("region", { name: "Skills diagram" });
     diagram.focus();
     fireEvent.keyDown(diagram, { key: "ArrowRight" });
@@ -53,19 +53,19 @@ describe("graph views", () => {
 
   it("bounds list rendering and rejects an oversized payload before layout", () => {
     const items = Array.from({ length: 51 }, (_, i) => ({ id: String(i), label: `Skill ${i}`, state: "Unknown" as const }));
-    const rendered = renderSpatial(<ViewRenderer node={{ ...graph, items, edges: [] }} />);
+    const rendered = renderSpatial(<GraphView node={{ ...graph, items, edges: [] }} />);
     expect(screen.getAllByRole("listitem")).toHaveLength(50);
     fireEvent.click(screen.getByRole("button", { name: "Next items" }));
     expect(screen.getAllByRole("listitem")).toHaveLength(1);
     rendered.unmount();
-    const { container } = renderSpatial(<ViewRenderer node={{ ...graph, items: Array.from({ length: 513 }, () => items[0]!) }} />);
+    const { container } = renderSpatial(<GraphView node={{ ...graph, items: Array.from({ length: 513 }, () => items[0]!) }} />);
     expect(screen.getByRole("alert").textContent).toContain("limits");
     expect(container.querySelector("svg")).toBeNull();
   });
 
   it("falls back to the text list for cyclic or dangling graph data", () => {
     const invalid = { ...graph, edges: [...graph.edges, { from: "glide", to: "walk" }] };
-    renderSpatial(<ViewRenderer node={invalid} />);
+    renderSpatial(<GraphView node={invalid} />);
     expect(screen.getByRole("alert").textContent).toContain("text alternative");
     expect(screen.getAllByRole("listitem")).toHaveLength(4);
     expect(graphLayout({ ...graph, edges: [{ from: "absent", to: "walk" }] })).toBeNull();

@@ -24,7 +24,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
     query: { text: queryScope.query.q, filters: queryScope.query.filters, sortColumn: queryScope.query.sort, descending: queryScope.query.descending },
     revision: queryScope.revision,
     excludedRowKeys: queryScope.excludedRowKeys,
-  } } : selection ? { rowKeys: selection.selectedRows.map(row => row.key) } : {};
+  } } : selection ? { rowKeys: [...selection.selectedKeys] } : {};
   const scopeKey = JSON.stringify(scope);
   const [previewScope, setPreviewScope] = useState("");
   const changesPage = useReviewPage(preview?.plan.changes ?? []);

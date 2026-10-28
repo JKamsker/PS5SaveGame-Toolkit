@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, isStaleError } from "../../api/client";
-import type { SectionNode, StatsNode, TabsNode, TextNode, ViewNode } from "../../api/protocol";
+import type { SectionNode, StatsNode, TextNode, ViewNode } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { FieldRow } from "../fields/FieldRow";
 import { ActionButton } from "./ActionButton";
@@ -9,14 +9,16 @@ import { HexView } from "./HexView";
 import { ReviewPath, useFieldJump, useNextReviewPath } from "./review/navigation";
 import { TableView } from "./TableView";
 import { ServerTableView } from "./table/ServerTableView";
-import { GraphView } from "./spatial/GraphView";
-import { MapView } from "./spatial/MapView";
+import { SpatialView } from "./spatial/SpatialView";
+import { TabsView } from "./TabsView";
+import { viewKeys } from "./viewKeys";
 
 export function ViewList({ nodes }: { nodes: ViewNode[] }) {
+  const keys = viewKeys(nodes);
   return (
     <div className="view-stack">
       {nodes.map((node, i) => (
-        <ViewRenderer key={i} node={node} />
+        <ViewRenderer key={keys[i]} node={node} />
       ))}
     </div>
   );
@@ -28,7 +30,7 @@ export function ViewRenderer({ node }: { node: ViewNode }) {
     case "section":
       return <Section node={node} />;
     case "tabs":
-      return <Tabs node={node} />;
+      return <TabsView node={node} />;
     case "field":
       return <NavigableField node={node} />;
     case "table":
@@ -36,9 +38,8 @@ export function ViewRenderer({ node }: { node: ViewNode }) {
     case "queryableTable":
       return <ServerTableView node={node} />;
     case "graph":
-      return <GraphView node={node} />;
     case "map":
-      return <MapView node={node} />;
+      return <SpatialView node={node} />;
     case "text":
       return <Text node={node} />;
     case "stats":
@@ -91,42 +92,21 @@ function LazyChildren({ lazyId }: { lazyId: string }) {
     retry: (count, error) => !isStaleError(error) && count < 3,
   });
   const stale = query.isError && isStaleError(query.error);
-  const refreshedFor = useRef<number | null>(null);
+  const recoveryAttempted = useRef(false);
   useEffect(() => {
-    // The section belongs to a replaced view: reload the document (once) instead of showing an error.
-    if (!stale || refreshedFor.current === structureVersion) return;
-    refreshedFor.current = structureVersion;
-    void refresh();
-  }, [stale, structureVersion, refresh]);
-  if (query.isPending || stale) return <p className="section__loading">Loading…</p>;
+    if (query.isSuccess) recoveryAttempted.current = false;
+    // Retry automatically once until a node request succeeds, including across document refreshes.
+    if (!stale || recoveryAttempted.current) return;
+    recoveryAttempted.current = true;
+    void refresh().catch(() => {});
+  }, [stale, query.isSuccess, refresh]);
+  if (stale) return <div>
+    <p role="alert" className="notice notice--Danger">This section is out of date. Refresh the document to load its current contents.</p>
+    <button type="button" className="btn btn--small" onClick={() => void refresh().catch(() => {})}>Refresh document</button>
+  </div>;
+  if (query.isPending) return <p className="section__loading">Loading…</p>;
   if (query.isError) return <p className="notice notice--Danger">{query.error.message}</p>;
   return <ViewList nodes={query.data} />;
-}
-
-function Tabs({ node }: { node: TabsNode }) {
-  const [active, setActive] = useState(0);
-  const next = useNextReviewPath();
-  useEffect(() => {
-    const index = node.tabs.findIndex(tab => next === `tab:${tab.title}`);
-    if (index >= 0) setActive(index);
-  }, [next, node.tabs]);
-  const tab = node.tabs[active] ?? node.tabs[0];
-  return (
-    <div className="tabs">
-      <div className="tabs__list" role="tablist">
-        {node.tabs.map((t, i) => (
-          <button key={t.title} type="button" role="tab" aria-selected={i === active} className="tabs__tab" onClick={() => setActive(i)}>
-            {t.title}
-          </button>
-        ))}
-      </div>
-      {tab && (
-        <div role="tabpanel">
-          <ReviewPath part={`tab:${tab.title}`}><ViewList nodes={tab.children} /></ReviewPath>
-        </div>
-      )}
-    </div>
-  );
 }
 
 function Text({ node }: { node: TextNode }) {

@@ -7,7 +7,7 @@ import type { CollectionQuery } from "../../../api/protocol";
  * can read the selection from anywhere inside the table without the table knowing about them.
  */
 export interface TableSelection {
-  /** Keys of selected rows that still exist in the table. */
+  /** Explicit selected keys, including unloaded pages; query-wide scopes expose loaded keys. */
   selectedKeys: ReadonlySet<string>;
   /** Selected rows in table order. */
   selectedRows: readonly TableRow[];
@@ -80,25 +80,22 @@ export function useQueryableSelection(rows: readonly TableRow[], collectionId: s
   const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set());
   const [scope, setScope] = useState<QuerySelectionScope | null>(null);
   const selectedRows = useMemo(() => rows.filter((row) => isSelectedKey(row.key, selected, scope)), [rows, selected, scope]);
-  const selectedKeys = useMemo(() => new Set(selectedRows.map((row) => row.key)), [selectedRows]);
+  const selectedKeys = useMemo(() => scope ? new Set(selectedRows.map((row) => row.key)) : selected, [selectedRows, selected, scope]);
   const isSelected = useCallback((key: string) => isSelectedKey(key, selected, scope), [selected, scope]);
   const toggle = useCallback((key: string) => {
     setSelected((previous) => {
       const next = new Set(previous);
-      if (scope) {
-        if (next.has(key)) next.delete(key);
-        else next.add(key);
-      } else if (next.has(key)) next.delete(key);
+      if (next.has(key)) next.delete(key);
       else next.add(key);
       return next;
     });
-  }, [scope]);
+  }, []);
   const setMany = useCallback((keys: readonly string[], value: boolean) => {
     setSelected((previous) => {
       const next = new Set(previous);
       for (const key of keys) {
-        if (value) next.delete(key);
-        else if (scope) next.add(key);
+        // A query-wide selection stores exclusions; an explicit selection stores inclusions.
+        if (scope ? !value : value) next.add(key);
         else next.delete(key);
       }
       return next;

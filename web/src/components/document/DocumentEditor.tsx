@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { EditResult, FieldValue, SaveFileInfo } from "../../api/protocol";
@@ -21,15 +21,16 @@ const maturityText = { ReadOnly: "read-only", Experimental: "experimental", Stab
 
 export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, onToast }: DocumentEditorProps) {
   const queryClient = useQueryClient();
-  const query = useQuery({ queryKey: ["document", workspaceId, documentId], queryFn: () => api.document(workspaceId, documentId) });
+  const query = useQuery({ queryKey: ["document", workspaceId, documentId], queryFn: () => api.document(workspaceId, documentId), refetchOnMount: "always" });
   const store = useMemo(() => (query.data ? new DocumentStore(query.data.state) : null), [query.data]);
-  const [structureVersion, setStructureVersion] = useState(0);
+  // Every successful snapshot replaces the store's value overrides. Its lazy children must use
+  // that same generation, including reconnects and returning to a recently edited document.
+  const structureVersion = query.dataUpdatedAt;
 
   /** Refetches the view after a structural change; the new view data creates a fresh value cache. */
   const { refetch } = query;
   const refresh = useCallback(async () => {
-    // Only move lazy sections to the new view once it actually arrived (avoids refetch loops).
-    if ((await refetch()).isSuccess) setStructureVersion((v) => v + 1);
+    await refetch();
   }, [refetch]);
 
   const handleResult = useCallback(
@@ -38,7 +39,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
       if (result.stale) {
         // Nothing changed on the server; the ids we sent belong to a replaced view.
         await refresh();
-        onToast("The document changed, so the view was refreshed. Please try again.", true);
+        onToast("The document changed. Please try again with the current view.", true);
         return;
       }
       store.apply(result);
@@ -53,6 +54,8 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
   const run = useCallback(
     async (call: () => Promise<EditResult>): Promise<EditResult | null> => {
       try {
+        // A snapshot started before this mutation must not later replace its live values/history.
+        await queryClient.cancelQueries({ queryKey: ["document", workspaceId, documentId] });
         const result = await call();
         await handleResult(result);
         if (!result.ok && !result.stale && result.errors.some((e) => e.valueId === "")) onToast(result.errors[0]?.message ?? "Rejected", true);
@@ -62,7 +65,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
         return null;
       }
     },
-    [handleResult, onToast],
+    [handleResult, onToast, queryClient, workspaceId, documentId],
   );
 
   const context = useMemo<DocumentContextValue | null>(() => {
@@ -89,8 +92,10 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
     };
   }, [query.data, store, workspaceId, documentId, structureVersion, refresh, run, handleResult]);
 
-  if (query.isPending) return <div className="empty">Opening…</div>;
-  if (query.isError || !context || !query.data) {
+  // A cached snapshot may predate edits made before switching files. Wait for the mount refresh
+  // before exposing controls, so its response cannot overwrite a newly submitted edit.
+  if (query.isPending || (!query.isFetchedAfterMount && query.isFetching)) return <div className="empty">Opening…</div>;
+  if (!context || !query.data) {
     return (
       <div className="empty">
         <h2>This file could not be opened</h2>
@@ -131,6 +136,10 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
             )}
           </div>
         </header>
+        {query.isError && <div>
+          <p role="alert" className="notice notice--Danger">Could not refresh the document: {query.error.message}</p>
+          <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refresh()}>Refresh document</button>
+        </div>}
         {(doc.plugin.supportsGroups || doc.groupMembers) && <DocumentGroupControls document={doc} />}
         <SourcesPanel
           workspaceId={workspaceId}
