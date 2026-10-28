@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { ActionNode, FieldValue } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { FieldControl } from "../fields/FieldControl";
@@ -14,6 +14,8 @@ interface ActionButtonProps {
 export function ActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
   const { canEdit, runAction } = useDocument();
   const dialog = useRef<HTMLDialogElement>(null);
+  // Unique per instance: the same action may be rendered in several table rows and the detail row.
+  const idPrefix = useId();
   const parameters = node.parameters ?? [];
   const [values, setValues] = useState<Record<string, FieldValue>>(() => Object.fromEntries(parameters.map((p) => [p.valueId, p.value])));
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -49,7 +51,7 @@ export function ActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
       </button>
       {node.description && !compact && <span className="action__description">{node.description}</span>}
       {needsDialog && (
-        <dialog ref={dialog} className="dialog" aria-labelledby={`${node.actionId}-title`}>
+        <dialog ref={dialog} className="dialog" aria-labelledby={`${idPrefix}-title`}>
           <form
             method="dialog"
             onSubmit={(e) => {
@@ -58,17 +60,17 @@ export function ActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
             }}
           >
             <div className="dialog__body">
-              <h2 className="dialog__title" id={`${node.actionId}-title`}>
+              <h2 className="dialog__title" id={`${idPrefix}-title`}>
                 {node.label}
               </h2>
               {node.confirm && <p className="notice notice--Warning">{node.confirm}</p>}
               {parameters.map((p) => (
                 <div className="field" key={p.valueId}>
-                  <label className="field__label" htmlFor={`${node.actionId}-${p.valueId}`}>
+                  <label className="field__label" htmlFor={`${idPrefix}-${p.valueId}`}>
                     {p.label}
                   </label>
                   <FieldControl
-                    id={`${node.actionId}-${p.valueId}`}
+                    id={`${idPrefix}-${p.valueId}`}
                     spec={{ ...p.spec, readOnly: false }}
                     value={values[p.valueId] ?? p.value}
                     onCommit={(v) => {

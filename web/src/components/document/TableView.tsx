@@ -1,7 +1,7 @@
 import { memo, useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { TableColumn, TableNode, TableRow } from "../../api/protocol";
-import { rowLabel, type ValueOf } from "./table/cellText";
+import { rowLabel } from "./table/cellText";
 import { RowDetails, rowHasDetails } from "./table/RowDetails";
 import { TableSelectionContext, useRowSelection, type TableSelection } from "./table/selection";
 import { TableCell } from "./table/TableCell";
@@ -12,7 +12,8 @@ import { useTableRows, type FacetSelection } from "./table/useTableRows";
 const ROW_HEIGHT = 41;
 const DETAIL_ESTIMATE = 240;
 const CONTROL_COLUMN = "36px";
-const widths = { Narrow: "minmax(90px, auto)", Normal: "minmax(140px, 1fr)", Wide: "minmax(240px, 2fr)" } as const;
+/** Content-independent tracks, so columns do not jump as virtual rows mount and unmount. */
+const widths = { Narrow: "minmax(96px, 0.6fr)", Normal: "minmax(160px, 1fr)", Wide: "minmax(280px, 2fr)" } as const;
 
 type Entry = { kind: "row"; row: TableRow } | { kind: "detail"; row: TableRow };
 
@@ -50,21 +51,22 @@ export function TableView({ node }: { node: TableNode }) {
   }, []);
 
   const scroller = useRef<HTMLDivElement>(null);
-  const virtualizer = useVirtualizer({
-    count: entries.length,
-    getScrollElement: () => scroller.current,
-    estimateSize: (i) => (entries[i]?.kind === "detail" ? DETAIL_ESTIMATE : ROW_HEIGHT),
-    getItemKey: (i) => {
+  // Stable callbacks: new identities would make the virtualiser rebuild every measurement per render.
+  const estimateSize = useCallback((i: number) => (entries[i]?.kind === "detail" ? DETAIL_ESTIMATE : ROW_HEIGHT), [entries]);
+  const getItemKey = useCallback(
+    (i: number) => {
       const e = entries[i];
       return e ? `${e.kind}:${e.row.key}` : i;
     },
-    overscan: 12,
-  });
+    [entries],
+  );
+  const virtualizer = useVirtualizer({ count: entries.length, getScrollElement: () => scroller.current, estimateSize, getItemKey, overscan: 12 });
   const template = [CONTROL_COLUMN, ...(hasDetails ? [CONTROL_COLUMN] : []), ...node.columns.map((c) => widths[c.width ?? "Normal"])].join(" ");
   const items = virtualizer.getVirtualItems();
   const padTop = items[0]?.start ?? 0;
   const padBottom = virtualizer.getTotalSize() - (items.at(-1)?.end ?? 0);
   const tableId = useId();
+  const visibleSelected = useMemo(() => rows.reduce((n, r) => n + (selection.isSelected(r.key) ? 1 : 0), 0), [rows, selection]);
 
   return (
     <TableSelectionContext.Provider value={selection}>
@@ -73,6 +75,7 @@ export function TableView({ node }: { node: TableNode }) {
           node={node}
           shown={rows.length}
           selection={selection}
+          visibleSelected={visibleSelected}
           query={query}
           onQuery={setQuery}
           facetOptions={facetOptions}
@@ -81,16 +84,24 @@ export function TableView({ node }: { node: TableNode }) {
         />
         {node.description && <p className="section__description">{node.description}</p>}
         <div className="table__scroller" ref={scroller}>
-          <div className="table__grid" role="table" aria-label={node.title} style={{ gridTemplateColumns: template }}>
-            <HeaderRow columns={node.columns} hasDetails={hasDetails} visible={rows} selection={selection} />
+          <div className="table__grid" role="table" aria-label={node.title} aria-rowcount={entries.length + 1} style={{ gridTemplateColumns: template }}>
+            <HeaderRow columns={node.columns} hasDetails={hasDetails} visible={rows} visibleSelected={visibleSelected} selection={selection} />
             {padTop > 0 && <div aria-hidden style={{ gridColumn: "1 / -1", height: padTop }} />}
             {items.map((item) => {
               const entry = entries[item.index];
               if (!entry) return null;
-              const detailId = `${tableId}-${entry.row.key}-details`;
+              // Row keys may contain spaces, which would break the aria-controls IDREF list.
+              const detailId = `${tableId}-${encodeURIComponent(entry.row.key)}-details`;
               if (entry.kind === "detail") {
                 return (
-                  <div key={item.key} className="table__detail" role="row" ref={virtualizer.measureElement} data-index={item.index}>
+                  <div
+                    key={item.key}
+                    className="table__detail"
+                    role="row"
+                    aria-rowindex={item.index + 2}
+                    ref={virtualizer.measureElement}
+                    data-index={item.index}
+                  >
                     <div role="cell" id={detailId} className="table__detail-cell">
                       <RowDetails row={entry.row} columns={node.columns} />
                     </div>
@@ -101,8 +112,9 @@ export function TableView({ node }: { node: TableNode }) {
                 <Row
                   key={item.key}
                   row={entry.row}
+                  rowIndex={item.index + 2}
+                  label={rowLabel(entry.row, columnKeys, valueOf)}
                   columnKeys={columnKeys}
-                  valueOf={valueOf}
                   hasDetails={hasDetails}
                   detailId={detailId}
                   expanded={expanded.has(entry.row.key)}
@@ -125,25 +137,25 @@ interface HeaderRowProps {
   columns: readonly TableColumn[];
   hasDetails: boolean;
   visible: readonly TableRow[];
+  visibleSelected: number;
   selection: TableSelection;
 }
 
-function HeaderRow({ columns, hasDetails, visible, selection }: HeaderRowProps) {
+function HeaderRow({ columns, hasDetails, visible, visibleSelected, selection }: HeaderRowProps) {
   const box = useRef<HTMLInputElement>(null);
-  const selectedVisible = visible.reduce((n, r) => n + (selection.isSelected(r.key) ? 1 : 0), 0);
-  const all = visible.length > 0 && selectedVisible === visible.length;
-  const some = selectedVisible > 0 && !all;
+  const all = visible.length > 0 && visibleSelected === visible.length;
+  const some = visibleSelected > 0 && !all;
   useEffect(() => {
     if (box.current) box.current.indeterminate = some;
   }, [some]);
 
   return (
-    <div className="table__row" role="row">
+    <div className="table__row" role="row" aria-rowindex={1}>
       <div className="table__head table__head--control" role="columnheader">
         <input
           ref={box}
           type="checkbox"
-          aria-label={all ? "Deselect all shown rows" : "Select all shown rows"}
+          aria-label="Select all shown rows"
           checked={all}
           disabled={visible.length === 0}
           onChange={() => selection.setMany(visible.map((r) => r.key), !all)}
@@ -166,8 +178,10 @@ function HeaderRow({ columns, hasDetails, visible, selection }: HeaderRowProps) 
 
 interface RowProps {
   row: TableRow;
+  rowIndex: number;
+  /** Accessible row name; computed by the parent so memoisation survives unrelated edits. */
+  label: string;
   columnKeys: readonly string[];
-  valueOf: ValueOf;
   hasDetails: boolean;
   detailId: string;
   expanded: boolean;
@@ -176,13 +190,12 @@ interface RowProps {
   onToggleExpanded: (key: string) => void;
 }
 
-const Row = memo(function Row({ row, columnKeys, valueOf, hasDetails, detailId, expanded, selected, onToggleSelected, onToggleExpanded }: RowProps) {
-  const label = rowLabel(row, columnKeys, valueOf);
+const Row = memo(function Row({ row, rowIndex, label, columnKeys, hasDetails, detailId, expanded, selected, onToggleSelected, onToggleExpanded }: RowProps) {
   const openDetails = () => {
     if (!expanded) onToggleExpanded(row.key);
   };
   return (
-    <div className={`table__row${selected ? " table__row--selected" : ""}`} role="row">
+    <div className={`table__row${selected ? " table__row--selected" : ""}`} role="row" aria-rowindex={rowIndex}>
       <div className="table__cell table__cell--control" role="cell">
         <input type="checkbox" aria-label={`Select ${label}`} checked={selected} onChange={() => onToggleSelected(row.key)} />
       </div>
@@ -194,7 +207,7 @@ const Row = memo(function Row({ row, columnKeys, valueOf, hasDetails, detailId, 
               className="row-toggle"
               aria-expanded={expanded}
               aria-controls={expanded ? detailId : undefined}
-              aria-label={`${expanded ? "Hide" : "Show"} details for ${label}`}
+              aria-label={`Details for ${label}`}
               onClick={() => onToggleExpanded(row.key)}
             />
           )}

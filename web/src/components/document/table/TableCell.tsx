@@ -83,14 +83,16 @@ function Cell({ children, className = "" }: { children: ReactNode; className?: s
 
 function nestedLabel(node: Extract<ViewNode, { type: "section" | "tabs" | "table" | "hex" }>): string {
   switch (node.type) {
-    case "section":
-      return node.badge ? `${node.title} (${node.badge})` : node.title;
+    case "section": {
+      const title = node.title || "Section";
+      return node.badge ? `${title} (${node.badge})` : title;
+    }
     case "tabs":
-      return `${node.tabs.length} tabs`;
+      return node.tabs.length === 1 ? "1 tab" : `${node.tabs.length} tabs`;
     case "table":
       return node.title ? `${node.title} (${node.rows.length})` : `${node.rows.length} rows`;
     case "hex":
-      return node.title ?? `${node.length} bytes`;
+      return node.title || `${node.length} bytes`;
   }
 }
 

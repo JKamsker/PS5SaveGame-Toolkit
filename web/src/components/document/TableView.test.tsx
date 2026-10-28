@@ -77,10 +77,10 @@ describe("TableView cells", () => {
     const cell = field("c1", count, "3", { label: "Count", description: "Units held" });
     renderTable(table([{ key: "r1", cells: { name: text("Potion"), value: cell } }]));
 
-    const toggle = screen.getByRole("button", { name: "Show details for Potion" });
+    const toggle = screen.getByRole("button", { name: "Details for Potion" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(toggle);
-    expect(screen.getByRole("button", { name: "Hide details for Potion" }).getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("button", { name: "Details for Potion" }).getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByText("Units held", { selector: ".field__description" })).toBeTruthy();
   });
 });
@@ -142,14 +142,16 @@ describe("TableView selection", () => {
     expect(screen.getByText("1 selected")).toBeTruthy();
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Filter rows" }), { target: { value: "potion" } });
-    fireEvent.click(screen.getByRole("checkbox", { name: "Select all shown rows" }));
-    expect(screen.getByText("3 selected")).toBeTruthy();
+    const all = screen.getByRole("checkbox", { name: "Select all shown rows" });
+    fireEvent.click(all);
+    expect(screen.getByText("3 selected (1 hidden by filters)")).toBeTruthy();
+    expect((all as HTMLInputElement).checked).toBe(true);
 
-    fireEvent.click(screen.getByRole("checkbox", { name: "Deselect all shown rows" }));
-    expect(screen.getByText("1 selected")).toBeTruthy();
+    fireEvent.click(all);
+    expect(screen.getByText("1 selected (1 hidden by filters)")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Clear selection" }));
-    expect(screen.queryByText(/selected$/)).toBeNull();
+    expect(screen.queryByText(/selected/)).toBeNull();
   });
 
   it("marks selected rows", () => {

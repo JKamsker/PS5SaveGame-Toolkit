@@ -67,9 +67,9 @@ export function filterRows(rows: readonly TableRow[], query: string, facets: Fac
 export function useTableRows(node: TableNode, query: string, facets: FacetSelection) {
   const valueOf = useLiveValues();
   const facetOptions = useMemo(() => computeFacets(node, valueOf), [node, valueOf]);
-  // A facet can vanish after edits (e.g. too many distinct values); never filter by an invisible control.
+  // A facet or one of its values can vanish after edits; never filter by something the controls do not show.
   const activeFacets = useMemo(
-    () => Object.fromEntries(Object.entries(facets).filter(([key]) => facetOptions.some((f) => f.key === key))),
+    () => Object.fromEntries(Object.entries(facets).filter(([key, value]) => facetOptions.some((f) => f.key === key && f.values.includes(value)))),
     [facets, facetOptions],
   );
   const rows = useMemo(() => filterRows(node.rows, query, activeFacets, valueOf), [node.rows, query, activeFacets, valueOf]);

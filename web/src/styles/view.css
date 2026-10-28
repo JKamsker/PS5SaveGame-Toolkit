@@ -179,8 +179,8 @@ details[open] > .section__summary::before { transform: translateY(-4px) rotate(4
   border-radius: 10px;
 }
 .table__grid {
+  /* Tracks have fixed minimums (see TableView widths) and overflow into the scroller horizontally. */
   display: grid;
-  min-width: max-content;
 }
 .table__row {
   display: contents;
@@ -208,6 +208,7 @@ details[open] > .section__summary::before { transform: translateY(-4px) rotate(4
   border-bottom: 1px solid color-mix(in oklab, var(--rule) 60%, transparent);
   font-size: var(--text-sm);
 }
+.table__cell :focus-visible { outline-offset: -2px; } /* cells clip overflow */
 .table__cell--modified { box-shadow: inset 3px 0 0 var(--modified); }
 .table__cell--error { box-shadow: inset 3px 0 0 var(--danger); }
 .table__cell--control,

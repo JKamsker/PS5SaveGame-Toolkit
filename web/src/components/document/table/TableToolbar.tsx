@@ -7,6 +7,8 @@ interface TableToolbarProps {
   /** Number of rows passing the filters. */
   shown: number;
   selection: TableSelection;
+  /** Selected rows that pass the current filters. */
+  visibleSelected: number;
   query: string;
   onQuery: (query: string) => void;
   facetOptions: readonly ColumnFacet[];
@@ -15,7 +17,7 @@ interface TableToolbarProps {
 }
 
 /** Title, row/selection counts, free-text search and per-column category filters. */
-export function TableToolbar({ node, shown, selection, query, onQuery, facetOptions, facets, onFacets }: TableToolbarProps) {
+export function TableToolbar({ node, shown, selection, visibleSelected, query, onQuery, facetOptions, facets, onFacets }: TableToolbarProps) {
   const total = node.rows.length;
   const filtersActive = Object.values(facets).some((v) => v !== "");
   return (
@@ -24,14 +26,18 @@ export function TableToolbar({ node, shown, selection, query, onQuery, facetOpti
       <span className="table__count" aria-live="polite">
         {shown === total ? `${total} rows` : `${shown} of ${total} rows`}
       </span>
-      {selection.count > 0 && (
-        <span className="table__selected">
-          <span aria-live="polite">{selection.count} selected</span>
+      <span className="table__selected">
+        {/* Always mounted so the first change is announced. */}
+        <span aria-live="polite">
+          {selection.count > 0 &&
+            `${selection.count} selected${selection.count > visibleSelected ? ` (${selection.count - visibleSelected} hidden by filters)` : ""}`}
+        </span>
+        {selection.count > 0 && (
           <button type="button" className="btn btn--quiet btn--small" onClick={selection.clear}>
             Clear selection
           </button>
-        </span>
-      )}
+        )}
+      </span>
       {total > FILTER_THRESHOLD && (
         <div className="table__filters">
           {facetOptions.map((facet) => (
