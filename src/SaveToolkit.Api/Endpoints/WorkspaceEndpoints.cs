@@ -60,6 +60,7 @@ internal static class WorkspaceEndpoints
 
     private static void MapDocumentRoutes(RouteGroupBuilder doc)
     {
+        doc.MapActionReview();
         doc.MapGet("", (DocumentRef d) => d.Value.ToDto());
         doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound());
         doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id));

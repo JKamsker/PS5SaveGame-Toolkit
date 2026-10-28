@@ -10,6 +10,9 @@ public sealed record DocumentSessionOptions
     /// <summary>Maximum number of undo entries; the oldest are dropped beyond this.</summary>
     public int MaxHistory { get; init; } = 200;
 
+    /// <summary>Memory budget for semantic original values; incomplete coverage is explicitly reported.</summary>
+    public long MaxOriginalBytes { get; init; } = 16L * 1024 * 1024;
+
     /// <summary>
     /// Upper bound for the memory held by structural undo tokens (<see cref="DocumentMemento.SizeBytes"/>)
     /// across undo and redo. The oldest history is evicted first; a single change larger than this

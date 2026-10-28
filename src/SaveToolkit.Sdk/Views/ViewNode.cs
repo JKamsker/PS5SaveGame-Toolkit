@@ -132,6 +132,9 @@ public sealed record ImageNode(string AssetId, string Alt) : ViewNode;
 /// </summary>
 public sealed record ActionNode(string ActionId, string Label) : ViewNode
 {
+    /// <summary>Requires IActionPlanningDocument; direct invocation is rejected. False preserves legacy behavior.</summary>
+    public bool SupportsPlanning { get; init; }
+
     public string? Description { get; init; }
 
     [JsonConverter(typeof(JsonStringEnumConverter<Tone>))]
