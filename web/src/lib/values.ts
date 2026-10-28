@@ -48,6 +48,8 @@ export function parseDraft(spec: FieldSpec, draft: string | boolean): Parsed {
       const t = String(draft);
       return Number.isNaN(Date.parse(t)) ? fail("Enter a date and time.") : { ok: true, value: t };
     }
+    case "reference":
+      return { ok: true, value: String(draft) }; // Membership/eligibility are checked against the pinned server catalog.
   }
 }
 

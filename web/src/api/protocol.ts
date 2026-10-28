@@ -24,8 +24,9 @@ export interface EnumSpec extends SpecBase { kind: "enum"; options: EnumOption[]
 export interface FlagBit { bit: number; label: string; description?: string }
 export interface FlagsSpec extends SpecBase { kind: "flags"; bits: FlagBit[]; bitWidth: number }
 export interface DateTimeSpec extends SpecBase { kind: "datetime"; hasTimeZone?: boolean }
+export interface ReferenceSpec extends SpecBase { kind: "reference"; catalogId: string; allowCustom?: boolean }
 
-export type FieldSpec = BoolSpec | IntegerSpec | FloatSpec | TextSpec | EnumSpec | FlagsSpec | DateTimeSpec;
+export type FieldSpec = BoolSpec | IntegerSpec | FloatSpec | TextSpec | EnumSpec | FlagsSpec | DateTimeSpec | ReferenceSpec;
 
 export type Confidence = "Verified" | "Inferred" | "Unknown";
 export type Tone = "Normal" | "Muted" | "Info" | "Success" | "Warning" | "Danger";
@@ -223,4 +224,26 @@ export interface ReferencePage {
   offset: number;
   limit: number;
   categories: string[];
+}
+
+export interface ReferenceEligibility { available: boolean; eligible: boolean; reasons: string[]; selectable: boolean }
+export interface ReferenceCandidate {
+  rawId: string;
+  label?: string;
+  description?: string;
+  category?: string;
+  assetId?: string;
+  source?: string;
+  dataset?: ReferenceDatasetInfo;
+  assetDataset?: ReferenceDatasetInfo;
+  eligibility: ReferenceEligibility;
+}
+export interface ReferenceCandidatePage {
+  catalogId: string;
+  items: ReferenceCandidate[];
+  total: number;
+  offset: number;
+  limit: number;
+  categories: string[];
+  revision: number;
 }
