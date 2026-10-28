@@ -1,6 +1,8 @@
 # Sample saves
 
-Decrypted PS5 dumps live in `artifacts/` (git-ignored, never commit them). Layout inside each zip:
+Keep decrypted PS5 dumps in a private external artifacts directory, selected with
+`SAVETOOLKIT_ARTIFACTS`. The local `artifacts/` fallback is git-ignored; never commit or copy save
+bytes/extracted data into the checkout. Layout inside each zip:
 `<TITLE>/sdimg_<dir>/...` plus the console backup twin `sdimg_sce_bu_<dir>/...`. Many zips contain the
 same paths several times (snapshots appended); the importer exposes them as generations 0, 1, ...
 `sce_sys/param.sfo` is sometimes a regenerated placeholder (MAINTITLE = title id).
@@ -25,7 +27,7 @@ roadmap live in [docs/formats/](formats/README.md). Entries marked `?` are still
 | PPSA01982 | DOOM Eternal | `PROF` | |
 | PPSA02199 | STAR WARS Jedi: Fallen Order | `ue4savegame.dpx.sav` | Unreal |
 | PPSA02225 | Ghost of Tsushima | `suckerpunchUserN/dis.dat`, `memory.dat` | |
-| PPSA02343 | ? (JSON profile) | `ProfileData/ue4savegame.dpx.sav` | Unreal |
+| PPSA02343 | It Takes Two (EU) | `ProfileData/ue4savegame.dpx.sav` | JSON profile, not GVAS; GenericJson title overlay |
 | PPSA02530 | Pragmata | `data0xx*.bin` | RE Engine DSSS/Mandarin; analysis in `PRAGMATA_PS5_Save_Editor_Toolkit.zip` |
 | PPSA02745 | Tales of Arise | `SaveData_00x.sav`, `SystemSaveData.sav` | |
 | PPSA03169 | Elden Ring (JP) | `memory.dat` (29 MiB) | |
@@ -39,7 +41,7 @@ roadmap live in [docs/formats/](formats/README.md). Entries marked `?` are still
 | PPSA10665 | Final Fantasy XVI | `FAITHDATAnnnn/game-save-data` | same family as PPSA13803 |
 | PPSA10695 | Atomic Heart (custom SaveExtension, not GVAS) | `ue4savegame.dpx.sav` | Unreal |
 | PPSA13803 | Final Fantasy XVI (demo) | `FAITHDATA*/game-save-data*` | |
-| PPSA16064 | ? (JSON + XOR-1 settings) | `Character*/ue4savegame.dpx.sav`, `GlobalSaveDataDefault` | Unreal |
+| PPSA16064 | Minecraft Dungeons II (plugin identification) | `Character*/ue4savegame.dpx.sav`, `GlobalSaveDataDefault/ue4savegame.dpx.sav` | Plain character JSON; byte-minus-one settings, not XOR-1. Offline character support is schema-limited; see [XorJson](../plugins/XorJson/README.md) |
 | PPSA18463 | Baldur's Gate 3 | `Save0001/AutoSave_0.lsv`, `Profile/*.lsf/.lsx` | Larian LSPK/LSF |
 | PPSA18936 | Final Fantasy VII Rebirth (demo) | `ff7rebirth00x` | |
 | PPSA26344 | Ghost of Yōtei | `suckerpunchAutoN/dis.dat` | same family as PPSA02225 |
@@ -60,16 +62,18 @@ comes from **pairs**: the same save taken right before and right after **one** k
    doesn't swap in another copy.
 3. **Capture a control pair first** (once per title and build): save, load that save, save again
    in the same spot without doing anything, and export both. Whatever differs here is **churn**:
-   clocks, counters, play time, relocations. It goes into the title's `ignore` rules with a reason.
+   clocks, counters, play time, relocations. Investigate those differences before adding confirmed
+   churn to the title's `ignore` rules with a reason; do not mask unexplained gameplay changes.
 4. **Capture the event pair.** Save (or wait for the autosave), export (*before*), do exactly one
    action, save in the same slot, export again (*after*). Don't play in between.
 5. **Export** with your save manager as a decrypted dump (`<TITLE>/sdimg_<dir>/...`) and name the
    archives `<TITLE>_<event>_before.zip` / `<TITLE>_<event>_after.zip`, for example
-   `PPSA01325_collect-one-coin_after.zip`. Keep them in `artifacts/` (never commit them). If the
-   manager appends snapshots to one archive, keep it: each repeat becomes a generation (see below).
+   `PPSA01325_collect-one-coin_after.zip`. Keep them in the private external artifacts directory
+   (never commit them). If the manager appends snapshots to one archive, keep it: each repeat becomes
+   a generation (see below).
 6. **Record what you did** as a fixture in a manifest (format below): title, build, platform,
-   region, slot, DLC, event, archive names (+ SHA-256), and the values the game showed before and
-   after (e.g. "Potions: 3 → 4", "Gold: 1,250 → 1,200"). Values the game shows are the ground truth
+   region, slot/character, DLC/mods, mode, locale, event, archive names (+ SHA-256), and the values
+   the game showed before and after (e.g. "Potions: 3 → 4", "Gold: 1,250 → 1,200"). Values the game shows are the ground truth
    the diff has to explain.
 7. **Check it** with `savediff compare` and turn the confirmed changes into `expected` entries, so
    `savediff verify` and plugin tests can re-check them later.
@@ -90,6 +94,13 @@ What to record per pair:
 Never put identity or credential values (account IDs, UIDs, tokens, PSN names) into a manifest,
 an issue or a committed report. Diff output can contain them, so share it only after redacting.
 
+For an edited copy, use a disposable spare slot and keep an untouched recovery export. Load, verify
+the effect and unrelated state, perform the normal use/equip/buy action, native-save, exit, reload
+and re-export all companions/backups. Compare against the no-action control and record rejection,
+normalization and persistence. Software tests do not establish console acceptance; all plugins stay
+Experimental until the owner validates a specific feature (see
+[#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31) and the linked owner guide).
+
 ## Differential-save tool (`savediff`)
 
 `tools/SaveToolkit.SaveDiff` is a read-only developer tool. The engine lives in
@@ -98,13 +109,20 @@ an issue or a committed report. Diff output can contain them, so share it only a
 
 ```powershell
 $diff = 'tools/SaveToolkit.SaveDiff'
-dotnet run --project $diff -- list artifacts/PPSA01325_saves_dec.zip
-dotnet run --project $diff -- compare before.zip after.zip --semantic auto
+$samples = 'C:/path/to/private/artifacts'
+$env:SAVETOOLKIT_ARTIFACTS = $samples
+$archive = Join-Path $samples 'PPSA01325_saves_dec.zip'
+dotnet run --project $diff -- list $archive
 dotnet run --project $diff -- list-decoders
-dotnet run --project $diff -- compare before.zip after.zip --decoder <listed-hook-id>
-dotnet run --project $diff -- compare artifacts/PPSA01325_saves_dec.zip artifacts/PPSA01325_saves_dec.zip `
-    --before-gen 0 --after-gen 1 --semantic astro-playroom --ignore plugins/X/fixtures.json
-dotnet run --project $diff -- verify plugins/X/fixtures.json --format json
+dotnet run --project $diff -- list-decoders --format json
+# Replace these input paths with a controlled pair:
+dotnet run --project $diff -- compare before.zip after.zip --semantic auto
+# Explicit production hook; use only with matching Cyberpunk sav.dat inputs:
+dotnet run --project $diff -- compare before.zip after.zip --decoder cyberpunk2077-evidence
+# Same archive, two generations; a view decoder and an existing fixture/churn manifest:
+dotnet run --project $diff -- compare $archive $archive `
+    --before-gen 0 --after-gen 1 --decoder astro-playroom --ignore plugins/AstroPlayroom/fixtures.json
+dotnet run --project $diff -- verify plugins/AstroPlayroom/fixtures.json --artifacts $samples --format json
 ```
 
 How it works:
@@ -133,7 +151,11 @@ How it works:
     ids as paths. It expands lazy sections and pages through F8 queryable tables, including direct
     read-only text and rich cell titles under stable collection/row/column paths. Default query order
     must be deterministic; offset/cursor positions never become row identities.
-  - `auto` uses the best-probing plugin, then JSON.
+  - `auto` uses the best-probing plugin view, then JSON; it does not select native hooks.
+  - Hook IDs are explicit entries from `list-decoders`, registered by `ISaveDecoderProvider` on
+    an installed plugin. Test-only decoders/research executables are not automatically discovered.
+    The SDK-only hook is adapted to F1 by `HookSaveDecoder`; production needs no Testing dependency.
+    `none` selects byte comparison only. `--decoder` also accepts built-in and plugin-view IDs.
 - **Bounds:** inputs are copied to a private temp folder, which is deleted afterwards, and byte
   diffs stream in 64 KiB blocks. Decoded trees, value lengths, reported ranges and reported
   changes are all capped; the report says when something was cut. Across all F8 collections in a file,
@@ -208,7 +230,7 @@ The values above are illustrative; the PPSA01325 pair does not exist yet.
 | --- | --- |
 | `ignore[]` (manifest or fixture) | Churn rules. `titleId` (omit or `*` for any), `directory` and `file` globs (`*`, `?`; directory = logical name without `sdimg_`). Then `offset` + `length` (bytes), or `path` (semantic glob), or neither (whole file). `reason` is required. |
 | `before` / `after` | `archive` (relative to `--artifacts`, `SAVETOOLKIT_ARTIFACTS` or `./artifacts`), `generation` (`all`, `latest` or a number), optional `sha256` of the archive. |
-| `decoder` | `json`, `auto`, a plugin id or a registered hook id from `list-decoders`. Omit it for byte expectations only. |
+| `decoder` | `json`, `auto`, a plugin id or a registered hook id from `list-decoders`. `none` also selects byte-only comparison; omit it for byte expectations only. |
 | `files` | Globs limiting which files are compared. |
 | `expected[]` | One change per entry, in main files (`"backup": true` for backups) matched by `directory`/`file`. It is either a byte range (`offset`, `length` ≤ 4096, optional hex `before`/`after`) or a semantic `path` (optional value text; `(absent)` = path missing). `"changed": false` asserts that nothing changed there. Every matched file must satisfy it. |
 | `strict` | Every unmasked change must be covered: each changed file by some expectation, each byte range by a byte expectation, each semantic change by a path expectation. |

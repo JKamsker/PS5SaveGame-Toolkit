@@ -57,7 +57,7 @@ those bindings. Custom `ApplyEdits` and action implementations still own their a
 | `SectionNode(title, children)` | Grouping. `LazyId` = load children on demand. `Badge` for counts. |
 | `TabsNode([Tab])` | Top-level areas (Character / Inventory / World / Raw). |
 | `FieldNode(valueId, label, spec, value)` | One value. `Confidence` (`Verified` / `Inferred` / `Unknown`) and `Warning` are shown to the user. |
-| `TableNode(columns, rows)` | Homogeneous records. Cells are `FieldNode`s (editable) or `TextNode`s. The browser pages, searches and virtualises. Keep below ~5,000 rows per table; split or lazy-load beyond. |
+| `TableNode(columns, rows)` | Homogeneous records with typed fields, text, images, actions and compact summaries; nested content opens in row details. Live search/filtering, confidence/errors, explicit selection and fixed-height virtualisation. Keep below ~5,000 eager rows; use F8 beyond. |
 | `QueryableTableNode(collectionId, title, columns, totalCount)` | Server-backed collection for inventories/catalogues larger than an eager view. The browser sends bounded text/filter/sort queries and receives stable-keyed `TableRow`s a page at a time. |
 | `StatsNode([Stat])` | Read-only headline figures (play time, level, slot). |
 | `TextNode(text)` | Notes and warnings (`Tone`), `Monospace` for hashes/offsets. |
@@ -166,6 +166,7 @@ are required. The complete synthetic example is `tests/SaveToolkit.Core.Tests/Fa
 | `UnionSpec(options)` | `FieldValue.Union(optionId, value)` | Each `UnionOption(id, label, spec)` retains its inner constraints. Wire: `{kind:"union",type:"number",value:{kind:"exactNumber",text:"1e20"}}`. |
 | `TextSpec` | string | `MaxLength` in UTF-16 units. Check encoded byte length yourself in `validate`. |
 | `EnumSpec(options)` | string (option value) | `AllowCustom` for partially-mapped ids (hashes). |
+| `ReferenceSpec(catalogId)` | exact raw id as text | Paged attributed catalogue choice with server eligibility; also supported in planned-action parameters. Read-only fields use the browse-only picker. |
 | `FlagsSpec(bits, width)` | integer bitmask | Unnamed bits are preserved. |
 | `DateTimeSpec` | ISO-8601 string | `HasTimeZone = false` for console-local clocks. |
 
@@ -216,6 +217,12 @@ Value ids are opaque strings you choose. They must be **unique and stable for th
 document** (the browser caches values by id, undo replays by id). Path-like ids work well:
 `inventory/2227368435/quantity`, `tree/7c416083/7c018857[6]/d18b252d`.
 
+Float duration hints display hours, minutes and seconds to millisecond precision, including a
+fractional second and a negative sign when needed. For example, `FloatSpec.Single with {
+Format = FloatFormat.Duration, UnitsPerSecond = 1000 }` displays `61250` as `1 min 1.25 s`.
+The editor and protocol retain the raw numeric value; formatting never changes saved precision.
+Invalid/nonpositive rates fall back to raw display. Publish units only when supported by evidence.
+
 ### Read-only inspection actions (F13)
 
 Actions remain mutating by default. Opt into inspection explicitly:
@@ -239,12 +246,6 @@ state, undo/redo and revision stay unchanged. `SupportsPlanning` must be false. 
 requires deterministic, lossless `Open`/`Serialize` and snapshots no larger than 256 MiB; an
 unverifiable action fails with an inspection error. This is isolation for plugin mistakes, not
 a substitute for the plugin purity rules. Never put inspection state in shared mutable objects.
-
-Float duration hints display hours, minutes and seconds to millisecond precision, including a
-fractional second and a negative sign when needed. For example, `FloatSpec.Single with {
-Format = FloatFormat.Duration, UnitsPerSecond = 1000 }` displays `61250` as `1 min 1.25 s`.
-The editor and protocol retain the raw numeric value; formatting never changes saved precision.
-Invalid/nonpositive rates fall back to raw display.
 
 ## Document groups (coordinated multi-file transactions)
 
@@ -543,8 +544,8 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
    keep all state in the document. No static mutable state, no file system, no network.
 7. **Maturity.** `ReadOnly` until the conformance suite passes with edits; then `Experimental`.
    Only a human sets `Stable` after a successful in-game test.
-8. **Reference data** (hash → name tables, item lists, descriptions, icons) goes into embedded resources
-   inside the plugin, preferably as an embedded [reference pack](#reference-packs) so it carries its attribution.
+8. **Reference data** (hash → name tables, item lists, descriptions, icons) comes from embedded
+   resources or host-imported [reference packs](#reference-packs), so provenance is retained and plugins do no I/O.
 9. **Attribute every reference at every place it shows up.** You may embed data from wikis, datamines and
    community tools, but each dataset needs full attribution in each of these places:
    - **Next to the data:** a header in the resource file, or a `*.source.md` sidecar. It gives the source
@@ -555,13 +556,26 @@ removed, read-only and unexposed fields require undo rather than guessed inverse
      the field `Description` (`ReferenceRecord.AttributionText`). Data from a reference pack is also listed
      in the document's **Sources** panel automatically.
 
-   Honour licence terms. CC BY-SA data (e.g. most Fandom/wiki.gg wikis) stays under CC BY-SA in its
-   derived form. Mark it so in the file header and keep the licence link. Code ports keep the upstream
-   licence notice. The repository is **GPL-3.0-or-later** (see [LICENSE](../LICENSE)); GPL-compatible
-   code ports are allowed. Retain upstream notices and document modifications in
-   [THIRD-PARTY-NOTICES](../THIRD-PARTY-NOTICES) as well as the plugin README. Flag incompatible
-   combinations before merging, including GPL-2.0-only with Apache-2.0 or this GPLv3 repository.
-   If a source has no licence or forbids reuse, do not embed it. Cite it as research only.
+   **Owner licence policy:** this repository is **GPL-3.0-or-later** (see [LICENSE](../LICENSE)).
+   MIT, BSD, Apache-2.0, LGPL, GPL-2.0-or-later, GPL-3.0 and CC BY / CC BY-SA sources are usable
+   with attribution and their required notices/terms. Do not refuse these merely because they are
+   copyleft or require share-alike. CC BY-SA adaptations retain their own licence, attribution and
+   modification notice; code ports retain upstream notices. Record modifications in
+   [THIRD-PARTY-NOTICES](../THIRD-PARTY-NOTICES) as well as the plugin README.
+
+   The only licence-based refusal reasons are **GPL-2.0-only code; no licence (all rights reserved);
+   NC or no-redistribution terms; and proprietary game assets**. Check the exact revision and the
+   particular material: a licensed tool does not automatically license its extracted game assets,
+   and a wiki text licence does not automatically cover icons or map art. Missing captures, an
+   unavailable build-matched pack or unproven game semantics are separate evidence/implementation
+   gaps, not licence incompatibility.
+
+   **Every licence-based refusal must be written up** in the plugin README's `## Licence exclusions`
+   table **and** [docs/LICENCE_EXCLUSIONS.md](LICENCE_EXCLUSIONS.md). Use one row per source with:
+   source URL and revision; exact licence found (or `none found`); refused material/reason; what was
+   done instead; and what would unblock reuse. The central table also names the plugin. Record
+   link-only and research-only decisions when licence restrictions caused them. If no specific
+   source or revision was identified, say so; do not invent a licence or a rights-holder decision.
    **When the licence is unclear, link instead of importing.** Expose an external link to the source
    (e.g. a wiki page or a community interactive map) in the record's `source`/details. Import the data
    only once its licence is clearly safe.
@@ -619,7 +633,9 @@ HTTP 409 with `code: "stale"`. Exact lookup returns unknown ids with no label/da
 eligibility reason. F2's catalog-wide endpoints remain unchanged. The attributed embedded test pack
 and `tests/SaveToolkit.Core.Tests/Fakes/ItemsPlugin.cs` demonstrate the complete contract.
 
-Publishing field specs without rendering pages is a separate proposed capability; see
+The shipped F13 scope is read-only inspection, browse-only reference pickers, catalogue query
+filter/sort and float duration hints. Publishing field specs without rendering pages is a separate
+proposed capability; see
 [F13 field-spec publishing design](plans/F13-FIELD-SPEC-PUBLISHING.md). Unknown action-reported
 IDs already replay during undo, but that alone does not establish primary bindings, alias policy,
 complete semantic review or safe unloaded-page preflight. Retain plugin guards until that
@@ -898,3 +914,32 @@ mutating the original byte array after creating a synthetic file does not edit t
 `plugins/<Name>/README.md` must document: titles, file roles, binary layout, crypto/compression,
 checksums, which fields are verified vs inferred, open questions, and all sources.
 Add an `## SDK requests` section if the SDK lacked something you needed — do not edit `src/`.
+
+### Framework feature adoption table
+
+Each plugin README uses a `## Framework feature adoption` table with one row for **F1–F13** and
+columns for **Feature**, **Status**, and **Concrete use / evidence or reason** (combined columns
+are fine). Use `Used` for an implemented integration, `Added this round` for a newly implemented
+one, and `N/A` only with a format-specific reason. A shipped framework feature is not pending
+because it was absent on an older starting commit. Record an actual remaining adoption task or
+SDK limitation precisely, link its issue, and update the row when resolved.
+
+| Feature | What the row should identify |
+| --- | --- |
+| F1 | Fixture/byte/semantic evidence and the decoder used |
+| F2 | Pinned embedded/imported datasets, attribution and missing-pack fallback |
+| F3 | Rich cells/details, live filters and selection |
+| F4 | Reference fields and action parameters, eligibility and raw unknown IDs |
+| F5 | Stable identities, structural mementos and undo; or why no structural writer exists |
+| F6 | Planned actions, semantic review and supported explicit/document/F8 query scopes (#27) |
+| F7 | Actual coupled file roles/invariants and whole-group history; or no proven coupling |
+| F8 | Complete-model search/filter/sort, stable row keys and bounded paging |
+| F9 | Maps/graphs/text alternatives and provenance; separate reference state from saved state |
+| F10 | Exact numeric lexemes/null/union where applicable; distinguish existing integer-string transport |
+| F11 | Shared Kraken/SQLite use; or why the format has no applicable codec |
+| F12 | Production decoder hook ID and/or shared bounded F8 view traversal; no Testing dependency required |
+| F13 | Inspection `Mutates=false`, browse-only picker, catalogue filter/sort and evidenced float durations; explain each inapplicable part |
+
+Framework adoption is not a console-validation or full-roadmap completion claim. Keep confidence,
+write scope, unsupported dependencies and the linked owner checklist explicit. Add `## Licence exclusions`
+with the rule 9 columns for every licence refusal and keep the central register synchronized.
