@@ -1,0 +1,17 @@
+sectionId,sectionName,version,bodyWidth,confidence,observation,nextExperiment,source
+DDDA5E74,Entitlement,4,9030,Unknown,Not interpreted in current PS5 samples,Controlled entitlement toggle capture,Local PS5 evidence required
+7C939FFC,PartyOrder,100,50,Unknown,Party order and recruitment state are not decoded,Recruitment and reorder capture,Local PS5 evidence required
+8CC3AF4C,PartyProfile,100,2800,Inferred,Gald and play timers have stable relative anchors across three slots,One-variable gald and control re-save,Existing PS5 sample corpus and PS4 offset lead
+8878C7B2,SaveData_ItemManager,100,19000,Inferred,934 fixed 16-byte records expose numeric IDs and quantities,Buy/use one item and test later acquisition,Existing PS5 sample corpus and PS4 offset lead
+032737EA,ArisePCStatus_000,100,1400,Inferred,Level HP XP SP and base HP offsets agree across six samples,Level-up and herb capture,Existing PS5 sample corpus and PS4 offset lead
+BB9B508F,ArisePCStatus_001,100,1400,Inferred,Level HP XP SP and base HP offsets agree across six samples,Level-up and herb capture,Existing PS5 sample corpus and PS4 offset lead
+A92EFF61,ArisePCStatus_002,100,1400,Inferred,Level HP XP SP and base HP offsets agree across six samples,Level-up and herb capture,Existing PS5 sample corpus and PS4 offset lead
+11929804,ArisePCStatus_003,100,1400,Inferred,Level HP XP SP and base HP offsets agree across six samples,Level-up and herb capture,Existing PS5 sample corpus and PS4 offset lead
+8C45A0BD,ArisePCStatus_004,100,1400,Inferred,Level HP XP SP and base HP offsets agree across six samples,Level-up and herb capture,Existing PS5 sample corpus and PS4 offset lead
+34F9C7D8,ArisePCStatus_005,100,1400,Inferred,Level HP XP SP and base HP offsets agree across six samples,Level-up and herb capture,Existing PS5 sample corpus and PS4 offset lead
+264C6836,ArisePCStatus_006,100,1400,Unknown,Future character slot with no proven availability semantics,Recruitment state capture,Existing PS5 sample corpus
+9EF00F53,ArisePCStatus_007,100,1400,Unknown,Future character slot with no proven availability semantics,Recruitment state capture,Existing PS5 sample corpus
+D0491C4B,SearchOwlSaveData,100,176,Unknown,Bytes vary while candidate aggregate is zero,Discovery/report/reward captures,Existing PS5 sample corpus
+31047C4A,QuestSaveDataEx,102,136544,Unknown,Quest flags and stage joins are not decoded,Single quest stage capture,Existing PS5 sample corpus
+C1950B15,FishingSaveData,100,976,Unknown,Fishing records are not decoded,One catch and expert reward capture,Existing PS5 sample corpus
+5F93E8D7,CampPointSaveData,100,17504,Unknown,Camp/map state is not decoded,Camp unlock and map capture,Existing PS5 sample corpus

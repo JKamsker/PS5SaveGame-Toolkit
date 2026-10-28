@@ -1,0 +1,17 @@
+{
+  "records": [
+    { "id": "1", "name": "Apple Gel", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables", "attributes": { "sampleStatus": "Observed in PS5 sample corpus; identity is inferred from the existing plugin mapping." } },
+    { "id": "2", "name": "Peach Gel", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "3", "name": "Lemon Gel", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "4", "name": "Grape Gel", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "5", "name": "Orange Gel", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "6", "name": "Pineapple Gel", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "7", "name": "Gold Gel", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "8", "name": "Treat", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "9", "name": "Heavy Treat", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "10", "name": "Panacea Bottle", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "11", "name": "Life Bottle", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "12", "name": "Elixir", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" },
+    { "id": "13", "name": "Omega Elixir", "category": "Consumable", "limit": 15, "source": "https://aselia.fandom.com/wiki/ToA_-_Consumables" }
+  ]
+}
