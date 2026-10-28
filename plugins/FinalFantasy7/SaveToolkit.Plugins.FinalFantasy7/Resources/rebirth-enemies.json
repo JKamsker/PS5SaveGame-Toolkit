@@ -1,0 +1,1152 @@
+[
+  {
+    "index": 126,
+    "name": "001 Security Officer",
+    "category": "Rebirth"
+  },
+  {
+    "index": 874,
+    "name": "002 Elite Security Officer",
+    "category": "Rebirth"
+  },
+  {
+    "index": 3,
+    "name": "003 Special Forces Operator",
+    "category": "Rebirth"
+  },
+  {
+    "index": 492,
+    "name": "004 Grenadier",
+    "category": "Rebirth"
+  },
+  {
+    "index": 853,
+    "name": "005 Elite Grenadier",
+    "category": "Rebirth"
+  },
+  {
+    "index": 145,
+    "name": "006 Riot Trooper",
+    "category": "Rebirth"
+  },
+  {
+    "index": 811,
+    "name": "007 Flametrooper",
+    "category": "Rebirth"
+  },
+  {
+    "index": 583,
+    "name": "008 2-C SOLDIER Operator",
+    "category": "Rebirth"
+  },
+  {
+    "index": 915,
+    "name": "009 Junon Security Officer",
+    "category": "Rebirth"
+  },
+  {
+    "index": 278,
+    "name": "010 Junon Elite Security Officer",
+    "category": "Rebirth"
+  },
+  {
+    "index": 680,
+    "name": "011 Junon Grenadier",
+    "category": "Rebirth"
+  },
+  {
+    "index": 20,
+    "name": "012 Junon Elite Grenadier",
+    "category": "Rebirth"
+  },
+  {
+    "index": 397,
+    "name": "013 Junon Riot Trooper",
+    "category": "Rebirth"
+  },
+  {
+    "index": 652,
+    "name": "014 Junon Flametrooper",
+    "category": "Rebirth"
+  },
+  {
+    "index": 706,
+    "name": "015 Slug-Ray",
+    "category": "Rebirth"
+  },
+  {
+    "index": 23,
+    "name": "016 Type G Slug-Ray",
+    "category": "Rebirth"
+  },
+  {
+    "index": 495,
+    "name": "017 J-Unit Sweeper",
+    "category": "Rebirth"
+  },
+  {
+    "index": 682,
+    "name": "018 Modded Sweeper",
+    "category": "Rebirth"
+  },
+  {
+    "index": 846,
+    "name": "019 Deathwheel",
+    "category": "Rebirth"
+  },
+  {
+    "index": 573,
+    "name": "020 Cavestalker",
+    "category": "Rebirth"
+  },
+  {
+    "index": 136,
+    "name": "021 Diabolic Variant",
+    "category": "Rebirth"
+  },
+  {
+    "index": 463,
+    "name": "022 Corneo Lackey",
+    "category": "Rebirth"
+  },
+  {
+    "index": 539,
+    "name": "023 Thug",
+    "category": "Rebirth"
+  },
+  {
+    "index": 434,
+    "name": "024 Bandit",
+    "category": "Rebirth"
+  },
+  {
+    "index": 394,
+    "name": "025 Devil Rider",
+    "category": "Rebirth"
+  },
+  {
+    "index": 734,
+    "name": "026 Beck",
+    "category": "Rebirth"
+  },
+  {
+    "index": 270,
+    "name": "027 Butch",
+    "category": "Rebirth"
+  },
+  {
+    "index": 242,
+    "name": "028 Burke",
+    "category": "Rebirth"
+  },
+  {
+    "index": 883,
+    "name": "029 Burt",
+    "category": "Rebirth"
+  },
+  {
+    "index": 350,
+    "name": "030 Grasslands Wolf",
+    "category": "Rebirth"
+  },
+  {
+    "index": 188,
+    "name": "031 Thunderclaw",
+    "category": "Rebirth"
+  },
+  {
+    "index": 816,
+    "name": "032 White Terror",
+    "category": "Rebirth"
+  },
+  {
+    "index": 802,
+    "name": "033 Nibel Wolf",
+    "category": "Rebirth"
+  },
+  {
+    "index": 918,
+    "name": "034 Pyretail",
+    "category": "Rebirth"
+  },
+  {
+    "index": 456,
+    "name": "035 Test 0",
+    "category": "Rebirth"
+  },
+  {
+    "index": 543,
+    "name": "036 Toxirat",
+    "category": "Rebirth"
+  },
+  {
+    "index": 935,
+    "name": "037 Venorat",
+    "category": "Rebirth"
+  },
+  {
+    "index": 366,
+    "name": "038 Cyclone Drake",
+    "category": "Rebirth"
+  },
+  {
+    "index": 837,
+    "name": "039 Sandstorm Drake",
+    "category": "Rebirth"
+  },
+  {
+    "index": 333,
+    "name": "040 Citripinefish",
+    "category": "Rebirth"
+  },
+  {
+    "index": 211,
+    "name": "041 Citripine Schoolmaster",
+    "category": "Rebirth"
+  },
+  {
+    "index": 982,
+    "name": "042 Bloatfloat",
+    "category": "Rebirth"
+  },
+  {
+    "index": 486,
+    "name": "043 Sea Terpsicolt",
+    "category": "Rebirth"
+  },
+  {
+    "index": 914,
+    "name": "044 Heliopora Terpsicolt",
+    "category": "Rebirth"
+  },
+  {
+    "index": 893,
+    "name": "045 Sandhog Pie",
+    "category": "Rebirth"
+  },
+  {
+    "index": 110,
+    "name": "046 Crystalline Crab",
+    "category": "Rebirth"
+  },
+  {
+    "index": 184,
+    "name": "047 Barnaclaw",
+    "category": "Rebirth"
+  },
+  {
+    "index": 897,
+    "name": "048 Desert Sahagin",
+    "category": "Rebirth"
+  },
+  {
+    "index": 943,
+    "name": "049 Sahagin Warrior",
+    "category": "Rebirth"
+  },
+  {
+    "index": 595,
+    "name": "050 Tonberry",
+    "category": "Rebirth"
+  },
+  {
+    "index": 710,
+    "name": "051 Donberry",
+    "category": "Rebirth"
+  },
+  {
+    "index": 542,
+    "name": "052 Tonberry King",
+    "category": "Rebirth"
+  },
+  {
+    "index": 338,
+    "name": "053 Levrikon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 279,
+    "name": "054 Aggrevrikon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 476,
+    "name": "055 Levridon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 124,
+    "name": "056 Twin Brain",
+    "category": "Rebirth"
+  },
+  {
+    "index": 876,
+    "name": "057 Bomb",
+    "category": "Rebirth"
+  },
+  {
+    "index": 251,
+    "name": "058 Gigant Bomb",
+    "category": "Rebirth"
+  },
+  {
+    "index": 597,
+    "name": "059 Great Malboro",
+    "category": "Rebirth"
+  },
+  {
+    "index": 979,
+    "name": "060 Zu",
+    "category": "Rebirth"
+  },
+  {
+    "index": 570,
+    "name": "061 Ember Zu",
+    "category": "Rebirth"
+  },
+  {
+    "index": 414,
+    "name": "062 Tonadu",
+    "category": "Rebirth"
+  },
+  {
+    "index": 959,
+    "name": "063 Fonadu",
+    "category": "Rebirth"
+  },
+  {
+    "index": 315,
+    "name": "064 King Zu",
+    "category": "Rebirth"
+  },
+  {
+    "index": 586,
+    "name": "065 Fleetwing",
+    "category": "Rebirth"
+  },
+  {
+    "index": 872,
+    "name": "066 Stormwing",
+    "category": "Rebirth"
+  },
+  {
+    "index": 584,
+    "name": "067 Daggerwing",
+    "category": "Rebirth"
+  },
+  {
+    "index": 300,
+    "name": "068 Velociwing",
+    "category": "Rebirth"
+  },
+  {
+    "index": 152,
+    "name": "069 Dragon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 928,
+    "name": "070 Sea Dragon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 70,
+    "name": "071 Kyuvildun",
+    "category": "Rebirth"
+  },
+  {
+    "index": 723,
+    "name": "072 Carnifex",
+    "category": "Rebirth"
+  },
+  {
+    "index": 393,
+    "name": "073 Mu",
+    "category": "Rebirth"
+  },
+  {
+    "index": 257,
+    "name": "074 Mi",
+    "category": "Rebirth"
+  },
+  {
+    "index": 202,
+    "name": "075 Mandragora",
+    "category": "Rebirth"
+  },
+  {
+    "index": 757,
+    "name": "076 Mandrake",
+    "category": "Rebirth"
+  },
+  {
+    "index": 130,
+    "name": "077 Elphadunk",
+    "category": "Rebirth"
+  },
+  {
+    "index": 99,
+    "name": "078 Enmidunk",
+    "category": "Rebirth"
+  },
+  {
+    "index": 561,
+    "name": "079 Mastodon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 579,
+    "name": "080 Quetzalcoatl",
+    "category": "Rebirth"
+  },
+  {
+    "index": 955,
+    "name": "081 Hueyacoatl",
+    "category": "Rebirth"
+  },
+  {
+    "index": 703,
+    "name": "082 Griffon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 755,
+    "name": "083 Shirdal",
+    "category": "Rebirth"
+  },
+  {
+    "index": 873,
+    "name": "084 Crawler",
+    "category": "Rebirth"
+  },
+  {
+    "index": 84,
+    "name": "085 Nidhogg",
+    "category": "Rebirth"
+  },
+  {
+    "index": 31,
+    "name": "086 Archdragon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 758,
+    "name": "087 Mystic Dragon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 939,
+    "name": "088 Ancient Dragon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 167,
+    "name": "089 Flan",
+    "category": "Rebirth"
+  },
+  {
+    "index": 344,
+    "name": "090 White Mousse",
+    "category": "Rebirth"
+  },
+  {
+    "index": 409,
+    "name": "091 Orc",
+    "category": "Rebirth"
+  },
+  {
+    "index": 416,
+    "name": "092 Ogre",
+    "category": "Rebirth"
+  },
+  {
+    "index": 392,
+    "name": "093 Ogre Raider",
+    "category": "Rebirth"
+  },
+  {
+    "index": 413,
+    "name": "094 Zemzelett",
+    "category": "Rebirth"
+  },
+  {
+    "index": 238,
+    "name": "095 Whymzelett",
+    "category": "Rebirth"
+  },
+  {
+    "index": 987,
+    "name": "096 Ignilisk",
+    "category": "Rebirth"
+  },
+  {
+    "index": 240,
+    "name": "097 Lavalisk",
+    "category": "Rebirth"
+  },
+  {
+    "index": 289,
+    "name": "098 Capparwire",
+    "category": "Rebirth"
+  },
+  {
+    "index": 971,
+    "name": "099 Pyrowire",
+    "category": "Rebirth"
+  },
+  {
+    "index": 372,
+    "name": "100 Mindflayer",
+    "category": "Rebirth"
+  },
+  {
+    "index": 367,
+    "name": "101 Grangalan",
+    "category": "Rebirth"
+  },
+  {
+    "index": 700,
+    "name": "102 Grangalan Junior",
+    "category": "Rebirth"
+  },
+  {
+    "index": 482,
+    "name": "103 Baby Grangalan",
+    "category": "Rebirth"
+  },
+  {
+    "index": 443,
+    "name": "104 Shoalopod",
+    "category": "Rebirth"
+  },
+  {
+    "index": 378,
+    "name": "105 Shankhalopod",
+    "category": "Rebirth"
+  },
+  {
+    "index": 932,
+    "name": "106 Crown Lance",
+    "category": "Rebirth"
+  },
+  {
+    "index": 969,
+    "name": "107 Gorgon Mane",
+    "category": "Rebirth"
+  },
+  {
+    "index": 484,
+    "name": "108 Spearhawk",
+    "category": "Rebirth"
+  },
+  {
+    "index": 778,
+    "name": "109 Saberhawk",
+    "category": "Rebirth"
+  },
+  {
+    "index": 256,
+    "name": "110 Sea Devil",
+    "category": "Rebirth"
+  },
+  {
+    "index": 754,
+    "name": "111 Heatseeker",
+    "category": "Rebirth"
+  },
+  {
+    "index": 629,
+    "name": "112 Poison Cap",
+    "category": "Rebirth"
+  },
+  {
+    "index": 117,
+    "name": "113 Noxicap",
+    "category": "Rebirth"
+  },
+  {
+    "index": 574,
+    "name": "114 Bagnadrana",
+    "category": "Rebirth"
+  },
+  {
+    "index": 571,
+    "name": "115 Dranabarga",
+    "category": "Rebirth"
+  },
+  {
+    "index": 661,
+    "name": "116 Cockatrice",
+    "category": "Rebirth"
+  },
+  {
+    "index": 464,
+    "name": "117 Death Claw",
+    "category": "Rebirth"
+  },
+  {
+    "index": 452,
+    "name": "118 Dark Claw",
+    "category": "Rebirth"
+  },
+  {
+    "index": 173,
+    "name": "119 Two Face",
+    "category": "Rebirth"
+  },
+  {
+    "index": 491,
+    "name": "120 Landworm",
+    "category": "Rebirth"
+  },
+  {
+    "index": 968,
+    "name": "121 Duneworm",
+    "category": "Rebirth"
+  },
+  {
+    "index": 479,
+    "name": "122 Gigaworm",
+    "category": "Rebirth"
+  },
+  {
+    "index": 47,
+    "name": "123 Sandspitter",
+    "category": "Rebirth"
+  },
+  {
+    "index": 74,
+    "name": "124 Bladefin",
+    "category": "Rebirth"
+  },
+  {
+    "index": 992,
+    "name": "125 Chimera",
+    "category": "Rebirth"
+  },
+  {
+    "index": 578,
+    "name": "126 Silver Chimera",
+    "category": "Rebirth"
+  },
+  {
+    "index": 763,
+    "name": "127 Joker",
+    "category": "Rebirth"
+  },
+  {
+    "index": 274,
+    "name": "128 Grandhorn",
+    "category": "Rebirth"
+  },
+  {
+    "index": 742,
+    "name": "129 Grandhorn Warden",
+    "category": "Rebirth"
+  },
+  {
+    "index": 104,
+    "name": "130 Savage Grandhorn",
+    "category": "Rebirth"
+  },
+  {
+    "index": 169,
+    "name": "131 Gagighandi",
+    "category": "Rebirth"
+  },
+  {
+    "index": 165,
+    "name": "132 Fulvum Varanus",
+    "category": "Rebirth"
+  },
+  {
+    "index": 860,
+    "name": "133 Cthonilizard",
+    "category": "Rebirth"
+  },
+  {
+    "index": 72,
+    "name": "134 Amphidex",
+    "category": "Rebirth"
+  },
+  {
+    "index": 509,
+    "name": "135 Pastel Amphidex",
+    "category": "Rebirth"
+  },
+  {
+    "index": 481,
+    "name": "136 Blight Frog",
+    "category": "Rebirth"
+  },
+  {
+    "index": 79,
+    "name": "137 Frightflower",
+    "category": "Rebirth"
+  },
+  {
+    "index": 728,
+    "name": "138 Brumeflower",
+    "category": "Rebirth"
+  },
+  {
+    "index": 628,
+    "name": "139 Gigantoad",
+    "category": "Rebirth"
+  },
+  {
+    "index": 806,
+    "name": "140 Insectoid Chimera",
+    "category": "Rebirth"
+  },
+  {
+    "index": 32,
+    "name": "141 Chimera Mimic",
+    "category": "Rebirth"
+  },
+  {
+    "index": 198,
+    "name": "142 Threadspinner Chimera",
+    "category": "Rebirth"
+  },
+  {
+    "index": 741,
+    "name": "143 Maloceros",
+    "category": "Rebirth"
+  },
+  {
+    "index": 314,
+    "name": "144 Irasceros",
+    "category": "Rebirth"
+  },
+  {
+    "index": 172,
+    "name": "145 Skeeskee",
+    "category": "Rebirth"
+  },
+  {
+    "index": 266,
+    "name": "146 Drohdroh",
+    "category": "Rebirth"
+  },
+  {
+    "index": 674,
+    "name": "147 Stone Golem",
+    "category": "Rebirth"
+  },
+  {
+    "index": 440,
+    "name": "148 Elder Golem",
+    "category": "Rebirth"
+  },
+  {
+    "index": 619,
+    "name": "149 Basilisk",
+    "category": "Rebirth"
+  },
+  {
+    "index": 523,
+    "name": "150 Bashfulisk",
+    "category": "Rebirth"
+  },
+  {
+    "index": 596,
+    "name": "151 Reapertail",
+    "category": "Rebirth"
+  },
+  {
+    "index": 850,
+    "name": "152 Jabberwock",
+    "category": "Rebirth"
+  },
+  {
+    "index": 174,
+    "name": "153 Gi Specter",
+    "category": "Rebirth"
+  },
+  {
+    "index": 525,
+    "name": "154 Stinger",
+    "category": "Rebirth"
+  },
+  {
+    "index": 134,
+    "name": "155 Valron",
+    "category": "Rebirth"
+  },
+  {
+    "index": 889,
+    "name": "156 Marquis Valron",
+    "category": "Rebirth"
+  },
+  {
+    "index": 508,
+    "name": "157 Brineborn Demon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 114,
+    "name": "158 Disgorgon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 548,
+    "name": "159 Suevite Disgorgon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 229,
+    "name": "160 Guard Bee",
+    "category": "Rebirth"
+  },
+  {
+    "index": 654,
+    "name": "161 Queen Bee",
+    "category": "Rebirth"
+  },
+  {
+    "index": 929,
+    "name": "162 Bahba Velamyu",
+    "category": "Rebirth"
+  },
+  {
+    "index": 371,
+    "name": "163 Black Bat",
+    "category": "Rebirth"
+  },
+  {
+    "index": 761,
+    "name": "164 Berserker Bee",
+    "category": "Rebirth"
+  },
+  {
+    "index": 132,
+    "name": "165 Kelzmelzer",
+    "category": "Rebirth"
+  },
+  {
+    "index": 113,
+    "name": "166 Panthera Protector",
+    "category": "Rebirth"
+  },
+  {
+    "index": 319,
+    "name": "167 Hecteyes",
+    "category": "Rebirth"
+  },
+  {
+    "index": 42,
+    "name": "168 Moss-Grown Adamantoise",
+    "category": "Rebirth"
+  },
+  {
+    "index": 10,
+    "name": "169 Ironclad",
+    "category": "Rebirth"
+  },
+  {
+    "index": 781,
+    "name": "170 Sanguine Scourge",
+    "category": "Rebirth"
+  },
+  {
+    "index": 131,
+    "name": "171 Floating Death",
+    "category": "Rebirth"
+  },
+  {
+    "index": 322,
+    "name": "172 Cactuar",
+    "category": "Rebirth"
+  },
+  {
+    "index": 298,
+    "name": "173 Gold Cactuar",
+    "category": "Rebirth"
+  },
+  {
+    "index": 764,
+    "name": "174 Cactrot",
+    "category": "Rebirth"
+  },
+  {
+    "index": 880,
+    "name": "175 Orange Cactrot",
+    "category": "Rebirth"
+  },
+  {
+    "index": 560,
+    "name": "176 Cacneo",
+    "category": "Rebirth"
+  },
+  {
+    "index": 365,
+    "name": "177 Gigantuar",
+    "category": "Rebirth"
+  },
+  {
+    "index": 224,
+    "name": "178 Gargantuar",
+    "category": "Rebirth"
+  },
+  {
+    "index": 772,
+    "name": "179 Kid G",
+    "category": "Rebirth"
+  },
+  {
+    "index": 601,
+    "name": "180 Screamer",
+    "category": "Rebirth"
+  },
+  {
+    "index": 882,
+    "name": "181 Scrutineye",
+    "category": "Rebirth"
+  },
+  {
+    "index": 285,
+    "name": "182 Experimental Varghidpolis",
+    "category": "Rebirth"
+  },
+  {
+    "index": 518,
+    "name": "183 Shrieker",
+    "category": "Rebirth"
+  },
+  {
+    "index": 265,
+    "name": "184 Daemonic Entity",
+    "category": "Rebirth"
+  },
+  {
+    "index": 683,
+    "name": "185 Necrotic Entity",
+    "category": "Rebirth"
+  },
+  {
+    "index": 430,
+    "name": "186 Amalgam",
+    "category": "Rebirth"
+  },
+  {
+    "index": 937,
+    "name": "187 Rictus",
+    "category": "Rebirth"
+  },
+  {
+    "index": 399,
+    "name": "188 Yin & Yang",
+    "category": "Rebirth"
+  },
+  {
+    "index": 48,
+    "name": "189 Adjudicator",
+    "category": "Rebirth"
+  },
+  {
+    "index": 830,
+    "name": "190 Hell Rider II",
+    "category": "Rebirth"
+  },
+  {
+    "index": 380,
+    "name": "191 Roche",
+    "category": "Rebirth"
+  },
+  {
+    "index": 423,
+    "name": "192 Reno",
+    "category": "Rebirth"
+  },
+  {
+    "index": 331,
+    "name": "193 Rude",
+    "category": "Rebirth"
+  },
+  {
+    "index": 19,
+    "name": "194 Elena",
+    "category": "Rebirth"
+  },
+  {
+    "index": 843,
+    "name": "195 Tseng",
+    "category": "Rebirth"
+  },
+  {
+    "index": 847,
+    "name": "196 Rufus",
+    "category": "Rebirth"
+  },
+  {
+    "index": 287,
+    "name": "197 Darkstar",
+    "category": "Rebirth"
+  },
+  {
+    "index": 817,
+    "name": "198 Dyne",
+    "category": "Rebirth"
+  },
+  {
+    "index": 65,
+    "name": "199 Galian Beast",
+    "category": "Rebirth"
+  },
+  {
+    "index": 842,
+    "name": "200 Grasptropod",
+    "category": "Rebirth"
+  },
+  {
+    "index": 354,
+    "name": "201 Custom Valkyrie",
+    "category": "Rebirth"
+  },
+  {
+    "index": 500,
+    "name": "202 Anuran Suppressor",
+    "category": "Rebirth"
+  },
+  {
+    "index": 819,
+    "name": "203 Specimen H1024",
+    "category": "Rebirth"
+  },
+  {
+    "index": 116,
+    "name": "204 Crimson Mare Mk. II",
+    "category": "Rebirth"
+  },
+  {
+    "index": 533,
+    "name": "205 Forgotten Specimen",
+    "category": "Rebirth"
+  },
+  {
+    "index": 83,
+    "name": "206 Jenova Emergent",
+    "category": "Rebirth"
+  },
+  {
+    "index": 59,
+    "name": "207 Jenova Lifeclinger",
+    "category": "Rebirth"
+  },
+  {
+    "index": 192,
+    "name": "208 Materia Guardian",
+    "category": "Rebirth"
+  },
+  {
+    "index": 609,
+    "name": "209 Midgardsormr",
+    "category": "Rebirth"
+  },
+  {
+    "index": 998,
+    "name": "210 Mythril Golem",
+    "category": "Rebirth"
+  },
+  {
+    "index": 733,
+    "name": "211 Terror of the Deep",
+    "category": "Rebirth"
+  },
+  {
+    "index": 669,
+    "name": "212 Gigatrice",
+    "category": "Rebirth"
+  },
+  {
+    "index": 154,
+    "name": "213 Gi Nattak",
+    "category": "Rebirth"
+  },
+  {
+    "index": 86,
+    "name": "214 Soul Flame",
+    "category": "Rebirth"
+  },
+  {
+    "index": 462,
+    "name": "215 Abzu",
+    "category": "Rebirth"
+  },
+  {
+    "index": 321,
+    "name": "216 Red Dragon",
+    "category": "Rebirth"
+  },
+  {
+    "index": 924,
+    "name": "217 Demon Gate",
+    "category": "Rebirth"
+  },
+  {
+    "index": 797,
+    "name": "218 Titan",
+    "category": "Rebirth"
+  },
+  {
+    "index": 107,
+    "name": "219 Phoenix",
+    "category": "Rebirth"
+  },
+  {
+    "index": 504,
+    "name": "220 Alexander",
+    "category": "Rebirth"
+  },
+  {
+    "index": 253,
+    "name": "221 Kujata",
+    "category": "Rebirth"
+  },
+  {
+    "index": 345,
+    "name": "222 Bahamut Arisen",
+    "category": "Rebirth"
+  },
+  {
+    "index": 85,
+    "name": "223 Bahamut Arisen Whisper",
+    "category": "Rebirth"
+  },
+  {
+    "index": 767,
+    "name": "224 Odin",
+    "category": "Rebirth"
+  },
+  {
+    "index": 127,
+    "name": "225 Eccentric Swordman",
+    "category": "Rebirth"
+  },
+  {
+    "index": 427,
+    "name": "226 Whisper",
+    "category": "Rebirth"
+  },
+  {
+    "index": 11,
+    "name": "227 Sephiroth Reborn",
+    "category": "Rebirth"
+  },
+  {
+    "index": 738,
+    "name": "228 Sephiroth",
+    "category": "Rebirth"
+  },
+  {
+    "index": 293,
+    "name": "229 Sephiroth (Forgottent Capital)",
+    "category": "Rebirth"
+  },
+  {
+    "index": 408,
+    "name": "230 Virtual Sephiroth",
+    "category": "Rebirth"
+  }
+]

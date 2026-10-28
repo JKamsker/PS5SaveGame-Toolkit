@@ -1,6 +1,6 @@
 # Final Fantasy VII Remake / Rebirth (`ff7r`)
 
-**Maturity: Experimental, v0.4.0.** The owner-authorized write-enable round turns on mapped existing
+**Maturity: Experimental, v0.5.0.** The owner-authorized write-enable round turns on mapped existing
 character values, ordinary materia AP/star transitions, owned Rebirth weapon references, mapped
 non-equipment counts and individual progress bits on Remake/INTERmission, retail Rebirth and demo.
 All new writes are **Inferred** and **not validated on console**. Internal integrity is unconfirmed:
@@ -24,6 +24,67 @@ count new or expanded write kinds; legacy gil/ordinary-stack editing is also ret
 | Ordinary stored stars | Inferred | Same curves; sets AP to target tier threshold | Unknown; AP/star pair reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): both increase and decrease, equipped copies |
 | Existing mapped non-equipment counts | Inferred | Existing allocated type rows; new categories use original observed category maxima (minimum editor bound 1) | Unknown; count word only; flags/decks/rewards untouched | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): materials, tokens, keys, cards/boosters, progression categories |
 | Individual progress candidate bits | Inferred | 69 Remake / 470 Rebirth/demo distinct pinned public-template mappings | Unknown; neighboring bits preserved; rewards/actors/counters not repaired; softlocks possible | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): each domain, rewards/actors, chapter reset and reversal |
+
+Completion adds two F6 presets over these existing write kinds: **restock existing consumables**
+(only positive ordinary `Items` stacks below a chosen target of 1–99; no reduction or allocation),
+and **set selected ordinary materia stars** (AP changes to the chosen tier threshold). Both preview
+targets, skipped rows/reasons, dependent changes, attribution and integrity warnings; accept F8
+select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as one history entry.
+99 is the upstream editor policy, not a proven game cap. These presets need the same #31 console checks.
+
+## Framework feature adoption
+
+| Feature | Status | Adoption / concrete reason and verification |
+| --- | --- | --- |
+| F1 SaveDiff | Added this round | Existing `ByteDiffer` golden-byte tests; shared `FixtureManifest`/`FixtureVerifier` self-comparison fixtures for all three titles; `PluginViewDecoder` hook test for stable character paths. These are repeatability fixtures, not invented controlled events. Full F8 semantic traversal is pending F12. |
+| F2 reference packs | Used | Build-scoped embedded MIT item/weapon/materia packs, per-dataset attribution and Sources panel; optional imported text/images through pinned `IReferenceContext`. Pack validity/build/provenance tests. |
+| F3 rich table cells | Added this round | Inventory/catalog row-detail sections retain descriptions/attribution and optional imported `ImageNode` assets. Bound numeric cells carry confidence/warnings. Tested detail nodes, imported image identity and `GetAsset` routing; no game artwork bundled. |
+| F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Server checks exclude unknown/summon/mismatched rows. Writable weapon references are **instance IDs**, while the catalog keys are **type IDs**; substituting that catalog would select the wrong domain. Raw type IDs are read-only; browse-only pickers are pending F13. |
+| F5 reversible structure | N/A | No safe allocation/removal/reorder writer exists: free-slot initialization, serial uniqueness, acquisition order and all inventory/detail/owner dependencies remain unknown. Current writers patch fixed-size existing values. Owner acquisition/discard/capacity pairs are required before a structural transaction can be implemented. |
+| F6 planning / #27 scopes | Added this round | Existing AP plan plus star-tier and consumable-restock presets; pure previews, warnings, skipped rows, derived AP/stars, stale rejection and one undo group, including Core-resolved F8 query scopes. `MateriaPlanningTests`, `PresetPlanningTests`. |
+| F7 document groups | N/A | No implemented operation changes more than the primary gameplay file; common and prior-state RESD dependencies are unmapped. Grouping them would claim a coupling that has not been established. Existing backup mirroring remains framework-owned. |
+| F8 queryable tables | Added this round | Complete inventories, materia, catalogs, cards, progress and owned relationships already use F8. Added paging/search/filter/sort for the linked-header index (including common files), named enemy records (161 Remake / 230 Rebirth) and the 388-row research collection. Legacy raw-word/lazy endpoints remain bounded. |
+| F9 graphs / maps | Added this round | Six external-link-only regional maps with local field targets and distinct bit domains; seven read-only folio candidate graphs (238 bits) and seven Rebirth equipment-reference graphs. Accessible text alternatives, bounded/lazy groups, JSON/SDK validation and Core edit/undo refresh tests. No fabricated prerequisite edges, socket links, capacity, coordinates or weapon-upgrade grid. |
+| F10 exact / nullable / union | N/A | Mapped payload values are fixed-width u8/u32/i32 integers and bits, exactly represented by `IntegerSpec`/`FieldValue` and the framework's integer transport. There are no decimal text numbers, nullable scalar encodings or tagged unions to represent. Sentinels remain literal bytes rather than guessed nulls. |
+| F11 shared codecs | N/A | Supported inputs are already decrypted, uncompressed custom linked records. They contain neither a Kraken stream nor SQLite data. No local codec or native dependency is used. |
+| F12 | pending #32 | SaveDiff F8 traversal / additional decoder registration. Use the existing shared hook with explicit limited coverage; no private traversal substitute. |
+| F13 | pending #33 | Non-mutating inspect actions, browse-only picker, catalog filter/sort and float-duration extensions were absent from the starting main commit `1f0d1f1`. Existing F8 detail/search and integer duration remain in use. |
+
+## Completion-round spatial and research views
+
+**Regional maps** groups the six mapped Rebirth regions. Each marker represents one existing
+candidate bit, retaining separate discovery/completion/repair domains and an Inferred badge.
+Found/Missing means bit 1/0 only. The map and its local editable checklist expand together, so
+navigation does not rely on an unloaded F8 row. Published map status refreshes on edit/undo/redo.
+The attributed [PowerPyx regional map](https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/)
+opens externally; no map art, remote resources or coordinates are imported. Remake has no geographic
+mapping. This does not implement teleportation, fast travel or aggregate completion.
+
+**Equipment and folios** exposes seven Rebirth/demo character groups. Folios show 238 distinct
+literal source bits; bit 1 is an inferred stored unlock, while bit 0 has Unknown availability.
+There are no invented edges or SP costs. Equipment graphs show the source's eight weapon and eight
+armor materia reference positions plus the weapon instance. Eight stored positions do not mean
+eight usable sockets. All graph targets open local read-only raw controls. Ambiguous/missing detail
+joins preserve the raw instance. These graphs do **not** supply the Remake weapon-upgrade grid:
+upgrade-node identities, prerequisite topology, SP accounting and socket capacities remain unmapped.
+
+**Progress** also has an F8 read-only research collection: 220 crafting unlock/done and 168 minigame
+candidate bits. These new literal source mappings do not implement a crafting/purchase/reward writer.
+They omit dynamic expressions, hidden/disabled flags, duplicate addresses and the Queen's Blood
+aliases already present in Progress. The new **Enemy intel** F8 collection reads named entry/assessed/
+staggered bits and defeated counts (Remake u32, Rebirth u16) by source record index. The Rebirth
+summary exposes five relationship raw words; craftsmanship level/XP share an ambiguous upstream
+address and are deliberately shown as one raw word. Complete gameplay semantics, challenge
+scores/rewards and chapter-reset behavior still need known-state captures. Every primary retail/demo
+sample is checked for exact bit/raw-byte reads, distinct identities and no-op byte preservation.
+
+Attribution and reproducible extraction: [spatial/research source sidecar](SaveToolkit.Plugins.FinalFantasy7/Resources/spatial-research.source.md).
+The pinned template is read as untrusted text; the two extractors require its exact SHA-256.
+Owned-item queries build one detail/owner index per query instead of rescanning 1,000 details for
+each row/page. Duplicate detail instances are displayed as ambiguous instead of silently choosing
+one. Indexes are rebuilt from current bytes, avoiding stale owner labels after edit/undo.
+
+Full requirement/acceptance gap audit and remaining work: [COMPLETION.md](COMPLETION.md).
 
 XP is bounded by the upstream editor policy of 9,999,999, ordinary AP by 999,999, Remake levels by 50
 and retail/demo Rebirth levels by 70. Duplicate zero XP thresholds in INTERmission make level 2 the
@@ -283,8 +344,9 @@ The plugin does not claim that a modified file will load on a console until that
 
 ## Bounded views and performance
 
-Overview contains only headline facts and a 2,048-entry scalar scan to find gil. The initial record
-table has at most 275 rows; record sections are grouped in lazy batches of 32. F8 inventory/materia/catalog/progress/owned collections return at most 200 rows per query; retained legacy lazy endpoints have at most 128 rows. Every record has a paged hex view plus a lazy tree reaching **every** aligned
+Overview contains only headline facts and a 2,048-entry scalar scan to find gil. The record-header
+index uses F8 (at most 275 records); record sections are grouped in lazy batches of 32. All F8
+collections return at most 200 rows per query; retained legacy lazy endpoints have at most 128 rows. Every record has a paged hex view plus a lazy tree reaching **every** aligned
 body word with u32, i32, f32 and ASCII interpretations. Word pages have at most 64 rows and intermediate
 ranges at most 32 children. NaN/Infinity interpretations are text, keeping the view JSON-serializable.
 Blob requests are capped at 64 KiB and copied to protect the document's backing buffer.
@@ -316,7 +378,8 @@ Research date: 2026-10-28. Read upstream code as untrusted text; no downloaded c
 Reproduce aggregate measurements without extracting any samples:
 
 ```powershell
-python plugins/FinalFantasy7/research/inspect_samples.py C:/path/to/main/artifacts
+python -I plugins/FinalFantasy7/research/inspect_samples.py C:/path/to/main/artifacts
+$env:SAVETOOLKIT_ARTIFACTS='C:/path/to/main/artifacts'
 dotnet test --project plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.Tests
 ```
 
@@ -326,7 +389,7 @@ format test walks and no-op serializes **all** matching sample files, including 
 Edit conformance nudges a writable field on selected Remake and retail Rebirth samples; dedicated
 tests verify in-place byte scope, round-trip reopening, undo-by-old-value and atomic range rejection.
 
-Write-enable local validation: **99/99 plugin tests, 0 failed, 0 skipped**, with the supplied archives and the API build passing with zero warnings/errors. The new tests include Core F4/F6/F8 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
+Completion local validation: **121/121 plugin tests, 0 failed, 0 skipped**, with the supplied archives and the API build passing with zero warnings/errors. Tests include Core F4/F6/F8/F9 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
 every measured sample Open call stayed below the two-second test bound.
 
 ## Open problems
@@ -341,12 +404,20 @@ every measured sample Open call stayed below the two-second test bound.
 
 ## SDK requests
 
-None required. The existing lazy sections, field confidence and paged blob API support bounded editing.
+No framework bug blocks the shipped subset. F12/F13 remain pending #32/#33 as listed above.
+
+R19 remains a framework-owned request: versioned toolkit preset storage outside save bytes with
+title/build compatibility and explicit missing/ambiguous owned-instance resolution. A later loadout
+writer must first have a complete socket/owner model; a plugin performing filesystem I/O to store
+profiles would violate the contract. F5/F7 exist already and need no replacement API.
 
 ## Sources and attribution
 
 | Dataset | Pinned source | Licence / modifications |
 | --- | --- | --- |
+| Remake/Rebirth enemy indices and names (161/230), read-only enemy/relationship/craftsmanship layouts | Pinned MIT GTC `resource.ts` and `template.ts` for each game, linked in the [source sidecar](SaveToolkit.Plugins.FinalFantasy7/Resources/spatial-research.source.md) | MIT, RyudoSynbios; extracted unambiguous indices, retained display labels/groups, independently implemented fixed-width reads; no game-effect prose or art |
+| Rebirth folio candidates (238), crafting (220), minigame (168), equipment-reference offsets | [GTC template.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts), [shift overrides](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils.ts) | MIT, RyudoSynbios; filtered literal candidate metadata and independently implemented reference inspection; no topology/cost/art imports; sidecar and full notice retained |
+| Regional map link | [PowerPyx, 2024-02-29](https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/) | External reference only; no reuse licence established, no artwork/coordinates/text imported |
 | Remake item categories/names (369) | [GTC resource.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts) | MIT, RyudoSynbios; extracted metadata, merged weapons, original summaries |
 | Remake weapons (32) | Same pinned Remake resource | MIT; extracted type/name rows, original identity description |
 | Remake materia (54) | Same pinned Remake resource | MIT; category/AP arrays, original AP summaries |

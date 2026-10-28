@@ -10,11 +10,14 @@ namespace SaveToolkit.Plugins.FinalFantasy7;
 internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay, ReferenceData references)
 {
     public const string ActionId = "materia/set-ap-within-tier";
+    public const string StarActionId = "materia/set-stars";
+    private const byte MaximumStarTier = 5;
 
-    public ActionNode View() => new(ActionId, "Set AP and derived stars")
+    public ActionNode View(bool stars = false) => new(stars ? StarActionId : ActionId, stars ? "Set stars and dependent AP" : "Set AP and derived stars")
     {
         SupportsPlanning = true,
-        Description = "Choose a materia type, then preview AP changes on selected rows (or all owned copies). " +
+        Description = (stars ? "Choose a materia type and star tier; dependent AP is set to that tier threshold. " : "Choose a materia type, then preview AP changes. ") +
+            "Scope covers selected rows or all owned copies. " +
             "Summons and mismatched rows are skipped. Ordinary stars follow the pinned AP curve. " + WriteWarnings.Experimental + " " + EmbeddedCatalogs.Attribution,
         Parameters =
         [
@@ -27,6 +30,7 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
                     Reasons = ["Only owned, ordinary materia with coherent AP and stored stars can be edited."],
                 },
             }, FieldValue.Of(DefaultType())) { Description = EmbeddedCatalogs.Attribution },
+            stars ? new("stars", "Target stars", IntegerSpec.UInt8 with { Min = 1, Max = MaximumStarTier }, FieldValue.Of(1L)) :
             new("ap", "Target AP", IntegerSpec.UInt32 with { Max = MateriaEditPolicy.MaximumTargetAp },
                 FieldValue.Of((long)Enumerable.Range(0, GameplayFields.MateriaCount).Where(slot => gameplay.ApRange(slot) is not null)
                     .Select(gameplay.Ap).FirstOrDefault())),
@@ -35,7 +39,7 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
 
     public ActionPlan Plan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
-        if (actionId != ActionId)
+        if (actionId is not (ActionId or StarActionId))
         {
             return Error("action", "Unknown FFVII planned action.");
         }
@@ -47,14 +51,23 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
 
         uint type;
         uint ap;
+        var stars = actionId == StarActionId;
         try
         {
             if (parameters.Count != 2 || !parameters.TryGetValue("type", out var typeValue) ||
                 !uint.TryParse(typeValue.AsString(), NumberStyles.None, CultureInfo.InvariantCulture, out type) ||
-                !parameters.TryGetValue("ap", out var apValue) || (ap = apValue.AsUInt32()) > MateriaEditPolicy.MaximumTargetAp ||
+                !parameters.TryGetValue(stars ? "stars" : "ap", out var apValue) || (ap = apValue.AsUInt32()) > MateriaEditPolicy.MaximumTargetAp ||
                 !EmbeddedCatalogs.Records(schema, "ff7r-materia").Any(record => record.Key == typeValue.AsString()))
             {
-                return Error("parameters", "Choose a known materia type and AP between 0 and 999,999.");
+                return Error("parameters", stars ? "Choose a known materia type and its supported star tier."
+                    : "Choose a known materia type and AP between 0 and 999,999.");
+            }
+            if (stars)
+            {
+                var curve = EmbeddedCatalogs.Records(schema, "ff7r-materia").Single(record => record.Key == typeValue.AsString())
+                    .Attributes["apThresholds"].Split(',').Select(value => uint.Parse(value, CultureInfo.InvariantCulture)).ToArray();
+                if (ap < 1 || ap > curve.Length) return Error("stars", "Choose a star tier supported by this materia type.");
+                ap = curve[ap - 1];
             }
         }
         catch (Exception exception) when (exception is InvalidOperationException or OverflowException)
@@ -88,19 +101,20 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
             }
 
             changes.Add(new($"{key}/ap", $"{references.Materia(type)} Â· slot {slot} AP",
-                FieldValue.Of((long)gameplay.Ap(slot)), FieldValue.Of((long)ap)));
+                FieldValue.Of((long)gameplay.Ap(slot)), FieldValue.Of((long)ap)) { Derived = stars });
             var level = gameplay.StarLevel(slot, ap);
             if (level != gameplay.Level(slot))
             {
-                changes.Add(new($"{key}/level", $"{references.Materia(type)} · slot {slot} stars",
-                    FieldValue.Of((long)gameplay.Level(slot)), FieldValue.Of((long)level)) { Derived = true });
+                changes.Add(new($"{key}/level", $"{references.Materia(type)} - slot {slot} stars",
+                    FieldValue.Of((long)gameplay.Level(slot)), FieldValue.Of((long)level)) { Derived = !stars });
             }
         }
 
         return new()
         {
             Changes = changes, SkippedRows = skipped,
-            Warnings = [WriteWarnings.Progression + "Ordinary stars are updated together with AP. Gear and ownership bytes are preserved."],
+            Warnings = [WriteWarnings.Progression + "Ordinary stars are updated together with AP. Gear and ownership bytes are preserved.",
+                "Materia labels: " + references.Source("ff7r-materia", type)],
         };
     }
 

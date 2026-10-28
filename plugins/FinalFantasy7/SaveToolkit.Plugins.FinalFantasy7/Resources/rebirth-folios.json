@@ -1,0 +1,2144 @@
+[
+  {
+    "id": "folio/4e0c1/1",
+    "name": "Max HP Up",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319681,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e102/2",
+    "name": "Max HP Up",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319746,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ac/3",
+    "name": "Max MP Up",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319660,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e11e/3",
+    "name": "Weapon Ability Damage Up",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319774,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c7/2",
+    "name": "Enhanced Limit Breaks",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319687,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f3/6",
+    "name": "Stagger Damage Up",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319731,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b7/7",
+    "name": "Enhanced Attack",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319671,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e5/5",
+    "name": "Enhanced Attack",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319717,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b3/4",
+    "name": "Enhanced Guard",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319667,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e7/4",
+    "name": "Synergy Damage Up",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319719,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b6/0",
+    "name": "Limit Gauge Guard",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319670,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e115/4",
+    "name": "Limit Gauge Stagger",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319765,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e099/5",
+    "name": "ATB Charge Rate Up",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319641,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e134/3",
+    "name": "MP Recovery Rate Up",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319796,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e09e/2",
+    "name": "Opening ATB Bonus",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319646,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e151/6",
+    "name": "ATB Limit",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319825,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e118/7",
+    "name": "Formidable Counter",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319768,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e11c/7",
+    "name": "Powerful Punisher",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319772,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e14f/3",
+    "name": "Stalwart Punisher",
+    "region": "0",
+    "category": "Stat Boosts",
+    "offset": 319823,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a7/2",
+    "name": "Finishing Touch",
+    "region": "0",
+    "category": "Lv.3 Limit Break",
+    "offset": 319655,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c0/3",
+    "name": "Aerial Onslaught",
+    "region": "0",
+    "category": "Abilities",
+    "offset": 319680,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0dc/2",
+    "name": "Wildfire",
+    "region": "0",
+    "category": "Abilities",
+    "offset": 319708,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e155/4",
+    "name": "Snow Flurry",
+    "region": "0",
+    "category": "Abilities",
+    "offset": 319829,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e140/2",
+    "name": "Static Shock",
+    "region": "0",
+    "category": "Abilities",
+    "offset": 319808,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e08e/3",
+    "name": "Wind Current",
+    "region": "0",
+    "category": "Abilities",
+    "offset": 319630,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e084/0",
+    "name": "Counterfire",
+    "region": "0",
+    "category": "Synergy Skills",
+    "offset": 319620,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ce/1",
+    "name": "Melee Blade",
+    "region": "0",
+    "category": "Synergy Skills",
+    "offset": 319694,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e154/6",
+    "name": "Ranged Blade",
+    "region": "0",
+    "category": "Synergy Skills",
+    "offset": 319828,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e172/5",
+    "name": "Partners in Pain",
+    "region": "0",
+    "category": "Synergy Abilities",
+    "offset": 319858,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e103/1",
+    "name": "United Refocus",
+    "region": "0",
+    "category": "Synergy Abilities",
+    "offset": 319747,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e106/7",
+    "name": "Relentless Rush",
+    "region": "0",
+    "category": "Synergy Abilities",
+    "offset": 319750,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c9/7",
+    "name": "Firework Blade",
+    "region": "0",
+    "category": "Synergy Abilities",
+    "offset": 319689,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b9/5",
+    "name": "Maelstrom Strike",
+    "region": "0",
+    "category": "Synergy Abilities",
+    "offset": 319673,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b3/7",
+    "name": "Curiosity's End",
+    "region": "0",
+    "category": "Synergy Abilities",
+    "offset": 319667,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b8/2",
+    "name": "Max HP Up",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319672,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e13a/4",
+    "name": "Max HP Up",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319802,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e11b/6",
+    "name": "Max HP Up",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319771,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e145/2",
+    "name": "Max MP Up",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319813,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f5/2",
+    "name": "DEF Up",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319733,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c3/1",
+    "name": "Weapon Ability Damage Up",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319683,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e08c/2",
+    "name": "Enhanced Overcharge",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319628,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0df/4",
+    "name": "Selfish Recovery Boost",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319711,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e134/1",
+    "name": "Selfish Recovery Boost",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319796,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e105/2",
+    "name": "Enhanced Physical Guard",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319749,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e146/7",
+    "name": "Selfish Buff Up",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319814,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e14d/3",
+    "name": "Synergy Damage Up",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319821,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e16e/3",
+    "name": "Limit Gauge Stagger",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319854,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b2/3",
+    "name": "Limit Gauge Charge Rate Up",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319666,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e090/6",
+    "name": "Physical Safeguard",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319632,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e14e/2",
+    "name": "Regeneration",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319822,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ee/6",
+    "name": "Overload Overcharge",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319726,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e14a/4",
+    "name": "Massive Recharge",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319818,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ec/3",
+    "name": "Staggering Charge",
+    "region": "1",
+    "category": "Stat Boosts",
+    "offset": 319724,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0fe/0",
+    "name": "Satellite Beam",
+    "region": "1",
+    "category": "Lv.3 Limit Break",
+    "offset": 319742,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0d5/4",
+    "name": "Lifeblood Cannon",
+    "region": "1",
+    "category": "Abilities",
+    "offset": 319701,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e11b/5",
+    "name": "Firery Impulse",
+    "region": "1",
+    "category": "Abilities",
+    "offset": 319771,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e117/4",
+    "name": "Icy Impulse",
+    "region": "1",
+    "category": "Abilities",
+    "offset": 319767,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e167/1",
+    "name": "Eletric Impulse",
+    "region": "1",
+    "category": "Abilities",
+    "offset": 319847,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e174/4",
+    "name": "Gale Impulse",
+    "region": "1",
+    "category": "Abilities",
+    "offset": 319860,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e157/7",
+    "name": "Mad Dash",
+    "region": "1",
+    "category": "Synergy Skills",
+    "offset": 319831,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e2/0",
+    "name": "Iron Defense",
+    "region": "1",
+    "category": "Synergy Skills",
+    "offset": 319714,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c6/1",
+    "name": "Friendly Fire",
+    "region": "1",
+    "category": "Synergy Skills",
+    "offset": 319686,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e147/6",
+    "name": "United Refocus (Cloud)",
+    "region": "1",
+    "category": "Synergy Abilities",
+    "offset": 319815,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e091/7",
+    "name": "Avalanche Two-Step",
+    "region": "1",
+    "category": "Synergy Abilities",
+    "offset": 319633,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e106/2",
+    "name": "Arcane Blast",
+    "region": "1",
+    "category": "Synergy Abilities",
+    "offset": 319750,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e08c/6",
+    "name": "United Refocus (Red XIII)",
+    "region": "1",
+    "category": "Synergy Abilities",
+    "offset": 319628,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e15a/4",
+    "name": "Ninja Carbine",
+    "region": "1",
+    "category": "Synergy Abilities",
+    "offset": 319834,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b9/4",
+    "name": "Purrfect Shot",
+    "region": "1",
+    "category": "Synergy Abilities",
+    "offset": 319673,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b8/0",
+    "name": "Max HP Up",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319672,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e179/4",
+    "name": "Max MP Up",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319865,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e174/7",
+    "name": "Critical Hit Rate Up",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319860,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e17c/4",
+    "name": "Critical Hit Rate Up",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319868,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e173/1",
+    "name": "Weapon Ability Damage Up",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319859,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0d6/4",
+    "name": "Enhanced Limit Breaks",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319702,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0db/4",
+    "name": "Combo Damage Up",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319707,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e09c/6",
+    "name": "Enhanced Techniques",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319644,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a9/1",
+    "name": "Weapon Ability ATB Recovery",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319657,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c9/3",
+    "name": "Limit Gauge Stagger",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319689,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f9/4",
+    "name": "ATB Charge Rate Up",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319737,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0bc/0",
+    "name": "MP Recovery Rate Up",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319676,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e10a/6",
+    "name": "Opening ATB Bonus",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319754,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e126/3",
+    "name": "Opening ATB Bonus",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319782,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e17b/0",
+    "name": "Reprieve",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319867,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e088/1",
+    "name": "Concentration",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319624,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a1/5",
+    "name": "Martial Arts Mastery",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319649,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ed/4",
+    "name": "Utterly Unbridled Strength",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319725,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e107/0",
+    "name": "Steadfast Concentration",
+    "region": "2",
+    "category": "Stat Boosts",
+    "offset": 319751,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e115/5",
+    "name": "Meteo Strikes",
+    "region": "2",
+    "category": "Lv.3 Limit Break",
+    "offset": 319765,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0bd/0",
+    "name": "Trinity Strike",
+    "region": "2",
+    "category": "Abilities",
+    "offset": 319677,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e15c/3",
+    "name": "Fiery Impulse",
+    "region": "2",
+    "category": "Abilities",
+    "offset": 319836,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e165/1",
+    "name": "Icy Impulse",
+    "region": "2",
+    "category": "Abilities",
+    "offset": 319845,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0df/2",
+    "name": "Electric Impulse",
+    "region": "2",
+    "category": "Abilities",
+    "offset": 319711,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0db/6",
+    "name": "Gale Impulse",
+    "region": "2",
+    "category": "Abilities",
+    "offset": 319707,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a9/7",
+    "name": "Slip and Slide",
+    "region": "2",
+    "category": "Synergy Skills",
+    "offset": 319657,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e14f/2",
+    "name": "Leaping Strikes",
+    "region": "2",
+    "category": "Synergy Skills",
+    "offset": 319823,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c5/5",
+    "name": "Bodyguard",
+    "region": "2",
+    "category": "Synergy Skills",
+    "offset": 319685,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e173/6",
+    "name": "Synchro Cyclone",
+    "region": "2",
+    "category": "Synergy Abilities",
+    "offset": 319859,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e10a/3",
+    "name": "United Refocus (Barret)",
+    "region": "2",
+    "category": "Synergy Abilities",
+    "offset": 319754,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0fa/1",
+    "name": "United Refocus (Aerith)",
+    "region": "2",
+    "category": "Synergy Abilities",
+    "offset": 319738,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e6/0",
+    "name": "Bestial Barrage",
+    "region": "2",
+    "category": "Synergy Abilities",
+    "offset": 319718,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e140/7",
+    "name": "United Refocus (Yuffie)",
+    "region": "2",
+    "category": "Synergy Abilities",
+    "offset": 319808,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e151/5",
+    "name": "Moogle Dunk Shot",
+    "region": "2",
+    "category": "Synergy Abilities",
+    "offset": 319825,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e127/3",
+    "name": "Max MP Up",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319783,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e112/3",
+    "name": "Max MP Up",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319762,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e139/1",
+    "name": "Max HP Up",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319801,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e099/3",
+    "name": "MATK Up",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319641,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e142/2",
+    "name": "MDEF Up",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319810,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e160/6",
+    "name": "Elemental Damage Up",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319840,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c9/0",
+    "name": "Enhanced Tempest",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319689,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0bf/1",
+    "name": "Full-Power Magic",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319679,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e117/3",
+    "name": "Altruistic Recovery Boost",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319767,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0d3/4",
+    "name": "Enhanced Magic Guard",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319699,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0fe/4",
+    "name": "Debuff Extension",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319742,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0be/7",
+    "name": "Synergy Damage Up",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319678,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e115/0",
+    "name": "Synergy Damage Up",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319765,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e16a/0",
+    "name": "MP Recovery Rate Up",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319850,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a2/4",
+    "name": "Trade-Off",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319650,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e178/6",
+    "name": "MP Limit",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319864,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e108/0",
+    "name": "Spiritual Harvest",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319752,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0df/5",
+    "name": "Not-So-Fleeting Familiar",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319711,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e148/7",
+    "name": "Enduring Ward",
+    "region": "3",
+    "category": "Stat Boosts",
+    "offset": 319816,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a7/1",
+    "name": "Rising Fury",
+    "region": "3",
+    "category": "Lv.3 Limit Break",
+    "offset": 319655,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0dd/4",
+    "name": "Transcendence",
+    "region": "3",
+    "category": "Abilities",
+    "offset": 319709,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e16f/7",
+    "name": "Heatwave",
+    "region": "3",
+    "category": "Abilities",
+    "offset": 319855,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e165/2",
+    "name": "Cold Front",
+    "region": "3",
+    "category": "Abilities",
+    "offset": 319845,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a0/5",
+    "name": "Rolling Thunder",
+    "region": "3",
+    "category": "Abilities",
+    "offset": 319648,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e131/4",
+    "name": "Jet Stream",
+    "region": "3",
+    "category": "Abilities",
+    "offset": 319793,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0dc/6",
+    "name": "Combat Savior",
+    "region": "3",
+    "category": "Synergy Skills",
+    "offset": 319708,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e178/5",
+    "name": "Bodyguard",
+    "region": "3",
+    "category": "Synergy Skills",
+    "offset": 319864,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0be/1",
+    "name": "Spellbound Blast",
+    "region": "3",
+    "category": "Synergy Skills",
+    "offset": 319678,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0d9/1",
+    "name": "United Refocus (Cloud)",
+    "region": "3",
+    "category": "Synergy Abilities",
+    "offset": 319705,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e100/3",
+    "name": "Sweet-and-Sour Salvo",
+    "region": "3",
+    "category": "Synergy Abilities",
+    "offset": 319744,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a4/5",
+    "name": "Divine Punishment",
+    "region": "3",
+    "category": "Synergy Abilities",
+    "offset": 319652,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e170/1",
+    "name": "Planetary Roar",
+    "region": "3",
+    "category": "Synergy Abilities",
+    "offset": 319856,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f9/5",
+    "name": "United Refocus (Yuffie)",
+    "region": "3",
+    "category": "Synergy Abilities",
+    "offset": 319737,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b9/2",
+    "name": "Kitty Cannonade",
+    "region": "3",
+    "category": "Synergy Abilities",
+    "offset": 319673,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ed/1",
+    "name": "Max HP Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319725,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e086/6",
+    "name": "Max HP Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319622,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e10f/2",
+    "name": "Max HP Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319759,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0eb/1",
+    "name": "Max MP Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319723,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e123/1",
+    "name": "Max MP Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319779,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c7/5",
+    "name": "MDEF Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319687,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e141/5",
+    "name": "Speed Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319809,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a8/1",
+    "name": "Selfish Recovery Boost",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319656,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e13a/6",
+    "name": "Elemental Defense Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319802,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e17d/4",
+    "name": "Afflicted Debuff Duration Down",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319869,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e157/6",
+    "name": "Limit Gauge Guard",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319831,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e111/6",
+    "name": "MP Recovery Rate Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319761,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ea/6",
+    "name": "Bloodsucker",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319722,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0cb/1",
+    "name": "Siphon Fang HP Up",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319691,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e11c/6",
+    "name": "Vengeful Guardian",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319772,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e100/4",
+    "name": "Enduring Vengeance",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319744,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e093/6",
+    "name": "Invigorating Vengeance",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319635,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f1/6",
+    "name": "Vengeful Revenant",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319729,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e110/0",
+    "name": "Enhanced Counterspin",
+    "region": "4",
+    "category": "Stat Boosts",
+    "offset": 319760,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e126/2",
+    "name": "Wrath of the Land",
+    "region": "4",
+    "category": "Lv.3 Limit Break",
+    "offset": 319782,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e1/6",
+    "name": "Retaliation",
+    "region": "4",
+    "category": "Abilities",
+    "offset": 319713,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e146/3",
+    "name": "Wildfire",
+    "region": "4",
+    "category": "Abilities",
+    "offset": 319814,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f8/3",
+    "name": "Snow Flurry",
+    "region": "4",
+    "category": "Abilities",
+    "offset": 319736,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e160/7",
+    "name": "Static Shock",
+    "region": "4",
+    "category": "Abilities",
+    "offset": 319840,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e3/1",
+    "name": "Wind Current",
+    "region": "4",
+    "category": "Abilities",
+    "offset": 319715,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e2/1",
+    "name": "Phantom Fang",
+    "region": "4",
+    "category": "Synergy Skills",
+    "offset": 319714,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e097/4",
+    "name": "Wild Charge",
+    "region": "4",
+    "category": "Synergy Skills",
+    "offset": 319639,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e092/5",
+    "name": "Iron Defense",
+    "region": "4",
+    "category": "Synergy Skills",
+    "offset": 319634,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e089/7",
+    "name": "Savage Assault",
+    "region": "4",
+    "category": "Synergy Abilities",
+    "offset": 319625,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ad/2",
+    "name": "Overfang",
+    "region": "4",
+    "category": "Synergy Abilities",
+    "offset": 319661,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f3/2",
+    "name": "Call of the Wild",
+    "region": "4",
+    "category": "Synergy Abilities",
+    "offset": 319731,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e11f/2",
+    "name": "Ringmaster",
+    "region": "4",
+    "category": "Synergy Abilities",
+    "offset": 319775,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e141/2",
+    "name": "Hack and Slash",
+    "region": "4",
+    "category": "Synergy Abilities",
+    "offset": 319809,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e5/4",
+    "name": "Feline Fury",
+    "region": "4",
+    "category": "Synergy Abilities",
+    "offset": 319717,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f3/1",
+    "name": "Max HP Up",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319731,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f4/3",
+    "name": "Max MP Up",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319732,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ec/4",
+    "name": "Luck Up",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319724,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b0/4",
+    "name": "Elemental Damage Up",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319664,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e6/4",
+    "name": "Elemental Damage Up",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319718,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e12b/2",
+    "name": "Enhanced Attack",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319787,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e141/0",
+    "name": "Hunter's Precision",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319809,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ce/3",
+    "name": "Enhanced Guard",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319694,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c2/0",
+    "name": "Afflicted Debuff Duration Down",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319682,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e097/0",
+    "name": "Weapon Ability ATB Recovery",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319639,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e166/6",
+    "name": "Synergy Damage Up",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319846,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0de/6",
+    "name": "Synergy Damage Up",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319710,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e104/0",
+    "name": "MP Recovery Rate Up",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319748,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0a9/0",
+    "name": "Opening ATB Bonus",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319657,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e7/1",
+    "name": "ATB Limit",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319719,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c1/7",
+    "name": "Master Thief",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319681,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e102/7",
+    "name": "Faithful Thief",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319746,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f7/4",
+    "name": "Precision Defense ATB",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319735,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e14d/0",
+    "name": "Precision Defense ATB",
+    "region": "5",
+    "category": "Stat Boosts",
+    "offset": 319821,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e168/4",
+    "name": "Devastation",
+    "region": "5",
+    "category": "Lv.3 Limit Break",
+    "offset": 319848,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0d1/5",
+    "name": "Storm's Fury",
+    "region": "5",
+    "category": "Abilities",
+    "offset": 319697,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f3/4",
+    "name": "Wildfire",
+    "region": "5",
+    "category": "Abilities",
+    "offset": 319731,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0bd/5",
+    "name": "Snow Flurry",
+    "region": "5",
+    "category": "Abilities",
+    "offset": 319677,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e163/5",
+    "name": "Static Shock",
+    "region": "5",
+    "category": "Abilities",
+    "offset": 319843,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e14a/5",
+    "name": "Wind Current",
+    "region": "5",
+    "category": "Abilities",
+    "offset": 319818,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e16c/2",
+    "name": "Shuriken Sync",
+    "region": "5",
+    "category": "Synergy Skills",
+    "offset": 319852,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e137/6",
+    "name": "Ninja Bazooka",
+    "region": "5",
+    "category": "Synergy Skills",
+    "offset": 319799,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e158/2",
+    "name": "Foxflame",
+    "region": "5",
+    "category": "Synergy Skills",
+    "offset": 319832,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e113/1",
+    "name": "Halcyon Descent",
+    "region": "5",
+    "category": "Synergy Abilities",
+    "offset": 319763,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e159/2",
+    "name": "United Refocus (Barret)",
+    "region": "5",
+    "category": "Synergy Abilities",
+    "offset": 319833,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e0/2",
+    "name": "Cyclonic Kick",
+    "region": "5",
+    "category": "Synergy Abilities",
+    "offset": 319712,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e09c/2",
+    "name": "Mystic Multiplication",
+    "region": "5",
+    "category": "Synergy Abilities",
+    "offset": 319644,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e091/1",
+    "name": "United Refocus (Red XIII)",
+    "region": "5",
+    "category": "Synergy Abilities",
+    "offset": 319633,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e5/7",
+    "name": "Moogle Pinwheel",
+    "region": "5",
+    "category": "Synergy Abilities",
+    "offset": 319717,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e118/2",
+    "name": "Max MP Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319768,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e130/2",
+    "name": "Max HP Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319792,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e17d/5",
+    "name": "Luck Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319869,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0b4/4",
+    "name": "Critical Hit Damage Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319668,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e120/0",
+    "name": "Critical Hit Damage Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319776,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e164/3",
+    "name": "Weapon Ability Damage Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319844,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e140/0",
+    "name": "Enhanced Limit Breaks",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319808,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0ea/3",
+    "name": "Enhanced Guard",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319722,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e136/4",
+    "name": "Elemental Defense Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319798,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e160/3",
+    "name": "ATB Charge Rate Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319840,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e148/6",
+    "name": "MP Recovery Rate Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319816,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e09b/1",
+    "name": "Limit Gauge Charge Rate Up",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319643,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0d2/1",
+    "name": "Stagger Siphon",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319698,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f8/6",
+    "name": "Opening ATB Bonus",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319736,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e160/0",
+    "name": "Reprieve",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319840,
+    "bit": 0,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e5/2",
+    "name": "Lucky Jockey",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319717,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e17a/4",
+    "name": "Moogle Head Start",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319866,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c8/5",
+    "name": "Moogle Vanguard",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319688,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0cc/6",
+    "name": "Moogle Sentinel",
+    "region": "6",
+    "category": "Stat Boosts",
+    "offset": 319692,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e159/5",
+    "name": "Giga Magic Mogbox",
+    "region": "6",
+    "category": "Lv.3 Limit Break",
+    "offset": 319833,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e093/5",
+    "name": "Lucky Slots",
+    "region": "6",
+    "category": "Abilities",
+    "offset": 319635,
+    "bit": 5,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e147/1",
+    "name": "Heatwave",
+    "region": "6",
+    "category": "Abilities",
+    "offset": 319815,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e130/3",
+    "name": "Cold Front",
+    "region": "6",
+    "category": "Abilities",
+    "offset": 319792,
+    "bit": 3,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0c8/2",
+    "name": "Rolling Thunder",
+    "region": "6",
+    "category": "Abilities",
+    "offset": 319688,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e142/6",
+    "name": "Jet Stream",
+    "region": "6",
+    "category": "Abilities",
+    "offset": 319810,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e094/2",
+    "name": "All-Out Assault",
+    "region": "6",
+    "category": "Synergy Skills",
+    "offset": 319636,
+    "bit": 2,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e4/6",
+    "name": "Magic Megaphone",
+    "region": "6",
+    "category": "Synergy Skills",
+    "offset": 319716,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0bd/1",
+    "name": "Bodyguard",
+    "region": "6",
+    "category": "Synergy Skills",
+    "offset": 319677,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0e3/4",
+    "name": "SOLDIER Moogle Class",
+    "region": "6",
+    "category": "Synergy Abilities",
+    "offset": 319715,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e12b/4",
+    "name": "Mayhem-Go-Round",
+    "region": "6",
+    "category": "Synergy Abilities",
+    "offset": 319787,
+    "bit": 4,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e10f/6",
+    "name": "United Refocus (Tifa)",
+    "region": "6",
+    "category": "Synergy Abilities",
+    "offset": 319759,
+    "bit": 6,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0fa/7",
+    "name": "Mega Moogle Mash",
+    "region": "6",
+    "category": "Synergy Abilities",
+    "offset": 319738,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0de/7",
+    "name": "Mognificent Shot",
+    "region": "6",
+    "category": "Synergy Abilities",
+    "offset": 319710,
+    "bit": 7,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  },
+  {
+    "id": "folio/4e0f0/1",
+    "name": "United Refocus (Yuffie)",
+    "region": "6",
+    "category": "Synergy Abilities",
+    "offset": 319728,
+    "bit": 1,
+    "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts"
+  }
+]

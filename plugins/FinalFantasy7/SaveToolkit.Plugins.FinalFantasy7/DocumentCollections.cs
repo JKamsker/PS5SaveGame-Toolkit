@@ -21,7 +21,7 @@ internal sealed class DocumentCollections
             [
                 new("slot", "Slot", IntegerSpec.UInt32), new("name", "Name"), new("id", "Type ID"),
                 new("category", "Category"), new("quantity", materia ? "AP" : "Quantity", IntegerSpec.Int32),
-                new("description", "Description / source"),
+                new("description", "Description / source"), new("details", "Details / optional image"),
             ];
             if (materia)
             {
@@ -53,6 +53,7 @@ internal sealed class DocumentCollections
                     var cells = gameplay.Row(materia, slot, bind).Cells.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
                     cells["category"] = new TextNode(values["category"]);
                     cells["description"] = new TextNode(values["description"]);
+                    cells["details"] = Details(record);
                     return new($"{id}/{slot}", cells);
                 });
             })));
@@ -102,12 +103,27 @@ internal sealed class DocumentCollections
     public void Add(CollectionQuery collection) => _collections.Add(collection.Metadata.Id, collection);
 
     private static QueryableColumn[] CatalogColumns() =>
-        [new("id", "Type ID"), new("name", "Name"), new("category", "Category"), new("description", "Description"), new("source", "Source / licence")];
+        [new("id", "Type ID"), new("name", "Name"), new("category", "Category"), new("description", "Description"), new("source", "Source / licence"), new("details", "Details / optional image")];
 
-    private static CollectionEntry CatalogEntry(string collectionId, SaveToolkit.Sdk.References.ReferenceRecord record) => new(
-        $"{collectionId}/{record.Key}", new Dictionary<string, string>(StringComparer.Ordinal)
+    private static CollectionEntry CatalogEntry(string collectionId, SaveToolkit.Sdk.References.ReferenceRecord record)
+    {
+        var key = $"{collectionId}/{record.Key}";
+        var values = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["id"] = record.Key, ["name"] = record.Name, ["category"] = record.Category ?? "Unknown",
             ["description"] = record.Description ?? "No description supplied.", ["source"] = record.AttributionText,
+        };
+        return new(key, values, () =>
+        {
+            var cells = values.ToDictionary(pair => pair.Key, pair => (ViewNode)new TextNode(pair.Value), StringComparer.Ordinal);
+            cells["details"] = Details(record);
+            return new(key, cells);
         });
+    }
+
+    private static ViewNode Details(SaveToolkit.Sdk.References.ReferenceRecord? record) => record is null
+        ? new TextNode("Unknown type; raw identity is preserved.")
+        : new SectionNode(record.Name, [new TextNode(record.Description ?? "No effect description supplied."),
+            new TextNode(record.AttributionText), .. (record.AssetId is { } asset ? new ViewNode[] { new ImageNode(asset, record.Name) } : [])])
+        { Collapsed = true, Description = record.AttributionText };
 }

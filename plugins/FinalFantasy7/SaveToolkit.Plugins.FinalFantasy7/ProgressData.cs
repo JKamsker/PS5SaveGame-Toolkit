@@ -15,6 +15,10 @@ internal sealed class ProgressData(byte[] bytes, Ff7Schema schema, Func<Progress
     private static readonly IReadOnlyList<ProgressFlag> Rebirth = Load("rebirth");
     public IReadOnlyList<ProgressFlag> Flags => schema.IsRemake ? Remake : Rebirth;
 
+    public FieldNode Field(ProgressFlag flag) => bind(flag);
+
+    public int Value(ProgressFlag flag) => (bytes[flag.Offset] >> flag.Bit) & 1;
+
     public CollectionQuery Collection() => new(new("progress", "Progress and regional candidates",
         [new("name", "Objective"), new("region", "Region"), new("category", "Domain / state"),
          new("value", "Stored bit", IntegerSpec.UInt8), new("address", "Byte / bit"), new("confidence", "Confidence"),

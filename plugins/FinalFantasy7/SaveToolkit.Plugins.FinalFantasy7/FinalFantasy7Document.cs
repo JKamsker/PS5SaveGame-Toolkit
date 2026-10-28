@@ -26,7 +26,13 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
     private readonly OwnedRelationsView? _ownedRelations;
     private readonly ReferenceData _references;
     private readonly DocumentCollections? _collections;
-    private readonly MateriaPlanning _materiaPlanning;
+    private readonly DocumentPlanning _planning;
+    private readonly RegionalMaps? _maps;
+    private readonly FolioGraphs? _folios;
+    private readonly SocketGraphs? _sockets;
+    private readonly ProgressSummary? _progressSummary;
+    private readonly CollectionQuery _recordCollection;
+    private bool _spatialPublished;
 
     public FinalFantasy7Document(string path, string name, byte[] bytes, Ff7Schema schema, bool common,
         IReadOnlyList<LinkedRecord> records, IReferenceContext? references = null)
@@ -37,9 +43,10 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         _schema = schema;
         _common = common;
         _records = records;
+        _recordCollection = RecordCollection.Create(records);
         _references = new(references ?? IReferenceContext.Empty, schema);
         _gameplay = new(bytes, schema, _references, _progression);
-        _materiaPlanning = new(schema, _gameplay, _references);
+        _planning = new(schema, _gameplay, _references);
         _explorer = new(bytes, records, Bind);
         _characters = new(bytes, schema, _references, Bind, _progression);
         _ownedRelations = !common && !schema.IsRemake ? new(bytes, _references) : null;
@@ -56,6 +63,15 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
                 Warning = WriteWarnings.Progress,
             });
             _collections = new(_gameplay, _references, Bind, progress);
+            _collections.Add(new EnemyIntel(bytes, schema).Collection());
+            _maps = new(progress);
+            if (!schema.IsRemake)
+            {
+                _folios = new(bytes, _references, Bind);
+                _sockets = new(bytes, _references, Bind);
+                _collections.Add(new ResearchProgress(bytes, Bind).Collection());
+                _progressSummary = new(_references, Bind);
+            }
             if (_ownedRelations is not null)
             {
                 _collections.Add(_ownedRelations.Collection("weapon"));
@@ -87,45 +103,50 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         ]),
         new Tab("Characters", _common ? [] : [_characters.Build()]),
         new Tab("Catalog", _collections?.CatalogViews() ?? []),
-        new Tab("Inventory", _collections is null ? [] : [_collections.View("inventory")]),
-        new Tab("Materia", _collections is null ? [] : [_materiaPlanning.View(), _collections.View("materia")]),
-        new Tab("Progress", _collections is null ? [] : [_collections.View("progress")]),
+        new Tab("Inventory", _collections is null ? [] : [_planning.InventoryView(), _collections.View("inventory")]),
+        new Tab("Materia", _collections is null ? [] : [.. _planning.MateriaViews(), _collections.View("materia")]),
+        new Tab("Progress", _collections is null ? [] : [_collections.View("progress"),
+            .. (_collections.Contains("research-progress") ? new ViewNode[] { _collections.View("research-progress"), _progressSummary!.Build() } : [])]),
+        new Tab("Enemy intel", _collections is null ? [] : [_collections.View("enemy-intel")]),
+        new Tab(RegionalMaps.TabTitle, _maps?.Sections() ?? []),
+        new Tab(SocketGraphs.TabTitle, _common ? [] : _sockets is null
+            ? [new TextNode("Remake weapon-upgrade nodes, SP costs, prerequisite edges and socket links are unmapped. Equipment writes require complete instance/capacity handling; see the owner checklist.")]
+            : [.. _sockets.Sections(), .. _folios!.Sections()]),
         new Tab("Cards", _collections?.Contains("cards") == true ? [_collections.View("cards")] : []),
         new Tab("Owned items", _ownedRelations is null || _collections is null ? [] :
             [_collections.View("owned-weapon"), _collections.View("owned-materia")]),
-        new Tab("Records", [RecordTable(), .. RecordGroups()]),
+        new Tab("Records", [_recordCollection.View(), .. RecordGroups()]),
         new Tab("Raw file", [new HexNode("file", _bytes.Length) { Title = "Original bytes (paged)" }]),
     ]);
 
-    public IReadOnlyList<QueryableCollection> Collections => _collections?.Metadata ?? [];
+    public IReadOnlyList<QueryableCollection> Collections => [_recordCollection.Metadata, .. _collections?.Metadata ?? []];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
-        _collections?.Query(collectionId, query) ?? throw new KeyNotFoundException("Common files have no gameplay collections.");
+        collectionId == RecordCollection.Id ? _recordCollection.Query(query) :
+            _collections?.Query(collectionId, query) ?? throw new KeyNotFoundException("Common files have no gameplay collections.");
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        _common ? new() { Errors = [new("action", "Common files are read-only.")] } : _materiaPlanning.Plan(actionId, parameters, scope);
+        _common ? new() { Errors = [new("action", "Common files are read-only.")] } : _planning.Plan(actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
-    {
-        var current = PlanAction(actionId, parameters, scope);
-        if (!CanEdit || current.Errors.Count > 0 || !current.Changes.SequenceEqual(plan.Changes) ||
-            !current.SkippedRows.SequenceEqual(plan.SkippedRows) || !current.Warnings.SequenceEqual(plan.Warnings) || plan.Errors.Count > 0)
-        {
-            return EditOutcome.Rejected("action", "The AP plan is invalid or has changed; preview again.");
-        }
-
-        foreach (var change in current.Changes)
-        {
-            var slot = int.Parse(change.ValueId.Split('/')[1], CultureInfo.InvariantCulture);
-            _ = _gameplay.Row(true, slot, Bind);
-        }
-
-        return ApplyEdits([.. current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue))]);
-    }
+        => CanEdit ? _planning.Apply(actionId, parameters, scope, plan, Bind, ApplyEdits)
+            : EditOutcome.Rejected("action", "Common files are read-only.");
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
         var parts = lazyId.Split('/');
+        if (parts.Length == 3 && parts[0] == "spatial" && TryIndex(parts[2], out var spatialIndex))
+        {
+            var nodes = parts[1] switch
+            {
+                "map" when _maps is not null => _maps.Expand(spatialIndex),
+                "folio" when _folios is not null => _folios.Expand(spatialIndex),
+                "sockets" when _sockets is not null => _sockets.Expand(spatialIndex),
+                _ => throw new KeyNotFoundException("Unknown FFVII spatial view."),
+            };
+            _spatialPublished = true;
+            return nodes;
+        }
         if (parts.Length == 2 && TryIndex(parts[1], out var index))
         {
             if (parts[0] is "inventory" or "materia" && !_common)
@@ -195,15 +216,20 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         try
         {
             var staged = _progression.Expand(edits, GetValue);
-            return _bindings.HasConflictingAliases(staged)
+            var outcome = _bindings.HasConflictingAliases(staged)
                 ? EditOutcome.Rejected("edit", "Conflicting aliases address the same bytes.")
                 : base.ApplyEdits(staged);
+            return outcome with { StructureChanged = outcome.Succeeded && _spatialPublished && outcome.Changes.Any(change =>
+                change.ValueId.StartsWith("progress/", StringComparison.Ordinal) ||
+                change.ValueId.StartsWith("character/", StringComparison.Ordinal) && change.ValueId.EndsWith("/weapon", StringComparison.Ordinal)) };
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or OverflowException or KeyNotFoundException)
         {
             return EditOutcome.Rejected("edit", exception.Message);
         }
     }
+
+    public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
@@ -214,24 +240,9 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
 
     private FieldNode Bind(ScalarField scalar) => _bindings.Bind(scalar);
 
-    private TableNode RecordTable() => new(
-        [new("index", "#"), new("tag", "Tag"), new("offset", "Offset"), new("length", "Span bytes"),
-            new("next", "Next pointer"), new("version", "Raw +0x20"), new("state", "State byte")],
-        [.. _records.Select(r => new TableRow($"record-row/{r.Index}", new Dictionary<string, ViewNode>(StringComparer.Ordinal)
-        {
-            ["index"] = new TextNode(r.Index.ToString()),
-            ["tag"] = new TextNode(r.Tag),
-            ["offset"] = Hex(r.Offset),
-            ["length"] = new TextNode(r.Length.ToString()),
-            ["next"] = Hex(r.Next),
-            ["version"] = Hex(r.Version),
-            ["state"] = Hex(r.State),
-        }))]) { Title = "Linked records", Description = "Offsets are absolute. Empty records retain their complete allocated span. Tail pointer is shown literally." };
-
     private IEnumerable<ViewNode> RecordGroups() => Enumerable.Range(0, (_records.Count + RecordsPerSection - 1) / RecordsPerSection)
         .Select(page => SectionNode.Lazy($"Explore records {page * RecordsPerSection}–{Math.Min(_records.Count, (page + 1) * RecordsPerSection) - 1}", $"records/{page}"));
 
-    private static TextNode Hex(long value) => new($"0x{value:X}") { Monospace = true };
     private static bool TryIndex(string text, out int value) =>
         int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out value) && value >= 0;
 }

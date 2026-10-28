@@ -28,7 +28,7 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
              new("owner", "Referenced by"), new("source", "Source")], occupied)
         {
             Description = "Read-only instance/detail joins; equipment legality remains unverified. " + EmbeddedCatalogs.Attribution,
-        }, () => Enumerable.Range(0, (count + PageSize - 1) / PageSize).SelectMany(page => Page(kind, page).Rows)
+        }, () => Rows(kind, 0, count)
             .Select(row =>
             {
                 var values = row.Cells.ToDictionary(pair => pair.Key, pair => ((TextNode)pair.Value).Text, StringComparer.Ordinal);
@@ -52,11 +52,29 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
             throw new KeyNotFoundException("Unknown owned-item page.");
         }
 
-        Dictionary<uint, List<string>> characterRefs = materia ? [] : CharacterWeaponRefs();
-        var detailTypes = materia ? MateriaDetails() : WeaponDetails();
+        return new TableNode(
+            [new("slot", "Slot"), new("instance", "Instance"), new("type", "Type"), new("name", "Name"),
+             new("quantity", materia ? "Quantity" : "Count"), new("detail", "Detail type"), new("owner", materia ? "Equipped by" : "Referenced by"),
+             new("source", "Source")], Rows(kind, page * PageSize, PageSize))
+        {
+            Title = materia ? "Owned materia relationships" : "Owned weapon relationships",
+            Description = "Instance/type domains are kept separate; unresolved and duplicate details are not repaired. Demo mappings remain Inferred. " + EmbeddedCatalogs.Attribution,
+        };
+    }
+
+    private IReadOnlyList<TableRow> Rows(string kind, int start, int length)
+    {
+        var materia = kind == "materia";
+        var count = materia ? MateriaCount : WeaponCount;
+        var characterRefs = materia ? [] : CharacterWeaponRefs();
+        var detailStart = materia ? MateriaDetailOffset : WeaponDetailOffset;
+        var detailStride = materia ? 0x20 : 0x60;
+        var detailOffsets = Enumerable.Range(0, count).Select(slot => detailStart + slot * detailStride)
+            .GroupBy(U32).ToDictionary(group => group.Key, group => group.ToArray());
+        var characterSource = string.Join("; ", Enumerable.Range(0, Ff7Schema.CharacterCount)
+            .Select(references.CharacterSource).Distinct(StringComparer.Ordinal));
         var rows = new List<TableRow>();
-        var start = page * PageSize;
-        for (var slot = start; slot < Math.Min(count, start + PageSize); slot++)
+        for (var slot = start; slot < Math.Min(count, start + length); slot++)
         {
             var offset = (materia ? MateriaInventoryOffset : WeaponInventoryOffset) + slot * 0x20;
             var instance = U32(offset);
@@ -66,9 +84,12 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
                 continue;
             }
 
-            uint? detail = detailTypes.TryGetValue(instance, out var detailType) ? detailType : null;
-            var owner = materia && DetailOwner(instance) is { } ownerId
-                ? references.Character(ownerId)
+            var offsets = detailOffsets.GetValueOrDefault(instance);
+            var uniqueDetail = offsets is { Length: 1 };
+            uint? detail = uniqueDetail ? U32(offsets![0] + sizeof(uint)) : null;
+            var ownerId = materia && uniqueDetail ? bytes[offsets![0] + 0x11] : int.MaxValue;
+            var owner = materia && offsets is { Length: > 1 } ? "Ambiguous detail instance"
+                : materia && ownerId < Ff7Schema.CharacterCount ? references.Character(ownerId)
                 : !materia && characterRefs.TryGetValue(instance, out var names)
                     ? string.Join(", ", names)
                     : "Unassigned / unresolved";
@@ -81,47 +102,15 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
                 ["type"] = new TextNode($"0x{type:X8}") { Monospace = true },
                 ["name"] = new TextNode(name),
                 ["quantity"] = new TextNode(U32(offset + 8).ToString()),
-                ["detail"] = new TextNode(detail is { } value ? $"0x{value:X8}" : "unresolved") { Monospace = true },
+                ["detail"] = new TextNode(detail is { } value ? $"0x{value:X8}" : offsets is { Length: > 1 } ? "ambiguous" : "unresolved") { Monospace = true },
                 ["owner"] = new TextNode(owner),
                 ["source"] = new TextNode(references.Source(materia ? "ff7r-materia" : "ff7r-weapons", type) +
-                    " Character labels: " + string.Join("; ", Enumerable.Range(0, Ff7Schema.CharacterCount)
-                        .Select(references.CharacterSource).Distinct(StringComparer.Ordinal))),
+                    " Character labels: " + characterSource),
             };
             rows.Add(new TableRow(key, cells));
         }
 
-        return new TableNode(
-            [new("slot", "Slot"), new("instance", "Instance"), new("type", "Type"), new("name", "Name"),
-             new("quantity", materia ? "Quantity" : "Count"), new("detail", "Detail type"), new("owner", materia ? "Equipped by" : "Referenced by"),
-             new("source", "Source")], rows)
-        {
-            Title = materia ? "Owned materia relationships" : "Owned weapon relationships",
-            Description = "Instance/type domains are kept separate. Joins are sample-proven for the supplied retail Rebirth files; demo values remain Inferred and all rows are read-only. " + EmbeddedCatalogs.Attribution,
-        };
-    }
-
-    private Dictionary<uint, uint> WeaponDetails()
-    {
-        var values = new Dictionary<uint, uint>();
-        for (var i = 0; i < WeaponCount; i++)
-        {
-            var offset = WeaponDetailOffset + i * 0x60;
-            values[U32(offset)] = U32(offset + 4);
-        }
-
-        return values;
-    }
-
-    private Dictionary<uint, uint> MateriaDetails()
-    {
-        var values = new Dictionary<uint, uint>();
-        for (var i = 0; i < MateriaCount; i++)
-        {
-            var offset = MateriaDetailOffset + i * 0x20;
-            values[U32(offset)] = U32(offset + 4);
-        }
-
-        return values;
+        return rows;
     }
 
     private Dictionary<uint, List<string>> CharacterWeaponRefs()
@@ -140,21 +129,6 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references)
         }
 
         return values;
-    }
-
-    private int? DetailOwner(uint instance)
-    {
-        for (var i = 0; i < MateriaCount; i++)
-        {
-            var offset = MateriaDetailOffset + i * 0x20;
-            if (U32(offset) == instance)
-            {
-                var owner = bytes[offset + 0x11];
-                return owner < Ff7Schema.CharacterCount ? owner : null;
-            }
-        }
-
-        return null;
     }
 
     private uint U32(int offset) => BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset));

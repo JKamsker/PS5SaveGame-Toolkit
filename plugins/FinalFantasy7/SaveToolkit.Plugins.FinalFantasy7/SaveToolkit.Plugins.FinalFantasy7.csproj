@@ -11,6 +11,9 @@
     <EmbeddedResource Include="Resources/equipment.json" />
     <EmbeddedResource Include="Resources/character-curves.json" />
     <EmbeddedResource Include="Resources/*-progress.json" />
+    <EmbeddedResource Include="Resources/rebirth-folios.json" />
+    <EmbeddedResource Include="Resources/rebirth-research.json" />
+    <EmbeddedResource Include="Resources/*-enemies.json" />
     <EmbeddedResource Include="ReferencePacks/ff7r.remake.en/*" LogicalName="refpacks/ff7r.remake.en/%(Filename)%(Extension)" />
     <EmbeddedResource Include="ReferencePacks/ff7r.rebirth.en/*" LogicalName="refpacks/ff7r.rebirth.en/%(Filename)%(Extension)" />
     <InternalsVisibleTo Include="SaveToolkit.Plugins.FinalFantasy7.Tests" />
