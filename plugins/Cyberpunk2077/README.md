@@ -27,10 +27,10 @@ entry links to its own read-only details, even before F8 rows have been loaded. 
 
 | Feature | Adoption | Where / concrete scope |
 | --- | --- | --- |
-| F1 SaveDiff | Used | Hash-pinned `Evidence/corpus.json`, `CyberpunkEvidenceDecoder`, independent semantic/byte-diff edit tests and final ZIP/backup preservation. The public decoder registration/traversal extension remains F12. |
+| F1 SaveDiff | Used | Hash-pinned `Evidence/corpus.json`, `CyberpunkEvidenceDecoder`, independent semantic/byte-diff edit tests and final ZIP/backup preservation. The native decoder is registered through the F12 SDK provider. |
 | F2 reference packs | Used | Embedded MIT identifier and CC BY-SA label packs; immutable build-pinned `IReferenceContext`, optional local labels/images, per-dataset Sources attribution and raw fallback. |
 | F3 rich cells | Used | Inventory details, optional attributed images with text alternatives, confidence badges, raw-byte sections and supported-stack action cells. Missing art stays an explicit placeholder. |
-| F4 reference fields | Used | `ReferenceSpec` inventory base-record inspection fields and selectors for every available reference catalog. No unsafe identity-replacement setter; browse-only interaction on read-only IDs awaits F13. |
+| F4 reference fields | Used | `ReferenceSpec` inventory base-record inspection fields and selectors for every available reference catalog. Read-only IDs use the shared browse-only F13 picker; no unsafe identity-replacement setter. |
 | F5 structural undo | N/A | No complete Cyberpunk add/remove/reorder writer exists: node links/counts, duplicate prefixes, unique counters and dependent stat/effect initialization cannot be repaired from this corpus. Scalar name/property materialization already undoes via values and preserves original bytes; it does not create inventory/perk records. |
 | F6 planned actions | Used | Set-supported-stack-target and refill-to-opening-quantity previews, exclusions/warnings, document/explicit/empty/F8 whole-query scopes (#27), atomic apply and one undo group. No coherent perk-allocation preset exists without effect/requirement mutation. |
 | F7 document groups | N/A | Only `sav.dat` is authoritative and owned here. No demonstrated coupled write to `user.gls`, settings or metadata; JSON partners belong to GenericJson. Core already mirrors gameplay backups and the ZIP test verifies that behavior. |
@@ -38,8 +38,33 @@ entry links to its own read-only details, even before F8 rows have been loaded. 
 | F9 maps/graphs | Added this round | `PerkGraphInspection` and `TravelMapInspection`: stable IDs, accessible text alternatives, bounded pages, independently expandable field targets, attributed external official map, no imported art/coordinates or invented prerequisite edges. |
 | F10 exact/nullable/union values | Added this round | Merged fact-value details use read-only `NullableSpec(UInt32)`: null for absence, integer zero for saved zero; live getters follow edit/undo. Numeric sorting unwraps nullable integers. Exact JSON lexemes and union alternatives are N/A to the fixed binary integer/float schema; UInt64 identities already use lossless decimal strings. |
 | F11 shared codecs | N/A | CSAV uses raw LZ4, already handled by managed K4os with exact-length checks and original-chunk preservation. Shared F11 provides Kraken/SQLite, neither occurs in this format; no local Kraken/SQLite implementation exists to replace. |
-| F12 decoder hooks / F8 diff traversal | pending #32 | Not on the starting main baseline. Retain the existing test-side F1 decoder; no replacement registry or traversal implementation. |
-| F13 non-mutating inspection / browse-only picker | pending #33 | Not on the starting main baseline. Existing read-only catalog-action restriction remains documented under SDK requests; no custom picker or action protocol. |
+| F12 decoder hooks / F8 diff traversal | Added | Production SDK-only `CyberpunkEvidenceDecoder` registered by `ISaveDecoderProvider` as `cyberpunk2077-evidence`; tests use shared `HookSaveDecoder`. The shared view decoder also traverses F8 collections. |
+| F13 non-mutating inspection / browse-only picker | Added | All five catalogue inspection actions publish `Mutates = false`, including on read-only schemas. Existing read-only `ReferenceSpec` fields use shared browse-only search/category/sort/details. |
+
+## F12/F13 follow-up
+
+The production plugin exposes the existing native evidence paths through the SDK-only F12 hook;
+no Testing dependency or plugin-local decoder registry is required. Select it with
+`savediff compare before.zip after.zip --decoder cyberpunk2077-evidence`, or discover it through
+`savediff list-decoders`. Header values, full-identity inventory quantities/body fingerprints and
+all saved fact planes retain their previous paths. File/value/depth limits bound decoding; the
+host reports incomplete output. Fact-table node IDs remain current-tree scopes, not proven
+persistent cross-save identities.
+
+All available nonempty reference catalogues retain their inspection action when the document is
+read-only. F13 executes these message-only actions on an isolated copy with pinned references;
+no values, serialized bytes, revision, dirty state or undo/redo history change. Existing read-only
+reference fields use the framework's browse-only picker. Category filtering and declared Key/Name/
+Category sorting are provided by the shared F2/F4 catalogue, with no duplicate plugin metadata index.
+The saved/catalogue union indexes remain necessary for ownership, absence and native-instance joins.
+Float duration hints are N/A: published floats are forced level/attribute stats, not durations.
+The `63580dc` F6 reference-parameter fix is N/A: stack plans use an integer quantity or no parameters,
+with no enum fallback or reference-based replacement action.
+
+Validation with external private samples: **145 passed, 0 failed, 0 skipped**; API build:
+**0 warnings / 0 errors**. Tests cover SDK hook discovery, foreign-file refusal, deterministic evidence,
+file/value/depth bounds, all five catalogue actions across three read-only version refusals, and
+unchanged bytes/revision/dirty/undo/redo state on clean, edited and undone documents.
 
 ## Stored-perk graphs and travel maps
 
@@ -479,15 +504,9 @@ is attributed to CP2077SaveEditor (MIT); its notice is retained in [CP2077SaveEd
 
 ## SDK requests
 
-The two existing requests below are covered by pending framework work **F12 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)**
-and **F13 [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33)**. They were absent from this round's
-starting main baseline. F9 targets use independently published lazy field details and do not need an
-unloaded-row lookup. No new SDK request or plugin substitute was added.
-
-- The shared F1 `PluginViewDecoder` currently ignores `QueryableTableNode` rows. This round provides
-  a testing-only `CyberpunkEvidenceDecoder` hook that reads bounded inventory/fact model data, so F1
-  evidence does not depend on loaded UI pages. A shared bounded query traversal would help all plugins.
-- Core blocks every action on `CanEdit == false`, including read-only F4 catalog inspection actions.
-  Those actions are omitted on read-only documents; safe names/raw explorers remain available.
-  A read-only inspection capability would avoid conflating browsing with permission to change saves.
-- Stack actions use shared F6/F8 whole-query planning (#27); no plugin-local transaction/preview substitute.
+No outstanding SDK requests. F12 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)
+resolved bounded shared F8 traversal and native decoder registration; `CyberpunkEvidenceDecoder`
+now lives in the production plugin and implements `ISaveDecoderHook`. F13
+[#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33) resolved read-only inspection:
+catalogue actions publish `Mutates = false` and remain available when `CanEdit == false`.
+Stack actions continue to use shared F6/F8 whole-query planning (#27).

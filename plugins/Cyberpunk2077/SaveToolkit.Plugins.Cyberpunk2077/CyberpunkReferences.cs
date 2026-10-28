@@ -60,15 +60,15 @@ internal sealed class CyberpunkReferences
 
     public string? AssetAttribution(string id) => _context.AssetProvenance(id)?.Attribution.ToShortText();
 
-    public IReadOnlyList<ViewNode> Build(bool allowActions) => [
+    public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Catalogs describe identifiers, not saved ownership, unlocks, completion or safe replacements. " +
             "Community build/DLC coverage is unknown. A small pinned CC BY-SA wiki pack supplies base-record names; " +
             "same-build localization and icons require a separately attributed local pack."),
         .. _catalogs.Select(pair => (ViewNode)new SectionNode(pair.Key, pair.Value is { } catalog
             ? [new TextNode($"{catalog.Count} records · {catalog.Pack.Id} {catalog.Pack.Version}"),
                 new TextNode(catalog.Dataset.Attribution.ToShortText()),
-                .. (allowActions && catalog.Count > 0 ? new ViewNode[] { CatalogAction(catalog) }
-                    : [new TextNode("Catalog inspection actions require an editable document in the current host. Names in read-only views remain available.")])]
+                .. (catalog.Count > 0 ? new ViewNode[] { CatalogAction(catalog) }
+                    : [new TextNode("This catalog has no records to inspect.")])]
             : [new TextNode("No matching reference pack. Raw IDs and the reviewed baseline item dictionary remain available.")]))];
 
     public bool IsInspection(string actionId) => actionId.StartsWith(ActionPrefix, StringComparison.Ordinal);
@@ -97,6 +97,7 @@ internal sealed class CyberpunkReferences
         var first = catalog.Search(new ReferenceQuery { Limit = 1 }).Items.FirstOrDefault();
         return new ActionNode(ActionPrefix + catalog.Id, "Inspect catalog record")
         {
+            Mutates = false,
             Description = "Browse/search identifiers. This action does not add, replace or unlock anything. " + catalog.Dataset.Attribution.ToShortText(),
             Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(catalog.Id), FieldValue.Of(first?.Key ?? ""))
                 { Description = first?.AttributionText, Confidence = Confidence.Inferred }],

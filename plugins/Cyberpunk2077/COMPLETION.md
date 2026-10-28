@@ -50,8 +50,9 @@ The write-enable directive supersedes the plan's old evidence gate for implement
 
 Framework adoption audit: F1–F4/F6/F8 used; F9 and F10 added this round. F5 has no complete safe
 Cyberpunk structural writer, F7 has no demonstrated coupled member files, and F11's Kraken/SQLite
-codecs do not match CSAV's managed raw LZ4 format. F12 is pending #32 and F13 is pending #33;
-neither existed on the starting main baseline. No replacement protocols were built.
+codecs do not match CSAV's managed raw LZ4 format. The follow-up adopts merged F12 through a
+production SDK-only evidence hook and F13 through non-mutating catalogue actions on read-only
+documents and the shared browse-only reference picker. No replacement protocols were built.
 
 ## Completion outcome
 

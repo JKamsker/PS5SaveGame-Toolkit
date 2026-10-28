@@ -107,15 +107,24 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         Assert.NotEmpty(candidates.Items);
         Assert.All(candidates.Items, candidate => Assert.Equal("MIT", candidate.Dataset!.Attribution.License));
         Assert.True(session.ApplyEdits([new("inventory/39/quantity", JsonSerializer.SerializeToElement("777"))]).Ok);
+        var stateBefore = session.State;
+        var bytesBefore = Assert.Single(document.Serialize()).Content.ToArray();
         var inspection = session.InvokeAction(actionId, new Dictionary<string, JsonElement>
             { ["record"] = JsonSerializer.SerializeToElement(CyberpunkReferences.ItemKey(InventoryReader.MoneyTweakId)) });
         Assert.True(inspection.Ok);
         Assert.Contains("Items.money", inspection.Message);
         Assert.Empty(inspection.Changes);
+        Assert.Equal(stateBefore, session.State);
+        Assert.Equal(bytesBefore, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(inspection.State.IsDirty);
         Assert.True(inspection.State.CanUndo);
         Assert.False(session.InvokeAction(actionId, new Dictionary<string, JsonElement> { ["record"] = JsonSerializer.SerializeToElement("unknown") }).Ok);
         Assert.True(session.Undo().Ok);
+        var redoState = session.State;
+        Assert.True(redoState.CanRedo);
+        Assert.True(session.InvokeAction(actionId, new Dictionary<string, JsonElement>
+            { ["record"] = JsonSerializer.SerializeToElement(CyberpunkReferences.ItemKey(InventoryReader.MoneyTweakId)) }).Ok);
+        Assert.Equal(redoState, session.State);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
 
