@@ -1,0 +1,191 @@
+{
+  "records": [
+    {
+      "id": "BoolProperty",
+      "name": "BoolProperty",
+      "category": "storage-type",
+      "description": "Boolean value carried in the property tag. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "IntProperty",
+      "name": "IntProperty",
+      "category": "storage-type",
+      "description": "Signed 32-bit integer storage. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "UInt32Property",
+      "name": "UInt32Property",
+      "category": "storage-type",
+      "description": "Unsigned 32-bit integer storage. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "Int64Property",
+      "name": "Int64Property",
+      "category": "storage-type",
+      "description": "Signed 64-bit integer storage. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "UInt64Property",
+      "name": "UInt64Property",
+      "category": "storage-type",
+      "description": "Unsigned 64-bit integer storage. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "FloatProperty",
+      "name": "FloatProperty",
+      "category": "storage-type",
+      "description": "IEEE 754 single precision storage. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "DoubleProperty",
+      "name": "DoubleProperty",
+      "category": "storage-type",
+      "description": "IEEE 754 double precision storage. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "StrProperty",
+      "name": "StrProperty",
+      "category": "storage-type",
+      "description": "Unreal length-prefixed string. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "NameProperty",
+      "name": "NameProperty",
+      "category": "storage-type",
+      "description": "Serialized Unreal name string; not a localized display label. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "EnumProperty",
+      "name": "EnumProperty",
+      "category": "storage-type",
+      "description": "Enum token; unknown tokens are retained. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "StructProperty",
+      "name": "StructProperty",
+      "category": "storage-type",
+      "description": "Structured or native payload; unsupported layouts remain opaque. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "ArrayProperty",
+      "name": "ArrayProperty",
+      "category": "storage-type",
+      "description": "Ordered entries with a count prefix; byte arrays may contain opaque compressed data. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "MapProperty",
+      "name": "MapProperty",
+      "category": "storage-type",
+      "description": "Key/value entries with removal metadata; a struct-value schema is required for decoding. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "SetProperty",
+      "name": "SetProperty",
+      "category": "storage-type",
+      "description": "Set entries with removal metadata; unknown records are preserved. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "TextProperty",
+      "name": "TextProperty",
+      "category": "storage-type",
+      "description": "Unreal text history; only supported source-string histories are decoded. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "ObjectProperty",
+      "name": "ObjectProperty",
+      "category": "storage-type",
+      "description": "Serialized object reference; existence/ownership is not validated. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    },
+    {
+      "id": "SoftObjectProperty",
+      "name": "SoftObjectProperty",
+      "category": "storage-type",
+      "description": "Soft object path; resolving game assets is outside this inspector. Storage knowledge does not establish legal gameplay ranges or effects.",
+      "attributes": {
+        "confidence": "VerifiedStorage; InferredMeaning",
+        "locale": "en"
+      },
+      "source": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs"
+    }
+  ]
+}

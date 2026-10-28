@@ -76,7 +76,7 @@ public sealed class GvasEnvelope
 
     public bool IsWrapped => _compressedOffset != 0;
 
-    private static void ValidateZlib(ReadOnlySpan<byte> compressed, ReadOnlySpan<byte> plain)
+    internal static void ValidateZlib(ReadOnlySpan<byte> compressed, ReadOnlySpan<byte> plain)
     {
         const uint adlerPrime = 65521;
         uint a = 1, b = 0;

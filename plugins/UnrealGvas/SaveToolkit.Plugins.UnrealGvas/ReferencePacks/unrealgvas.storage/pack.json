@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "id": "unrealgvas.storage",
+  "version": "1.0.0",
+  "title": "GVAS storage type reference",
+  "description": "Original storage captions based on the pinned MIT uesave format reference. No game data or limits.",
+  "plugins": [
+    "engine.unreal-gvas"
+  ],
+  "titleIds": [],
+  "datasets": [
+    {
+      "id": "unrealgvas_property_types",
+      "kind": "records",
+      "title": "GVAS serialized property types",
+      "files": [
+        {
+          "path": "property-types.json",
+          "sha256": "a509c8ec244cb3b7cc2c2070035d5e27bf7d7891e4dd038247fa8216bc651a5a"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs",
+        "author": "trumank / uesave contributors; PS5 Save Game Toolkit contributors",
+        "license": "MIT upstream format reference; GPL-3.0-or-later original explanatory captions",
+        "licenseUrl": "https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/LICENSE",
+        "retrieved": "2026-10-28",
+        "modifications": "Original concise storage descriptions; serialized type names selected from MIT reference. No implementation port, assets, gameplay rules or limits. Upstream MIT notice retained beside data."
+      }
+    }
+  ]
+}

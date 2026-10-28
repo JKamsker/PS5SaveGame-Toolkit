@@ -26,17 +26,20 @@ internal sealed record UnrealGvasSchema(
     {
         var names = GvasFile.Descendants(file.Properties).Select(node => node.Name).ToHashSet(StringComparer.Ordinal);
         var saveClass = file.Header.SaveClass;
-        if (saveClass == "/Script/GingerBread.GingerbreadSaveUser" &&
+        var sackboyVersion = file.Header is { EngineMajor: 4, EngineMinor: 25, EnginePatch: 1, PackageVersion: 518 };
+        var jediVersion = file.Header is { EngineMajor: 4, EngineMinor: 25, EnginePatch: 0, PackageVersion: 518, CustomVersionCount: 56 };
+        if (sackboyVersion && saveClass == "/Script/GingerBread.GingerbreadSaveUser" &&
             names.Contains("CollectabellsStored") && names.Contains("Checksum"))
             return new(UnrealGvasSchemaKind.SackboyGeneral, "Sackboy General", BuildText(file),
                 "Save class, UE 4.25.1 header and verified currency/checksum property names match the supplied PS5 generations.", "Verified storage; game effects remain Unknown");
-        if (saveClass == "/Script/GingerBread.GingerbreadSaveImageSet")
+        if (sackboyVersion && saveClass == "/Script/GingerBread.GingerbreadSaveImageSet")
             return new(UnrealGvasSchemaKind.SackboyImageSet, "Sackboy image set", BuildText(file),
                 "Save class and image metadata names match the supplied PS5 image companions.", "Verified storage; pixel layout remains Inferred");
-        if (saveClass == "/Script/SwGame.SwGameUserSettingsSaveObject")
+        if (jediVersion && saveClass == "/Script/SwGame.SwGameUserSettingsSaveObject")
             return new(UnrealGvasSchemaKind.JediSettings, "Jedi user settings", BuildText(file),
                 "Save class matches the supplied Fallen Order settings document.", "Verified storage");
-        if (names.Contains("CompressedActorRecords") && names.Contains("Crc32"))
+        if (jediVersion && saveClass == "/Script/RsGameTechRT.RsSaveGameObject" &&
+            names.Contains("CompressedActorRecords") && names.Contains("UncompressedActorRecordsSize") && names.Contains("Crc32"))
             return new(UnrealGvasSchemaKind.JediGameplay, "Jedi gameplay actor stream", BuildText(file),
                 $"Save class {saveClass} includes the actor array, declared decoded size and explicit CRC field.", "Verified storage; actor semantics and checksum coverage remain Unknown");
         if (saveClass == HogwartsImage.SaveClass && names.Contains("RawDatabaseImage") &&

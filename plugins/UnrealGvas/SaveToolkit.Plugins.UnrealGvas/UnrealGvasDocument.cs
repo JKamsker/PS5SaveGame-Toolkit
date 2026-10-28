@@ -37,6 +37,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
 
     public override string Title => _envelope.File.Header.SaveClass;
     public override bool CanEdit => _readOnlyReason is null;
+    internal JediActorStream? ActorStream => _actorStream;
 
     public override ViewNode BuildView()
     {
@@ -141,32 +142,14 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     private FieldNode Bind(GvasNode node)
     {
         var scalar = node.Scalar!;
-        return Field(_ids[node], $"{node.Name} · {node.Type}", Spec(scalar), () => ToFieldValue(scalar),
-            CanEdit ? value => SetScalar(scalar, value) : null, value => Validate(scalar, value)) with
+        return Field(_ids[node], $"{node.Name} · {node.Type}", GvasScalarField.Spec(scalar), () => GvasScalarField.ToFieldValue(scalar),
+            CanEdit ? value => GvasScalarField.SetScalar(scalar, value) : null, value => GvasScalarField.Validate(scalar, value)) with
         {
             Confidence = Confidence.Verified,
             Description = "Raw serialized property; the name and storage type are confirmed by its tag.",
             Warning = _readOnlyReason ?? EditWarning,
         };
     }
-
-    private static FieldSpec Spec(GvasScalar scalar) => scalar.Kind switch
-    {
-        GvasScalarKind.Boolean => new BoolSpec(),
-        GvasScalarKind.String => new TextSpec { MaxLength = GvasFile.MaxStringLength - 1 },
-        GvasScalarKind.Float => FloatSpec.Single,
-        GvasScalarKind.Double => FloatSpec.Double,
-        GvasScalarKind.Signed => new IntegerSpec(-(Int128.One << (scalar.Length * 8 - 1)), (Int128.One << (scalar.Length * 8 - 1)) - 1),
-        _ => new IntegerSpec(0, (Int128.One << (scalar.Length * 8)) - 1),
-    };
-
-    private static FieldValue ToFieldValue(GvasScalar scalar) => scalar.Kind switch
-    {
-        GvasScalarKind.Boolean => FieldValue.Of((bool)scalar.Value),
-        GvasScalarKind.String => FieldValue.Of((string)scalar.Value),
-        GvasScalarKind.Float or GvasScalarKind.Double => FieldValue.Of((double)scalar.Value),
-        _ => FieldValue.Of((Int128)scalar.Value),
-    };
 
     private IReadOnlyList<ViewNode> BuildSchemaOverlay()
     {
@@ -194,7 +177,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
                 ["CompressedActorRecords", "UncompressedActorRecordsSize", "Crc32"],
                 "The complete document stays read-only until checksum coverage is established."));
             result.Add(Lazy("Decoded actor stream", "jedi/actors", () => _actorStream is { IsValid: true }
-                ? BuildActorPage(_actorStream.Roots, 0)
+                ? JediActorView.BuildSummary(_actorStream.Roots)
                 : [new TextNode(_actorStream?.Error ?? "Actor stream was not found.") { Tone = Tone.Warning }]) with
             { Badge = _actorStream is { IsValid: true } valid ? $"{valid.DecodedLength:N0} bytes" : "opaque" });
         }
@@ -206,106 +189,49 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     private TableNode BuildNamedPropertyTable(IReadOnlyList<GvasNode> nodes, string catalogId,
         IReadOnlyList<string> names, string description)
     {
-        var rows = names.Select(name =>
+        var rows = names.SelectMany(name => nodes.Where(candidate => candidate.Name == name)
+            .Cast<GvasNode?>().DefaultIfEmpty().Select(node =>
         {
-            var node = nodes.LastOrDefault(candidate => candidate.Name == name);
-            var raw = node?.Scalar is { } scalar ? scalar.Value.ToString() ?? "" : node is null ? "Not present" : "Opaque";
+            var id = node is null ? "undecoded/" + name : _ids[node];
+            var raw = node?.Scalar is { } scalar ? scalar.Value.ToString() ?? "" : node is null ? "Not decoded" : "Opaque";
             var record = _references.Catalog(catalogId)?.Find(name);
-            var reference = Field($"schema/{catalogId}/{name}", "Property",
+            var reference = Field($"schema/{catalogId}/{id}", "Property",
                 new ReferenceSpec(catalogId), () => FieldValue.Of(name))
             with
             {
-                Confidence = record is null ? Confidence.Unknown : Confidence.Verified,
-                Description = record?.AttributionText ?? "Raw serialized property name; no pinned catalog record is available.",
+                Confidence = record is null || node is null ? Confidence.Unknown : Confidence.Inferred,
+                Description = record is null ? "Raw serialized property name; no pinned catalog record is available."
+                    : record.Description + " " + record.AttributionText,
                 Warning = "Read-only semantic overlay. The raw property remains the source of truth.",
             };
-            return new TableRow(name, new Dictionary<string, ViewNode>
+            return new TableRow(id, new Dictionary<string, ViewNode>
             {
+                ["identity"] = new TextNode(id),
                 ["property"] = reference,
                 ["value"] = new TextNode(raw) { Monospace = node is null },
-                ["type"] = new TextNode(node?.Type ?? "Missing") { Tone = node is null ? Tone.Warning : Tone.Normal },
+                ["type"] = new TextNode(node?.Type ?? "Undecoded") { Tone = node is null ? Tone.Warning : Tone.Normal },
             });
-        }).ToArray();
-        return new TableNode([new("property", "Catalog property"), new("type", "Storage type"), new("value", "Current value")], rows)
+        })).ToArray();
+        return new TableNode([new("identity", "Canonical raw identity"), new("property", "Catalog property"), new("type", "Storage type"), new("value", "Current value")], rows)
         {
             Title = "Observed schema fields",
             Description = description + " Catalog attribution is shown by each field.",
         };
     }
 
-    private IReadOnlyList<ViewNode> BuildActorPage(IReadOnlyList<GvasNode> roots, int start)
-    {
-        var flat = Flatten(roots);
-        var rows = flat.Skip(start).Take(PageSize).Select(item => new TableRow(item.Path, new Dictionary<string, ViewNode>
-        {
-            ["path"] = new TextNode(item.Path) { Monospace = true },
-            ["type"] = new TextNode(item.Node.Type),
-            ["value"] = new TextNode(item.Node.Scalar?.Value.ToString() ?? item.Node.Note ?? $"{item.Node.Length:N0} bytes")
-        })).ToArray();
-        var result = new List<ViewNode>
-        {
-            new TextNode("Headerless actor properties are decoded with the same bounded legacy GVAS tag reader. Names and storage types are evidence; actor roles, currency, XP and skill semantics are not inferred.") { Tone = Tone.Warning },
-            new TableNode([new("path", "Path"), new("type", "Type"), new("value", "Value")], rows)
-            { Title = "Actor property index", Description = "Paged at 100 rows; unsupported structs remain opaque." },
-        };
-        if (start + PageSize < flat.Count)
-            result.Add(Lazy("More actor properties", $"jedi/actors/{start + PageSize}", () => BuildActorPage(roots, start + PageSize)));
-        return result;
-    }
-
-    private static List<(string Path, GvasNode Node)> Flatten(IReadOnlyList<GvasNode> roots)
-    {
-        var result = new List<(string, GvasNode)>();
-        void Visit(IReadOnlyList<GvasNode> current, string prefix)
-        {
-            for (var i = 0; i < current.Count; i++)
-            {
-                var node = current[i];
-                var path = $"{prefix}/{i}:{node.Name}";
-                result.Add((path, node));
-                if (node.Children.Count > 0) Visit(node.Children, path);
-            }
-        }
-        Visit(roots, "actors");
-        return result;
-    }
-
     private JediActorStream? ReadActorStream()
     {
         if (_schema.Kind != UnrealGvasSchemaKind.JediGameplay) return null;
-        var actor = GvasFile.Descendants(_envelope.File.Properties).FirstOrDefault(node => node.Name == "CompressedActorRecords");
-        var size = GvasFile.Descendants(_envelope.File.Properties).FirstOrDefault(node => node.Name == "UncompressedActorRecordsSize")?.Scalar?.Value;
-        if (actor is null || size is null || !int.TryParse(size.ToString(), out var declared) || actor.Length < sizeof(int)) return null;
+        var actors = _envelope.File.Properties.Where(node => node.Name == "CompressedActorRecords" && node.Type == "ArrayProperty").ToArray();
+        var sizes = _envelope.File.Properties.Where(node => node.Name == "UncompressedActorRecordsSize" && node.Type == "UInt32Property").ToArray();
+        if (actors.Length != 1 || sizes.Length != 1) return null;
+        var actor = actors[0];
+        var size = sizes[0].Scalar?.Value;
+        if (size is null || !int.TryParse(size.ToString(), out var declared) || actor.Length < sizeof(int)) return null;
         var original = _envelope.File.Original.Span;
         if (actor.Offset < 0 || actor.Offset > original.Length - actor.Length) return null;
         var count = BitConverter.ToInt32(original.Slice(actor.Offset, sizeof(int)));
-        if (count < 0 || count > actor.Length - sizeof(int)) return null;
+        if (count < 0 || count != actor.Length - sizeof(int)) return null;
         return JediActorStreamReader.Read(original.Slice(actor.Offset + sizeof(int), count), declared, _envelope.File.Header);
-    }
-
-    private static string? Validate(GvasScalar scalar, FieldValue value)
-    {
-        try
-        {
-            var candidate = new GvasScalar(scalar.Kind, scalar.Offset, scalar.Length, scalar.Value);
-            SetScalar(candidate, value);
-            _ = candidate.Encode();
-            return null;
-        }
-        catch (Exception ex) when (ex is ArgumentException or OverflowException or InvalidOperationException) { return ex.Message; }
-    }
-
-    private static void SetScalar(GvasScalar scalar, FieldValue value)
-    {
-        object next = scalar.Kind switch
-        {
-            GvasScalarKind.Boolean => value.AsBool(),
-            GvasScalarKind.String => value.AsString(),
-            GvasScalarKind.Float => (double)(float)value.AsDouble(),
-            GvasScalarKind.Double => value.AsDouble(),
-            _ => value.AsInteger(),
-        };
-        if (next is double number && !double.IsFinite(number)) throw new ArgumentException("Floating point value must be finite.");
-        scalar.Value = next;
     }
 }
