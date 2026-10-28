@@ -301,7 +301,10 @@ preset and structural mutations remain unavailable. Bulk actions use
 Research performed 2026-10-28. Downloaded implementations were read as untrusted
 text; none was executed. The algorithm and public constants were independently
 implemented in C#; no substantial upstream code was copied. Runtime dependencies
-are the SDK and .NET cryptography only, with no added NuGet packages.
+are the SDK and .NET cryptography only, with no added NuGet packages. The owner
+decision on 2026-10-28 allows reuse of community facts from sources that publish
+no licence, with attribution. Exact hashes and transformations are in
+[`UnlicensedSources.source.md`](SaveToolkit.Plugins.TalesOfArise/Resources/UnlicensedSources.source.md).
 
 - [ItsAllAboutTheCode/save-converters notes](https://github.com/ItsAllAboutTheCode/save-converters/blob/main/save_convert/tales_of/arise/save_NOTES.md):
   PS5 AES/XOR material, section names/order, pointer base, platform differences.
@@ -340,8 +343,8 @@ and UI descriptions/provenance. Dataset attribution appears in the Sources panel
 | `skill-nodes` (540) | All five positions per panel, SP text and title prerequisites | Same six pinned panel pages; dash costs remain distinct from explicit zero |
 | `characters` (62) | Every named character/group in the navigation template; six inferred playable status joins | [Character template r300086](https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086) |
 | `progress` (128) | 45 recipes, 44 fish species, 39 artifacts; guide data, no saved state joins | [Cooking r379806](https://aselia.fandom.com/wiki/ToA_-_Cooking?oldid=379806), [Fishing r350354](https://aselia.fandom.com/wiki/ToA_-_Fishing?oldid=350354), [Artifacts r381166](https://aselia.fandom.com/wiki/ToA_-_Artifacts?oldid=381166) |
-| `Characters.csv` | Six short names plus unmapped placeholders; existing index mapping remains Inferred | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Characters.source.md) |
-| `Consumables.csv` | 13 legacy inferred numeric mappings; no newly established IDs | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Consumables.source.md) |
+| `Characters.csv` and playable status-index attributes | Six short names plus unmapped placeholders and six inferred status-index joins; no recruitment claim | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Characters.source.md), including the no-licence Sora3100 ordering reused with attribution per owner decision 2026-10-28 |
+| `Consumables.csv` | 13 legacy inferred numeric mappings; no newly established IDs | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Consumables.source.md), including the no-licence PS4 patch crosswalk reused with attribution per owner decision 2026-10-28 |
 | `Sections.csv` | Published section labels plus independently measured schema facts; GPL-3.0 format research, no code port | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Sections.source.md) |
 | F9 schematic coordinates and external map links | Original plugin-authored grouping positions; no game art or coordinates copied | [Repository licence](https://github.com/JKamsker/PS5SaveGame-Toolkit), [Tales of Arise guide index](https://aselia.fandom.com/wiki/Tales_of_Arise), [Owls](https://aselia.fandom.com/wiki/ToA_-_Owls), [Camps](https://aselia.fandom.com/wiki/ToA_-_Camps); map art remains external-only and Aselia text remains CC BY-SA 3.0 |
 
@@ -349,10 +352,26 @@ The [data sidecar](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.
 lists all **62 immutable revision URLs**, author/licence/date/modifications and coverage
 limits. `source-revisions.json` pins rendered response and wikitext SHA-256s; the pack
 manifest pins all record files. [Maintenance scripts](ReferenceData/README.md) reproduce
-the extraction from hash-checked downloads held outside the repository. No unlicensed
-datamine, copyrighted icon bundle or downloaded implementation was copied this round.
+the extraction from hash-checked downloads held outside the repository. The pack also
+pins the two reused no-licence community crosswalks in per-record attributes and the
+sidecar. Copyrighted icon bundles, game assets, proprietary tools, patch instructions
+and downloaded implementations remain excluded.
 Wiki references include DLC/expansion facts; the supported save schema remains base-game
 PPSA02745 only. No complete licensed owl/quest identity table or save join was established.
+
+## Licence exclusions
+
+- **Resolved: imported with attribution.** The PS4 patch research crosswalk for 13
+  legacy consumable IDs and the Sora3100 six-character ordering are embedded only as
+  Inferred F2 attributes. Each record carries its source URL, pinned SHA-256 and
+  `No licence published; reused with attribution per owner decision 2026-10-28`.
+- **Still excluded: GPL-2.0-only or incompatible code.** GPL format research remains
+  a factual reference; the converter and Cheat Engine implementations were
+  reimplemented independently, not copied.
+- **Still excluded: proprietary game assets and no-redistribution material.** Icons,
+  screenshots, extracted game text/assets, commercial save-editor tables, patch
+  instructions and guide prose with no redistribution permission stay link-only or
+  research-only.
 
 ## SDK requests
 

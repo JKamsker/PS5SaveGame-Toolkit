@@ -18,7 +18,7 @@
       "files": [
         {
           "path": "items.json",
-          "sha256": "13de9b207a1e0592b00bb9247c81965d146d0bf23702910ce90a117f6769e6c0"
+          "sha256": "699d3697423c99c6f1f2ded8814fef5ef274a9b0554df5b5f1b5c0db9179b876"
         }
       ],
       "attribution": {
@@ -27,7 +27,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
       }
     },
     {
@@ -46,7 +46,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
       }
     },
     {
@@ -65,7 +65,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
       }
     },
     {
@@ -84,7 +84,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
       }
     },
     {
@@ -103,7 +103,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
       }
     },
     {
@@ -122,7 +122,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
       }
     },
     {
@@ -132,7 +132,7 @@
       "files": [
         {
           "path": "characters.json",
-          "sha256": "ecd47e4960fc3aba50c6aff0b1e7f67b52585964c2500ed6006fa37b164e6d5b"
+          "sha256": "3443767ca9d553d8acd35869eb94fe198481e49228b43df7e5d5f7b99071e729"
         }
       ],
       "attribution": {
@@ -141,7 +141,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
       }
     },
     {
@@ -160,7 +160,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs."
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
       }
     }
   ]
