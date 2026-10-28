@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "id": "gow-ragnarok.community.en",
+  "version": "1.0.0",
+  "title": "Ragnarök community ID evidence and raven counters",
+  "plugins": [
+    "gow-ragnarok"
+  ],
+  "titleIds": [
+    "PPSA08330"
+  ],
+  "gameBuilds": [
+    "PS5 revision 0x00513040"
+  ],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "gow-ragnarok-community-ids",
+      "kind": "records",
+      "title": "Unmapped PS4 resource/key-item ID candidates",
+      "files": [
+        {
+          "path": "community-ids.json",
+          "sha256": "d622569f80ce7e1098a0b777cdb0a3fbac89afe04604d885a501937868323160"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/bucanero/apollo-patches/blob/273f032b4c31c017fed5c1588f209b8faf87ba6c/PS4/CUSA34384.savepatch",
+        "author": "Apollo Save Tool patch contributors / bucanero",
+        "license": "GPL-3.0",
+        "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted unique literal search IDs and broad section categories; omitted write code and preset quantities. Unknown names remain explicit. No implementation ported."
+      }
+    },
+    {
+      "id": "gow-ragnarok-collectibles",
+      "kind": "records",
+      "title": "Raven-related resource identities (PC transfer inferred)",
+      "files": [
+        {
+          "path": "collectibles.json",
+          "sha256": "dabd67a77241e83d5bc4ce7e24a7402365fc182bd05fd60bfeb6d2c5a053bdd7"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py",
+        "author": "Alexsander720 / Continue? contributors",
+        "license": "GPL-3.0",
+        "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted two factual IDs and roles; converted u64 IDs to literal little-endian bytes. Added PS5 corpus occurrence counts. No code or completion formula ported."
+      }
+    }
+  ]
+}

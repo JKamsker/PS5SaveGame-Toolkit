@@ -14,6 +14,11 @@ internal enum RagnarokSpanKind
     WalletHeader,
     WalletRows,
     TrailingSentinel,
+    WalletBlock,
+    WalletIds,
+    WalletIndices,
+    NestedLinks,
+    FlagGroups,
     Opaque,
 }
 
@@ -73,7 +78,26 @@ internal static class RagnarokGrammar
                 index.WalletCount * RagnarokFormat.WalletRowSize, index.WalletCount, "Bounded by observed wallet count"),
             new(RagnarokSpanKind.TrailingSentinel, fileLength - sizeof(uint), sizeof(uint), 1, "Observed sentinel; not a checksum"),
         };
-        return spans.Where(s => s.Offset >= 0 && s.Length >= 0 && s.Offset <= fileLength - s.Length).ToList();
+        if (index.Nested.Wallets.Count > 0)
+        {
+            // Replace the hero-only spans: every byte belongs to exactly one evidence span.
+            spans.RemoveAll(span => span.Kind is RagnarokSpanKind.WalletHeader or RagnarokSpanKind.WalletRows);
+            spans.Add(new(RagnarokSpanKind.WalletBlock, index.Nested.WalletBlockOffset, sizeof(uint), 1, "Observed byte length"));
+            foreach (var wallet in index.Nested.Wallets)
+            {
+                spans.Add(new(RagnarokSpanKind.WalletHeader, wallet.Offset, RagnarokFormat.WalletHeaderSize, 1, "Observed counts; role inferred"));
+                spans.Add(new(RagnarokSpanKind.WalletRows, wallet.ResourcesOffset, wallet.ResourceCount * RagnarokFormat.WalletRowSize,
+                    wallet.ResourceCount, "Counted resource rows; quantity meaning inferred"));
+                spans.Add(new(RagnarokSpanKind.WalletIds, wallet.IdsOffset, wallet.IdCount * sizeof(ulong), wallet.IdCount, "Counted IDs; semantics unknown"));
+                spans.Add(new(RagnarokSpanKind.WalletIndices, wallet.IndicesOffset, wallet.IndexCount * sizeof(uint), wallet.IndexCount, "Counted index-like words; target unknown"));
+            }
+
+            spans.Add(new(RagnarokSpanKind.NestedLinks, index.Nested.WalletBlockEnd,
+                index.Nested.FlagsOffset - index.Nested.WalletBlockEnd, index.Nested.LinksCount, "u16 length and counted 22-byte rows; meaning unknown"));
+            spans.Add(new(RagnarokSpanKind.FlagGroups, index.Nested.FlagsOffset,
+                index.Nested.FlagsEnd - index.Nested.FlagsOffset, index.Nested.FlagGroups.Sum(g => g.Count), "Length-bounded groups of ID/four raw bytes; meaning unknown"));
+        }
+        return spans.Where(s => s.Offset >= 0 && s.Length > 0 && s.Offset <= fileLength - s.Length).ToList();
     }
 
     private static void AddOpaqueGaps(List<RagnarokSpan> spans, int fileLength)

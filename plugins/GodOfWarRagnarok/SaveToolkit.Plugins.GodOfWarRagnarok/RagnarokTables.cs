@@ -35,8 +35,8 @@ internal static class RagnarokTables
         {
             "directory" => [new("offset", "Offset"), new("id", "ID (LE u64)"), new("word", "Paired word (unknown)")],
             "secondary" => [new("offset", "Offset"), new("id", "ID (LE u64)")],
-            "wallet" => [new("offset", "Offset"), new("name", "Resource"), new("id", "ID (LE u64)"), new("quantity", "Quantity (inferred)"), new("word", "Metadata (unknown)")],
-            _ => [new("offset", "Offset"), new("name", "Source name"), new("id", "ID (LE u64)"), new("context", "Context"), new("quantity", "Word at +8")],
+            "wallet" => [new("offset", "Offset"), new("name", "Resource"), new("id", "ID (LE u64)"), new("quantity", "Quantity (inferred)"), new("word", "Metadata (unknown)"), new("source", "Attribution")],
+            _ => [new("offset", "Offset"), new("name", "Source name"), new("id", "ID (LE u64)"), new("context", "Context"), new("quantity", "Word at +8"), new("source", "Attribution")],
         };
         return new(columns, rows) { Title = kind };
     }
@@ -70,7 +70,8 @@ internal static class RagnarokTables
         ("offset", Offset(offset)), ("name", Text(references.Name(document.ReadId(offset)))), ("id", Id(document, offset)),
         ("quantity", document.Number(offset + sizeof(ulong), "Quantity (wallet role inferred)", Confidence.Inferred)
             with { Warning = "Container role transferred from PC research; no PS5 game UI or integrity validation." }),
-        ("word", document.Number(offset + RagnarokFormat.WalletRowMetadataOffset, "Metadata", Confidence.Unknown)));
+        ("word", document.Number(offset + RagnarokFormat.WalletRowMetadataOffset, "Metadata", Confidence.Unknown)),
+        ("source", Text(references.Attribution(document.ReadId(offset)))));
 
     private static TableRow AnchorRow(RagnarokDocument document, RagnarokReferences references, RagnarokRecordIndex index, ResourceOccurrence occurrence)
     {
@@ -82,7 +83,8 @@ internal static class RagnarokTables
             ("id", Id(document, offset)), ("context", Text(inWallet ? "Hero wallet (inferred)" : "Outside wallet; unknown")),
             ("quantity", document.Number(offset + sizeof(ulong), inWallet ? "Quantity (wallet role inferred)" : "Word at +8",
                 inWallet ? Confidence.Inferred : Confidence.Unknown)
-                with { Warning = "Duplicate resource IDs are separate occurrences; these values are never added together." }));
+                with { Warning = "Duplicate resource IDs are separate occurrences; these values are never added together." }),
+            ("source", Text(references.Attribution(occurrence.Id))));
     }
 
     private static FieldNode Id(RagnarokDocument document, int offset) =>

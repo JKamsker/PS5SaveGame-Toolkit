@@ -20,6 +20,7 @@ internal sealed class RagnarokRecordIndex
     public IReadOnlyList<RecordRegion> Regions { get; private init; } = [];
     public IReadOnlyList<ResourceOccurrence> Occurrences { get; private init; } = [];
     public RagnarokGrammarEvidence Evidence { get; private set; } = new([], [], [], []);
+    public RagnarokNestedRecords Nested { get; private init; } = RagnarokNestedRecords.Empty;
 
     public static RagnarokRecordIndex Parse(ReadOnlySpan<byte> bytes, bool preferences)
     {
@@ -96,6 +97,7 @@ internal sealed class RagnarokRecordIndex
             SecondaryOffset = secondaryOffset,
             WalletOffset = wallet,
             WalletCount = (int)walletCount,
+            Nested = RagnarokNestedRecords.Parse(bytes, wallet),
             Regions =
             [
                 new("Outer header", 0, RagnarokFormat.HeaderSize, 1, "Observed constants; integrity unknown"),

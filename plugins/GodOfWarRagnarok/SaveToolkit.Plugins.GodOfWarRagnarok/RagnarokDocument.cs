@@ -1,16 +1,21 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
-internal sealed class RagnarokDocument(string path, string name, byte[] bytes, RagnarokRecordIndex index, RagnarokReferences references) : BoundSaveDocument
+internal sealed class RagnarokDocument(string path, string name, byte[] bytes, RagnarokRecordIndex index, RagnarokReferences references) : BoundSaveDocument, IQueryableDocument
 {
     private const string BlobId = "save";
     internal const int RowsPerPage = 256;
     internal const int RawPageSize = 1024;
     internal const int RawGroupSize = 64 * 1024;
     private int PageSize => index.Preferences ? RowsPerPage : RawPageSize;
+    private RagnarokCollections? _collections;
+    private RagnarokCollections CollectionViews => _collections ??= new(this, index, references);
+    public IReadOnlyList<QueryableCollection> Collections => CollectionViews.Metadata;
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => CollectionViews.Query(this, collectionId, query);
 
     public override string Title => index.Preferences ? "Ragnarök · User preferences" : $"Ragnarök · {name}";
     public override bool CanEdit => false;
@@ -45,14 +50,19 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
         overview.Add(Number(RagnarokFormat.SaveCounterOffset, "Save counter (inferred)", Confidence.Inferred));
         return new TabsNode([
             new("Overview", overview),
-            new("Wallet", [new TextNode("Hero-wallet role is inferred from the PC layout. Names come from the attributed F2 resource catalog when pinned; unnamed IDs stay raw."),
-                SectionNode.Lazy("Wallet records", "wallet", index.WalletCount.ToString())]),
+            new("Resources & XP", [CollectionViews.View("resources"), CollectionViews.View("xp")]),
+            new("Gear candidates", [CollectionViews.View("nested-ids"), CollectionViews.View("index-words")]),
+            new("Quests & collectibles", [CollectionViews.View("collectibles"), CollectionViews.View("flags"),
+                new TextNode("Named quest IDs, equipped gear and completion flags remain unknown. No completion or ownership is inferred from raw matches.") { Tone = Tone.Warning }]),
+            new("Nested containers", [RagnarokNestedView.Build(index, references)]),
             new("Record index", [RagnarokTables.Regions(index), SectionNode.Lazy("Grammar evidence", "grammar-evidence"),
                 new TextNode("Partial index only. Gaps, nesting, lengths outside these arrays and integrity dependencies remain unknown.") { Tone = Tone.Warning },
-                SectionNode.Lazy("Sorted IDs and paired words", "directory", index.DirectoryCount.ToString()),
+                CollectionViews.View("directory"),
                 SectionNode.Lazy("Secondary ID list", "secondary", index.SecondaryCount.ToString())]),
             new("Resource anchors", [new TextNode("All occurrences of catalogued resource IDs, including duplicates outside the wallet. Adjacent words outside wallet rows are unknown."),
                 SectionNode.Lazy("Resource occurrences", "anchors", index.Occurrences.Count.ToString())]),
+            new("Integrity", [new TextNode("Authentication remains unresolved. This read-only diagnostic tests finite unkeyed digest hypotheses; no MAC key is available.") { Tone = Tone.Warning },
+                SectionNode.Lazy("Digest coverage evidence", "integrity")]),
             new("Raw", RawRoot()),
         ]);
     }
@@ -67,6 +77,11 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
         if (lazyId == "grammar-evidence")
         {
             return [RagnarokTables.Evidence(index)];
+        }
+
+        if (lazyId == "integrity" && !index.Preferences)
+        {
+            return [RagnarokIntegrityView.Build(bytes, index)];
         }
 
         if (lazyId == "raw")

@@ -38,9 +38,54 @@ internal sealed class RagnarokDiffDecoder : ISaveDecoder
         builder.Add("directory/count", "integer", index.DirectoryCount.ToString());
         builder.Add("secondary/count", "integer", index.SecondaryCount.ToString());
         builder.Add("wallet/count", "integer", index.WalletCount.ToString());
+        foreach (var probe in RagnarokAuthentication.Probe(bytes, index))
+        {
+            builder.Add($"integrity/{probe.Algorithm}/{probe.Coverage}/digest", "unkeyed hypothesis", probe.Digest);
+            builder.Add($"integrity/{probe.Algorithm}/{probe.Coverage}/matches", "count", probe.MatchingOffsets.Count.ToString());
+        }
+        foreach (var wallet in index.Nested.Wallets)
+        {
+            var root = $"wallets/{wallet.Id:X16}";
+            builder.Add($"{root}/counts", "counts", $"{wallet.ResourceCount}/{wallet.IdCount}/{wallet.IndexCount}");
+            var occurrences = new Dictionary<ulong, int>();
+            for (var row = 0; row < wallet.ResourceCount; row++)
+            {
+                var offset = wallet.ResourcesOffset + row * RagnarokFormat.WalletRowSize;
+                var id = RagnarokFormat.UInt64(bytes, offset);
+                var occurrence = occurrences.GetValueOrDefault(id);
+                occurrences[id] = occurrence + 1;
+                builder.Add($"{root}/resources/{id:X16}/{occurrence}", "inferred quantity", RagnarokFormat.UInt32(bytes, offset + sizeof(ulong)).ToString());
+            }
+
+            occurrences.Clear();
+            for (var row = 0; row < wallet.IdCount; row++)
+            {
+                var id = RagnarokFormat.UInt64(bytes, wallet.IdsOffset + row * sizeof(ulong));
+                var occurrence = occurrences.GetValueOrDefault(id);
+                occurrences[id] = occurrence + 1;
+                builder.Add($"{root}/ids/{id:X16}/{occurrence}", "unknown ID", $"0x{id:X16}");
+            }
+
+            for (var row = 0; row < wallet.IndexCount; row++)
+            {
+                builder.Add($"{root}/index-like/{row}", "unknown word", RagnarokFormat.UInt32(bytes, wallet.IndicesOffset + row * sizeof(uint)).ToString());
+            }
+        }
+
+        foreach (var group in index.Nested.FlagGroups)
+        {
+            for (var row = 0; row < group.Count; row++)
+            {
+                var offset = group.RowsOffset + row * RagnarokFlagGroup.RowSize;
+                var id = RagnarokFormat.UInt64(bytes, offset);
+                builder.Add($"flags/{group.Id:X16}/{id:X16}/{row}", "unknown flags", Convert.ToHexString(bytes.AsSpan(offset + sizeof(ulong), sizeof(uint))));
+            }
+        }
+
         foreach (var span in index.Evidence.Spans)
         {
-            builder.Add($"grammar/spans/{span.Kind}", "span", $"0x{span.Offset:X}+{span.Length} ({span.Count})", span.Confidence);
+            // A kind can now occur in several containers. Offset paths are diagnostic, not semantic identity.
+            builder.Add($"grammar/spans/{span.Kind}/{span.Offset:X}", "span", $"0x{span.Offset:X}+{span.Length} ({span.Count})", span.Confidence);
         }
 
         foreach (var candidate in index.Evidence.LengthCandidates)

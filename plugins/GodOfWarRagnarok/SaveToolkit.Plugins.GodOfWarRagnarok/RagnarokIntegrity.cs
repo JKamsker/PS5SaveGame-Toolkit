@@ -16,7 +16,7 @@ internal static class RagnarokIntegrity
     {
         // The final FFFFFFFF word is a structural sentinel, not a checksum target. Including it would
         // manufacture repeated CRC matches because CRC32(FF FF FF FF) is itself a common word.
-        var ranges = grammar.Spans.Where(span => span.Kind is not RagnarokSpanKind.Opaque and not RagnarokSpanKind.TrailingSentinel).ToArray();
+        var ranges = grammar.Spans.Where(span => span.Length > 0 && span.Kind is not RagnarokSpanKind.Opaque and not RagnarokSpanKind.TrailingSentinel).ToArray();
         var probes = new List<RagnarokChecksumProbe>();
         foreach (var range in Coverage(ranges, bytes.Length))
         {
@@ -41,9 +41,10 @@ internal static class RagnarokIntegrity
         ReadOnlySpan<byte> whole, Func<ReadOnlySpan<byte>, uint> calculate)
     {
         var expected = calculate(covered);
-        var comparedWords = whole.Length / sizeof(uint);
+        // Do not accidentally compare an aligned EOF sentinel as a checksum target.
+        var comparedWords = (whole.Length - sizeof(uint)) / sizeof(uint);
         var matches = 0;
-        for (var offset = 0; offset <= whole.Length - sizeof(uint); offset += sizeof(uint))
+        for (var offset = 0; offset <= whole.Length - 2 * sizeof(uint); offset += sizeof(uint))
         {
             if (BinaryPrimitives.ReadUInt32LittleEndian(whole[offset..]) == expected)
             {

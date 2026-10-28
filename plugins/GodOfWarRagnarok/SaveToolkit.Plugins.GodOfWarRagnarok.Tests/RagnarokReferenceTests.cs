@@ -38,6 +38,32 @@ public sealed class RagnarokReferenceTests
         Assert.Contains(context.Packs, pack => pack.Id == "gow-ragnarok.ps5.en");
     }
 
+    [Fact]
+    public void CommunityExpansionIsPinnedLicensedAndKeepsUnmappedNamesUnknown()
+    {
+        var plugin = new GodOfWarRagnarokPlugin();
+        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330");
+        var candidates = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("gow-ragnarok-community-ids"));
+        Assert.Equal(36, candidates.Count);
+        Assert.Equal("GPL-3.0", candidates.Dataset.Attribution.License);
+        Assert.Contains("273f032b4c31c017fed5c1588f209b8faf87ba6c", candidates.Dataset.Attribution.SourceUrl);
+        Assert.All(candidates.Search(new() { Limit = 200 }).Items, record =>
+        {
+            Assert.StartsWith("Unknown ", record.Name);
+            Assert.Null(record.Limit);
+        });
+
+        var collectibles = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("gow-ragnarok-collectibles"));
+        Assert.Equal(2, collectibles.Count);
+        var raven = collectibles.Find("7ED58EF1EF802748")!;
+        Assert.Contains("inferred", raven.Name);
+        Assert.Contains("51e19b2a292c60f9acdf3c13c561809657104ea2", raven.Source);
+        Assert.Null(raven.Limit);
+        var fallback = new RagnarokReferences(IReferenceContext.Empty).Find(0x482780EFF18ED57E)!;
+        Assert.Equal(raven.Name, fallback.Name);
+        Assert.Equal(raven.AttributionText, fallback.AttributionText);
+    }
+
     private static void Write(byte[] bytes, int offset, uint value) =>
         System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
 }
