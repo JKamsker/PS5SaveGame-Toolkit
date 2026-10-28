@@ -15,6 +15,9 @@ public sealed partial class DocumentSession
     private readonly HashSet<string> _retired = new(StringComparer.Ordinal);
     private HashSet<string> _expanded = new(StringComparer.Ordinal);
     private long _revision;
+    // Revision of the last change that altered view structure (ids/rows). Value edits advance
+    // _revision for F6 plan staleness but leave structural views such as F8 pages valid.
+    private long _structuralRevision;
     private List<HistoryStep>? _group;
     private bool _groupBroken;
 
@@ -247,7 +250,7 @@ public sealed partial class DocumentSession
             // Keep the previous index rather than retiring live ids; clients refetch on the new revision.
             if (forceNewRevision)
             {
-                _revision++;
+                _structuralRevision = ++_revision;
             }
 
             return [$"The view could not be rebuilt: {ex.Message}"];
@@ -259,7 +262,7 @@ public sealed partial class DocumentSession
         _expanded = expanded;
         if (forceNewRevision || !before.SetEquals(now))
         {
-            _revision++;
+            _structuralRevision = ++_revision;
         }
 
         before.ExceptWith(now);

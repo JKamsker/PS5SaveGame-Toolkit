@@ -12,7 +12,10 @@ namespace SaveToolkit.Testing;
 public static class SampleSaves
 {
     private static readonly ConcurrentDictionary<string, Lazy<DiskSaveSet>> Cache = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly string TempRoot = Path.Combine(Path.GetTempPath(), "SaveToolkit.Tests", Environment.ProcessId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    // Unique per process: process ids are reused, and a leftover folder from an earlier run would make
+    // the import fail with "file already exists".
+    private static readonly string TempRoot = Path.Combine(Path.GetTempPath(), "SaveToolkit.Tests",
+        $"{Environment.ProcessId.ToString(System.Globalization.CultureInfo.InvariantCulture)}-{Guid.NewGuid():N}");
 
     public static string? ArtifactsDirectory { get; } = Locate();
 

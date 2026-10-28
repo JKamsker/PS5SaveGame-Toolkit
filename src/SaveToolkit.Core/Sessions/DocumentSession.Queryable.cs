@@ -20,7 +20,8 @@ public sealed partial class DocumentSession
             throw new KeyNotFoundException("This document has no queryable collections.");
         }
 
-        if (expectedRevision is { } expected && expected != _revision)
+        // A page is stale only across structural changes; value edits keep row identities valid.
+        if (expectedRevision is { } expected && (expected < _structuralRevision || expected > _revision))
         {
             throw new StaleViewException();
         }
