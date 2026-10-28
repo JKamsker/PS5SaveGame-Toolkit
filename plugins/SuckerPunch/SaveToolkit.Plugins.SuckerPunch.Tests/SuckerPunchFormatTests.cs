@@ -1,4 +1,6 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Core.References;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -8,6 +10,22 @@ namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
 public sealed class SuckerPunchFormatTests
 {
+    [Fact]
+    public void EmbeddedCatalogsAreAttributedAndUseStableRawIds()
+    {
+        var plugin = new SuckerPunchPlugin();
+        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02225");
+        foreach (var id in new[] { "suckerpunch_items", "suckerpunch_equipment", "suckerpunch_techniques" })
+        {
+            var catalog = context.Catalog(id);
+            Assert.NotNull(catalog);
+            Assert.NotEmpty(catalog.Dataset.Attribution.SourceUrl);
+            Assert.NotEmpty(catalog.Dataset.Attribution.License);
+            Assert.All(catalog.Search(new ReferenceQuery { Limit = 200 }).Items,
+                record => Assert.True(record.Attributes.ContainsKey("evidence")));
+        }
+    }
+
     [Fact]
     public void TsushimaSamplesOpenAndExposeVerifiedHeader()
     {

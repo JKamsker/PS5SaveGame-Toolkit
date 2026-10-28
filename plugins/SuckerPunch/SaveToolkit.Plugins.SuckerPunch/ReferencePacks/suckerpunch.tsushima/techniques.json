@@ -1,0 +1,64 @@
+{
+  "records": [
+    {
+      "id": "MoonStance",
+      "name": "MoonStance",
+      "category": "observed identifier",
+      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 identifier scan",
+        "confidence": "Unknown"
+      }
+    },
+    {
+      "id": "StanceUnlock",
+      "name": "StanceUnlock",
+      "category": "observed identifier",
+      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 identifier scan",
+        "confidence": "Unknown"
+      }
+    },
+    {
+      "id": "StoneStance",
+      "name": "StoneStance",
+      "category": "observed identifier",
+      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 identifier scan",
+        "confidence": "Unknown"
+      }
+    },
+    {
+      "id": "UltimateBrutalStance",
+      "name": "UltimateBrutalStance",
+      "category": "observed identifier",
+      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 identifier scan",
+        "confidence": "Unknown"
+      }
+    },
+    {
+      "id": "WaterStance",
+      "name": "WaterStance",
+      "category": "observed identifier",
+      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 identifier scan",
+        "confidence": "Unknown"
+      }
+    },
+    {
+      "id": "WindStance",
+      "name": "WindStance",
+      "category": "observed identifier",
+      "description": "Observed as a length-prefixed Tsushima identifier; ownership, equipped state and gameplay meaning are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 identifier scan",
+        "confidence": "Unknown"
+      }
+    }
+  ]
+}

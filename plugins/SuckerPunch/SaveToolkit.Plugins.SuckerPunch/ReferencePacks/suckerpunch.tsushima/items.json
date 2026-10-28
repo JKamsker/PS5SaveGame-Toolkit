@@ -1,0 +1,484 @@
+{
+  "records": [
+    {
+      "id": "ArrowNormal",
+      "name": "ArrowNormal",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "ArrowFire",
+      "name": "ArrowFire",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "ArrowHeavy",
+      "name": "ArrowHeavy",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "ArrowPiercing",
+      "name": "ArrowPiercing",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "ArrowExplosive",
+      "name": "ArrowExplosive",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "ArrowSpirit",
+      "name": "ArrowSpirit",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "DartNormal",
+      "name": "DartNormal",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "DartHallucination",
+      "name": "DartHallucination",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "DartWeakening",
+      "name": "DartWeakening",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "DartInstantPoison",
+      "name": "DartInstantPoison",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "AmmoFlashBomb",
+      "name": "AmmoFlashBomb",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "AmmoNoisemaker",
+      "name": "AmmoNoisemaker",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "AmmoBell",
+      "name": "AmmoBell",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "AmmoFireBomb",
+      "name": "AmmoFireBomb",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "AmmoConcussionBomb",
+      "name": "AmmoConcussionBomb",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "AmmoThrowingDagger",
+      "name": "AmmoThrowingDagger",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "AmmoSmokeBomb",
+      "name": "AmmoSmokeBomb",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "AmmoStickyBomb",
+      "name": "AmmoStickyBomb",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "AmmoFireBlade",
+      "name": "AmmoFireBlade",
+      "category": "ammunition",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredCoreBamboo",
+      "name": "IngredCoreBamboo",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredCoreGunpowder",
+      "name": "IngredCoreGunpowder",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredCoreOil",
+      "name": "IngredCoreOil",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredCoreOre",
+      "name": "IngredCoreOre",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredCoreToxin",
+      "name": "IngredCoreToxin",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeBearHide",
+      "name": "IngredUpgradeBearHide",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeBoarHide",
+      "name": "IngredUpgradeBoarHide",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeBone",
+      "name": "IngredUpgradeBone",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeCloth",
+      "name": "IngredUpgradeCloth",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeDeerHide",
+      "name": "IngredUpgradeDeerHide",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeFeather",
+      "name": "IngredUpgradeFeather",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeGold",
+      "name": "IngredUpgradeGold",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeSteel",
+      "name": "IngredUpgradeSteel",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeGreenHerb",
+      "name": "IngredUpgradeGreenHerb",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeSinew",
+      "name": "IngredUpgradeSinew",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeSilver",
+      "name": "IngredUpgradeSilver",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeTalon",
+      "name": "IngredUpgradeTalon",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeVenomPouch",
+      "name": "IngredUpgradeVenomPouch",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredCoreLinen",
+      "name": "IngredCoreLinen",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeLeather",
+      "name": "IngredUpgradeLeather",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeSilk",
+      "name": "IngredUpgradeSilk",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeYew",
+      "name": "IngredUpgradeYew",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "IngredUpgradeWaxTree",
+      "name": "IngredUpgradeWaxTree",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "Supplies",
+      "name": "Supplies",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "Hide",
+      "name": "Hide",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "Flowers",
+      "name": "Flowers",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "TestItem",
+      "name": "TestItem",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "SurvivalCurrency",
+      "name": "SurvivalCurrency",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "NGPFlowers",
+      "name": "NGPFlowers",
+      "category": "resource",
+      "description": "Observed as a Tsushima inventory identifier; gameplay label and capacity are unconfirmed.",
+      "attributes": {
+        "evidence": "PPSA02225 sample inventory tables",
+        "confidence": "Inferred"
+      }
+    }
+  ]
+}
