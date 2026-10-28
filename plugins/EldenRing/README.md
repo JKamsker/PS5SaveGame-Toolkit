@@ -102,10 +102,20 @@ paged hex for each slot/header/profile/regulation/tail. Hex reads return copies,
 64 KiB and stop at block boundaries. Opening visits at most 51,200 item headers rather than
 building a full inventory tree or scanning the allocation for strings.
 
-The six SDK conformance checks pass against PPSA03169, including meaningful rune edit → serialize
-→ reopen and byte-identical no-op. Additional tests cover known values, slot variants, corruption,
-edit constraints and byte preservation. Sample-dependent tests use `SampleSaves` and skip when
-archives are absent. No sample fixtures or extracted files are included.
+Validation on 2026-10-28:
+
+* API build: successful, zero warnings/errors.
+* Plugin: **64 passed**, including all six SDK conformance checks, known names/stats, every primary
+  and backup record, meaningful rune edit → serialize → reopen, exact four-byte write scope,
+  session undo/redo, version gates, UTF-16, corrupt inputs, bounded blobs and a <2-second sample
+  open/initial-view check.
+* Core framework: **43 passed**.
+* Empty sample directory: **56 passed, 8 skipped**, zero failures. Sample-dependent tests use
+  `SampleSaves`; no sample fixtures or extracted files are included.
+
+Commands: `dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj`,
+`dotnet test --project plugins/EldenRing/SaveToolkit.Plugins.EldenRing.Tests`,
+`dotnet test --project tests/SaveToolkit.Core.Tests`.
 
 ## Sources and licences
 
