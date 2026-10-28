@@ -27,7 +27,7 @@ README documents formats, evidence, confidence levels and sources.
 | Raw file inspector `builtin.raw` | everything else | ReadOnly | — | — |
 
 Not covered yet (raw inspector only): Borderlands 4 (blocked on crypto), Star Ocean: The Divine Force
-(blocked), Immortals Fenyx Rising, Far Cry 6, DOOM Eternal, Overwatch 2 settings, PPSA01802 (unidentified),
+(blocked), Immortals Fenyx Rising, Far Cry 6, DOOM Eternal, Overwatch 2 settings, Kena: Bridge of Spirits (PPSA01802),
 YouTube app (excluded for privacy). See [docs/formats/](formats/README.md) for what is known about each.
 
 Before trusting an Experimental plugin: back up the original dump, edit a spare slot, keep values within

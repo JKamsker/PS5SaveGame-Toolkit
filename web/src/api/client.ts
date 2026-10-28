@@ -5,6 +5,7 @@ import type {
   FieldValue,
   Plugin,
   SaveDocument,
+  TitleInfo,
   ViewNode,
   Workspace,
   WorkspaceSummary,
@@ -49,13 +50,27 @@ export const api = {
   workspace: (id: string) => request<Workspace>(ws(id)),
   deleteWorkspace: (id: string) => request<void>(ws(id), { method: "DELETE" }),
 
+  titles: () => request<TitleInfo[]>("/titles"),
+
   /** Uploads zips or loose files; `path` keeps folder structure for directory drops. */
-  upload: (files: { file: File; path: string }[], name?: string) => {
-    const form = new FormData();
-    for (const { file, path } of files) form.append("files", file, path);
-    if (name) form.append("name", name);
-    return request<Workspace>("/workspaces", { method: "POST", body: form });
-  },
+  upload: (files: { file: File; path: string }[], name?: string, onProgress?: (fraction: number) => void) =>
+    new Promise<Workspace>((resolve, reject) => {
+      const form = new FormData();
+      for (const { file, path } of files) form.append("files", file, path);
+      if (name) form.append("name", name);
+      // XHR rather than fetch: fetch cannot report upload progress, and dumps can be hundreds of MiB.
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/workspaces");
+      xhr.responseType = "json";
+      xhr.upload.onprogress = (e) => e.lengthComputable && onProgress?.(e.loaded / e.total);
+      xhr.onload = () => {
+        const body = xhr.response as (Workspace & { error?: string }) | null;
+        if (xhr.status >= 200 && xhr.status < 300 && body) resolve(body);
+        else reject(new ApiError(body?.error ?? `Import failed (${xhr.status})`, xhr.status, body));
+      };
+      xhr.onerror = () => reject(new ApiError("The server could not be reached.", 0));
+      xhr.send(form);
+    }),
 
   iconUrl: (wsId: string, dirId: string) => `/api${ws(wsId)}/directories/${encodeURIComponent(dirId)}/icon`,
 

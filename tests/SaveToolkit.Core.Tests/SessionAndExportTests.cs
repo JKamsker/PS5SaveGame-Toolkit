@@ -34,6 +34,18 @@ public sealed class SessionAndExportTests : IDisposable
     }
 
     [Fact]
+    public void TitleCatalog_MergesPluginGamesWithKnownTitles()
+    {
+        var titles = Catalog.TitleCatalog.Build(_store.Catalog);
+
+        var counter = Assert.Single(titles, t => t.TitleId == "PPSA99999");
+        Assert.Equal("Counter Game", counter.Name);
+        Assert.Equal(Catalog.TitleSupport.Edit, counter.Support);
+        Assert.Equal(["test.counter"], counter.PluginIds);
+        Assert.Contains(titles, t => t is { TitleId: "PPSA01876", Name: "Far Cry 6", Support: Catalog.TitleSupport.None });
+    }
+
+    [Fact]
     public void Probe_PrefersTitlePluginOverFallback()
     {
         var (ws, session) = OpenCounter();

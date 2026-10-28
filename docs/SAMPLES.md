@@ -19,7 +19,7 @@ roadmap live in [docs/formats/](formats/README.md). Entries marked `?` are still
 | PPSA01506 | Immortals Fenyx Rising | `AutoSave0x.sav`, `Options.sav` | |
 | PPSA01603 | Hogwarts Legacy | `HL00xx/ue4savegame.ps5.sav` | Unreal |
 | PPSA01651 | YouTube (app) | `STARBOARD/*`, `memory.dat` | not a game |
-| PPSA01802 | ? | `ue4savegame.dpx.sav` | Unreal |
+| PPSA01802 | Kena: Bridge of Spirits (from icon0.png key art) | `ue4savegame.dpx.sav` | Unreal |
 | PPSA01876 | Far Cry 6 | `profile.dat` | |
 | PPSA01911 | Final Fantasy VII Remake Intergrade | `ff7remake0xx` (9 MiB each) | |
 | PPSA01982 | DOOM Eternal | `PROF` | |

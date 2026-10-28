@@ -1,9 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { Plugin } from "../../api/protocol";
-import { collectDropped, fromInput, type UploadFile } from "./collectFiles";
+import { library } from "../../state/libraryStore";
+import { fromInput, walkEntries, type UploadFile } from "./collectFiles";
+import { GameLibrary } from "./GameLibrary";
 
 const maturityText = { ReadOnly: "view only", Experimental: "editing, untested on console", Stable: "editing, tested in-game" } as const;
 
@@ -16,16 +18,41 @@ export function HomePage() {
   const plugins = useQuery({ queryKey: ["plugins"], queryFn: api.plugins });
   const recent = useQuery({ queryKey: ["workspaces"], queryFn: api.workspaces });
 
+  useEffect(() => void library.restore(), []);
+
   const upload = async (files: UploadFile[]) => {
     if (files.length === 0) return;
     const total = files.reduce((n, f) => n + f.file.size, 0);
-    setStatus({ text: `Importing ${files.length === 1 ? files[0]?.path : `${files.length} files`} (${Math.round(total / 1048576)} MiB)…`, isError: false });
+    const label = files.length === 1 ? files[0]?.path : `${files.length} files`;
+    setStatus({ text: `Importing ${label} (${Math.round(total / 1048576)} MiB)…`, isError: false });
     try {
-      const ws = await api.upload(files);
+      const ws = await api.upload(files, undefined, (p) =>
+        setStatus({ text: `Importing ${label}: ${Math.round(p * 100)} %`, isError: false }),
+      );
       navigate(`/w/${ws.id}`);
     } catch (error) {
       setStatus({ text: error instanceof ApiError ? error.message : "The import failed. Is the server running?", isError: true });
     }
+  };
+
+  const chooseFolder = async () => {
+    setStatus(null);
+    if (!(library.supportsHandles() && (await library.pickFolder()))) folderInput.current?.click();
+  };
+
+  const onDrop = (e: DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    // DataTransfer is only readable synchronously inside the event, so grab entries/handles first.
+    const items = Array.from(e.dataTransfer.items);
+    const entries = items.map((i) => i.webkitGetAsEntry?.()).filter((x): x is FileSystemEntry => !!x);
+    const handle = entries.length === 1 && entries[0]!.isDirectory ? items[0]?.getAsFileSystemHandle?.() : undefined;
+    void (async () => {
+      if (!entries.some((x) => x.isDirectory)) return upload(await walkEntries(entries));
+      const resolved = await handle;
+      if (resolved?.kind === "directory") return library.scanHandle(resolved as FileSystemDirectoryHandle);
+      return library.scanFiles(entries.length === 1 ? entries[0]!.name : "Dropped folders", await walkEntries(entries));
+    })();
   };
 
   return (
@@ -34,11 +61,13 @@ export function HomePage() {
         <span className="bar__mark" aria-hidden="true" />
         Savebench
       </div>
+      <GameLibrary onChooseFolder={() => void chooseFolder()} />
       <div className="home__grid">
         <div>
           <h1 className="home__headline">Open a PS5 save dump</h1>
           <p className="home__lede">
-            Drop the decrypted zip from your save manager or a folder of <span className="mono">sdimg_</span> directories. Everything stays on this computer.
+            Choose the folder where you keep your decrypted dumps to see every game in it, or drop a single zip. Everything stays on this computer
+            until you open a game.
           </p>
           <div
             className={`drop${dragging ? " drop--active" : ""}`}
@@ -47,20 +76,16 @@ export function HomePage() {
               setDragging(true);
             }}
             onDragLeave={() => setDragging(false)}
-            onDrop={async (e) => {
-              e.preventDefault();
-              setDragging(false);
-              await upload(await collectDropped(e.dataTransfer.items));
-            }}
+            onDrop={onDrop}
           >
-            <p className="drop__title">Drop a zip or folder here</p>
-            <p className="drop__hint">Layout like PPSA02530/sdimg_SAVEDATA/… is detected automatically, including the console backup copies.</p>
+            <p className="drop__title">Drop a folder or zip here</p>
+            <p className="drop__hint">Folders are scanned in the browser for PPSAxxxxx/sdimg_… dumps and save-dump zips. A zip dropped here is opened right away.</p>
             <div className="drop__buttons">
-              <button type="button" className="btn btn--primary" onClick={() => zipInput.current?.click()}>
-                Choose zip
-              </button>
-              <button type="button" className="btn" onClick={() => folderInput.current?.click()}>
+              <button type="button" className="btn btn--primary" onClick={() => void chooseFolder()}>
                 Choose folder
+              </button>
+              <button type="button" className="btn" onClick={() => zipInput.current?.click()}>
+                Open zip
               </button>
             </div>
             {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role="status">{status.text}</p>}
@@ -71,7 +96,12 @@ export function HomePage() {
               hidden
               multiple
               {...{ webkitdirectory: "", directory: "" }}
-              onChange={(e) => e.target.files && void upload(fromInput(e.target.files))}
+              onChange={(e) => {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+                const root = files[0]!.webkitRelativePath.split("/")[0] || "Folder";
+                void library.scanFiles(root, fromInput(files));
+              }}
             />
           </div>
           {recent.data && recent.data.length > 0 && (

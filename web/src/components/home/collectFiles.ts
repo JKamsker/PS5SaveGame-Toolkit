@@ -1,19 +1,15 @@
-export interface UploadFile {
-  file: File;
-  path: string;
-}
+import type { ScannedFile } from "../../lib/library";
 
-/** Reads dropped items, walking dropped folders recursively so relative paths survive the upload. */
-export async function collectDropped(items: DataTransferItemList): Promise<UploadFile[]> {
-  const entries = Array.from(items)
-    .map((i) => i.webkitGetAsEntry?.())
-    .filter((e): e is FileSystemEntry => e !== null && e !== undefined);
-  const out: UploadFile[] = [];
+export type UploadFile = ScannedFile;
+
+/** Walks dropped entries recursively so relative paths survive (folder drops). */
+export async function walkEntries(entries: FileSystemEntry[]): Promise<ScannedFile[]> {
+  const out: ScannedFile[] = [];
   for (const entry of entries) await walk(entry, "", out);
   return out;
 }
 
-async function walk(entry: FileSystemEntry, prefix: string, out: UploadFile[]): Promise<void> {
+async function walk(entry: FileSystemEntry, prefix: string, out: ScannedFile[]): Promise<void> {
   if (entry.isFile) {
     const file = await new Promise<File>((resolve, reject) => (entry as FileSystemFileEntry).file(resolve, reject));
     out.push({ file, path: prefix + entry.name });
@@ -29,6 +25,6 @@ async function walk(entry: FileSystemEntry, prefix: string, out: UploadFile[]): 
   }
 }
 
-export function fromInput(files: FileList): UploadFile[] {
+export function fromInput(files: FileList): ScannedFile[] {
   return Array.from(files).map((file) => ({ file, path: file.webkitRelativePath || file.name }));
 }

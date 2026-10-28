@@ -136,6 +136,8 @@ export interface EditResult {
   state: DocumentState;
 }
 
+export interface TitleInfo { titleId: string; name: string; support: "None" | "View" | "Edit"; pluginIds: string[] }
+
 export type ExportScope = "ChangedFiles" | "ChangedDirectories" | "Everything";
 
 export interface ExportPlan { files: { relativePath: string; length: number; reason: string }[]; changedCount: number }

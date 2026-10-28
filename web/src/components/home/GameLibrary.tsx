@@ -1,0 +1,119 @@
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { api, ApiError } from "../../api/client";
+import type { TitleInfo } from "../../api/protocol";
+import type { LibraryGame } from "../../lib/library";
+import { formatBytes } from "../../lib/values";
+import { library, useLibrary } from "../../state/libraryStore";
+
+const supportText = { Edit: "Editable", View: "View only", None: "Raw view only" } as const;
+
+/** Games found in the folder chosen in this tab. Nothing is uploaded until a game is opened. */
+export function GameLibrary({ onChooseFolder }: { onChooseFolder: () => void }) {
+  const state = useLibrary();
+  const titles = useQuery({ queryKey: ["titles"], queryFn: api.titles, staleTime: Infinity });
+  const byId = useMemo(() => new Map((titles.data ?? []).map((t) => [t.titleId, t])), [titles.data]);
+
+  if (state.status === "empty") return null;
+
+  return (
+    <section className="library" aria-labelledby="library-title">
+      <header className="library__head">
+        <div>
+          <h2 className="library__title" id="library-title">
+            {state.folderName ?? "Folder"}
+          </h2>
+          <p className="library__meta">{describe(state.status, state.games.length, state.skipped, state.persistent)}</p>
+        </div>
+        <div className="library__actions">
+          {state.status === "reconnect" && (
+            <button type="button" className="btn btn--primary" onClick={() => void library.reconnect()}>
+              Reopen folder
+            </button>
+          )}
+          {state.persistent && state.status === "ready" && (
+            <button type="button" className="btn btn--small btn--quiet" onClick={() => void library.reconnect()}>
+              Rescan
+            </button>
+          )}
+          <button type="button" className="btn btn--small" onClick={onChooseFolder}>
+            Choose another folder
+          </button>
+          <button type="button" className="btn btn--small btn--quiet" onClick={() => void library.forget()}>
+            Forget folder
+          </button>
+        </div>
+      </header>
+      {state.error && <p className="notice notice--Danger">{state.error}</p>}
+      {state.status === "ready" && state.games.length === 0 && (
+        <p className="notice notice--Muted">
+          No save dumps found. Pick a folder that contains PPSAxxxxx folders with sdimg_ directories, or save-dump zips.
+        </p>
+      )}
+      <ul className="library__grid">
+        {state.games.map((game) => (
+          <GameTile key={game.key} game={game} title={game.titleId ? byId.get(game.titleId) : undefined} icon={state.icons[game.key]} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function describe(status: string, count: number, skipped: number, persistent: boolean): string {
+  if (status === "scanning") return "Looking for save dumps…";
+  if (status === "reconnect") return "This tab used this folder before. The browser needs your permission to read it again.";
+  const found = count === 1 ? "1 game" : `${count} games`;
+  const rest = skipped === 0 ? "" : skipped === 1 ? ", 1 other file ignored" : `, ${skipped} other files ignored`;
+  return `${found}${rest}. ${persistent ? "Remembered in this tab." : "Choose the folder again after reloading this page."}`;
+}
+
+function GameTile({ game, title, icon }: { game: LibraryGame; title: TitleInfo | undefined; icon: string | undefined }) {
+  const navigate = useNavigate();
+  const [progress, setProgress] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const name = title?.name ?? game.fallbackName;
+  const support = title?.support ?? "None";
+
+  const open = async () => {
+    setError(null);
+    const existing = library.importedWorkspace(game.key);
+    if (existing) {
+      const alive = await api.workspace(existing).then(() => true, () => false);
+      if (alive) return navigate(`/w/${existing}`);
+    }
+    setProgress(0);
+    try {
+      const ws = await api.upload(game.sources, name, setProgress);
+      library.rememberImport(game.key, ws.id);
+      navigate(`/w/${ws.id}`);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "The import failed.");
+      setProgress(null);
+    }
+  };
+
+  const busy = progress !== null;
+  return (
+    <li className={`game${busy ? " game--busy" : ""}`}>
+      <button type="button" className="game__button" onClick={() => void open()} disabled={busy} aria-describedby={`${game.key}-meta`}>
+        {icon ? <img className="game__art" src={icon} alt="" /> : <span className="game__art game__art--empty">{game.titleId ?? "?"}</span>}
+        <span className="game__name">{name}</span>
+        <span className="game__meta" id={`${game.key}-meta`}>
+          <span className="mono">{game.titleId ?? "unknown title"}</span>
+          <span>
+            {game.saveDirs === 1 ? "1 save folder" : `${game.saveDirs} save folders`}, {formatBytes(game.totalBytes)}
+            {game.kind === "zip" ? ", zip" : ""}
+          </span>
+        </span>
+        <span className={`tag tag--support-${support.toLowerCase()}`}>{supportText[support]}</span>
+        {busy && (
+          <span className="game__progress" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+            <span style={{ transform: `scaleX(${progress})` }} />
+          </span>
+        )}
+      </button>
+      {error && <p className="field__error">{error}</p>}
+    </li>
+  );
+}

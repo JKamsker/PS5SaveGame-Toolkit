@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SaveToolkit.Api.Contracts;
+using SaveToolkit.Core.Catalog;
 using SaveToolkit.Core.Export;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
@@ -16,6 +17,8 @@ internal static class WorkspaceEndpoints
 
         api.MapGet("/plugins", (WorkspaceStore store) =>
             store.Catalog.Plugins.OrderBy(p => p.Info.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ToDto()));
+
+        api.MapGet("/titles", (WorkspaceStore store) => TitleCatalog.Build(store.Catalog));
 
         api.MapGet("/workspaces", (WorkspaceStore store) => store.All.Select(w => w.ToSummary()));
 
