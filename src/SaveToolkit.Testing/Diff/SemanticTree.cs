@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
+using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Testing.Diff;
 
@@ -11,16 +13,38 @@ namespace SaveToolkit.Testing.Diff;
 /// aligned by path, so records that moved or were relocated still match.
 /// Implementations must be read-only and must not keep state between calls.
 /// </summary>
-public interface ISaveDecoder
+public interface ISaveDecoder : ISaveDecoderHook
 {
     /// <summary>Short id shown in reports, e.g. <c>json</c> or a plugin id.</summary>
-    string Id { get; }
+    new string Id { get; }
 
     /// <summary>Cheap check; must not throw for foreign data.</summary>
-    bool CanDecode(ISaveFile file);
+    new bool CanDecode(ISaveFile file);
+
+    string ISaveDecoderHook.Id => Id;
+    bool ISaveDecoderHook.CanDecode(ISaveFile file) => CanDecode(file);
 
     /// <summary>Decodes the file. May throw (e.g. <see cref="Sdk.SaveFormatException"/>) for invalid data.</summary>
     SemanticTree Decode(ISaveFile file, DecodeLimits limits);
+
+    // Existing F1 decoders can be returned by an SDK provider without changing their implementation.
+    void ISaveDecoderHook.Decode(ISaveFile file, ISaveDecodeSink sink)
+    {
+        var tree = Decode(file, new DecodeLimits
+        {
+            MaxValues = sink.MaxValues,
+            MaxValueLength = sink.MaxValueLength,
+            MaxDepth = sink.MaxDepth,
+            MaxFileBytes = sink.MaxFileBytes,
+        });
+        foreach (var value in tree.Values)
+        {
+            if (!sink.Add(value.Path, value.Kind, value.Value, value.Label)) break;
+        }
+
+        foreach (var warning in tree.Warnings) sink.Warn(warning);
+        if (tree.Truncated) sink.MarkTruncated("Plugin decoder output was truncated.");
+    }
 }
 
 public sealed record DecodeLimits
@@ -35,6 +59,14 @@ public sealed record DecodeLimits
 
     /// <summary>Files larger than this are not decoded.</summary>
     public long MaxFileBytes { get; init; } = 256L * 1024 * 1024;
+
+    /// <summary>Global F8 traversal caps per file, shared across every collection.</summary>
+    public int MaxQueryRows { get; init; } = 100_000;
+    public int MaxQueryPages { get; init; } = 1_000;
+    public long MaxQueryBytes { get; init; } = 32L * 1024 * 1024;
+
+    /// <summary>Requested F8 page size, between 1 and the SDK's maximum page size.</summary>
+    public int QueryPageSize { get; init; } = QueryableCollectionLimits.MaxPageSize;
 }
 
 /// <param name="Path">Identity path, '/'-separated; record identities in brackets.</param>
