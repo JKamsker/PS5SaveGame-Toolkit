@@ -1,0 +1,224 @@
+{
+  "records": [
+    {
+      "id": "location/1",
+      "name": "Megalopolis",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kMegalopolis",
+        "ordinal": "1"
+      }
+    },
+    {
+      "id": "location/2",
+      "name": "Nefarious City",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kNefariousCity",
+        "ordinal": "2"
+      }
+    },
+    {
+      "id": "location/3",
+      "name": "Sargasso",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kSargasso",
+        "ordinal": "3"
+      }
+    },
+    {
+      "id": "location/4",
+      "name": "Zurkies",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kZurkies",
+        "ordinal": "4"
+      }
+    },
+    {
+      "id": "location/5",
+      "name": "Savali",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kSavali",
+        "ordinal": "5"
+      }
+    },
+    {
+      "id": "location/6",
+      "name": "Blizar",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kBlizar",
+        "ordinal": "6"
+      }
+    },
+    {
+      "id": "location/7",
+      "name": "Molonoth",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kMolonoth",
+        "ordinal": "7"
+      }
+    },
+    {
+      "id": "location/8",
+      "name": "Cordelion",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kCordelion",
+        "ordinal": "8"
+      }
+    },
+    {
+      "id": "location/9",
+      "name": "Ardolis",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kArdolis",
+        "ordinal": "9"
+      }
+    },
+    {
+      "id": "location/10",
+      "name": "Zordoom",
+      "category": "location",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kZordoom",
+        "ordinal": "10"
+      }
+    },
+    {
+      "id": "spybot/0",
+      "name": "Nefarious City 01",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kNefCity_01",
+        "ordinal": "0"
+      }
+    },
+    {
+      "id": "spybot/1",
+      "name": "Sargasso 01",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kSargasso_01",
+        "ordinal": "1"
+      }
+    },
+    {
+      "id": "spybot/2",
+      "name": "Zurkon's 01",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kZurkons_01",
+        "ordinal": "2"
+      }
+    },
+    {
+      "id": "spybot/3",
+      "name": "Zurkon's 02",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kZurkons_02",
+        "ordinal": "3"
+      }
+    },
+    {
+      "id": "spybot/4",
+      "name": "Cordelion 01",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kCordelion_01",
+        "ordinal": "4"
+      }
+    },
+    {
+      "id": "spybot/5",
+      "name": "Molonoth 01",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kMolonoth_01",
+        "ordinal": "5"
+      }
+    },
+    {
+      "id": "spybot/6",
+      "name": "Blizar 01",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kBlizar_01",
+        "ordinal": "6"
+      }
+    },
+    {
+      "id": "spybot/7",
+      "name": "Savali 01",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kSavali_01",
+        "ordinal": "7"
+      }
+    },
+    {
+      "id": "spybot/8",
+      "name": "Ardolis 01",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kArdolis_01",
+        "ordinal": "8"
+      }
+    },
+    {
+      "id": "spybot/9",
+      "name": "Zordoom 01",
+      "category": "spybot",
+      "source": "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json",
+      "description": "CC0 schema label; ordinal/save-array or bit join inferred and cross-checked across the supplied PS5 corpus. No precise pickup coordinate.",
+      "attributes": {
+        "enumName": "kZordoom_01",
+        "ordinal": "9"
+      }
+    }
+  ]
+}

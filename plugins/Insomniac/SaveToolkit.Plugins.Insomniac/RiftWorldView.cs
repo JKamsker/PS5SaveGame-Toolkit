@@ -11,7 +11,7 @@ internal sealed class RiftWorldView(DdlSections sections, Func<string, string, F
     {
         var result = new List<ViewNode>
         {
-            new TextNode("World state is read-only. Stored graph/map identities are retained; planet, quest and collectible-location joins are not established. Award codenames do not prove PSN trophy status.") { Tone = Tone.Warning },
+            new TextNode("World diagnostics are read-only. Paged tables show stored mission/dimension state; Collectibles shows inferred location candidates. Exact pickup identities and map transforms remain unresolved. Award codenames do not prove PSN trophy status.") { Tone = Tone.Warning },
         };
         var maps = MapEntries(DdlSections.FogTag, "MapAreas");
         if (maps.Count > 0) result.Add(MapTable(maps));

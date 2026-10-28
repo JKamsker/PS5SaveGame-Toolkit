@@ -4,22 +4,201 @@
       "id": "configs\\equipment\\wpn_burstpistol_item.config",
       "name": "Burst Pistol",
       "category": "weapon label candidate",
-      "source": "https://ratchetandclank.fandom.com/wiki/Burst_Pistol",
-      "description": "Blaster. Display-name join inferred from the stored path; shortcut assignment does not establish ownership."
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Rapid blaster. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "burstpistol"
+      }
     },
     {
       "id": "configs\\equipment\\wpn_mrfunguy_item.config",
       "name": "Mr. Fungi",
       "category": "weapon label candidate",
-      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript",
-      "description": "Deployable ally. Display-name join inferred from the stored path; shortcut assignment does not establish ownership."
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Deployable ally. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "mrfunguy"
+      }
     },
     {
       "id": "configs\\equipment\\wpn_warmonger_item.config",
       "name": "Warmonger",
       "category": "weapon label candidate",
-      "source": "https://ratchetandclank.fandom.com/wiki/Warmonger",
-      "description": "Rocket launcher. Display-name join inferred from the stored path; shortcut assignment does not establish ownership."
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Rocket launcher. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "warmonger"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_buzzblades_item.config",
+      "name": "Buzz Blades",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Ricocheting blades. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "buzzblades"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_bouncer_item.config",
+      "name": "Bouncer",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Bouncing cluster bombs. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "bouncer"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_pixelizer_item.config",
+      "name": "Pixelizer",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Pixel effect shotgun. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "pixelizer"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_ryno_item.config",
+      "name": "RYNO 8",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Dimensional heavy weapon. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "ryno"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_glove_of_doom_item.config",
+      "name": "Glove of Doom",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Deployable robots. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "glove_of_doom"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_ricochet_item.config",
+      "name": "Ricochet",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Repeated projectile strikes. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "ricochet"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_lightningrod_item.config",
+      "name": "Lightning Rod",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Electrical weapon. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "lightningrod"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_protogrenade_item.config",
+      "name": "Shatterbomb",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Thrown explosive. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "protogrenade"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_protoshotgun_item.config",
+      "name": "The Enforcer",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Close range shotgun. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "protoshotgun"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_kamehameha_item.config",
+      "name": "Negatron Collider",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Energy beam. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "kamehameha"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_carpetbomber_item.config",
+      "name": "Bombardier",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Flying bombardment. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "carpetbomber"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_warprifle_item.config",
+      "name": "Blackhole Storm",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Rapid heavy fire. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "warprifle"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_icicleblast_item.config",
+      "name": "Cold Snap",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Freezing projectile. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "icicleblast"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_topiaryblaster_item.config",
+      "name": "Topiary Sprinkler",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Plant effect turret. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "topiaryblaster"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_tunneler_item.config",
+      "name": "Drillhound",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Burrowing projectiles. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "tunneler"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_magshield_item.config",
+      "name": "Void Repulser",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Protective shield. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "magshield"
+      }
+    },
+    {
+      "id": "configs\\equipment\\wpn_fossilizer_item.config",
+      "name": "Headhunter",
+      "category": "weapon label candidate",
+      "source": "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465",
+      "description": "Scoped rifle. Display-name join inferred; config hash identifies a record, not ownership or an equipped weapon.",
+      "attributes": {
+        "internalName": "fossilizer"
+      }
     }
   ]
 }

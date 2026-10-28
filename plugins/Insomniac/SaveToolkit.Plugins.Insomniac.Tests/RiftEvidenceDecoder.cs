@@ -20,13 +20,16 @@ internal sealed class RiftEvidenceDecoder : ISaveDecoder
         var builder = new SemanticTreeBuilder(Id, limits);
         var campaign = sections.Roots[RiftPlayerView.CampaignTag];
         foreach (var field in campaign.Values.Where(f => f.Name.StartsWith("Career", StringComparison.Ordinal) ||
-                     f.Name.StartsWith("Level", StringComparison.Ordinal) || f.Name.StartsWith("QuickSelect", StringComparison.Ordinal)))
+                     f.Name.StartsWith("Level", StringComparison.Ordinal) || f.Name.StartsWith("QuickSelect", StringComparison.Ordinal) ||
+                     f.Name is "SpentBolts" or "VanityPickupsCollected" or "RYNOPlansCollected" or "RuinTokensCollected" or "ZerpStonesCollected"))
         {
             builder.Add($"campaign/{field.Name}/wire-type", "type", field.Kind.ToString());
             for (var index = 0; index < field.Values.Count; index++)
                 if (!builder.Add($"campaign/{field.Name}/{index}", field.Kind.ToString(), field.Values[index].ToString()))
                     return builder.Build();
         }
+        foreach (var field in sections.Roots[RiftPlayerView.GoldBoltTag].Values.Where(f => f.Values.Count == 1))
+            builder.Add($"gold-options/{field.Name}", field.Kind.ToString(), field.Values[0].ToString());
         var inventory = container.Sections.Single(s => s.Tag == InventoryReader.SectionTag);
         foreach (var block in InventoryReader.Read(container, inventory))
         {
@@ -44,6 +47,17 @@ internal sealed class RiftEvidenceDecoder : ISaveDecoder
                     builder.Add($"{path}/xp", "integer", xp.ToString(CultureInfo.InvariantCulture));
                     builder.Add($"{path}/loaded-ammo", "float", record.LoadedAmmo!.Value.ToString("R", CultureInfo.InvariantCulture));
                 }
+                if (record.Upgrades is { } upgrades)
+                {
+                    builder.Add($"{path}/mods", "mask", upgrades.Mods.ToString("x16", CultureInfo.InvariantCulture));
+                    builder.Add($"{path}/omega", "boolean", upgrades.Omega.ToString(CultureInfo.InvariantCulture));
+                    for (var index = 0; index < upgrades.Grid.Count; index++)
+                        builder.Add($"{path}/mod-grid/{index}", "u16", upgrades.Grid[index].ToString(CultureInfo.InvariantCulture));
+                    for (var index = 0; index < upgrades.Counts.Count; index++)
+                        builder.Add($"{path}/mod-count/{index}", "u8", upgrades.Counts[index].ToString(CultureInfo.InvariantCulture));
+                }
+                if (record.Vanity is { } vanity)
+                    builder.Add($"{path}/color", "u8", vanity.Color.ToString(CultureInfo.InvariantCulture));
             }
         }
         foreach (var tag in new[] { DdlSections.DimensionTag, DdlSections.ObjectivesTag, DdlSections.AwardsTag, DdlSections.FogTag })
