@@ -12,6 +12,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument
     private readonly string _path;
     private readonly string _fileName;
     private readonly Dat1Container _container;
+    private readonly RiftPlayerView _player;
     private readonly Dictionary<string, Func<IReadOnlyList<ViewNode>>> _lazy = new(StringComparer.Ordinal);
 
     internal InsomniacDocument(string path, Dat1Container container, string fileName)
@@ -19,6 +20,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument
         _path = path;
         _fileName = fileName;
         _container = container;
+        _player = new RiftPlayerView(container);
     }
 
     public override string Title => _fileName.Equals("i29-userprefs.save", StringComparison.OrdinalIgnoreCase)
@@ -30,7 +32,9 @@ internal sealed class InsomniacDocument : BoundSaveDocument
     public override ViewNode BuildView()
     {
         _lazy.Clear();
-        return new TabsNode([
+        var tabs = new List<Tab>();
+        if (_player.HasCampaign) tabs.Add(new Tab("Player", _player.Build(BindReadOnly)));
+        tabs.AddRange([
             new Tab("Overview", [
                 new StatsNode([
                     new Stat("File size", FormatBytes(_container.Bytes.Length)),
@@ -39,7 +43,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument
                     new Stat("DAT1 word", $"0x{_container.Word:X8}"),
                 ]),
                 new SectionNode("Container header", HeaderFields()),
-                new TextNode("This document is read-only. Section meanings and integrity coverage are not established for Rift Apart saves; all bytes are preserved verbatim.")
+                new TextNode("This document is read-only. Selected gameplay fields are named and validated; complete integrity coverage remains unproven. All bytes are preserved verbatim.")
                 {
                     Tone = Tone.Warning,
                 },
@@ -47,6 +51,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument
             new Tab("Sections", BuildSectionsView()),
             new Tab("Raw bytes", [new HexNode("file", _container.Bytes.Length) { Title = "Complete DAT1 file" }]),
         ]);
+        return new TabsNode(tabs);
     }
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) =>
@@ -75,9 +80,12 @@ internal sealed class InsomniacDocument : BoundSaveDocument
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
-        _ = Dat1Container.Parse(_container.Bytes);
+        _ = new RiftPlayerView(Dat1Container.Parse(_container.Bytes));
         return [new FileOutput(_path, _container.Bytes.ToArray())];
     }
+
+    private FieldNode BindReadOnly(string id, string label, FieldSpec spec, FieldValue value) =>
+        Field(id, label, spec, () => value);
 
     private IReadOnlyList<ViewNode> HeaderFields() =>
     [
@@ -114,7 +122,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument
             })).ToArray();
 
         return [
-            new TextNode("Tags are engine identifiers. No name hash or save-schema mapping was confirmed in the supplied PS5 corpus.") { Tone = Tone.Info },
+            new TextNode("Campaign, gold bolt and speedrun sections have validated named DDL roots. Other payloads remain opaque; every section retains its original hex explorer.") { Tone = Tone.Info },
             new TableNode(
                 [new("index", "#"), new("tag", "Tag"), new("offset", "Offset"), new("size", "Bytes"), new("detail", "Explorer")],
                 rows)
@@ -141,6 +149,8 @@ internal sealed class InsomniacDocument : BoundSaveDocument
             new TextNode($"Tag 0x{section.Tag:X8}; offset 0x{section.Offset:X}; length {section.Size} bytes.") { Monospace = true },
             new HexNode($"section/{section.Index}/bytes", bytes.Length) { Title = "Section bytes" },
         };
+        var fields = _player.RawFields(section.Tag, BindReadOnly);
+        if (fields.Count > 0) result.Add(new SectionNode("Named DDL root fields", fields));
         if (strings.Length > 0)
         {
             result.Add(new SectionNode("Printable ASCII runs (untyped)", strings) { Badge = strings.Length.ToString(CultureInfo.InvariantCulture) });
