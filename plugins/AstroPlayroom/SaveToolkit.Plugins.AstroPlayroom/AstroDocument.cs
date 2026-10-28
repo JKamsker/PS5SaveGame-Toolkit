@@ -6,7 +6,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.AstroPlayroom;
 
-internal sealed class AstroDocument : BoundSaveDocument
+internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
 {
     private const int PageSize = 64;
     private const string EditWarning = "Experimental: game limits and linked progress effects are unverified. No console reload has been tested.";
@@ -29,7 +29,9 @@ internal sealed class AstroDocument : BoundSaveDocument
         _schema = new AstroSchema(allocation);
         _schema.Inventory(_fields);
         _references = new AstroReferences(references, _schema.Fingerprint);
-        _collections = new AstroCollectionBrowser(_schema, _references, Current, CatalogueLabel);
+        _collections = new AstroCollectionBrowser(_schema, _references, Current, CatalogueLabel,
+            () => _fields.SingleOrDefault(f => f.Path == "PreInstall/Common/NumCoin") is { } coins
+                ? Current(coins).AsInt64() : null);
         Register(allocation.Root);
         foreach (var field in _fields)
         {
@@ -49,7 +51,7 @@ internal sealed class AstroDocument : BoundSaveDocument
                 ? "Special-bot fields are available read-only in Raw; their effects have not been validated."
                 : "This save has no known special-bot unlock fields.")
         ]),
-        new Tab("Progress", [Table("Progress", "World")]),
+        new Tab("Progress", [AstroProgressSummary.Build(_fields, _references, Current), Table("Progress", "World")]),
         new Tab("Collectibles", _collections.Build()),
         new Tab("Schema", [_schema.Report()]),
         new Tab("Raw", [
@@ -85,6 +87,13 @@ internal sealed class AstroDocument : BoundSaveDocument
 
         return result;
     }
+
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
+        AstroPlanning.Plan(actionId, parameters, scope, _schema, _fields, Current);
+
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters,
+        ActionScope scope, ActionPlan plan) =>
+        AstroPlanning.Apply(actionId, parameters, scope, plan, _schema, _fields, Current, ApplyEdits);
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {

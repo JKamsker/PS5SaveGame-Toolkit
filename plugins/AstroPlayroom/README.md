@@ -58,14 +58,18 @@ The Collectibles tab has separate Artifact, Puzzle and Prop sections. Each shows
 and ownership totals, mapped/unmapped counts, F3 confidence badges, searchable raw keys, candidate
 world/category and status filters, and expandable provenance/flag details. Names/statuses in this
 read-first catalogue cannot edit a save. Existing experimental flag controls remain in Raw.
-Mapped means an **Inferred candidate identity** for artifacts; puzzle mapped counts mean physical
-locations (currently **0/96**), and prop identities remain **0/18**. All 50 artifacts have candidate
-names; 96 puzzles and 18 props retain original raw-key aliases, with Unknown mapping confidence.
+Mapped means an **Inferred candidate identity or internal-stage alias**. All 50 artifacts have
+candidate names and all 96 puzzles have candidate internal-stage names, but physical piece locations
+remain unresolved; prop identities remain **0/18**. Raw keys are always retained.
 `ds3` explicitly records the DualShock 3/SIXAXIS naming discrepancy between public sources.
 
 The English F2 pack supplies these 164 records and 22 candidate world/stage aliases, with per-record
-source links. It is selected through the host's pinned `IReferenceContext`; missing packs fall back
-to raw keys. No runtime network/filesystem access or embedded game artwork is introduced.
+source links. Puzzle aliases include an Inferred `stageKey` for their internal prefix (for example,
+`gpu_forest` → Renderforest); this is a candidate stage name only and never a physical piece location.
+Most artifact aliases also carry an Inferred candidate `worldKey`; the final 1994 Throwback aliases
+remain category-only because no matching saved world key is present in the observed schema.
+It is selected through the host's pinned `IReferenceContext`; missing packs fall back to raw keys. No
+runtime network/filesystem access or embedded game artwork is introduced.
 Names require the exact schema fingerprint and a build-agnostic pack because the samples' patch
 version is unknown. A changed schema or duplicate saved key cannot silently inherit a mapping.
 
@@ -75,9 +79,10 @@ whitespace, offsets and opaque suffix; it includes empty elements, attributes an
 It is **not** a claimed patch/version detector. See [EVIDENCE.md](EVIDENCE.md).
 
 Several puzzle prefixes contain five/three entries rather than four/four. Those exact groups survive
-unchanged, with no guessed physical piece order, stage location or mural position. After a raw edit,
+unchanged, with no guessed physical piece order or mural position. After a raw edit,
 undo or redo the plugin requests a view refresh so ownership filters, section totals and detail text
-reflect current values. No new writing capability, grant/revoke preset or collect-all action is added.
+reflect current values. F6 planning exposes a reviewed coin action and a collect-all preview that
+skips every collectible row; no collectible ownership write is enabled.
 
 Only existing supported integer/boolean text spans are writable. Every other byte, including
 indentation, quotes, comments, unknown values and the opaque suffix, is copied verbatim. If the
@@ -166,7 +171,7 @@ were 1.4–20.4 ms per sample; these are local observations, not a benchmark gua
 | Dataset / research | Source and authors | Licence / use and changes |
 | --- | --- | --- |
 | Artifact candidate names/categories (`astro_collectibles`) | [Artifacts](https://astrosplayroom.fandom.com/wiki/Artifacts), Astro's Playroom Wiki contributors; selection/joins/annotations by Toolkit contributors; retrieved 2026-10-28 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); factual names/worlds only, inferred exact-key joins; no game flavor text or media. |
-| Puzzle raw-key aliases (`astro_collectibles`) | Original Toolkit aliases; [Puzzle Pieces](https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces), wiki contributors, provides context only; retrieved 2026-10-28 | Pack adaptation remains CC BY-SA 3.0; no physical piece names, locations or cross-game rules imported. |
+| Puzzle stage aliases (`astro_collectibles`) | Original Toolkit aliases plus inferred internal-prefix stage joins; [Puzzle Pieces](https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces), wiki contributors, provides stage context; retrieved 2026-10-28 | Pack adaptation remains CC BY-SA 3.0; `stageKey` is Inferred from saved prefixes; no physical piece names, locations or cross-game rules imported. |
 | Prop raw-key aliases (`astro_collectibles`) | Original Toolkit aliases; [PlayStation Labo](https://astrosplayroom.fandom.com/wiki/PlayStation_Labo), wiki contributors, provides context only; retrieved 2026-10-28 | Pack adaptation remains CC BY-SA 3.0; readable literal keys only, no prize identity claim. |
 | World/stage candidates (`astro_worlds`) | [Artefacts](https://astro-bot-series.fandom.com/wiki/Artefacts), Astro Bot Wiki contributors; [CPU Plaza](https://astrosplayroom.fandom.com/wiki/CPU_Plaza), Astro's Playroom Wiki contributors; retrieved 2026-10-28 | CC BY-SA 3.0; selected names/order, original inferred raw-path joins, no walkthrough prose or art. |
 | Licence provenance | [Fandom Help:Licensing](https://community.fandom.com/wiki/Help:Licensing), Fandom contributors; retrieved 2026-10-28 | Research only: default text licence is CC BY-SA 3.0; media rights are separate. |
@@ -206,9 +211,11 @@ and a fresh integrity investigation before curated support. The opaque suffix's 
 
 ## Remaining phases and exact owner checklist
 
-Phase 1 is complete. Phase 2 has reproducible F1 observational evidence but still needs controlled
-captures and console testing. Phase 3's read-only F3 browser is implemented; selected-entry/per-world
-actions and F6 collect-all previews remain blocked by the dependency evidence below. Phase 4 exposes
+Phase 1 is complete. Round 2 adds candidate internal-stage aliases, completion summaries and an F6
+planning surface. Phase 2 has reproducible F1 observational evidence but still needs controlled
+captures and console testing. Phase 3's read-only F3 browser is implemented; the coin planning action
+is the only enabled write path, while collect-all and collectible actions preview skipped rows and
+remain blocked by the dependency evidence below. Phase 4 exposes
 schema diagnostics/absence only; bot support needs newer saves. Phase 5's completion presets, diagram
 and console acceptance remain open. Maturity stays Experimental. No further SDK request is needed:
 F1/F2/F3/F6 already provide the required framework capabilities; the blocker is evidence.
@@ -233,6 +240,20 @@ the private artifacts folder; never include account identifiers in manifests or 
 7. For each proposed new write: load the spare edited save on PS5, confirm the intended effect,
    perform ordinary gameplay, resave, export again, reload a second time and record persistence
    plus any unintended linked effects. Only the owner may approve Stable or safe bulk dependencies.
+8. For the F6 coin action, capture one save with the displayed coin value before and after one known
+   coin gain or spend, then compare `Common/NumCoin` and every changed primitive/byte range. Repeat
+   the same event on a second slot and reload after ordinary gameplay; record cap/clamp behavior.
+9. For a future artifact batch, capture exactly one named artifact pickup per pair. Record the exact
+   `Artifact/<id>/IsGot` and `IsCinematicsPlayed` values, `Progress` notifications, `UdsWorkaround`,
+   `NumCoin` and `PlayCount`, plus all unrelated changed paths. Repeat one pickup on a separate slot.
+10. For a future puzzle batch, repeat item 9 for one piece in each boundary pair
+    (Renderforest/Teraflop Treetops, Raytrace Ruins/Mt. Motherboard, Bot Beach/Springy Spa and
+    Gusty Gateway/Fastlane Fields). Include the physical location and in-game piece count; do not
+    use the saved ordinal as a location claim.
+11. For a future prop or per-world preset, capture exactly one gatcha prize and one stage clear,
+    respectively, with the same full linked-field list. Capture a boss clear separately. A batch
+    remains disabled until each proposed derived change repeats byte-for-byte and persists after a
+    clean second load.
 
 ## SDK requests
 

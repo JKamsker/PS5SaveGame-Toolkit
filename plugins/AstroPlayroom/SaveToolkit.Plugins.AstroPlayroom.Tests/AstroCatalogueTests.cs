@@ -20,6 +20,8 @@ public sealed class AstroCatalogueTests
         var records = catalog.Search(new ReferenceQuery { Limit = ReferenceQuery.MaxLimit }).Items;
         Assert.Equal(164, records.Select(r => r.Key).Distinct(StringComparer.Ordinal).Count());
         Assert.Equal(50, records.Count(r => r.Attributes["mapping"] == "candidate-identity"));
+        Assert.Equal(96, records.Count(r => r.Attributes["mapping"] == "candidate-stage"));
+        Assert.Equal(46, records.Count(r => r.Attributes.ContainsKey("worldKey")));
         foreach (var record in records.Concat(context.Catalog("astro_worlds")!.Search(new ReferenceQuery()).Items))
         {
             Assert.Equal("CC-BY-SA-3.0", record.Dataset.Attribution.License);
@@ -43,7 +45,7 @@ public sealed class AstroCatalogueTests
             Assert.Equal(AstroCatalogueTestData.Fingerprint, AstroCatalogueTestData.SchemaHash(document));
             Assert.Equal(file.ReadAllBytes(), AstroTestData.Output(document));
             CheckGroup("Artifacts", "Artifact", 50, 50, file.Directory.Generation == 0 ? 0 : 3);
-            CheckGroup("Puzzle pieces", "Puzzle", 96, 0, file.Directory.Generation == 0 ? 0 : 9);
+            CheckGroup("Puzzle pieces", "Puzzle", 96, 96, file.Directory.Generation == 0 ? 0 : 9);
             CheckGroup("Props", "Prop", 18, 0, file.Directory.Generation == 0 ? 0 : 1);
             var ds2 = AstroCatalogueTestData.Row(document, "Artifacts", "Artifact/ds2");
             Assert.Equal("DualShock 2", Assert.IsType<FieldNode>(ds2.Cells["name"]).Value.AsString());
@@ -62,7 +64,7 @@ public sealed class AstroCatalogueTests
                 {
                     var name = Assert.IsType<FieldNode>(row.Cells["name"]);
                     Assert.True(name.Spec.ReadOnly);
-                    Assert.Equal(group == "Artifact" ? Confidence.Inferred : Confidence.Unknown, name.Confidence);
+                    Assert.Equal(group is "Artifact" or "Puzzle" ? Confidence.Inferred : Confidence.Unknown, name.Confidence);
                     Assert.Contains("CC-BY-SA-3.0", name.Description, StringComparison.Ordinal);
                     Assert.Contains("https://", name.Description, StringComparison.Ordinal);
                     Assert.Equal(name.Value, document.GetValue(name.ValueId));
@@ -86,8 +88,13 @@ public sealed class AstroCatalogueTests
             Assert.Equal(expected, puzzles.Count(r => r.Attributes["internalGroup"] == prefix));
         }
 
-        Assert.All(puzzles, record => Assert.Equal("unresolved", record.Attributes["mapping"]));
-        Assert.Contains("none are proven", Assert.IsType<TextNode>(AstroCatalogueTestData.Group(document, "Puzzle pieces").Children[0]).Text, StringComparison.Ordinal);
+        Assert.All(puzzles, record =>
+        {
+            Assert.Equal("candidate-stage", record.Attributes["mapping"]);
+            Assert.Equal("Inferred", record.Attributes["confidence"]);
+            Assert.NotEmpty(record.Attributes["stageKey"]);
+        });
+        Assert.Contains("physical piece locations are not proven", Assert.IsType<TextNode>(AstroCatalogueTestData.Group(document, "Puzzle pieces").Children[0]).Text, StringComparison.Ordinal);
     }
 
     [Fact]
