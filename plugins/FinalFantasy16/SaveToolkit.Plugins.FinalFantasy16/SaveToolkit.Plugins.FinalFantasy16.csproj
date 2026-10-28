@@ -3,7 +3,8 @@
     <RootNamespace>SaveToolkit.Plugins.FinalFantasy16</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\ResourceItems.tsv" />
+    <EmbeddedResource Include="ReferencePacks\ffxvi.wiki.en\*" LogicalName="refpacks/ffxvi.wiki.en/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="ReferencePacks\ffxvi.nex.en\*" LogicalName="refpacks/ffxvi.nex.en/%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <!-- Plugins depend on the SDK only (never on Core/Api). -->

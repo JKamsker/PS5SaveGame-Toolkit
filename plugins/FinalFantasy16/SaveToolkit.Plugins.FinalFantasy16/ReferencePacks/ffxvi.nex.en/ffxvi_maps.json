@@ -1,0 +1,967 @@
+{
+  "records": [
+    {
+      "id": "100000",
+      "name": "Dhalmekian Region",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Dhalmekian Region"
+      }
+    },
+    {
+      "id": "101000",
+      "name": "Kostnice",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Kostnice"
+      }
+    },
+    {
+      "id": "102000",
+      "name": "Drake's Fang",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Drake's Fang"
+      }
+    },
+    {
+      "id": "102100",
+      "name": "Drake's Fang - Titan battle stage",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Drake's Fang - Titan battle stage"
+      }
+    },
+    {
+      "id": "102200",
+      "name": "Drake's Fang - Titan Lost battle stage",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Drake's Fang - Titan Lost battle stage"
+      }
+    },
+    {
+      "id": "103000",
+      "name": "Crystal Road",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Crystal Road"
+      }
+    },
+    {
+      "id": "104000",
+      "name": "The Crystalline Dominion",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Crystalline Dominion"
+      }
+    },
+    {
+      "id": "104200",
+      "name": "The Crystalline Dominion - The Remnants (the city messed up by the crystal)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Crystalline Dominion - The Remnants (the city messed up by the crystal)"
+      }
+    },
+    {
+      "id": "104300",
+      "name": "The Crystalline Dominion - Boss 1st phase stage (Aerial area around the big crystal; spawned as Ifrit)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Crystalline Dominion - Boss 1st phase stage (Aerial area around the big crystal; spawned as Ifrit)"
+      }
+    },
+    {
+      "id": "104310",
+      "name": "The Crystalline Dominion - Boss 2nd phase stage (Battle stage inside the crystal)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Crystalline Dominion - Boss 2nd phase stage (Battle stage inside the crystal)"
+      }
+    },
+    {
+      "id": "104400",
+      "name": "The Crystalline Dominion - Boss 3rd phase stage (Outer space)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Crystalline Dominion - Boss 3rd phase stage (Outer space)"
+      }
+    },
+    {
+      "id": "106000",
+      "name": "The Free Cities of Kanver",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Free Cities of Kanver"
+      }
+    },
+    {
+      "id": "106100",
+      "name": "The Ironworks",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Ironworks"
+      }
+    },
+    {
+      "id": "108000",
+      "name": "The Naldia Narrow - Ships",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Naldia Narrow - Ships"
+      }
+    },
+    {
+      "id": "108100",
+      "name": "The Naldia Narrow - Sea floor",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Naldia Narrow - Sea floor"
+      }
+    },
+    {
+      "id": "190000",
+      "name": "The Nysa Defile - Map entrance",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Nysa Defile - Map entrance"
+      }
+    },
+    {
+      "id": "191000",
+      "name": "The Nysa Defile - After the flashback/tutorial",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Nysa Defile - After the flashback/tutorial"
+      }
+    },
+    {
+      "id": "200000",
+      "name": "Sanbreque Region",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Sanbreque Region"
+      }
+    },
+    {
+      "id": "201000",
+      "name": "The Greatwood",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Greatwood"
+      }
+    },
+    {
+      "id": "202000",
+      "name": "Caer Norvent",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Caer Norvent"
+      }
+    },
+    {
+      "id": "203000",
+      "name": "The Eye of the Tempest",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Eye of the Tempest"
+      }
+    },
+    {
+      "id": "203100",
+      "name": "The Eye of the Tempest - Eikon battle stage #1",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Eye of the Tempest - Eikon battle stage #1"
+      }
+    },
+    {
+      "id": "203110",
+      "name": "The Eye of the Tempest - Eikon battle stage #2",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Eye of the Tempest - Eikon battle stage #2"
+      }
+    },
+    {
+      "id": "204000",
+      "name": "The Kingsfall",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Kingsfall"
+      }
+    },
+    {
+      "id": "205000",
+      "name": "Drake's Head",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Drake's Head"
+      }
+    },
+    {
+      "id": "205100",
+      "name": "Drake's Head - Typhoon Battle Arena",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Drake's Head - Typhoon Battle Arena"
+      }
+    },
+    {
+      "id": "205110",
+      "name": "Drake's Head - Typhoon Battle Arena (same as 205100, but spawned as Ifrit)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Drake's Head - Typhoon Battle Arena (same as 205100, but spawned as Ifrit)"
+      }
+    },
+    {
+      "id": "300000",
+      "name": "Rosaria Region",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Rosaria Region"
+      }
+    },
+    {
+      "id": "301000",
+      "name": "Phoenix Gate Ruins",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate Ruins"
+      }
+    },
+    {
+      "id": "301100",
+      "name": "Phoenix Gate Ruins - Eikon/Fake Clive battle field",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate Ruins - Eikon/Fake Clive battle field"
+      }
+    },
+    {
+      "id": "301200",
+      "name": "Phoenix Gate Ruins (The only difference seems in lighting; otherwise same as 301000)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate Ruins (The only difference seems in lighting; otherwise same as 301000)"
+      }
+    },
+    {
+      "id": "302000",
+      "name": "Drake's Breath - Outside",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Drake's Breath - Outside"
+      }
+    },
+    {
+      "id": "302100",
+      "name": "Drake's Breath - Inside",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Drake's Breath - Inside"
+      }
+    },
+    {
+      "id": "303000",
+      "name": "Rosalith - Dungeon",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Rosalith - Dungeon"
+      }
+    },
+    {
+      "id": "303010",
+      "name": "Rosalith - Dungeon castle map? (Spawned outside the castle; the game entered in a loop/softlocked, so idk)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Rosalith - Dungeon castle map? (Spawned outside the castle; the game entered in a loop/softlocked, so idk)"
+      }
+    },
+    {
+      "id": "304000",
+      "name": "The Sagespire - Map entrance",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Sagespire - Map entrance"
+      }
+    },
+    {
+      "id": "304100",
+      "name": "The Sagespire - Top (Spawned outside of the last boss room)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Sagespire - Top (Spawned outside of the last boss room)"
+      }
+    },
+    {
+      "id": "304200",
+      "name": "The Sagespire - Boss battle stage (the cool one)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Sagespire - Boss battle stage (the cool one)"
+      }
+    },
+    {
+      "id": "304300",
+      "name": "The Sagespire - The Lower Ring",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Sagespire - The Lower Ring"
+      }
+    },
+    {
+      "id": "304400",
+      "name": "The Sagespire - The Upper Ring",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Sagespire - The Upper Ring"
+      }
+    },
+    {
+      "id": "390000",
+      "name": "Rosalith Castle (Spawned as young Clive, at the training area)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Rosalith Castle (Spawned as young Clive, at the training area)"
+      }
+    },
+    {
+      "id": "391000",
+      "name": "Stillwind",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Stillwind"
+      }
+    },
+    {
+      "id": "392000",
+      "name": "Phoenix Gate (Spawned as child Joshua)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate (Spawned as child Joshua)"
+      }
+    },
+    {
+      "id": "393000",
+      "name": "Phoenix Gate (Spawned stuck in a wall; menu was the Eikon version, so should be for the first Eikon fight)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate (Spawned stuck in a wall; menu was the Eikon version, so should be for the first Eikon fight)"
+      }
+    },
+    {
+      "id": "393010",
+      "name": "Phoenix Gate - Apodytery",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate - Apodytery"
+      }
+    },
+    {
+      "id": "400000",
+      "name": "Waloed Region",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Waloed Region"
+      }
+    },
+    {
+      "id": "401000",
+      "name": "Reverie - Map entrance",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Reverie - Map entrance"
+      }
+    },
+    {
+      "id": "401100",
+      "name": "Reverie - Ascension (Spawned at elevator stage before the boss fight and was stuck there; should be last elevator + top of the tower)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Reverie - Ascension (Spawned at elevator stage before the boss fight and was stuck there; should be last elevator + top of the tower)"
+      }
+    },
+    {
+      "id": "402000",
+      "name": "Stonhyrr",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Stonhyrr"
+      }
+    },
+    {
+      "id": "402100",
+      "name": "The Interdimensional Rift",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Interdimensional Rift"
+      }
+    },
+    {
+      "id": "403000",
+      "name": "Origin",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Origin"
+      }
+    },
+    {
+      "id": "403010",
+      "name": "Origin - The Core",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Origin - The Core"
+      }
+    },
+    {
+      "id": "403200",
+      "name": "Origin - Final boss 1st phase stage",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Origin - Final boss 1st phase stage"
+      }
+    },
+    {
+      "id": "403210",
+      "name": "Origin - Final boss 2nd phase stage (eikon battle)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Origin - Final boss 2nd phase stage (eikon battle)"
+      }
+    },
+    {
+      "id": "403220",
+      "name": "Origin - Final boss 3rd phase stage",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Origin - Final boss 3rd phase stage"
+      }
+    },
+    {
+      "id": "450000",
+      "name": "Mysidia Region",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Mysidia Region"
+      }
+    },
+    {
+      "id": "451000",
+      "name": "The Surge - Normal (time frozen)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Surge - Normal (time frozen)"
+      }
+    },
+    {
+      "id": "452000",
+      "name": "The Aire of Hours",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Aire of Hours"
+      }
+    },
+    {
+      "id": "453000",
+      "name": "The Surge - Dungeon",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Surge - Dungeon"
+      }
+    },
+    {
+      "id": "454000",
+      "name": "The Surge - Eikon battle stage: Water cyclone (the one where you're freefalling)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Surge - Eikon battle stage: Water cyclone (the one where you're freefalling)"
+      }
+    },
+    {
+      "id": "455000",
+      "name": "The Surge - Eikon battle stage: Sea surface",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Surge - Eikon battle stage: Sea surface"
+      }
+    },
+    {
+      "id": "500400",
+      "name": "The Zirnitra Stronghold (Meeting and Hugo/Benedikta Romance) (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Zirnitra Stronghold (Meeting and Hugo/Benedikta Romance) (Cutscene)"
+      }
+    },
+    {
+      "id": "501100",
+      "name": "Duke Rosfield's bedroom",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Duke Rosfield's bedroom"
+      }
+    },
+    {
+      "id": "501500",
+      "name": "Duke Rosfield's bedroom (Same as 501100)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Duke Rosfield's bedroom (Same as 501100)"
+      }
+    },
+    {
+      "id": "501600",
+      "name": "Phoenix Gate (Night, after the attack)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate (Night, after the attack)"
+      }
+    },
+    {
+      "id": "501700",
+      "name": "Phoenix Gate (Same as 501600)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate (Same as 501600)"
+      }
+    },
+    {
+      "id": "501800",
+      "name": "Phoenix Gate (Same as 501600)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate (Same as 501600)"
+      }
+    },
+    {
+      "id": "502700",
+      "name": "Phoenix Gate (Day/Raining, cutscene where Clive is taken away)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Phoenix Gate (Day/Raining, cutscene where Clive is taken away)"
+      }
+    },
+    {
+      "id": "503300",
+      "name": "The Nysa Defile (was just a short rocky, canyon-like corridor; the event maps seem more or less ordered, so I think that's it)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Nysa Defile (was just a short rocky, canyon-like corridor; the event maps seem more or less ordered, so I think that's it)"
+      }
+    },
+    {
+      "id": "503400",
+      "name": "Central Storm Deadlands (Rocky path to the 1st hideout, used the 1st time you go there)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Central Storm Deadlands (Rocky path to the 1st hideout, used the 1st time you go there)"
+      }
+    },
+    {
+      "id": "504700",
+      "name": "Caer Norvent - Interrogation room",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Caer Norvent - Interrogation room"
+      }
+    },
+    {
+      "id": "505010",
+      "name": "Barnabas Benedikta Room (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Barnabas Benedikta Room (Cutscene)"
+      }
+    },
+    {
+      "id": "505700",
+      "name": "Odin vs Bahamut (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Odin vs Bahamut (Cutscene)"
+      }
+    },
+    {
+      "id": "506000",
+      "name": "Benedikta Priming (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Benedikta Priming (Cutscene)"
+      }
+    },
+    {
+      "id": "506400",
+      "name": "Ultima Related",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Ultima Related"
+      }
+    },
+    {
+      "id": "507200",
+      "name": "Jote Camping (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Jote Camping (Cutscene)"
+      }
+    },
+    {
+      "id": "507800",
+      "name": "Jill tries to kiss Clive (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Jill tries to kiss Clive (Cutscene)"
+      }
+    },
+    {
+      "id": "508800",
+      "name": "Titan Related (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Titan Related (Cutscene)"
+      }
+    },
+    {
+      "id": "509100",
+      "name": "Imperial Yard (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Imperial Yard (Cutscene)"
+      }
+    },
+    {
+      "id": "509600",
+      "name": "Oriflamme Brothel (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Oriflamme Brothel (Cutscene)"
+      }
+    },
+    {
+      "id": "510400",
+      "name": "North of the Isles Ark (Dion/Terance Romance) (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "North of the Isles Ark (Dion/Terance Romance) (Cutscene)"
+      }
+    },
+    {
+      "id": "511000",
+      "name": "Northern Territories (Joshua/Jote Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Northern Territories (Joshua/Jote Cutscene)"
+      }
+    },
+    {
+      "id": "511550",
+      "name": "Uncle Byron's Mansion (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Uncle Byron's Mansion (Cutscene)"
+      }
+    },
+    {
+      "id": "511600",
+      "name": "Uncle Byron's Mansion Outside (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Uncle Byron's Mansion Outside (Cutscene)"
+      }
+    },
+    {
+      "id": "511800",
+      "name": "The Ship to Drake's Breath (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Ship to Drake's Breath (Cutscene)"
+      }
+    },
+    {
+      "id": "512700",
+      "name": "Uncle Byron's Mansion (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Uncle Byron's Mansion (Cutscene)"
+      }
+    },
+    {
+      "id": "513600",
+      "name": "Imperial Hall (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Imperial Hall (Cutscene)"
+      }
+    },
+    {
+      "id": "514600",
+      "name": "Titan Death (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Titan Death (Cutscene)"
+      }
+    },
+    {
+      "id": "514800",
+      "name": "Joshua/Jote/Dion Tent (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Joshua/Jote/Dion Tent (Cutscene)"
+      }
+    },
+    {
+      "id": "514900",
+      "name": "Cid Grave (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Cid Grave (Cutscene)"
+      }
+    },
+    {
+      "id": "515300",
+      "name": "Imperial Hall 2",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Imperial Hall 2"
+      }
+    },
+    {
+      "id": "515700",
+      "name": "Imperial Hall 3",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Imperial Hall 3"
+      }
+    },
+    {
+      "id": "518400",
+      "name": "Barnabas in the Free Cities of Kanver (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Barnabas in the Free Cities of Kanver (Cutscene)"
+      }
+    },
+    {
+      "id": "519600",
+      "name": "Jill in cell (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Jill in cell (Cutscene)"
+      }
+    },
+    {
+      "id": "519700",
+      "name": "Enterprise (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Enterprise (Cutscene)"
+      }
+    },
+    {
+      "id": "519750",
+      "name": "The Crystalline Dominion Ruins (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "The Crystalline Dominion Ruins (Cutscene)"
+      }
+    },
+    {
+      "id": "519800",
+      "name": "Medicine Girl and Dion (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Medicine Girl and Dion (Cutscene)"
+      }
+    },
+    {
+      "id": "519900",
+      "name": "Odin with Sea (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Odin with Sea (Cutscene)"
+      }
+    },
+    {
+      "id": "520700",
+      "name": "Jill Clive beach at Night (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Jill Clive beach at Night (Cutscene)"
+      }
+    },
+    {
+      "id": "520800",
+      "name": "Jill Clive beach at Daytime (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Jill Clive beach at Daytime (Cutscene)"
+      }
+    },
+    {
+      "id": "521000",
+      "name": "Waloed Cliff (Joshua Punch Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Waloed Cliff (Joshua Punch Cutscene)"
+      }
+    },
+    {
+      "id": "523808",
+      "name": "Young Joshua saves Adult Clive (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Young Joshua saves Adult Clive (Cutscene)"
+      }
+    },
+    {
+      "id": "523820",
+      "name": "Rosfield Castle Clive Nightmare (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Rosfield Castle Clive Nightmare (Cutscene)"
+      }
+    },
+    {
+      "id": "525300",
+      "name": "Ultima Ending Stage (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Ultima Ending Stage (Cutscene)"
+      }
+    },
+    {
+      "id": "525700",
+      "name": "Hideaway Night Ending (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Hideaway Night Ending (Cutscene)"
+      }
+    },
+    {
+      "id": "525800",
+      "name": "Post Credit (Cutscene)",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "subrow_0": "Post Credit (Cutscene)"
+      }
+    },
+    {
+      "id": "602000",
+      "name": "Hideaway 2",
+      "category": "map",
+      "source": "https://github.com/Nenkai/ffxvi-nex-layouts/blob/d3ad0627a29af168916ad574dadbca6759e2ac48/GameMap.layout",
+      "attributes": {
+        "variantNote": "Subrow 1 selected for user situation 15020 (pink sky). Other subrows are not enumerated by this extract."
+      }
+    }
+  ]
+}

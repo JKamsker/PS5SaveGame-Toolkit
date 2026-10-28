@@ -1,0 +1,1234 @@
+{
+  "records": [
+    {
+      "id": "1",
+      "name": "Gil",
+      "category": "resource",
+      "source": "https://finalfantasy.fandom.com/wiki/Gil?oldid=4063996"
+    },
+    {
+      "id": "2",
+      "name": "Renown",
+      "category": "resource",
+      "source": "https://finalfantasy.fandom.com/wiki/Renown?oldid=3741166"
+    },
+    {
+      "id": "3",
+      "name": "Ability Points",
+      "category": "resource",
+      "source": "https://finalfantasy.fandom.com/wiki/Ability_Points?oldid=4035790"
+    },
+    {
+      "id": "5",
+      "name": "Potion",
+      "category": "consumable",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+    },
+    {
+      "id": "6",
+      "name": "High Potion",
+      "category": "consumable",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+    },
+    {
+      "id": "7",
+      "name": "Elixir",
+      "category": "consumable",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+    },
+    {
+      "id": "8",
+      "name": "Strength Tonic",
+      "category": "consumable",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+    },
+    {
+      "id": "9",
+      "name": "Stoneskin Tonic",
+      "category": "consumable",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+    },
+    {
+      "id": "10",
+      "name": "Lionheart Tonic",
+      "category": "consumable",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+    },
+    {
+      "id": "11",
+      "name": "Last Elixir",
+      "category": "consumable",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Consumables"
+    },
+    {
+      "id": "21",
+      "name": "Meteorite",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "31",
+      "name": "Scarletite",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "32",
+      "name": "Orichalcum",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "101",
+      "name": "Wyrrite",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "102",
+      "name": "Sharp Fang",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "103",
+      "name": "Steelsilk",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "104",
+      "name": "Bloody Hide",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "105",
+      "name": "Magicked Ash",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "106",
+      "name": "Desert Rose",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "107",
+      "name": "Valley Madder",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "108",
+      "name": "Briar Clam Shell",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "109",
+      "name": "Clutchmine",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "151",
+      "name": "Gil Bug",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "152",
+      "name": "Black Blood",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "153",
+      "name": "Goblin Coin",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "154",
+      "name": "Empty Shard",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "155",
+      "name": "Amber",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "156",
+      "name": "Fallen Enigma",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "157",
+      "name": "One Man's Treasure",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "201",
+      "name": "Wind Shard",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "202",
+      "name": "Fire Shard",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "203",
+      "name": "Lightning Shard",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "204",
+      "name": "Earth Shard",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "205",
+      "name": "Light Shard",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "207",
+      "name": "Ice Shard",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "208",
+      "name": "Dark Shard",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "217",
+      "name": "Utterance of Creation",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "301",
+      "name": "Frozen Tear",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "303",
+      "name": "Clouded Eye",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "304",
+      "name": "Liquid Flame",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "305",
+      "name": "Earthen Fury",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "306",
+      "name": "Whitewyrm Bone",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "307",
+      "name": "Sanguine Insignia",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "308",
+      "name": "Behemoth Shackle",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1001",
+      "name": "Dragon Talon",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1003",
+      "name": "Minotaur Mane",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1005",
+      "name": "Imperial Link",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1007",
+      "name": "Fallen Iron",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1009",
+      "name": "Coeurl Whisker",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1011",
+      "name": "Bone Necklace",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1101",
+      "name": "Comet Feather",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1103",
+      "name": "Grimalkin Hide",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1105",
+      "name": "Bomb Ember",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1107",
+      "name": "Darksteel",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1109",
+      "name": "Morbol Flower",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1111",
+      "name": "Stone Tongue",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1113",
+      "name": "Stained Loincloth",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1115",
+      "name": "Electrum",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1117",
+      "name": "Gelatinous Mass",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "1123",
+      "name": "Primitive Battlehorn",
+      "category": "material",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Materials"
+    },
+    {
+      "id": "100001",
+      "name": "Imperial Infantry Blade",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100002",
+      "name": "Rosarian Oath",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100003",
+      "name": "Sparring Sword",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100005",
+      "name": "Broadsword",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100008",
+      "name": "Longsword",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100011",
+      "name": "Bastard Sword",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100014",
+      "name": "Gaia Blade",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100017",
+      "name": "Platinum Sword",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100020",
+      "name": "Enhancer",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100023",
+      "name": "Diamond Sword",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100026",
+      "name": "Rune Blade",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100029",
+      "name": "Defender",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100032",
+      "name": "Excalibur",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100033",
+      "name": "Ragnarok",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100034",
+      "name": "Coral Sword",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100035",
+      "name": "Ancient Sword",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100036",
+      "name": "Masamune",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100037",
+      "name": "Stormcry",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100038",
+      "name": "Flametongue",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100039",
+      "name": "Levinbolt",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100040",
+      "name": "Grindstone",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100041",
+      "name": "Brightburn",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100043",
+      "name": "Icebrand",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100044",
+      "name": "Everdark",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100045",
+      "name": "Invictus",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100090",
+      "name": "Ultima Weapon",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100092",
+      "name": "The Burning Thorn",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100094",
+      "name": "Gotterdammerung",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100096",
+      "name": "Braveheart",
+      "category": "weapon",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Weapons"
+    },
+    {
+      "id": "100201",
+      "name": "Imperial Infantry Belt",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100202",
+      "name": "Rosarian Belt",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100203",
+      "name": "Iron Belt",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100206",
+      "name": "Wolfskin Sash",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100209",
+      "name": "Dark Sash",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100212",
+      "name": "Goldwork Sash",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100215",
+      "name": "Platinum Belt",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100218",
+      "name": "Hunter's Waistcloth",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100221",
+      "name": "Silken Sash",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100224",
+      "name": "Rune Belt",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100227",
+      "name": "Circle of Heaven",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100230",
+      "name": "Demontamer's Sash",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100231",
+      "name": "Mythril Belt",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100233",
+      "name": "Drakeslayer's Belt",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100234",
+      "name": "Ouroboros",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100235",
+      "name": "Metian Cross",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100271",
+      "name": "Princely Stay",
+      "category": "belt",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Belts"
+    },
+    {
+      "id": "100301",
+      "name": "Imperial Infantry Bracers",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100302",
+      "name": "Hard Leather Armlets",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100303",
+      "name": "Iron Bracers",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100306",
+      "name": "Traveler's Bands",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100309",
+      "name": "Steel Crowns",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100312",
+      "name": "Battlechains",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100324",
+      "name": "Rune Crescents",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100327",
+      "name": "Sun Bracelets",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100331",
+      "name": "Mythril Wristlets",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100333",
+      "name": "Drakeslayer's Bracelets",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100334",
+      "name": "The Sons of Ouroboros",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100335",
+      "name": "Metian Bonds",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100371",
+      "name": "Princely Bangles",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100373",
+      "name": "The Founder's Grasp",
+      "category": "vambraces",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Vambraces"
+    },
+    {
+      "id": "100401",
+      "name": "Badge of Might",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100402",
+      "name": "Badge of Mettle",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100403",
+      "name": "Cavall's Fang",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100405",
+      "name": "Cleric's Medallion",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100406",
+      "name": "The Eye of the Warrior",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100407",
+      "name": "Stoneskin Cuffs",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100415",
+      "name": "Genji Gloves",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100418",
+      "name": "Griffin's Head Braid",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100419",
+      "name": "Bull's Horn Braid",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100420",
+      "name": "Kestrel's Beak Braid",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100421",
+      "name": "Dire Wolf Jess",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100422",
+      "name": "Blood Hawk Jess",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100423",
+      "name": "Ring of the Marksman",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100424",
+      "name": "Ring of the Swiftshot",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100425",
+      "name": "Channeler's Whispers",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100426",
+      "name": "Ring of the Demolitionist",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100427",
+      "name": "Crimson Tassels",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100428",
+      "name": "Cobalt Tassels",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100432",
+      "name": "High Cleric's Medallion",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100435",
+      "name": "Talisman of Priming",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100436",
+      "name": "The Golden Testament",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100437",
+      "name": "On Fortune and the Heavens",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100438",
+      "name": "The Wages of Warcraft",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100439",
+      "name": "The Will of Fire (Rising Flames)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100440",
+      "name": "The Favor of Fire (Scarlet Cyclone)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100441",
+      "name": "The Favor of Fire (Heatwave)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100443",
+      "name": "The Favor of Wind (Gouge)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100444",
+      "name": "The Favor of Wind (Wicked Wheel)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100445",
+      "name": "The Will of Wind (Rook's Gambit)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100446",
+      "name": "The Breath of Wind (Aerial Blast)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100447",
+      "name": "The Favor of the Inferno (Ignition)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100448",
+      "name": "The Grace of the Inferno (Will-o'-the-Wykes)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100449",
+      "name": "The Will of Lightning (Pile Drive)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100450",
+      "name": "The Favor of Lightning (Thunderstorm)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100451",
+      "name": "The Favor of Lightning (Lightning Rod)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100452",
+      "name": "The Breath of Lightning (Judgment Bolt)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100453",
+      "name": "The Favor of Earth (Windup)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100454",
+      "name": "The Favor of Earth (Upheaval)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100455",
+      "name": "The Favor of Earth (Raging Fists)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100456",
+      "name": "The Breath of Earth (Earthen Fury)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100457",
+      "name": "The Will of Light (Impulse)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100458",
+      "name": "The Favor of Light (Flare Breath)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100459",
+      "name": "The Will of Light (Satellite)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100460",
+      "name": "Bahamut's Mercy",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100461",
+      "name": "The Favor of Ice (Ice Age)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100462",
+      "name": "The Will of Ice (Mesmerize)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100463",
+      "name": "The Will of Ice (Rime)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100464",
+      "name": "Shiva's Kiss",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100465",
+      "name": "The Will of Darkness (Gungnir)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100466",
+      "name": "The Favor of Darkness (Heaven's Cloud)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100468",
+      "name": "The Pull of Darkness (Dancing Steel)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100473",
+      "name": "The Breath of Fire (Rising Flames)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100474",
+      "name": "The Breath of Fire (Scarlet Cyclone)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100475",
+      "name": "The Breath of Fire (Heatwave)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100476",
+      "name": "The Breath of Wind (Gouge)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100477",
+      "name": "The Breath of Wind (Wicked Wheel)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100478",
+      "name": "The Breath of Wind (Rook's Gambit)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100479",
+      "name": "The Breath of the Inferno (Ignition)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100480",
+      "name": "The Breath of Lightning (Pile Drive)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100481",
+      "name": "The Breath of Lightning (Thunderstorm)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100482",
+      "name": "The Breath of Lightning (Lightning Rod)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100483",
+      "name": "The Breath of Earth (Windup)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100484",
+      "name": "The Breath of Earth (Upheaval)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100485",
+      "name": "The Breath of Earth (Raging Fists)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100486",
+      "name": "The Breath of Light (Impulse)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100487",
+      "name": "The Breath of Light (Flare Breath)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100488",
+      "name": "The Breath of Light (Satellite)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100489",
+      "name": "The Breath of Ice (Ice Age)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100490",
+      "name": "The Breath of Ice (Mesmerize)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100491",
+      "name": "The Breath of Ice (Rime)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100492",
+      "name": "The Breath of Darkness (Gungnir)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100493",
+      "name": "The Breath of Darkness (Heaven's Cloud)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100502",
+      "name": "Ring of Timely Healing",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100503",
+      "name": "Ring of Timely Assistance",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100504",
+      "name": "Ring of Timely Strikes",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100505",
+      "name": "Ring of Timely Evasion",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100506",
+      "name": "Ring of Timely Focus",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100507",
+      "name": "Berserker Ring",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100508",
+      "name": "Scholar's Spectacles",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100511",
+      "name": "The Will of Wind (Aerial Blast)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100512",
+      "name": "The Favor of Lightning (Judgment Bolt)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100513",
+      "name": "The Favor of Earth (Earthen Fury)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100514",
+      "name": "The Favor of Light (Gigaflare)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100515",
+      "name": "The Will of Ice (Diamond Dust)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    },
+    {
+      "id": "100516",
+      "name": "The Will of Darkness (Dancing Steel)",
+      "category": "accessory",
+      "source": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473#Accesssories"
+    }
+  ]
+}

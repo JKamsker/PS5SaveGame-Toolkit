@@ -6,13 +6,12 @@ namespace SaveToolkit.Plugins.FinalFantasy16;
 internal sealed record FaithItem(int Slot, int Offset, int Id)
 {
     public string QuantityId => $"inventory/{Slot}/quantity";
-    public string Name => FaithItemNames.Find(Id) ?? $"Item {Id}";
-
-    public bool HasKnownName => FaithItemNames.Find(Id) is not null;
 }
 
 internal sealed record FaithInventory(IReadOnlyList<FaithItem> Items, bool IsSupported)
 {
+    public IReadOnlyList<FaithItem> SecondaryItems { get; init; } = [];
+    public bool IsSecondarySupported { get; init; }
     public const int Capacity = 1200;
     private const int SecondaryCapacity = 100;
     private const int RecordSize = 16;
@@ -24,20 +23,33 @@ internal sealed record FaithInventory(IReadOnlyList<FaithItem> Items, bool IsSup
 
     public static FaithInventory Parse(ReadOnlySpan<byte> bytes, FaithContainer container)
     {
-        var blocks = container.Blocks.Where(FaithSchema.SupportsItems).ToArray();
-        if (blocks.Length != 1)
+        var block = FaithSchema.Unique(container, FaithSchema.ItemType, FaithSchema.SupportsItems);
+        if (block is null)
         {
             return new([], false);
         }
 
-        var payload = blocks[0].PayloadOffset;
+        var payload = block.PayloadOffset;
         var count = ValidateAllocator(bytes, payload, Capacity);
-        _ = ValidateAllocator(bytes, payload + AllocatorSize(Capacity), SecondaryCapacity);
+        var secondaryOffset = payload + AllocatorSize(Capacity);
+        var secondaryCount = ValidateAllocator(bytes, secondaryOffset, SecondaryCapacity);
+        var secondary = ReadDenseBank(bytes, secondaryOffset, SecondaryCapacity, secondaryCount, allowZero: true);
+        var items = ReadDenseBank(bytes, payload, Capacity, count, allowZero: false);
+        return new(items ?? [], items is not null)
+        {
+            SecondaryItems = secondary ?? [],
+            IsSecondarySupported = secondary is not null,
+        };
+    }
+
+    private static IReadOnlyList<FaithItem>? ReadDenseBank(ReadOnlySpan<byte> bytes, int payload,
+        int capacity, int count, bool allowZero)
+    {
         if (count < 0)
         {
-            return new([], false);
+            return null;
         }
-        var keyOffset = payload + Capacity * (RecordSize + IndexSize) + MetadataSize;
+        var keyOffset = payload + capacity * (RecordSize + IndexSize) + MetadataSize;
         var items = new List<FaithItem>(count);
         for (var slot = 0; slot < count; slot++)
         {
@@ -46,15 +58,15 @@ internal sealed record FaithInventory(IReadOnlyList<FaithItem> Items, bool IsSup
             var key = BinaryPrimitives.ReadUInt64LittleEndian(bytes[(keyOffset + slot * KeySize)..]);
             var offset = payload + slot * RecordSize;
             var id = BinaryPrimitives.ReadInt32LittleEndian(bytes[offset..]);
-            if (key != ((ulong)slot << KeyShift | (uint)slot) || id <= 0)
+            if (key != ((ulong)slot << KeyShift | (uint)slot) || id < 0 || (!allowZero && id == 0))
             {
-                return new([], false);
+                return null;
             }
 
             items.Add(new FaithItem(slot, offset, id));
         }
 
-        return new(items, true);
+        return items;
     }
 
     private static int ValidateAllocator(ReadOnlySpan<byte> bytes, int offset, int capacity)

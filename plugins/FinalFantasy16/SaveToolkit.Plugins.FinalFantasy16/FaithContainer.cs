@@ -15,7 +15,7 @@ internal sealed record FaithBlock(int Index, int Offset, uint Type, int Declared
     {
         1 => "PlayerData", 2 => "PartyData", 3 => "QuestData", 4 => "BattleDirectorData",
         5 => "SoundConfigData", 6 => "ItemData", 7 => "UserData", 10 => "CameraConfigData",
-        14 => "HudConfigData", 16 => "WorldMapConfigData", 17 => "PadConfigData",
+        13 => "EquipmentData", 14 => "HudConfigData", 16 => "WorldMapConfigData", 17 => "PadConfigData",
         25 => "SystemConfigData", 27 => "SkillData", 28 => "SystemUserData",
         45 => "VideoConfigData", 70 => "KeybindConfigData", _ => $"Type {Type} (unmapped)",
     };

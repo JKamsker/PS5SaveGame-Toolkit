@@ -1,12 +1,38 @@
 # Final Fantasy XVI (`ffxvi`)
 
-Supports **PPSA10665** (retail PS5) and **PPSA13803** (PS5 demo), using the folder title ID.
-Some supplied retail `param.sfo` files contain unrelated title IDs; those are not used as schema evidence.
+Supports **PPSA10665** (retail PS5) and **PPSA13803** (PS5 demo), using the outer
+folder title ID. Unrelated values in supplied retail `param.sfo` files are not
+schema evidence. PPSA01288 is not an FF16 title.
 
-**Maturity: Experimental.** Existing main-inventory stacks, including gil, ability points and renown,
-can be patched without resizing or rebuilding the file. Format round trips pass; no modified save has
-been tested in-game. Level/XP and play time are displayed read-only. System saves and unsupported
-block/allocator variants have read-only exploration and byte-identical serialization.
+**Maturity: Experimental.** Existing main-bank quantities can be patched in place,
+including gil, AP and renown. No modified save has been validated on a console.
+Equipment, ability arrays, location, growth context, item identity and the
+secondary bank are read-only. System/empty/unsupported saves preserve every byte.
+
+## Delivered in this round (#15)
+
+- Phase 1 foundation: named categorized inventory, F2 attribution, F4 catalog
+  lookup, explicit unknown IDs, separate secondary-bank diagnostic, deterministic
+  catalog conversion, F1 generation fixture and machine-readable schema/evidence.
+- The 205-entry English item/equipment/resource pack names **105/172 distinct
+  observed retail main IDs** and **2/2 demo IDs**. The other 67 retail IDs have
+  explicit numeric fallbacks, including quest items and enhanced variants absent
+  from the cleared extract. This is partial game coverage, not a complete catalog.
+- F4 identity fields preserve the exact raw ID and are read-only. **Look up an
+  item** opens a searchable catalog picker and returns attributed information
+  without changing save bytes or undo history. No item replacement is enabled.
+- Phase 2 read-only foundation: three separate equipment banks, all 68 rank bytes,
+  independent 96-bit new/protect arrays, map/party identifiers, stored summon and
+  command IDs, item shortcuts, HP/recovery/limit-break context. The 272-byte common
+  player prefix is independent of the opaque extended palette suffix.
+- MIT Nex packs add 107 map annotations and 10 summon-mode annotations. In the
+  first autosaves, candidate map IDs resolve to Hideaway 2 (retail) and Phoenix
+  Gate (demo). Their semantic joins remain **Inferred**. Map subrow/sky variation
+  is preserved as reference context rather than collapsed to a unique asset.
+
+Phase 1's full-name ambition remains open for the 67 missing observed labels.
+Phase 2's controlled field identification, skill-index mapping, matched growth
+curves and human-observed acceptance remain open. Phases 3–6 are not implemented.
 
 ## File roles and platform boundary
 
@@ -16,154 +42,161 @@ block/allocator variants have read-only exploration and byte-identical serializa
 | `FAITHDATAnnnn/game-save-data` | Manual/special gameplay state |
 | `FAITHDATASYSTEM/system-save-data` | System/settings |
 
-Roles follow names and directory evidence. The plugin claims only those basenames under the two
-supported title IDs and requires the matching gameplay/system header version. It never writes sibling
-files, imports an autosave into another slot, or converts demo saves into retail saves.
+Only these basenames under the supported title IDs are claimed, with matching
+container versions. The PS5 inner files are plaintext binary. PC PNG `faTh`, XOR
+and dictionary-zlib wrappers are separate formats and are not emitted here.
+No XML/runtime hook, sibling rewrite, slot transplant or demo conversion is used.
 
-The supplied **PS5 inner files are plaintext binary**. Nenkai's PC tool handles an outer PNG `faTh`
-chunk, XOR and dictionary-zlib wrapper. None of those PC layers is added to PS5 output. This plugin
-does not accept PC PNGs, XML-mode saves, or encrypted console save containers.
+## Wire layout and integrity
 
-## Wire layout
+All integers are little-endian. Header: u32 size `0x10` at `0`, CRC32 at `4`, u64
+container version at `8` (gameplay `0x785930BD`, system `0x0C044C6D`). Blocks start
+at `0x10`: u32 type, u32 declared size, u64 schema version, then payload.
+Payload length is declared size minus 24; physical advance is declared size minus
+8. A four-byte zero type terminates the walk. CRC-32/ISO-HDLC covers `0x10..EOF`
+(reflected polynomial `0xEDB88320`, initial `0xFFFFFFFF`, final complement).
 
-All integers are little-endian. The inner schema is a stream of typed, versioned blocks containing
-fixed structs and allocator arrays, rather than a field-tagged object graph or an NXD database.
-
-| Offset | Type | Meaning |
-| --- | --- | --- |
-| `0x00` | u32 | Header size, exactly `0x10` |
-| `0x04` | u32 | CRC-32/ISO-HDLC over every byte from `0x10` to EOF |
-| `0x08` | u64 | Container version: gameplay `0x785930BD`, system `0x0C044C6D` |
-| `0x10` | blocks | Type u32, declared size u32, schema version u64, then payload |
-
-A block's **payload length is declared size minus `0x18`**, while its on-disk header is only `0x10`.
-Thus the next block starts at **current offset + declared size - 8**. This size bias is verified by
-walking every record to its final four-byte zero type terminator. Sizes are at least `0x18` and
-eight-byte aligned. Duplicate types are real (for example type 44 occurs twice) and are retained by
-position rather than collapsed into a dictionary. All unknown blocks and any bytes after the zero
-terminator are preserved.
-
-The parser validates the header, CRC, block bounds, alignment, progress, terminator and recognised
-inventory allocator bounds. Limits are 64 MiB and 4,096 blocks. Unknown block versions/sizes remain
-raw; they do not inherit curated offsets from a newer schema. Corrupt supported input throws
-`SaveFormatException` with an explanatory message.
-
-CRC uses reflected polynomial `0xEDB88320`, initial value `0xFFFFFFFF`, and final complement. The
-stored CRC is little-endian. It matches **72/72 ZIP records**, including repeated paths: 60 retail and
-12 demo. Writes patch the original byte array, update CRC, and `Serialize()` recomputes CRC and
-re-parses both the container and supported allocator before returning an independent output buffer.
-No other integrity algorithm has been substantiated; CRC correctness does not prove in-game acceptance.
+The parser validates CRC, alignment, progress, bounds, terminator and recognized
+allocator bounds. Limits: 64 MiB, 4,096 blocks. Duplicate types, opaque blocks,
+padding and trailing bytes remain untouched. A semantic reader requires exactly
+one occurrence of its type and a supported version/length. A mixed known/unknown
+duplicate also disables that reader. Unrecognized schemas stay in Structure/Hex.
+`Serialize()` recomputes CRC and reparses the container/inventory.
 
 ## Curated schemas and confidence
 
-Offsets below are relative to a block's payload, not absolute file offsets.
+Offsets are relative to payloads. See [supported-schema.json](research/supported-schema.json)
+for supported fields, title/role gates, provenance and evidence status.
 
-| Block | Version / supported payload sizes | Fields |
+| Type | Version / payload length | Interpretation |
 | --- | --- | --- |
-| 1, PlayerData | `202211161`; 272 bytes in demo/older retail, 1,536 bytes in newer retail | i32 level at `+0`, XP at `+4`, child level at `+8`, child XP at `+12` |
-| 6, ItemData | `2021110401`; 36,448 bytes in both titles | Main allocator at `+0`, secondary allocator at `+33,624` |
-| 7, UserData | `2021061001`; 104 bytes in both titles | i32 play time at `+0`, seconds |
+| 1 PlayerData | `202211161` / 272; retail also 1536 | Level/XP, child level/XP Verified read-only; common context Inferred; suffix opaque |
+| 2 PartyData | `2021112401` / 168 | Scene +0, map +4, party +16, member count +20; Inferred read-only |
+| 6 ItemData | `2021110401` / 36448 | Main allocator +0, secondary +33624; dense storage layout Verified |
+| 7 UserData | `2021061001` / 104 | Play time +0, seconds; Verified read-only |
+| 13 EquipmentData | `20220104` / 72 | Three six-word arrays +0/+24/+48; Inferred read-only |
+| 27 SkillData | `20210422` / 96 | 68 rank bytes +0; newFlags +68; protectFlags +80; index meaning Unknown |
 
-Retail accepts both observed player layouts. Demo only applies the 272-byte player schema; it can
-still explore an unfamiliar block without applying the extended retail schema. Layout selection is
-per block, because retail samples themselves include demo-era saves. The newer retail player suffix,
-extra endgame blocks and changed telemetry/UI arrays are preserved without interpretation.
+Demo never inherits the extended retail player schema. Each block is gated
+independently because retail archives also contain older states. Skill indices
+are **not** claimed to be skill IDs. Active equipment bank, slot ordering, Eikon
+flag meaning, AP costs/refunds, XP semantics and growth thresholds are unproven.
+Equipment value **900000** and ID zero remain unknown; no sentinel is invented.
 
-System settings also differ: the demo has 8 blocks / 276 bytes; retail has 9 blocks / 1,076 bytes,
-including a keybind block and an enlarged pad-config block. Settings are structurally explored only.
+Main/secondary capacities are 1200/100, with 16-byte records. Only the substantiated
+dense identity-key arrangement enables main-stack writes. IDs, new flags, indices,
+keys, padding, the secondary bank and dependent equipment state are never patched.
+Allocated zero stacks remain visible; allocation does not prove current ownership.
+The secondary bank has an **unconfirmed role** and its quantities are read-only.
 
-The main inventory has 1,200 fixed records of 16 bytes: i32 item ID, i32 stack, and two preserved i32
-words (the upstream template labels one as a new-item flag). Records are followed by 1,200 i32
-allocator indices, u64 initialized count, i32 next index, four preserved bytes, 1,200 u64 keys,
-i32 size, and four preserved bytes. The secondary allocator has the same shape with capacity 100.
+The existing manual quantity policy remains experimental: nonnegative signed i32
+storage range only, with a warning. `int.MaxValue` is not a proven gameplay cap.
+Reference-pack limits do not authorize new bounds or max/refill presets. Unknown
+caps, unique/key-item effects and progression dependencies prevent bulk controls.
 
-Editing is enabled only for the observed dense arrangement (`initialized == size == next index`,
-keys packing the slot twice as low/high u32, positive item IDs). Other allocator arrangements remain
-read-only. Bounds outside capacity are rejected. Free-list indices, keys, IDs, flags and padding are
-never rewritten; zero stacks with an allocated ID remain visible. Item insertion/removal is unsupported.
-Secondary-inventory semantics and its relationship to equipment/shortcuts are unconfirmed, so it is
-never edited or presented as another ordinary inventory.
+## Reference data and presentation
 
-**Verified** labels mean the names/layout match Nenkai's template and sample bytes, not that an edit
-has been tested on a console. Resource names use the published item IDs: 1 = Gil, 2 = Renown,
-3 = Ability Points, stored as a small embedded reference resource. Other rows retain numeric IDs:
-their stack layout is verified, but their item names are **unknown**. Level/XP stay read-only because
-growth curves, stat dependencies and progression triggers are not mapped.
+`Open(file, IReferenceContext)` resolves `ffxvi_items`, `ffxvi_maps` and
+`ffxvi_summons`. Optional external `ffxvi_commands` and `ffxvi_growth` datasets
+provide attributed context only; no command names/growth curves are embedded or
+fabricated. A growth label never triggers XP/HP calculations. Unknown IDs remain
+exact strings. Standalone `Open(file)` uses the same embedded item extract as a
+fallback; it does not perform filesystem/network I/O.
 
-Play time's field name comes from the template. Seconds are corroborated independently: across all
-11 demo gameplay records, the u32 saved-time value at UserData `+88` minus play time is the same
-`1700236450`; every inter-snapshot difference matches elapsed timestamp seconds. The meaning and
-epoch of the other time fields are not exposed. Gameplay stack limits are unknown: edits are limited
-to non-negative i32 values and carry a warning about game-specific caps and progression effects.
+Labels and categories are sourced, not inferred from numeric ranges. Names carry
+record/dataset provenance in field descriptions and the Sources panel. The
+catalog picker displays the pinned dataset's provenance. Known `<i>` and
+`<color=...>` game presentation tags are removed from imported names; unknown
+markup remains literal text. No text is interpreted as HTML. There are no icons.
 
-## Explorer and preservation
+Tables are bounded (main at most 1200, secondary at most 100, gear 18, skill arrays
+92 bytes). Structure expands lazily, at most 64 children and 128 words per leaf;
+raw words have Unknown meaning. Hex requests are bounded to 64 KiB.
 
-The view uses tabs for overview, inventory, structure and hex. The block directory preserves every
-block, and payloads expand lazily through at most 64 children per expansion and 128 raw words per
-leaf table. Raw words are explicitly unsigned little-endian interpretations with **unknown meaning**;
-they are not advertised as recovered primitive field types. Hex reads are bounded to 64 KiB per
-request. Large sparse blocks do not produce eager field trees. System/empty saves disable editing.
+## Reproducible evidence and validation
 
-## Sample evidence and tests
+[corpus-summary.json](research/corpus-summary.json) records archive SHA-256,
+title/role counts and observed block triples, without save bytes. There are 60
+retail records (51 distinct contents), 12 demo records (12 distinct), 70 gameplay
+records and 60 populated main inventories. All 72 CRC/framing checks and 60
+fixed-width in-memory gil-patch preservation checks reproduce independently.
+Duplicate contents/paths are not independent experiments.
 
-Values below refer to the **first ZIP occurrence** of each path; archive occurrence order is not
-assumed to be chronological.
-
-| Title / path | Level | XP | Gil | AP | Play time (s) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| PPSA10665 / `sdimg_FAITHDATAAUTO/game-save-data00` | 42 | 13,891 | 104,594 | 5,942 | 597,253 |
-| PPSA10665 / `sdimg_FAITHDATA0001/game-save-data` | 10 | 0 | 16 | 222 | 5,735 |
-| PPSA10665 / `sdimg_FAITHDATA0004/game-save-data` | 19 | 189 | 14,397 | 2,364 | 194,436 |
-| PPSA13803 / `sdimg_FAITHDATAAUTO/game-save-data00` | 10 | 0 | 16 | 234 | 88,270 |
-
-All records pass CRC validation and byte-identical no-op serialization. All **60 populated gameplay
-records** (49 retail, 11 demo) pass gil edits, CRC recomputation, byte preservation outside the four
-stack bytes and four CRC bytes, and reopen/serialize checks. The second retail autosave-ring
-occurrence contains empty initialized state; it stays read-only rather than receiving invented items.
-The conformance suite covers all distinct sample contents, not only the first six files.
-
-Additional tests cover standard CRC vectors, bad checksums and malformed block sizes, valid-CRC
-structural corruption, invalid allocator bounds, unknown versions, duplicate blocks, trailing bytes,
-variant gating, atomic rejection, isolation, undo including CRC, hex bounds, and exhaustive bounded
-exploration of a synthetic 150,000-word block. Sample-dependent tests skip when archives are absent;
-synthetic format/explorer tests still run. No sample bytes or extracted data are checked in.
+[F1 fixture](research/generations.fixture.json) pins the retail archive and
+compares autosave00 generations 0/1. These are **uncontrolled archive occurrences**,
+not chronological play progression: populated level-42 state versus initialized
+empty main inventory at level 10. No bytes are masked as presumed churn. Strict
+mode is false because many unrelated changes are expected. No new write semantic
+is derived from this pair. Do not mistake missing other generation-1 directories
+in a whole-archive diff for files removed by the game.
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 dotnet test --project plugins/FinalFantasy16/SaveToolkit.Plugins.FinalFantasy16.Tests
-dotnet test --project tests/SaveToolkit.Core.Tests
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/FinalFantasy16/research/generations.fixture.json --artifacts $env:SAVETOOLKIT_ARTIFACTS
+# Metadata goes to scratch, never to an artifacts archive:
+python -I plugins/FinalFantasy16/research/summarize_corpus.py --summary > "$env:TEMP/ff16-corpus.json"
+python -I plugins/FinalFantasy16/research/build_catalog.py
+python -I plugins/FinalFantasy16/research/build_layout_catalog.py '<scratch>/ffxvi-nex-layouts'
 ```
 
-## Open questions
+Tests cover conformance, every archive occurrence, CRC vectors, corruption,
+allocator gates, byte-identical no-op/undo, edits confined to stack/CRC, context
+values, schema length/version/duplicate rejection, independent skill flag arrays,
+zero IDs/stacks, unknown 900000, locale fallback, F2 hash/ID validation, attribution,
+F4 read-only identities/nonmutating lookup, literal markup and the shared F1 fixture.
+Sample tests explicitly skip when archives are absent; validation requires 0 skipped.
+No sample bytes, extracted saves or downloaded third-party code are committed.
 
-- In-game validation of edited PS5 saves, especially resource caps and progression effects.
-- Full schemas for newer player palettes, settings, abilities, quests, equipment and DLC records.
-- Secondary inventory semantics and non-dense allocator states.
-- Item/equipment names beyond the three substantiated resources; no names are guessed.
-- Any additional semantic integrity requirements or external metadata maintained by the game.
+## Sources and attribution
 
-## Sources
+Research/retrieval date: 2026-10-28. Downloads stayed in scratch and were read as
+text; no upstream code/templates were executed. Notices are retained in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-Research checked 2026-10-28. Downloaded material was inspected as text and never executed.
+| Dataset / code research | Source / revision | Licence / modifications |
+| --- | --- | --- |
+| English names/categories and resource labels | [Final Fantasy Wiki translations, 4007473](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473); per-record Gil/Renown/AP revision links | CC BY-SA 3.0; 205 selected labels, original factual ID crosswalk, normalized categories, no prose/art/caps. Adaptation remains CC BY-SA 3.0; [sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.wiki.en/data.source.md) |
+| Map/summon annotations | [Nenkai Nex layouts, d3ad062](https://github.com/Nenkai/ffxvi-nex-layouts/tree/d3ad0627a29af168916ad574dadbca6759e2ac48) | MIT (2025 Nenkai); extracted 107/10 research annotations, grouped subrows; [sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.nex.en/data.source.md) |
+| Save block/allocator/context layout | [Nenkai 010 template, 4a3685f](https://github.com/Nenkai/010GameTemplates/blob/4a3685f9b63f72ca49e24ac2f18420aaad2762b8/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt) | MIT (2024 Nenkai); composed gated PS5 readers and fixed-width writer; measured against actual bytes |
+| CRC/platform boundary research | [FF16Tools, b87c2f2](https://github.com/Nenkai/FF16Tools/blob/b87c2f22a8ea630cb03f7b2198af84c7709a1b0c/FF16Tools.Files/Save/FaithSaveFile.cs) | MIT (2025 Nenkai); independent CRC checked on 72 records; PC wrapper excluded |
+| Numeric identifier research only | [Published IDs, 4b5e7eb](https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids) | No dataset licence found; CSV files are not vendored/re-licensed. Wiki-derived labels are a separately curated extract; ID associations remain Inferred |
+| Dependency/growth research only | Nex Item, EquipItem, UseItem, Skill, ParamGrow layouts at d3ad062 | MIT; schemas reviewed, no game data, costs/caps or unproved setters imported |
 
-- [Nenkai's save-file research](https://nenkai.github.io/ffxvi-modding/resources/other/save_files/):
-  primary references to binary templates and the optional PC XML serialization path.
-- [FaithSaveFile_Sub.bt, pinned revision](https://github.com/Nenkai/010GameTemplates/blob/f31430e32f099d66cc22d609a7926988e041c409/Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt):
-  typed block IDs, field names, fixed-array layouts and payload-size convention. MIT, copyright Nenkai.
-  Only the substantiated subset is implemented; offsets and framing were independently checked on PS5 bytes.
-- [Published item IDs](https://nenkai.github.io/ffxvi-modding/resources/ids/item_ids/):
-  item IDs 1, 2 and 3 and their resource names. The entire table was not imported.
-- [FF16Tools FaithSaveFile.cs](https://github.com/Nenkai/FF16Tools/blob/master/FF16Tools.Files/Save/FaithSaveFile.cs):
-  CRC coverage and PC outer PNG/XOR/dictionary-zlib handling; those PC wrappers are intentionally absent here.
-- [bbfox's original PC cheat-table thread](https://opencheattables.com/viewtopic.php?t=1129):
-  corroborates XP, gil/AP and stack editing as research targets. Runtime pointer offsets were not used
-  as PS5 save offsets, and no cheat-table scripts were run.
-- Local reconnaissance: [retail](../../docs/formats/PPSA10665.md), [demo](../../docs/formats/PPSA13803.md),
-  and [method/limits](../../docs/formats/README.md). Archive evidence was rechecked by this plugin's tests.
+Additional research: [Nenkai save-format notes](https://nenkai.github.io/ffxvi-modding/resources/other/save_files/)
+and [bbfox PC cheat-table thread](https://opencheattables.com/viewtopic.php?t=1129).
+No unlicensed scripts were copied/executed and runtime offsets were not used as
+PS5 save offsets. No additional signature/MAC is substantiated.
 
-The parser/patching code is independently written from wire-layout facts; the relevant upstream MIT
-notice is retained in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). No runtime NuGet dependency was added.
+## Owner capture and console-validation checklist
+
+For **each pair**, use a spare slot and provide original decrypted before/after
+archives, title ID, PS5 patch, region, mode (normal/FF NG+), DLC, stage (adult/child),
+filename/slot and exact UI values. First capture a save/reload/save no-action pair.
+
+1. Buy one potion, use one, sell one material, and reacquire an allocated zero-stack
+   item in separate pairs; record quantities and gil. Then capture each pouch
+   capacity/potency upgrade separately.
+2. Equip exactly one weapon, belt, vambrace and accessory separately; record all six
+   UI slots before/after. Include boyhood and stage replay to identify active banks.
+3. Learn, upgrade, master and reset exactly one skill in separate pairs; record
+   skill name/rank, assigned Eikon/slot and exact AP paid/refunded. Repeat one Eikon
+   unlock separately, without combining a story transition with a skill edit.
+4. Earn known XP without leveling, then cross exactly one level; record XP display,
+   HP and stats before/after. Repeat adult/child and normal/FF mode as available.
+5. Supply matched binary/XML PC states from a legally owned copy if available,
+   with build/locale/DLC and matching observations; this complements PS5 evidence.
+6. For an existing-stack edit, back up a spare slot, edit only a small quantity,
+   export/load, verify UI, spend/use/sell, save, reload and re-export. Report every
+   effect and compare unrelated fields. CRC success alone is insufficient.
+
+Still needed: cleared names for 67 observed IDs; matched skill/command/growth data;
+normal/FF NG+/DLC/legacy/extended coverage; controlled bank/flag semantics and
+on-console acceptance. Only the owner may promote maturity to Stable.
 
 ## SDK requests
 
-None. The existing view, binding, blob and serialization contracts cover this implementation.
+None for this round. F1/F2/F4 and existing table/field/asset contracts suffice.
+Future transactions should use F5/F6/F8 after the underlying gameplay rules are
+proven; no plugin-local transaction/picker substitute was built.
