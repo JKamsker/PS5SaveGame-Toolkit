@@ -132,9 +132,11 @@ jobs:
         env:
           SAVETOOLKIT_TEST_TEMP: ${{ runner.temp }}/savetoolkit-tests
         run: |
-          ./scripts/test.ps1 -Configuration Release -ResultsDirectory "${{ runner.temp }}/test-results/backend" -Coverage:($IsLinux)
+          # .NET coverage runs on Windows: on Linux the coverage extension adds ~105 s of fixed
+          # startup per test process (21 projects exceeded the 40-minute job timeout in run 40815192793).
+          ./scripts/test.ps1 -Configuration Release -ResultsDirectory "${{ runner.temp }}/test-results/backend" -Coverage:($IsWindows)
       - name: Merge backend coverage and write assembly summary
-        if: always() && runner.os == 'Linux'
+        if: always() && runner.os == 'Windows'
         run: |
           dotnet tool restore
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -175,7 +177,7 @@ jobs:
             '```' >> $env:GITHUB_STEP_SUMMARY
           }
       - name: Upload coverage reports
-        if: always() && runner.os == 'Linux'
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: coverage-${{ runner.os }}

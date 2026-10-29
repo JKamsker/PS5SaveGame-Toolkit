@@ -52,11 +52,13 @@ on Linux; run `actionlint` locally after workflow edits too.
 
 ### Code coverage
 
-Ubuntu validation collects .NET coverage through the Microsoft.Testing.Platform extension and web
-coverage through Vitest V8. Windows validation keeps coverage disabled. Coverage is informational;
-there are no minimum thresholds. The job summary shows .NET line/branch coverage by assembly and
-the web text summary. Download `coverage-Linux` (retained for 14 days) for per-project Cobertura,
-merged .NET Cobertura and HTML, and web Cobertura, JSON summary and HTML reports. Shared test
+Windows validation collects .NET coverage through the Microsoft.Testing.Platform extension; Ubuntu
+validation collects web coverage through Vitest V8. (On Linux the .NET coverage extension adds about
+105 s of fixed startup per test process, which pushed the 21 projects past the job timeout.)
+Coverage is informational; there are no minimum thresholds. The job summaries show .NET
+line/branch coverage by assembly (Windows) and the web text summary (Ubuntu). Download
+`coverage-Windows` for per-project and merged .NET Cobertura and HTML, and `coverage-Linux` for the
+web Cobertura, JSON summary and HTML reports; both are retained for 14 days. Shared test
 helpers and test assemblies are excluded from the merged .NET report; web coverage includes all
 TypeScript source files, including untested files, excluding tests and declarations.
 
