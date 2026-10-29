@@ -35,7 +35,9 @@ export function NullableControl(props: Props & { spec: Extract<FieldSpec, { kind
   useEffect(() => { if (value !== null) remembered.current = value; }, [value]);
   return (
     <div className="variant-control">
-      <select id={id} className="input" aria-label="Null or value" aria-describedby={labelledBy}
+      <span id={`${id}-type-label`} className="visually-hidden">Null or value</span>
+      <select id={id} className="input" aria-label={labelledBy ? undefined : "Null or value"}
+        aria-labelledby={labelledBy ? `${labelledBy} ${id}-type-label` : undefined}
         value={value === null ? "null" : "value"} onChange={(e) => {
           onLocalError?.(undefined);
           const next = e.target.value === "null" ? null : remembered.current ?? initialValue(spec.inner);
@@ -59,7 +61,9 @@ export function UnionControl(props: Props & { spec: Extract<FieldSpec, { kind: "
   useEffect(() => { if (union) remembered.current.set(union.type, union.value); }, [union]);
   return (
     <div className="variant-control">
-      <select id={id} className="input" aria-label="Value type" aria-describedby={labelledBy}
+      <span id={`${id}-type-label`} className="visually-hidden">Value type</span>
+      <select id={id} className="input" aria-label={labelledBy ? undefined : "Value type"}
+        aria-labelledby={labelledBy ? `${labelledBy} ${id}-type-label` : undefined}
         value={union?.type ?? ""} onChange={(e) => {
           const selected = spec.options.find((o) => o.id === e.target.value);
           if (!selected) return;

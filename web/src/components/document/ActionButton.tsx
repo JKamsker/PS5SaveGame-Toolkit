@@ -86,11 +86,12 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
               {node.confirm && <p className="notice notice--Warning">{node.confirm}</p>}
               {parameters.map((p) => (
                 <div className="field" key={p.valueId}>
-                  <label className="field__label" htmlFor={`${idPrefix}-${p.valueId}`}>
+                  <label className="field__label" id={`${idPrefix}-${p.valueId}-label`} htmlFor={`${idPrefix}-${p.valueId}`}>
                     {p.label}
                   </label>
                   <FieldControl
                     id={`${idPrefix}-${p.valueId}`}
+                    labelledBy={`${idPrefix}-${p.valueId}-label`}
                     valueId={p.valueId}
                     actionId={node.actionId}
                     spec={p.spec}

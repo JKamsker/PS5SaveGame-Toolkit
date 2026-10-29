@@ -100,9 +100,10 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
             const value = values[p.valueId];
             return (
               <div className="field" key={`${formVersion}-${p.valueId}`}>
-                <label className="field__label" htmlFor={`${id}-${p.valueId}`}>{p.label}</label>
+                <label className="field__label" id={`${id}-${p.valueId}-label`} htmlFor={`${id}-${p.valueId}`}>{p.label}</label>
                 <FieldControl
                   id={`${id}-${p.valueId}`}
+                  labelledBy={`${id}-${p.valueId}-label`}
                   valueId={p.valueId}
                   actionId={node.actionId}
                   spec={p.spec}
