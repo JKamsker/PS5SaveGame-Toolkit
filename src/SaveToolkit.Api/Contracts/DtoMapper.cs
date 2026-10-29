@@ -87,6 +87,12 @@ internal static class DtoMapper
                 previewCode = "genericShapeUnsupported";
                 previewReason = "Generic preview requires one document-scope action without semantic targets.";
             }
+            else if (document.GenericPresetActionError(preset.Actions[0].ActionId) is { } actionError)
+            {
+                unsupported.Add(preset.Actions[0].ActionId);
+                previewCode = "actionUnsupported";
+                previewReason = actionError;
+            }
         }
         else if (PresetContractValidation.ValidateCapability(capability) is { } capabilityError)
         {
