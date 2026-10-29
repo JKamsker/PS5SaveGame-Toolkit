@@ -31,6 +31,8 @@ public sealed class InventoryCollectionTests
         Assert.Equal(quantities.OrderDescending(), quantities);
         var second = document.Query(table.CollectionId, query with { Offset = 200 });
         Assert.Equal(51, second.Rows.Count);
+        var allQuantities = page.Rows.Concat(second.Rows).Select(row => ((FieldNode)row.Cells["quantity"]).Value.AsInt32()).ToArray();
+        Assert.Equal(allQuantities.OrderDescending(), allQuantities);
         Assert.Equal(251, page.Rows.Concat(second.Rows).Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());
         var field = Assert.IsType<FieldNode>(page.Rows[0].Cells["quantity"]);
         Assert.True(document.ApplyEdits([new(field.ValueId, FieldValue.Of(100L))]).Succeeded);
