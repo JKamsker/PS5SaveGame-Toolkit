@@ -10,7 +10,9 @@ it("passes lazy expansion cancellation to fetch and preserves opaque IDs", async
   await api.expand("w", "d", "tree/%2F?#", controller.signal);
   const [path, init] = fetch.mock.calls[0]!;
   expect(new URL(path as string, "http://localhost").searchParams.get("id")).toBe("tree/%2F?#");
-  expect(init.signal).toBe(controller.signal);
+  expect(init.signal.aborted).toBe(false);
+  // The transport composes the caller's cancellation with its own deadline.
+  expect(init.signal).toBeInstanceOf(AbortSignal);
 });
 
 describe("collection requests", () => {

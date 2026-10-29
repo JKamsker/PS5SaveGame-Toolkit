@@ -19,16 +19,9 @@ import type {
   CollectionQuery,
   QueryablePage,
 } from "./protocol";
+import { ApiError, cancelledMessage, fetchApi, networkMessage, readJson, responseError, timeoutMessage, TRANSFER_TIMEOUT_MS } from "./http";
 
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    readonly status: number,
-    readonly body?: unknown,
-  ) {
-    super(message);
-  }
-}
+export { ApiError } from "./http";
 
 /** True for the server's typed "view is out of date" rejection (HTTP 409, `code: "stale"`). */
 export function isStaleError(error: unknown): boolean {
@@ -38,17 +31,21 @@ export function isStaleError(error: unknown): boolean {
 }
 
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api${path}`, init);
-  if (response.status === 204) return undefined as T;
-  const isJson = response.headers.get("content-type")?.includes("json") ?? false;
-  const body: unknown = isJson ? await response.json() : undefined;
-  if (!response.ok) {
-    // Edit endpoints return a full EditResult with field errors on 422 (or 409 when stale); callers inspect it.
-    if ((response.status === 422 || response.status === 409) && body && typeof body === "object" && ("errors" in body || "plan" in body)) return body as T;
-    const message = body && typeof body === "object" && "error" in body ? String((body as { error: unknown }).error) : response.statusText;
-    throw new ApiError(message || `Request failed (${response.status})`, response.status, body);
-  }
-  return body as T;
+  return fetchApi(path, init, async response => {
+    if (response.status === 204) return undefined as T;
+    const body = await readJson(response);
+    if (!response.ok) {
+      // Only the typed edit/preview envelopes are normal results on rejected mutations.
+      // ProblemDetails may also contain an `errors` extension, which is not an EditResult.
+      if ((response.status === 422 || response.status === 409) && body && typeof body === "object") {
+        if (("ok" in body && "state" in body && "errors" in body && Array.isArray(body.errors)) ||
+          ("plan" in body && body.plan && typeof body.plan === "object" && "errors" in body.plan)) return body as T;
+      }
+      throw responseError(response.status, body);
+    }
+    if (body === undefined) throw new ApiError("The server returned an unreadable response. Refresh the current view before retrying.", response.status);
+    return body as T;
+  });
 }
 
 const json = (body: unknown): RequestInit => ({
@@ -78,13 +75,16 @@ export const api = {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/workspaces");
       xhr.responseType = "json";
+      xhr.timeout = TRANSFER_TIMEOUT_MS;
       xhr.upload.onprogress = (e) => e.lengthComputable && onProgress?.(e.loaded / e.total);
       xhr.onload = () => {
         const body = xhr.response as (Workspace & { error?: string }) | null;
         if (xhr.status >= 200 && xhr.status < 300 && body) resolve(body);
-        else reject(new ApiError(body?.error ?? `Import failed (${xhr.status})`, xhr.status, body));
+        else reject(responseError(xhr.status, body));
       };
-      xhr.onerror = () => reject(new ApiError("The server could not be reached.", 0));
+      xhr.onerror = () => reject(new ApiError(networkMessage, 0));
+      xhr.onabort = () => reject(new ApiError(cancelledMessage, 0));
+      xhr.ontimeout = () => reject(new ApiError(timeoutMessage, 0));
       xhr.send(form);
     }),
 
@@ -118,9 +118,10 @@ export const api = {
   redo: (wsId: string, docId: string) => request<EditResult>(`${doc(wsId, docId)}/redo`, { method: "POST" }),
   assetUrl: (wsId: string, docId: string, assetId: string) => `/api${doc(wsId, docId)}/assets?id=${encodeURIComponent(assetId)}`,
   blob: async (wsId: string, docId: string, blobId: string, offset: number, count: number) => {
-    const response = await fetch(`/api${doc(wsId, docId)}/blobs?id=${encodeURIComponent(blobId)}&offset=${offset}&count=${count}`);
-    if (!response.ok) throw new ApiError("Could not read bytes", response.status);
-    return new Uint8Array(await response.arrayBuffer());
+    return fetchApi(`${doc(wsId, docId)}/blobs?id=${encodeURIComponent(blobId)}&offset=${offset}&count=${count}`, undefined, async response => {
+      if (!response.ok) throw responseError(response.status, await readJson(response));
+      return new Uint8Array(await response.arrayBuffer());
+    });
   },
   downloadUrl: (wsId: string, docId: string) => `/api${doc(wsId, docId)}/download`,
 
@@ -154,14 +155,12 @@ export const api = {
   exportPlan: (wsId: string, scope: ExportScope, mirrorBackups: boolean) =>
     request<ExportPlan>(`${ws(wsId)}/export/plan`, json({ scope, mirrorBackups })),
   exportZip: async (wsId: string, scope: ExportScope, mirrorBackups: boolean) => {
-    const response = await fetch(`/api${ws(wsId)}/export`, json({ scope, mirrorBackups }));
-    if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      throw new ApiError(body?.error ?? "Export failed", response.status);
-    }
-    const disposition = response.headers.get("content-disposition") ?? "";
-    const name = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? "savebench-export.zip";
-    return { blob: await response.blob(), name };
+    return fetchApi(`${ws(wsId)}/export`, json({ scope, mirrorBackups }), async response => {
+      if (!response.ok) throw responseError(response.status, await readJson(response));
+      const disposition = response.headers.get("content-disposition") ?? "";
+      const name = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? "savebench-export.zip";
+      return { blob: await response.blob(), name };
+    }, TRANSFER_TIMEOUT_MS);
   },
 };
 
