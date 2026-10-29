@@ -1,6 +1,6 @@
 using System.Buffers.Binary;
 
-namespace SaveToolkit.Core.References;
+namespace SaveToolkit.Sdk.References;
 
 internal sealed record SniffedImage(string ContentType, int Width, int Height);
 

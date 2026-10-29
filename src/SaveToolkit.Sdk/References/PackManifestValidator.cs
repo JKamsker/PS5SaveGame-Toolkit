@@ -1,10 +1,9 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
-using SaveToolkit.Sdk.References;
 
-namespace SaveToolkit.Core.References;
+namespace SaveToolkit.Sdk.References;
 
-/// <summary>Collects validation problems and throws them as one <see cref="ReferencePackException"/>.</summary>
+/// <summary>Collects validation problems and throws them as one <see cref="EmbeddedReferencePackException"/>.</summary>
 internal sealed class PackProblems(string origin)
 {
     private const int MaxListed = 20;
@@ -29,17 +28,17 @@ internal sealed class PackProblems(string origin)
 
         var listed = string.Join("; ", _problems.Take(MaxListed));
         var more = _problems.Count > MaxListed ? $" (and {_problems.Count - MaxListed} more)" : string.Empty;
-        throw new ReferencePackException($"Reference pack {origin} is invalid: {listed}{more}.");
+        throw new EmbeddedReferencePackException($"Reference pack {origin} is invalid: {listed}{more}.");
     }
 }
 
-/// <summary>Structural checks of <c>pack.json</c>. File contents are checked by <see cref="ReferencePackLoader"/>.</summary>
+/// <summary>Structural checks of <c>pack.json</c>. File contents are checked by <see cref="PackDecoder"/>.</summary>
 internal static partial class PackManifestValidator
 {
     public const int MaxTitleLength = 200;
     public const int MaxDescriptionLength = 2000;
 
-    public static void Validate(PackManifest m, PackProblems problems, ReferencePackLimits limits)
+    public static void Validate(PackManifest m, PackProblems problems, EmbeddedReferencePackLimits limits)
     {
         problems.Check(m.Schema == PackManifest.CurrentSchema, $"schema must be {PackManifest.CurrentSchema}, found {m.Schema}");
         problems.Check(PackPaths.IsValidPackId(m.Id), "id must be lower-case letters, digits, '.', '_' or '-' (max 64)");

@@ -95,7 +95,7 @@ It needs the repository's .NET SDK and package restore access, but no private sa
 | `IGamePlugin.Info` | Lower-case dotted `Id` (`pragmata`, `engine.unreal-gvas`), semver `Version`, every PS5 title id you support in `Games` (all regions you know of), `References` with upstream URLs. |
 | `Probe(file)` | Cheap: use `file.ReadHeader(n)`, `file.FileName`, `file.Directory.TitleId`. **Never throw.** Return `ProbeScore.Title` (title id + layout/magic match), `Engine` (generic engine format), `Format` (generic container) or `ProbeResult.None`. Put a human label in `Label` ("Gameplay save, slot 3"). |
 | `Open(file)` | Parse fully and validate (magic, checksums, decryption). Throw `SaveFormatException` with a user-facing message on bad data. Siblings are available through `file.Sibling(...)`/`file.Directory`. |
-| `Open(file, references)` | Optional overload (default: calls `Open(file)`). The framework always calls this one, with the reference packs pinned for the document. Implement it when you use [reference packs](#reference-packs); let `Open(file)` forward with `IReferenceContext.Empty`. |
+| `Open(file, references)` | Optional overload (default: calls `Open(file)`). The framework always calls this one, with the reference packs pinned for the document. Implement it when you use [reference packs](#reference-packs); let `Open(file)` forward with `IReferenceContext.Empty` or a title-pinned `EmbeddedReferenceContext`. |
 | `ISaveDocument.BuildView()` | Root `ViewNode`. Called again after `StructureChanged`. |
 | `ExpandNode(lazyId)` | Children of a lazy `SectionNode`. Use for anything big (raw trees, long lists). |
 | `GetValue(valueId)` | Current value of every field you ever exposed. |
@@ -967,6 +967,7 @@ the extension. SVG and anything else is rejected.
 | --- | --- |
 | Archive | 64 MiB |
 | All files together | 128 MiB |
+| Manifest | 256 KiB |
 | One records file | 32 MiB |
 | One image | 1 MiB |
 | Image size | 2048 × 2048 |
@@ -985,6 +986,53 @@ Every `refpacks/<folder>/pack.json` in a plugin assembly is loaded at startup. T
 test `EmbeddedReferencePacks_AreValid` fails with the loader's message if a pack is broken, for example
 on a hash mismatch. Keep a `*.source.md` next to the data and the README table from rule 9 as well.
 The pack attribution does not replace them.
+
+### Embedded fallback for direct opens
+
+`SaveToolkit.Sdk.References.EmbeddedReferenceContext` implements `IReferenceContext` using only
+assembly manifest resources. It shares Core's decoder and catalog implementation: SHA-256 validation,
+CRLF-to-LF record hashing (assets remain byte-exact), record attributes and limits, qualified asset IDs,
+dataset attribution, bounded search and deterministic selection are identical. No ZIP, filesystem,
+network, persistence or global cache is involved.
+
+Cache the decoded assembly once and pin it for each document's plugin/title:
+
+```csharp
+private static readonly EmbeddedReferenceContext Embedded =
+    EmbeddedReferenceContext.Load(typeof(MyPlugin).Assembly);
+
+public ISaveDocument Open(ISaveFile file) =>
+    Open(file, Embedded.Pin(Info.Id, file.Directory.TitleId));
+
+public ISaveDocument Open(ISaveFile file, IReferenceContext references)
+{
+    var save = Parse(file);
+    return new MyDocument(save, references.Catalog("items", save.Build), references);
+}
+```
+
+For a single open, `EmbeddedReferenceContext.Load(assembly, pluginId, titleId, limits, preferredLocales)`
+combines decoding and pinning. `EmbeddedReferencePackLimits` has the same per-pack manifest, total-byte,
+records-file, image-byte, image-dimension, file-count and record-count defaults as Core (no archive
+limit applies). Total bytes count listed dataset files before text normalization; the manifest has its
+own cap. Each discovered folder must contain a valid pack. Invalid packs and duplicate pack IDs throw
+`EmbeddedReferencePackException`; the SDK returns no partial context. Core retains its existing
+startup policy of reporting rejected packs and continuing to load other packs.
+
+`Pin` filters plugin/title case-insensitively; a null title excludes title-specific packs. Call `Pin`
+on the original loaded collection for each open, since pinning a filtered context only narrows it.
+`Catalog(id, gameBuild)` uses Core's build, locale (default `en`), version and ordinal pack-ID policy;
+pass `preferredLocales` to `Pin` for another locale order. Pack bytes/catalogs are shared between pins.
+Missing catalogs, records, assets and provenance return null. Host contexts retain ownership of Sources
+usage tracking; the embedded SDK context exposes attribution without host usage state.
+
+The two-argument `Open` must keep the supplied context. Do not replace it merely because `Packs` is
+empty: custom contexts may supply catalogs without pack metadata. For existing per-record fallback
+policies, replace the local embedded parser with a cached SDK context and retain explicit
+`hostCatalog?.Find(key) ?? embeddedCatalog?.Find(key)` logic. Keep game-specific catalog joins,
+source preference, numeric ordering, unknown-ID labels and icon options in the plugin. In particular,
+FinalFantasy7 still merges fallback rows with host overrides; FinalFantasy16 still prefers published
+items over wiki rows; GodOfWarRagnarok still orders original, collectible and community evidence.
 
 ### Reading the context
 
@@ -1025,7 +1073,7 @@ public override AssetContent? GetAsset(string assetId) => references.GetAsset(as
 - Asset ids from records are pack-qualified (`packId:path`). Pass them through unchanged.
 - The context is immutable and safe to keep in the document. It records which datasets you resolved,
   so the Sources panel lists exactly what the document uses.
-- Always handle `null`. Tests and `Open(file)` see an empty context, and users may have no pack.
+- Always handle `null`. Tests and direct opens may use an empty context, and users may have no pack.
 - If `Open(file)` forwards to `Open(file, IReferenceContext.Empty)`, you **must** implement the two-argument
   overload. Otherwise the default overload calls back into `Open(file)` and recurses forever.
 
