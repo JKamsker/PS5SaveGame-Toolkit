@@ -8,6 +8,9 @@ namespace SaveToolkit.Plugins.FinalFantasy7;
 /// <summary>Optional document-pinned packs override individual records; fallback entries remain available.</summary>
 internal sealed class ReferenceData(IReferenceContext context, Ff7Schema schema)
 {
+    // Match the host's default per-catalog pack limit without silently publishing a partial index.
+    private const int MaxCatalogRecords = 250_000;
+
     public AssetContent? GetAsset(string assetId) => context.GetAsset(assetId) ?? EmbeddedCatalogs.Asset(assetId);
     public ReferenceDatasetInfo? AssetProvenance(string assetId) => context.AssetProvenance(assetId) ?? EmbeddedCatalogs.AssetProvenance(assetId);
     private readonly Dictionary<string, IReadOnlyList<ReferenceRecord>> _catalogs = new(StringComparer.Ordinal);
@@ -40,15 +43,12 @@ internal sealed class ReferenceData(IReferenceContext context, Ff7Schema schema)
         var values = EmbeddedCatalogs.Records(schema, catalogId).ToDictionary(record => record.Key, StringComparer.Ordinal);
         if (context.Catalog(catalogId, schema.Name) is { } catalog)
         {
-            for (var offset = 0; offset < catalog.Count; offset += ReferenceQuery.MaxLimit)
+            foreach (var record in ReferenceCatalogReader.ReadBounded(catalog,
+                new ReferenceQuery { Limit = ReferenceQuery.MaxLimit }, MaxCatalogRecords))
             {
-                var page = catalog.Search(new ReferenceQuery { Offset = offset, Limit = ReferenceQuery.MaxLimit });
-                foreach (var record in page.Items)
+                if (uint.TryParse(record.Key, NumberStyles.None, CultureInfo.InvariantCulture, out var id))
                 {
-                    if (uint.TryParse(record.Key, NumberStyles.None, CultureInfo.InvariantCulture, out var id))
-                    {
-                        values[id.ToString(CultureInfo.InvariantCulture)] = record;
-                    }
+                    values[id.ToString(CultureInfo.InvariantCulture)] = record;
                 }
             }
         }

@@ -78,6 +78,46 @@ public sealed class ReferenceDataTests
         Assert.Equal([0, 200, 0, 200], catalog.Queries.Select(query => query.Offset));
     }
 
+    [Theory]
+    [InlineData("budget")]
+    [InlineData("empty-page")]
+    [InlineData("duplicate")]
+    [InlineData("wrong-offset")]
+    public void IncompleteCatalogFailsWithoutCachingPartialOverridesOrFallback(string failure)
+    {
+        var record = Record("1000000");
+        var catalog = new TestCatalog([record]) { CountOverride = failure == "budget" ? 250_001 : 2 };
+        catalog.SearchOverride = query => failure switch
+        {
+            "budget" => new([record], catalog.Count, query.Offset),
+            "empty-page" => new([], catalog.Count, query.Offset),
+            "duplicate" => new([record], catalog.Count, query.Offset),
+            _ => new([record], catalog.Count, query.Offset + 1),
+        };
+        var references = new ReferenceData(new TestContext(catalog), Ff7Schema.ForTitle("PPSA08664")!);
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            var error = Assert.Throws<InvalidOperationException>(() => references.Records("ff7r-items"));
+            if (failure == "budget") Assert.Equal("Catalog query exceeds the 250000-record budget.", error.Message);
+        }
+
+        catalog.CountOverride = null;
+        catalog.SearchOverride = null;
+        Assert.Same(record, references.Record("ff7r-items", 1_000_000));
+        Assert.Equal(0, catalog.Queries[^1].Offset);
+    }
+
+    [Fact]
+    public void ShortIntermediatePagesReadEveryOverrideBeforePublishingTheIndex()
+    {
+        var records = new[] { Record("1000002"), Record("1000000"), Record("1000001") };
+        var catalog = new TestCatalog(records);
+        catalog.SearchOverride = query => new(records.Skip(query.Offset).Take(1).ToArray(), records.Length, query.Offset);
+        var references = new ReferenceData(new TestContext(catalog), Ff7Schema.ForTitle("PPSA08664")!);
+        Assert.Equal(records.OrderBy(record => record.Key, StringComparer.Ordinal), references.Records("ff7r-items").TakeLast(3));
+        Assert.Equal([0, 1, 2], catalog.Queries.Select(query => query.Offset));
+    }
+
     private static ReferenceRecord Record(string key, string name = "Imported record") => new(key, name)
     {
         Dataset = Dataset, Description = "Imported description.", Category = "Fixture category",
@@ -105,10 +145,11 @@ public sealed class ReferenceDataTests
         public IReadOnlyList<ReferenceRecord> Records { get; } = records;
         public List<ReferenceQuery> Queries { get; } = [];
         public Func<ReferenceQuery, ReferencePage>? SearchOverride { get; set; }
+        public int? CountOverride { get; set; }
         public string Id => "ff7r-items";
         public ReferencePackInfo Pack { get; } = new("test.references", "1.0.0", "Fixture", ReferencePackOrigin.User);
         public ReferenceDatasetInfo Dataset => ReferenceDataTests.Dataset;
-        public int Count => Records.Count;
+        public int Count => CountOverride ?? Records.Count;
         public IReadOnlyList<string> Categories => [];
         public ReferenceRecord? Find(string key) => Records.FirstOrDefault(record => record.Key == key);
         public ReferencePage Page(ReferenceQuery query) => new(Records.Skip(query.Offset).Take(query.Limit).ToArray(), Count, query.Offset);
