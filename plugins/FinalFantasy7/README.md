@@ -151,6 +151,21 @@ envelope and must end at EOF. The explorer shows literal tail words, not normali
 The Rebirth common tail's **16 is not another absolute link**. Following it would loop into the common
 record. This is why the tail marker, role and variant must be checked before following pointers.
 
+### Malformed-input rejection
+
+`Open` rejects unsupported titles, filenames, measured file lengths and malformed record framing with
+`SaveFormatException` and a user-facing reason. Failures inside the chain include the record's absolute
+offset; the initial size/header gate reports a schema mismatch. `Probe` is a cheap initial-header check,
+so a matching probe does not establish that later records are valid. The F1 evidence hook validates the
+complete chain before emitting values, warnings or depth-truncation output; a host byte-limit violation
+throws `InvalidDataException` before reading the file. Short bodies are rejected even if file metadata
+still reports the original size.
+
+Unknown body words and slot/index-like bytes remain opaque and lossless. No body word controls an
+allocation or traversal count. Random or extreme body values cannot establish corruption without a
+verified format invariant; this is not checksum verification or console acceptance. These layouts have
+no demonstrated GVAS length-prefixed property stream or verified integrity field (see below).
+
 ### Record groups
 
 Lengths below exclude the 16-byte envelope, but include the content header.
@@ -424,6 +439,14 @@ empty allocations and byte preservation. The conformance suite retains its six-f
 format test walks and no-op serializes **all** matching sample files, including backup/generation files.
 Edit conformance nudges a writable field on selected Remake and retail Rebirth samples; dedicated
 tests verify in-place byte scope, round-trip reopening, undo-by-old-value and atomic range rejection.
+
+Malformed-input coverage also checks every common-file prefix, gameplay truncation at every partial
+record/content header and body boundary, extreme metadata lengths and short reads despite unchanged
+file metadata. Direct F1-hook tests require rejection before any output for corrupt later record
+families and tails, even with shallow depth or a full sink; private-sample mutations complement the
+synthetic cases. Random/all-`FF` bodies and opaque slot bytes exercise every queryable collection and
+Rebirth folio/socket expansion with byte-identical serialization. These are robustness checks, not
+new claims about gameplay validity or internal checksums.
 
 Completion local validation: **121/121 plugin tests, 0 failed, 0 skipped**, with the supplied archives and the API build passing with zero warnings/errors. Tests include Core F4/F6/F8/F9 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
 every measured sample Open call stayed below two seconds in that historical local run.
