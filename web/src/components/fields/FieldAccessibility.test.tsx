@@ -49,6 +49,25 @@ it("names flags groups in ordinary field rows", () => {
   expect(screen.getByRole("group", { name: "Unlocked areas" })).toBeTruthy();
 });
 
+it("distinguishes integer stepper buttons by field and retains keyboard stepping", () => {
+  const node: FieldNode = { type: "field", valueId: "count", label: "Item count", value: "2",
+    spec: { kind: "integer", min: "0", max: "10" } };
+  const { commit } = renderFields(<><FieldRow node={node} /><FieldRow node={{ ...node, valueId: "level", label: "Level" }} /></>);
+  const decrease = screen.getByRole("button", { name: "Decrease Item count" });
+  const increase = screen.getByRole("button", { name: "Increase Level" });
+  decrease.focus();
+  expect(document.activeElement).toBe(decrease);
+  fireEvent.click(decrease);
+  expect(commit).toHaveBeenCalledWith("count", "1");
+  increase.focus();
+  fireEvent.click(increase);
+  expect(commit).toHaveBeenCalledWith("level", "3");
+  const input = screen.getByRole("textbox", { name: "Item count" });
+  input.focus();
+  fireEvent.keyDown(input, { key: "ArrowUp" });
+  expect(commit).toHaveBeenLastCalledWith("count", "3");
+});
+
 describe("field supporting text", () => {
   const node: FieldNode = { type: "field", valueId: "count", label: "Item count", value: "2",
     spec: { kind: "integer", min: "0", max: "3" }, warning: "Unverified in-game", description: "Existing stack only" };

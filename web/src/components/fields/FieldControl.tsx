@@ -156,11 +156,13 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
       />
       {spec.kind === "integer" && !compact && (
         <span className="stepper">
-          <button type="button" aria-label="Decrease" onClick={() => step(-1n)}>
-            −
+          <button type="button" aria-labelledby={`${id}-decrease-label${labelledBy ? ` ${labelledBy}` : ""}`} onClick={() => step(-1n)}>
+            <span id={`${id}-decrease-label`} className="visually-hidden">Decrease</span>
+            <span aria-hidden="true">−</span>
           </button>
-          <button type="button" aria-label="Increase" onClick={() => step(1n)}>
-            +
+          <button type="button" aria-labelledby={`${id}-increase-label${labelledBy ? ` ${labelledBy}` : ""}`} onClick={() => step(1n)}>
+            <span id={`${id}-increase-label`} className="visually-hidden">Increase</span>
+            <span aria-hidden="true">+</span>
           </button>
         </span>
       )}
