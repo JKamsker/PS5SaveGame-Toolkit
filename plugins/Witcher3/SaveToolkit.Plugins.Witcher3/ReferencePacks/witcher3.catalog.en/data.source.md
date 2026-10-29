@@ -12,7 +12,12 @@ Article histories identify original contributors.
 Modifications: selected explicit IDs and labels; normalized categories; adapted wiki-authored
 introductory descriptions; condensed ability concepts; preserved alternate labels and separate NG+
 IDs; added uncertainty annotations and non-native wiki-entry keys where IDs are unpublished.
-Game captions/tooltips/flavor text, icons, scripts and resource dumps are not embedded.
+The 2026-10-29 asset round adds 107 historical ability/mutation tooltips and 43 selected item
+description/effect fields transcribed by the wiki, retaining CC BY-SA 3.0 and pinned per-record
+description sources/scope. These cross-build values are unverified on PS5. A separate publisher
+assets dataset contains 158 deduplicated item/ability icons for 162 catalogue records; those images
+are not relicensed as CC BY-SA. See [asset provenance](../assets.source.md) and its hash audit.
+Flavor text, game scripts and original resource dumps remain absent.
 
 The adapted datasets and source index remain **CC BY-SA 3.0**. Retain attribution, pinned source
 links, modification notices and share-alike terms when redistributing/modifying them. No endorsement

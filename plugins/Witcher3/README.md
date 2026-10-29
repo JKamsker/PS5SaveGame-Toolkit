@@ -1,6 +1,6 @@
 # The Witcher 3: Wild Hunt – Complete Edition (`witcher3`)
 
-Title: **PPSA04018**. Version: **0.6.0**. Maturity: **Experimental**.
+Title: **PPSA04018**. Version: **0.7.0**. Maturity: **Experimental**.
 Supports player level, unspent XP, available ability points, Crowns, inventory quantity/durability,
 non-core skill rank and existing Gwent collection-count edits for the
 supplied PS5 SAV3 schema **64 / 23 / 163**. The preserving writer passes edit conformance and sample
@@ -18,19 +18,27 @@ Phases 2–4 remain partial. Completion adds F9 skill/mutation graphs and native
 ability/map queries, F4 ability identity references and F6 ordinary-stack refill. The requirement and
 acceptance audit is in [COMPLETION.md](COMPLETION.md); remaining evidence is tracked in #31.
 
+The asset round adds **371 deduplicated icons** covering 55 item, 107 ability and 225 Gwent
+records, **150 wiki-transcribed game tooltip/effect descriptions**, and **five regional reference
+maps**, totaling **1,398,570 new image bytes**. Publisher artwork is used with attribution under
+the owner decision dated 2026-10-29; wiki text retains CC BY-SA 3.0. This is an unofficial fan work
+and is not approved or endorsed by CD PROJEKT RED. See [ASSETS.md](ASSETS.md) for sources, exact
+sizes, processing, benchmarks and limitations. Native saved-tag region/coordinate joins remain
+unknown, so saved tags stay in the text list and regional artwork never invents marker positions.
+
 ## Framework feature adoption
 
 | Feature | Status | Adoption / concrete scope |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Native F1 tests use a thin `HookSaveDecoder` adapter over the production F12 hook; intended semantic paths and independent byte audits cover every sample. Positional ability identities are explicitly flagged as incomplete alignment evidence. |
-| F2 reference packs | Used | Two pinned packs: 4,011 item references, 107 abilities/mutations and 225 Gwent indices; per-record attribution and Sources panel. |
-| F3 rich cells | Used | Inventory/ability/catalog detail sections, inferred-mapping badges, field confidence/warnings and provenance. No unlicensed icons embedded. |
+| F2 reference packs | Used | Three pinned packs: 4,011 item references, 107 abilities/mutations and 225 Gwent indices, plus 371 icons and five regional maps; separate publisher asset provenance, per-record text attribution and Sources panel. Host validates/caches packs once; no plugin I/O or duplicate image cache. |
+| F3 rich cells | Used | Image cells in inventory, saved abilities/Gwent and all catalogue tables; 150 expanded historical/cross-build tooltip/effect descriptions, inferred-mapping badges, warnings and separate text/image provenance. Missing images retain labels/raw IDs. |
 | F4 reference pickers | Used | Saved skill/mutation identities use read-only `ReferenceSpec("abilities")` with raw fallback and F13 browse-only category/search/sort/details. Lookup action parameters remain selectable references. Rank/count writes stay numeric; identity replacement has no safe writer. |
 | F5 structural history | N/A | No safe item/skill creation, deletion, reordering or identity/reference/ownership cleanup writer exists. Scalar omitted-zero property insertion is replayable by value ID; it does not create a gameplay record. Controlled ownership captures are in #31. |
 | F6 planned actions | Added | Repair plus imported-quantity refill; document, explicit row and Core-resolved #27 F8 query scopes, exclusions/warnings, stale/forged revalidation and one undo step. |
 | F7 document groups | N/A | Only selected `.sav` changes. Same-stem `.req` is an invariant content list, not a coupled gameplay/checksum file; no demonstrated cross-file edit invariant. Core handles identical backup mirroring. |
 | F8 queryable lists | Added | Existing full inventory/catalog/recipe/fact/journal queries plus every ability array and native map tags, with full-list search/filter/sort and bounded pages. Lazy details remain for reliable F9 navigation to unloaded data. |
-| F9 graph/map nodes | Added | 102 saved skill definitions, 13 mutation definitions/11 native prerequisite edges, and counted known/discovered/disabled map tags. Text alternatives, attributed raw fallbacks, stable linked fields, bounded nodes and external map links. |
+| F9 graph/map nodes | Used | 102 saved skill definitions, 13 mutation definitions/11 native prerequisite edges, and counted known/discovered/disabled map tags. Five lazy regional reference backgrounds with local F2 provenance and missing-pack fallback; native tag/region alignment remains unknown, so tags are never plotted on artwork. Text alternatives, stable links and external map guides remain. |
 | F10 exact/nullable/union | N/A | This binary schema stores fixed integer/float32/float64 values, not exact JSON number lexemes or polymorphic scalars. Omitted default zero is neither explicit null nor a union; using those specs would invent storage states. Existing integer specs retain exact widths. |
 | F11 shared codecs | N/A | SNFH uses raw LZ4, already handled by K4os.Compression.LZ4. SaveToolkit.Codecs' Kraken/SQLite wrappers cannot decode this format; no local Kraken/SQLite implementation exists. |
 | F12 | Added | `Witcher3Plugin` implements SDK `ISaveDecoderProvider`, exposing `witcher3-native-identities` for `savediff compare --decoder`. Production has no Testing dependency; the existing research decoder is a thin adapter. Sink refusal, depth/input/value bounds and positional identity limitations are tested. F8 views remain available via `--decoder witcher3`. |
@@ -243,7 +251,9 @@ item** picker browses the pinned `items` catalog and returns attributed descript
 the save. Replacement, equipping and add/remove are absent. Reviewed repair and conservative ordinary
 food/water refill are available through F6.
 
-F2 embeds `witcher3.catalog.en` (CC BY-SA 3.0 items/abilities) and `witcher3.gwent.en` (MIT cards).
+F2 embeds `witcher3.catalog.en` (CC BY-SA 3.0 items/abilities plus separately attributed publisher
+icons), `witcher3.gwent.en` (MIT catalogue plus publisher card images), and `witcher3.maps`
+(publisher regional reference artwork).
 The item catalog contains 3,670 explicit native keys and 341 additional wiki references with unpublished
 native IDs, explicitly marked with non-native `wiki-entry` keys. Includes base/HoS/B&W and documented
 NG+ variants/cut content; not a promise of every internal or current-patch PS5 ID. The pre-overhaul
@@ -256,8 +266,9 @@ pickers inspect references without edits. Inventory, skill/card and recipe joins
 Sources exposes dataset licenses and modifications. Wiki-only keys never join inventory native IDs.
 The original `Open(file)` uses an empty context and retains raw IDs; the host supplies pinned packs
 through `Open(file, references)`. Unknown/modded IDs stay unmapped. Compatible packs are build-agnostic
-or explicitly tagged `sav3-64.23.163`; the tuple is not a known PS5 patch. No icons or CD PROJEKT
-resources are embedded. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+or explicitly tagged `sav3-64.23.163`; the tuple is not a known PS5 patch. Selected icons and
+wiki-transcribed tooltips/effects are embedded; original game-script/localization archives are absent.
+See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 The bounded ability reader reaches the player's `W3PlayerAbilityManager` through its owning Entity
 and consumes each observed tagged array exactly: 102 skills, 16 skill slots, 4 mutagen slots,
@@ -408,7 +419,8 @@ text; no downloaded editor/script was run. The plugin is independently written b
 | SAV3 framing/primitive layout adaptation | [Atvaark/W3SavegameEditor](https://github.com/Atvaark/W3SavegameEditor/tree/cff905189d565606aed9058b2804eb4c5ee9f540/W3SavegameEditor.Core) | MIT, [notice](W3SavegameEditor-LICENSE.txt) | Bounded parser and preserving writer; stored names have save-native provenance. |
 | Native inventory/tagged property research and layout adaptation | [cahian converter](https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter/tree/7ae8b6fe71c4b36e571246ad25629d03c7ec8219/w3save) | MIT, [notice](SaveConverter-LICENSE.txt) | Independently bounded PS5 readers; retained raw attributes/flags/prefixes; no PC schema conversion. |
 | Raw LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT, existing managed package | No copied source or reference dataset. |
-| Native spatial projections and external regional maps | Native saved definitions/map-tag blocks; [witcher3map](https://legacy.witcher3map.com/), untamed0 and contributors | Original projection code GPL-3.0-or-later; existing friendly labels retain CC BY-SA 3.0. Community map is CC BY-NC-SA, **link only**; art belongs to CD PROJEKT RED. [Sidecar](SaveToolkit.Plugins.Witcher3/SpatialViews.source.md) | No map art, coordinates, community marker data or code imported. Source attribution in graph descriptions, field descriptions and every map/source link; upstream in Info.References. |
+| Native spatial projections and regional reference backgrounds | Native saved definitions/map-tag blocks; [witcher3map](https://legacy.witcher3map.com/), untamed0 and contributors; [pinned tiles df7fa74](https://github.com/witcher3map/witcher3map-maps/tree/df7fa74609df7587afc324e569d2574cf5b4f1ec) | Projection code GPL-3.0-or-later; labels/text CC BY-SA 3.0. Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Host community work remains CC BY-NC-SA. [Spatial sidecar](SaveToolkit.Plugins.Witcher3/SpatialViews.source.md), [asset sidecar](SaveToolkit.Plugins.Witcher3/ReferencePacks/assets.source.md). | Five local publisher-art backgrounds assembled with verified TMS orientation; no community marker/coordinate dataset or code. Native region/position joins unknown: saved tags remain an independent text list, never plotted on art. F9 attribution and Sources panel. |
+| 371 item/ability/Gwent icons and 150 expanded tooltip/effect descriptions | [Witcher Wiki](https://witcher.fandom.com/wiki/Category:The_Witcher_3_images), pinned catalogue article revisions; [GwentTracker art d8eab8c](https://github.com/vishalgupta-git/GwentTracker/tree/d8eab8c25c409be42a0ea7b43b901a43dfefed18/public/cards), CD PROJEKT RED and hosting contributors | Art: Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Wiki text keeps CC BY-SA 3.0. [Full source table](ASSETS.md), [hash/URL audit](SaveToolkit.Plugins.Witcher3/ReferencePacks/assets.source.json). | Exact identity joins, bounded 64×64 WebP icons, byte deduplication, minified tooltip/effect text with cross-build caveats. Separate text/image provenance in F3/F4/Sources and Info.References. |
 
 The following research sources add context; game script mirrors are research-only and are not
 redistributed. Their repositories' tool licenses do not grant rights to CD PROJEKT game assets.
@@ -440,6 +452,18 @@ redistributed. Their repositories' tool licenses do not grant rights to CD PROJE
   version 1.3.8 from the existing central package list, MIT.
 - [Repository reconnaissance](../../docs/formats/PPSA04018.md): initial PS5 dimensions,
   independently rechecked against every supplied gameplay record.
+
+## Licence exclusions
+
+| Material / source | Previous basis | Current disposition | Remaining limit / fallback |
+| --- | --- | --- | --- |
+| Publisher icons/tooltips and regional map artwork, Witcher Wiki/GwentTracker/witcher3map | Publisher assets previously excluded; missing cleared source | **Resolved: imported (owner decision 2026-10-29).** Selected icons, wiki-transcribed tooltips/effects and five publisher map backgrounds have separate attribution and source/hash sidecars. Wiki text remains CC BY-SA 3.0; publisher rights retained. | Native tag→region/coordinates remain unknown; no saved overlay is invented. Wider icon coverage is a data selection gap, not a renewed permission gate. |
+| witcher3map community coordinates, marker text and code | CC BY-NC-SA community content | Not imported this round; external regional guide retained. Only publisher map-art tiles selected under the owner decision. | No verified native tag crosswalk; preserve bounded saved-tag text lists. |
+| Older game-script/XML mirrors | Proprietary game material previously refused | Owner policy removes the publisher-asset refusal; scripts/XML are still unnecessary for this presentation round and are not imported. | Older/modded semantics remain unverified; use existing research citations and raw saved fields. |
+
+These rows supersede this plugin's earlier asset refusals in the central licence register. That
+shared file is intentionally left for the integrating owner because this task is restricted to
+`plugins/Witcher3/` while other agents work in parallel.
 
 ## SDK requests
 

@@ -29,7 +29,7 @@ public sealed class WitcherCatalogTests
                 Assert.Equal(license, record.Dataset.Attribution.License);
                 Assert.Equal("Inferred", record.Attributes["mappingConfidence"]);
                 Assert.Null(record.Limit);
-                Assert.Null(record.AssetId);
+                if (record.AssetId is { } asset) { Assert.NotNull(context.GetAsset(asset)); }
                 Assert.DoesNotContain("{{", record.Description!, StringComparison.Ordinal);
                 Assert.DoesNotContain("[[", record.Description!, StringComparison.Ordinal);
                 Assert.DoesNotContain("<", record.Name, StringComparison.Ordinal);

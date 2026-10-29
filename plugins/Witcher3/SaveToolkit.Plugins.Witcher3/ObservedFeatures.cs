@@ -15,6 +15,7 @@ internal sealed class ObservedFeatures
     private readonly IReferenceCatalog? _abilities;
     private readonly IReferenceCatalog? _gwent;
     private readonly WriteFields? _writeFields;
+    private readonly Func<string, ReferenceDatasetInfo?>? _assetProvenance;
     public IReadOnlyList<AbilityArray> Abilities { get; } = [];
     private readonly IReadOnlyList<GwentCard>? _originalCards;
     public IReadOnlyList<GwentCard>? Cards => _originalCards?.Select((c, index) => c with {
@@ -28,13 +29,15 @@ internal sealed class ObservedFeatures
     public QueryableCollectionPage Query(string id, QueryableCollectionQuery query) => AbilityTables.Query(id, query);
 
     public ObservedFeatures(PlayerData? player, Sav3Tree tree, byte[] data, IReadOnlyList<string> names,
-        IReferenceCatalog? abilities = null, IReferenceCatalog? gwent = null, WriteFields? writeFields = null)
+        IReferenceCatalog? abilities = null, IReferenceCatalog? gwent = null, WriteFields? writeFields = null,
+        Func<string, ReferenceDatasetInfo?>? assetProvenance = null)
     {
         _data = data;
         _names = names;
         _abilities = abilities;
         _gwent = gwent;
         _writeFields = writeFields;
+        _assetProvenance = assetProvenance;
         var warnings = new List<string>();
         if (player is not null)
         {
@@ -62,7 +65,7 @@ internal sealed class ObservedFeatures
 
     public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Experimental non-core skill ranks and existing Gwent counts are editable. Core skills with level 1 are not purchased skills. " +
-            "Default/sentinel records are retained. Localization keys and icon paths are identifiers, not bundled game text or artwork."),
+            "Default/sentinel records are retained. Reference icons and historical wiki-transcribed tooltips are optional; exact PS5 effects remain unverified."),
         new TextNode(WriteFields.SkillWarning + " " + WriteFields.GwentWarning) { Tone = Tone.Warning },
         .. Warnings.Select(w => new TextNode(w) { Tone = Tone.Warning }),
         SectionNode.Lazy("Skill definition graph", "ability-graph/skills"),
@@ -88,14 +91,15 @@ internal sealed class ObservedFeatures
         if (parts.Length == 3 && parts[0] == "ability" && int.TryParse(parts[2], out var start) &&
             Abilities.SingleOrDefault(a => a.Name == parts[1]) is { } array && start >= 0 && start <= array.Entries.Count)
         {
-            return [new TableNode([new("id", "Saved identity"), new("name", "Reference name"), new("rank", "Stored rank"), new("properties", "Input properties (read-only)")],
+            return [new TableNode([new("image", "Icon"), new("id", "Saved identity"), new("name", "Reference name"), new("rank", "Stored rank"), new("properties", "Input properties (read-only)")],
                 array.Entries.Skip(start).Take(PageSize).Select(entry => AbilityRow(array, entry)).ToArray()) { Title = array.Name }];
         }
 
         if (parts.Length == 2 && parts[0] == "gwent" && int.TryParse(parts[1], out start) && Cards is { } cards && start >= 0 && start <= cards.Count)
         {
-            return [new TableNode([new("index", "Native card index"), new("name", "Reference name"), new("copies", "Saved copies"), new("kind", "Collection group")],
+            return [new TableNode([new("image", "Card art"), new("index", "Native card index"), new("name", "Reference name"), new("copies", "Saved copies"), new("kind", "Collection group")],
                 cards.Skip(start).Take(PageSize).Select(card => new TableRow(card.Index.ToString(), new Dictionary<string, ViewNode> {
+                    ["image"] = ReferenceImages.Cell(_gwent?.Find(card.Index.ToString(System.Globalization.CultureInfo.InvariantCulture)), _assetProvenance),
                     ["index"] = new TextNode(card.Index.ToString()), ["copies"] = _writeFields is null ? new TextNode(card.Copies.ToString()) :
                         _writeFields.Copies(CopyEdits.Single(c => c.Card.Index == card.Index)),
                     ["name"] = ReferenceCell(_gwent?.Find(card.Index.ToString(System.Globalization.CultureInfo.InvariantCulture)), card.Index.ToString()),
@@ -119,12 +123,13 @@ internal sealed class ObservedFeatures
         }
     }
 
-    private static ViewNode ReferenceCell(ReferenceRecord? record, string raw) => record is null
+    private ViewNode ReferenceCell(ReferenceRecord? record, string raw) => record is null
         ? new TextNode($"{raw} (unmapped; source: save-native identity)")
         : new SectionNode(record.Name, [new TextNode(record.Category ?? "Reference"), new TextNode(record.Description ?? ""),
-            new TextNode(record.AttributionText)]) { Collapsed = true, Badge = "Inferred mapping" };
+            new TextNode(record.AttributionText), .. ReferenceImages.Sources(record, _assetProvenance)]) { Collapsed = true, Badge = "Inferred mapping" };
 
     private TableRow AbilityRow(AbilityArray array, AbilityEntry entry) => new(entry.Id, new Dictionary<string, ViewNode> {
+        ["image"] = ReferenceImages.Cell(_abilities?.Find(entry.Id), _assetProvenance),
         ["id"] = _writeFields is null ? new TextNode(entry.Id) : _writeFields.Identity(array.Name, entry, _abilities?.Find(entry.Id)),
         ["name"] = ReferenceCell(_abilities?.Find(entry.Id), entry.Id),
         ["rank"] = array.Name == "skills" && SkillEdits?.Find(entry.Id) is { } rank && _writeFields is not null

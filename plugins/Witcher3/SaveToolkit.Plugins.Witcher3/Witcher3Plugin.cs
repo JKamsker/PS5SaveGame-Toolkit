@@ -7,9 +7,9 @@ namespace SaveToolkit.Plugins.Witcher3;
 
 public sealed class Witcher3Plugin : IGamePlugin, ISaveDecoderProvider
 {
-    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.6.0")
+    public PluginInfo Info { get; } = new("witcher3", "The Witcher 3: Wild Hunt - Complete Edition", "0.7.0")
     {
-        Description = "Attributed catalogs, native skill/mutation graphs and map-tag lists, preserving edits and reviewed repair/refill. Experimental; not console-validated.",
+        Description = "Unofficial fan work: attributed icons/tooltips, regional reference maps, native graphs/tag lists and preserving edits. Experimental; not console-validated or endorsed by CD PROJEKT RED.",
         Games = [new GameTitle("PPSA04018", "The Witcher 3: Wild Hunt - Complete Edition")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/Atvaark/W3SavegameEditor", "https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md",
@@ -24,7 +24,10 @@ public sealed class Witcher3Plugin : IGamePlugin, ISaveDecoderProvider
             "https://github.com/vishalgupta-git/GwentTracker/blob/d8eab8c25c409be42a0ea7b43b901a43dfefed18/src/lib/save/parse.ts",
             "https://github.com/dodojesuslol/w3-quest-tracker/blob/6078f8f64a1ede3a304452bfe3cff710ae1d554e/docs/save-format.md",
             "https://github.com/aschleg/witcher-3-enemy-scaling-and-other-changes/blob/66684cbe57eb20286f9ce65e551a4a0313543592/mod/gameplay/abilities/geralt_skills.xml",
-            MapViews.SourceUrl],
+            MapViews.SourceUrl, RegionalMapViews.SourceUrl,
+            "https://github.com/witcher3map/witcher3map/blob/437241a978a13a1ca9114301d9ef887fadf4f260/assets/scripts/custom/custom.js",
+            "https://github.com/vishalgupta-git/GwentTracker/tree/d8eab8c25c409be42a0ea7b43b901a43dfefed18/public/cards",
+            "https://witcher.fandom.com/wiki/Template:Crown?oldid=611658", "https://www.cdprojektred.com/en/fan-content"],
     };
 
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new WitcherSemanticDecoder()];

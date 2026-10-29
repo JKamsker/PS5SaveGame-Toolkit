@@ -1,5 +1,6 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using System.Security.Cryptography;
@@ -13,15 +14,17 @@ internal sealed class MapViews
     private const int DetailPageSize = 64;
     public const string SourceUrl = "https://legacy.witcher3map.com/";
     private const string SourceAttribution = "untamed0 and witcher3map contributors, CC BY-NC-SA; game art belongs to CD PROJEKT RED. " +
-        "External link only; no artwork, coordinates or community marker data imported.";
+        "External guide; native saved-tag alignment unknown. Local reference artwork is shown separately without saved markers.";
     private static IReadOnlyList<QueryableColumn> Columns => [new("id", "Native map tag"), new("state", "Stored map membership"), new("details", "Details")];
     private readonly IReadOnlyList<SavedMapTag>? _tags;
     private readonly FieldBinding _bind;
     private readonly string? _warning;
+    private readonly RegionalMapViews _regions;
 
-    public MapViews(Sav3Tree tree, byte[] data, IReadOnlyList<string> names, FieldBinding bind)
+    public MapViews(Sav3Tree tree, byte[] data, IReadOnlyList<string> names, FieldBinding bind, IReferenceContext? references = null)
     {
         _bind = bind;
+        _regions = new(references ?? IReferenceContext.Empty);
         try { _tags = MapReader.Read(tree, data, names); }
         catch (SaveFormatException ex) { _warning = $"Map reader unavailable: {ex.Message}"; }
     }
@@ -34,6 +37,7 @@ internal sealed class MapViews
         .. (_tags is not null ? Array.Empty<ViewNode>() : [new TextNode(_warning ??
             "No supported common map-tag blocks were decoded; an empty list does not imply no discoveries.") { Tone = Tone.Warning }]),
         new QueryableTableNode(CollectionId, Collection.Title, Columns, Collection.TotalCount),
+        .. _regions.Build(),
         .. Enumerable.Range(0, Math.Max(1, ((_tags?.Count ?? 0) + SpatialViewLimits.MaxItems - 1) / SpatialViewLimits.MaxItems))
             .Select(page => SectionNode.Lazy($"Map tag list · {page + 1}", $"map-view/{page}")),
         .. Enumerable.Range(0, Math.Max(1, ((_tags?.Count ?? 0) + DetailPageSize - 1) / DetailPageSize))
@@ -42,6 +46,7 @@ internal sealed class MapViews
 
     public IReadOnlyList<ViewNode> Expand(string id)
     {
+        if (id.StartsWith(RegionalMapViews.Prefix, StringComparison.Ordinal)) { return _regions.Expand(id); }
         var parts = id.Split('/');
         if (parts.Length != 2 || !int.TryParse(parts[1], out var page) || page < 0) { throw new KeyNotFoundException(id); }
         var tags = _tags ?? [];

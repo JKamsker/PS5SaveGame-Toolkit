@@ -1,6 +1,8 @@
 # Witcher3 reference catalog snapshot — 2026-10-28
 
-The starter pack is replaced by two attributed F2 packs. This is the complete extraction of documented
+The starter pack is replaced by two attributed catalogue F2 packs; the 2026-10-29 asset round
+adds separately attributed icon datasets and a third regional map pack (see [ASSETS.md](ASSETS.md)).
+This is the complete extraction of documented
 entries in the reviewed source snapshot, including entries with unpublished save IDs. It is **not**
 an installed PS5 database or proof that every internal, cut, modded or newer-build ID is known.
 Every gameplay mapping remains **Inferred**.
@@ -12,8 +14,10 @@ Every gameplay mapping remains **Inferred**.
 | `gwent` | 225 | All 215 named definitions in the licensed six-faction catalog, expanded to preserve 10 explicit alternate native indices |
 
 Every record has a name, category, description, confidence annotation and pinned source. No pack
-sets a legal write limit or bundles images, game scripts, XML, localization archives, card flavor
-text, letter contents or game tooltips. Wiki-derived data remains CC BY-SA; MIT card data is separate.
+sets a legal write limit. Selected icons and 150 wiki-transcribed tooltip/effect descriptions now
+ship with separate source/scope metadata. No game scripts, XML, original localization archives,
+card flavor text or letter contents are bundled. Wiki-derived text remains CC BY-SA; MIT card
+metadata and publisher artwork are separate datasets with their own attribution.
 The [source index](SaveToolkit.Plugins.Witcher3/ReferencePacks/witcher3.catalog.en/source-index.json)
 lists all 3,464 wiki revision URLs used, including alternate-label sources.
 
@@ -31,7 +35,8 @@ change the license of the independent plugin implementation.
 The review traversed 73 item/ability/Gwent categories and template transclusions, examining 4,004
 pages and 4,299 relevant infoboxes. Balanced templates supplied explicit IDs, labels and types.
 Wiki-authored introductory prose supplied descriptions where available; otherwise short classification
-summaries and uncertainty notes were written. Captions/effects/journal text/artwork were excluded.
+summaries and uncertainty notes were written. The initial extraction omitted effects/artwork;
+the asset round subsequently adds the selected attributed content documented in ASSETS.md.
 Food/drink and base/HoS/B&W junk list tables supply otherwise unrepresented labels. Unkeyed item
 infoboxes supply books, notices, enchantments and other references. Redirect-only pages and current
 skill/mutation item infoboxes are excluded from unkeyed items.
@@ -63,7 +68,8 @@ That repository has no reusable license; neither its code nor game descriptions/
 Native suffixes are not display order: `S_Sword_s01` is Whirl; `S_Sword_s21` is Muscle Memory.
 All 95 named skills join in all eight samples. Core `S_Perk_08`, six unnamed skill definitions and
 the mutation sentinel retain raw/default identities; no friendly skill was invented for them.
-Mutation numbers are corroborated by saved icon-path identifiers; no icon bytes are included.
+Mutation numbers are corroborated by saved icon-path identifiers; the asset round now includes
+their matching wiki-hosted publisher icons. No new native gameplay dependency is inferred.
 
 ## Gwent: MIT community data
 
@@ -87,5 +93,5 @@ leaders) join. Decks, actual quest cutoffs and availability remain unverified; a
 Updates must pin fresh revisions/commits, preserve notices, review changed mappings and recompute
 manifest SHA-256 values from UTF-8 LF dataset bytes. Do not replace the older ability crosswalk with
 the overhaul's skill order. Tests audit every record, keys, descriptions, pinned attribution,
-absence of assets/limits, variants, bounded paging and sample joins. Raw source snapshots stayed in
+asset resolution/hashes/provenance, absence of write limits, variants, bounded paging and sample joins. Raw source snapshots stayed in
 temporary scratch storage; no game/sample dump is shipped. See [EVIDENCE.md](EVIDENCE.md) for gates.

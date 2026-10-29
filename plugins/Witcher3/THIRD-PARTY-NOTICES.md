@@ -9,7 +9,9 @@ Individual articles and alternate labels link pinned revisions; article historie
 [Fandom licensing policy](https://www.fandom.com/licensing) supplies the source terms.
 
 PS5 Save Game Toolkit contributors normalized categories, adapted introductory wiki prose, condensed
-skill concepts, selected native joins and annotated uncertainty/unpublished IDs. These adaptations
+skill concepts, selected native joins and annotated uncertainty/unpublished IDs. The asset round
+adds 150 wiki-transcribed tooltip/effect descriptions with pinned sources and historical/cross-build
+scope. These adaptations
 and the source index remain CC BY-SA 3.0. Retain notices, pinned article links, modification notices
 and the same license when redistributing or adapting this data. The independent plugin code license
 is unchanged. See [CATALOG.md](CATALOG.md) and each pack's `data.source.md` for exact scope.
@@ -35,6 +37,16 @@ heuristics and quest-completion interpretations are not adopted.
 ## Existing parser adaptations
 
 Existing MIT parser notices remain in [W3SavegameEditor-LICENSE.txt](W3SavegameEditor-LICENSE.txt) and
-[SaveConverter-LICENSE.txt](SaveConverter-LICENSE.txt). No game scripts, XML, localization resources,
-letter/card flavor text or artwork are bundled. Unlicensed sources and game-file mirrors cited in
-the README and catalog methodology are research-only and do not supply embedded prose/assets.
+[SaveConverter-LICENSE.txt](SaveConverter-LICENSE.txt). No game scripts, XML, original localization
+archives or letter/card flavor text are bundled. Game-script mirrors remain research-only.
+
+## Publisher game artwork
+
+Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29.
+The 371 icons and five reference maps are separate F2 assets datasets, not MIT/CC BY-SA artwork.
+This is an unofficial fan work and is not approved or endorsed by CD PROJEKT RED.
+Witcher Wiki, GwentTracker and witcher3map hosting/extraction contributors retain attribution;
+the map host identifies its community work as CC BY-NC-SA. No community marker/coordinate dataset
+or code is imported. Exact sources, hashes, modifications and processing notices are retained in
+the [asset sidecar](SaveToolkit.Plugins.Witcher3/ReferencePacks/assets.source.md), its JSON audit
+and [ASSETS.md](ASSETS.md). Original text/catalogue licences and full MIT notices remain applicable.

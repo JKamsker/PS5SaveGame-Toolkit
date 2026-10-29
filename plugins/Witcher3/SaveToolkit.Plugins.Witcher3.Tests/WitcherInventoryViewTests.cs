@@ -66,7 +66,7 @@ public sealed class WitcherInventoryViewTests
             Assert.Contains("?oldid=", record.Source!, StringComparison.Ordinal);
             Assert.Equal("CC-BY-SA-3.0", record.Dataset.Attribution.License);
             Assert.Null(record.Limit);
-            Assert.Null(record.AssetId);
+            if (record.AssetId is { } asset) { Assert.NotNull(context.GetAsset(asset)); }
         });
         var service = new ReferenceFieldService(context);
         var spec = new ReferenceSpec("items");
