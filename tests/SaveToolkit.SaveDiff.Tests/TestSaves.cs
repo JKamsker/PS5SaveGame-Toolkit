@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using SaveToolkit.Testing;
 using SaveToolkit.Testing.Diff;
 
 namespace SaveToolkit.SaveDiff.Tests;
@@ -30,7 +31,7 @@ internal static class TestSaves
 
     public static string TempDir()
     {
-        var dir = Path.Combine(Path.GetTempPath(), "SaveToolkit.SaveDiff.Tests", Guid.NewGuid().ToString("N"));
+        var dir = Path.Combine(TestScratch.ProcessFolder, Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(dir);
         return dir;
     }

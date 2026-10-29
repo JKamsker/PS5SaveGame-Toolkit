@@ -1,6 +1,4 @@
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using SaveToolkit.Core;
 using SaveToolkit.Core.Editing;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Storage;
@@ -25,6 +23,8 @@ namespace SaveToolkit.Testing;
 public abstract partial class PluginConformanceTests<TPlugin>
     where TPlugin : IGamePlugin, new()
 {
+    private const int DefaultQueryPageBudget = 12;
+
     protected TPlugin Plugin { get; } = new();
 
     /// <summary>Title ids whose sample zips contain files this plugin must open.</summary>
@@ -35,6 +35,9 @@ public abstract partial class PluginConformanceTests<TPlugin>
 
     /// <summary>Maximum number of lazy sections expanded while walking a view.</summary>
     protected virtual int LazyExpansionBudget => 150;
+
+    /// <summary>Maximum number of F8 pages sampled across all collections while walking a view.</summary>
+    protected virtual int QueryPageBudget => DefaultQueryPageBudget;
 
     protected virtual bool IsWritable => Plugin.Info.Maturity != PluginMaturity.ReadOnly;
 
@@ -221,74 +224,9 @@ public abstract partial class PluginConformanceTests<TPlugin>
         }
     }
 
-    /// <summary>Builds the view, expands lazy sections (within budget), validates and JSON-serialises everything.</summary>
-    protected IReadOnlyList<FieldNode> Walk(ISaveDocument document, ISaveFile file)
-    {
-        var index = new ViewIndex();
-        var fields = new List<FieldNode>();
-        var seenSpecs = new Dictionary<string, FieldSpec>(StringComparer.Ordinal);
-        var lazy = new Queue<string>();
-        var root = document.BuildView();
-        Accept(root);
-
-        var budget = LazyExpansionBudget;
-        while (lazy.Count > 0 && budget-- > 0)
-        {
-            foreach (var child in document.ExpandNode(lazy.Dequeue()))
-            {
-                Accept(child);
-            }
-        }
-
-        return fields;
-
-        void Accept(ViewNode node)
-        {
-            index.Add(node);
-            _ = JsonSerializer.Serialize(node, ToolkitJson.Options);
-            foreach (var n in Flatten(node))
-            {
-                switch (n)
-                {
-                    case FieldNode f:
-                        // The same value may be shown in several places (e.g. a search table and a tree),
-                        // but every occurrence must describe it identically.
-                        if (seenSpecs.TryGetValue(f.ValueId, out var earlier))
-                        {
-                            Assert.True(
-                                JsonSerializer.Serialize(earlier, ToolkitJson.Options) == JsonSerializer.Serialize(f.Spec, ToolkitJson.Options),
-                                $"{file.RelativePath}: value id '{f.ValueId}' appears with different specs.");
-                        }
-                        else
-                        {
-                            seenSpecs[f.ValueId] = f.Spec;
-                            fields.Add(f);
-                        }
-
-                        break;
-                    case SectionNode { LazyId: { } id }:
-                        lazy.Enqueue(id);
-                        break;
-                }
-            }
-        }
-    }
-
-    private static IEnumerable<ViewNode> Flatten(ViewNode node)
-    {
-        yield return node;
-        var children = node switch
-        {
-            SectionNode { LazyId: null } s => s.Children,
-            TabsNode t => t.Tabs.SelectMany(tab => tab.Children),
-            TableNode table => table.Rows.SelectMany(r => r.Cells.Values),
-            _ => [],
-        };
-        foreach (var child in children.SelectMany(Flatten))
-        {
-            yield return child;
-        }
-    }
+    /// <summary>Validates and JSON-serialises eager views, lazy sections and sampled F8 pages.</summary>
+    protected IReadOnlyList<FieldNode> Walk(ISaveDocument document, ISaveFile file) =>
+        new ConformanceViewWalker(document, file.RelativePath, LazyExpansionBudget, QueryPageBudget).Walk();
 
     private static ISaveFile MemorySaveFile(byte[] content) => MemorySaveSet.SingleFile("data.bin", content);
 

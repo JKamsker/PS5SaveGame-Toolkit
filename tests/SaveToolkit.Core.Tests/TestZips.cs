@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
@@ -20,5 +21,5 @@ internal static class TestZips
         return buffer.ToArray();
     }
 
-    public static string TempDir() => Path.Combine(Path.GetTempPath(), "SaveToolkit.Tests", Guid.NewGuid().ToString("N"));
+    public static string TempDir() => Path.Combine(TestScratch.ProcessFolder, Guid.NewGuid().ToString("N"));
 }
