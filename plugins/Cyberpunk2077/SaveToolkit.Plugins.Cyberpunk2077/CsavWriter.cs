@@ -12,31 +12,8 @@ internal static class CsavWriter
     public static byte[] Rebuild(CsavContainer container, byte[] edited, KeyValuePair<int, byte[]>? replacement)
     {
         var tree = CsavTree.Parse(container);
-        var payload = edited;
         var directory = container.Original.AsSpan(container.DirectoryOffset).ToArray();
-        CsavNode? replaced = null;
-        var delta = 0;
-        if (replacement is { } pair)
-        {
-            replaced = tree.Nodes[pair.Key];
-            if (replaced.Children.Count != 0 || pair.Value.Length < 4 || BinaryData.Int32(pair.Value, 0) != replaced.Id)
-            {
-                throw new SaveFormatException("Only complete leaf-node replacements with matching IDs are supported.");
-            }
-
-            delta = pair.Value.Length - replaced.Size;
-            if (edited.Length + (long)delta > BinaryData.MaxExpandedSize)
-            {
-                throw new SaveFormatException("Edited CSAV exceeds the expanded data limit.");
-            }
-
-            payload = new byte[checked(edited.Length + delta)];
-            edited.AsSpan(0, replaced.Offset).CopyTo(payload);
-            pair.Value.CopyTo(payload, replaced.Offset);
-            edited.AsSpan(replaced.Offset + replaced.Size).CopyTo(payload.AsSpan(replaced.Offset + pair.Value.Length));
-            UpdateDirectory(directory, tree, replaced, delta, container.DataOffset);
-        }
-
+        var (payload, replaced, delta) = ReplaceNode(container, tree, edited, replacement, directory);
         if (payload.AsSpan().SequenceEqual(container.Payload))
         {
             return container.Original.ToArray();
@@ -44,44 +21,7 @@ internal static class CsavWriter
 
         using var output = new MemoryStream();
         output.Write(container.Original.AsSpan(0, container.DataOffset));
-        var descriptors = new List<(int Offset, int Stored, int Expanded)>();
-        Span<byte> integer = stackalloc byte[4];
-        foreach (var chunk in container.Chunks)
-        {
-            var start = MapOffset(chunk.PayloadOffset, replaced, delta);
-            var end = MapOffset(chunk.PayloadOffset + chunk.ExpandedSize, replaced, delta);
-            var content = payload.AsSpan(start, end - start);
-            var offset = checked((int)output.Position);
-            if (content.SequenceEqual(container.Payload.AsSpan(chunk.PayloadOffset, chunk.ExpandedSize)))
-            {
-                output.Write(container.Original.AsSpan(chunk.Offset, chunk.StoredSize));
-            }
-            else if (!chunk.Compressed)
-            {
-                output.Write(content);
-            }
-            else
-            {
-                var buffer = new byte[LZ4Codec.MaximumOutputSize(content.Length)];
-                var length = LZ4Codec.Encode(content, buffer);
-                if (length <= 0)
-                {
-                    throw new SaveFormatException("Could not encode the edited CSAV LZ4 block.");
-                }
-
-                output.Write("4ZLX"u8);
-                BinaryPrimitives.WriteInt32LittleEndian(integer, content.Length);
-                output.Write(integer);
-                output.Write(buffer.AsSpan(0, length));
-            }
-
-            descriptors.Add((offset, checked((int)output.Position) - offset, content.Length));
-            var nextIndex = descriptors.Count;
-            var gapEnd = nextIndex < container.Chunks.Count ? container.Chunks[nextIndex].Offset : container.DirectoryOffset;
-            var originalEnd = chunk.Offset + chunk.StoredSize;
-            output.Write(container.Original.AsSpan(originalEnd, gapEnd - originalEnd));
-        }
-
+        var descriptors = WriteChunks(output, container, payload, replaced, delta);
         var directoryOffset = checked((int)output.Position);
         output.Write(directory);
         var result = output.ToArray();
@@ -94,6 +34,84 @@ internal static class CsavWriter
         }
 
         BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(result.Length - 8), directoryOffset);
+        Verify(result, payload);
+        return result;
+    }
+
+    private static (byte[] Payload, CsavNode? Replaced, int Delta) ReplaceNode(CsavContainer container,
+        CsavTree tree, byte[] edited, KeyValuePair<int, byte[]>? replacement, byte[] directory)
+    {
+        if (replacement is not { } pair) return (edited, null, 0);
+        var replaced = tree.Nodes[pair.Key];
+        if (replaced.Children.Count != 0 || pair.Value.Length < 4 || BinaryData.Int32(pair.Value, 0) != replaced.Id)
+        {
+            throw new SaveFormatException("Only complete leaf-node replacements with matching IDs are supported.");
+        }
+
+        var delta = pair.Value.Length - replaced.Size;
+        if (edited.Length + (long)delta > BinaryData.MaxExpandedSize)
+        {
+            throw new SaveFormatException("Edited CSAV exceeds the expanded data limit.");
+        }
+
+        var payload = new byte[checked(edited.Length + delta)];
+        edited.AsSpan(0, replaced.Offset).CopyTo(payload);
+        pair.Value.CopyTo(payload, replaced.Offset);
+        edited.AsSpan(replaced.Offset + replaced.Size).CopyTo(payload.AsSpan(replaced.Offset + pair.Value.Length));
+        UpdateDirectory(directory, tree, replaced, delta, container.DataOffset);
+        return (payload, replaced, delta);
+    }
+
+    private static List<(int Offset, int Stored, int Expanded)> WriteChunks(MemoryStream output,
+        CsavContainer container, byte[] payload, CsavNode? replaced, int delta)
+    {
+        var descriptors = new List<(int Offset, int Stored, int Expanded)>();
+        foreach (var chunk in container.Chunks)
+        {
+            var start = MapOffset(chunk.PayloadOffset, replaced, delta);
+            var end = MapOffset(chunk.PayloadOffset + chunk.ExpandedSize, replaced, delta);
+            var content = payload.AsSpan(start, end - start);
+            var offset = checked((int)output.Position);
+            WriteChunk(output, container, chunk, content);
+            descriptors.Add((offset, checked((int)output.Position) - offset, content.Length));
+            var nextIndex = descriptors.Count;
+            var gapEnd = nextIndex < container.Chunks.Count ? container.Chunks[nextIndex].Offset : container.DirectoryOffset;
+            var originalEnd = chunk.Offset + chunk.StoredSize;
+            output.Write(container.Original.AsSpan(originalEnd, gapEnd - originalEnd));
+        }
+
+        return descriptors;
+    }
+
+    private static void WriteChunk(MemoryStream output, CsavContainer container, CsavChunk chunk, ReadOnlySpan<byte> content)
+    {
+        if (content.SequenceEqual(container.Payload.AsSpan(chunk.PayloadOffset, chunk.ExpandedSize)))
+        {
+            output.Write(container.Original.AsSpan(chunk.Offset, chunk.StoredSize));
+        }
+        else if (!chunk.Compressed)
+        {
+            output.Write(content);
+        }
+        else
+        {
+            var buffer = new byte[LZ4Codec.MaximumOutputSize(content.Length)];
+            var length = LZ4Codec.Encode(content, buffer);
+            if (length <= 0)
+            {
+                throw new SaveFormatException("Could not encode the edited CSAV LZ4 block.");
+            }
+
+            output.Write("4ZLX"u8);
+            Span<byte> integer = stackalloc byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(integer, content.Length);
+            output.Write(integer);
+            output.Write(buffer.AsSpan(0, length));
+        }
+    }
+
+    private static void Verify(byte[] result, byte[] payload)
+    {
         var reopened = CsavContainer.Parse(result);
         if (!reopened.Payload.AsSpan().SequenceEqual(payload))
         {
@@ -106,8 +124,6 @@ internal static class CsavWriter
         {
             _ = FactsReader.Read(BinaryData.Slice(reopened.Payload, node.Offset, node.Size));
         }
-
-        return result;
     }
 
     private static int MapOffset(int offset, CsavNode? node, int delta)

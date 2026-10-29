@@ -11,6 +11,19 @@ internal sealed record CsavTree(IReadOnlyList<CsavNode> Nodes, IReadOnlyList<int
 {
     public static CsavTree Parse(CsavContainer container)
     {
+        var nodes = ReadNodes(container);
+        var roots = LinkChildren(nodes);
+        ValidateSiblings(roots, nodes);
+        foreach (var node in nodes)
+        {
+            ValidateSiblings(node.Children, nodes);
+        }
+
+        return new CsavTree(nodes, roots);
+    }
+
+    private static CsavNode[] ReadNodes(CsavContainer container)
+    {
         var directory = container.Original.AsSpan(container.DirectoryOffset, container.Original.Length - container.DirectoryOffset - 8);
         var position = 4;
         var count = BinaryData.PackedInt(directory, ref position);
@@ -45,9 +58,14 @@ internal sealed record CsavTree(IReadOnlyList<CsavNode> Nodes, IReadOnlyList<int
         }
 
         // Unknown bytes after the directory entries are retained by the container writer.
+        return nodes;
+    }
+
+    private static IReadOnlyList<int> LinkChildren(CsavNode[] nodes)
+    {
         var roots = new List<int>();
         var parents = new Stack<(CsavNode Node, int Limit)>();
-        for (var index = 0; index < count; index++)
+        for (var index = 0; index < nodes.Length; index++)
         {
             while (parents.TryPeek(out var parent) && index >= parent.Limit)
             {
@@ -55,7 +73,7 @@ internal sealed record CsavTree(IReadOnlyList<CsavNode> Nodes, IReadOnlyList<int
             }
 
             var node = nodes[index];
-            var limit = parents.TryPeek(out var current) ? current.Limit : count;
+            var limit = parents.TryPeek(out var current) ? current.Limit : nodes.Length;
             var siblings = parents.Count > 0 ? current.Node.Children : roots;
             siblings.Add(index);
             if (parents.Count > 0 && (node.Offset < current.Node.Offset + sizeof(int) ||
@@ -87,13 +105,7 @@ internal sealed record CsavTree(IReadOnlyList<CsavNode> Nodes, IReadOnlyList<int
             }
         }
 
-        ValidateSiblings(roots, nodes);
-        foreach (var node in nodes)
-        {
-            ValidateSiblings(node.Children, nodes);
-        }
-
-        return new CsavTree(nodes, roots);
+        return roots;
     }
 
     private static void ValidateSiblings(IReadOnlyList<int> siblings, CsavNode[] nodes)

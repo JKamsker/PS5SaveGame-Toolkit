@@ -53,6 +53,12 @@ internal sealed class CsavContainer
             throw new SaveFormatException("Invalid CSAV node directory/footer offset.");
         }
 
+        var chunks = ReadChunks(bytes, count, directoryOffset);
+        return new CsavContainer(bytes, DecodePayload(bytes, chunks), chunks, directoryOffset);
+    }
+
+    private static CsavChunk[] ReadChunks(byte[] bytes, int count, int directoryOffset)
+    {
         var chunks = new CsavChunk[count];
         var previousEnd = TableOffset + count * EntrySize;
         var total = 0;
@@ -81,7 +87,13 @@ internal sealed class CsavContainer
             total += expanded;
         }
 
-        var payload = new byte[total];
+        return chunks;
+    }
+
+    private static byte[] DecodePayload(byte[] bytes, CsavChunk[] chunks)
+    {
+        var last = chunks[^1];
+        var payload = new byte[last.PayloadOffset + last.ExpandedSize];
         foreach (var chunk in chunks)
         {
             var source = bytes.AsSpan(chunk.Offset, chunk.StoredSize);
@@ -99,7 +111,7 @@ internal sealed class CsavContainer
             }
         }
 
-        return new CsavContainer(bytes, payload, chunks, directoryOffset);
+        return payload;
     }
 
     public byte[] Rebuild(ReadOnlySpan<byte> editedPayload, KeyValuePair<int, byte[]>? replacement = null)
