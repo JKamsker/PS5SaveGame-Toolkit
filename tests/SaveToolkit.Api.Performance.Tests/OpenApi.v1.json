@@ -2884,18 +2884,153 @@
         ],
         "type": "object"
       },
-      "PresetPackage": {
+      "PresetPackageActionDto": {
+        "additionalProperties": false,
+        "properties": {
+          "actionId": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "instances": {
+            "items": {
+              "$ref": "#/components/schemas/PresetPackageInstanceDto"
+            },
+            "maxItems": 256,
+            "type": "array"
+          },
+          "parameters": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FieldValue"
+            },
+            "description": "At most 128 parameter IDs (1\u2013256 UTF-16 units, nonblank, no controls). Numbers retain exact JSON lexemes; strings and tagged values are bounded to 4096 units. Arrays and loose save objects are rejected.",
+            "maxProperties": 128,
+            "type": "object"
+          },
+          "scopeKind": {
+            "pattern": "^(document|allCopies|allEligible|selected)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actionId",
+          "parameters",
+          "instances",
+          "scopeKind"
+        ],
+        "type": "object"
+      },
+      "PresetPackageCompatibilityDto": {
+        "additionalProperties": false,
+        "properties": {
+          "capabilitySchemaVersion": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fileRole": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "formatVariant": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gameBuild": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pluginId": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "pluginVersion": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "presetKind": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "referencePackIdentity": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requiresExplicitInstanceResolution": {
+            "type": "boolean"
+          },
+          "schemaFingerprint": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "titleIds": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 32,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "pluginId",
+          "pluginVersion",
+          "titleIds",
+          "gameBuild",
+          "formatVariant",
+          "referencePackIdentity",
+          "requiresExplicitInstanceResolution",
+          "presetKind",
+          "schemaFingerprint",
+          "fileRole",
+          "capabilitySchemaVersion"
+        ],
+        "type": "object"
+      },
+      "PresetPackageDto": {
+        "additionalProperties": false,
         "properties": {
           "presets": {
             "items": {
-              "$ref": "#/components/schemas/ToolkitPreset"
+              "$ref": "#/components/schemas/PresetPackageRecordDto"
             },
+            "maxItems": 256,
+            "minItems": 1,
             "type": "array"
           },
           "provenance": {
-            "$ref": "#/components/schemas/PresetPackageProvenance"
+            "$ref": "#/components/schemas/PresetPackageProvenanceDto"
           },
           "schemaVersion": {
+            "pattern": "^1$",
             "type": "string"
           }
         },
@@ -2903,6 +3038,66 @@
           "schemaVersion",
           "provenance",
           "presets"
+        ],
+        "type": "object"
+      },
+      "PresetPackageInstanceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "build": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "kind": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "path": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenance": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "role": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stableId": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "stableId"
         ],
         "type": "object"
       },
@@ -2919,6 +3114,73 @@
         "required": [
           "producer",
           "exportedAt"
+        ],
+        "type": "object"
+      },
+      "PresetPackageProvenanceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "exportedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "producer": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "producer",
+          "exportedAt"
+        ],
+        "type": "object"
+      },
+      "PresetPackageRecordDto": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/PresetPackageActionDto"
+            },
+            "maxItems": 32,
+            "minItems": 1,
+            "type": "array"
+          },
+          "compatibility": {
+            "$ref": "#/components/schemas/PresetPackageCompatibilityDto"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "schemaVersion": {
+            "pattern": "^1$",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "id",
+          "name",
+          "compatibility",
+          "actions",
+          "createdAt",
+          "updatedAt"
         ],
         "type": "object"
       },
@@ -4512,47 +4774,6 @@
           "Danger"
         ]
       },
-      "ToolkitPreset": {
-        "description": "Versioned, host-owned preset payload. It is never embedded in save bytes.",
-        "properties": {
-          "actions": {
-            "items": {
-              "$ref": "#/components/schemas/PresetAction"
-            },
-            "type": "array"
-          },
-          "compatibility": {
-            "$ref": "#/components/schemas/PresetCompatibility"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "schemaVersion": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "required": [
-          "schemaVersion",
-          "id",
-          "name",
-          "compatibility",
-          "actions",
-          "createdAt",
-          "updatedAt"
-        ],
-        "type": "object"
-      },
       "UnionOption": {
         "description": "A named type choice. Id is stable and unique within the enclosing union.",
         "properties": {
@@ -5373,6 +5594,14 @@
         },
         "responses": {
           "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
             "description": "OK"
           },
           "400": {
@@ -5437,7 +5666,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PresetPackage"
+                "$ref": "#/components/schemas/PresetPackageDto"
               }
             }
           },
@@ -5523,6 +5752,9 @@
           }
         ],
         "responses": {
+          "204": {
+            "description": "No Content"
+          },
           "400": {
             "content": {
               "application/json": {

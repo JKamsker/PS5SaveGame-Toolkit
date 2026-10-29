@@ -16,7 +16,7 @@ const preview: ImportPreview = {
 let restoreDialog = () => {};
 beforeEach(() => {
   restoreDialog = installDialogStub({ dispatchCloseEvent: true });
-  vi.spyOn(presetTransfer, "compatibility").mockResolvedValue([{ index: 0, compatibility: { compatible: false, reason: "Server boundary mismatch", readOnly: true, presetKind: "test", unsupportedActions: [] } }]);
+  vi.spyOn(presetTransfer, "compatibility").mockResolvedValue([{ index: 0, compatibility: { compatible: false, reason: "Server boundary mismatch", readOnly: true, canPreview: false, presetKind: "test", unsupportedActions: [] } }]);
   vi.spyOn(presetTransfer, "cancel").mockResolvedValue(undefined);
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); restoreDialog(); });
@@ -24,6 +24,18 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); restoreDialog(); });
 async function chooseFile() {
   fireEvent.change(await screen.findByLabelText("Preset package"), { target: { files: [new File(["exact original bytes"], "presets.json")] } });
 }
+
+it("shows the server's apply-direction limitation for an otherwise compatible import", async () => {
+  vi.spyOn(presetTransfer, "preview").mockResolvedValue(preview);
+  vi.mocked(presetTransfer.compatibility).mockResolvedValue([{ index: 0, compatibility: {
+    compatible: true, readOnly: false, canPreview: false, previewReason: "This plugin supports capture only.",
+    presetKind: "test", unsupportedActions: [],
+  } }]);
+  renderSpatial(<PresetTransferToolbar />);
+  fireEvent.click(screen.getByRole("button", { name: "Import presets" })); await chooseFile();
+  expect((await screen.findByText(/Stored for later/)).textContent).toContain("This plugin supports capture only.");
+  expect(screen.queryByText(/Matching known boundaries/)).toBeNull();
+});
 
 it("requires explicit conflicts and resulting-name review before a readonly host import; cancellation restores focus", async () => {
   vi.spyOn(presetTransfer, "preview").mockResolvedValue(preview);

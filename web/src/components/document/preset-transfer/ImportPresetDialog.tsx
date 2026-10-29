@@ -70,6 +70,7 @@ export default function ImportPresetDialog({ workspaceId, documentId, trigger, o
         const status = statuses[item.index];
         const reason = !status?.compatible ? status?.reason ?? "Compatibility is unknown."
           : status.readOnly ? "This save is read-only."
+          : !status.canPreview ? status.previewReason ?? "The current plugin cannot preview these actions."
           : status.unsupportedActions.length > 0 ? "The current plugin cannot apply these actions." : undefined;
         return <li key={item.index}>
           <strong>{item.resultingName ?? item.name}</strong>

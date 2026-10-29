@@ -25,7 +25,8 @@ into a wildcard: [the preset compatibility contract](SDK07-PRESETS.md) is enforc
 when applying, and the current plugin must prove every boundary it publishes.
 Unknown plugins/titles/builds may be stored for later. The import preview labels their
 status relative to the current save using the server's `ToDocumentDto` compatibility
-summary, including read-only and unsupported-action status. This advisory check calls
+summary, including read-only, unsupported-action and `canPreview`/`previewReason` status.
+A capture-only plugin is honestly marked as unable to apply the imported preset. This advisory check calls
 no plugin planner and changes no document. Importing never offers a bypass or automatic apply.
 
 The producer is public toolkit provenance, not a machine/user identity. Export does not
@@ -144,6 +145,9 @@ styles load only when the corresponding transfer dialog opens.
   documents required/nullability metadata; [document transformers](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/customize-openapi)
   allow the transfer graph to reuse the existing recursive value component after export.
 - `PresetPackageTests`, `PresetTransferTests`, `PresetTransferApiTests` and
-  `web/e2e/preset-transfer.e2e.ts` cover synthetic transfer/transaction paths. Native-game
+  `web/e2e/preset-transfer.e2e.ts` and `preset-transfer-recovery.e2e.ts` cover synthetic
+  transfer/transaction paths, including all 256 maximum-length Unicode IDs and explicit
+  reload after an external library addition. This measures one conflict per imported
+  record; the bounded worst-case 65,536 conflict matches is not a UI performance claim. Native-game
   semantic identity, actual title/build compatibility and game acceptance remain plugin
   adopter responsibilities; transfer alone establishes none of those claims.

@@ -40,7 +40,7 @@ it("reload recovery retains server-incompatible summaries instead of enabling a 
   const preset = { schemaVersion: "1", id: "p", name: "Later", compatibility: { pluginId: "other", pluginVersion: "1", titleIds: ["OTHER"] },
     actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" };
   const fetch = vi.spyOn(api, "documentPresets").mockRejectedValueOnce(new Error("Storage unavailable")).mockResolvedValue([{
-    preset, compatibility: { compatible: false, reason: "Server plugin mismatch", code: "pluginUnavailable", readOnly: false,
+    preset, compatibility: { compatible: false, reason: "Server plugin mismatch", code: "pluginUnavailable", readOnly: false, canPreview: false,
       presetKind: "toolkit.action-parameters", unsupportedActions: [] },
   }]);
   const reload = vi.spyOn(api, "reloadPresets").mockResolvedValue([preset]);
@@ -58,7 +58,7 @@ it("shows a truthful no-actions state without a never-ending loading message", a
   const presets = vi.spyOn(api, "presets");
   renderSpatial(<PresetsPanel document={noActions} onToast={vi.fn()} />);
   fireEvent.click(screen.getByText("Toolkit presets"));
-  expect((await screen.findByText(/no planned preset actions/i)).textContent).toContain("no planned preset actions");
+  expect((await screen.findByText(/no planned preset actions/i)).textContent).toContain("No planned preset actions. Import and export are available below.");
   expect(screen.queryByText("Loading presets…")).toBeNull();
   expect(presets).not.toHaveBeenCalled();
 });
