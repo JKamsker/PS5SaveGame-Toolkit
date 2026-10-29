@@ -26,6 +26,12 @@ function contrast(first: string, second: string): number {
 }
 
 describe.each([["light", light], ["dark", dark]] as const)("%s confidence contrast", (_name, palette) => {
+  it("keeps small hints and metadata readable across workspace surfaces", () => {
+    for (const surface of ["ground", "surface", "surface-sunk", "modified-soft", "signal-soft"]) {
+      expect(contrast(palette["ink-faint"]!, palette[surface]!), `ink-faint on ${surface}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   it.each(["verified", "inferred", "unknown"])("keeps %s text readable on field and table surfaces", confidence => {
     for (const surface of ["surface", "surface-sunk", "modified-soft", "signal-soft"]) {
       expect(contrast(palette[confidence]!, palette[surface]!), `${confidence} on ${surface}`).toBeGreaterThanOrEqual(4.5);

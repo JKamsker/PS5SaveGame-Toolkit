@@ -8,7 +8,8 @@
   --surface-sunk: #f4f6f9;
   --ink: #18202c;
   --ink-soft: #4a5566;
-  --ink-faint: #7b8696;
+  /* Hints and metadata use small text; retain 4.5:1 even on selected rows. */
+  --ink-faint: #5c6777;
   --rule: #d3d9e1;
   --rule-strong: #b7c0cc;
   --signal: #2d5bff;
@@ -62,7 +63,7 @@
     --surface-sunk: #121820;
     --ink: #e4e9f0;
     --ink-soft: #a9b3c1;
-    --ink-faint: #75808f;
+    --ink-faint: #8f9baa;
     --rule: #263040;
     --rule-strong: #364256;
     --signal: #6d8cff;
