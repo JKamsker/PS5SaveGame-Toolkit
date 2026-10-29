@@ -15,6 +15,7 @@ public sealed class WitcherFeatureReaderTests
         Assert.Equal("unnamed-slot-0", array.Entries[0].Id);
         Assert.Equal("S_Sword_1", array.Entries[1].Id);
         Assert.Equal("unnamed-slot-2", array.Entries[2].Id);
+        Assert.Equal([true, false, false], array.Entries.Select(e => e.IsEmpty));
         Assert.Equal("UnmappedType", Assert.Single(array.Entries[2].Record.Properties).Type);
         Assert.Equal(new byte[] { 0x71, 0xFF }, Assert.Single(array.Entries[2].Record.Properties).Value.ToArray());
     }

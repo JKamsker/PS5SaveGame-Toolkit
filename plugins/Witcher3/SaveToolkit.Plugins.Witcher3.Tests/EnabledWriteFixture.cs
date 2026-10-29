@@ -30,7 +30,7 @@ internal static class EnabledWriteFixture
         {
             for (var start = 0; start < array.Entries.Count; start += 64) { _ = session.Expand($"ability/{array.Name}/{start}"); }
         }
-        _ = session.Expand("gwent/0");
+        _ = session.QueryCollection(GwentCollection.CollectionId, new() { Limit = 200 });
     }
 
     public static IncomingEdit Incoming(string id, FieldValue value) => new(id, JsonSerializer.SerializeToElement(value));

@@ -41,7 +41,7 @@ public sealed class WitcherRichSampleTests
             using var document = new Witcher3Plugin().Open(file);
             _ = document.BuildView();
             foreach (var array in features.Abilities) { Assert.NotEmpty(document.ExpandNode($"ability/{array.Name}/0")); }
-            Assert.NotEmpty(document.ExpandNode("gwent/0"));
+            Assert.NotEmpty(((IQueryableDocument)document).Query(GwentCollection.CollectionId, new() { Limit = 200 }).Rows);
             Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
         }
     }

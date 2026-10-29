@@ -3,7 +3,10 @@ using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Plugins.Witcher3;
 
-internal sealed record AbilityEntry(string Id, TaggedRecord Record);
+internal sealed record AbilityEntry(string Id, TaggedRecord Record)
+{
+    public bool IsEmpty { get; init; }
+}
 internal sealed record AbilityArray(string Name, IReadOnlyList<AbilityEntry> Entries);
 
 /// <summary>Read-only projections of exact, bounded tagged arrays; unknown properties remain in each record.</summary>
@@ -54,7 +57,7 @@ internal static class AbilityReader
                     ? record.Integer(key).ToString(System.Globalization.CultureInfo.InvariantCulture)
                     : NameValue(identity, names);
                 if (!ids.Add(id)) { throw new SaveFormatException($"Ambiguous {name} record identity '{id}'."); }
-                entries.Add(new AbilityEntry(id, record));
+                entries.Add(new AbilityEntry(id, record) { IsEmpty = AbilitySlots.IsEmpty(name, record, names) });
             }
 
             if (position != end) { throw new SaveFormatException($"Trailing {name} array bytes."); }

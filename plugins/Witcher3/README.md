@@ -37,12 +37,52 @@ unknown, so saved tags stay in the text list and regional artwork never invents 
 | F5 structural history | N/A | No safe item/skill creation, deletion, reordering or identity/reference/ownership cleanup writer exists. Scalar omitted-zero property insertion is replayable by value ID; it does not create a gameplay record. Controlled ownership captures are in #31. |
 | F6 planned actions | Added | Repair plus imported-quantity refill; document, explicit row and Core-resolved #27 F8 query scopes, exclusions/warnings, stale/forged revalidation and one undo step. |
 | F7 document groups | N/A | Only selected `.sav` changes. Same-stem `.req` is an invariant content list, not a coupled gameplay/checksum file; no demonstrated cross-file edit invariant. Core handles identical backup mirroring. |
-| F8 queryable lists | Added | Existing full inventory/catalog/recipe/fact/journal queries plus every ability array and native map tags, with full-list search/filter/sort and bounded pages. Lazy details remain for reliable F9 navigation to unloaded data. |
+| F8 queryable lists | Added | Full inventory/catalog/recipe/fact/journal queries, every ability array, Gwent and native map tags, with full-list search/filter/sort and bounded pages. Raw field groups remain for reliable F9 navigation to unloaded data. |
 | F9 graph/map nodes | Used | 102 saved skill definitions, 13 mutation definitions/11 native prerequisite edges, and counted known/discovered/disabled map tags. Five lazy regional reference backgrounds with local F2 provenance and missing-pack fallback; native tag/region alignment remains unknown, so tags are never plotted on artwork. Text alternatives, stable links and external map guides remain. |
 | F10 exact/nullable/union | N/A | This binary schema stores fixed integer/float32/float64 values, not exact JSON number lexemes or polymorphic scalars. Omitted default zero is neither explicit null nor a union; using those specs would invent storage states. Existing integer specs retain exact widths. |
 | F11 shared codecs | N/A | SNFH uses raw LZ4, already handled by K4os.Compression.LZ4. SaveToolkit.Codecs' Kraken/SQLite wrappers cannot decode this format; no local Kraken/SQLite implementation exists. |
 | F12 | Added | `Witcher3Plugin` implements SDK `ISaveDecoderProvider`, exposing `witcher3-native-identities` for `savediff compare --decoder`. Production has no Testing dependency; the existing research decoder is a thin adapter. Sink refusal, depth/input/value bounds and positional identity limitations are tested. F8 views remain available via `--decoder witcher3`. |
 | F13 | Added | All four message-only lookups publish `Mutates = false` and work on read-only saves with unchanged bytes/history/revision. Ability identities browse without writes. Catalogue category filtering and declared key/name/category sorting use F2/F13 queries; the duplicate metadata index is removed. Float duration is N/A: no float timer has proven units. |
+| F14 | Added | One F8 table per saved list. Confirmed empty skill definitions/sockets and mutagen sockets are flagged and hidden before paging, with matching hidden counts and “Empty slot” labels. Gwent linked pages become one F8 table; raw graph targets use field groups instead of duplicate tables. |
+
+## F14 empty-slot adoption
+
+All eager tables and F8 collections were audited. Player inventory already uses one F8 table: its
+native count enumerates positive-quantity item instances, not a capacity-sized array. Unmapped IDs,
+absent mounted slots and durability `-1` do not make an item empty. Gwent now uses `saved/gwent`,
+one F8 table instead of linked 64-record tables, with complete-model search, filters and numeric
+index/copy sorting. A zero-copy card is still a meaningful saved identity and remains visible.
+
+The six ability arrays retain their existing collection IDs and row keys. All eight PS5 samples
+contain six property-free `skills` placeholders (102 total / 96 visible), 16 `skillSlots` records
+without `socketedSkill` (16 total / 0 visible), and four `mutagenSlots` without `item` (4 total /
+0 visible). These exact observed defaults are marked empty. Named zero-rank skills, core skills,
+mutation/stat/resistance definitions and unknown layouts stay visible. Explicit `S_SUndefined`
+socket values are also recognized from the researched script; they are not present in these
+samples. Present opaque mutagen item structures remain visible until their sentinel is verified.
+Occupancy meaning is **Inferred** from the older/modded script and observed omitted properties,
+not a universal assertion about every game version. [Evidence and sources](SaveToolkit.Plugins.Witcher3/AbilitySlots.source.md).
+
+`EmptyRows` metadata agrees on each ability collection/table. Queries resolve omitted visibility
+locally, filter the complete model, count matching hidden empties, then sort/page. Shown empties
+read “Empty slot”; native identities, property bytes and field IDs remain available. F6 query
+selection carries visibility and exclusions; inventory-only repair/refill still rejects ability
+selections. Graph navigation uses bounded raw field groups, preserving paths to unloaded records
+without publishing a second set of inventory tables.
+
+Reference catalogues, map memberships, recipes, fact streams, journal paths, the name dictionary
+and chunk descriptors contain meaningful records rather than confirmed vacant slots. They retain
+their current presentation. Zero-valued facts, empty journal resource strings and absent references
+are not treated as vacant records. No saved records, ordering or serialization paths change.
+
+F14 validation: **124 passed, 0 failed, 0 skipped** with all eight sample records available;
+API build **0 warnings / 0 errors**. Tests cover complete-model paging/search/sort/filters,
+matching hidden counts, explicit/default visibility, F6 exclusions, raw graph target navigation,
+visible skill writes with independent byte-preservation checks, query-driven Gwent count writes,
+zero-copy identity retention, reopening and byte-identical undo/no-op exports. Every C# file is
+below 300 lines. Test/build processes export `SAVETOOLKIT_ARTIFACTS` to the external artifacts
+directory, `SAVETOOLKIT_TEST_TEMP=D:/Temp/saveeditor/test-scratch`, and
+`TEMP`/`TMP=D:/Temp/saveeditor/test-scratch/Witcher3` for isolated scratch storage.
 
 ## F12/F13 follow-up
 
@@ -418,6 +458,7 @@ text; no downloaded editor/script was run. The plugin is independently written b
 | Journal GUID/resource/status and facts research | [w3-quest-tracker format notes, 6078f8f](https://github.com/dodojesuslol/w3-quest-tracker/blob/6078f8f64a1ede3a304452bfe3cff710ae1d554e/docs/save-format.md), dodojesuslol | MIT; [notice](QuestTracker-LICENSE.txt) | Independent bounded PS5 readers; save-native provenance. No PC compatibility or completion heuristics adopted. |
 | SAV3 framing/primitive layout adaptation | [Atvaark/W3SavegameEditor](https://github.com/Atvaark/W3SavegameEditor/tree/cff905189d565606aed9058b2804eb4c5ee9f540/W3SavegameEditor.Core) | MIT, [notice](W3SavegameEditor-LICENSE.txt) | Bounded parser and preserving writer; stored names have save-native provenance. |
 | Native inventory/tagged property research and layout adaptation | [cahian converter](https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter/tree/7ae8b6fe71c4b36e571246ad25629d03c7ec8219/w3save) | MIT, [notice](SaveConverter-LICENSE.txt) | Independently bounded PS5 readers; retained raw attributes/flags/prefixes; no PC schema conversion. |
+| Skill/mutagen socket occupancy research | [PlayerAbilityManager script mirror, a85e52c](https://github.com/Lknechtli/BetterCombatEvolved/blob/a85e52c3e3841863999b45afc2a0fd1f284a6bc0/Witcher3/content/scripts/game/gameplay/ability/PlayerAbilityManager.ws), CD PROJEKT RED; mirror/modifications by Lknechtli and contributors | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Research only; no script copied. | Independently implemented conservative empty-slot presentation using `socketedSkill`/`item` semantics; checked against all eight PS5 records. Unknown layouts remain visible. [Sidecar](SaveToolkit.Plugins.Witcher3/AbilitySlots.source.md). |
 | Raw LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT, existing managed package | No copied source or reference dataset. |
 | Native spatial projections and regional reference backgrounds | Native saved definitions/map-tag blocks; [witcher3map](https://legacy.witcher3map.com/), untamed0 and contributors; [pinned tiles df7fa74](https://github.com/witcher3map/witcher3map-maps/tree/df7fa74609df7587afc324e569d2574cf5b4f1ec) | Projection code GPL-3.0-or-later; labels/text CC BY-SA 3.0. Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Host community work remains CC BY-NC-SA. [Spatial sidecar](SaveToolkit.Plugins.Witcher3/SpatialViews.source.md), [asset sidecar](SaveToolkit.Plugins.Witcher3/ReferencePacks/assets.source.md). | Five local publisher-art backgrounds assembled with verified TMS orientation; no community marker/coordinate dataset or code. Native region/position joins unknown: saved tags remain an independent text list, never plotted on art. F9 attribution and Sources panel. |
 | 371 item/ability/Gwent icons and 150 expanded tooltip/effect descriptions | [Witcher Wiki](https://witcher.fandom.com/wiki/Category:The_Witcher_3_images), pinned catalogue article revisions; [GwentTracker art d8eab8c](https://github.com/vishalgupta-git/GwentTracker/tree/d8eab8c25c409be42a0ea7b43b901a43dfefed18/public/cards), CD PROJEKT RED and hosting contributors | Art: Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Wiki text keeps CC BY-SA 3.0. [Full source table](ASSETS.md), [hash/URL audit](SaveToolkit.Plugins.Witcher3/ReferencePacks/assets.source.json). | Exact identity joins, bounded 64×64 WebP icons, byte deduplication, minified tooltip/effect text with cross-build caveats. Separate text/image provenance in F3/F4/Sources and Info.References. |

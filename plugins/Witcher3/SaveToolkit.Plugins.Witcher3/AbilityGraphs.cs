@@ -96,5 +96,5 @@ internal sealed class AbilityGraphs(IReadOnlyList<AbilityArray> arrays, IReadOnl
 
     private static ViewTarget Target(AbilityArray array, int index, AbilityEntry entry, string valueId) =>
         new(ViewTargetKind.Field, valueId) { Path = ["tab:Abilities and Gwent",
-            $"section:ability/{array.Name}/{index / ObservedFeatures.PageSize * ObservedFeatures.PageSize}", $"row:{entry.Id}"] };
+            $"section:ability/{array.Name}/{index / ObservedFeatures.PageSize * ObservedFeatures.PageSize}", $"section:{entry.Id}"] };
 }

@@ -107,7 +107,7 @@ public sealed class WitcherEnabledWriteTests
             using var reopened = plugin.Open(SaveToolkit.Testing.MemorySaveSet.SingleFile("Manual.sav", output, "PPSA04018"));
             _ = reopened.BuildView();
             if (kind == "skill") { _ = reopened.ExpandNode("ability/skills/0"); }
-            if (kind.EndsWith("card", StringComparison.Ordinal)) { _ = reopened.ExpandNode("gwent/0"); }
+            if (kind.EndsWith("card", StringComparison.Ordinal)) { _ = ((SaveToolkit.Sdk.Collections.IQueryableDocument)reopened).Query(GwentCollection.CollectionId, new() { Limit = 200 }); }
             if (kind == "durability")
             {
                 _ = ((SaveToolkit.Sdk.Collections.IQueryableDocument)reopened).Query(InventoryViews.CollectionId, new() { Limit = 200 });
