@@ -87,6 +87,27 @@ TRX/build evidence: `D:/Temp/saveeditor/reviews/review-robust-cyberpunk2077/`.
 Experimental maturity, write warnings, no-op preservation and existing edit/history coverage remain
 unchanged. No confirmed findings deferred; changes stay inside this plugin folder.
 
+## Test quality review (#40)
+
+Fact bindings live in queryable collections, so eager/lazy view traversal alone cannot test their
+editability. Sample assertions now load actual fact rows, check their Unknown confidence and write
+warnings, and require six proficiency fields. Unsupported schemas must retain the raw explorer while
+queried facts reject edits. Shared sample discovery requires gameplay files after loading an archive;
+missing archives still skip through `SampleSaves.Load`.
+
+Independent modifier fixtures cover constant, combined and curve records, mixed-record alignment,
+nonfinite values, unknown classes, suffixes and the 4,096/4,097-record boundary. Every truncated record
+is framed with a repaired outer length so the wrapper cannot mask its rejection. Corruption cases
+start from fresh valid bytes and assert contextual diagnostics. A shared synthetic inventory fixture
+lets the 1,000-row materialization check and 100/101/128-row presentation boundaries run without
+private samples. No existing corruption coverage was removed and no production changes were needed.
+
+Release validation: **286 passed / 0 failed / 0 skipped** with samples; with `SAVETOOLKIT_ARTIFACTS`
+unset, **181 passed / 0 failed / 105 expected missing-sample skips**. API Release build with warnings
+as errors: **0 warnings / 0 errors**. Stopwatches only report measurements; there are no wall-clock
+deadlines. Plugin fixtures use memory streams and byte arrays; shared `SampleSaves` owns extraction
+and process-exit cleanup on the configured D: scratch root.
+
 ## SDK helper migration (#40)
 
 `InspectionCollection` now adapts the shared `InMemoryCollection` engine. Cheap live text

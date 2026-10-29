@@ -3,8 +3,10 @@ using System.Text.Json;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077.Tests;
@@ -29,9 +31,23 @@ public sealed class ProgressionSampleTests
                 progression.Points.Select(p => (p.Type, p.Value)));
             using var document = new Cyberpunk2077Plugin().Open(file);
             var fields = CyberpunkSampleTests.ExpandAll(document);
-            Assert.All(fields.Where(f => f.ValueId.StartsWith("progression/Level/", StringComparison.Ordinal) ||
-                f.ValueId.StartsWith("progression/StreetCred/", StringComparison.Ordinal)), f => Assert.False(f.Spec.ReadOnly));
-            Assert.All(fields.Where(f => f.ValueId.StartsWith("facts/", StringComparison.Ordinal)), f => Assert.True(f.Spec.ReadOnly));
+            var proficiencies = fields.Where(f => f.ValueId.StartsWith("progression/Level/", StringComparison.Ordinal) ||
+                f.ValueId.StartsWith("progression/StreetCred/", StringComparison.Ordinal)).ToArray();
+            Assert.Equal(6, proficiencies.Length);
+            Assert.All(proficiencies, f => Assert.False(f.Spec.ReadOnly));
+            // Facts live in an F8 collection: expanding ordinary views never loads these bindings.
+            var facts = Assert.IsAssignableFrom<IQueryableDocument>(document).Query("facts", new() { Limit = 200 });
+            Assert.Equal(2750, facts.TotalCount);
+            Assert.Equal(200, facts.Rows.Count);
+            Assert.All(facts.Rows, row =>
+            {
+                var field = Assert.IsType<FieldNode>(row.Cells["value"]);
+                Assert.StartsWith("facts/", field.ValueId);
+                Assert.False(field.Spec.ReadOnly);
+                Assert.Equal(Confidence.Unknown, field.Confidence);
+                Assert.Contains("Not validated on console", field.Warning);
+                Assert.Equal(field.Value, document.GetValue(field.ValueId));
+            });
         }
     }
 
@@ -160,6 +176,11 @@ public sealed class ProgressionSampleTests
         Assert.Equal(bytes, Assert.Single(session.Serialize()).Content.ToArray());
     }
 
-    internal static ISaveFile[] Files() => SampleSaves.Load("PPSA04027").AllDiskFiles.Where(f => f.FileName == "sav.dat").Cast<ISaveFile>().ToArray();
+    internal static ISaveFile[] Files()
+    {
+        var files = SampleSaves.Load("PPSA04027").AllDiskFiles.Where(f => f.FileName == "sav.dat").Cast<ISaveFile>().ToArray();
+        Assert.NotEmpty(files); // Missing archives skip in Load; malformed/empty fixtures must not pass vacuously.
+        return files;
+    }
     internal static ISaveDocument Open(byte[] bytes) => new Cyberpunk2077Plugin().Open(MemorySaveSet.SingleFile("sav.dat", bytes, "PPSA04027"));
 }

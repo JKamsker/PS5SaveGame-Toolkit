@@ -4,7 +4,6 @@ using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
-using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -124,12 +123,7 @@ public sealed class EmptySlotSampleTests
     [InlineData(128, true)]
     public void InventoryUsesExactlyOneTableAndSwitchesToF8AboveOneHundredRows(int count, bool queryable)
     {
-        var container = CsavContainer.Parse(ProgressionSampleTests.Files()[0].ReadAllBytes());
-        var nodes = Enumerable.Range(0, count).Select(id => new CsavNode(id, "itemData", -1, -1, 0, 29)).ToArray();
-        var items = Enumerable.Range(0, count).Select(id => new InventoryItem(id, 1, InventoryReader.MoneyTweakId, null, 0)).ToArray();
-        var inspection = new InventoryInspection(items, container, new CsavTree(nodes, []), new CyberpunkReferences(IReferenceContext.Empty, 2210),
-            new ItemNames(), container.Payload, _ => throw new InvalidOperationException("No quantity field in fixture"),
-            (id, label, spec, value) => new FieldNode(id, label, spec with { ReadOnly = true }, FieldValue.Of(value)));
+        var inspection = InventoryInspectionFixture.Create(count);
         var view = inspection.Build();
         if (queryable)
         {
@@ -141,7 +135,8 @@ public sealed class EmptySlotSampleTests
             Assert.Single(view.OfType<SectionNode>());
             var table = Assert.IsType<TableNode>(Assert.Single(inspection.Expand()));
             Assert.Equal(count, table.Rows.Count);
-            Assert.Equal(items.Select(item => item.NodeId.ToString()).Order(), table.Rows.Select(row => row.Key).Order());
+            Assert.Equal(Enumerable.Range(0, count).Select(id => id.ToString(System.Globalization.CultureInfo.InvariantCulture)).Order(),
+                table.Rows.Select(row => row.Key).Order());
         }
     }
 }
