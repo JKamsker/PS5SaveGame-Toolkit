@@ -13,6 +13,14 @@ along with every ordered sample. This keeps one-off tiered/OSR JIT work from
 deciding an allocation guard. It measures managed allocations on that thread only;
 do not pass asynchronous operations or dispatch measured work to other threads.
 
+For an HTTP/async guard that already measures allocations across server and client
+threads, use `await AllocationProbe.MeasureProcessWideAsync(operation)` instead.
+It uses `GC.GetTotalAllocatedBytes(precise: true)` across each awaited invocation,
+with the same warm-up, minimum-of-three and configuration policy. Run it in a
+non-parallel collection because all managed allocations in that process count.
+Never use a current-thread counter across an `await` or synchronously block async
+HTTP work just to fit the current-thread probe.
+
 ```csharp
 var allocation = AllocationProbe.Measure(() => document.Query(id, query), out var page);
 allocation.AssertLessThan(PageBudget);

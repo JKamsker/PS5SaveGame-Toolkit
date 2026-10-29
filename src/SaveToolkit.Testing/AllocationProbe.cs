@@ -25,12 +25,7 @@ public static class AllocationProbe
 
         long Run(bool measure)
         {
-            if (collectBetweenRuns)
-            {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                GC.Collect();
-            }
+            CollectIfRequested(collectBetweenRuns);
 
             try
             {
@@ -44,6 +39,39 @@ public static class AllocationProbe
                 afterRun?.Invoke();
             }
         }
+    }
+
+    /// <summary>
+    /// Measures asynchronous work across all managed threads, for example HTTP transfers.
+    /// Use a non-parallel test collection: unrelated process activity is included. Unlike
+    /// Measure, this explicitly uses GetTotalAllocatedBytes because awaits can change threads.
+    /// </summary>
+    public static async Task<AllocationProbeResult> MeasureProcessWideAsync(Func<Task> operation,
+        int warmupRuns = 1, int measuredRuns = DefaultMeasuredRuns, bool collectBetweenRuns = false)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentOutOfRangeException.ThrowIfLessThan(warmupRuns, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(measuredRuns, 1);
+        var samples = new long[measuredRuns];
+        for (var run = 0; run < warmupRuns; run++) await Run(measure: false);
+        for (var run = 0; run < measuredRuns; run++) samples[run] = await Run(measure: true);
+        return new(samples);
+
+        async Task<long> Run(bool measure)
+        {
+            CollectIfRequested(collectBetweenRuns);
+            var before = measure ? GC.GetTotalAllocatedBytes(precise: true) : 0;
+            await operation();
+            return measure ? GC.GetTotalAllocatedBytes(precise: true) - before : 0;
+        }
+    }
+
+    private static void CollectIfRequested(bool collect)
+    {
+        if (!collect) return;
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
     }
 
     /// <summary>Also returns the last measured operation's result, independently of the minimum sample.</summary>

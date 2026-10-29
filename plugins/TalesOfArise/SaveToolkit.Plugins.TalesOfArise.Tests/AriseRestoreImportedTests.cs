@@ -10,6 +10,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.TalesOfArise.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AriseRestoreImportedTests
 {
     private const string ActionId = "inventory/restore-imported";
@@ -183,34 +184,44 @@ public sealed class AriseRestoreImportedTests
     {
         const int slotCount = 934;
         const int kibibyte = 1024;
-        var fixture = new AriseTestContainer();
-        var inventory = fixture.Body("SaveData_ItemManager");
-        for (var index = 0; index < slotCount; index++)
-        {
-            var offset = inventory + index * AriseTestContainer.ItemRecordSize;
-            fixture.Payload[offset] = AriseDocument.ConsumableStackLimit;
-            BinaryPrimitives.WriteUInt16LittleEndian(fixture.Payload.AsSpan(offset + 2), 1);
-        }
-        using var document = new AriseDocument("generated", AriseTestContainer.FileName,
-            new([], fixture.Payload, fixture.Sections), SaveToolkit.Sdk.References.IReferenceContext.Empty);
-        // Stage reductions in the owned fixture buffer without rendering or binding any rows.
-        for (var index = 0; index < slotCount; index++) fixture.Payload[inventory + index * AriseTestContainer.ItemRecordSize] = 0;
+        using var document = CreateDocument();
         var scope = new ActionScope(allRows ? null : ["inventory/933/quantity"]);
-        _ = document.ExpandNode("inventory");
         _ = document.PlanAction(ActionId, NoParameters, scope);
-        var beforePlanning = GC.GetAllocatedBytesForCurrentThread();
-        var plan = document.PlanAction(ActionId, NoParameters, scope);
-        var planningBytes = GC.GetAllocatedBytesForCurrentThread() - beforePlanning;
+        var planningBytes = AllocationProbe.Measure(() => document.PlanAction(ActionId, NoParameters, scope), out var plan);
         Assert.Empty(plan.Errors);
         Assert.Equal(allRows ? slotCount : 1, plan.Changes.Count);
-        Assert.True(planningBytes < 1024 * kibibyte, $"Restore planning allocated {planningBytes:N0} B.");
+        planningBytes.AssertLessThan(1024 * kibibyte, $"Restore planning allocated {planningBytes.MinimumBytes:N0} B.");
         Assert.Throws<KeyNotFoundException>(() => document.GetValue("inventory/933/quantity"));
-        var beforeApply = GC.GetAllocatedBytesForCurrentThread();
-        var result = document.ApplyActionPlan(ActionId, NoParameters, scope, plan);
-        var applyBytes = GC.GetAllocatedBytesForCurrentThread() - beforeApply;
+        AriseDocument current = null!;
+        var applyBytes = AllocationProbe.Measure(() => current.ApplyActionPlan(ActionId, NoParameters, scope, plan), out var result,
+            beforeRun: () =>
+            {
+                current?.Dispose();
+                current = CreateDocument();
+                plan = current.PlanAction(ActionId, NoParameters, scope);
+            });
+        using var applied = current;
         Assert.True(result.Succeeded);
-        Assert.Equal(15, document.GetValue("inventory/933/quantity").AsInt64());
-        if (!allRows) Assert.True(applyBytes < 512 * kibibyte, $"One-row restore apply allocated {applyBytes:N0} B.");
+        Assert.Equal(15, applied.GetValue("inventory/933/quantity").AsInt64());
+        if (!allRows) applyBytes.AssertLessThan(512 * kibibyte, $"One-row restore apply allocated {applyBytes.MinimumBytes:N0} B.");
+
+        static AriseDocument CreateDocument()
+        {
+            var fixture = new AriseTestContainer();
+            var inventory = fixture.Body("SaveData_ItemManager");
+            for (var index = 0; index < slotCount; index++)
+            {
+                var offset = inventory + index * AriseTestContainer.ItemRecordSize;
+                fixture.Payload[offset] = AriseDocument.ConsumableStackLimit;
+                BinaryPrimitives.WriteUInt16LittleEndian(fixture.Payload.AsSpan(offset + 2), 1);
+            }
+            var fresh = new AriseDocument("generated", AriseTestContainer.FileName,
+                new([], fixture.Payload, fixture.Sections), SaveToolkit.Sdk.References.IReferenceContext.Empty);
+            // Capture imported quantities before staging reductions, without binding any rows.
+            for (var index = 0; index < slotCount; index++) fixture.Payload[inventory + index * AriseTestContainer.ItemRecordSize] = 0;
+            _ = fresh.ExpandNode("inventory");
+            return fresh;
+        }
     }
 
     private static byte[] Bytes(ISaveDocument document) => Assert.Single(document.Serialize()).Content.ToArray();

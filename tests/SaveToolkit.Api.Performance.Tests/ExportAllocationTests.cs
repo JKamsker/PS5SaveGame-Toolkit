@@ -2,6 +2,7 @@ using SaveToolkit.Core.Export;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
@@ -22,11 +23,9 @@ public sealed class ExportAllocationTests(ITestOutputHelper output)
         Assert.True(session.ApplyEdits([new("value", System.Text.Json.JsonSerializer.SerializeToElement(1))]).Ok);
         var options = new ExportOptions { MirrorBackups = false };
         _ = WorkspaceExporter.Plan(workspace, options);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var plan = WorkspaceExporter.Plan(workspace, options);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        new ApiMeasurement(output, "8MiB-snapshot").Record("export-plan", allocated);
-        Assert.True(allocated < PayloadBytes + 128 * 1024, $"Planning allocated {allocated:N0} B.");
+        var allocated = AllocationProbe.Measure(() => WorkspaceExporter.Plan(workspace, options), out var plan);
+        new ApiMeasurement(output, "8MiB-snapshot").Record("export-plan", allocated.MinimumBytes);
+        allocated.AssertLessThan(PayloadBytes + 128 * 1024, $"Planning allocated {allocated.MinimumBytes:N0} B.");
         Assert.True(session.ApplyEdits([new("value", System.Text.Json.JsonSerializer.SerializeToElement(2))]).Ok);
         Assert.Equal(1, Assert.Single(plan.Overrides).Value.Span[0]);
         Assert.Equal(2, plugin.Bytes[0]);

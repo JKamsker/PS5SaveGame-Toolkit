@@ -8,6 +8,7 @@ using SaveToolkit.Core;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
@@ -55,11 +56,9 @@ public sealed class ProblemAllocationTests(ITestOutputHelper output)
             Errors = [new("field", "Rejected")],
         });
         _ = ApiProblem.Normalize(Results.UnprocessableEntity(preview));
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        _ = ApiProblem.Normalize(Results.UnprocessableEntity(preview));
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        new ApiMeasurement(output, "1MB-preview").Record("normalize", allocated);
-        Assert.True(allocated < 16_384, $"Normalizing a preview allocated {allocated:N0} B.");
+        var allocated = AllocationProbe.Measure(() => ApiProblem.Normalize(Results.UnprocessableEntity(preview)), out _);
+        new ApiMeasurement(output, "1MB-preview").Record("normalize", allocated.MinimumBytes);
+        allocated.AssertLessThan(16_384, $"Normalizing a preview allocated {allocated.MinimumBytes:N0} B.");
     }
 
     [Fact]
@@ -68,11 +67,12 @@ public sealed class ProblemAllocationTests(ITestOutputHelper output)
         var response = Results.Ok(new { value = 42 });
         _ = ApiProblem.Normalize(response);
         object? normalized = null;
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var i = 0; i < 1000; i++) normalized = ApiProblem.Normalize(response);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var i = 0; i < 1000; i++) normalized = ApiProblem.Normalize(response);
+        });
         Assert.Same(response, normalized);
-        Assert.Equal(0, allocated);
+        allocated.AssertAtMost(0);
     }
 
     [Theory]

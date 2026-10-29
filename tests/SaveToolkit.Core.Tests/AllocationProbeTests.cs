@@ -192,6 +192,44 @@ public sealed class AllocationProbeTests
         Assert.Equal(1, previous.Disposals);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ProcessWideAsyncProbeIncludesWorkerAllocationsAndKeepsEverySample(bool collect)
+    {
+        var calls = 0;
+        var result = await AllocationProbe.MeasureProcessWideAsync(() => Task.Run(() =>
+        {
+            calls++;
+            GC.KeepAlive(new byte[4096]);
+        }), warmupRuns: 2, measuredRuns: 4, collectBetweenRuns: collect);
+
+        Assert.Equal(6, calls);
+        Assert.Equal(4, result.Samples.Count);
+        Assert.Contains(result.MinimumBytes, result.Samples);
+        Assert.All(result.Samples, sample => Assert.True(sample >= 4096 && result.MinimumBytes <= sample));
+    }
+
+    [Theory]
+    [InlineData(0, 3)]
+    [InlineData(-1, 3)]
+    [InlineData(1, 0)]
+    [InlineData(1, -1)]
+    public async Task ProcessWideAsyncProbeRejectsInvalidCountsBeforeInvokingTheOperation(int warmups, int measurements)
+    {
+        var calls = 0;
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => AllocationProbe.MeasureProcessWideAsync(() =>
+        {
+            calls++;
+            return Task.CompletedTask;
+        }, warmups, measurements));
+        Assert.Equal(0, calls);
+    }
+
+    [Fact]
+    public async Task ProcessWideAsyncProbeRejectsNullOperations() =>
+        await Assert.ThrowsAsync<ArgumentNullException>(() => AllocationProbe.MeasureProcessWideAsync(null!));
+
     private sealed class DisposableResult : IDisposable
     {
         public bool Disposed { get; private set; }
