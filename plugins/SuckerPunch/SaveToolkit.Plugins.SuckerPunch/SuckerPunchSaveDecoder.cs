@@ -44,7 +44,7 @@ internal sealed class SuckerPunchSaveDecoder : ISaveDecoderHook
 
         if (container.Kind != ContainerKind.Tsushima)
         {
-            sink.Warn("Yōtei header words are raw evidence; gameplay quantities and integrity coverage remain unknown.");
+            YoteiSaveDecoder.Decode(bytes, container, sink);
             return;
         }
 

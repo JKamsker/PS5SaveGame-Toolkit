@@ -38,8 +38,8 @@ internal sealed class SuckerPunchOverview(ISaveFile file, byte[] bytes, SaveCont
 
         if (!isTsushima)
         {
-            nodes.Add(new TextNode("Yōtei writes are disabled: neither zero-valued name table identifies a safe quantity field. " +
-                "Integrity coverage is also unproven; the game may reject edited saves. A warning cannot make writes into unknown structure safe.")
+            nodes.Add(new TextNode("Yōtei named records and experimental quantity edits use the dedicated Yōtei document. " +
+                "This container-only overview does not expose those fields.")
                 { Tone = Tone.Warning });
         }
 
@@ -66,7 +66,7 @@ internal sealed class SuckerPunchOverview(ISaveFile file, byte[] bytes, SaveCont
         {
             Confidence = isTsushima ? Confidence.Verified : Confidence.Unknown,
             Description = $"Little-endian uint32 at offset 0x{index * sizeof(uint):X2}.",
-            Warning = isTsushima ? null : "Yōtei game fields remain unmapped; editing is disabled.",
+            Warning = isTsushima ? null : "Header fields are read-only; Yōtei gameplay uses its dedicated document.",
         })).ToArray();
     }
 }

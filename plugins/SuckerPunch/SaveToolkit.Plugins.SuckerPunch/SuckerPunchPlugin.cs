@@ -10,9 +10,9 @@ public sealed class SuckerPunchPlugin : IGamePlugin, ISaveDecoderProvider
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders => [new SuckerPunchSaveDecoder()];
 
-    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.8.0")
+    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.9.0")
     {
-        Description = "Experimental Tsushima quantity/play-time editing with action previews and attributed wiki guides; Yōtei inspection.",
+        Description = "Experimental Tsushima quantity/play-time and Yōtei existing-quantity editing, with evidence-qualified reference views.",
         Games =
         [
             new GameTitle("PPSA02225", "Ghost of Tsushima"),
@@ -35,6 +35,7 @@ public sealed class SuckerPunchPlugin : IGamePlugin, ISaveDecoderProvider
             "https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796",
             "https://www.powerpyx.com/ghost-of-tsushima-wiki-strategy-guide/",
             .. TsushimaAssetSources.Urls,
+            .. YoteiViews.SourceUrls,
         ],
     };
 
@@ -79,6 +80,8 @@ public sealed class SuckerPunchPlugin : IGamePlugin, ISaveDecoderProvider
             throw new SaveFormatException("This is not a recognised Sucker Punch save file.");
         }
 
-        return SuckerPunchDocument.Open(file, references);
+        return file.Directory.TitleId.Equals("PPSA26344", StringComparison.OrdinalIgnoreCase)
+            ? YoteiDocument.Open(file, references)
+            : SuckerPunchDocument.Open(file, references);
     }
 }

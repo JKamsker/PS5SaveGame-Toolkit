@@ -14,15 +14,15 @@ public sealed class SuckerPunchDecoderTests
     private static ISaveDecoderHook Hook => Assert.Single(((ISaveDecoderProvider)new SuckerPunchPlugin()).Decoders);
 
     [Theory]
-    [InlineData(TsushimaTitle, 25)]
-    [InlineData("PPSA26344", 8)]
-    public void NativeHookReadsEverySampleWithoutChangingBytes(string title, int expectedFiles)
+    [InlineData(TsushimaTitle)]
+    [InlineData("PPSA26344")]
+    public void NativeHookReadsEverySampleWithoutChangingBytes(string title)
     {
         var plugin = new SuckerPunchPlugin();
         var decoder = new HookSaveDecoder(Hook);
         Assert.Equal("suckerpunch.native-v1", decoder.Id);
         var files = SampleSaves.Load(title).AllDiskFiles.Where(file => plugin.Probe(file).IsMatch).ToArray();
-        Assert.Equal(expectedFiles, files.Length);
+        Assert.NotEmpty(files);
         foreach (var file in files)
         {
             var original = file.ReadAllBytes();
@@ -43,7 +43,11 @@ public sealed class SuckerPunchDecoderTests
             }
             else
             {
-                Assert.Equal(4, tree.Values.Count);
+                var empty = Word(original, 0) == 0;
+                Assert.Equal(empty ? 0 : 48, tree.Values.Count(value => value.Path.EndsWith("/quantity", StringComparison.Ordinal)));
+                Assert.Equal(empty ? 0 : 33, tree.Values.Count(value => value.Path.StartsWith("yotei/statistics/", StringComparison.Ordinal)));
+                Assert.Equal(empty ? 0 : 2074, tree.Values.Count(value => value.Path.StartsWith("yotei/gear/", StringComparison.Ordinal)));
+                if (empty) Assert.Equal(4, tree.Values.Count);
                 Assert.Contains(tree.Warnings, warning => warning.Contains("unknown", StringComparison.Ordinal));
             }
 

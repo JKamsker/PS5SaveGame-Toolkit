@@ -70,7 +70,8 @@ internal sealed record SaveContainer(
 
         if (magic == YoteiMagic && !isTsushima)
         {
-            return new SaveContainer(ContainerKind.YoteiUnknown, magic, word1, word2, word3, false);
+            var calculated = YoteiFormat.Checksum(bytes);
+            return new SaveContainer(ContainerKind.YoteiUnknown, magic, word1, word2, word3, calculated == word3);
         }
 
         throw new SaveFormatException("Unrecognised Sucker Punch save magic.");
