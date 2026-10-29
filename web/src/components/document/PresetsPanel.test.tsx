@@ -35,3 +35,20 @@ it("captures the current selected table rows through the selected scope", async 
   fireEvent.click(screen.getByRole("button", { name: "Save preset" }));
   await waitFor(() => expect(capture).toHaveBeenCalledWith("w1", "d1", "Selected", expect.objectContaining({ scopeKind: "selected", selectedRowKeys: ["slot/0"], allMatches: false })));
 });
+
+it("reload recovery retains server-incompatible summaries instead of enabling a preset", async () => {
+  const preset = { schemaVersion: "1", id: "p", name: "Later", compatibility: { pluginId: "other", pluginVersion: "1", titleIds: ["OTHER"] },
+    actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" };
+  const fetch = vi.spyOn(api, "documentPresets").mockRejectedValueOnce(new Error("Storage unavailable")).mockResolvedValue([{
+    preset, compatibility: { compatible: false, reason: "Server plugin mismatch", code: "pluginUnavailable", readOnly: false,
+      presetKind: "toolkit.action-parameters", unsupportedActions: [] },
+  }]);
+  const reload = vi.spyOn(api, "reloadPresets").mockResolvedValue([preset]);
+  renderSpatial(<PresetsPanel document={document} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  fireEvent.click(await screen.findByRole("button", { name: "Retry loading presets" }));
+  const preview = await screen.findByRole("button", { name: "Server plugin mismatch" });
+  expect(preview.hasAttribute("disabled")).toBe(true);
+  expect(reload).toHaveBeenCalledOnce();
+  expect(fetch).toHaveBeenNthCalledWith(2, "w1", "d1");
+});

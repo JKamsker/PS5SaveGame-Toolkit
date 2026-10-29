@@ -30,6 +30,13 @@ test("real preset import/export is exact, duplicate-aware, stale-safe and leaves
   await dialog.getByRole("radio", { name: /Keep both/ }).check();
   await dialog.getByRole("button", { name: "Review resulting names" }).click();
   await expect(dialog.getByText("装備 · exact 🧰 (2)", { exact: true })).toBeVisible();
+  // A successful reload of identical bytes must expire the whole-library preview too.
+  expect((await request.post("/api/presets/reload")).ok()).toBe(true);
+  await dialog.getByRole("button", { name: "Confirm import", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText("library changed");
+  await dialog.getByRole("button", { name: "Preview file again" }).click();
+  await dialog.getByRole("radio", { name: /Keep both/ }).check();
+  await dialog.getByRole("button", { name: "Review resulting names" }).click();
   const records = await request.get("/api/presets").then(r => r.json()) as { id: string }[];
   expect((await request.patch(`/api/presets/${records[0]!.id}`, { data: { name: "Concurrent rename" } })).ok()).toBe(true);
   await dialog.getByRole("button", { name: "Confirm import", exact: true }).click();

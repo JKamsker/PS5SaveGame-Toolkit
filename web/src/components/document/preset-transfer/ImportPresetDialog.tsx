@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { ApiError } from "../../../api/client";
 import { presetTransfer, type ImportChoice, type ImportPreview } from "../../../api/presetTransfer";
-import type { SaveDocument } from "../../../api/protocol";
-import { compatibilityReason } from "../presetCompatibility";
+import type { PresetCompatibilitySummary } from "../../../api/protocol";
 import { TransferDialog } from "./TransferDialog";
 
-export default function ImportPresetDialog({ document, trigger, onDismiss, onImported }: {
-  document: SaveDocument; trigger: HTMLElement; onDismiss: () => void; onImported: (message: string) => void;
+export default function ImportPresetDialog({ workspaceId, documentId, trigger, onDismiss, onImported }: {
+  workspaceId: string; documentId: string; trigger: HTMLElement; onDismiss: () => void; onImported: (message: string) => void;
 }) {
+  const [statuses, setStatuses] = useState<Record<number, PresetCompatibilitySummary>>({});
   const [file, setFile] = useState<File>();
   const [preview, setPreview] = useState<ImportPreview>();
   const [choices, setChoices] = useState<Record<number, ImportChoice>>({});
@@ -35,7 +35,9 @@ export default function ImportPresetDialog({ document, trigger, onDismiss, onImp
     tokens.current.clear();
     const result = await presetTransfer.preview(selected);
     tokens.current.add(result.token);
+    const compatibility = await presetTransfer.compatibility(workspaceId, documentId, result.token);
     if (alive.current) {
+      setStatuses(Object.fromEntries(compatibility.map(item => [item.index, item.compatibility])));
       setPreview(result);
       setChoices(Object.fromEntries(result.items.filter(item => item.conflicts.length === 0 && !item.repeatedPackageName)
         .map(item => [item.index, { index: item.index, decision: "keepBoth" as const }])));
@@ -62,7 +64,10 @@ export default function ImportPresetDialog({ document, trigger, onDismiss, onImp
       <p>Schema {preview.schemaVersion} · {preview.items.length} presets · {preview.provenance.producer}</p>
       <p className="presets-meta">Exported {preview.provenance.exportedAt}. Preview expires {preview.expiresAt}.</p>
       <ol className="preset-transfer-items">{preview.items.map(item => {
-        const reason = compatibilityReason(item.compatibility, document);
+        const status = statuses[item.index];
+        const reason = !status?.compatible ? status?.reason ?? "Compatibility is unknown."
+          : status.readOnly ? "This save is read-only."
+          : status.unsupportedActions.length > 0 ? "The current plugin cannot apply these actions." : undefined;
         return <li key={item.index}>
           <strong>{item.resultingName ?? item.name}</strong>
           <p>{item.compatibility.titleIds.join(", ")} · {item.compatibility.gameBuild ?? "build unknown"} · {item.actionCount} actions</p>

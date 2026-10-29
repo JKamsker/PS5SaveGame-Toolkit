@@ -20,7 +20,7 @@ public sealed class PresetPackageTests
             Assert.True(System.Text.Json.JsonElement.DeepEquals(pair.Value, copy.Actions[0].Parameters[pair.Key]));
         Assert.Equal("900719925474099312345678901", copy.Actions[0].Parameters["huge"].GetRawText());
         Assert.Equal("1.2300e+120", copy.Actions[0].Parameters["lexeme"].GetRawText());
-        Assert.Equal("semantic/potion", copy.Actions[0].Instances.Single().StableId);
+        Assert.Equal(preset.Actions[0].Instances.Single(), copy.Actions[0].Instances.Single());
         Assert.Equal("PS5 Save Game Toolkit", PresetPackageCodec.Decode(bytes).Provenance.Producer);
     }
 
@@ -66,6 +66,31 @@ public sealed class PresetPackageTests
         json["presets"]![0]!["actions"]![0]!["parameters"] = new JsonObject();
         json["presets"]![0]!["actions"]![0]!["scopeKind"] = "physicalRow";
         Assert.Equal("presetPackageScope", Error(json).Code);
+    }
+
+    [Theory]
+    [InlineData("stableId", 256)]
+    [InlineData("label", 256)]
+    [InlineData("role", 256)]
+    [InlineData("path", 1024)]
+    [InlineData("build", 256)]
+    [InlineData("provenance", 4096)]
+    public void SemanticProvenanceFieldsHaveExplicitDomains(string field, int limit)
+    {
+        var json = JsonNode.Parse(PresetPackageCodec.Encode([PresetTransferFixture.Preset()]))!;
+        var reference = json["presets"]![0]!["actions"]![0]!["instances"]![0]!;
+        reference[field] = new string('x', limit);
+        Assert.NotNull(PresetPackageCodec.Decode(Encoding.UTF8.GetBytes(json.ToJsonString())));
+        reference[field] = new string('x', limit + 1);
+        Assert.Equal("presetPackageField", Error(json).Code);
+    }
+
+    [Fact]
+    public void OpaqueResolutionCandidatesCannotEnterPortableReferences()
+    {
+        var json = JsonNode.Parse(PresetPackageCodec.Encode([PresetTransferFixture.Preset()]))!;
+        json["presets"]![0]!["actions"]![0]!["instances"]![0]!["candidateStableId"] = "transient-choice";
+        Assert.Equal("invalidPresetPackage", Error(json).Code);
     }
 
     [Fact]

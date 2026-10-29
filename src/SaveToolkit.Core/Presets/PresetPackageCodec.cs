@@ -129,8 +129,12 @@ public static class PresetPackageCodec
             {
                 if (instance is null) throw Invalid("presetPackageInstance", "A semantic target is missing.");
                 Text(instance.Kind, "semantic target kind", 128);
-                Text(instance.StableId, "semantic target ID", 1024);
+                Text(instance.StableId, "semantic target ID", PresetContractValidation.MaxKeyLength);
                 if (instance.Label is not null) Text(instance.Label, "semantic target label", 256);
+                if (instance.Role is not null) Text(instance.Role, "semantic target role", 256);
+                if (instance.Path is not null) Text(instance.Path, "semantic target path", 1024);
+                if (instance.Build is not null) Text(instance.Build, "semantic target build", 256);
+                if (instance.Provenance is not null) Text(instance.Provenance, "semantic target provenance", MaxTextLength);
             }
         }
     }

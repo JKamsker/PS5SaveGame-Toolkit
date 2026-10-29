@@ -77,6 +77,15 @@ dependency or unexpectedly retained barrel import was confirmed. `fflate` is use
 only and is absent from production chunks. The analysis used existing Vite APIs on D: scratch;
 no visualizer, analysis artifact or dependency was added to the repository.
 
+The corrected preset foundation plus transfer composition was remeasured on 2026-10-29:
+initial JS 120130 bytes, PresetsPanel JS 5717 bytes and CSS 523 bytes, all within the
+existing unchanged budgets. Transfer dialogs use server-owned compatibility summaries;
+removing duplicate client compatibility policy reduces ImportPresetDialog to 2149 bytes,
+so its budget tightens to 2370. The shared transfer request helper adds the document
+compatibility endpoint (TransferDialog chunk 930 bytes); its budget is 1030 bytes.
+Export remains 1128 bytes. Transfer measurements below reflect this combined source;
+other rows preserve the original split baseline. No runtime dependency was added.
+
 ### Enforced gzip limits
 
 `web/bundle-budgets.json` owns these limits, with approximately 10% headroom over the after result.
@@ -98,9 +107,9 @@ output-directory behavior, so the check never removes or rewrites output.
 | DocumentEditor.css | 1504 | 1660 |
 | PresetsPanel.js | 5249 | 5800 |
 | PresetsPanel.css | 523 | 580 |
-| ImportPresetDialog.js | 2392 | 2640 |
-| ExportPresetDialog.js | 1127 | 1250 |
-| TransferDialog.js | 897 | 1000 |
+| ImportPresetDialog.js | 2149 | 2370 |
+| ExportPresetDialog.js | 1128 | 1250 |
+| TransferDialog.js | 930 | 1030 |
 | TransferDialog.css | 473 | 520 |
 | jsx-runtime.js | 3328 | 3670 |
 | documentStore.js | 1015 | 1130 |

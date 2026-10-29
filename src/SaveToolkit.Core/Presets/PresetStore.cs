@@ -25,6 +25,7 @@ public sealed class PresetStore
     public const string CurrentSchemaVersion = "1";
     private const string FileName = "presets.json";
     private readonly PresetStoreOptions _options;
+    private readonly PresetLibraryStorage _storage;
     private readonly object _gate = new();
     private readonly Dictionary<string, ToolkitPreset> _presets = new(StringComparer.Ordinal);
     private string _generation = Guid.NewGuid().ToString("N");
@@ -35,6 +36,7 @@ public sealed class PresetStore
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaxPresets);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaxPayloadBytes);
         _options = options;
+        _storage = new(options, JsonOptions);
         Directory.CreateDirectory(options.StorageRoot);
         Load();
     }
@@ -47,11 +49,12 @@ public sealed class PresetStore
     /// <summary>Reloads the external library atomically. A malformed replacement leaves the last good view intact.</summary>
     public IReadOnlyList<ToolkitPreset> Reload()
     {
-        var staged = ReadSnapshot(allowMissing: false);
         lock (_gate)
         {
+            var staged = Stage(_storage.Read(allowMissing: false), allowUnknownSchema: true);
             _presets.Clear();
             foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
+            _generation = Guid.NewGuid().ToString("N");
             return [.. _presets.Values.OrderByDescending(p => p.UpdatedAt).Select(ClonePreset)];
         }
     }
@@ -74,15 +77,7 @@ public sealed class PresetStore
         {
             if (!string.Equals(expectedIdentity, StorageIdentity(), StringComparison.Ordinal))
                 throw new PresetTransferException("stalePresetImport", "The preset library changed. Preview the package again before importing.", 409);
-            ValidateImportLibrary(records);
-            var staged = new Dictionary<string, ToolkitPreset>(StringComparer.Ordinal);
-            foreach (var record in records)
-            {
-                ValidateName(record.Name);
-                ValidatePayload(record.Compatibility, record.Actions);
-                if (!staged.TryAdd(record.Id, ClonePreset(record)))
-                    throw new PresetTransferException("duplicatePresetId", "The import would repeat a preset ID.");
-            }
+            var staged = StageImport(records);
             // Persist before publication: a failed file replacement cannot mutate the live graph.
             Persist(staged.Values);
             _presets.Clear();
@@ -90,12 +85,35 @@ public sealed class PresetStore
         }
     }
 
-    public void ValidateImportLibrary(IReadOnlyList<ToolkitPreset> records)
+    public void ValidateImportLibrary(IReadOnlyList<ToolkitPreset> records) => _ = StageImport(records);
+
+    private Dictionary<string, ToolkitPreset> StageImport(IReadOnlyList<ToolkitPreset> records)
     {
-        if (records.Count > _options.MaxPresets)
-            throw new PresetTransferException("presetLibraryFull", "The resulting library exceeds the preset limit. Remove presets or import fewer records.");
-        if (JsonSerializer.SerializeToUtf8Bytes(records.OrderBy(p => p.Id), JsonOptions).Length > _options.MaxPayloadBytes)
-            throw new PresetTransferException("presetLibraryFull", "The resulting preset library exceeds its 512 KiB storage limit. Import fewer presets.");
+        try { return Stage(records, allowUnknownSchema: false); }
+        catch (Exception ex) when (ex is ArgumentException or InvalidDataException or InvalidOperationException)
+        {
+            throw new PresetTransferException("invalidPresetLibrary", $"The resulting preset library is invalid: {ex.Message}");
+        }
+    }
+
+    private Dictionary<string, ToolkitPreset> Stage(IReadOnlyList<ToolkitPreset> records, bool allowUnknownSchema)
+    {
+        if (records.Count > _options.MaxPresets) throw new InvalidDataException("Preset storage exceeds the configured count limit.");
+        var staged = new Dictionary<string, ToolkitPreset>(StringComparer.Ordinal);
+        foreach (var preset in records)
+        {
+            if (preset is null || preset.SchemaVersion != CurrentSchemaVersion || string.IsNullOrWhiteSpace(preset.Id))
+            {
+                if (allowUnknownSchema) continue;
+                throw new InvalidDataException("Every imported preset needs a supported schema and an ID.");
+            }
+            ValidateName(preset.Name);
+            ValidatePayload(preset.Compatibility, preset.Actions);
+            if (!staged.TryAdd(preset.Id, ClonePreset(preset)))
+                throw new InvalidDataException("Preset storage contains duplicate IDs.");
+        }
+        _ = _storage.Serialize(staged.Values);
+        return staged;
     }
 
     private string StorageIdentity()
@@ -217,78 +235,17 @@ public sealed class PresetStore
 
     private void Load()
     {
-        var staged = ReadSnapshot(allowMissing: true);
+        var staged = Stage(_storage.Read(allowMissing: true), allowUnknownSchema: true);
         lock (_gate)
         {
             foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
         }
     }
 
-    private Dictionary<string, ToolkitPreset> ReadSnapshot(bool allowMissing)
-    {
-        var path = Path.Combine(_options.StorageRoot, FileName);
-        if (!File.Exists(path))
-        {
-            if (allowMissing) return new(StringComparer.Ordinal);
-            throw new InvalidDataException("Preset storage disappeared during reload.");
-        }
-        try
-        {
-            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
-                FileShare.ReadWrite | FileShare.Delete, 64 * 1024, FileOptions.SequentialScan);
-            using var content = new MemoryStream(Math.Min(_options.MaxPayloadBytes, 64 * 1024));
-            var buffer = new byte[64 * 1024];
-            long count = 0;
-            while (true)
-            {
-                var remaining = _options.MaxPayloadBytes - count;
-                var read = stream.Read(buffer, 0, (int)Math.Min(buffer.Length, remaining + 1));
-                if (read == 0) break;
-                count = checked(count + read);
-                if (count > _options.MaxPayloadBytes)
-                    throw new InvalidDataException("Preset storage exceeds the configured size limit.");
-                content.Write(buffer, 0, read);
-            }
-            var records = JsonSerializer.Deserialize<List<ToolkitPreset>>(content.ToArray(), JsonOptions) ?? [];
-            if (records.Count > _options.MaxPresets) throw new InvalidDataException("Preset storage exceeds the configured limit.");
-            var staged = new Dictionary<string, ToolkitPreset>(StringComparer.Ordinal);
-            foreach (var preset in records)
-            {
-                if (preset is null || preset.SchemaVersion != CurrentSchemaVersion || string.IsNullOrWhiteSpace(preset.Id))
-                    continue;
-                ValidatePayload(preset.Compatibility, preset.Actions);
-                if (!staged.TryAdd(preset.Id, ClonePreset(preset)))
-                    throw new InvalidDataException($"Preset storage contains duplicate id '{preset.Id}'.");
-            }
-            return staged;
-        }
-        catch (FileNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
-        catch (DirectoryNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
-        catch (JsonException ex)
-        {
-            throw new InvalidDataException("Preset storage is not valid JSON.", ex);
-        }
-    }
-
     private void Persist(IEnumerable<ToolkitPreset>? records = null)
     {
-        var path = Path.Combine(_options.StorageRoot, FileName);
-        var temp = path + ".tmp";
-        var bytes = JsonSerializer.SerializeToUtf8Bytes((records ?? _presets.Values).OrderBy(p => p.Id), JsonOptions);
-        if (bytes.LongLength > _options.MaxPayloadBytes)
-            throw new InvalidOperationException("Preset storage exceeds the configured size limit.");
-        try
-        {
-            File.WriteAllBytes(temp, bytes);
-            File.Move(temp, path, overwrite: true);
-            _generation = Guid.NewGuid().ToString("N");
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            try { if (File.Exists(temp)) File.Delete(temp); }
-            catch (Exception cleanup) when (cleanup is IOException or UnauthorizedAccessException) { }
-            throw new PresetStorageException("Preset storage is temporarily unavailable. Retry the operation.", ex);
-        }
+        _storage.Write(records ?? _presets.Values);
+        _generation = Guid.NewGuid().ToString("N");
     }
 
     private void ValidatePayload(PresetCompatibility compatibility, IReadOnlyList<PresetAction> actions)
@@ -320,7 +277,7 @@ public sealed class PresetStore
         Instances = Array.AsReadOnly((action.Instances ?? []).Select(instance => instance with { }).ToArray()),
     };
 
-    private static ToolkitPreset ClonePreset(ToolkitPreset preset) => preset with
+    internal static ToolkitPreset ClonePreset(ToolkitPreset preset) => preset with
     {
         Compatibility = preset.Compatibility with
         {

@@ -12,6 +12,11 @@ workspace export. Applying a preset remains a separate, plugin-authoritative pre
 full `ToolkitPreset` records. Every preset includes its schema, ID, human name,
 created/updated timestamps, compatibility envelope and semantic actions. Every action
 contains `actionId`, typed `parameters`, `instances` and `scopeKind`.
+Semantic references retain `kind`, `stableId`, and optional `label`, `role`, `path`,
+`build` and `provenance` exactly. Stable IDs, labels, roles and builds are bounded to
+256 characters, paths to 1,024 and provenance to 4,096; non-null values must be
+nonblank without control characters. These are public semantic metadata, never
+opaque candidate IDs or transient resolution choices.
 
 All compatibility fields must be explicitly present in a package, including null for
 unknown build/variant/reference/schema/role/capability-version values. Missing fields
@@ -19,7 +24,9 @@ are rejected before record constructors can supply defaults. This does not turn 
 into a wildcard: [the preset compatibility contract](SDK07-PRESETS.md) is enforced again
 when applying, and the current plugin must prove every boundary it publishes.
 Unknown plugins/titles/builds may be stored for later. The import preview labels their
-status relative to the current save; importing never offers a bypass or automatic apply.
+status relative to the current save using the server's `ToDocumentDto` compatibility
+summary, including read-only and unsupported-action status. This advisory check calls
+no plugin planner and changes no document. Importing never offers a bypass or automatic apply.
 
 The producer is public toolkit provenance, not a machine/user identity. Export does not
 add save paths, save bytes, session/document IDs, physical row keys, candidate choices,
@@ -55,6 +62,9 @@ to the resulting library before confirmation.
 
 1. Upload to `POST /api/presets/transfer/preview`. This validates the complete package
    and returns an expiring read-only preview with every preset's boundary and conflicts.
+   `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/transfer/compatibility`,
+   `{token}`, returns indexed `PresetImportCompatibilityDto` summaries for that preview.
+   This read-only request uses the same server mapper as stored document presets.
 2. For each ID/name conflict, choose **Keep both**, **Replace existing** with a specific
    target, or **Cancel**. Name matching trims and compares ordinally ignoring case.
    Duplicate names within one package also need an explicit choice. No filename chooses
@@ -71,6 +81,11 @@ to the resulting library before confirmation.
    both disk and memory unchanged; the same confirmation can be explicitly retried.
 
 Successful CRUD, imports, reloads or changed durable file content invalidate old previews.
+A successful reload increments the generation even when bytes are identical. A failed
+reload preserves the last-good library and generation. Reload and import share a
+validated staged map and bounded storage helper under the store lock, preventing a
+concurrent host CRUD operation from being lost during publication. Unknown historical
+schemas retain the existing load policy (skipped); transfers reject unsupported schemas.
 Tokens expire after ten minutes, are single-use after successful commit, and the service
 retains at most eight pending previews. `DELETE /previews/{token}` cancels read-only
 staging; expiry also cleans it up. A failed/aborted confirmation should be checked by

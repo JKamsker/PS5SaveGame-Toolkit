@@ -28,6 +28,10 @@ public sealed class PresetTransferApiTests(IsolatedApiFactory factory) : IClassF
         var before = await client.GetFromJsonAsync<JsonElement>(document, Ct);
         var saveBytes = await client.GetByteArrayAsync(document + "/download", Ct);
         var preview = await Preview(client);
+        var summaryResponse = await client.PostAsJsonAsync(document + "/presets/transfer/compatibility", new PresetImportCommit(preview.Token), Ct);
+        Assert.Equal(HttpStatusCode.OK, summaryResponse.StatusCode);
+        var summary = await summaryResponse.Content.ReadFromJsonAsync<JsonElement[]>(Ct);
+        Assert.True(summary![0].GetProperty("compatibility").GetProperty("compatible").GetBoolean());
         Assert.Empty(await client.GetFromJsonAsync<JsonElement[]>("/api/presets", Ct) ?? []);
         var resolveResponse = await client.PostAsJsonAsync(Transfer + "/resolve", new PresetImportResolution(preview.Token,
             [new(0, "keepBoth")]), Ct);
@@ -37,6 +41,8 @@ public sealed class PresetTransferApiTests(IsolatedApiFactory factory) : IClassF
         var committed = await client.PostAsJsonAsync(Transfer + "/commit", new PresetImportCommit(reviewed.Token), Ct);
         Assert.Equal(HttpStatusCode.OK, committed.StatusCode);
         var imported = (await committed.Content.ReadFromJsonAsync<PresetImportResult>(Ct))!;
+        var documentPresets = await client.GetFromJsonAsync<JsonElement[]>(document + "/presets", Ct);
+        Assert.True(JsonElement.DeepEquals(summary![0].GetProperty("compatibility"), documentPresets![0].GetProperty("compatibility")));
         var export = await client.PostAsJsonAsync(Transfer + "/export", new PresetExportRequest(imported.Imported.Select(p => p.Id).ToArray()), Ct);
         Assert.Equal(HttpStatusCode.OK, export.StatusCode);
         Assert.Contains("Toolkit presets", export.Content.Headers.ContentDisposition!.FileNameStar);
@@ -86,6 +92,42 @@ public sealed class PresetTransferApiTests(IsolatedApiFactory factory) : IClassF
         Directory.Delete(Path.Combine(_presetRoot, "presets.json.tmp"));
         Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync(Transfer + "/commit", new PresetImportCommit(reviewed.Token), Ct)).StatusCode);
         Assert.Equal(2, PresetTransferFixture.Store(_presetRoot).List().Count);
+    }
+
+    [Fact]
+    public async Task IdenticalReloadInvalidatesReviewedApiImportWithoutChangingStoredRecords()
+    {
+        using var client = Client();
+        var source = PresetTransferFixture.Preset();
+        Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/presets", new { name = "Existing", source.Compatibility, source.Actions }, Ct)).StatusCode);
+        var preview = await Preview(client);
+        var resolved = await client.PostAsJsonAsync(Transfer + "/resolve", new PresetImportResolution(preview.Token, [new(0, "keepBoth")]), Ct);
+        var review = (await resolved.Content.ReadFromJsonAsync<PresetImportPreview>(Ct))!;
+        Assert.Equal(HttpStatusCode.OK, (await client.PostAsync("/api/presets/reload", null, Ct)).StatusCode);
+        await AssertProblem(await client.PostAsJsonAsync(Transfer + "/commit", new PresetImportCommit(review.Token), Ct), 409, "stalePresetImport");
+        Assert.Single(await client.GetFromJsonAsync<JsonElement[]>("/api/presets", Ct) ?? []);
+    }
+
+    [Fact]
+    public async Task UnknownPluginPreviewReportsServerMismatchAndCannotMutateDocumentOrLibrary()
+    {
+        using var client = Client();
+        var document = await Open(client);
+        var before = await client.GetFromJsonAsync<JsonElement>(document, Ct);
+        var source = PresetTransferFixture.Preset();
+        source = source with { Compatibility = source.Compatibility with { PluginId = "unknown-for-later" } };
+        using var content = new ByteArrayContent(PresetPackageCodec.Encode([source]));
+        content.Headers.ContentType = new("application/json");
+        var response = await client.PostAsync(Transfer + "/preview", content, Ct);
+        var preview = (await response.Content.ReadFromJsonAsync<PresetImportPreview>(Ct))!;
+        var status = await client.PostAsJsonAsync(document + "/presets/transfer/compatibility", new PresetImportCommit(preview.Token), Ct);
+        Assert.Equal(HttpStatusCode.OK, status.StatusCode);
+        var summary = (await status.Content.ReadFromJsonAsync<JsonElement[]>(Ct))![0].GetProperty("compatibility");
+        Assert.False(summary.GetProperty("compatible").GetBoolean());
+        Assert.Equal("pluginUnavailable", summary.GetProperty("code").GetString());
+        Assert.Empty(await client.GetFromJsonAsync<JsonElement[]>("/api/presets", Ct) ?? []);
+        var after = await client.GetFromJsonAsync<JsonElement>(document, Ct);
+        Assert.True(JsonElement.DeepEquals(before.GetProperty("state"), after.GetProperty("state")));
     }
 
     private static async Task<PresetImportPreview> Preview(HttpClient client)

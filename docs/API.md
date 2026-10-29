@@ -179,6 +179,13 @@ Upload raw package JSON, bounded to 512 KiB/depth 16 before typed deserializatio
 Returns `PresetImportPreview` with schema/provenance, every record and all ID/name
 conflicts; no persistence occurs. Invalid/future packages return typed 422, size 413.
 
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/transfer/compatibility`
+
+JSON `{token}` returns indexed `PresetImportCompatibilityDto` server summaries for
+staged records relative to the document, using the same mapper as document preset rows.
+Informational only: no save mutation or plugin apply occurs; unknown plugins may be stored
+for later. Expired tokens return 409. Document routes declare revision failures as 412.
+
 ### `POST /api/presets/transfer/resolve`
 
 JSON `{token,choices:[{index,decision,replaceId?}]}` resolves every imported record.

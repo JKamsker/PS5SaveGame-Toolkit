@@ -3,11 +3,12 @@ using SaveToolkit.Sdk;
 namespace SaveToolkit.Core.Presets;
 
 /// <summary>Bounded host-only transfer workflow. No document/session service is used.</summary>
-public sealed class PresetTransferService(PresetStore store)
+public sealed class PresetTransferService(PresetStore store, TimeProvider? timeProvider = null)
 {
     private const int MaxPendingPreviews = 8;
     private static readonly TimeSpan PreviewLifetime = TimeSpan.FromMinutes(10);
     private readonly object _gate = new();
+    private readonly TimeProvider _time = timeProvider ?? TimeProvider.System;
     private readonly Dictionary<string, PendingImport> _pending = new(StringComparer.Ordinal);
 
     public byte[] Export(PresetExportRequest request)
@@ -36,7 +37,7 @@ public sealed class PresetTransferService(PresetStore store)
                     .Where(existing => existing.Id == preset.Id || SameName(existing.Name, preset.Name))
                     .Select(existing => new PresetImportTarget(existing.Id, existing.Name)).ToArray(),
                 package.Presets.Count(other => SameName(other.Name, preset.Name)) > 1)).ToArray();
-            return Add(new(package, snapshot, items, null, DateTimeOffset.UtcNow + PreviewLifetime));
+            return Add(new(package, snapshot, items, null, _time.GetUtcNow() + PreviewLifetime));
         }
     }
 
@@ -105,11 +106,17 @@ public sealed class PresetTransferService(PresetStore store)
         }
     }
 
+    /// <summary>Detached semantic payloads for informational host compatibility checks. Never applies a preset.</summary>
+    public IReadOnlyList<ToolkitPreset> GetPreviewPresets(string token)
+    {
+        lock (_gate) return Array.AsReadOnly(Find(token).Package.Presets.Select(PresetStore.ClonePreset).ToArray());
+    }
+
     public void Cancel(string token) { lock (_gate) _pending.Remove(token); }
 
     private PresetImportPreview Add(PendingImport pending)
     {
-        foreach (var key in _pending.Where(p => p.Value.ExpiresAt <= DateTimeOffset.UtcNow).Select(p => p.Key).ToArray()) _pending.Remove(key);
+        foreach (var key in _pending.Where(p => p.Value.ExpiresAt <= _time.GetUtcNow()).Select(p => p.Key).ToArray()) _pending.Remove(key);
         if (_pending.Count >= MaxPendingPreviews)
             throw new PresetTransferException("presetImportBusy", "Too many import previews are open. Close another preview or retry in ten minutes.", 503);
         var token = Guid.NewGuid().ToString("N");
@@ -124,7 +131,7 @@ public sealed class PresetTransferService(PresetStore store)
     }
 
     private PendingImport Find(string? token) => token is not null && _pending.TryGetValue(token, out var pending)
-        && pending.ExpiresAt > DateTimeOffset.UtcNow ? pending
+        && pending.ExpiresAt > _time.GetUtcNow() ? pending
         : throw new PresetTransferException("stalePresetImport", "This import preview expired or was already used. Preview the file again.", 409);
 
     private void CheckCurrent(PendingImport pending)

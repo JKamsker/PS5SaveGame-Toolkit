@@ -39,8 +39,10 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   const selectedBindingAvailable = Boolean(binding && !binding.unavailable && !selection?.queryScope);
   const selectedScopeUnavailable = scopeKind === "selected" && !selectedBindingAvailable;
   const reloadPresets = async () => {
-    const rows = await api.reloadPresets();
-    client.setQueryData(["presets", context.workspaceId, context.documentId], rows.map(preset => ({ preset, compatibility: { compatible: true, readOnly: !document.canEdit, presetKind: preset.compatibility.presetKind ?? "toolkit.action-parameters", unsupportedActions: [] } })));
+    await api.reloadPresets();
+    // Reload invalidates staged imports; refetch the document's authoritative compatibility too.
+    const rows = await api.documentPresets(context.workspaceId, context.documentId);
+    client.setQueryData(["presets", context.workspaceId, context.documentId], rows);
   };
   const loadPreview = async (presetId: string, choices?: Record<string, string>) => {
     try {
@@ -88,12 +90,8 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
       <p>Presets are stored outside save bytes and apply through a revision-bound preview.</p>
       {presets.isPending && <p aria-live="polite" aria-atomic="true">Loading presets…</p>}
       <h3 ref={heading} tabIndex={-1}>Saved presets</h3>
-<<<<<<< HEAD
-      <PresetTransferToolbar document={document} />
-      {presets.isError && <><p role="alert">Could not load presets: {presets.error.message}</p><button type="button" className="btn btn--small" onClick={() => void presets.refetch()}>Retry loading presets</button></>}
-=======
+      <PresetTransferToolbar />
       {presets.isError && <><p role="alert">Could not load presets: {presets.error.message}</p><button type="button" className="btn btn--small" onClick={() => void reloadPresets().catch(error => setMessage(error instanceof Error ? error.message : "Could not reload presets."))}>Retry loading presets</button></>}
->>>>>>> e5461e41f3e17f485779bb6390dd56306b42646b
       {presets.data?.length === 0 && <p className="notice notice--Muted">No presets saved for this toolkit yet.</p>}
       {presets.data && <><label>Filter presets <input className="input" value={filter} onChange={event => setFilter(event.target.value)} placeholder="Name or action" /></label><ul className="presets-list">{visiblePresets.map(row => <PresetRow key={row.preset.id} row={row}
         busy={apply.isPending || rename.isPending} onPreview={() => loadPreview(row.preset.id)} onDelete={() => { setPendingDelete(row.preset); return Promise.resolve(); }} onRename={async value => { await rename.mutateAsync({ id: row.preset.id, value }); }} />)}</ul>{visiblePresets.length === 0 && <p className="notice notice--Muted">No presets match this filter.</p>}</>}

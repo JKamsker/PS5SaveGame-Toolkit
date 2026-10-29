@@ -23,11 +23,25 @@ internal static class PresetTransferEndpoints
             .Produces<PresetImportPreview>();
         api.MapPost("/commit", Commit).Accepts<PresetImportCommit>("application/json")
             .Produces<PresetImportResult>();
+        app.MapGroup("/api/workspaces/{workspaceId}/documents/{documentId}/presets/transfer")
+            .AddEndpointFilter<ApiContractFilter>().AddEndpointFilter<DocumentRevisionFilter>()
+            .WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict, Status412PreconditionFailed,
+                Status413PayloadTooLarge, Status422UnprocessableEntity, Status503ServiceUnavailable)
+            .MapPost("/compatibility", Compatibility).Accepts<PresetImportCommit>("application/json")
+            .Produces<IReadOnlyList<PresetImportCompatibilityDto>>();
         api.MapDelete("/previews/{token}", (string token, PresetTransferService service) =>
         {
             service.Cancel(token);
             return Results.NoContent();
         });
+    }
+
+    private static async Task<IResult> Compatibility(DocumentRef document, HttpRequest request,
+        PresetTransferService service, CancellationToken ct)
+    {
+        var token = await ReadControl<PresetImportCommit>(request, ct);
+        return Results.Ok(service.GetPreviewPresets(token.Token).Select((preset, index) =>
+            new PresetImportCompatibilityDto(index, preset.ToDocumentDto(document.Value).Compatibility)));
     }
 
     private static async Task<IResult> Preview(HttpRequest request, PresetTransferService service, CancellationToken ct)

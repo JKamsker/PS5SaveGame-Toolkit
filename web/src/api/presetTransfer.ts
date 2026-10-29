@@ -1,7 +1,7 @@
-import type { ToolkitPreset } from "./protocol";
+import type { PresetCompatibilitySummary, ToolkitPreset } from "./protocol";
 import { request } from "./client";
 import { ApiError, fetchApi, readJson, responseError } from "./http";
-import { postJson } from "./requests";
+import { documentPath, postJson } from "./requests";
 
 export const MAX_PRESET_PACKAGE_BYTES = 512 * 1024;
 export interface ImportTarget { id: string; name: string }
@@ -22,6 +22,8 @@ export const presetTransfer = {
     // Send the original bytes: JSON.parse would round untagged large/exact numbers.
     return request<ImportPreview>(`${path}/preview`, { method: "POST", body: file, headers: { "content-type": "application/json" }, signal });
   },
+  compatibility: (workspaceId: string, documentId: string, token: string) =>
+    request<{ index: number; compatibility: PresetCompatibilitySummary }[]>(`${documentPath(workspaceId, documentId)}/presets/transfer/compatibility`, postJson({ token })),
   resolve: (token: string, choices: ImportChoice[]) => request<ImportPreview>(`${path}/resolve`, postJson({ token, choices })),
   commit: (token: string) => request<{ imported: ImportTarget[] }>(`${path}/commit`, postJson({ token })),
   cancel: (token: string) => request<void>(`${path}/previews/${encodeURIComponent(token)}`, { method: "DELETE" }),
