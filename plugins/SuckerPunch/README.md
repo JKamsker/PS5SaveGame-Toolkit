@@ -332,6 +332,34 @@ F1/F12 differential method, uncertainty, performance measurements and exact #31 
 Play time, health/spirit, active difficulty, techniques, saved collectibles and quest/world progress
 remain unknown; attributed reference guides never claim saved completion or unlock state.
 
+### Restore imported Yōtei quantities — deferred (#40)
+
+The integrity-first review on **2026-10-29** did **not** establish exact game checksum/tail coverage,
+so no restore-imported Yōtei action was implemented. This does not change the existing Experimental
+scalar quantities or target action and their checksum-coverage/game-rejection warnings.
+
+[`YoteiIntegrityCoverageTests`](SaveToolkit.Plugins.SuckerPunch.Tests/YoteiIntegrityCoverageTests.cs)
+pins all eleven nonempty sample header vectors and the two all-zero placeholders. Every tail from
+the declared end through physical EOF is zero. Both `sum(bytes[0x10:declaredEnd]) + declaredEnd + 0x150`
+and `sum(bytes[0x10:EOF]) + declaredEnd + 0x150` match every stored checksum, modulo 2^32.
+The declared ends span 411397–417135 in 616448-byte files. These samples cannot distinguish the
+coverage endpoints or exclude another integrity dependency.
+
+Every byte of every currently writable primary count and paired ammo copy lies inside the declared
+interval; individually flipping each such byte trips the production checksum gate. This establishes
+coverage by the **implemented candidate**, not by the game's integrity checks. In-memory mutations
+at the first tail byte and physical last byte distinguish the two formulas: the plugin accepts the
+declared-end candidate and preserves the tail, but treats the whole-file candidate as inspection-only.
+Export reparsing uses that same candidate and cannot independently prove which formula the game uses.
+These synthetic tails are not console evidence or naturally observed nonzero tails.
+
+The Tsushima `inventory/restore-imported-ammo` workflow from `a422395` supplies the intended immutable
+opening-baseline/preview/atomic-history shape, but its established checksum coverage cannot be transferred
+to Yōtei's different header. Revisit after an independently verified Yōtei checksum implementation or
+accepted nonzero-tail capture/control distinguishes the hypotheses, and any additional integrity is
+understood and repaired. [#31 capture 7](YOTEI_FORMAT.md#exact-owner-captures-for-31) describes the
+required owner experiment. No new rows, quantities, capacities or unlocks were granted by this review.
+
 ## Research log and sources
 
 Earlier format research, 2026-10-28: reviewed the converter, both SaveWizard code lists, Apollo's patch and its actual
@@ -561,6 +589,14 @@ The central documentation check against `main` passed 26 of 27 checks: its exist
 `test_built_app_smoke_docs_cover_shipped_flows_and_skipped_regressions` still expects
 `test.fixme(` in `web/e2e/import.e2e.ts`, although that regression is now an active test.
 Those unchanged central files are outside this plugin-only task.
+
+Yōtei restoration feasibility validation on **2026-10-29**: **387 tests passed, 0 failed,
+0 skipped** with both private sample archives. The 15 new integrity cases pin the corpus, eleven
+header vectors, every writable count/copy byte and first/last-tail counterexamples. Existing tests
+retain exact scalar/target exports, history and byte-identical no-op coverage. The API Release build
+with `--warnaserror` passed with **0 warnings and 0 errors**. All test/temp paths were under
+`D:/Temp/saveeditor/test-scratch/feat-coverage-suckerpunch-yotei`; samples remained external/read-only.
+The restore-imported Yōtei action was deferred because exact game checksum/tail coverage is unproven.
 
 Coverage includes all 25 Tsushima and 13 Yōtei files (including both zero placeholders), byte-identical
 no-op exports, exact count/copy/timer/checksum changes, export reparsing, atomic rejection and rollback,
