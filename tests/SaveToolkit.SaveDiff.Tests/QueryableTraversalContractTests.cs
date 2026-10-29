@@ -112,6 +112,39 @@ public sealed class QueryableTraversalContractTests
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void PagesBeyondTheDeclaredTotal_StopWithoutEmittingTheExtraRows(bool cursor)
+    {
+        // 5 declared rows served as 2 + 2 + 2 distinct rows: the last page overshoots by one.
+        var plugin = new QueryableInventoryPlugin
+        {
+            UseCursor = cursor,
+            TransformPage = p => p.Rows.Count == 1 ? p with { Rows = [.. p.Rows, p.Rows[0] with { Key = "item/extra" }] } : p,
+        };
+
+        var tree = Decode(plugin);
+
+        Assert.True(tree.Truncated);
+        Assert.Equal(8, tree.Values.Count);
+        Assert.DoesNotContain(tree.Values, v => v.Path.Contains("item/extra", StringComparison.Ordinal));
+        Assert.Equal(3, plugin.Queries.Count);
+        Assert.Contains(tree.Warnings, w => w.Contains("more rows than the collection declares", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CursorPastTheDeclaredEnd_IsNotFollowed()
+    {
+        var plugin = new QueryableInventoryPlugin { UseCursor = true, TransformPage = p => p with { NextCursor = p.NextCursor ?? "5" } };
+
+        var tree = Decode(plugin);
+
+        Assert.False(tree.Truncated);
+        Assert.Equal(10, tree.Values.Count);
+        Assert.Equal(3, plugin.Queries.Count);
+    }
+
+    [Theory]
     [InlineData("")]
     [InlineData(" ")]
     public void EmptyRowIdentity_StopsWithoutInventingAnIdentity(string key)

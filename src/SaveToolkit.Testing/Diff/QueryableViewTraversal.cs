@@ -50,6 +50,9 @@ internal sealed class QueryableViewTraversal(ISaveDocument document, SemanticTre
                 return Cut(table, "invalid page metadata");
             }
 
+            // Distinct rows past the declared total would otherwise be reported as a complete tree.
+            if (page.Rows.Count > page.FilteredCount - offset) return Cut(table, "more rows than the collection declares");
+
             // Count the complete UTF-8 page, including read-only cells/metadata, without keeping a JSON copy.
             using var counter = new QueryPageByteCounter(limits.MaxQueryBytes - _bytes);
             try
@@ -80,6 +83,9 @@ internal sealed class QueryableViewTraversal(ISaveDocument document, SemanticTre
                 if (page.NextCursor is not null || offset < page.FilteredCount) return Cut(table, "empty page before the collection ended");
                 return true;
             }
+
+            // Every declared row has been visited; a further cursor cannot add rows that are not declared.
+            if (offset == page.FilteredCount) return true;
 
             if (page.NextCursor is { } next)
             {
