@@ -81,6 +81,14 @@ oversized output and ambiguous encodings roll back atomically. No-op and undo
 restore the original encoded bytes exactly, including original string escapes.
 
 Bounds: 16 MiB, depth 64, 250,000 values, at most 128 children per lazy expansion.
+Malformed grammar, truncated containers and invalid UTF-8 (including member
+names) are declined by `Probe`; `Open` and the `xorjson.tokens` decoder reject
+them with `SaveFormatException`. Both transforms must be checked: short inputs
+such as encoded empty containers are intentionally rejected when ambiguous.
+Synthetic corruption tests cover every zero-, one- and two-byte input, every
+truncated prefix of a BOM/multibyte character document in all three encodings,
+and complete/truncated arrays and objects nested 100,000 levels deep. Existing
+accepted/rejected byte, depth and value-count boundary pairs remain covered.
 Plugin instances are stateless; documents do no filesystem or network I/O and
 depend only on the SDK. The token editor originated in this repository's
 GenericJson implementation; this plugin has no reference to that plugin.
