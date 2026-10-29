@@ -73,11 +73,12 @@ public sealed class WorkspaceStore : IDisposable
         }
     }
 
+    /// <summary>Finds and touches a workspace. Use <see cref="Acquire"/> to retain it through an operation.</summary>
     public Workspace? Get(string id)
     {
         lock (_lifetimeGate)
         {
-            var workspace = _workspaces.GetValueOrDefault(id)?.Workspace;
+            var workspace = _disposed ? null : _workspaces.GetValueOrDefault(id)?.Workspace;
             workspace?.Touch();
             return workspace;
         }
@@ -88,7 +89,7 @@ public sealed class WorkspaceStore : IDisposable
     {
         lock (_lifetimeGate)
         {
-            if (!_workspaces.TryGetValue(id, out var registration)) return null;
+            if (_disposed || !_workspaces.TryGetValue(id, out var registration)) return null;
             registration.Workspace.Touch();
             registration.Leases++;
             return new WorkspaceLease(registration.Workspace, () => Release(registration));
