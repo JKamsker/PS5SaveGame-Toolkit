@@ -100,6 +100,8 @@ public sealed class AriseWritePlanningTests
         var applied = session.ApplyActionPlan(preview.PlanId!, preview.Revision);
         Assert.True(applied.Ok);
         Assert.True(session.State.CanUndo);
+        var edited = Assert.Single(document.Serialize()).Content.ToArray();
+        Assert.Equal(15, document.GetValue(RowKey).AsInt64());
         var changes = session.GetChanges().Changes;
         Assert.Contains(changes, change => change.ValueId == RowKey && change.CurrentValue.AsInt64() == 15);
         // Core's semantic baseline does not traverse F8 rows; query-only changes use undo.
@@ -110,6 +112,8 @@ public sealed class AriseWritePlanningTests
         Assert.False(session.State.CanUndo);
         Assert.True(session.Redo().Ok);
         Assert.True(session.State.CanUndo);
+        Assert.Equal(15, document.GetValue(RowKey).AsInt64());
+        Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
     [Fact]
