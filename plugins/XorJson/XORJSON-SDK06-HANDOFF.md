@@ -108,6 +108,7 @@ disabled or Debug-only assertion.
 - Consumer head before R1 fixes: `8d7c4c17691b1de27e37922bfda3d7cb67177645`
 - Consumer follow-up head: `ab568661cc1a2945ad209c1091e98aa5fcfb41e9` (`fix(xorjson): close SDK06 scalar and snapshot gaps`)
 - R2 implementation heads: `3e6c25e718fc143bce2ee4bf71693eccf01465b4` (`fix(xorjson): preflight scalar budgets and share memento sources`), `016fedaea5083aceabae8b967df49f72b4d79ace` (`refactor(xorjson): stream scalar lexeme materialization`), and `63cc3fa423f27a72955503eef3e78636e311f813` (`fix(xorjson): close Release opening allocation gate`).
+- R3 implementation/final consumer head: `5da842f0` (`fix(xorjson): make rejected scalar writes atomic`).
 - Consumer PR base is now `main`; the reviewed SDK head above is merged there,
   and this branch retains the ordinary dependency merge without rewriting.
 
