@@ -30,18 +30,20 @@ internal sealed class DocumentCollections
 
             Add(new(new(id, materia ? "Materia" : "Inventory", columns, count)
             {
-                Description = "Search includes every fixed slot. Existing mapped non-equipment quantities are experimental; counts do not update reward/acquisition flags. " + EmbeddedCatalogs.Attribution,
+                EmptyRows = EmptySlots.Presentation,
+                Description = "Empty slots are hidden by default; Show reveals every fixed slot without changing saved data. Existing mapped non-equipment quantities are experimental; counts do not update reward/acquisition flags. " + EmbeddedCatalogs.Attribution,
             }, () => Enumerable.Range(0, count).Select(slot =>
             {
                 var type = gameplay.TypeId(materia, slot);
+                var empty = gameplay.IsEmpty(materia, slot);
                 var record = references.Record(materia ? "ff7r-materia" : "ff7r-items", type);
                 var values = new Dictionary<string, string>(StringComparer.Ordinal)
                 {
                     ["slot"] = slot.ToString(CultureInfo.InvariantCulture),
-                    ["name"] = type is 0 or uint.MaxValue ? "Empty" : record?.Name ?? $"Unknown ID 0x{type:X}",
+                    ["name"] = empty ? EmptySlots.Label : record?.Name ?? $"Unknown ID 0x{type:X}",
                     ["id"] = $"0x{type:X8}", ["category"] = record?.Category ?? "Unknown / empty",
                     ["quantity"] = materia ? gameplay.Ap(slot).ToString(CultureInfo.InvariantCulture) : gameplay.Quantity(slot).ToString(CultureInfo.InvariantCulture),
-                    ["description"] = references.Describe(materia, type),
+                    ["description"] = empty ? "Unused slot; original fields and bytes are preserved." : references.Describe(materia, type),
                 };
                 if (materia)
                 {
@@ -53,9 +55,9 @@ internal sealed class DocumentCollections
                     var cells = gameplay.Row(materia, slot, bind).Cells.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
                     cells["category"] = new TextNode(values["category"]);
                     cells["description"] = new TextNode(values["description"]);
-                    cells["details"] = Details(record);
+                    cells["details"] = empty ? new TextNode(values["description"]) : Details(record);
                     return new($"{id}/{slot}", cells);
-                });
+                }) { IsEmpty = empty };
             })));
         }
 

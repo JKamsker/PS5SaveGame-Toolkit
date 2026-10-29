@@ -7,8 +7,11 @@ namespace SaveToolkit.Plugins.FinalFantasy7;
 
 internal sealed record CollectionEntry(string Key, IReadOnlyDictionary<string, string> Values, Func<TableRow>? Render = null)
 {
-    public TableRow Row() => Render?.Invoke() ?? new(Key,
-        Values.ToDictionary(pair => pair.Key, pair => (ViewNode)new TextNode(pair.Value), StringComparer.Ordinal));
+    public bool IsEmpty { get; init; }
+
+    public TableRow Row() => (Render?.Invoke() ?? new(Key,
+        Values.ToDictionary(pair => pair.Key, pair => (ViewNode)new TextNode(pair.Value), StringComparer.Ordinal)))
+        with { IsEmpty = IsEmpty };
 }
 
 /// <summary>Filters the full bounded model before rendering bindings for the requested page.</summary>
@@ -18,6 +21,7 @@ internal sealed class CollectionQuery(QueryableCollection metadata, Func<IEnumer
     public QueryableTableNode View() => new(Metadata.Id, Metadata.Title, Metadata.Columns, Metadata.TotalCount)
     {
         Description = Metadata.Description,
+        EmptyRows = Metadata.EmptyRows,
     };
 
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
@@ -48,7 +52,10 @@ internal sealed class CollectionQuery(QueryableCollection metadata, Func<IEnumer
                 string.Equals(value, filter.Value, StringComparison.OrdinalIgnoreCase));
         }
 
-        var filtered = matches.ToArray();
+        var matching = matches.ToArray();
+        var includeEmpty = query.IncludeEmpty ?? !(Metadata.EmptyRows?.HideByDefault ?? false);
+        var hiddenEmptyCount = includeEmpty ? 0 : matching.Count(entry => entry.IsEmpty);
+        var filtered = includeEmpty ? matching : [.. matching.Where(entry => !entry.IsEmpty)];
         IOrderedEnumerable<CollectionEntry> sorted;
         if (query.SortColumn is { } key)
         {
@@ -64,7 +71,7 @@ internal sealed class CollectionQuery(QueryableCollection metadata, Func<IEnumer
         }
 
         return new(Metadata.Id, Metadata.Columns, [.. sorted.Skip(query.Offset).Take(query.Limit).Select(entry => entry.Row())],
-            all.Length, filtered.Length, query.Offset, query.Limit);
+            all.Length, filtered.Length, query.Offset, query.Limit) { HiddenEmptyCount = hiddenEmptyCount };
     }
 
     private sealed class NumericComparer : IComparer<string>
