@@ -132,9 +132,10 @@ public sealed class ReferencePackStore
     {
         var assemblies = pluginAssemblies.Distinct().OrderBy(a => a.GetName().Name, StringComparer.Ordinal);
         var loaded = new List<LoadedReferencePack>();
+        var strings = new ReferenceStringPool();
         foreach (var source in assemblies.SelectMany(EmbeddedSources))
         {
-            TryLoad(source.Origin, () => ReferencePackLoader.Load(source, ReferencePackOrigin.Embedded, Options.Limits), loaded);
+            TryLoad(source.Origin, () => ReferencePackLoader.Load(source, ReferencePackOrigin.Embedded, Options.Limits, strings), loaded);
         }
 
         _packs = Sorted(loaded);

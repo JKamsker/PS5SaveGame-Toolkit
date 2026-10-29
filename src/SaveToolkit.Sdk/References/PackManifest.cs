@@ -75,7 +75,7 @@ internal static class PackJson
         MaxDepth = 16,
     };
 
-    public static T Parse<T>(ReadOnlySpan<byte> utf8, string what)
+    public static T Parse<T>(ReadOnlySpan<byte> utf8, string what, JsonSerializerOptions? options = null)
     {
         if (utf8.StartsWith((ReadOnlySpan<byte>)[0xEF, 0xBB, 0xBF]))
         {
@@ -84,7 +84,7 @@ internal static class PackJson
 
         try
         {
-            return JsonSerializer.Deserialize<T>(utf8, Options) ?? throw new EmbeddedReferencePackException($"{what} is empty.");
+            return JsonSerializer.Deserialize<T>(utf8, options ?? Options) ?? throw new EmbeddedReferencePackException($"{what} is empty.");
         }
         catch (JsonException ex)
         {

@@ -6,6 +6,13 @@ internal static class Program
 {
     public static int Main(string[] args)
     {
+        if (args is ["--reference-worker"])
+        {
+            ReferencePackWorker.Run();
+            return 0;
+        }
+        if (args is ["--references", var referenceScratch])
+            return ReferencePackReport.RunAsync(referenceScratch).GetAwaiter().GetResult();
         if (args is ["--startup-worker", var workerScratch])
         {
             StartupWorker.Run(workerScratch);

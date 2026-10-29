@@ -471,3 +471,205 @@ Against moving local `main`: **39 passed / 1 failed**, because its newer script 
 Raw process observations, five accepted-probe CSVs, BDN reports, package inventory, smoke logs and
 TRX results remain under `D:/Temp/saveeditor/test-scratch/review-perf-startup`. Private samples were
 read in place only by the required test suite; none were used in the benchmarks or committed.
+
+## Lazy embedded reference packs (#40)
+
+The earlier deferred reference-loading finding is addressed on `perf/lazy-reference-packs`,
+against baseline `9be32cd8` (including the Release runner fix `d11e997c`). Measurements use the same
+Windows/CPU/.NET/High performance configuration described above, workstation GC for workers and
+server GC for the API. All 40 shipped packs and their attribution/content remain present.
+
+Startup still validates every manifest, file hash, records schema, image and cross-dataset asset
+reference. Rejected-pack reporting and exact dataset counts therefore keep their existing behavior.
+Validation releases its temporary JSON models and image buffers. Each requested records dataset
+then creates its catalog once; individual images copy their resource bytes only when requested.
+`Lazy<T>` publishes these results across concurrent callers. Pack selection and pinning inspect
+metadata without materializing a losing candidate. User ZIP imports retain their existing complete
+snapshot because their disposable archive source cannot be reopened later.
+
+The full Release mutation-fuzz suites also exercise the first document open and enforce their
+existing allocation budgets. They caught excessive first-use allocation when lazy catalog creation
+repeated startup record validation and copied every attributes dictionary to share its string keys.
+Materialization now reopens the immutable, already validated embedded records directly and shares
+string values and attribute keys during JSON parsing, allowing the parsed attributes dictionaries
+to become the catalog's read-only dictionaries. A bounded stack/rented character buffer and ordinal
+span lookup avoid allocating temporary strings for repeated JSON text. Startup validation remains
+complete, and imported ZIP snapshots retain their prior path; no allocation budget was relaxed.
+
+Record strings share an ordinal pool owned by the store or SDK loaded context. It is collectible
+with that owner and remains empty during embedded validation. This avoids the permanent lifetime of
+`string.Intern`; it also shares identical text across dataset and locale boundaries when such data
+is present. The shipped inventory has **77,038 English records and 25,083 language-neutral records**,
+so retaining separate translated locale copies is not the cause of this baseline's idle cost.
+
+The public-API content census finds **102,121 records**, **322,284 attribute entries**, and
+**11,222,038 bytes (10.70 MiB) of image payload**. Before sharing, the records expose **1,054,776
+distinct string objects but only 256,008 ordinal string values**: their UTF-16 character payload is
+**72.31 MiB**, versus **31.22 MiB** for one copy of each value. These payload counts exclude string
+object headers, dictionaries, records, arrays, indexes and allocator alignment; they are not a full
+heap-size attribution. Parsed record/attribute graphs and repeated strings dominate the roughly
+152 MiB retained baseline; image buffers account for a smaller part. Resource bytes in loaded
+assembly/native pages are outside this managed-heap measurement.
+
+### Reproduce reference observations
+
+Build Release first, then run with no other builds/tests in progress:
+
+```powershell
+$scratch = 'D:/Temp/saveeditor/test-scratch/perf-lazy-reference-packs'
+New-Item -ItemType Directory -Force $scratch | Out-Null
+$env:TEMP = $env:TMP = $env:TMPDIR = $scratch
+dotnet build tests/benchmarks/SaveToolkit.Benchmarks -c Release --warnaserror
+$bench = 'tests/benchmarks/SaveToolkit.Benchmarks/bin/Release/net10.0/SaveToolkit.Benchmarks.dll'
+dotnet $bench --references "$scratch/references"
+dotnet $bench --startup src/SaveToolkit.Api/bin/Release/net10.0/SaveToolkit.Api.dll "$scratch/startup"
+./scripts/bench.ps1 -ScratchDirectory "$scratch/bdn" -Filter '*CatalogStartupBenchmarks*'
+```
+
+`--references` starts five fresh workers and retains `references.json`. Each worker discovers the
+catalog before measuring a new store's construction, synchronous allocations and retained managed
+heap (`GC.GetTotalMemory(true)` after minus before, with the store kept alive). It then visits packs
+in store order. The first-access timer obtains the first records dataset and searches one row;
+the separate remaining timer searches one row from every other dataset and requests every image
+listed by that pack's embedded manifest. Neither timer builds optional sort indexes or scans all
+records. Counts, string identity/value census and locale distribution come from a subsequent
+complete paged traversal. The exhaustive retained measurement includes the small measurement lists,
+asset-path inventory and public context cache, so it is not solely decoder object size.
+
+First access is cold with respect to that worker's lazy catalogs/buffers, after startup validation
+has already touched resource bytes and JSON code. It is not a disk-cold promise. The eager baseline
+already has every catalog/image, making its first-access figures mostly public lookup overhead.
+Both phases use the same worker instrumentation; baseline SDK/Core/API/plugin binaries were saved
+before production edits. BenchmarkDotNet's baseline source is an isolated D: archive of `9be32cd8`,
+so generated benchmark builds cannot accidentally include the new decoder. The API startup boundary
+and natural-idle working-set limitations are the same as in the earlier startup section.
+
+### Before/after observations
+
+Captured **2026-10-29**, five fresh workers/API processes per phase, no concurrent builds/tests.
+Values are **median [minimum, maximum]**. The source baseline is `9be32cd8`; the measured change is
+`cf9cf8f3` plus the benchmark instrumentation. Unrelated machine activity and the OS cache remain
+uncontrolled.
+
+| Boundary | Before | After |
+| --- | ---: | ---: |
+| Store construction, ms | 885.741 [845.910, 1113.541] | 892.982 [797.150, 994.548] |
+| Store construction, allocated MiB | 388.699 [388.626, 388.719] | 369.698 [369.671, 369.716] |
+| Idle retained managed MiB | 152.139 [152.099, 152.146] | 2.995 [2.988, 2.998] |
+| All materialized, retained managed MiB | 153.290 [153.249, 153.296] | 92.618 [92.612, 93.137] |
+| Process start to complete `/api/plugins`, ms | 1831.380 [1756.858, 3567.810] | 1904.303 [1207.579, 2347.306] |
+| API natural-idle working set, MiB | 346.750 [342.984, 350.934] | 215.375 [208.918, 236.457] |
+| API natural-idle private bytes, MiB | 263.469 [256.254, 267.746] | 128.000 [121.355, 164.340] |
+
+Unused embedded packs retain **98.0% less managed memory** at this boundary. After every dataset and
+image has been requested, retained memory is still about **39.6% lower**. All **1,060,047** observed
+record-string occurrences then point to exactly **256,008** string instances, equal to the number
+of ordinally unique values; their character payload falls from **72.31 to 31.22 MiB**. Figures include
+all still-reachable storage. Once every catalog has materialized, lazy factories release the pool
+dictionary; the shared strings remain reachable through records. Startup allocation falls only about
+4.9% because preserving startup validation still requires transient JSON models and image buffers.
+Fresh-worker construction is roughly unchanged; overlapping API-startup ranges do not establish
+a reliable HTTP cold-start speedup.
+
+The tradeoff is extra parsing when a validated embedded dataset is first used. The sum of measured
+store-construction and all catalog/image first-access intervals rises from **891.908 to 1797.568 ms**
+(medians across workers). That sum excludes discovery, GC, manifest inventory and the later full
+content census; it is not an end-to-end stopwatch. Typical sessions only request their matching
+datasets/images, while an exhaustive cold read now performs validation and materialization separately.
+
+### First access per pack
+
+Median milliseconds across the same five workers. **First** means the first records catalog's
+one-row search; **All** includes that first search, one-row searches for every remaining records
+dataset, and all images in the pack. It does not enumerate every record or build sort indexes.
+The eager baseline's small lookup numbers primarily reflect timer/call/page overhead. The first
+pack also pays shared first-use/JIT work; later packs can benefit from strings already shared by
+earlier packs. `witcher3.maps` has only assets, so its first records-search timer is empty.
+
+| Pack | Before first, ms | After first, ms | After all datasets/assets, ms |
+| --- | ---: | ---: | ---: |
+| `astro.catalogue.en` | 0.876 | 9.983 | 14.160 |
+| `atomic-heart.items.en` | 0.003 | 0.257 | 0.418 |
+| `bg3.starter.en` | 0.001 | 0.030 | 0.560 |
+| `cyberpunk2077.game-assets.en` | 0.001 | 0.454 | 1.382 |
+| `cyberpunk2077.identifiers` | 0.001 | 18.988 | 90.979 |
+| `cyberpunk2077.wiki-labels.en` | 0.001 | 0.092 | 0.095 |
+| `eldenring.community.en` | 0.001 | 9.242 | 23.928 |
+| `eldenring.names.en` | 0.001 | 63.133 | 126.268 |
+| `eldenring.progress.en` | 0.001 | 4.432 | 4.593 |
+| `ff7r.rebirth.en` | 0.002 | 5.023 | 7.318 |
+| `ff7r.remake.en` | 0.001 | 1.365 | 1.933 |
+| `ffxvi.abilities.en` | 0.001 | 0.486 | 0.740 |
+| `ffxvi.feats.en` | 0.001 | 0.034 | 0.071 |
+| `ffxvi.maps.en` | 0.001 | 0.033 | 0.200 |
+| `ffxvi.nex.en` | 0.001 | 0.351 | 0.409 |
+| `ffxvi.published.en` | 0.001 | 4.679 | 45.145 |
+| `ffxvi.wiki.en` | 0.001 | 1.145 | 1.150 |
+| `gearbox.bl3` | 0.001 | 0.193 | 185.159 |
+| `gearbox.ttwl` | 0.001 | 0.238 | 243.691 |
+| `genericjson.cp2077.v136` | 0.001 | 0.048 | 0.068 |
+| `gow-ragnarok.2018.en` | 0.001 | 12.875 | 12.893 |
+| `gow-ragnarok.assets.en` | 0.001 | 0.092 | 0.190 |
+| `gow-ragnarok.community.en` | 0.001 | 0.212 | 0.234 |
+| `gow-ragnarok.gear.en` | 0.001 | 8.386 | 8.393 |
+| `gow-ragnarok.ps5.en` | 0.001 | 0.153 | 0.239 |
+| `gow-ragnarok.runtime.en` | 0.001 | 4.687 | 4.728 |
+| `gow-ragnarok.skills.en` | 0.001 | 0.511 | 0.512 |
+| `hogwarts.legilimens` | 0.001 | 4.685 | 4.865 |
+| `insomniac.rift.en` | 0.001 | 0.309 | 1.180 |
+| `insomniac.rift.maps.en` | 0.001 | 3.511 | 4.234 |
+| `pragmata.evidence.en` | 0.001 | 1.011 | 7.315 |
+| `suckerpunch.tsushima` | 0.001 | 0.234 | 2.368 |
+| `suckerpunch.yotei` | 0.001 | 0.132 | 0.313 |
+| `talesofarise.catalog` | 0.001 | 2.197 | 34.516 |
+| `unrealgvas.ps5` | 0.001 | 0.162 | 0.332 |
+| `unrealgvas.storage` | 0.001 | 0.080 | 0.080 |
+| `witcher3.catalog.en` | 0.001 | 29.559 | 32.403 |
+| `witcher3.gwent.en` | 0.001 | 1.866 | 3.253 |
+| `witcher3.maps` | 0.000 | 0.000 | 0.848 |
+| `xorjson.community.en` | 0.001 | 1.881 | 10.672 |
+
+The Release retained-memory regression runs one fresh child process, warms discovery/decoder caches,
+and measures three new stores after all catalog startup validation using process-wide full-GC heap
+readings. As with the existing allocation probes, the minimum of three samples must be at most
+**16 MiB**, reducing sensitivity to unrelated runtime allocation.
+The eager baseline failed at **159,251,440 bytes (151.87 MiB)**; the lazy implementation measured
+**2,863,488 / 2,861,288 / 2,861,288 bytes (about 2.73 MiB)** in its test harness. These values use a
+different harness boundary from the worker above. Debug reports the same measurements without
+enforcing the memory budget. Concurrent first-access tests separately verify shared catalog/asset
+identity and exactly one resource materialization after startup validation.
+
+The first-catalog allocation regression materializes **5,000 authored records** in a fresh validated
+context per sample. The initial lazy implementation failed its **8 MiB** Release budget at
+**12,301,624 bytes**; the refined materializer passes at **5,756,488 bytes**. The existing three plugin
+mutation-fuzz allocation budgets remain unchanged.
+
+Raw observations and logs remain under `D:/Temp/saveeditor/test-scratch/perf-lazy-reference-packs`:
+`before-references/references.json`, `after-references/references.json`,
+`before-startup/startup.json`, and `after-startup/startup.json`. Saved framework-dependent binaries
+are in `before-bin`/`after-bin`, and the original tracked source snapshot is in `baseline-source`.
+No private saves were read by these benchmark modes or copied into their scratch directories.
+Earlier after-change observations from `2575df5f` are retained under `interim-2575df5f`; the tables
+here use the final `cf9cf8f3` captures at the main paths above.
+
+### BenchmarkDotNet cross-check
+
+The unchanged `scripts/bench.ps1 -Filter '*CatalogStartupBenchmarks*'` completed **2/2 Quick/ShortRun
+cases in each phase**, using the isolated baseline archive and the current checkout respectively.
+Three measured iterations per case, one launch, three warmups; total BDN times were 42 and 41 seconds
+(excluding the outer source build). Values below are means and their **99.9% error half-widths**;
+the very wide timing intervals require repeated Full runs before making precise latency claims.
+These warmed repeated-store timings differ from the fresh-worker boundary above.
+
+| Method | Before mean ± error, ms | After mean ± error, ms | Before allocated | After allocated |
+| --- | ---: | ---: | ---: | ---: |
+| `Discover` | 2.697 ± 5.378 | 1.551 ± 4.230 | 171.26 KiB | 170.19 KiB |
+| `LoadEmbeddedPacks` | 695.380 ± 775.679 | 365.285 ± 500.486 | 379.018 MiB | 359.956 MiB |
+
+`Discover` is an unchanged control path; its small difference is not attributed to reference loading.
+`LoadEmbeddedPacks` includes complete validation but deliberately does not request a catalog/image,
+so it measures the new idle boundary rather than deferred first-use work.
+Reports remain under the task scratch root at
+`before-bdn/bench-17b7657de14240e097179337d5e18df8/summary.md` and
+`after-bdn/bench-addb7a6c9d10479285dadd1271c23d91/summary.md`, with detailed CSV/HTML/Markdown files
+under each run's `artifacts/results`. Build, worker and API logs remain beside the reports.

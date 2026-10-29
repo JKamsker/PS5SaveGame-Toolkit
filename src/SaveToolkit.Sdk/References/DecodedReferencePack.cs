@@ -2,15 +2,15 @@ using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Sdk.References;
 
-/// <summary>A validated, fully loaded pack. Immutable and shared by every document that pins it.</summary>
+/// <summary>A validated pack with catalogs and asset buffers materialized on demand. Immutable and shared by every document that pins it.</summary>
 internal sealed class DecodedReferencePack
 {
-    private readonly IReadOnlyDictionary<string, DecodedReferenceCatalog> _catalogs;
+    private readonly IReadOnlyDictionary<string, Lazy<DecodedReferenceCatalog>> _catalogs;
     private readonly IReadOnlyDictionary<string, DecodedAsset> _assets;
 
     internal DecodedReferencePack(
         ReferencePackInfo info,
-        IReadOnlyDictionary<string, DecodedReferenceCatalog> catalogs,
+        IReadOnlyDictionary<string, Lazy<DecodedReferenceCatalog>> catalogs,
         IReadOnlyDictionary<string, DecodedAsset> assets)
     {
         Info = info;
@@ -22,7 +22,9 @@ internal sealed class DecodedReferencePack
 
     public string Id => Info.Id;
 
-    public IReferenceCatalog? Catalog(string catalogId) => _catalogs.GetValueOrDefault(catalogId);
+    public IReferenceCatalog? Catalog(string catalogId) => _catalogs.GetValueOrDefault(catalogId)?.Value;
+
+    internal bool HasCatalog(string catalogId) => _catalogs.ContainsKey(catalogId);
 
     /// <summary>Asset by pack-relative path.</summary>
     internal DecodedAsset? Asset(string path) => _assets.GetValueOrDefault(path);
