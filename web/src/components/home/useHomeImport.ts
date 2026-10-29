@@ -1,14 +1,15 @@
 import { useRef, useState, type DragEvent } from "react";
 import { useNavigate } from "react-router";
 import { api, ApiError } from "../../api/client";
-import { library } from "../../state/libraryStore";
+import { library, useLibrary } from "../../state/libraryStore";
 import { walkEntries, type UploadFile } from "./collectFiles";
 import { useAsyncTask } from "../ui/useAsyncTask";
 import { useLatestRequest } from "../ui/useLatestRequest";
 
 function useHomeUpload() {
   const navigate = useNavigate();
-  const importTask = useAsyncTask();
+  const { snapshotId } = useLibrary();
+  const importTask = useAsyncTask(snapshotId);
   const [status, setStatus] = useState<{ text: string; isError: boolean } | null>(null);
   const [failedUpload, setFailedUpload] = useState<UploadFile[]>([]);
   const upload = (files: UploadFile[]) => {

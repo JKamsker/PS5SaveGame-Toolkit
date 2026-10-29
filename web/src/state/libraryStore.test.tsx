@@ -67,15 +67,14 @@ it("notifies subscribers for both scan phases and stops after unsubscribe", asyn
   expect(statuses).toEqual(["scanning", "ready"]);
 });
 
-it("keeps imported workspace IDs separate and tolerates malformed stored mappings", () => {
+it("keeps same-snapshot imports separate and ignores legacy persisted mappings", () => {
+  sessionStorage.setItem("savebench.imported", JSON.stringify({ first: "older-snapshot" }));
+  expect(library.importedWorkspace("first")).toBeUndefined();
   library.rememberImport("first", "w1");
   library.rememberImport("second", "w2");
   expect(library.importedWorkspace("first")).toBe("w1");
   expect(library.importedWorkspace("second")).toBe("w2");
   expect(library.importedWorkspace("missing")).toBeUndefined();
-  sessionStorage.setItem("savebench.imported", "not JSON");
-  expect(library.importedWorkspace("first")).toBeUndefined();
-  expect(() => library.rememberImport("third", "w3")).not.toThrow();
 });
 
 it("tolerates unavailable storage and a missing folder database during restore", async () => {

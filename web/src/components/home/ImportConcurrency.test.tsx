@@ -21,7 +21,7 @@ async function mount() {
   vi.spyOn(libraryStore.library, "restore").mockResolvedValue(undefined);
   vi.spyOn(api, "plugins").mockResolvedValue([]); vi.spyOn(api, "titles").mockResolvedValue([]); vi.spyOn(api, "workspaces").mockResolvedValue([]);
   vi.spyOn(libraryStore.library, "importedWorkspace").mockReturnValue("remembered");
-  vi.spyOn(libraryStore, "useLibrary").mockReturnValue({ status: "ready", folderName: "Folder", persistent: false, skipped: 0, error: null, icons: {},
+  vi.spyOn(libraryStore, "useLibrary").mockReturnValue({ snapshotId: libraryStore.library.get().snapshotId, status: "ready", folderName: "Folder", persistent: false, skipped: 0, error: null, icons: {},
     games: ["First game", "Second game"].map(key => ({ key, titleId: null, fallbackName: key, kind: "zip", sources: [], saveDirs: 1, totalBytes: 1, icon: null })) });
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } }); clients.push(client);
   await act(async () => { render(<MemoryRouter><QueryClientProvider client={client}><Link to="/away">Leave</Link><Location /><Routes>

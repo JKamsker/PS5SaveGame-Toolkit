@@ -4,6 +4,8 @@ import { groupIntoGames, listDirectory, type LibraryGame, type ScannedFile } fro
 export type LibraryStatus = "empty" | "scanning" | "ready" | "reconnect" | "error";
 
 export interface LibraryState {
+  /** Identity of these source files, never reused for another scan or page load. */
+  snapshotId: number;
   status: LibraryStatus;
   folderName: string | null;
   games: LibraryGame[];
@@ -15,17 +17,17 @@ export interface LibraryState {
 }
 
 const TAB_KEY = "savebench.tab";
-const IMPORTED_KEY = "savebench.imported";
 const DB_NAME = "savebench";
 const STORE = "folders";
 
-const initial: LibraryState = { status: "empty", folderName: null, games: [], icons: {}, skipped: 0, error: null, persistent: false };
+const initial: LibraryState = { snapshotId: 0, status: "empty", folderName: null, games: [], icons: {}, skipped: 0, error: null, persistent: false };
 
 let state: LibraryState = initial;
 let restoreStarted = false;
 let scanGeneration = 0;
 let pickerSequence = 0;
 let persistence = Promise.resolve();
+const imported = new Map<string, string>();
 const listeners = new Set<() => void>();
 
 function set(next: Partial<LibraryState>): void {
@@ -81,7 +83,8 @@ function clearIcons(): void {
 
 function beginScan(folderName: string, persistent: boolean): void {
   clearIcons();
-  set({ ...initial, status: "scanning", folderName, persistent });
+  imported.clear();
+  set({ ...initial, snapshotId: scanGeneration, status: "scanning", folderName, persistent });
 }
 
 /** Keep remembered-folder writes in user-intent order, including a concurrent Forget. */
@@ -173,9 +176,12 @@ export const library = {
 
   async reconnect(): Promise<void> {
     const generation = ++scanGeneration;
+    clearIcons();
+    imported.clear();
+    set({ snapshotId: generation, games: [], icons: {}, status: "reconnect" });
     const handle = await idb<FileSystemDirectoryHandle>("readonly", (s) => s.get(tabId()) as IDBRequest<FileSystemDirectoryHandle>);
     if (generation !== scanGeneration) return;
-    if (!handle) { clearIcons(); set(initial); return; }
+    if (!handle) { clearIcons(); set({ ...initial, snapshotId: generation }); return; }
     const permission = (await handle.requestPermission?.({ mode: "read" })) ?? "denied";
     if (generation === scanGeneration && permission === "granted") await scanDirectory(handle, generation);
   },
@@ -183,18 +189,17 @@ export const library = {
   async forget(): Promise<void> {
     const generation = ++scanGeneration;
     clearIcons();
-    set(initial);
+    imported.clear();
+    set({ ...initial, snapshotId: generation });
     await persist(generation, store => store.delete(tabId()));
   },
 
-  importedWorkspace: (gameKey: string): string | undefined =>
-    safeSession(() => (JSON.parse(sessionStorage.getItem(IMPORTED_KEY) ?? "{}") as Record<string, string>)[gameKey], undefined),
+  importedWorkspace: (gameKey: string, snapshotId = state.snapshotId): string | undefined =>
+    snapshotId === state.snapshotId ? imported.get(gameKey) : undefined,
 
-  rememberImport(gameKey: string, workspaceId: string): void {
-    safeSession(() => {
-      const map = JSON.parse(sessionStorage.getItem(IMPORTED_KEY) ?? "{}") as Record<string, string>;
-      sessionStorage.setItem(IMPORTED_KEY, JSON.stringify({ ...map, [gameKey]: workspaceId }));
-    }, undefined);
+  rememberImport(gameKey: string, workspaceId: string, snapshotId = state.snapshotId): void {
+    // A late upload still exists in Open dumps, but cannot become this snapshot's import.
+    if (snapshotId === state.snapshotId) imported.set(gameKey, workspaceId);
   },
 };
 
