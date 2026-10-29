@@ -77,7 +77,7 @@ it.each(faults)("keeps export choices and avoids phantom downloads after packing
   fireEvent.click(download);
   expect((await screen.findByRole("alert")).textContent).toMatch(message(fault));
   expect(download).toHaveProperty("disabled", false);
-  expect(document.activeElement).toBe(download);
+  expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Export edited saves" }));
   expect(screen.getByRole("radio", { name: /Whole dump/ })).toHaveProperty("checked", true);
   expect(screen.getByRole("checkbox", { name: /Also update/ })).toHaveProperty("checked", false);
   expect(attempts).toBe(1); expect(close).not.toHaveBeenCalled(); expect(create).not.toHaveBeenCalled();

@@ -38,7 +38,10 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
         <button type="button" className="btn btn--quiet" onClick={onClose}>
           Cancel
         </button>
-        <button type="button" className="btn btn--primary" disabled={busy || plan.isFetching || plan.isError || !plan.data || (plan.data.changedCount === 0 && scope !== "Everything")} onClick={() => void download()}>
+        <button type="button" className="btn btn--primary" disabled={busy || plan.isFetching || plan.isError || !plan.data || (plan.data.changedCount === 0 && scope !== "Everything")} onClick={event => {
+          if (document.activeElement === event.currentTarget) title.current?.focus();
+          void download();
+        }}>
           {busy ? "Packing…" : "Download zip"}
         </button>
       </div>
