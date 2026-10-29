@@ -1,90 +1,31 @@
-import { useEffect, useRef, useState, type DragEvent } from "react";
-import { Link, useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
-import { api, ApiError } from "../../api/client";
+import { useEffect } from "react";
+import { Link } from "react-router";
+import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import { api } from "../../api/client";
 import type { Plugin } from "../../api/protocol";
 import { library } from "../../state/libraryStore";
-import { fromInput, walkEntries, type UploadFile } from "./collectFiles";
+import { fromInput } from "./collectFiles";
 import { GameLibrary } from "./GameLibrary";
 import { AppVersion } from "../ui/AppVersion";
 import { useEntryFocus } from "../ui/useEntryFocus";
-import { useAsyncTask } from "../ui/useAsyncTask";
 import { ImportTaskContext } from "./importTask";
-import { useLatestRequest } from "../ui/useLatestRequest";
+import { useHomeImport } from "./useHomeImport";
 
 const maturityText = { ReadOnly: "view only", Experimental: "editing, untested on console", Stable: "editing, tested in-game" } as const;
 
 export function HomePage() {
   const focusHeading = useEntryFocus("home");
-  const navigate = useNavigate();
-  const importTask = useAsyncTask();
-  const beginFolderSelection = useLatestRequest("home-folder");
-  const [dragging, setDragging] = useState(false);
-  const [status, setStatus] = useState<{ text: string; isError: boolean } | null>(null);
-  const [failedUpload, setFailedUpload] = useState<UploadFile[]>([]);
-  const zipInput = useRef<HTMLInputElement>(null);
-  const folderInput = useRef<HTMLInputElement>(null);
+  const controller = useHomeImport();
   const plugins = useQuery({ queryKey: ["plugins"], queryFn: api.plugins });
   const recent = useQuery({ queryKey: ["workspaces"], queryFn: api.workspaces });
-
   useEffect(() => void library.restore(), []);
-
-  const upload = (files: UploadFile[]) => {
-    if (files.length === 0) return;
-    return importTask.run(async isCurrent => {
-      setFailedUpload([]);
-      const total = files.reduce((n, f) => n + f.file.size, 0);
-      const label = files.length === 1 ? files[0]?.path : `${files.length} files`;
-      setStatus({ text: `Importing ${label} (${Math.round(total / 1048576)} MiB)…`, isError: false });
-      try {
-        const ws = await api.upload(files, undefined, (p) =>
-          { if (isCurrent()) setStatus({ text: `Importing ${label}: ${Math.round(p * 100)} %`, isError: false }); },
-        );
-        if (isCurrent()) void navigate(`/w/${ws.id}`);
-      } catch (error) {
-        if (!isCurrent()) return;
-        setFailedUpload(files);
-        setStatus({ text: error instanceof ApiError ? error.message : "The import failed. Is the server running?", isError: true });
-      }
-    });
-  };
-
-  const chooseFolder = async () => {
-    const isCurrent = beginFolderSelection();
-    setStatus(null);
-    const handled = library.supportsHandles() && await library.pickFolder(isCurrent);
-    if (!handled && isCurrent()) folderInput.current?.click();
-  };
-
-  const onDrop = (e: DragEvent) => {
-    e.preventDefault();
-    setDragging(false);
-    const isCurrent = beginFolderSelection();
-    // DataTransfer is only readable synchronously inside the event, so grab entries/handles first.
-    const items = Array.from(e.dataTransfer.items);
-    const entries = items.map((i) => i.webkitGetAsEntry?.()).filter((x): x is FileSystemEntry => !!x);
-    const handle = entries.length === 1 && entries[0]!.isDirectory ? items[0]?.getAsFileSystemHandle?.() : undefined;
-    void (async () => {
-      if (!entries.some((x) => x.isDirectory)) {
-        const files = await walkEntries(entries);
-        if (isCurrent()) return upload(files);
-        return;
-      }
-      const resolved = await handle;
-      if (!isCurrent()) return;
-      if (resolved?.kind === "directory") return library.scanHandle(resolved as FileSystemDirectoryHandle);
-      const files = await walkEntries(entries);
-      if (isCurrent()) return library.scanFiles(entries.length === 1 ? entries[0]!.name : "Dropped folders", files);
-    })();
-  };
-
   return (
-    <ImportTaskContext.Provider value={importTask}><main className="home">
+    <ImportTaskContext.Provider value={controller.importTask}><main className="home">
       <div className="home__brand">
         <span className="bar__mark" aria-hidden="true" />
         Savebench
       </div>
-      <GameLibrary onChooseFolder={() => void chooseFolder()} />
+      <GameLibrary onChooseFolder={() => void controller.chooseFolder()} />
       <div className="home__grid">
         <div>
           <h1 ref={focusHeading} tabIndex={-1} className="home__headline">Open a PS5 save dump</h1>
@@ -92,68 +33,8 @@ export function HomePage() {
             Choose the folder where you keep your decrypted dumps to see every game in it, or drop a single zip. Everything stays on this computer
             until you open a game.
           </p>
-          <div
-            className={`drop${dragging ? " drop--active" : ""}`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={onDrop}
-          >
-            <p className="drop__title">Drop a folder or zip here</p>
-            <p className="drop__hint">Folders are scanned in the browser for PPSAxxxxx/sdimg_… dumps and save-dump zips. A zip dropped here is opened right away.</p>
-            <div className="drop__buttons">
-              <button type="button" className="btn btn--primary" disabled={importTask.busy} onClick={() => void chooseFolder()}>
-                Choose folder
-              </button>
-              <button type="button" className="btn" disabled={importTask.busy} onClick={() => zipInput.current?.click()}>
-                Open zip
-              </button>
-            </div>
-            {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role={status.isError ? "alert" : "status"}>{status.text}</p>}
-            {status?.isError && failedUpload.length > 0 && <button type="button" className="btn btn--small" onClick={() => void upload(failedUpload)}>Retry import</button>}
-            <input ref={zipInput} type="file" accept=".zip" multiple hidden disabled={importTask.busy} onChange={(e) => {
-              const files = e.target.files ? fromInput(e.target.files) : [];
-              e.target.value = "";
-              void upload(files);
-            }} />
-            <input
-              ref={folderInput}
-              type="file"
-              hidden
-              multiple
-              {...{ webkitdirectory: "", directory: "" }}
-              onChange={(e) => {
-                const files = e.target.files;
-                if (!files || files.length === 0) return;
-                beginFolderSelection();
-                const root = files[0]!.webkitRelativePath.split("/")[0] || "Folder";
-                void library.scanFiles(root, fromInput(files));
-              }}
-            />
-          </div>
-          {recent.isError && <div>
-            <p role="alert" className="notice notice--Danger">Could not load open dumps: {recent.error.message}</p>
-            <button type="button" className="btn btn--small" disabled={recent.isFetching} onClick={() => void recent.refetch()}>Retry open dumps</button>
-          </div>}
-          {recent.data && recent.data.length > 0 && (
-            <section className="recent">
-              <h2>Open dumps</h2>
-              <ul>
-                {recent.data.map((w) => (
-                  <li key={w.id}>
-                    <Link to={`/w/${w.id}`}>
-                      <span className="recent__name">{w.name}</span>
-                      <span className="recent__meta">
-                        {w.titleIds.join(", ")}, {w.directoryCount} folders
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+          <ImportDropZone controller={controller} />
+          <RecentDumps recent={recent} />
         </div>
         <div>
           {plugins.isError && <div>
@@ -166,6 +47,86 @@ export function HomePage() {
       <AppVersion />
     </main></ImportTaskContext.Provider>
   );
+}
+
+function ImportDropZone({ controller }: { controller: ReturnType<typeof useHomeImport> }) {
+  const { dragging, setDragging, onDrop, importTask, chooseFolder, zipInput, status, failedUpload, upload } = controller;
+  return (
+    <div
+      className={`drop${dragging ? " drop--active" : ""}`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={onDrop}
+    >
+      <p className="drop__title">Drop a folder or zip here</p>
+      <p className="drop__hint">Folders are scanned in the browser for PPSAxxxxx/sdimg_… dumps and save-dump zips. A zip dropped here is opened right away.</p>
+      <div className="drop__buttons">
+        <button type="button" className="btn btn--primary" disabled={importTask.busy} onClick={() => void chooseFolder()}>
+          Choose folder
+        </button>
+        <button type="button" className="btn" disabled={importTask.busy} onClick={() => zipInput.current?.click()}>
+          Open zip
+        </button>
+      </div>
+      {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role={status.isError ? "alert" : "status"}>{status.text}</p>}
+      {status?.isError && failedUpload.length > 0 && <button type="button" className="btn btn--small" onClick={() => void upload(failedUpload)}>Retry import</button>}
+      <ImportInputs controller={controller} />
+    </div>
+  );
+}
+
+function ImportInputs({ controller }: { controller: ReturnType<typeof useHomeImport> }) {
+  const { zipInput, folderInput, importTask, upload, beginFolderSelection } = controller;
+  return <>
+    <input ref={zipInput} type="file" accept=".zip" multiple hidden disabled={importTask.busy} onChange={(e) => {
+      const files = e.target.files ? fromInput(e.target.files) : [];
+      e.target.value = "";
+      void upload(files);
+    }} />
+    <input
+      ref={folderInput}
+      type="file"
+      hidden
+      multiple
+      {...{ webkitdirectory: "", directory: "" }}
+      onChange={(e) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        beginFolderSelection();
+        const root = files[0]!.webkitRelativePath.split("/")[0] || "Folder";
+        void library.scanFiles(root, fromInput(files));
+      }}
+    />
+  </>;
+}
+
+function RecentDumps({ recent }: { recent: UseQueryResult<Awaited<ReturnType<typeof api.workspaces>>> }) {
+  return <>
+    {recent.isError && <div>
+      <p role="alert" className="notice notice--Danger">Could not load open dumps: {recent.error.message}</p>
+      <button type="button" className="btn btn--small" disabled={recent.isFetching} onClick={() => void recent.refetch()}>Retry open dumps</button>
+    </div>}
+    {recent.data && recent.data.length > 0 && (
+      <section className="recent">
+        <h2>Open dumps</h2>
+        <ul>
+          {recent.data.map((w) => (
+            <li key={w.id}>
+              <Link to={`/w/${w.id}`}>
+                <span className="recent__name">{w.name}</span>
+                <span className="recent__meta">
+                  {w.titleIds.join(", ")}, {w.directoryCount} folders
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </>;
 }
 
 function GameList({ plugins }: { plugins: Plugin[] | undefined }) {
