@@ -2,6 +2,7 @@
 
 Measured on 2026-10-29, Windows x64, .NET 10 Release. Baseline is the parent of
 `25cbf51`; final includes `25cbf51` and `c126a44`. Sample import is outside measurement.
+This is a historical comparison of those revisions, not a benchmark or test count for current HEAD.
 Both runs use the same pinned embedded reference store, samples and harness. Normal
 bin/obj stays in the source worktree; harness, reports, imported samples and TEMP/TMP
 stay on D:. No sample bytes are committed.
@@ -63,6 +64,9 @@ open-latency improvement. Repeated scans in validation/serialization are retaine
 because they check integrity, not treated as redundant parsing.
 
 ## Verification
+
+These results belong to the performance-review revisions above. For the current accuracy-audit
+validation and commands, see the [README](README.md#validation-and-maintenance).
 
 - Baseline: **313 passed / 0 failed / 0 skipped**.
 - Two failing-first preview allocation cases: **2 failed / 6 passed**.

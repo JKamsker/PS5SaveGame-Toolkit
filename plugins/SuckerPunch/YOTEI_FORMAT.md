@@ -12,8 +12,10 @@ in tests. A scratch-only CLI run compares ten adjacent pairs covering all eleven
 Files were wrapped at a common title/directory/path to compare slot content rather than file identity;
 payload bytes were unchanged. The actual CLI used `--decoder suckerpunch.native-v1`: all comparisons
 completed without input/output truncation or semantic errors. The existing Tsushima fixture also passed
-(1 passed, 0 failed, 0 skipped). See the README SDK request for the unrelated all-plugin CLI conflict
-and SuckerPunch-only scratch deployment workaround. Reports and normalized ZIPs stay on D:, never in git.
+(1 passed, 0 failed, 0 skipped). That historical run used a SuckerPunch-only scratch deployment because
+of an unrelated decoder-registration conflict. The conflict is now resolved; the normal all-plugin CLI
+lists both SuckerPunch decoders and verifies the fixture without isolation. See the
+[current commands](README.md#validation-and-maintenance). Reports and normalized ZIPs stay on D:, never in git.
 
 ## Header and integrity
 
@@ -36,9 +38,10 @@ remain indistinguishable. A matching candidate enables experimental fixed-width 
 is inspection-only and no-op export does not normalize it. Known candidate integrity is recomputed
 after each atomic edit, and Serialize reparses the container and every named table before export.
 
-**The game may reject the edited save.** This warning appears on fields/actions, previews, outcomes
-and the overview because coverage and console behavior remain unproven. A synthetic nonzero tail is
-preserved exactly by tests; that is a preservation test, not proof of game coverage.
+**The game may reject the edited save.** This warning appears on editable quantity fields, action
+descriptions, previews, successful changing outcomes and the overview because coverage and console
+behavior remain unproven. Read-only headers, statistics and reference fields have their own evidence
+descriptions. A synthetic nonzero tail is preserved exactly by tests; that is a preservation test, not proof of game coverage.
 
 | Slot | Header word 1 | Declared end | Checksum candidate | Mon | Flowers | Normal arrows |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -100,8 +103,9 @@ to preserve undo. Flags, unknown words, registry data, metadata and sibling save
 All quantities are Inferred. Resource names remain raw except the lexical Mon/Flowers mapping; no
 Young Bamboo/metal rarity/food effect is guessed. `yotei/inventory/set-quantity` uses F6 pure preview,
 per-record skips/bounds, derived ammo copies/checksum, stale/forged-plan rejection and one Core
-undo/redo group. Empty selection is empty. Query scope is rejected because the only F8 collection
-is the read-only gear registry and inventory is a fixed 48-row table. Cross-title actions are rejected.
+undo/redo group. Its parameter accepts only 0–112099, even when an original record extends its scalar
+field bound; a target above a row's bound skips that row. Empty selection is empty. Query scope is
+rejected because the only F8 collection is the read-only gear registry and inventory is a fixed 48-row table. Cross-title actions are rejected.
 
 Tests edit every eligible type across every slot, serialize/reopen, compare the entire expected byte
 array, restrict F1 changes to selected count/copy/checksum ranges, reject invalid types/values and
@@ -110,6 +114,8 @@ verify scalar plus grouped Core undo/redo. Byte-identical no-op includes both em
 ## Guides, assets and remaining unknowns
 
 The embedded pack has 48 raw inventory references, 10 technique guides and 16 hot spring guides.
+Guide tables and the graph/map read one category-sorted catalog page, at most 200 entries; the shipped
+guides fit within that page. Browse-only reference pickers can search/page the complete pinned catalog.
 All reference IDs are browse-only. Techniques form an F9 graph with Unknown states and no invented
 prerequisite edges. World has an F9 map and a complete text table; the 1920×1080 Horizon View screenshot
 is a local excerpt, not a whole-island map. Only its visible Horizon View pin uses original image pixel
@@ -151,6 +157,9 @@ values and all participating gameplay/memory/SFO files. Preserve an unchanged lo
    experiment to distinguish declared-end versus full-file coverage. Do not use primary saves for this.
 
 ## Measurements
+
+Historical implementation-round measurements, **2026-10-29**, before the later
+[Release performance review](PERFORMANCE.md). These are not measurements of the current implementation.
 
 Largest Yōtei declared payload: User4, 616,448 file bytes / 417,135 content end. Standalone Debug
 stopwatch after import, current-thread allocated bytes; cold F2 store + Open + BuildView and mean of

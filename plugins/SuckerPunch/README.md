@@ -9,19 +9,19 @@ extracted saves, or third-party implementation code are included in this plugin.
 ## Enabled writes and their evidence
 
 The 2026-10-28 owner decision, **"Enable writes. Keep warnings."**, replaces console-evidence gates.
-The Yōtei round enables **14 existing quantity types** and one F6 target-quantity workflow using the
-expanded eleven-generation evidence. Existing Tsushima scalar quantities, timer and actions stay enabled.
+Yōtei enables **14 existing quantity types** and one F6 target-quantity workflow using the
+expanded eleven-generation evidence. Tsushima scalar quantities, timer and both F6 actions are enabled.
 Console evidence is tracked separately in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31);
 no write is advertised as console-validated or Stable.
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
-| Existing resource quantities (already enabled) | Inferred | Named five-word records and consistent values across all 25 Tsushima entries | Known additive checksum repaired; output reparsed; unrelated bytes preserved | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): +1 resources, labels, carry limits, load/resave/reload |
-| Existing ammo quantities and count copies (already enabled) | Verified byte structure; console effect unverified | Apollo named count-word targets; both copies agree in every sample | Both words updated together; checksum repaired; output reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): fire/pick up ammo, capacity/clamping, load/resave/reload |
-| F6 target quantities for existing supported resources/ammo (**new**) and Supplies/Flowers/raw Hide (existing action) | Same Inferred/Verified byte evidence as individual fields | Uses the same existing-record eligibility and fixed-width writer; all 25 samples tested | Preview lists primary counts, derived ammo copies and checksum, skips and warnings; apply revalidates; one undo/redo group | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate a small multi-resource/ammo edit in each intended build/mode |
-| v48/v49 play time (**new**) | Inferred | Four-byte float at difficulty-table + 231; whole minutes match all non-empty slot subtitles; 23 supported entries including backups | Only timer plus repaired checksum change; output reparsed; finite bounded values only | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small timer edit, load/resave/reload, inspect per-difficulty counters and stale subtitle normalization |
-| Yōtei existing Mon/Flowers, seven ingredients and five arrow/ammo quantities (**new**) | Inferred | Same bounded 48-name, 21-byte-trailer layout across all 11 nonempty saves; changing quantities and matching ammo copies; eligibility word/byte retained | Recompute additive candidate at 0x0C and reparse; checksum tail coverage unknown: **game may reject the edited save**; no-op byte-identical | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): +1 pickup/edit/load/resave/reload, labels/caps, file roles and coverage; [exact checklist](YOTEI_FORMAT.md#exact-owner-captures-for-31) |
-| Yōtei F6 `yotei/inventory/set-quantity` (**new**) | Inferred | Same eligible existing records; per-row conservative bounds | Pure preview with primary/derived changes, skips and warnings; stale-plan rejection; atomic apply and one undo/redo group | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate a small multi-row edit, record normalization and sibling-file changes |
+| Tsushima existing resource quantities | Inferred | Named five-word records and consistent values across all 25 Tsushima entries | Known additive checksum repaired; output reparsed; unrelated bytes preserved | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): +1 resources, labels, carry limits, load/resave/reload |
+| Tsushima existing ammo quantities and derived count copies | Verified byte structure; console effect unverified | Apollo named count-word targets; both copies agree in every sample | Both words updated together; checksum repaired; output reparsed; copies are not independently editable | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): fire/pick up ammo, capacity/clamping, load/resave/reload |
+| Tsushima F6 `inventory/set-quantity` and `inventory/set-goods-quantity` | Same Inferred/Verified byte evidence as individual fields | Uses the same existing-record eligibility and fixed-width writer; all 25 samples tested | Preview lists primary counts, derived ammo copies and checksum, skips and warnings; apply revalidates; one undo/redo group | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate a small multi-resource/ammo edit in each intended build/mode |
+| Tsushima v48/v49 play time | Inferred | Four-byte float at difficulty-table + 231; whole minutes match all non-empty slot subtitles; 23 supported entries including backups | Only timer plus repaired checksum change; output reparsed; finite bounded values only | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small timer edit, load/resave/reload, inspect per-difficulty counters and stale subtitle normalization |
+| Yōtei existing Mon/Flowers, seven ingredients and five arrow/ammo quantities | Inferred | Same bounded 48-name, 21-byte-trailer layout across all 11 nonempty saves; changing quantities and matching ammo copies; eligibility word/byte retained | Recompute additive candidate at 0x0C and reparse; checksum tail coverage unknown: **game may reject the edited save**; no-op byte-identical | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): +1 pickup/edit/load/resave/reload, labels/caps, file roles and coverage; [exact checklist](YOTEI_FORMAT.md#exact-owner-captures-for-31) |
+| Yōtei F6 `yotei/inventory/set-quantity` | Inferred | Same eligible existing records; per-row conservative bounds | Pure preview with primary/derived changes, skips and warnings; stale-plan rejection; atomic apply and one undo/redo group | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate a small multi-row edit, record normalization and sibling-file changes |
 
 Quantity fields, action descriptions, previews and apply outcomes retain **not validated on console**
 warnings. Tsushima quantity bounds remain 0–32767 (an upstream edit value, not a game capacity). Timer bounds
@@ -31,8 +31,17 @@ The timer warning explicitly says the game may normalize or reject the edit: per
 and `param.sfo SUBTITLE` remain unchanged and may disagree. No v47 or unknown-version timer writer exists.
 
 Yōtei bounds are per-record observed maxima (Mon 112099, Flowers 22, other rows listed in
-[Yōtei format evidence](YOTEI_FORMAT.md#enabled-quantities-and-bounds)), not game capacities. All
-Yōtei fields/actions/outcomes retain the checksum-coverage and **game may reject** warning.
+[Yōtei format evidence](YOTEI_FORMAT.md#enabled-quantities-and-bounds)), not game capacities.
+Yōtei editable quantity fields, action descriptions, previews and successful changing outcomes retain
+the checksum-coverage and **game may reject** warning. The F6 parameter is capped at 112099 even if
+an imported record extends its scalar field's bound; rows whose individual bound is lower are skipped.
+
+Tsushima scalar eligibility requires a supported raw identifier, flag word 1 or 3, an existing count
+at most 32767, and equal ammo copies. Resource IDs start with `Ingred` or are `Supplies`, `Hide`,
+`Flowers` or `NGPFlowers`; ammo IDs start with `Arrow`, `Dart` or `Ammo`. Friendly-name mapping
+confidence does not determine write eligibility. Both F6 actions additionally require version 47–49;
+the scalar quantity writer has no separate version gate. Play-time editing requires the recognized
+inventory and a finite nonnegative timer in a uniquely recognized v48/v49 progress block.
 
 Still disabled for structural safety:
 
@@ -77,7 +86,7 @@ Still disabled for structural safety:
   minutes and difficulty match its `param.sfo SUBTITLE`. The timer publishes F13
   `FloatFormat.Duration` with one stored unit per second; raw float32 editing and fractions are retained.
   The v47 timer layout is different, so no timer is published for it. No console metadata or difficulty counters are rewritten.
-* Locked records, unmatched ammo copies, unmapped item kinds and existing quantities above 32767 are
+* Locked records, unmatched ammo copies, unsupported item kinds and existing quantities above 32767 are
   inspection-only. The editable range 0–32767 follows the upstream refill value, **not a proven game
   capacity**. The UI warns that quantities can be clamped. Ownership/upgrade flags are never changed.
 * The embedded F2 pack `suckerpunch.tsushima` contains attributed raw-ID catalogs for the 48 inventory
@@ -109,13 +118,15 @@ Still disabled for structural safety:
 ## Malformed-input handling
 
 Unsupported physical sizes or magic, out-of-file declared content ends, and malformed recognized
-named tables reject with a contextual `SaveFormatException`. Table counts are fixed by the recognized
-layout; name lengths must be 1–64 bytes and identifiers must be unique ASCII letters, digits or
+Tsushima inventory or Yōtei named tables reject with a contextual `SaveFormatException`. Table counts
+are fixed by the recognized layout; name lengths must be 1–64 bytes and identifiers must be unique ASCII letters, digits or
 underscores. Traversal stays inside the declared content, including complete record trailers. No
 allocation or loop count comes from an unchecked file length/count field.
 
 Tsushima checksum mismatches reject. A valid Tsushima container without its recognized inventory
-anchor remains inspection-only. Yōtei requires its recognized tables; its inferred checksum candidate
+anchor remains inspection-only. Missing, incomplete or ambiguous Tsushima progress evidence omits
+difficulty/time fields while retaining any valid inventory edits; it does not reject the container.
+Yōtei requires its recognized tables; its inferred checksum candidate
 may mismatch, in which case every quantity and action remains inspection-only and no-op output
 preserves the mismatch. A zero-magic Yōtei file is accepted only when the entire full-size file is zero.
 Opaque sections and bytes after the declared end remain preserved; their meaning is unconfirmed.
@@ -147,6 +158,15 @@ additional production correctness defect requiring a parser change.
 | F11 shared codecs | N/A | Tsushima/Yōtei samples are fixed-size plaintext containers; no Kraken, Oodle or SQLite codec is involved. |
 | F12 SaveDiff traversal/decoder hooks | Used | `ISaveDecoderProvider` registers SDK-only `suckerpunch.native-v1`; the F1 fixture uses the hook through `HookSaveDecoder`. Separate `PluginViewDecoder` tests traverse every F8 equipment row across small pages and verify incomplete-input limits. Yōtei hook now emits 48 quantities/eligibility, ammo copies, 33 statistics, 2,074 gear bytes and 192 secondary-registry words. |
 | F13 inspect actions/picker filtering/duration | Used | The float32 timer declares Duration/seconds. Inventory, equipment, techniques and all six guide catalogs use browse-only read-only references with shared category filters and declared sorting; guide tables use catalog category ordering. Inspection actions are N/A: existing actions change quantities and there is no message-only inspection operation to opt in. Yōtei references use browse-only pickers with catalogue category/search/sort; its play timer is unknown so no duration is guessed. |
+| F14 inventory slots / empty rows | N/A | Both inventories contain fixed named definitions, not proven occupied/empty slots. All-zero Yōtei files are whole-file placeholders. No `EmptyRows` metadata or `TableRow.IsEmpty` semantics are published. |
+
+Shared SDK helper adoption: both documents use `BoundSaveDocument` for scalar bindings, validation
+and rollback. The optional `InMemoryCollection<T>`, `ActionPlans`, bounded binary cursor/range,
+`ReferenceCatalogReader`, `ReferenceViews` and `ReferenceInspection` helpers are available but not
+adopted here. Collections retain the plugin's one-result query cache and title-specific matching/sort
+rules; plans use local ordered comparison and byte-sum checksum deltas; parsers and icon/guide readers
+remain local. Neither format uses FStrings or IEEE CRC32, so those shared codecs are inapplicable.
+These are adoption choices, not missing SDK capabilities.
 
 The merged F4/F6 parameter fix (`63580dc`) is N/A here: all planned actions accept only a
 bounded integer target quantity, with no `EnumSpec` ID fallback or reference replacement parameter.
@@ -382,7 +402,7 @@ contributor attribution are detailed in the pack's `SOURCES.md`. Names, gameplay
 information were initially extracted/shortened. The asset round adds 157 catalogue records with game
 effect/flavor descriptions, omits button instructions and retains the existing factual acquisition
 summaries. All 106 icons/thumbnails are at most 64x64 and are deduplicated; the whole-island image is
-1152x2048 WebP without crop, rotation or projection. **Earlier Tsushima embedded binary assets: 238,737 bytes.**
+1152x2048 WebP without crop, rotation or projection. **Tsushima embedded binary assets: 238,737 bytes.**
 There are 158 icon bindings: 18 technique guides, 4 Inferred saved stance mappings, 79 charm guides,
 15 armor guides, 41 sword-kit guides and the existing Inferred Storm of Clan Sakai mapping.
 Minor charms reuse game category symbols; nine major charms without individual art use their major
@@ -400,7 +420,7 @@ adaptations retain CC BY-SA 3.0; quoted game text is credited separately in data
 No game-state coordinates are invented: image bounds are pixel bounds only, alignment remains
 unverified, all 17 shrine markers are unpositioned, and missing art/provenance retains the list.
 Yōtei now has a separate title-isolated pack with three symbols (Mon, Flowers, hot spring) and one
-1920×1080 local screenshot excerpt. **New assets this round: 89,702 bytes; plugin total: 328,439 bytes.**
+1920×1080 local screenshot excerpt. **Yōtei assets: 89,702 bytes; plugin total: 328,439 bytes.**
 There are 18 icon bindings and 74 original evidence/guide descriptions (48 items, 10 techniques, 16
 locations). None is claimed as an official effect quotation. Every Yōtei dataset has a sidecar,
 manifest attribution, Info.References link and visible provenance; no new licence-based refusal exists.
@@ -431,8 +451,9 @@ the save. No controlled observation proves their role as owned, equipped or unlo
 
 The six additional guide datasets have **182 named reference entries** (12 resources, 79 charms,
 15 armor sets, 41 sword kits, 18 selected techniques, 17 shrines). Their `wiki:` keys are a separate,
-explicitly unjoined reference namespace. They are shown as text, not save bindings or replacement
-choices. Armor/charm ownership, technique unlocks, and world discovery/completion/rewards remain
+explicitly unjoined reference namespace. Their names are bound read-only `ReferenceSpec` fields with
+browse-only pickers; they are not saved item IDs or writable replacement choices. Armor/charm
+ownership, technique unlocks, and world discovery/completion/rewards remain
 Unknown. The historical Archery Master's Attire is marked removed in patch 2.04. The shrine reference
 separates Izuhara (7), Toyotama (6), Kamiagata (3), and Iki expansion (1), without claiming a
 save-specific denominator or completed count. No Yōtei entries are imported into Tsushima's pack.
@@ -484,86 +505,42 @@ load/save control. Then capture separate before/after pairs for:
 ## Validation and maintenance
 
 ```powershell
+$scratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-suckerpunch'
+New-Item -ItemType Directory -Force -Path $scratch | Out-Null
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
-$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch'
-# This checkout's SampleSaves still uses Path.GetTempPath(), so redirect it as well.
-$env:TEMP = 'D:/Temp/saveeditor/scratch/suckerpunch'; $env:TMP = $env:TEMP
-dotnet test --project plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch.Tests/SaveToolkit.Plugins.SuckerPunch.Tests.csproj
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:SAVETOOLKIT_TEST_TEMP = $scratch
+$env:TEMP = $scratch
+$env:TMP = $scratch
+
+dotnet test --project plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch.Tests -c Release --results-directory "$scratch/results" --report-xunit-trx --report-xunit-trx-filename results.trx
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release --warnaserror
+python docs/tests/test_documentation.py
+dotnet run --project tools/SaveToolkit.SaveDiff -c Release -- list-decoders
+dotnet run --project tools/SaveToolkit.SaveDiff -c Release -- verify plugins/SuckerPunch/fixtures.json
 ```
 
-Sample-dependent tests use `SampleSaves.Load` and skip if archives are absent. A skipped run is not
-round validation. With the supplied artifacts, round 1's baseline was **48 passed, 0 skipped**.
-Round-2 final checks on 2026-10-28: **85 passed, 0 failed, 0 skipped** with the artifacts variable
-exported in the test command; the full API build passed with **0 warnings and 0 errors**.
-Write-round checks on 2026-10-28: **105 passed, 0 failed, 0 skipped**, including conformance and
-F1 `ByteDiffer` assertions restricting new edits to their exact intended byte ranges. The full API
-build passed with **0 warnings and 0 errors**. All non-generated C# files remain below 300 physical lines.
-Historical coverage included all 25 Tsushima / the earlier 8 Yōtei
-payload entries, byte-identical no-op exports, exact changed count/checksum spans, mirrored ammo,
-locked/malformed/ambiguous records, rollback/undo, non-zero padding, isolated returned memory,
-pack validity/attribution, unjoined guide state, F6 purity/scope/stale/forged plans, and Core one-step
-undo/redo plus semantic review. Production code depends only on the SDK and performs no I/O.
-New C# files stay below 300 physical lines; no hooks, build targets or repository tooling were added.
-Completion-round checks on 2026-10-28: **111 passed, 0 failed, 0 skipped** with the artifacts variable
-exported in the invocation. The API build passed with **0 warnings and 0 errors**. F1 fixture/decoder,
-F8 query-page/filter/sort/session, and F9 graph/map validation tests cover the new presentation paths;
-all existing exact-byte and no-op checks remain green.
+Accuracy audit on **2026-10-29**: the sample-backed Release suite passed **351 tests, 0 failed,
+0 skipped**; the API Release build passed with **0 warnings and 0 errors**. All 14 documentation
+checks and the normal all-plugin SaveDiff fixture verification also passed. Sample-dependent tests skip when archives are absent; a skipped
+run does not validate the corpus. `SampleSaves` uses the shared `TestScratch` helper, honors
+`SAVETOOLKIT_TEST_TEMP`, and attempts to remove its per-process sample imports on exit. TEMP/TMP also stay on D:
+for other tooling. Use a separate scratch folder for each concurrent run.
 
-F12/F13 follow-up checks on 2026-10-28: **126 passed, 0 failed, 0 skipped** with the artifacts
-variable exported in the invocation. The API build passed with **0 warnings and 0 errors**.
-`savediff list-decoders` lists `suckerpunch.native-v1`; CLI fixture verification passes **1 fixture,
-0 failed, 0 skipped** through the registered hook. Native decoding covers all 25 Tsushima / 8 Yōtei
-entries, exact timer/ammo/checksum changes, determinism, corruption/foreign rejection and sink/file/
-depth bounds. F8 decoding traverses every observed equipment row across seven-row pages and reports
-query caps. Guide picker tests cover all declared sort keys in both directions, categories, search,
-paging, attribution, rejected writes and unchanged bytes/history/revision. All six guide catalogs
-retain explicit Unknown save state. Every non-generated C# file remains below 300 physical lines.
+Coverage includes all 25 Tsushima and 13 Yōtei files (including both zero placeholders), byte-identical
+no-op exports, exact count/copy/timer/checksum changes, export reparsing, atomic rejection and rollback,
+Core scalar and grouped undo/redo, console-risk warnings, stale/forged plans, corruption and byte
+boundaries, isolated returned buffers, pinned pack validity/hashes/attribution, F4 browse-only fields,
+complete F8 traversal and bounded pages, F9 Unknown-state maps/graphs and missing-art fallbacks, and
+native decoder depth/file/value limits. Synthetic characterizations retain plan ordering, validation
+precedence, query matching/sorting and early decoder-stop behavior. Production code depends only on
+the SDK and performs no file/network I/O.
 
-The follow-up rechecked the existing [KOVRlN technical notes](https://github.com/KOVRlN/ghostoftsushima-save-converter/blob/main/TECHNICAL.md)
-and [Apollo ammo anchors](https://github.com/bucanero/apollo-patches/blob/main/PS4/CUSA11456.savepatch)
-on 2026-10-28. The hook reuses existing validated parsers; no new format hypothesis, reference dataset
-or upstream implementation code was added. Existing attribution remains intact.
-
-Asset-round checks on 2026-10-29: **140 passed, 0 failed, 0 skipped** with the artifact path above;
-the full API build passes with **0 warnings and 0 errors**. Tests validate all 107 asset hashes and
-types, deduplication, every catalogue icon, 64-pixel icon bounds through the shared loader, cached
-asset-object reuse across pinned documents, visible attribution, source title isolation, byte-identical
-exports, F9 bounds and missing-art/list fallback. New C# files remain below 300 physical lines.
-
-A standalone TEMP stopwatch measured the largest Tsushima content (`sce_sdmemory/memory.dat`,
-555,008 file bytes, 380,388 declared bytes), after sample import and before any F2 load. Debug build,
-same harness/machine, current-thread allocated bytes; single cold-process timings are approximate:
-
-| Operation | Before assets | After assets |
-| --- | ---: | ---: |
-| Cold F2 store + Open + BuildView | 94.847 ms / 4,507,432 bytes | 127.997 ms / 14,089,144 bytes |
-| F2 store alone | 65.117 ms / 3,158,440 bytes | 87.030 ms / 12,724,480 bytes |
-| Cached Open + BuildView, mean of 20 | 5.834 ms / 1,320,304 bytes | 6.905 ms / 1,335,952 bytes |
-
-The shared F2 store eagerly validates/caches packs once at startup; each document pins that store,
-and image requests reuse its AssetContent objects. Plugin code performs no image decode or I/O;
-guide tables expand lazily. The added cold-load allocations belong primarily to one-time pack
-validation, not each open. Browser image fetching/decoding happens when the local image is displayed.
-No shared loader changes were made. Image preparation and benchmarking were outside the repository;
-all committed changes are inside `plugins/SuckerPunch/`.
-
-Yōtei expanded-corpus checks on 2026-10-29: **175 passed, 0 failed, 0 skipped**, with both
-required environment variables and TEMP/TMP on D: in the same invocation. The API build passed with
-**0 warnings and 0 errors**. Tests replace the five old file-count/zero-counter assumptions, cover
-all 13 payloads, every eligible quantity type, byte-identical no-op, candidate integrity, exact F1
-changed ranges, scalar/group undo/redo, corruption rejection, all 55 native generation pairs, full
-F8 traversal and limits, F4 browse-only references, F9 bounds/fallback and four new asset hashes/types.
-The isolated savediff CLI completed ten native pairs without errors/truncation and verified the
-existing fixture (1 passed, 0 failed, 0 skipped). [Yōtei measurements](YOTEI_FORMAT.md#measurements)
-report before/after cold allocations and 20-open cached means; no flaky performance test was added.
-All scratch/downloads/normalized ZIPs/benchmarks are on D:. The task's earlier C: scratch was moved
-there, removing only known task-created entries from TEMP. No unrelated TEMP content was touched.
-
-The [performance review](PERFORMANCE.md) records reproducible before/after allocation
-and latency measurements for both current corpora, bounded preview/query regressions,
-and the first-query sorting tradeoff. Pure plans avoid whole-save copies; paged
-collections retain one document-local raw result index with copied filter criteria.
+Historical Debug allocation/timing comparisons from the asset and Yōtei expansion rounds are not
+current performance guarantees. The later [performance review](PERFORMANCE.md) identifies its exact
+baseline/final commits and records reproducible Release measurements for both corpora, allocation
+regressions and the first-query sorting tradeoff. The earlier Yōtei implementation measurements remain
+in [YOTEI_FORMAT.md](YOTEI_FORMAT.md#measurements), explicitly dated and qualified. Pure plans avoid
+whole-save copies; paged collections retain one document-local result index with copied filter criteria.
 
 ## Open questions
 
@@ -575,24 +552,21 @@ collections retain one document-local raw result index with copied filter criter
 
 ## SDK requests
 
-**Shared savediff CLI: duplicate decoder registration outside this plugin.** Minimal reproduction on
-this checkout after building all plugins:
+No current blocking SDK request.
 
-```powershell
-dotnet tools/SaveToolkit.SaveDiff/bin/Debug/net10.0/SaveToolkit.SaveDiff.dll list-decoders
-```
+- **Resolved — shared SaveDiff discovery:** the former `ffxvi` hook/view collision no longer occurs.
+  The FinalFantasy16 hook is `ffxvi-evidence`; the full CLI lists `suckerpunch` (view) and
+  `suckerpunch.native-v1` (native hook) alongside the other plugins. The historical isolated-assembly
+  workaround is no longer needed. Use the normal commands above.
+- **Resolved — test scratch:** `SampleSaves` now uses `TestScratch.ProcessFolder`, which honors
+  `SAVETOOLKIT_TEST_TEMP` and performs best-effort process-exit/stale-folder cleanup. Setting TEMP/TMP
+  remains useful for other tools, rather than working around a missing SampleSaves capability.
+- **Resolved — float duration:** F13 supplies `FloatFormat.Duration` and `UnitsPerSecond` for the
+  known Tsushima timer. No Yōtei timer location/units are established.
 
-It exits 2 with `Duplicate decoder id 'ffxvi' from plugin 'ffxvi'; hook ids must be unique and cannot
-replace built-in modes or plugin ids.` The same failure blocks any compare/verify that discovers all
-plugins. This is outside SuckerPunch's scope. Workaround used for validation: copy CLI output to
-`D:/Temp/saveeditor/scratch/suckerpunch/savediff-isolated`, excluding other `SaveToolkit.Plugins.*`
-assemblies, retain SuckerPunch and shared dependencies, and invoke that DLL. Its list-decoders shows
-`suckerpunch` / `suckerpunch.native-v1`; comparison and fixture checks pass. No framework or other
-plugin files were edited. The orchestrator should resolve the conflicting FFXVI hook registration.
-
-F2/F4/F6/F8/F9/F12/F13 need no plugin-local substitute. Query actions over F8 are N/A because the
-only large Yōtei collection is a read-only invariant registry. F5/F7 need field/relationship evidence,
-not a new SDK contract. The float-duration request is resolved by F13 for the known Tsushima timer.
-A future metadata-edit contract could clarify whether play-time/difficulty edits should update
-`param.sfo SUBTITLE`; this plugin preserves it. Shared SampleSaves does not currently honor
-`SAVETOOLKIT_TEST_TEMP`, so tests also set TEMP/TMP to D: to comply with the owner's disk rule.
+F2/F4/F6/F8/F9/F12/F13 need no plugin-local substitute. F8 query actions are N/A because both large
+collections are read-only and the writable inventories are bounded eager tables. F5/F7 need field and
+relationship evidence, not a new SDK contract. A future metadata-edit contract could clarify whether
+play-time/difficulty edits should update `param.sfo SUBTITLE`; no such writer is implemented or requested
+as a prerequisite for the current fixed-width edits. The optional shared helper adoption gaps are
+listed under [Framework feature adoption](#framework-feature-adoption).
