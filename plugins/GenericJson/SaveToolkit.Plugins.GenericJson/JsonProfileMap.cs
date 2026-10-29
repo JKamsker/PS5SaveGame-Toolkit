@@ -29,7 +29,7 @@ internal static class JsonProfileMap
             "Only minigames with present profile fields are listed. All completion/location states are unknown. Open a marker's text link to its raw field; use the external guide for locations. No map art or coordinates are embedded.")
         {
             CoordinateSpace = "External guide only; coordinates unknown",
-            ExternalSource = new(GuideUrl, "PowerPyx minigame locations", "PowerPyx, 2021-03-26. Research/location guidance only; reuse licence unestablished. Link only, no guide text, artwork or coordinates imported."),
+            ExternalSource = new(GuideUrl, "PowerPyx minigame locations", "PowerPyx, 2021-03-26; checked 2026-10-29. Location guidance only: the guide supplies gameplay screenshots, not an aligned overview map. Profile keys have no verified coordinate mapping. No guide text, artwork or coordinates imported."),
         };
     }
 

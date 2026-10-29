@@ -19,6 +19,7 @@ public sealed class GenericJsonPlugin : IGamePlugin, ISaveDecoderProvider
             "https://prosperopatches.com/PPSA02343", "https://github.com/andshrew/PlayStation-PS1HD",
             "https://json-schema.org/understanding-json-schema/", "https://johnssaveeditors.com/games/it-takes-two/",
             JsonProfileMap.GuideUrl,
+            "https://www.cyberpunk.net/en/news/41435/patch-1-5-next-generation-update-list-of-changes",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/plans/GenericJson.md",
             "https://github.com/steliosc/Cyberpunk-2077-Custom-Controls-Guide/blob/main/UserSettings.json"],
     };

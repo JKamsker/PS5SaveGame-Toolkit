@@ -22,7 +22,8 @@ public sealed class JsonReferenceMapTests
         var action = JsonSemanticTestHelper.Actions(fixture).Single(a => a.ActionId.EndsWith("/set", StringComparison.Ordinal));
         var parameter = Assert.Single(action.Parameters);
         Assert.IsType<EnumSpec>(parameter.Spec); // Shared F6 dialog lacks reference-picker context; browse field below uses F4.
-        Assert.Contains("GPL-3.0", parameter.Description);
+        Assert.Contains("CD PROJEKT RED", parameter.Description);
+        Assert.Contains("owner decision 2026-10-29", parameter.Description);
         var browse = Assert.Single(fixture.Fields().DistinctBy(f => f.ValueId), f => f.ValueId.StartsWith("catalogue/", StringComparison.Ordinal));
         Assert.True(browse.Spec.ReadOnly);
         Assert.Equal("cp2077-v136-display", Assert.IsType<ReferenceSpec>(browse.Spec).CatalogId);

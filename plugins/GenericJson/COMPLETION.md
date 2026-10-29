@@ -21,7 +21,7 @@ solely waiting for a capture. No new write family is added this round.
 | JSON-R18, R19, R20 | Owner-blocked (#31) | Cyberpunk value/index/default/dynamic domains and second version; PSP enums/build; spare-console effect/restart/resave/re-export. Only owner promotes Stable. |
 | JSON-R21 | Done | Composed plugin-local matchers retained, no dedicated-plugin ownership expansion. Owner distribution policy honored; no ambiguous-licence data embedded. |
 | JSON-R22 | Done where applicable | Consume pinned IReferenceContext/F2 pack and fallback. Optional general pack import belongs to Core; no plugin I/O or remote fetching. |
-| JSON-R23 | Done for text; optional assets omitted | Original categories/descriptions and explicit source/licence metadata; no mapped rights-cleared icon dataset exists. Link-only external guide. |
+| JSON-R23 | Done for applicable text; optional images omitted | Original categories/uncertainty notes plus one attributed official Performance Mode description. The only catalogues are settings choices, with no verified icon joins; no aligned minigame overview map was established. See ASSET_ROUND.md. Rights-only exclusions resolved by owner decision 2026-10-29. |
 | JSON-R24 | Done | SDK-only explicit F12 title hook; semantic paths preserve duplicate occurrences and group+option identity. Evidence tests use the production hook, aggregate logs only. Positional wrapper-array fallback marks evidence incomplete. |
 | JSON-R25 | N/A for current writes | No demonstrated cross-file invariant. F7 would incorrectly couple independent roles; revisit only with exact invariant/capture evidence. |
 
@@ -34,7 +34,7 @@ remain owner-blocked because their raw mappings/required members/dependencies ar
 
 Won't do in this scope: cross-container moves/full JSON Schema (larger contract than the bounded
 insertion subset), fabricated unlock-all/story state/named PSP presets, unrelated companion grouping,
-unlicensed artwork/prose imports, or shared Core/API/web edits. Plugin-local hooks/tooling inherited
+unsupported asset-to-save joins, or shared Core/API/web edits. Plugin-local hooks/tooling inherited
 from the original baseline were removed to comply with the current plugin-folder tooling rule.
 
 All F1–F13 applicability decisions are recorded in README's Framework feature adoption table.

@@ -25,7 +25,7 @@ The It Takes Two F9 location list shows only minigames with present profile reco
 | --- | --- | --- |
 | F1 SaveDiff | Used; hook added this round | ByteDiffer independent token-patch oracles and occurrence-aware generation diffs; production title hook below. |
 | F2 reference packs | Added this round | `genericjson.cp2077.v136`: difficulty/display facts, build/title pinning, attribution and Sources usage tracking; cached catalogue resolution. |
-| F3 rich cells | Used | Search/array rows contain editable exact fields, collapsible container details, reset actions and confidence metadata. No licensed icon dataset exists, so text placeholders remain. |
+| F3 rich cells | Used | Search/array rows contain editable exact fields, collapsible container details, reset actions and confidence metadata. The only catalogues are six settings choices, with no verified native icon associations; see the asset assessment below. |
 | F4 reference pickers | Added this round | Browse-only ReferenceSpec for both catalogued Cyberpunk ID fields. F6 uses the functioning raw-ID enum fallback until its dialog passes picker IDs. Unknown IDs/list variants retain raw/recorded enum access. |
 | F5 reversible structure | Used | Array insert/remove/move/duplicate and object insert/remove/rename, immutable IDs, snapshots, exact undo and schema/type templates. |
 | F6 planning/review + #27 | Used; array scopes added this round | All title writes/presets and generic structure/reset actions preview; selected/all-matching query scopes support exclusions and one-step undo. |
@@ -165,8 +165,9 @@ The detailed capture checklist and current write gates are maintained in [OWNER_
 
 | Dataset / implementation | Source / author / rights | Use |
 | --- | --- | --- |
-| Cyberpunk v136 choice annotations | [Documented byte reconnaissance](../../docs/plans/GenericJson.md), PS5 Save Game Toolkit contributors; original GPL-3.0-or-later annotations ([licence](https://www.gnu.org/licenses/gpl-3.0.html)), recorded/rechecked 2026-10-28 | Six documented raw IDs; original categories/descriptions/word splitting, no copied payload/prose/art. [Sidecar](SaveToolkit.Plugins.GenericJson/ReferencePacks/genericjson.cp2077.v136/choices.source.md); F2 Sources and F4 field attribution. Imported choices stay authoritative. |
-| Minigame location guide | [PowerPyx](https://www.powerpyx.com/it-takes-two-all-minigame-locations/), 2021-03-26; reuse licence unestablished; checked 2026-10-28 | Attributed external link only in F9. No guide text, image, coordinates or alias table imported. Markers/names are file-derived original interpretation ([sidecar](SaveToolkit.Plugins.GenericJson/JsonProfileMap.source.md)). |
+| Cyberpunk v136 choice annotations | [Documented byte reconnaissance](../../docs/plans/GenericJson.md), PS5 Save Game Toolkit contributors; original GPL-3.0-or-later annotations ([licence](https://www.gnu.org/licenses/gpl-3.0.html)), rechecked 2026-10-29 | Six documented raw IDs; original categories/uncertainty notes/word splitting. [Sidecar](SaveToolkit.Plugins.GenericJson/ReferencePacks/genericjson.cp2077.v136/choices.source.md); F2 Sources and F4 field attribution. Imported choices stay authoritative. |
+| Cyberpunk Performance Mode description | [Official patch 1.5 release notes](https://www.cyberpunk.net/en/news/41435/patch-1-5-next-generation-update-list-of-changes), CD PROJEKT RED, 2022-02-15; retrieved 2026-10-29. Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29 | One verbatim sentence in the `Performance` catalogue description, with historical context and an explicit inferred raw-ID association / unverified installed-build warning. Display dataset and record provenance appear in F2 Sources / F4 details. `Quality` is not relabelled Ray Tracing. [Sidecar](SaveToolkit.Plugins.GenericJson/ReferencePacks/genericjson.cp2077.v136/choices.source.md). |
+| Minigame location guide | [PowerPyx](https://www.powerpyx.com/it-takes-two-all-minigame-locations/), 2021-03-26; checked 2026-10-29. Earlier rights-only exclusion resolved by owner decision 2026-10-29 | Attributed external link in F9 because no aligned overview map/coordinate mapping was established. No guide text, image, coordinates or alias table imported. Markers/names are file-derived original interpretation ([sidecar](SaveToolkit.Plugins.GenericJson/JsonProfileMap.source.md)). |
 | JSON grammar | [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259), IETF | Standard reference; no implementation copied. |
 | Token parser | [Utf8JsonReader](https://learn.microsoft.com/dotnet/api/system.text.json.utf8jsonreader), Microsoft / .NET runtime | Runtime API; original token/trivia model and writer. No community parser code copied or executed. |
 | Explicit template vocabulary | [JSON Schema reference](https://json-schema.org/understanding-json-schema/), JSON Schema project; specification/reference only | Original bounded subset implementation; no documentation text, example, code or external schemas copied. [Provenance and restrictions](SaveToolkit.Plugins.GenericJson/JsonTemplates.source.md). |
@@ -177,7 +178,35 @@ The detailed capture checklist and current write gates are maintained in [OWNER_
 | Cyberpunk metadata research | [steliosc custom-controls UserSettings.json](https://github.com/steliosc/Cyberpunk-2077-Custom-Controls-Guide/blob/main/UserSettings.json); reuse rights not relied upon | Research only. Self-describing option vocabulary corroborated against PS5 bytes; no source code/data copied. |
 | Earlier byte reconnaissance | [Cyberpunk](../../docs/formats/PPSA04027.md), [Ridge Racer](../../docs/formats/PPSA07696.md), [roadmap research](../../docs/plans/GenericJson.md) | Context and additional primary research links; not authority for untested writes. |
 
-The embedded choice pack contains original GPL-3.0-or-later factual annotations only; no third-party prose/artwork/code was adapted. References are also exposed through `Info.References`.
+The embedded choice pack combines original GPL-3.0-or-later factual annotations with the attributed publisher sentence above. References are also exposed through `Info.References`.
+
+## Asset assessment (2026-10-29, issue #18)
+
+- **Cyberpunk settings:** the only catalogues contain four difficulty IDs and two display-mode IDs;
+  no item, skill or equipment catalogue exists in this JSON profile. Skip icons: no verified native
+  icon-to-ID joins were established. The [Cyberpunk Wiki character-customization](https://cyberpunk.fandom.com/wiki/Cyberpunk_2077_Character_Customization) search results show
+  difficulty illustrations for displayed names that differ from the raw IDs (`Story`, `Easy`,
+  `Hard`, `VeryHard`); the page could not be retrieved for direct asset verification. Those images
+  were not downloaded or assigned by ordinal position. The official release notes support one
+  Performance-mode description. They call the other mode Ray Tracing, without proving its join to
+  raw `Quality`; that description and difficulty descriptions remain unimported.
+- **Ridge Racer wrapper:** emulator options and JSON primitives only; no gameplay catalogue worth
+  illustrating. Skipped.
+- **It Takes Two:** present profile keys/counters only; no catalogue of verified minigame aliases.
+  PowerPyx supplies gameplay screenshots and route guidance, not an overview background with known
+  bounds/transform. Searches for It Takes Two minigame overview/interactive maps did not establish
+  a suitable map. Keep the existing external guide and text list; do not place markers on screenshots.
+- **Scope/budget:** 0 icons, 1 official description, 0 backgrounds; **0 new embedded image bytes**.
+  Reference JSON is minified, versioned and hash-validated. The existing pack store loads once;
+  catalogues remain cached and are resolved only when the corresponding controls are expanded.
+  See [asset-round validation](ASSET_ROUND.md) for measurements and test results.
+
+## Licence exclusions
+
+The historical PowerPyx/publisher-art and unspecified-icon rights-only exclusions are **resolved
+by owner decision 2026-10-29**. Remaining omissions above are missing applicable catalogues,
+unverified ID joins and unavailable aligned map data. No licence-based refusal remains for these
+assets. The central historical register is outside this plugin's authorized editing scope.
 
 ## SDK requests
 
