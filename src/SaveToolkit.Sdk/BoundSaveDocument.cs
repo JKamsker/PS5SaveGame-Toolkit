@@ -81,12 +81,7 @@ public abstract class BoundSaveDocument : ISaveDocument
             foreach (var edit in edits)
             {
                 currentId = edit.ValueId;
-                var binding = _bindings[edit.ValueId];
-                var old = binding.Get();
-                // Include the attempted setter: it or its readback can throw after mutating.
-                applied.Add(new ValueChange(edit.ValueId, old, old));
-                binding.Set!(edit.Value);
-                applied[^1] = new ValueChange(edit.ValueId, old, binding.Get());
+                ApplyValue(edit, applied);
             }
 
             // Materialize lazy derived changes inside the transaction as well.
@@ -102,19 +97,34 @@ public abstract class BoundSaveDocument : ISaveDocument
     /// <summary>Override to report values that changed as a consequence of an edit (checksums, totals...).</summary>
     protected virtual IEnumerable<ValueChange> DerivedChanges(IReadOnlyList<ValueChange> applied) => [];
 
-    /// <summary>Applies changes through the bindings without validation (used by actions).</summary>
+    /// <summary>Atomically applies changes through the bindings without validation (used by actions).</summary>
     protected IReadOnlyList<ValueChange> SetValues(IEnumerable<ValueEdit> edits)
     {
         var applied = new List<ValueChange>();
-        foreach (var edit in edits)
+        try
         {
-            var binding = Lookup(edit.ValueId);
-            var old = binding.Get();
-            binding.Set!(edit.Value);
-            applied.Add(new ValueChange(edit.ValueId, old, binding.Get()));
-        }
+            foreach (var edit in edits)
+            {
+                ApplyValue(edit, applied);
+            }
 
-        return applied;
+            return applied;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            Rollback(applied);
+            throw;
+        }
+    }
+
+    private void ApplyValue(ValueEdit edit, List<ValueChange> applied)
+    {
+        var binding = Lookup(edit.ValueId);
+        var old = binding.Get();
+        // Include the attempted setter: it or its readback can throw after mutating.
+        applied.Add(new ValueChange(edit.ValueId, old, old));
+        binding.Set!(edit.Value);
+        applied[^1] = new ValueChange(edit.ValueId, old, binding.Get());
     }
 
     /// <summary>
