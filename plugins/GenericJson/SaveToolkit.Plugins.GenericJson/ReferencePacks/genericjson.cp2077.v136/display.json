@@ -1,6 +1,1 @@
-{
-  "records": [
-    { "id": "Performance", "name": "Performance", "category": "Display mode", "description": "Recorded v136 display-mode ID. No resolution or frame-rate guarantee is inferred." },
-    { "id": "Quality", "name": "Quality", "category": "Display mode", "description": "Recorded v136 display-mode ID. No resolution or frame-rate guarantee is inferred." }
-  ]
-}
+{"records":[{"id":"Performance","name":"Performance","category":"Display mode","description":"Official patch 1.5 Performance Mode description: \"Ensures smooth gameplay at 60fps with dynamic 4K scaling.\" Historical release-note context; the v136 raw-ID association is inferred, and installed-build behavior is unverified.","source":"https://www.cyberpunk.net/en/news/41435/patch-1-5-next-generation-update-list-of-changes"},{"id":"Quality","name":"Quality","category":"Display mode","description":"Recorded v136 display-mode ID. No resolution or frame-rate guarantee is inferred."}]}
