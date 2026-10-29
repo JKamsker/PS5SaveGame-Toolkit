@@ -76,7 +76,11 @@ public sealed class SemanticReviewR2Tests : IDisposable
         var edits = Enumerable.Range(0, changed)
             .Select(index => new IncomingEdit($"field-{index:0000}", JsonSerializer.SerializeToElement(2)))
             .ToArray();
-        Assert.True(session.ApplyEdits(edits).Ok);
+        // The edit endpoint itself keeps the foundation's 4096-ID admission bound. Two
+        // ordinary edits still exercise a review with more changed identities than the
+        // group-context resolver may request in one bounded query.
+        Assert.True(session.ApplyEdits(edits[..FieldMetadataLimits.MaxClosureIds]).Ok);
+        Assert.True(session.ApplyEdits(edits[FieldMetadataLimits.MaxClosureIds..]).Ok);
         var log = session.GetChanges();
 
         Assert.False(log.Complete);
