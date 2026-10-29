@@ -25,35 +25,66 @@ function Get-ExistingEntry([string]$path) {
     return Get-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
 }
 
-function Test-RegularFile([object]$entry) {
-    return $null -ne $entry -and !$entry.PSIsContainer -and
-        (($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) -eq 0)
+$pythonCommand = Get-Command python3 -ErrorAction SilentlyContinue
+if ($null -eq $pythonCommand) { $pythonCommand = Get-Command python -ErrorAction SilentlyContinue }
+if ($null -eq $pythonCommand) { throw 'Python 3 is required to classify repository hook entries.' }
+
+function Test-RegularFile([object]$entry, [string]$path) {
+    if ($null -eq $entry -or $entry.PSIsContainer -or
+        (($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) {
+        return $false
+    }
+    & $script:pythonCommand.Source -B -c 'import os, stat, sys; sys.exit(0 if stat.S_ISREG(os.lstat(sys.argv[1]).st_mode) else 1)' $path 2>$null
+    return $LASTEXITCODE -eq 0
 }
 
 function Test-ToolkitWrapper([string]$path, [string]$expectedHash) {
     $entry = Get-ExistingEntry $path
-    if (!(Test-RegularFile $entry)) { return $false }
+    if (!(Test-RegularFile $entry $path)) { return $false }
     return (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ceq $expectedHash
 }
 
+function Test-ActivationMode([string]$sourcePath, [string]$targetPath) {
+    if ($IsWindows) { return $true }
+    try {
+        return [IO.File]::GetUnixFileMode($sourcePath) -eq [IO.File]::GetUnixFileMode($targetPath)
+    }
+    catch { return $false }
+}
+
 $sourceEntry = Get-ExistingEntry $source
-if (!(Test-RegularFile $sourceEntry)) { throw "Missing or unsupported checked-in hook: $source" }
-$sourceHash = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash
+if (!(Test-RegularFile $sourceEntry $source)) { throw "Missing or unsupported checked-in hook: $source" }
 
 $targetEntry = Get-ExistingEntry $target
 $backupEntry = Get-ExistingEntry $original
 $targetExists = $null -ne $targetEntry
 $backupExists = $null -ne $backupEntry
-$targetRegular = Test-RegularFile $targetEntry
-$backupRegular = Test-RegularFile $backupEntry
+$targetRegular = Test-RegularFile $targetEntry $target
+$backupRegular = Test-RegularFile $backupEntry $original
 if (($targetExists -and !$targetRegular) -or ($backupExists -and !$backupRegular)) {
     throw "Unsupported filesystem entry at '$target' or '$original'; inspect it before installing."
 }
+$sourceHash = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash
 $targetIsWrapper = Test-ToolkitWrapper $target $sourceHash
 if ($targetExists -and !$targetIsWrapper) {
     if ($backupExists) {
         throw "An existing chained hook is already present at '$original'; remove it only after reviewing it."
     }
+}
+
+if ($targetIsWrapper) {
+    if (!$PSCmdlet.ShouldProcess($target, 'keep the existing C# size pre-commit hook')) {
+        Write-Host "What if: existing C# size guard already installed in $target"
+        return
+    }
+    if (!(Test-ActivationMode $source $target)) {
+        [IO.File]::SetUnixFileMode($target, [IO.File]::GetUnixFileMode($source))
+        Write-Host "Restored executable mode on existing C# size guard in $target"
+    }
+    else {
+        Write-Host "C# size guard already installed in $target"
+    }
+    return
 }
 if (!$PSCmdlet.ShouldProcess($target, 'install C# size pre-commit hook')) {
     Write-Host "What if: would install staged C# size guard in $target"

@@ -5,6 +5,8 @@ import json
 import os
 from pathlib import Path
 import shutil
+import socket
+import stat
 import subprocess
 import sys
 import tempfile
@@ -123,19 +125,30 @@ class SizeGuardTests(unittest.TestCase):
             self._git(root, "config", "user.name", "Guard Test")
             policy = {
                 "warningLines": 300, "errorLines": 500, "generatedGlobs": [],
-                "legacyExemptions": [{"path": "a\\b.cs", "maxLines": 600,
-                                      "reason": "literal POSIX path fixture"}]
+                "legacyExemptions": [
+                    {"path": "a\\b.cs", "maxLines": 600, "reason": "literal POSIX path fixture"},
+                    {"path": "\\leading.cs", "maxLines": 600, "reason": "leading backslash fixture"},
+                    {"path": "a\\\\b.cs", "maxLines": 600, "reason": "repeated backslash fixture"},
+                    {"path": "a\\..\\legacy.cs", "maxLines": 600, "reason": "literal dot component fixture"},
+                ]
             }
             (root / ".csharp-size-policy.json").write_text(json.dumps(policy), encoding="utf-8")
             self._git(root, "add", ".")
             self._git(root, "commit", "-m", "policy baseline")
             base = self._git(root, "rev-parse", "HEAD").stdout.strip()
-            source = root / "a\\b.cs"
-            source.write_text("line\n" * 501, encoding="utf-8")
+            sources = [root / "a\\b.cs", root / "\\leading.cs",
+                       root / "a\\\\b.cs", root / "a\\..\\legacy.cs"]
+            for source in sources:
+                source.write_text("line\n" * 501, encoding="utf-8")
+            (root / "a" / "b.cs").parent.mkdir()
+            (root / "a" / "b.cs").write_text("line\n" * 2, encoding="utf-8")
             self._git(root, "add", ".")
             staged = self._run(root, "--staged")
             self.assertEqual(0, staged.returncode, staged.stdout + staged.stderr)
             self.assertIn("literal POSIX path fixture", staged.stdout)
+            self.assertIn("leading backslash fixture", staged.stdout)
+            self.assertIn("repeated backslash fixture", staged.stdout)
+            self.assertIn("literal dot component fixture", staged.stdout)
             self._git(root, "commit", "-m", "literal path")
             changed = self._run(root, "--changed", "--base", base)
             audited = self._run(root, "--all")
@@ -143,6 +156,9 @@ class SizeGuardTests(unittest.TestCase):
             self.assertEqual(0, audited.returncode, audited.stdout + audited.stderr)
             self.assertIn("a\\b.cs", changed.stdout)
             self.assertIn("a\\b.cs", audited.stdout)
+            self.assertIn("\\leading.cs", changed.stdout)
+            self.assertIn("a\\\\b.cs", changed.stdout)
+            self.assertIn("a\\..\\legacy.cs", changed.stdout)
 
     def test_strict_policy_keeps_301_line_warning(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -350,7 +366,8 @@ class SizeGuardTests(unittest.TestCase):
             root = Path(directory)
             (root / ".githooks").mkdir()
             (root / "scripts").mkdir()
-            shutil.copy(ROOT / ".githooks/pre-commit", root / ".githooks/pre-commit")
+            source = root / ".githooks/pre-commit"
+            shutil.copy(ROOT / ".githooks/pre-commit", source)
             shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
             self._git(root, "init")
             hooks = root / ".git/hooks"
@@ -362,7 +379,16 @@ class SizeGuardTests(unittest.TestCase):
             self.assertEqual("#!/bin/sh\nexit 9\n", backup.read_text(encoding="utf-8"))
             second = self._run_installer(pwsh, root)
             self.assertEqual(0, second.returncode, second.stdout + second.stderr)
+            self.assertEqual(source.read_bytes(), target.read_bytes())
+            self.assertIn("already installed", second.stdout + second.stderr)
             self.assertEqual("#!/bin/sh\nexit 9\n", backup.read_text(encoding="utf-8"))
+            if os.name != "nt":
+                target.chmod(0o644)
+                before_mode_reset = target.read_bytes()
+                mode_reset = self._run_installer(pwsh, root)
+                self.assertEqual(0, mode_reset.returncode, mode_reset.stdout + mode_reset.stderr)
+                self.assertEqual(before_mode_reset, target.read_bytes())
+                self.assertEqual(stat.S_IMODE(source.stat().st_mode), stat.S_IMODE(target.stat().st_mode))
             what_if = self._run_installer(pwsh, root, "-WhatIf")
             self.assertEqual(0, what_if.returncode, what_if.stdout + what_if.stderr)
             self.assertIn("What if", what_if.stdout + what_if.stderr)
@@ -435,6 +461,57 @@ class SizeGuardTests(unittest.TestCase):
             self.assertTrue(backup.is_dir())
             self.assertEqual("backup", (backup / "sentinel").read_text(encoding="utf-8"))
 
+    def test_installer_rejects_posix_special_entries_without_read_or_mutation(self):
+        if os.name == "nt":
+            self.skipTest("POSIX special filesystem entries are required for this regression")
+        pwsh = shutil.which("pwsh")
+        if not pwsh:
+            self.skipTest("PowerShell 7 is required to exercise the POSIX installer fixture")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".githooks").mkdir()
+            (root / "scripts").mkdir()
+            shutil.copy(ROOT / ".githooks/pre-commit", root / ".githooks/pre-commit")
+            shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
+            self._git(root, "init")
+            hooks = root / ".git/hooks"
+            target = hooks / "pre-commit"
+            backup = hooks / "pre-commit.savetoolkit-original"
+            os.mkfifo(target)
+            for arguments in ((), ("-WhatIf",)):
+                with self.subTest(entry="FIFO target", arguments=arguments):
+                    result = self._run_installer_bounded(pwsh, root, *arguments)
+                    self.assertNotEqual(0, result.returncode)
+                    self.assertIn("Unsupported filesystem entry", result.stderr + result.stdout)
+                    self.assertTrue(stat.S_ISFIFO(target.stat().st_mode))
+                    self.assertFalse(backup.exists())
+                    self.assertEqual([], list(hooks.glob(".pre-commit.savetoolkit-*.tmp")))
+            target.unlink()
+            server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            try:
+                server.bind(str(backup))
+                for arguments in ((), ("-WhatIf",)):
+                    with self.subTest(entry="Unix socket backup", arguments=arguments):
+                        result = self._run_installer_bounded(pwsh, root, *arguments)
+                        self.assertNotEqual(0, result.returncode)
+                        self.assertIn("Unsupported filesystem entry", result.stderr + result.stdout)
+                        self.assertFalse(target.exists())
+                        self.assertTrue(backup.exists())
+                        self.assertEqual([], list(hooks.glob(".pre-commit.savetoolkit-*.tmp")))
+            finally:
+                server.close()
+                backup.unlink()
+            source = root / ".githooks/pre-commit"
+            source.unlink()
+            os.mkfifo(source)
+            for arguments in ((), ("-WhatIf",)):
+                with self.subTest(entry="FIFO source", arguments=arguments):
+                    result = self._run_installer_bounded(pwsh, root, *arguments)
+                    self.assertNotEqual(0, result.returncode)
+                    self.assertIn("Missing or unsupported checked-in hook", result.stderr + result.stdout)
+                    self.assertFalse(target.exists())
+                    self.assertFalse(backup.exists())
+
     def test_hook_forwards_arguments_and_original_exit_code(self):
         shell = shutil.which("sh")
         if not shell:
@@ -478,6 +555,11 @@ class SizeGuardTests(unittest.TestCase):
     def _run_installer(self, pwsh: str, root: Path, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run([pwsh, "-NoProfile", "-File", str(root / "scripts/install-hooks.ps1"), *args],
                               cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    def _run_installer_bounded(self, pwsh: str, root: Path, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run([pwsh, "-NoProfile", "-File", str(root / "scripts/install-hooks.ps1"), *args],
+                              cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                              timeout=5)
 
     def _run_installer_with_copy_failure(self, pwsh: str, root: Path) -> subprocess.CompletedProcess:
         script = str(root / "scripts/install-hooks.ps1").replace("'", "''")

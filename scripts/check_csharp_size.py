@@ -97,7 +97,9 @@ def load_policy_bytes(content: bytes, source: str) -> Policy:
             raise GuardError("Each legacy exemption needs a non-empty path")
         if not isinstance(reason, str) or not reason.strip():
             raise GuardError(f"Legacy exemption {_normalise_path(path_value)} needs a reason")
-        policy_segments = path_value.replace("\\", "/").split("/")
+        # Policy keys use Git spelling: only '/' separates repository components.
+        # A backslash is a legal literal character in a POSIX Git path.
+        policy_segments = path_value.split("/")
         if path_value.startswith("/") or any(segment in ("", ".", "..") for segment in policy_segments):
             raise GuardError(f"Legacy exemption {path_value} must be a repository-relative path")
         if path_value in exemptions:
