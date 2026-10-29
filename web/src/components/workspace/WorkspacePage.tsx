@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
@@ -11,6 +11,7 @@ import { useAsyncTask } from "../ui/useAsyncTask";
 import { useLatestRequest } from "../ui/useLatestRequest";
 import { WorkspaceSelectionContext } from "../../state/workspaceSelection";
 import { useOpenDocument } from "./useOpenDocument";
+import { WorkspaceActivity, WorkspaceActivityContext } from "../../state/workspaceActivity";
 
 export function WorkspacePage() {
   const { workspaceId = "" } = useParams();
@@ -19,6 +20,7 @@ export function WorkspacePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const beginSelection = useLatestRequest(`${workspaceId}:${location.key}`);
+  const activity = useMemo(() => new WorkspaceActivity(), [workspaceId]);
   const exportDialog = useRef<HTMLDialogElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const { busy: closing, run: closeTask } = useAsyncTask(workspaceId);
@@ -31,7 +33,7 @@ export function WorkspacePage() {
   const open = useOpenDocument(workspaceId, beginSelection, select, notify);
 
   const close = () => closeTask(async isCurrent => {
-    const hasEdits = workspace.data?.documents.some(document => document.isDirty);
+    const hasEdits = activity.hasPendingMutations || workspace.data?.documents.some(document => document.isDirty);
     if (hasEdits && !window.confirm("Discard the edits in this dump and close it? Export a zip first if you want to keep them.")) return;
     const selectionIsCurrent = beginSelection();
     try {
@@ -67,7 +69,7 @@ export function WorkspacePage() {
   const dirtyCount = ws.documents.filter((d) => d.isDirty).length;
 
   return (
-    <WorkspaceSelectionContext.Provider value={beginSelection}><div className="shell">
+    <WorkspaceActivityContext.Provider value={activity}><WorkspaceSelectionContext.Provider value={beginSelection}><div className="shell">
       <header className="bar">
         <Link to="/" className="bar__brand">
           <span className="bar__mark" aria-hidden="true" />
@@ -91,7 +93,7 @@ export function WorkspacePage() {
         </div>
       </header>
       <SlotRail workspace={ws} activeFileId={activeDoc?.fileId} onOpen={(f) => { if (!closing) void open(f); }} />
-      <main className="main">
+      <main className="main" inert={closing}>
         {workspace.isError && <div>
           <p role="alert" className="notice notice--Danger">Could not refresh the workspace: {workspace.error.message}</p>
           <button type="button" className="btn btn--small" disabled={workspace.isFetching} onClick={() => void workspace.refetch()}>Retry workspace</button>
@@ -114,6 +116,6 @@ export function WorkspacePage() {
       </main>
       <ExportDialog ref={exportDialog} workspaceId={ws.id} open={exportOpen} onClose={() => setExportOpen(false)} onToast={notify} />
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
-    </div></WorkspaceSelectionContext.Provider>
+    </div></WorkspaceSelectionContext.Provider></WorkspaceActivityContext.Provider>
   );
 }

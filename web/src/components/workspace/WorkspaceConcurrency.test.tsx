@@ -6,13 +6,19 @@ import { api, ApiError } from "../../api/client";
 import type { SaveDocument, SaveFileInfo, Workspace } from "../../api/protocol";
 import { deferred } from "../../test/deferred";
 import { WorkspacePage } from "./WorkspacePage";
+import { useContext } from "react";
+import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 
 const files = ["first", "second", "cached"].map(id => ({ id, path: id, length: 1, matches: [],
   openDocumentId: id === "cached" ? "cached" : undefined } satisfies SaveFileInfo));
 vi.mock("./SlotRail", () => ({ SlotRail: ({ onOpen }: { onOpen: (file: SaveFileInfo) => void }) =>
   <nav>{files.map(file => <button key={file.id} onClick={() => onOpen(file)}>{file.id}</button>)}</nav> }));
-vi.mock("../document/DocumentEditor", () => ({ DocumentEditor: ({ documentId, onSwitchPlugin }: { documentId: string; onSwitchPlugin: (id: string) => void }) =>
-  <div>Editor {documentId}<button onClick={() => onSwitchPlugin("plugin-a")}>Plugin A</button><button onClick={() => onSwitchPlugin("plugin-b")}>Plugin B</button></div> }));
+let pendingEdit: ReturnType<typeof deferred<void>> | null = null;
+vi.mock("../document/DocumentEditor", () => ({ DocumentEditor: ({ documentId, onSwitchPlugin }: { documentId: string; onSwitchPlugin: (id: string) => void }) => {
+  const activity = useContext(WorkspaceActivityContext);
+  return <div>Editor {documentId}<button onClick={() => onSwitchPlugin("plugin-a")}>Plugin A</button><button onClick={() => onSwitchPlugin("plugin-b")}>Plugin B</button>
+    <button onClick={() => { if (pendingEdit) activity?.track(pendingEdit.promise); }}>Start edit</button></div>;
+} }));
 
 const clients: QueryClient[] = [];
 beforeEach(() => { notifyManager.setScheduler(queueMicrotask); Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true, value() {} }); });
@@ -76,4 +82,16 @@ it.each(["resolve", "reject"] as const)("suppresses an open %s after leaving the
   await act(async () => { if (outcome === "resolve") pending.resolve(doc("second")); else pending.reject(new ApiError("Old failure", 409)); await pending.promise.catch(() => {}); });
   expect(screen.getByLabelText("Location").textContent).toBe("/");
   expect(screen.getByRole("heading", { name: "Home" })).toBeTruthy();
+});
+
+it("asks before closing while a write has not yet marked the workspace dirty", async () => {
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+  const close = vi.spyOn(api, "deleteWorkspace").mockResolvedValue(undefined);
+  pendingEdit = deferred<void>();
+  await mount();
+  fireEvent.click(screen.getByRole("button", { name: "Start edit" }));
+  fireEvent.click(screen.getByRole("button", { name: "Close dump" }));
+  expect(confirm).toHaveBeenCalledOnce(); expect(close).not.toHaveBeenCalled();
+  await act(async () => { pendingEdit!.resolve(); await pendingEdit!.promise; });
+  pendingEdit = null;
 });

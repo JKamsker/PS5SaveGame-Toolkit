@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
-import type { EditResult, FieldValue, SaveFileInfo } from "../../api/protocol";
+import type { EditResult, FieldValue, SaveFileInfo, Workspace } from "../../api/protocol";
 import { DocumentContext, DocumentStore, useDocumentState, type DocumentContextValue } from "../../state/documentStore";
 import { SourcesPanel } from "./SourcesPanel";
 import { ChangesPanel } from "./review/ChangesPanel";
@@ -11,6 +11,7 @@ import { DocumentGroupControls } from "./DocumentGroupControls";
 import { useEntryFocus } from "../ui/useEntryFocus";
 import { useAsyncTask } from "../ui/useAsyncTask";
 import { sameValue } from "../../lib/values";
+import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 
 interface DocumentEditorProps {
   workspaceId: string;
@@ -24,6 +25,7 @@ const maturityText = { ReadOnly: "read-only", Experimental: "experimental", Stab
 
 export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, onToast }: DocumentEditorProps) {
   const queryClient = useQueryClient();
+  const activity = useContext(WorkspaceActivityContext);
   const query = useQuery({ queryKey: ["document", workspaceId, documentId], queryFn: () => api.document(workspaceId, documentId), refetchOnMount: "always" });
   const store = useMemo(() => (query.data ? new DocumentStore(query.data.state) : null), [query.data]);
   const lifetime = useMemo(() => ({ active: true, generation: 0, tail: Promise.resolve() }), [workspaceId, documentId]);
@@ -65,9 +67,14 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
       if (!lifetime.active) return;
       if (result.message) onToast(result.message);
       for (const w of result.warnings) onToast(w);
+      // Close/export controls need the acknowledged dirty flag before the background read finishes.
+      queryClient.setQueryData<Workspace>(["workspace", workspaceId], previous => previous && ({ ...previous,
+        documents: previous.documents.map(document => document.id === documentId ? { ...document, isDirty: result.state.isDirty } : document),
+      }));
       void queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
+      void queryClient.invalidateQueries({ queryKey: ["export-plan", workspaceId] });
     },
-    [lifetime, refetch, queryClient, workspaceId, onToast],
+    [lifetime, refetch, queryClient, workspaceId, documentId, onToast],
   );
 
   const run = useCallback(
@@ -75,7 +82,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
       const generation = lifetime.generation;
       const rejected = (message: string): EditResult => ({ ok: false, errors: [{ valueId: "", message }], changes: [], warnings: [],
         structureChanged: false, state: currentStore.current?.state ?? query.data!.state });
-      return enqueue(async () => {
+      const request = enqueue(async () => {
         if (!lifetime.active) return rejected("The document is no longer open.");
         if (generation !== lifetime.generation || store !== currentStore.current) {
           return rejected("The document changed. Please try again with the current view.");
@@ -101,8 +108,9 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
           return rejected(message);
         }
       });
+      return activity?.track(request) ?? request;
     },
-    [handleResult, onToast, queryClient, workspaceId, documentId, store, query.data, enqueue, lifetime],
+    [handleResult, onToast, queryClient, workspaceId, documentId, store, query.data, enqueue, lifetime, activity],
   );
 
   const context = useMemo<DocumentContextValue | null>(() => {
@@ -203,6 +211,7 @@ function HistoryButtons({ store, onUndo, onRedo }: { store: DocumentStore; onUnd
   const redo = () => run(async () => { await onRedo(); });
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (document.querySelector("dialog[open]")) return;
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
       if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z") return;

@@ -1,9 +1,10 @@
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useContext, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { ExportScope } from "../../api/protocol";
 import { formatBytes } from "../../lib/values";
 import { useAsyncTask } from "../ui/useAsyncTask";
+import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 
 const scopes: { value: ExportScope; label: string; hint: string }[] = [
   { value: "ChangedDirectories", label: "Changed save folders", hint: "Complete folders including sce_sys, ready to restore with your save manager." },
@@ -20,13 +21,17 @@ interface ExportDialogProps {
 
 export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(function ExportDialog({ workspaceId, open, onClose, onToast }, ref) {
   const [scope, setScope] = useState<ExportScope>("ChangedDirectories");
+  const activity = useContext(WorkspaceActivityContext);
   const [mirror, setMirror] = useState(true);
   const { busy, run: submit } = useAsyncTask(`${workspaceId}:${open}`);
   const [downloadError, setDownloadError] = useState("");
   useEffect(() => { if (open) setDownloadError(""); }, [open]);
   const plan = useQuery({
     queryKey: ["export-plan", workspaceId, scope, mirror],
-    queryFn: () => api.exportPlan(workspaceId, scope, mirror),
+    queryFn: async () => {
+      if (activity) await activity.waitForMutations();
+      return api.exportPlan(workspaceId, scope, mirror);
+    },
     enabled: open,
     // Edits can occur while this mounted dialog is closed, even inside the global freshness window.
     staleTime: 0,
@@ -37,6 +42,8 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
     if (!open) return;
     setDownloadError("");
     try {
+      if (activity) await activity.waitForMutations();
+      if (!isCurrent()) return;
       const { blob, name } = await api.exportZip(workspaceId, scope, mirror);
       if (!isCurrent()) return;
       const url = URL.createObjectURL(blob);
