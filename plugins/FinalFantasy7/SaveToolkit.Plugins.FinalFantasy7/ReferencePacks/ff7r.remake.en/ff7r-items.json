@@ -4,153 +4,210 @@
       "id": "1",
       "name": "Potion",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Restores 350 HP to one party member. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "2",
       "name": "Hi-Potion",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Restores 700 HP to one party member. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3",
       "name": "Ether",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Restores 20 MP to one party member. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "4",
       "name": "Turbo Ether",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Fully restores MP to one party member. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "5",
       "name": "Elixir",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Fully restores HP and MP to one party member. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "6",
       "name": "Phoenix Down",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Revives one party member and restores a small amount of HP. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "7",
       "name": "Antidote",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Cures poison. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "8",
       "name": "Echo Mist",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Cures silence. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9",
       "name": "Adrenaline",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Rouses one from a stupor. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "10",
       "name": "Sedative",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Quells one's fury. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "11",
       "name": "Remedy",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Cures all ailments. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "12",
       "name": "Celeris",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Hastens whoever drinks it. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "13",
       "name": "Grenade",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Deals physical damage to enemies within range. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "14",
       "name": "Spiderweb",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Slows nearby enemies within range. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "15",
       "name": "Hazardous Material",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Poisons and deals physical damage to enemies within range. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "16",
       "name": "Big Bomber",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Deals physical damage to enemies within range. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "17",
       "name": "Molotov Cocktail",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Deals fire damage to enemies within range multiple times. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "18",
       "name": "Orb of Gravity",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Reduces the HP of enemies within range by 25%; ineffective against powerful enemies. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "19",
       "name": "Smelling Salts",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Wakes someone up. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "20",
@@ -158,23 +215,30 @@
       "category": "Trading Tokens",
       "description": "Trading Tokens entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "21",
       "name": "Maiden's Kiss",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Removes toad-related curses. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "22",
       "name": "Mega-Potion",
       "category": "Items",
-      "description": "Items entry in the Remake reference table.",
+      "description": "Restores 1,500 HP to one party member. Source: Gamer Guides consumables reference; item/save joins remain unverified. Source URL: https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "itemDescriptionSource": "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables"
+      },
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "31",
@@ -182,7 +246,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "32",
@@ -190,7 +255,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "33",
@@ -198,7 +264,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "34",
@@ -206,7 +273,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "50",
@@ -214,7 +282,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "51",
@@ -222,7 +291,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "52",
@@ -230,7 +300,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "53",
@@ -238,7 +309,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "54",
@@ -246,7 +318,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "55",
@@ -254,7 +327,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "56",
@@ -262,7 +336,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "57",
@@ -270,7 +345,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "58",
@@ -278,7 +354,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "59",
@@ -286,7 +363,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "60",
@@ -294,7 +372,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "61",
@@ -302,7 +381,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "62",
@@ -310,7 +390,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "63",
@@ -318,7 +399,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "64",
@@ -326,7 +408,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "65",
@@ -334,7 +417,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "66",
@@ -342,7 +426,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "67",
@@ -350,7 +435,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "68",
@@ -358,7 +444,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "69",
@@ -366,7 +453,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "70",
@@ -374,7 +462,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "71",
@@ -382,7 +471,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "72",
@@ -390,7 +480,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "73",
@@ -398,7 +489,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "74",
@@ -406,7 +498,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "75",
@@ -414,7 +507,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "76",
@@ -422,7 +516,8 @@
       "category": "Items",
       "description": "Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "100",
@@ -430,7 +525,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "102",
@@ -438,7 +534,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "103",
@@ -446,7 +543,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "104",
@@ -454,7 +552,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "111",
@@ -462,7 +561,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "115",
@@ -470,7 +570,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "116",
@@ -478,7 +579,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "117",
@@ -486,7 +588,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "118",
@@ -494,7 +597,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "119",
@@ -502,7 +606,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "120",
@@ -510,7 +615,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "121",
@@ -518,7 +624,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "122",
@@ -526,7 +633,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "123",
@@ -534,7 +642,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "124",
@@ -542,7 +651,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "126",
@@ -550,7 +660,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "127",
@@ -558,7 +669,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "132",
@@ -566,7 +678,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "139",
@@ -574,7 +687,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "140",
@@ -582,7 +696,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "141",
@@ -590,7 +705,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "142",
@@ -598,7 +714,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "143",
@@ -606,7 +723,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "144",
@@ -614,7 +732,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "148",
@@ -622,7 +741,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "149",
@@ -630,7 +750,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "150",
@@ -638,7 +759,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "151",
@@ -646,7 +768,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "152",
@@ -654,7 +777,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "153",
@@ -662,7 +786,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "154",
@@ -670,7 +795,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "155",
@@ -678,7 +804,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "156",
@@ -686,7 +813,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "157",
@@ -694,7 +822,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "158",
@@ -702,7 +831,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "159",
@@ -710,7 +840,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "160",
@@ -718,7 +849,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "161",
@@ -726,7 +858,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "162",
@@ -734,7 +867,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "163",
@@ -742,7 +876,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "164",
@@ -750,7 +885,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "165",
@@ -758,7 +894,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "166",
@@ -766,7 +903,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "167",
@@ -774,7 +912,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "168",
@@ -782,7 +921,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "169",
@@ -790,7 +930,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "170",
@@ -798,7 +939,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "171",
@@ -806,7 +948,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "172",
@@ -814,7 +957,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "173",
@@ -822,7 +966,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "174",
@@ -830,7 +975,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "175",
@@ -838,7 +984,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "176",
@@ -846,7 +993,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "177",
@@ -854,7 +1002,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "178",
@@ -862,7 +1011,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "179",
@@ -870,7 +1020,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "180",
@@ -878,7 +1029,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "181",
@@ -886,7 +1038,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "182",
@@ -894,7 +1047,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "183",
@@ -902,7 +1056,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "184",
@@ -910,7 +1065,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "185",
@@ -918,7 +1074,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "256",
@@ -926,7 +1083,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "257",
@@ -934,7 +1092,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "258",
@@ -942,7 +1101,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "260",
@@ -950,7 +1110,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "261",
@@ -958,7 +1119,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "262",
@@ -966,7 +1128,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "264",
@@ -974,7 +1137,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "265",
@@ -982,7 +1146,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "266",
@@ -990,7 +1155,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "267",
@@ -998,7 +1164,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "268",
@@ -1006,7 +1173,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "270",
@@ -1014,7 +1182,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "272",
@@ -1022,7 +1191,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "273",
@@ -1030,7 +1200,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "274",
@@ -1038,7 +1209,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "275",
@@ -1046,7 +1218,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "276",
@@ -1054,7 +1227,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "278",
@@ -1062,7 +1236,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "282",
@@ -1070,7 +1245,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "283",
@@ -1078,7 +1254,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "284",
@@ -1086,7 +1263,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "285",
@@ -1094,7 +1272,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "286",
@@ -1102,7 +1281,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "287",
@@ -1110,7 +1290,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "288",
@@ -1118,7 +1299,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "289",
@@ -1126,7 +1308,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "292",
@@ -1134,7 +1317,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "295",
@@ -1142,7 +1326,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "300",
@@ -1150,7 +1335,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "301",
@@ -1158,7 +1344,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "302",
@@ -1166,7 +1353,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "303",
@@ -1174,7 +1362,8 @@
       "category": "Music Collection",
       "description": "Music Collection entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "316",
@@ -1182,7 +1371,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "317",
@@ -1190,7 +1380,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "318",
@@ -1198,7 +1389,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "319",
@@ -1206,7 +1398,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "320",
@@ -1214,7 +1407,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "321",
@@ -1222,7 +1416,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "322",
@@ -1230,7 +1425,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "323",
@@ -1238,7 +1434,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "324",
@@ -1246,7 +1443,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "325",
@@ -1254,7 +1452,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "326",
@@ -1262,7 +1461,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "327",
@@ -1270,7 +1470,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "328",
@@ -1278,7 +1479,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "329",
@@ -1286,7 +1488,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "331",
@@ -1294,7 +1497,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "332",
@@ -1302,7 +1506,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "333",
@@ -1310,7 +1515,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "334",
@@ -1318,7 +1524,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "335",
@@ -1326,7 +1533,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "336",
@@ -1334,7 +1542,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "337",
@@ -1342,7 +1551,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "338",
@@ -1350,7 +1560,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "339",
@@ -1358,7 +1569,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "340",
@@ -1366,7 +1578,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "341",
@@ -1374,7 +1587,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "342",
@@ -1382,7 +1596,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "343",
@@ -1390,7 +1605,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "344",
@@ -1398,7 +1614,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "346",
@@ -1406,7 +1623,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "347",
@@ -1414,7 +1632,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "348",
@@ -1422,7 +1641,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "349",
@@ -1430,7 +1650,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "350",
@@ -1438,7 +1659,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "351",
@@ -1446,7 +1668,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "352",
@@ -1454,7 +1677,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "353",
@@ -1462,7 +1686,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "354",
@@ -1470,7 +1695,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "355",
@@ -1478,7 +1704,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "356",
@@ -1486,7 +1713,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "357",
@@ -1494,7 +1722,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "358",
@@ -1502,7 +1731,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "359",
@@ -1510,7 +1740,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "361",
@@ -1518,7 +1749,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "362",
@@ -1526,7 +1758,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "363",
@@ -1534,7 +1767,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "364",
@@ -1542,7 +1776,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "365",
@@ -1550,7 +1785,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "366",
@@ -1558,7 +1794,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "367",
@@ -1566,7 +1803,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "368",
@@ -1574,7 +1812,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "369",
@@ -1582,7 +1821,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "370",
@@ -1590,7 +1830,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "371",
@@ -1598,7 +1839,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "372",
@@ -1606,7 +1848,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "373",
@@ -1614,7 +1857,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "374",
@@ -1622,7 +1866,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "380",
@@ -1630,7 +1875,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "381",
@@ -1638,7 +1884,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "382",
@@ -1646,7 +1893,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "383",
@@ -1654,7 +1902,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "500",
@@ -1662,7 +1911,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "501",
@@ -1670,7 +1920,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "502",
@@ -1678,7 +1929,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "503",
@@ -1686,7 +1938,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "504",
@@ -1694,7 +1947,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "505",
@@ -1702,7 +1956,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "506",
@@ -1710,7 +1965,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "507",
@@ -1718,7 +1974,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "508",
@@ -1726,7 +1983,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "509",
@@ -1734,7 +1992,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "510",
@@ -1742,7 +2001,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "511",
@@ -1750,7 +2010,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "512",
@@ -1758,7 +2019,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "513",
@@ -1766,7 +2028,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "514",
@@ -1774,7 +2037,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "515",
@@ -1782,7 +2046,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "516",
@@ -1790,7 +2055,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "517",
@@ -1798,7 +2064,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "518",
@@ -1806,7 +2073,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "519",
@@ -1814,7 +2082,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "520",
@@ -1822,7 +2091,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "521",
@@ -1830,7 +2100,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "522",
@@ -1838,7 +2109,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "523",
@@ -1846,7 +2118,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "524",
@@ -1854,7 +2127,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "525",
@@ -1862,7 +2136,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "526",
@@ -1870,7 +2145,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "527",
@@ -1878,7 +2154,8 @@
       "category": "Manuscripts",
       "description": "Manuscripts entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "528",
@@ -1886,7 +2163,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "529",
@@ -1894,7 +2172,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "530",
@@ -1902,7 +2181,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "531",
@@ -1910,7 +2190,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "532",
@@ -1918,7 +2199,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "533",
@@ -1926,7 +2208,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "534",
@@ -1934,7 +2217,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "535",
@@ -1942,7 +2226,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "536",
@@ -1950,7 +2235,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "537",
@@ -1958,7 +2244,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "538",
@@ -1966,7 +2253,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "539",
@@ -1974,7 +2262,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "540",
@@ -1982,7 +2271,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "541",
@@ -1990,7 +2280,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "542",
@@ -1998,7 +2289,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "543",
@@ -2006,7 +2298,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "544",
@@ -2014,7 +2307,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "545",
@@ -2022,7 +2316,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "546",
@@ -2030,7 +2325,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "547",
@@ -2038,7 +2334,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "548",
@@ -2046,7 +2343,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "549",
@@ -2054,7 +2352,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "550",
@@ -2062,7 +2361,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "551",
@@ -2070,7 +2370,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "552",
@@ -2078,7 +2379,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "553",
@@ -2086,7 +2388,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "554",
@@ -2094,7 +2397,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "555",
@@ -2102,7 +2406,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "556",
@@ -2110,7 +2415,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "557",
@@ -2118,7 +2424,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "558",
@@ -2126,7 +2433,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "559",
@@ -2134,7 +2442,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "560",
@@ -2142,7 +2451,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "561",
@@ -2150,7 +2460,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "562",
@@ -2158,7 +2469,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "563",
@@ -2166,7 +2478,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "564",
@@ -2174,7 +2487,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "565",
@@ -2182,7 +2496,8 @@
       "category": "Key Items",
       "description": "Key Items entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "1001",
@@ -2190,7 +2505,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "1002",
@@ -2198,7 +2514,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "1003",
@@ -2206,7 +2523,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "1004",
@@ -2214,7 +2532,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "1005",
@@ -2222,7 +2541,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "1006",
@@ -2230,7 +2550,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "1871",
@@ -2238,7 +2559,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "2001",
@@ -2246,7 +2568,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "2002",
@@ -2254,7 +2577,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "2003",
@@ -2262,7 +2586,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "2004",
@@ -2270,7 +2595,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "2005",
@@ -2278,7 +2604,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "2006",
@@ -2286,7 +2613,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3001",
@@ -2294,7 +2622,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3002",
@@ -2302,7 +2631,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3003",
@@ -2310,7 +2640,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3004",
@@ -2318,7 +2649,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3005",
@@ -2326,7 +2658,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3006",
@@ -2334,7 +2667,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3423",
@@ -2342,7 +2676,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3431",
@@ -2350,7 +2685,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "3934",
@@ -2358,7 +2694,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "4001",
@@ -2366,7 +2703,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "4002",
@@ -2374,7 +2712,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "4003",
@@ -2382,7 +2721,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "4004",
@@ -2390,7 +2730,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "4005",
@@ -2398,7 +2739,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "4006",
@@ -2406,7 +2748,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "5001",
@@ -2414,7 +2757,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "6608",
@@ -2422,7 +2766,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "8181",
@@ -2430,7 +2775,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9001",
@@ -2438,7 +2784,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9002",
@@ -2446,7 +2793,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9003",
@@ -2454,7 +2802,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9004",
@@ -2462,7 +2811,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9005",
@@ -2470,7 +2820,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9006",
@@ -2478,7 +2829,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9007",
@@ -2486,7 +2838,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9008",
@@ -2494,7 +2847,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9009",
@@ -2502,7 +2856,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9010",
@@ -2510,7 +2865,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9011",
@@ -2518,7 +2874,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9012",
@@ -2526,7 +2883,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9013",
@@ -2534,7 +2892,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9014",
@@ -2542,7 +2901,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9015",
@@ -2550,7 +2910,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9016",
@@ -2558,7 +2919,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9017",
@@ -2566,7 +2928,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9018",
@@ -2574,7 +2937,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9019",
@@ -2582,7 +2946,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9020",
@@ -2590,7 +2955,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9021",
@@ -2598,7 +2964,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9022",
@@ -2606,7 +2973,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9023",
@@ -2614,7 +2982,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9024",
@@ -2622,7 +2991,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9025",
@@ -2630,7 +3000,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9026",
@@ -2638,7 +3009,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9027",
@@ -2646,7 +3018,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9028",
@@ -2654,7 +3027,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9029",
@@ -2662,7 +3036,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9030",
@@ -2670,7 +3045,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9031",
@@ -2678,7 +3054,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9032",
@@ -2686,7 +3063,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9033",
@@ -2694,7 +3072,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9034",
@@ -2702,7 +3081,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9035",
@@ -2710,7 +3090,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9036",
@@ -2718,7 +3099,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9037",
@@ -2726,7 +3108,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9038",
@@ -2734,7 +3117,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9039",
@@ -2742,7 +3126,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9040",
@@ -2750,7 +3135,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9041",
@@ -2758,7 +3144,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9042",
@@ -2766,7 +3153,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9043",
@@ -2774,7 +3162,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9044",
@@ -2782,7 +3171,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9045",
@@ -2790,7 +3180,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9050",
@@ -2798,7 +3189,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9051",
@@ -2806,7 +3198,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9052",
@@ -2814,7 +3207,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9053",
@@ -2822,7 +3216,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9054",
@@ -2830,7 +3225,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9055",
@@ -2838,7 +3234,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9056",
@@ -2846,7 +3243,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9057",
@@ -2854,7 +3252,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9058",
@@ -2862,7 +3261,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9059",
@@ -2870,7 +3270,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9060",
@@ -2878,7 +3279,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9061",
@@ -2886,7 +3288,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9062",
@@ -2894,7 +3297,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9063",
@@ -2902,7 +3306,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9064",
@@ -2910,7 +3315,8 @@
       "category": "Armor",
       "description": "Armor entry in the Remake reference table.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9065",
@@ -2918,7 +3324,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9066",
@@ -2926,7 +3333,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9067",
@@ -2934,7 +3342,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9068",
@@ -2942,7 +3351,8 @@
       "category": "Accessories",
       "description": "Accessory type; effect text and equip restrictions are not supplied by this source.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     },
     {
       "id": "9579",
@@ -2950,7 +3360,8 @@
       "category": "Weapons",
       "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {},
+      "assetId": "icons/item-generic.webp"
     }
   ]
 }

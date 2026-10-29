@@ -37,14 +37,14 @@ select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as 
 | Feature | Status | Adoption / concrete reason and verification |
 | --- | --- | --- |
 | F1 SaveDiff | Added this round | Existing `ByteDiffer` golden-byte tests; shared `FixtureManifest`/`FixtureVerifier` self-comparison fixtures for all three titles; an SDK-native `ff7r-character-evidence` hook for stable character paths; and F8 traversal tests. These are repeatability fixtures, not invented controlled events. |
-| F2 reference packs | Used | Build-scoped embedded MIT item/weapon/materia packs, per-dataset attribution and Sources panel; optional imported text/images through pinned `IReferenceContext`. Pack validity/build/provenance tests. |
-| F3 rich table cells | Added this round | Inventory/catalog row-detail sections retain descriptions/attribution and optional imported `ImageNode` assets. Bound numeric cells carry confidence/warnings. Tested detail nodes, imported image identity and `GetAsset` routing; no game artwork bundled. |
+| F2 reference packs | Used | Build-scoped embedded MIT item/weapon/materia packs plus attributed icon and Rebirth map-asset datasets, per-dataset attribution and Sources panel; optional imported text/images through pinned `IReferenceContext`. Pack validity/build/provenance tests. |
+| F3 rich table cells | Added this round | Inventory/catalog row-detail sections retain attributed official descriptions and imported `ImageNode` icons. Bound numeric cells carry confidence/warnings. Tested detail nodes, imported image identity and `GetAsset` routing. |
 | F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Read-only inventory/materia IDs and Rebirth owned weapon/materia type IDs publish browse-only `ReferenceSpec`s, retaining raw IDs and attribution. Writable weapon references remain **instance IDs**, while catalog keys are **type IDs**; substituting that catalog would select the wrong domain. |
 | F5 reversible structure | N/A | No safe allocation/removal/reorder writer exists: free-slot initialization, serial uniqueness, acquisition order and all inventory/detail/owner dependencies remain unknown. Current writers patch fixed-size existing values. Owner acquisition/discard/capacity pairs are required before a structural transaction can be implemented. |
 | F6 planning / #27 scopes | Added this round | Existing AP plan plus star-tier and consumable-restock presets; pure previews, warnings, skipped rows, derived AP/stars, stale rejection and one undo group, including Core-resolved F8 query scopes. `MateriaPlanningTests`, `PresetPlanningTests`. |
 | F7 document groups | N/A | No implemented operation changes more than the primary gameplay file; common and prior-state RESD dependencies are unmapped. Grouping them would claim a coupling that has not been established. Existing backup mirroring remains framework-owned. |
 | F8 queryable tables | Added this round | Complete inventories, materia, catalogs, cards, progress and owned relationships already use F8. Added paging/search/filter/sort for the linked-header index (including common files), named enemy records (161 Remake / 230 Rebirth) and the 388-row research collection. Legacy raw-word/lazy endpoints remain bounded. |
-| F9 graphs / maps | Added this round | Six external-link-only regional maps with local field targets and distinct bit domains; seven read-only folio candidate graphs (238 bits) and seven Rebirth equipment-reference graphs. Accessible text alternatives, bounded/lazy groups, JSON/SDK validation and Core edit/undo refresh tests. No fabricated prerequisite edges, socket links, capacity, coordinates or weapon-upgrade grid. |
+| F9 graphs / maps | Added this round | Six attributed Rebirth regional backgrounds with local field targets and distinct bit domains; unverified coordinates remain list-only; seven read-only folio candidate graphs (238 bits) and seven Rebirth equipment-reference graphs. Accessible text alternatives, bounded/lazy groups, JSON/SDK validation and Core edit/undo refresh tests. No fabricated prerequisite edges, socket links, capacity, coordinates or weapon-upgrade grid. |
 | F10 exact / nullable / union | N/A | Mapped payload values are fixed-width u8/u32/i32 integers and bits, exactly represented by `IntegerSpec`/`FieldValue` and the framework's integer transport. There are no decimal text numbers, nullable scalar encodings or tagged unions to represent. Sentinels remain literal bytes rather than guessed nulls. |
 | F11 shared codecs | N/A | Supported inputs are already decrypted, uncompressed custom linked records. They contain neither a Kraken stream nor SQLite data. No local codec or native dependency is used. |
 | F12 | Used | `FinalFantasy7Plugin` exposes the SDK-only `ff7r-character-evidence` hook with bounded, stable character paths; `HookSaveDecoder` and F8 traversal tests cover deterministic reads, host caps, foreign-file rejection and byte preservation. |
@@ -54,11 +54,12 @@ select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as 
 
 **Regional maps** groups the six mapped Rebirth regions. Each marker represents one existing
 candidate bit, retaining separate discovery/completion/repair domains and an Inferred badge.
-Found/Missing means bit 1/0 only. The map and its local editable checklist expand together, so
-navigation does not rely on an unloaded F8 row. Published map status refreshes on edit/undo/redo.
-The attributed [PowerPyx regional map](https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/)
-opens externally; no map art, remote resources or coordinates are imported. Remake has no geographic
-mapping. This does not implement teleportation, fast travel or aggregate completion.
+Found/Missing means bit 1/0 only. When the pinned Rebirth pack is available, each section displays
+the attributed, downscaled PowerPyx regional background. Candidate bits have no verified native
+positions, so markers remain list-only and the text alternative is authoritative. The map and its
+local editable checklist expand together, so navigation does not rely on an unloaded F8 row.
+Published map status refreshes on edit/undo/redo. Remake has no geographic mapping. This does not
+implement teleportation, fast travel or aggregate completion.
 
 **Equipment and folios** exposes seven Rebirth/demo character groups. Folios show 238 distinct
 literal source bits; bit 1 is an inferred stored unlock, while bit 0 has Unknown availability.
@@ -253,11 +254,12 @@ Examples asserted by tests (primary files):
 
 Two embedded F2 packs are pinned to the supported title/build names. They provide 369 item types
 (including 32 weapons) and 54 materia types for Remake; 934 item types (including 51 weapons) and
-88 materia types for Rebirth. Every record has a name, category, source-metadata description and
-pinned MIT attribution. Descriptions explain classification, AP thresholds or identity domains;
-they are **not a complete set of game effect descriptions**. F8 searches the whole dataset before
-paging. Imported document-pinned packs can supply richer descriptions, with their own provenance,
-without changing the embedded edit policy. Character and owned-item names also show attribution.
+88 materia types for Rebirth. Every record has a name, category, source-metadata description,
+catalogue icon and pinned attribution. Materia and weapon descriptions now include attributed
+official Square Enix / PlayStation guidance; save-ID joins and exact effects remain unverified.
+F8 searches the whole dataset before paging. Imported document-pinned packs can supply richer
+descriptions, with their own provenance, without changing the embedded edit policy. Character and
+owned-item names also show attribution.
 
 The **Cards** collection contains 145 individual Rebirth card types, with stored inventory quantities.
 Its 16 booster-pack types remain separate in the item catalog. Source labels duplicate display
@@ -278,9 +280,11 @@ The scoped catalog/F4/F8 delivery remains available; the enabled Phase 3 scalar/
 and Phase 5 individual bits are Experimental while owner validation continues in #31. Full Phase 4
 still needs effect descriptions/icons and persistent loadouts, and Phase 5 still needs separately
 researched folios, crafting, enemy intel, relationships and minigame modules. Fandom page/revision
-retrieval returned HTTP 403/402 during this round; no unpinned CC BY-SA text was embedded. The
-MIT data path above was available. Any later wiki extract must pin revisions and preserve
-CC BY-SA attribution/share-alike in its own dataset, source sidecar and UI provenance.
+retrieval returned HTTP 403/402 during the earlier metadata round; this asset round uses pinned
+Final Fantasy Wiki image URLs, official Square Enix / PlayStation descriptions and PowerPyx map
+captures under the owner decision dated 2026-10-29. Rights-reserved publisher assets are marked
+with that exact basis in both pack manifests and Sources panels. The MIT data path remains the
+identity/AP source, and the asset sidecars record image processing and attribution.
 
 ### Exact owner capture and validation checklist
 
@@ -417,7 +421,10 @@ profiles would violate the contract. F5/F7 exist already and need no replacement
 | --- | --- | --- |
 | Remake/Rebirth enemy indices and names (161/230), read-only enemy/relationship/craftsmanship layouts | Pinned MIT GTC `resource.ts` and `template.ts` for each game, linked in the [source sidecar](SaveToolkit.Plugins.FinalFantasy7/Resources/spatial-research.source.md) | MIT, RyudoSynbios; extracted unambiguous indices, retained display labels/groups, independently implemented fixed-width reads; no game-effect prose or art |
 | Rebirth folio candidates (238), crafting (220), minigame (168), equipment-reference offsets | [GTC template.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts), [shift overrides](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils.ts) | MIT, RyudoSynbios; filtered literal candidate metadata and independently implemented reference inspection; no topology/cost/art imports; sidecar and full notice retained |
-| Regional map link | [PowerPyx, 2024-02-29](https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/) | External reference only; no reuse licence established, no artwork/coordinates/text imported |
+| Regional map backgrounds | [PowerPyx, 2024-02-29](https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/) | Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29; six downscaled WebP backgrounds, no imported coordinates |
+| Catalogue icons | [Final Fantasy Wiki Remake item images](https://finalfantasy.fandom.com/wiki/Category:Final_Fantasy_VII_Remake_item_images) | Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29; selected 64px WebP icons |
+| Common item effects | [Gamer Guides consumables reference](https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables) | Attributed guide summaries for 21 common consumables; item/save joins remain unverified |
+| Official materia and weapon guidance | [Square Enix](https://www.square-enix-games.com/en_US/news/final-fantasy-vii-remake-screenshots), [PlayStation Blog](https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more) | Publisher text paraphrased with attribution; save joins and exact effects remain unverified |
 | Remake item categories/names (369) | [GTC resource.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts) | MIT, RyudoSynbios; extracted metadata, merged weapons, original summaries |
 | Remake weapons (32) | Same pinned Remake resource | MIT; extracted type/name rows, original identity description |
 | Remake materia (54) | Same pinned Remake resource | MIT; category/AP arrays, original AP summaries |
@@ -434,8 +441,9 @@ Retrieved 2026-10-28. Catalog source sidecars and full MIT notices accompany
 [Rebirth](SaveToolkit.Plugins.FinalFantasy7/ReferencePacks/ff7r.rebirth.en/catalog.source.md).
 The [progress sidecar](SaveToolkit.Plugins.FinalFantasy7/Resources/progress.source.md) documents
 selection/exclusion rules. Manifest attribution is shown by F2's Sources panel; F4 candidates and
-F8 descriptions/source columns retain provenance. No wiki text, artwork, NC parser or unlicensed
-implementation was bundled. Existing research-only sources and legacy extracts follow.
+F8 descriptions/source columns retain provenance. The [catalog sidecars](SaveToolkit.Plugins.FinalFantasy7/ReferencePacks/)
+record icon, map and official-description processing. Existing research-only sources and legacy
+extracts follow.
 
 
 - Local starting evidence: [format overview](../../docs/formats/README.md),

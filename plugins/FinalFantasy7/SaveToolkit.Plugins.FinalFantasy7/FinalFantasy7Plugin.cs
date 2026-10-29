@@ -35,6 +35,12 @@ public sealed class FinalFantasy7Plugin : IGamePlugin, ISaveDecoderProvider
             "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils.ts",
             RegionalMaps.ExternalMapUrl,
             "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts",
+            "https://finalfantasy.fandom.com/wiki/Category:Final_Fantasy_VII_Remake_item_images",
+            "https://finalfantasy.fandom.com/wiki/Final_Fantasy_Wiki:Copyrights",
+            "https://www.square-enix-games.com/en_US/news/final-fantasy-vii-remake-screenshots",
+            "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
+            "https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables",
+            "https://www.powerpyx.com/terms-of-service/",
         ],
     };
 

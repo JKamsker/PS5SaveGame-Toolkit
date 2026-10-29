@@ -64,7 +64,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
             });
             _collections = new(_gameplay, _references, Bind, progress);
             _collections.Add(new EnemyIntel(bytes, schema).Collection());
-            _maps = new(progress);
+            _maps = new(progress, _references);
             if (!schema.IsRemake)
             {
                 _folios = new(bytes, _references, Bind);

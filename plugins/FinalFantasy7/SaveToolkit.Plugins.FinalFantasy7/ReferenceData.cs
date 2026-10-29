@@ -8,7 +8,8 @@ namespace SaveToolkit.Plugins.FinalFantasy7;
 /// <summary>Optional document-pinned packs override individual records; fallback entries remain available.</summary>
 internal sealed class ReferenceData(IReferenceContext context, Ff7Schema schema)
 {
-    public AssetContent? GetAsset(string assetId) => context.GetAsset(assetId);
+    public AssetContent? GetAsset(string assetId) => context.GetAsset(assetId) ?? EmbeddedCatalogs.Asset(assetId);
+    public ReferenceDatasetInfo? AssetProvenance(string assetId) => context.AssetProvenance(assetId) ?? EmbeddedCatalogs.AssetProvenance(assetId);
     private readonly Dictionary<string, IReadOnlyList<ReferenceRecord>> _catalogs = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyDictionary<uint, ReferenceRecord>> _byId = new(StringComparer.Ordinal);
 
