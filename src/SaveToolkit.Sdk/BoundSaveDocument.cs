@@ -5,7 +5,7 @@ namespace SaveToolkit.Sdk;
 
 /// <summary>
 /// Convenience base for documents whose values map to getter/setter pairs on an in-memory model.
-/// Call <see cref="Field"/> while building views; it registers the binding and returns the node.
+/// Register storage with <see cref="RegisterField"/>, or register and render with Field while building views.
 /// Batches are applied atomically: on a validation failure or exception every applied edit is rolled back.
 /// </summary>
 public abstract class BoundSaveDocument : ISaveDocument
@@ -51,9 +51,37 @@ public abstract class BoundSaveDocument : ISaveDocument
         Action<FieldValue>? set = null,
         Func<FieldValue, string?>? validate = null)
     {
+        RegisterField(valueId, spec, get, set, validate);
         var effectiveSpec = set is null ? spec with { ReadOnly = true } : spec;
-        _bindings[valueId] = new Binding(get, set, validate);
         return new FieldNode(valueId, label, effectiveSpec, get());
+    }
+
+    /// <summary>
+    /// Registers or replaces storage without reading its value or constructing a view node.
+    /// Retains the spec, getter, optional setter and validator for later use. Without a setter the
+    /// binding is read-only. Render it later with <see cref="Field(string, string)"/>.
+    /// Structural changes and memento restores clear these bindings just like view registrations.
+    /// Spec checks still belong to the host when it receives an edit for a published field;
+    /// <see cref="ApplyEdits"/> runs the optional custom validator, as for fields registered by Field.
+    /// </summary>
+    protected void RegisterField(
+        string valueId,
+        FieldSpec spec,
+        Func<FieldValue> get,
+        Action<FieldValue>? set = null,
+        Func<FieldValue, string?>? validate = null) =>
+        _bindings[valueId] = new Binding(spec, get, set, validate);
+
+    /// <summary>
+    /// Renders a registered binding using its current value and retained spec, without replacing it.
+    /// A binding without a setter is displayed as read-only even if its original spec was editable.
+    /// Throws <see cref="KeyNotFoundException"/> for an unregistered value id.
+    /// </summary>
+    protected FieldNode Field(string valueId, string label)
+    {
+        var binding = Lookup(valueId);
+        var spec = binding.Set is null ? binding.Spec with { ReadOnly = true } : binding.Spec;
+        return new FieldNode(valueId, label, spec, binding.Get());
     }
 
     /// <inheritdoc />
@@ -225,5 +253,5 @@ public abstract class BoundSaveDocument : ISaveDocument
     {
     }
 
-    private sealed record Binding(Func<FieldValue> Get, Action<FieldValue>? Set, Func<FieldValue, string?>? Validate);
+    private sealed record Binding(FieldSpec Spec, Func<FieldValue> Get, Action<FieldValue>? Set, Func<FieldValue, string?>? Validate);
 }
