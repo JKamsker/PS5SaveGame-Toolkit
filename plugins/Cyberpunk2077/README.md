@@ -48,6 +48,45 @@ Matched fresh-process median first load (packs + largest sample + root): **372.5
 allocated bytes **136,135,608 → 140,845,168**. Timing is noisy; no speedup claim. See
 [ASSET-VALIDATION.md](ASSET-VALIDATION.md) for raw timings, methodology, cache behavior and sizes.
 
+## Malformed-input robustness review (#40)
+
+The plugin rejects malformed CSAV containers, directories and required known records with a
+contextual `SaveFormatException` (the SDK's documented format rejection). Optional read-only
+inspection readers retain their existing warning/raw-data fallback for unsupported or malformed
+inner schemas. Existing limits remain **128 MiB input, 64 MiB total expanded payload, 4,096 chunks,
+100,000 nodes, 128 nested parent levels and 1,024 ASCII bytes per node name**. Counts and ranges
+are checked before their corresponding allocations or traversal; these are editor budgets.
+
+Fixed: a declared child could point to the following sibling or inherited parent boundary, leaving
+an accepted empty branch whose child list contradicted the directory. `CsavTree` now rejects that
+link before descending. Both authored corruption cases failed before the fix; valid direct and
+nested controls retain exact tree relationships and byte-identical no-op output.
+
+Added **85 cases**: 77 synthetic cases and eight sample mutation cases (each visits every supplied
+gameplay snapshot/backup). Coverage includes multi-chunk overlaps, invalid/overflowing stored and
+expanded lengths, cumulative expansion rejection before decoding, truncated wrappers/LZ4 grammar,
+chunk/directory truncations with intact footers, node IDs/ranges/links, complete-table count/depth
+boundaries, packed integer/name/fact errors and deterministic byte mutations. Sample payloads are
+mutated and independently framed in memory; private files are neither changed nor copied into the
+repository. Accepted controls preserve original bytes. No elapsed-time assertions or sleeps.
+
+Research rechecked the pinned WolvenKit
+[CSAV reader](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/IO/CyberpunkSaveReader.cs),
+[RED package reader](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Archive/IO/RedPackageReader.File.cs)
+and [persistency reader/writer](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Save/Parser/PersistencySystem2Parser.cs)
+(WolvenKit contributors, GPL-3.0; format research only, no code copied). The garage's outer class
+may end at its byte boundary without a terminator; this is intentional, while nested vehicle
+terminators remain required. The [LZ4 block specification](https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md)
+(LZ4 contributors, format research) also confirms that the final literal sequence ignores its match
+nibble; a positive control retains this accepted case. Unknown gaps/directory extensions stay opaque.
+
+Validation: baseline **173 passed / 0 failed / 0 skipped**; final Release suite **258/0/0**;
+sample-free suite **149 passed / 0 failed / 109 expected sample skips**. All 77 new synthetic cases
+run without samples. Full Release API build with warnings as errors: **0 warnings / 0 errors**.
+TRX/build evidence: `D:/Temp/saveeditor/reviews/review-robust-cyberpunk2077/`.
+Experimental maturity, write warnings, no-op preservation and existing edit/history coverage remain
+unchanged. No confirmed findings deferred; changes stay inside this plugin folder.
+
 ## Framework feature adoption
 
 Performance review (#40): compact merged fact identities and lazy stable-key paging reduce
