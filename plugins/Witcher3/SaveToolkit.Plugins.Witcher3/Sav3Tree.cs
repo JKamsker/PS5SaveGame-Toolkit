@@ -61,11 +61,6 @@ internal sealed class Sav3Tree
         // Indexed BS spans already describe their children. SS wraps a separate, non-indexed archive.
         foreach (var (node, depth) in archives)
         {
-            if (node.Size < 6 || BinaryData.Int32(data, node.Offset + 2) != node.Size - 6)
-            {
-                throw new SaveFormatException("SAV3 SS archive size disagrees with its indexed span.");
-            }
-
             result.ReadSequence(node.Offset + 6, node.Offset + node.Size, node.Children, depth);
         }
 
@@ -192,6 +187,11 @@ internal sealed class Sav3Tree
         }
 
         _ = BinaryData.Slice(raw, 0, opaque ? 0 : valueStart);
+        if (tag is "SS" or "BLCK" or "PORP" or "AVAL" && BinaryData.Int32(raw, valueStart - sizeof(int)) != size - valueStart)
+        {
+            throw new SaveFormatException($"SAV3 {tag} token length disagrees with its indexed or embedded span.");
+        }
+
         var node = new Sav3Node(Nodes.Count, offset, size, tag, name ?? $"Bytes at 0x{offset:X}", type, offset + valueStart, size - valueStart);
         Nodes.Add(node);
         return node;
