@@ -20,7 +20,7 @@ public sealed record LosslessJsonLimits
     public int MaxBytes { get; init; } = DefaultMaxBytes;
     /// <summary>Maximum object/array nesting depth.</summary>
     public int MaxDepth { get; init; } = DefaultMaxDepth;
-    /// <summary>Maximum number of lexical tokens, including names and delimiters.</summary>
+    /// <summary>Maximum number of JSON value nodes, including containers and scalars.</summary>
     public int MaxTokens { get; init; } = DefaultMaxTokens;
     /// <summary>Maximum number lexeme length. This cannot exceed <see cref="Values.ExactJsonNumber.HardMaxLength"/>.</summary>
     public int MaxNumberLength { get; init; } = Values.ExactJsonNumber.DefaultMaxLength;

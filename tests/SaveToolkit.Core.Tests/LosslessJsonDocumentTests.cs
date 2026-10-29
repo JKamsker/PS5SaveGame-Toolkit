@@ -140,4 +140,103 @@ public sealed class LosslessJsonDocumentTests
         Assert.Equal("{\"x\":1}", Encoding.UTF8.GetString(document.Serialize()));
         Assert.Equal("1", document.Root.Children[0].CurrentLexeme);
     }
+
+    [Theory]
+    [InlineData("\"unterminated")]
+    [InlineData("\"\\u12G4\"")]
+    [InlineData("tru")]
+    [InlineData("1e+")]
+    public void MalformedScalarReplacementUsesSdkExceptionAndLeavesAllStateUnchanged(string replacement)
+    {
+        var bytes = Encoding.UTF8.GetBytes("0");
+        var document = LosslessJsonDocument.Parse(bytes);
+        var node = document.Root;
+        var snapshot = document.CaptureSnapshot();
+
+        Assert.Throws<LosslessJsonException>(() => document.ReplaceScalar(node, replacement));
+        Assert.Equal("0", node.CurrentLexeme);
+        Assert.Equal(LosslessJsonNodeKind.Number, node.Kind);
+        Assert.Equal(snapshot.Replacements, document.CaptureSnapshot().Replacements);
+        Assert.Equal(bytes, document.Serialize());
+    }
+
+    [Theory]
+    [InlineData("[?]", 1)]
+    [InlineData("[\n?]", 2)]
+    [InlineData("[\r\n?]", 3)]
+    [InlineData("\uFEFF[\n?]", 5)]
+    [InlineData("[\"é\",?]", 6)]
+    public void SyntaxErrorsReportAbsoluteOriginalByteOffsets(string source, int expectedOffset)
+    {
+        var exception = Assert.Throws<LosslessJsonException>(() => LosslessJsonDocument.Parse(Encoding.UTF8.GetBytes(source)));
+
+        Assert.Equal(expectedOffset, exception.ByteOffset);
+    }
+
+    [Fact]
+    public void InvalidUtf8WinsBeforeSyntaxDiagnostics()
+    {
+        var bytes = new byte[] { (byte)'[', 0xC3, (byte)'?', (byte)']' };
+
+        var exception = Assert.Throws<LosslessJsonException>(() => LosslessJsonDocument.Parse(bytes));
+
+        Assert.Equal(1, exception.ByteOffset);
+        Assert.Contains("UTF-8", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void OversizedExponentAndLexemeRemainReadableAcrossTypedUndoRedo()
+    {
+        var longNumber = new string('7', LosslessJsonLimits.Default.MaxNumberLength + 1);
+        var source = $"{{\"exponent\":1e1000000000,\"long\":{longNumber},\"flag\":false,\"text\":\"old\"}}";
+        var document = LosslessJsonDocument.Parse(Encoding.UTF8.GetBytes(source));
+        var exponent = document.Root.Children[0];
+        var longValue = document.Root.Children[1];
+        var flag = document.Root.Children[2];
+        var text = document.Root.Children[3];
+        var original = document.CaptureSnapshot();
+
+        Assert.True(document.ReplaceScalar(flag, "true"));
+        Assert.True(document.ReplaceScalar(text, "\"new\""));
+        var changed = document.CaptureSnapshot();
+        document.RestoreSnapshot(original);
+        Assert.Equal(source, Encoding.UTF8.GetString(document.Serialize()));
+        Assert.Equal("1e1000000000", exponent.CurrentLexeme);
+        Assert.Equal(longNumber, longValue.CurrentLexeme);
+        Assert.False(flag.BooleanValue);
+        Assert.Equal("old", text.StringValue);
+
+        document.RestoreSnapshot(changed);
+        Assert.True(flag.BooleanValue);
+        Assert.Equal("new", text.StringValue);
+        Assert.Equal("1e1000000000", exponent.CurrentLexeme);
+        Assert.Equal(longNumber, longValue.CurrentLexeme);
+        document.RestoreSnapshot(original);
+        Assert.Equal(source, Encoding.UTF8.GetString(document.Serialize()));
+    }
+
+    [Fact]
+    public void CumulativeUtf8BudgetIncludesBomTriviaAndSupportsShrinkRevert()
+    {
+        var source = Encoding.UTF8.GetBytes("\uFEFF [1,2] \r\n");
+        var limits = new LosslessJsonLimits { MaxBytes = source.Length + 5 };
+        var document = LosslessJsonDocument.Parse(source, limits);
+        var first = document.Root.Children[0];
+        var second = document.Root.Children[1];
+
+        Assert.True(document.ReplaceScalar(first, "\"é\""));
+        Assert.True(document.ReplaceScalar(first, "\"éé\""));
+        Assert.Throws<LosslessJsonException>(() => document.ReplaceScalar(second, "\"ß\""));
+        Assert.Equal("\"éé\"", first.CurrentLexeme);
+        Assert.Equal("2", second.CurrentLexeme);
+        Assert.Equal(source.Length + 5, document.Serialize().Length);
+
+        Assert.True(document.ReplaceScalar(first, "1"));
+        Assert.Equal(source, document.Serialize());
+        Assert.True(document.ReplaceScalar(second, "\"ß\""));
+        var output = document.Serialize();
+        Assert.Equal(source.Length + 3, output.Length);
+        var reopened = LosslessJsonDocument.Parse(output, limits);
+        Assert.Equal("ß", reopened.Root.Children[1].StringValue);
+    }
 }

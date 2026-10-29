@@ -45,6 +45,9 @@ The default safety envelope matches the existing JSON plugins: 16 MiB input, 64 
 accepts the optional UTF-8 BOM and JSON whitespace that existing parsers accept. Comments, trailing
 commas, multiple roots, invalid UTF-8 and unpaired Unicode surrogates are rejected. A
 `LosslessJsonException` reports a bounded parse/limit error and, when known, the byte offset.
+For parser syntax errors, `ByteOffset` is an absolute byte coordinate in the original input,
+including an optional BOM and multibyte UTF-8 preceding the error. Malformed scalar replacement
+syntax is normalized to the same SDK exception before any document state changes.
 
 The implementation uses .NET's `Utf8JsonReader` for grammar and escape validation and
 `ExactJsonNumber` for replacement-number validation. See the [Utf8JsonReader documentation](https://learn.microsoft.com/dotnet/api/system.text.json.utf8jsonreader)

@@ -65,8 +65,7 @@ public sealed class LosslessJsonDocument
         }
         catch (JsonException ex)
         {
-            throw new LosslessJsonException("Invalid JSON syntax.", ex.BytePositionInLine is { } position
-                ? checked((int)position) : null, ex);
+            throw new LosslessJsonException("Invalid JSON syntax.", AbsoluteOffset(source, bom: source.AsSpan().StartsWith("\uFEFF"u8), ex), ex);
         }
         catch (LosslessJsonException)
         {
@@ -224,5 +223,27 @@ public sealed class LosslessJsonDocument
     {
         if (!_byId.TryGetValue(node.Id, out var owned) || !ReferenceEquals(node, owned))
             throw new ArgumentException("The node belongs to another JSON document.", nameof(node));
+    }
+
+    private static int? AbsoluteOffset(byte[] source, bool bom, JsonException exception)
+    {
+        if (exception.BytePositionInLine is not { } position || position < 0 ||
+            exception.LineNumber is { } line && line < 0)
+            return null;
+        var start = bom ? 3 : 0;
+        var targetLine = exception.LineNumber ?? 0;
+        var lineNumber = 0L;
+        var lineStart = start;
+        for (var index = start; index < source.Length && lineNumber < targetLine; index++)
+        {
+            if (source[index] == (byte)'\n')
+            {
+                lineNumber++;
+                lineStart = index + 1;
+            }
+        }
+        if (lineNumber != targetLine) return null;
+        var offset = checked((long)lineStart + position);
+        return offset <= source.Length ? checked((int)offset) : null;
     }
 }

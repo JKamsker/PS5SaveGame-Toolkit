@@ -31,25 +31,33 @@ internal static class LosslessJsonScalar
         byte[] bytes;
         try { bytes = StrictUtf8.GetBytes(lexeme); }
         catch (EncoderFallbackException ex) { throw new LosslessJsonException("Replacement contains an unpaired Unicode surrogate.", ex.Index, ex); }
-        var reader = new Utf8JsonReader(bytes, new JsonReaderOptions());
-        if (!reader.Read() || reader.TokenStartIndex != 0 || reader.BytesConsumed != bytes.Length ||
-            reader.TokenType is JsonTokenType.StartObject or JsonTokenType.EndObject or JsonTokenType.StartArray or JsonTokenType.EndArray or JsonTokenType.PropertyName)
-            throw new LosslessJsonException("Replacement must be exactly one JSON scalar.");
-        ParsedScalar parsed;
-        try { parsed = FromReader(reader, lexeme, limits); }
-        catch (InvalidOperationException ex)
+        try
         {
-            throw new LosslessJsonException("Replacement contains an invalid Unicode escape.", null, ex);
-        }
-        if (parsed.Kind == LosslessJsonNodeKind.Number)
-        {
-            var error = ExactJsonNumber.Validate(lexeme, new ExactNumberSpec
+            var reader = new Utf8JsonReader(bytes, new JsonReaderOptions());
+            if (!reader.Read() || reader.TokenStartIndex != 0 || reader.BytesConsumed != bytes.Length ||
+                reader.TokenType is JsonTokenType.StartObject or JsonTokenType.EndObject or JsonTokenType.StartArray or JsonTokenType.EndArray or JsonTokenType.PropertyName)
+                throw new LosslessJsonException("Replacement must be exactly one JSON scalar.");
+            ParsedScalar parsed;
+            try { parsed = FromReader(reader, lexeme, limits); }
+            catch (InvalidOperationException ex)
             {
-                MaxLength = Math.Min(limits.MaxNumberLength, ExactJsonNumber.HardMaxLength),
-                MaxAbsoluteExponent = Math.Min(limits.MaxAbsoluteExponent, ExactJsonNumber.HardMaxAbsoluteExponent)
-            });
-            if (error is not null) throw new LosslessJsonException(error);
+                throw new LosslessJsonException("Replacement contains an invalid Unicode escape.", null, ex);
+            }
+            if (parsed.Kind == LosslessJsonNodeKind.Number)
+            {
+                var error = ExactJsonNumber.Validate(lexeme, new ExactNumberSpec
+                {
+                    MaxLength = Math.Min(limits.MaxNumberLength, ExactJsonNumber.HardMaxLength),
+                    MaxAbsoluteExponent = Math.Min(limits.MaxAbsoluteExponent, ExactJsonNumber.HardMaxAbsoluteExponent)
+                });
+                if (error is not null) throw new LosslessJsonException(error);
+            }
+            return parsed;
         }
-        return parsed;
+        catch (JsonException ex)
+        {
+            var offset = ex.BytePositionInLine is { } position ? checked((int)position) : (int?)null;
+            throw new LosslessJsonException("Invalid JSON scalar replacement.", offset, ex);
+        }
     }
 }
