@@ -34,11 +34,11 @@
       ],
       "attribution": {
         "sourceUrl": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
-        "author": "God of War Wiki contributors; Santa Monica Studio; MapGenie contributors",
-        "license": "Rights reserved by Santa Monica Studio; used with attribution per owner decision 2026-10-29",
+        "author": "God of War Wiki contributors; Sony Interactive Entertainment; Santa Monica Studio; MapGenie contributors",
+        "license": "Rights reserved by Sony/Santa Monica/MapGenie; used with attribution per owner decision 2026-10-29",
         "licenseUrl": "https://www.fandom.com/licensing",
         "retrieved": "2026-10-29",
-        "modifications": "Selected six catalogue records with short factual descriptions; no saved-state mapping asserted."
+        "modifications": "Selected eleven catalogue records: six gear/rune/map references and five skill thumbnails, with short factual descriptions; no saved-state mapping asserted."
       }
     },
     {
@@ -93,11 +93,11 @@
       ],
       "attribution": {
         "sourceUrl": "https://mapgenie.io/god-of-war-ragnarok/maps/midgard",
-        "author": "God of War Wiki contributors; MapGenie contributors; Santa Monica Studio",
-        "license": "Rights reserved by MapGenie; used with attribution per owner decision 2026-10-29",
+        "author": "God of War Wiki contributors; Sony Interactive Entertainment; Santa Monica Studio; MapGenie contributors",
+        "license": "Rights reserved by Sony/Santa Monica/MapGenie; used with attribution per owner decision 2026-10-29",
         "licenseUrl": "https://www.fandom.com/licensing",
         "retrieved": "2026-10-29",
-        "modifications": "Downscaled gear/rune images to 96 px or less and stitched four MapGenie z9 tiles into a 512x512 WebP background."
+        "modifications": "Downscaled gear/rune images and five skill showcase frames to 96 px or less and stitched four MapGenie z9 tiles into a 512x512 WebP background."
       }
     }
   ]

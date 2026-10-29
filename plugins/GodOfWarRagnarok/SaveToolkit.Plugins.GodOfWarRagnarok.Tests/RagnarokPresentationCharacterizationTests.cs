@@ -11,9 +11,9 @@ namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 public sealed class RagnarokPresentationCharacterizationTests
 {
     [Theory]
-    // Complete protocol fingerprints captured before refactoring, with invariant formatting.
-    [InlineData("legacy", "9D4BF2325F35249539932366688EB041600F385048C063A9BE86EA1D8B43DA6D")]
-    [InlineData("nested", "AF87DDD21F7F1E4BE8BF45EC04A2799B151602FE7989FE5B6EFC12AC30CDCA0F")]
+    // Complete protocol fingerprints with invariant formatting; gameplay attribution corrected in #40 docs accuracy.
+    [InlineData("legacy", "BD8583A6FF856D5524AEE811D67C19A5AD5F5478F88D3DAD9D4335B495B31F46")]
+    [InlineData("nested", "D695E36067E75727590C9532CFDB63756FC1F80FAD9B386D30F5CC37D6A82717")]
     [InlineData("preferences", "3156507C9278A56220BE0198021362CE9C2B922B319919E98A219AE1B5DB0960")]
     public void ViewsCollectionsAndInspectionRetainTheirCompleteProtocol(string kind, string expected)
     {

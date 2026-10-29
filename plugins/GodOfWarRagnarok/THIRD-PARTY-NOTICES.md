@@ -32,6 +32,23 @@ No third-party implementation was copied; the importer and lookup/decoding integ
 | ProtoBuffers / xcier / God of War IDs spreadsheet contributors, GoW Save Lab | `9342d5f3967ef74bac1161581dc4eab8bb41760d`: `gow2018_items.json`, 1,682 factual ID/name/category/internal-name crosswalk candidates, explicitly marked 2018 / Unknown | [Pinned source, hash and transformation](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.2018.en/tables.source.md) |
 
 Attribution appears in the F2 manifests/records, README, `Info.References`, F8 source cells,
-F4 descriptions and F12 labels. No Sony/Santa Monica art, textures, icons, screenshots, extracted
-dialogue or game prose is included. Gear/quest labels are not promoted to verified Ragnarök
+F4 descriptions and F12 labels. These runtime/2018 datasets contain no publisher art or game
+prose; the separately attributed visual catalogue below does. Gear/quest labels are not promoted to verified Ragnarök
 semantics; all existing write warnings and conservative ceilings remain intact.
+
+## Visual assets and skill facts (owner decision 2026-10-29)
+
+The plugin embeds selected game images and short weapon descriptions. Publisher assets retain
+`Rights reserved by Sony Interactive Entertainment and Santa Monica Studio; used with attribution
+per owner decision 2026-10-29`; the mixed gear/rune/map/skill pack also credits MapGenie.
+This owner decision is not an upstream licence grant. Retrieved 2026-10-29:
+
+| Dataset / rights holders | Imported material and changes | Provenance |
+| --- | --- | --- |
+| God of War Wiki contributors; Sony Interactive Entertainment / Santa Monica Studio | Two compact resource icons; existing resource-name facts remain separately CC BY-SA 3.0 | [Resource icon sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.ps5.en/assets.source.md) |
+| God of War Wiki contributors; Sony Interactive Entertainment / Santa Monica Studio; MapGenie | Eleven visual records: six gear/rune/map references and five skill thumbnails; compact WebP images, short factual descriptions and a 512x512 Midgard tile mosaic | [Asset sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.assets.en/assets.source.md) |
+| God of War Wiki contributors, retrieved 2026-10-28 | 81 skill-name/branch/requirement/prerequisite facts; CC BY-SA 3.0 adaptations retain attribution/share-alike; no saved-state mapping | [Skill-facts sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.skills.en/skills.source.md) |
+
+The skill-facts pack contains no image files. Skill thumbnails resolve from the visual catalogue.
+No bulk dialogue, texture or wiki extraction is included, and no map coordinates or ownership,
+equipped-state or skill-unlock joins are asserted.

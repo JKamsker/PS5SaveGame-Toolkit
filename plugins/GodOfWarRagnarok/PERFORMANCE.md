@@ -87,10 +87,13 @@ No new layout, checksum, compression or gameplay claim was introduced.
 
 ## Validation
 
-The baseline had 170 passing cases. Final Release validation has **218 passed, zero failed and
+The performance-round baseline had 170 passing cases. That round's final Release validation recorded **218 passed, zero failed and
 zero skipped** with private samples, including all 156 archive-record byte-identical round trips,
 the recent robustness and CRC migration characterizations and existing write/history tests.
 No original test case was removed. With the artifacts variable explicitly unset in the same shell,
 **170 pass and 48 cleanly skip** (the original 43 sample cases and five new sample allocation cases).
 All 43 added synthetic cases execute without samples. API Release build with `--warnaserror` has
 zero warnings and errors. All handwritten plugin C# remains under 300 lines.
+
+These are historical performance-round measurements and test totals, not current-suite counts.
+Subsequent maintainability and documentation validation is recorded in [README.md](README.md#bounds-and-tests).
