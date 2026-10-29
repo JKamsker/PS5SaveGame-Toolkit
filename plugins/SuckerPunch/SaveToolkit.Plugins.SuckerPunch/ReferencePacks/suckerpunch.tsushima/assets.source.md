@@ -4,7 +4,7 @@ Retrieved: **2026-10-29**. Game artwork and quoted game text: **Sony Interactive
 
 **Rights reserved by Sony Interactive Entertainment / Sucker Punch Productions; used with attribution per owner decision 2026-10-29**. This notice records the repository owner policy, not a new publisher licence. Wiki text adaptations retain [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
-Prepared only in `%TEMP%/suckerpunch-assets`, using Python `-I`, Pillow image-header verification, bounded dimensions and WebP/PNG-8 encoding. No downloaded code was executed. Sources are pinned by retrieval date and downloaded-content SHA-256 below; output SHA-256 values are independently recorded in pack.json. The legacy images.wikia.com endpoint supplies the same wiki file when static.wikia.nocookie.net returns HTTP 403.
+Historical preparation used `%TEMP%/suckerpunch-assets`, Python `-I`, Pillow image-header verification, bounded dimensions and WebP/PNG-8 encoding. For new work, put scratch and TEMP/TMP under `D:/Temp/saveeditor/test-scratch/<branch>` as required by the review brief. No downloaded code was executed. Sources are pinned by retrieval date and downloaded-content SHA-256 below; output SHA-256 values are independently recorded in pack.json. The legacy images.wikia.com endpoint was used when static.wikia.nocookie.net returned HTTP 403.
 
 ## Icon bindings
 
@@ -121,13 +121,15 @@ Prepared only in `%TEMP%/suckerpunch-assets`, using Python `-I`, Pillow image-he
 
 ## Whole-island map
 
+Local output: `maps/tsushima.webp` in this pack's `suckerpunch_map_art` dataset.
+
 [Map of Tsushima](https://ghostfranchise.fandom.com/wiki/File:Map_of_Tsushima.png), [download](https://images.wikia.com/ghostoftsushima/images/9/98/Map_of_Tsushima.png). Download SHA-256: `5801736276d60659f9f916d98c680d6ad6b0049e134cef425dc7d4bfdd90ff1e`. Resized 2160x3840 to 1152x2048 (WebP quality 78, **78140 bytes**), without crop, rotation or axis changes.
 
 The image has no calibrated shrine or saved-coordinate transform. It is a reference background only: all 17 shrine markers remain unpositioned, Unknown, and available in the text list. No native/world coordinate claims are derived from image dimensions. `MapBounds(0,0,1152,2048)` describes image pixels only; the identity transform does not locate a shrine. Missing art/provenance falls back to the schematic/list view. Iki is outside this background; no Iki point is assigned a guessed Tsushima position.
 
 ## Official descriptions
 
-157 catalogue descriptions: 18 technique guide, 4 existing Inferred stance mappings, 79 charm effects, 41 sword-kit flavor descriptions, 1 existing Inferred Storm of Clan Sakai mapping, and 14 armor descriptions. Transcribed from the existing pinned Techniques/Charms/Sword Kits revisions and these armor articles; removed button glyph instructions and retained existing factual acquisition summaries, normalized markup/spacing. Fundoshi retains its existing factual acquisition summary because its article has no explicit in-game-description quote. No quest text or Yōtei assets are claimed: the Yōtei view has no identified gameplay catalogue to attach them to.
+157 catalogue descriptions: 18 technique guide, 4 existing Inferred stance mappings, 79 charm effects, 41 sword-kit flavor descriptions, 1 existing Inferred Storm of Clan Sakai mapping, and 14 armor descriptions. Transcribed from the existing pinned Techniques/Charms/Sword Kits revisions and these armor articles; removed button glyph instructions and retained existing factual acquisition summaries, normalized markup/spacing. Fundoshi retains its existing factual acquisition summary because its article has no explicit in-game-description quote. This Tsushima pack contains no quest text or Yōtei assets. The separate [Yōtei pack](../suckerpunch.yotei/assets.source.md) now supplies three screenshot symbols and a Horizon View excerpt for its inventory/reference guides; saved gear/technique joins and official effect text remain unverified.
 
 - [Archery_Master%27s_Attire?oldid=29382](https://ghostfranchise.fandom.com/wiki/Archery_Master%27s_Attire?oldid=29382)
 - [Broken_Armor?oldid=29370](https://ghostfranchise.fandom.com/wiki/Broken_Armor?oldid=29370)
