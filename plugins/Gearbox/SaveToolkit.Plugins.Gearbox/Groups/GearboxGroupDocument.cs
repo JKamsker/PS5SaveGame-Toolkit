@@ -108,8 +108,9 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
-        var fresh = PlanAction(actionId, parameters, scope);
-        if (fresh.Errors.Count > 0) return new() { Errors = fresh.Errors };
+        var validation = ActionPlans.Revalidate(plan, () => PlanAction(actionId, parameters, scope), new("", "The Gearbox group preview changed; preview again before applying."));
+        var fresh = validation.Plan;
+        if (!validation.Succeeded) return new() { Errors = validation.Errors, Warnings = fresh.Warnings };
         if (fresh.Changes.Count == 0) return new() { Warnings = fresh.Warnings };
         var before = CaptureMemento();
         try
@@ -118,7 +119,12 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
             else
             {
                 var member = Member(actionId);
-                var outcome = member.Document.ApplyActionPlan(member.Local(actionId), parameters, LocalScope(member, scope), plan);
+                var localPlan = fresh with
+                {
+                    Changes = fresh.Changes.Select(c => c with { ValueId = member.Local(c.ValueId) }).ToArray(),
+                    SkippedRows = fresh.SkippedRows.Select(s => s with { RowKey = member.Local(s.RowKey) }).ToArray(),
+                };
+                var outcome = member.Document.ApplyActionPlan(member.Local(actionId), parameters, LocalScope(member, scope), localPlan);
                 if (!outcome.Succeeded) { _ = RestoreMemento(before); return outcome; }
             }
             _ = Serialize();
@@ -133,6 +139,12 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         var local = member.Local(key);
         var separator = local.IndexOf('/');
         if (separator < 0) throw new SaveFormatException("The selection is not an existing item row in this member.");
+        if (local[..separator] == "ammo")
+        {
+            if (scope.QueryScope is { } ammoQuery && member.Local(ammoQuery.CollectionId) != "ammo")
+                throw new SaveFormatException("The resolved ammo selection belongs to another collection.");
+            return local[(separator + 1)..];
+        }
         var entry = member.Document.Inventory.Find(local[(separator + 1)..]);
         if (local[..separator] != entry.List) throw new SaveFormatException("The item row belongs to another collection.");
         if (scope.QueryScope is { } query && member.Local(query.CollectionId) != entry.List)

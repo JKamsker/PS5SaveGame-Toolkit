@@ -13,6 +13,8 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     private readonly Dictionary<string, Func<FieldValue>> _readers = new(StringComparer.Ordinal);
     private readonly GearboxLazyViews _lazy = new();
     private readonly GearboxSerialIntegrity _serialIntegrity = new(root, container.Profile);
+    private readonly GearboxAmmoRestore _ammoOpening = new(root, container.Profile);
+    private GearboxCoverageActions CoverageActions => new(this, _ammoOpening);
     private int _highestLevel = container.Profile ? 0 : root.Schema.Level(checked((int)root.Integer("experience_points")));
     private ItemBrowser? _items;
     private GearboxInventory? _inventory;
@@ -116,7 +118,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
 
     internal FieldNode Ammo(string id, Func<ProtoMessage> parent)
     {
-        const int maximumAmmo = 100_000;
+        const int maximumAmmo = GearboxAmmoRestore.Maximum;
         var current = parent().Float("amount");
         var editable = float.IsFinite(current) && current is >= 0 and <= maximumAmmo;
         return Bind(id, "Ammo", FloatSpec.Single with { Min = Math.Min(0, current), Max = Math.Max(maximumAmmo, current) },
@@ -198,14 +200,19 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        Actions.Plan(actionId, parameters, scope);
+        GearboxCoverageActions.Handles(actionId) ? CoverageActions.Plan(actionId, parameters, scope) : Actions.Plan(actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
-        var fresh = Actions.Plan(actionId, parameters, scope);
-        if (fresh.Errors.Count > 0) return new() { Errors = fresh.Errors };
+        var validation = ActionPlans.Revalidate(plan, () => PlanAction(actionId, parameters, scope), new("", "The Gearbox preview changed; preview again before applying."));
+        var fresh = validation.Plan;
+        if (!validation.Succeeded) return new() { Errors = validation.Errors, Warnings = fresh.Warnings };
         if (fresh.Changes.Count == 0) return new() { Warnings = fresh.Warnings };
-        var outcome = Structural(() => Actions.Apply(actionId, parameters, scope), SerialWrites.Warning);
+        var outcome = Structural(() =>
+        {
+            if (GearboxCoverageActions.Handles(actionId)) CoverageActions.Apply(actionId, parameters, fresh);
+            else Actions.Apply(actionId, parameters, scope);
+        }, SerialWrites.Warning);
         return new() { StructureChanged = true, Revert = outcome.Revert, Warnings = fresh.Warnings,
             Changes = fresh.Changes.Select(c => new ValueChange(c.ValueId, c.OldValue, c.NewValue)).ToArray() };
     }
