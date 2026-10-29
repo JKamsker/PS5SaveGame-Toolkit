@@ -137,15 +137,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         var parts = lazyId.Split('/');
         if (parts.Length == 3 && parts[0] == "spatial" && TryIndex(parts[2], out var spatialIndex))
         {
-            var nodes = parts[1] switch
-            {
-                "map" when _maps is not null => _maps.Expand(spatialIndex),
-                "folio" when _folios is not null => _folios.Expand(spatialIndex),
-                "sockets" when _sockets is not null => _sockets.Expand(spatialIndex),
-                _ => throw new KeyNotFoundException("Unknown FFVII spatial view."),
-            };
-            _spatialPublished = true;
-            return nodes;
+            return ExpandSpatial(parts[1], spatialIndex);
         }
         if (parts.Length == 2 && TryIndex(parts[1], out var index))
         {
@@ -185,6 +177,19 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         }
 
         throw new KeyNotFoundException($"Unknown FFVII section '{lazyId}'.");
+    }
+
+    private IReadOnlyList<ViewNode> ExpandSpatial(string kind, int index)
+    {
+        var nodes = kind switch
+        {
+            "map" when _maps is not null => _maps.Expand(index),
+            "folio" when _folios is not null => _folios.Expand(index),
+            "sockets" when _sockets is not null => _sockets.Expand(index),
+            _ => throw new KeyNotFoundException("Unknown FFVII spatial view."),
+        };
+        _spatialPublished = true;
+        return nodes;
     }
 
     public override ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
