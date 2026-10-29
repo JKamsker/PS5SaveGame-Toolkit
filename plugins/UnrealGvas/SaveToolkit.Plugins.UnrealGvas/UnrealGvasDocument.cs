@@ -169,7 +169,8 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     private FieldNode Bind(GvasNode node)
     {
         var scalar = node.Scalar!;
-        var writable = CanEdit && !IsIntegrityNode(node);
+        var actorLength = _schema.Kind == UnrealGvasSchemaKind.JediGameplay && node.Name == "UncompressedActorRecordsSize";
+        var writable = CanEdit && !IsIntegrityNode(node) && !actorLength;
         return Field(_ids[node], $"{node.Name} · {node.Type}", GvasScalarField.Spec(scalar), () => GvasScalarField.ToFieldValue(scalar),
             writable ? value => GvasScalarField.SetScalar(scalar, value) : null, value => GvasScalarField.Validate(scalar, value)) with
         {
@@ -177,7 +178,8 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
             Description = _integrityWarning is null
                 ? "Raw serialized property; the name and storage type are confirmed by its tag."
                 : "Existing serialized field observed in supplied title captures; gameplay meaning and integrity coverage remain unproven.",
-            Warning = _readOnlyReason ?? _integrityWarning ?? EditWarning,
+            Warning = actorLength ? "Read-only length of the preserved compressed actor stream. " + _integrityWarning
+                : _readOnlyReason ?? _integrityWarning ?? EditWarning,
         };
     }
 

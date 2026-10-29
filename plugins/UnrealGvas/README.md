@@ -114,6 +114,8 @@ cells, metadata-only files or malformed/partial database pairs.
 Compressed outer envelopes, including Hogwarts zlib and Astroneer wrappers, remain
 read-only until envelope recompression is verified. Database inspection is still
 available and serialization preserves the exact imported wrapper.
+Jedi's `UncompressedActorRecordsSize` also remains read-only: changing this paired
+length without rebuilding the preserved compressed actor stream invalidates it.
 
 ## Sample coverage and file roles
 
