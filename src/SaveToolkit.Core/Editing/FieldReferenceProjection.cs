@@ -98,7 +98,9 @@ internal sealed class FieldReferenceProjection(ISaveDocument document, ViewIndex
             FieldReferenceNode reference when _targets[reference.TargetValueId] is { } field => field with
             {
                 Label = reference.Label ?? field.Label,
-                Description = string.Join("\n", new[] { field.Description, reference.Description }.Where(text => !string.IsNullOrEmpty(text))),
+                Description = string.IsNullOrEmpty(reference.Description) ? field.Description
+                    : string.IsNullOrEmpty(field.Description) ? reference.Description
+                    : field.Description + "\n" + reference.Description,
             },
             SectionNode { LazyId: null } section => section with { Children = section.Children.Select(Map).ToArray() },
             TabsNode tabs => tabs with { Tabs = tabs.Tabs.Select(tab => tab with { Children = tab.Children.Select(Map).ToArray() }).ToArray() },

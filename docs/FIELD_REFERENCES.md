@@ -83,9 +83,17 @@ hundreds of large editable strings merely because the provider's unresolved refe
 An available reference becomes an ordinary `field` wire node with the canonical value ID, **the
 same resolved spec and live value** as every other presentation, and canonical evidence/warnings.
 Its optional label changes only the caption. Its description is appended to the canonical
-description, preserving attribution. Targets are resolved once per outgoing tree, not once per
+description, preserving attribution. Without nonempty contextual description text, the canonical
+description stays exact, including the distinction between absent (`null`) and empty (`""`).
+Targets are resolved once per outgoing tree, not once per
 projection. Metadata validation may independently probe bindings under its existing contract.
 The resolved presentation is never re-indexed as a new canonical publication.
+Already-open root, expansion and query responses stage the complete host index, including metadata
+and learned annotations, and publish it only after successful normalization. Failed responses leave
+previous bindings and remembered expansions/pages intact; failed expansions are not replayed during
+structural rebuild. The API also prepares the complete bounded collection envelope before publishing
+query bindings. Core hosts with their own response preparation can use `DocumentSession.QueryCollection<T>`
+to throw on preparation failure before publication; the existing page-returning overloads remain available.
 
 Unknown, retired, unannotated unloaded, or no-longer-live targets remain `fieldReference` nodes.
 The browser shows useful unavailable text with no editor or mutation fallback. Loading and failed

@@ -7,8 +7,9 @@ namespace SaveToolkit.Api.Infrastructure;
 internal static class CollectionPageResponse
 {
     internal const int MaximumBytes = 2 * 1024 * 1024;
+    private const string LimitMessage = "The collection page exceeds the response size limit.";
 
-    internal static IResult Create(QueryablePageDto page)
+    internal static IResult Create(QueryablePageDto page, bool throwOnLimit = false)
     {
         using var body = new LimitedStream();
         try
@@ -20,7 +21,9 @@ internal static class CollectionPageResponse
         }
         catch (ResponseLimitException)
         {
-            return Results.Json(new ErrorDto("The collection page exceeds the response size limit."),
+            if (throwOnLimit) throw new BadHttpRequestException(LimitMessage,
+                StatusCodes.Status413PayloadTooLarge);
+            return Results.Json(new ErrorDto(LimitMessage),
                 statusCode: StatusCodes.Status413PayloadTooLarge, options: ToolkitJson.Options);
         }
     }

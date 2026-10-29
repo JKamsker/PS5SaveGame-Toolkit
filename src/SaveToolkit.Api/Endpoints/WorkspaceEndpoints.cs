@@ -113,17 +113,18 @@ internal static class WorkspaceEndpoints
     private static IResult QueryCollection(HttpRequest request, DocumentRef document, string collectionId)
     {
         var (query, revision) = BindCollectionQuery(request);
-        QueryableCollectionPage page;
+        IResult response;
         try
         {
-            page = document.Value.QueryCollection(collectionId, query, revision, request.HttpContext.RequestAborted);
+            response = document.Value.QueryCollection(collectionId, query, revision,
+                page => CollectionPageResponse.Create(QueryablePageDto.From(page), throwOnLimit: true), request.HttpContext.RequestAborted);
         }
         catch (ArgumentException ex)
         {
             return Results.BadRequest(new ErrorDto(ex.Message));
         }
 
-        return CollectionPageResponse.Create(QueryablePageDto.From(page));
+        return response;
     }
 
     private static (QueryableCollectionQuery Query, long? Revision) BindCollectionQuery(HttpRequest request)
