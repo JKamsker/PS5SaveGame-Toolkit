@@ -12,27 +12,8 @@ internal sealed class FaithEvidenceDecoder : ISaveDecoderHook
     private const int MinimumPathDepth = 2;
     public string Id => "ffxvi-evidence";
 
-    public bool CanDecode(ISaveFile file)
-    {
-        if (file.Directory.TitleId is not ("PPSA10665" or "PPSA13803") ||
-            file.FileName is not ("game-save-data" or "system-save-data") &&
-            (file.FileName.Length != "game-save-data00".Length ||
-             !file.FileName.StartsWith("game-save-data0", StringComparison.Ordinal) || file.FileName[^1] is < '0' or > '9'))
-        {
-            return false;
-        }
-
-        var header = file.ReadHeader(FaithContainer.HeaderSize);
-        if (header.Length < FaithContainer.HeaderSize ||
-            BinaryPrimitives.ReadUInt32LittleEndian(header) != FaithContainer.HeaderSize)
-        {
-            return false;
-        }
-
-        var version = BinaryPrimitives.ReadUInt64LittleEndian(header.AsSpan(FaithContainer.VersionOffset));
-        var expected = file.FileName == "system-save-data" ? FaithContainer.SystemVersion : FaithContainer.GameVersion;
-        return version == expected;
-    }
+    public bool CanDecode(ISaveFile file) =>
+        FaithSaveIdentity.IsSupportedFile(file) && FaithSaveIdentity.HasMatchingHeader(file);
 
     public void Decode(ISaveFile file, ISaveDecodeSink sink)
     {
