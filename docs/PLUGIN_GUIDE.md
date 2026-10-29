@@ -748,7 +748,9 @@ The two methods are:
 `ActionScope.RowKeys == null` with no `QueryScope` means document scope. An **empty list means no selected rows**;
 never reinterpret it as all rows. Keys are the stable `TableRow.Key` values from F3 selection,
 not visible positions. A table-cell action takes the enclosing table's selection, including
-selected rows hidden by filters. Outside a table, the dialog explicitly shows document scope.
+selected rows hidden by filters. Sibling controls can opt into the
+[selection-table binding](#selection-table-binding-and-advisory-conformance-40); an unbound sibling
+uses document scope.
 Validate that every requested key belongs to the intended collection and is eligible. Do not
 retain or mutate the supplied parameters, scope or plan.
 
@@ -1242,6 +1244,32 @@ test `EmbeddedReferencePacks_AreValid` fails with the loader's message if a pack
 on a hash mismatch. Keep a `*.source.md` next to the data and the README table from rule 9 as well.
 The pack attribution does not replace them.
 
+### Embedded pack snapshot baseline
+
+[`EmbeddedPackHashes.txt`](../tests/SaveToolkit.Core.Tests/References/EmbeddedPackHashes.txt)
+pins one SHA-256 per embedded pack ID. `EmbeddedPackSnapshotTests.CoreCatalogsAndAssets_MatchPerPackSnapshots`
+compares decoded pack metadata, records, image bytes and attribution for each pack.
+`EmbeddedReferenceEquivalenceTests` also checks SDK/Core decoding and selection
+against the same pinned pack inventory. Adding a pack must not require re-pinning unrelated packs.
+
+After an intentional pack change, configure [scratch/TEMP](RELEASING.md#disk-and-scratch) and print
+the current values from the repository root:
+
+```powershell
+dotnet test --project tests/SaveToolkit.Core.Tests --configuration Release --filter-method '*PrintCurrentPackHashes' --explicit on --output Detailed
+```
+
+This explicit test only prints values; it never rewrites the baseline. Review the changed data and
+provenance, then manually add, update or remove only the affected `<pack-id> <SHA-256>` lines in
+`EmbeddedPackHashes.txt`. Re-run the snapshot and equivalence coverage:
+
+```powershell
+dotnet test --project tests/SaveToolkit.Core.Tests --configuration Release --filter-class '*Embedded*'
+```
+
+Plugin-only contributors must request this central baseline update from the maintainer when it is
+outside their assigned scope.
+
 ### Embedded fallback for direct opens
 
 `SaveToolkit.Sdk.References.EmbeddedReferenceContext` implements `IReferenceContext` using only
@@ -1445,8 +1473,10 @@ JSON-serialisability (incl. lazy sections), `GetValue` consistency, value/spec c
 byte-identical no-op serialisation and edit → serialise → re-open round trips.
 Override `ChooseEdits` to exercise a meaningful field (e.g. an item quantity).
 
-Core's cross-plugin detection matrix lives in
-`tests/SaveToolkit.Core.Tests/Detection/DetectionMatrix.txt`. It records plugin and fixture/file
+Core's `DetectionMatrixTests` pins its cross-plugin detection matrix in
+[`DetectionMatrix.txt`](../tests/SaveToolkit.Core.Tests/Detection/DetectionMatrix.txt).
+It covers 29 synthetic fixtures: the 28 conformance seeds plus a plain-character JSON overlap
+fixture. These are detection inputs, not additional mutation-fuzz seeds. It records plugin and fixture/file
 names with ranked claimants, never save bytes or values. The tests reuse every conformance class's
 `MutationFuzzSyntheticSeeds`, import each seed with its siblings and exercise the default workspace
 open path. All registered plugins are probed directly (exceptions must not be hidden by the catalog),

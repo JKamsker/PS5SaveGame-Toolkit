@@ -196,6 +196,9 @@ Check rows to select them for a table action. The page-header checkbox selects r
 that page. **Select all … filtered rows** includes matching rows on other pages; you can
 exclude individual rows afterward. Review the selected count and clear unwanted
 selections before starting an action. A filter alone is not a selection.
+Actions beside a table can also use its selection when the plugin binds them to that
+table; their hint names the table. Such controls are disabled while the table is unavailable.
+Always check the scope shown in the preview dialog, especially after clearing a selection.
 
 For an editable text or number field, enter a value and press **Enter** or leave the
 field to commit it; **Escape** restores an uncommitted draft. Multiline text commits when
@@ -229,9 +232,14 @@ only where the plugin implements it. Inspection actions browse information witho
 Open **Changes against original** to compare exposed fields with the imported baseline.
 Use **Find a changed field**, **Jump**, and **Revert** where enabled. Reverting a field
 recomputes supported dependent values. Use Undo for added, removed or derived fields.
-Unloaded paged-collection fields may be absent even when review reports complete coverage of its
-current walk. This panel is a bounded semantic review, not a complete byte diff: heed incomplete-coverage
-warnings, and do not treat **No semantic changes** as proof that every file byte is unchanged.
+Review also scans unloaded pages of exposed collections, including hidden empty slots, within
+shared row, page and memory limits. **Jump** loads the changed row's page; it does not edit it.
+An incomplete review shows warnings even when no changes were found. Collection paging or budget
+warnings name the affected collection and reason. Review can take longer for large collections because it scans
+both the imported baseline and current data. This panel compares exposed fields; it is not a
+complete byte diff. Do not treat **No semantic changes** as proof that every file byte is unchanged.
+The [API review contract](API.md#get-apiworkspacesworkspaceiddocumentsdocumentidchanges)
+defines the traversal limits and incomplete-coverage behavior.
 
 ## Undo and redo
 

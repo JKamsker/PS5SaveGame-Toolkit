@@ -440,10 +440,11 @@ serialization when auxiliary arrays end immediately before the sentinel.
 
 ## Synthetic mutation fuzz testing (#40)
 
-One independently authored `RagnarokNestedFixture` seed, `GOWRSAVE0` for PPSA08330, contains nested
-wallets, resource IDs, index-like words, links and flag groups. It opens and renders through the
-real plugin without private data. This fixture exercises the supported legacy/plaintext structure;
-it does not claim to produce a console-authenticated save or validate the still-unresolved
+Two independently authored `GOWRSAVE0` seeds for PPSA08330 come from `RagnarokNestedFixture`
+and `RagnarokGearTests.Fixture()`. They cover nested wallets, resource IDs, index-like words,
+links and flag groups, with the second adding variable gear records. Both open and render through
+the real plugin without private data. These fixtures exercise the supported legacy/plaintext structure;
+they do not claim to produce a console-authenticated save or validate the still-unresolved
 authentication data.
 
 `MutationFuzzSyntheticSeedsOpenAndRender` checks every unmutated seed before the inherited

@@ -265,8 +265,10 @@ Pages over 2 MiB serialized JSON: 413, with no partial page emitted.
 JSON `{edits:[{valueId:string,value:any}],revision?:number}`. `edits` must be an
 array with non-null entries and explicit IDs/values. Applies atomically. Returns
 **EditResult** and revision ETag; semantic/spec/read-only rejection: 422; stale:
-409. Edits must refer to fields already indexed through the root view, lazy expansion, collection
-page or semantic-review walk. Storage-only SDK registration does not publish a field to HTTP clients.
+409. Fields can be indexed through the root view, lazy expansion, collection page or semantic-review
+walk. Documents implementing `IFieldMetadataDocument` can also resolve unloaded IDs on demand;
+see the [SDK-02 metadata contract](PLUGIN_GUIDE.md#field-metadata-without-rendering-a-page-sdk-02).
+Storage-only SDK registration without that opt-in does not publish a field to HTTP clients.
 
 ### `POST /api/workspaces/{workspaceId}/documents/{documentId}/actions`
 
@@ -319,18 +321,10 @@ excludedRowKeys?:string[]}`. `query` uses the collection query model (`text`,
 `filters`, `sortColumn`, `descending`, `includeEmpty`, `offset`, `limit`, `cursor`);
 Core resolves all matching rows, bounded to 5,000 before exclusions, rather than
 only the visible page. Do not supply both row keys and a query scope.
-View actions optionally publish `selectionTableId` (SDK `ActionNode.SelectionTableId`), matching an
-F8 `collectionId` or an eager table's optional stable `selectionId` (SDK `TableNode.SelectionId`).
-The IDs are case-sensitive and unique across both table kinds in the same view. SDK-04 member
-adapters map both IDs. Null/omitted bindings preserve existing behavior: table-cell controls send
-their enclosing table's selection (including `[]`); unbound sibling controls send document scope.
-A bound sibling uses the named table's current explicit keys or complete query scope/exclusions.
-No explicit selection and no query-wide selection means document scope; a fully excluded query
-still means no rows. The browser names the table in an accessible hint and disables controls whose
-table is unmounted, unknown or ambiguous. Core does not reject unknown binding declarations;
-`ViewIndex.SelectionDiagnostics` and conformance warnings describe them. This metadata does not
-add a request field, enforce server ownership or add scopes to legacy direct actions. Explicit SDK
-calls with row keys alone cannot verify that a browser control is wired to that selection.
+View actions can bind browser selection through `selectionTableId`, matching an F8 `collectionId`
+or eager table `selectionId`. The [selection-table contract](PLUGIN_GUIDE.md#selection-table-binding-and-advisory-conformance-40)
+owns binding, fallback and advisory-conformance rules. This metadata adds no request field or
+server ownership check: callers still supply the explicit `scope` above.
 
 Returns `{planId?,revision,scope,plan:{changes,skippedRows,warnings,errors},stale,
 code?}` and ETag; scope is normalized. Each consequence includes ID/label,

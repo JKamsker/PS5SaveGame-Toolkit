@@ -25,7 +25,7 @@ npm run typecheck
 npm test
 npm run build
 Pop-Location
-python docs/tests/test_documentation.py
+python -B docs/tests/test_documentation.py
 ```
 
 Tests use Microsoft.Testing.Platform: direct invocations require
@@ -45,6 +45,8 @@ Pop-Location
 
 Playwright starts the built API automatically. See [e2e details](docs/RELEASING.md#built-app-browser-smoke-tests)
 and [CI, coverage and packaging](docs/RELEASING.md) for prerequisites and reports.
+The optional real-save browser regression skips without the external Rebirth sample; the
+synthetic browser suite needs no private saves.
 
 Environment variables:
 
@@ -53,6 +55,41 @@ Environment variables:
 - `SAVETOOLKIT_E2E_SCRATCH`: browser test scratch, results and HTML report root.
 - `SAVETOOLKIT_E2E_URL` and `SAVETOOLKIT_E2E_RUN_DIRECTORY`: managed by the Playwright
   config to share a run's free loopback URL and temporary directory with workers; leave unset.
+
+## Developer tooling at a glance
+
+Run from the repository root after configuring [disk and scratch](docs/RELEASING.md#disk-and-scratch).
+The linked pages own each tool's options, prerequisites and review procedure.
+
+| Tool | Purpose / authoritative instructions |
+| --- | --- |
+| [`scripts/test.ps1`](scripts/test.ps1) | API build and backend test projects; [parameters and coverage](docs/RELEASING.md#script-parameters). |
+| [`scripts/self-test.ps1`](scripts/self-test.ps1) | Script/scaffold regressions; [parameters](docs/RELEASING.md#script-parameters). |
+| [`scripts/bench.ps1`](scripts/bench.ps1) | Opt-in synthetic timing/allocation baselines; [benchmark guide](docs/PERFORMANCE.md). |
+| [`scripts/release-notes.ps1`](scripts/release-notes.ps1) | Draft notes from merged work; [curation workflow](docs/RELEASING.md#prepare-curated-notes-and-check-the-candidate). |
+| [`scripts/release-check.ps1`](scripts/release-check.ps1) | Read-only pre-tag readiness checks; [candidate checks](docs/RELEASING.md#prepare-curated-notes-and-check-the-candidate). |
+| [`dotnet-stryker`](.config/dotnet-tools.json) | Opt-in Core/SDK mutation testing through `tests/Invoke-Mutations.ps1`; [runner and results](tests/README.md). |
+| OpenAPI re-pin | Review and update the generated HTTP contract; [snapshot workflow](docs/API.md#openapi-contract-and-regression-guard). |
+| Embedded-pack re-pin | Review each pack's content baseline; [snapshot workflow](docs/PLUGIN_GUIDE.md#embedded-pack-snapshot-baseline). |
+
+## Frontend component map
+
+The view renderer delegates state and presentation to focused components/hooks under `web/src`:
+
+| Area | Implementation home |
+| --- | --- |
+| Eager/server tables, query controllers, cells and selection | [`components/document/table/`](web/src/components/document/table) |
+| F6 preview and semantic changes, revision-aware Jump and revert | [`components/document/review/`](web/src/components/document/review) |
+| Reference labels, search and picker lifecycle | [`components/fields/reference/`](web/src/components/fields/reference) |
+| Direct action parameters and dialog | [`ActionParameterFields.tsx`](web/src/components/document/ActionParameterFields.tsx), [`DirectActionDialog.tsx`](web/src/components/document/DirectActionDialog.tsx), [`useActionDialog.ts`](web/src/components/ui/useActionDialog.ts) |
+| Export dialog and request lifecycle | [`ExportDialog.tsx`](web/src/components/workspace/ExportDialog.tsx), [`useExportDialog.ts`](web/src/components/workspace/useExportDialog.ts) |
+
+Keep request cancellation, document/revision isolation and focus restoration with their owning hooks.
+Preserve native mixed checkbox state, persistent live announcements, visible labels in accessible
+names, dialog/picker keyboard behavior and focus after clearing selection or reverting a change.
+Colocated Testing Library tests and the [built-app browser regressions](docs/RELEASING.md#built-app-browser-smoke-tests)
+exercise these behaviors. For plugin-facing selection declarations, use the
+[selection binding contract](docs/PLUGIN_GUIDE.md#selection-table-binding-and-advisory-conformance-40).
 
 ## Samples and evidence
 
@@ -63,6 +100,8 @@ CI, unset `SAVETOOLKIT_ARTIFACTS` and ensure no ancestor `artifacts/` folder is 
 For a sample-backed run, set it in the same shell and report skipped counts per project;
 a passing run with skips is not full sample validation. Do not upload save files publicly;
 describe the folder/file layout and redact personal paths and account identifiers from logs.
+The [cross-plugin detection matrix](docs/PLUGIN_GUIDE.md#tests) exercises all registered
+plugins against shared synthetic fixtures and every available external sample file.
 
 ## Scope, commits and review
 
