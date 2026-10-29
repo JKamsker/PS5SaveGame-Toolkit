@@ -9,7 +9,9 @@ public enum ReferenceIconAvailability
     /// <summary>Require image provenance, even if local bytes are unavailable.</summary>
     RequireProvenance,
 
-    /// <summary>Keep an image for any non-null asset id; missing bytes/provenance do not gate it.</summary>
+    /// <summary>
+    /// Permit any non-null asset id without bytes/provenance. Without provenance, exact alt text is required.
+    /// </summary>
     AssetIdOnly,
 }
 

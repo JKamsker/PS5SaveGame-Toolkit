@@ -691,6 +691,33 @@ can adopt them independently; retain game-specific validation, evidence labels a
   and image provenance, registers the image dataset in Sources and includes separate record/image
   attribution in the alt text. Missing records/images/provenance use the supplied fallback (or a text
   fallback). Supply evidence caveats such as whole-item-versus-part appearance in `label`.
+  The additive five-argument overload accepts **`ReferenceIconOptions`**; pass `label` and `fallback`
+  explicitly (null is allowed). Null/default options preserve the original overload's output.
+  `ExactAltText` overrides the label and composed attribution verbatim, including empty text and
+  whitespace; the caller must retain all required publisher/source notices. Null keeps composed alt text.
+  `Availability` defaults to `RequireBytesAndProvenance`; `RequireProvenance` preserves an image when
+  provenance exists but bytes are unavailable (BG3 compatibility). `AssetIdOnly` preserves an image for
+  any non-null asset ID even without bytes/provenance (Tales of Arise compatibility with exact alt text).
+  Composed alt text still needs provenance under every policy; otherwise the helper uses the fallback.
+  Every policy requests provenance and resolves permitted assets through `GetAsset` to register available
+  image datasets in Sources, including with exact alt text. Missing records/asset IDs always use the
+  supplied fallback or `new TextNode("No reference icon")`. For example:
+
+  ```csharp
+  // BG3: retain composed, separate record/image attribution, including missing-byte images.
+  ReferenceViews.Icon(context, record, label: null, fallback: null,
+      options: new() { Availability = ReferenceIconAvailability.RequireProvenance });
+
+  // Tales of Arise: retain exact role/publisher text and the historical em-dash fallback.
+  ReferenceViews.Icon(context, record, label: null, fallback: new TextNode("—"), options: new()
+  {
+      Availability = ReferenceIconAvailability.AssetIdOnly,
+      ExactAltText = record is null ? null
+          : $"{record.Name}: {record.Attributes.GetValueOrDefault("iconRole") ?? "game icon"}. {MediaLicense}",
+  });
+  ```
+
+  `MediaLicense` above is the caller's existing publisher notice (`AriseAssets.MediaLicense`).
   **`ReferenceInspection.Create`** creates an attributed `Mutates = false` action with one `ReferenceSpec`
   parameter; absent/empty catalogs yield null. Pass an explicit initial key for a fixed record, and
   `fixedRecord: true` for a read-only picker. `ResolveSelection` accepts exactly one text parameter and
