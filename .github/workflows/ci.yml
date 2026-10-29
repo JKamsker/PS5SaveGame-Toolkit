@@ -131,7 +131,21 @@ jobs:
       - name: Backend build and every test project (without samples)
         env:
           SAVETOOLKIT_TEST_TEMP: ${{ runner.temp }}/savetoolkit-tests
-        run: ./scripts/test.ps1 -Configuration Release -ResultsDirectory "${{ runner.temp }}/test-results/backend"
+        run: |
+          ./scripts/test.ps1 -Configuration Release -ResultsDirectory "${{ runner.temp }}/test-results/backend" -Coverage:($IsLinux)
+      - name: Merge backend coverage and write assembly summary
+        if: always() && runner.os == 'Linux'
+        run: |
+          dotnet tool restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet tool run reportgenerator `
+            "-reports:${{ runner.temp }}/test-results/backend/**/coverage.cobertura.xml" `
+            "-targetdir:${{ runner.temp }}/test-results/coverage/backend" `
+            '-reporttypes:Cobertura;MarkdownAssembliesSummary;Html' `
+            '-assemblyfilters:-*.Tests;-SaveToolkit.Testing'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "### .NET coverage (${{ runner.os }})" >> $env:GITHUB_STEP_SUMMARY
+          Get-Content "${{ runner.temp }}/test-results/coverage/backend/Summary.md" >> $env:GITHUB_STEP_SUMMARY
       - name: Install web dependencies
         working-directory: web
         run: npm ci --no-audit --no-fund
@@ -142,10 +156,34 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run typecheck
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          npm test -- --maxWorkers=2 --reporter=default --reporter=junit --outputFile="${{ runner.temp }}/test-results/web.xml"
+          $coverageArgs = @()
+          if ($IsLinux) {
+            $coverageArgs = @('--coverage', '--coverage.reportsDirectory=${{ runner.temp }}/test-results/coverage/web')
+          }
+          npm test -- --maxWorkers=2 --reporter=default --reporter=junit --outputFile="${{ runner.temp }}/test-results/web.xml" @coverageArgs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run build
           exit $LASTEXITCODE
+      - name: Web coverage summary
+        if: always() && runner.os == 'Linux'
+        run: |
+          $summary = '${{ runner.temp }}/test-results/coverage/web/summary.txt'
+          if (Test-Path -LiteralPath $summary) {
+            '### Web coverage (V8)' >> $env:GITHUB_STEP_SUMMARY
+            '```text' >> $env:GITHUB_STEP_SUMMARY
+            Get-Content -LiteralPath $summary >> $env:GITHUB_STEP_SUMMARY
+            '```' >> $env:GITHUB_STEP_SUMMARY
+          }
+      - name: Upload coverage reports
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-${{ runner.os }}
+          path: |
+            ${{ runner.temp }}/test-results/backend/**/coverage.cobertura.xml
+            ${{ runner.temp }}/test-results/coverage
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7

@@ -7,11 +7,14 @@
   defaults to the system temp folder; set SAVETOOLKIT_TEST_TEMP to move it to another drive.
 .PARAMETER Filter
   Optional substring; only test projects whose path contains it are run (e.g. -Filter Pragmata).
+.PARAMETER Coverage
+  Collect Cobertura coverage per project under ResultsDirectory (defaults to TestResults).
 #>
 param(
     [string]$Filter = '',
     [ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug',
-    [string]$ResultsDirectory = ''
+    [string]$ResultsDirectory = '',
+    [switch]$Coverage
 )
 
 $ErrorActionPreference = 'Stop'
@@ -44,6 +47,7 @@ try {
         Where-Object { $_.FullName -notmatch '[\\/](bin|obj)[\\/]' -and $_.FullName -like "*$Filter*" } |
         Sort-Object FullName
     if (!$projects) { throw "No test projects matched '$Filter'." }
+    if ($Coverage -and !$ResultsDirectory) { $ResultsDirectory = Join-Path $root 'TestResults' }
     if ($ResultsDirectory) {
         $ResultsDirectory = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ResultsDirectory)
         New-Item -ItemType Directory -Force -Path $ResultsDirectory | Out-Null
@@ -58,6 +62,10 @@ try {
             if ($ResultsDirectory) {
                 $testArgs += @('--results-directory', (Join-Path $ResultsDirectory $p.BaseName),
                     '--report-xunit-trx', '--report-xunit-trx-filename', 'results.trx')
+            }
+            if ($Coverage) {
+                $testArgs += @('--coverage', '--coverage-output-format', 'cobertura',
+                    '--coverage-output', (Join-Path $ResultsDirectory "$($p.BaseName)/coverage.cobertura.xml"))
             }
             dotnet @testArgs
             if ($LASTEXITCODE -ne 0) { $failed += $p.Name }

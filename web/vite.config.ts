@@ -13,5 +13,17 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["**/*.{test,spec}.{ts,tsx}", "**/*.d.ts"],
+      reporter: [
+        "text-summary",
+        ["text-summary", { file: "summary.txt" }],
+        "json-summary",
+        "cobertura",
+        "html",
+      ],
+    },
   },
 });
