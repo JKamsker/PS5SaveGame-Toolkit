@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 namespace SaveToolkit.Sdk.References;
@@ -43,7 +44,8 @@ public sealed record ReferenceAttribution(
     string Modifications)
 {
     /// <summary>One line suitable for a field description, e.g. "Example wiki contributors, CC-BY-SA-4.0, https://…".</summary>
-    public string ToShortText() => $"{Author}, {License}, {SourceUrl} (retrieved {Retrieved:yyyy-MM-dd})";
+    public string ToShortText() => string.Create(CultureInfo.InvariantCulture,
+        $"{Author}, {License}, {SourceUrl} (retrieved {Retrieved:yyyy-MM-dd})");
 }
 
 /// <summary>One attributed dataset of a pack: a records catalog or a set of assets.</summary>

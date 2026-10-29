@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Data.Sqlite;
@@ -48,8 +49,8 @@ public sealed class SqliteImage : IDisposable
                 if (result != raw.SQLITE_OK) throw new InvalidDataException($"SQLite deserialize failed ({result}).");
             }
             Internal("PRAGMA temp_store=MEMORY; PRAGMA journal_mode=MEMORY; PRAGMA trusted_schema=OFF;");
-            long pageSize = Convert.ToInt64(InternalScalar("PRAGMA page_size"));
-            Internal($"PRAGMA max_page_count={limits.MaxDatabaseBytes / pageSize};");
+            long pageSize = Convert.ToInt64(InternalScalar("PRAGMA page_size"), CultureInfo.InvariantCulture);
+            Internal(string.Create(CultureInfo.InvariantCulture, $"PRAGMA max_page_count={limits.MaxDatabaseBytes / pageSize};"));
             ValidateIntegrityCore();
         }
         catch

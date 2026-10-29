@@ -74,7 +74,7 @@ public static class FStringCodec
         ArgumentNullException.ThrowIfNull(value);
         ArgumentNullException.ThrowIfNull(limits);
         limits.Validate();
-        if (value.Contains('\0')) throw new ArgumentException("FString text cannot contain NUL.", nameof(value));
+        if (value.Contains('\0', StringComparison.Ordinal)) throw new ArgumentException("FString text cannot contain NUL.", nameof(value));
         var encoding = wide ? Utf16 : Utf8;
         try
         {

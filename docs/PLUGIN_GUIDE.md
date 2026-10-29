@@ -93,6 +93,18 @@ for shared runner options and temporary-storage setup.
 
 ## Contribution workflow
 
+### Culture rules
+
+Use `CultureInfo.InvariantCulture` for save bytes, wire text, numeric IDs, filenames, hashes and
+ISO/Gregorian dates. Specify `NumberStyles` for text parsers and `StringComparison.Ordinal` or
+`OrdinalIgnoreCase` (and matching comparers) for identifiers and deterministic ordering. Include
+`RegexOptions.CultureInvariant` with case-insensitive format patterns. Human labels may use an
+explicit `CurrentCulture`, with tests for the intended display; never parse a formatted label back
+into save data. Exercise de-AT and tr-TR, and include ar-SA for calendar/sign behavior. See the
+[framework culture matrix](RELEASING.md#culture-matrix) for the opt-in test helper and runtime modes.
+
+### Workflow
+
 - Stay inside `plugins/<Name>/`; do not edit `src/`, `web/`, `tests/` or other plugins.
   Adding a `<PackageVersion>` to `Directory.Packages.props` is the exception. Work around missing
   SDK capabilities and record them under `## SDK requests` in the plugin README; consult

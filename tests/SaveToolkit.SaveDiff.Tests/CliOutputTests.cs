@@ -1,6 +1,6 @@
-using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using SaveToolkit.Testing;
 using static SaveToolkit.SaveDiff.Tests.TestSaves;
 
 namespace SaveToolkit.SaveDiff.Tests;
@@ -36,36 +36,29 @@ public sealed class CliOutputTests
         var before = WriteZip(dir, "before.zip", (Primary("z.json"), Utf8("{\"gold\":1.25}")), (Primary("A.bin"), [1]));
         var after = WriteZip(dir, "after.zip", (Primary("A.bin"), [2]), (Primary("z.json"), Utf8("{\"gold\":2.5}")));
         string[] args = ["compare", before, after, "--decoder", "json", "--format", format];
-        var originalCulture = CultureInfo.CurrentCulture;
-        try
+        var first = Run(args);
+        foreach (var testCase in TestCulture.Cases)
         {
-            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("de-DE");
-            var first = Run(args);
-            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("tr-TR");
-            var second = Run(args);
-            var reportPath = Path.Combine(dir, "report." + format);
-            var written = Run([.. args, "--out", reportPath]);
-
-            Assert.Equal(CliApp.ExitDifferent, first.Exit);
-            Assert.Equal(first, second);
-            Assert.Equal(first.Exit, written.Exit);
-            Assert.Empty(first.Err);
-            Assert.Empty(written.Err);
-            Assert.Equal($"Report written to {Display(reportPath)}\n", written.Out);
-            Assert.DoesNotContain('\r', first.Out);
-            Assert.EndsWith("\n", first.Out, StringComparison.Ordinal);
-            Assert.Equal(Encoding.UTF8.GetBytes(first.Out), File.ReadAllBytes(reportPath));
-            if (format == "json")
-            {
-                using var json = JsonDocument.Parse(first.Out);
-                Assert.Equal(Display(before), json.RootElement.GetProperty("before").GetProperty("label").GetString());
-                Assert.Equal(["A.bin", "z.json"], json.RootElement.GetProperty("files").EnumerateArray().Select(f => f.GetProperty("path").GetString()));
-                Assert.Equal("2.5", json.RootElement.GetProperty("files")[1].GetProperty("semantic").GetProperty("changes")[0].GetProperty("after").GetString());
-            }
+            using var culture = new TestCulture((string)testCase[0]);
+            Assert.Equal(first, Run(args));
         }
-        finally
+        var reportPath = Path.Combine(dir, "report." + format);
+        var written = Run([.. args, "--out", reportPath]);
+
+        Assert.Equal(CliApp.ExitDifferent, first.Exit);
+        Assert.Equal(first.Exit, written.Exit);
+        Assert.Empty(first.Err);
+        Assert.Empty(written.Err);
+        Assert.Equal($"Report written to {Display(reportPath)}\n", written.Out);
+        Assert.DoesNotContain('\r', first.Out);
+        Assert.EndsWith("\n", first.Out, StringComparison.Ordinal);
+        Assert.Equal(Encoding.UTF8.GetBytes(first.Out), File.ReadAllBytes(reportPath));
+        if (format == "json")
         {
-            CultureInfo.CurrentCulture = originalCulture;
+            using var json = JsonDocument.Parse(first.Out);
+            Assert.Equal(Display(before), json.RootElement.GetProperty("before").GetProperty("label").GetString());
+            Assert.Equal(["A.bin", "z.json"], json.RootElement.GetProperty("files").EnumerateArray().Select(f => f.GetProperty("path").GetString()));
+            Assert.Equal("2.5", json.RootElement.GetProperty("files")[1].GetProperty("semantic").GetProperty("changes")[0].GetProperty("after").GetString());
         }
     }
 

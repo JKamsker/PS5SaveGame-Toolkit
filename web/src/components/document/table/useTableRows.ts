@@ -37,6 +37,7 @@ export function computeFacets(node: TableNode, valueOf: ValueOf): ColumnFacet[] 
       }
     }
     if (categorical && values.size >= 2 && values.size * 2 <= node.rows.length) {
+      // Facet labels are a human menu; their localized order never changes protocol row keys.
       facets.push({ key: column.key, label: column.label, values: [...values].sort((a, b) => a.localeCompare(b)) });
     }
   }

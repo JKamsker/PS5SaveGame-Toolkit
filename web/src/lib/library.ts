@@ -91,6 +91,7 @@ export async function groupIntoGames(files: ScannedFile[]): Promise<ScanResult> 
     else skipped++;
   }
 
+  // Human library order follows the browser locale; it does not affect save/export ordering.
   games.sort((a, b) => (a.titleId ?? a.fallbackName).localeCompare(b.titleId ?? b.fallbackName));
   return { games, skipped };
 }

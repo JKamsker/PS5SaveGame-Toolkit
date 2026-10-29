@@ -1,0 +1,13 @@
+<Project>
+  <!-- The root props suppress these rules for legacy plugins. Enforce the src-only
+       .editorconfig policy without changing plugin or test-project diagnostics. -->
+  <Target Name="EnableSourceCultureDiagnostics" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <_SourceSuppressedDiagnostic Include="$(NoWarn)"
+          Exclude="CA1304;CA1305;CA1307;CA1309;CA1310;CA1311;CA1862" />
+    </ItemGroup>
+    <PropertyGroup>
+      <NoWarn>@(_SourceSuppressedDiagnostic)</NoWarn>
+    </PropertyGroup>
+  </Target>
+</Project>

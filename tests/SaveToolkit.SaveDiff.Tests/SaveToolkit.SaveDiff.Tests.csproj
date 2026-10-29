@@ -15,4 +15,7 @@
     <None Include="..\..\plugins\FinalFantasy16\research\generations.fixture.json"
           Link="Fixtures\generations.fixture.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../CultureMatrix.cs" Link="CultureMatrix.cs" />
+  </ItemGroup>
 </Project>
