@@ -18,7 +18,9 @@ public sealed class GroupOpenPerformanceTests
         Assert.Equal(1, character.FullReads);
         Assert.Equal(1, profile.FullReads);
         _ = group.BuildView();
-        foreach (var output in group.Serialize())
+        var outputs = group.Serialize();
+        Assert.Equal(input.Members.Select(member => member.File.RelativePath).Order(), outputs.Select(output => output.RelativePath).Order());
+        foreach (var output in outputs)
         {
             var file = output.RelativePath == character.RelativePath ? character : profile;
             Assert.Equal(file.OriginalBytes(), output.Content.ToArray());
