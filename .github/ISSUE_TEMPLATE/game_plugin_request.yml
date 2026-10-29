@@ -1,0 +1,38 @@
+name: Game or plugin request
+description: Propose support for a game, format or additional edits.
+title: "[Plugin request]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search existing requests and check [supported titles](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/USER_GUIDE.md#supported-titles-and-write-limits) first.
+        **Do not upload save files publicly; describe the layout instead.**
+        Community tools and format documentation are research leads, not proof of PS5 compatibility.
+  - type: input
+    id: game-title
+    attributes:
+      label: Game title
+      description: Include edition, platform and retail/demo status.
+    validations:
+      required: true
+  - type: textarea
+    id: title-ids
+    attributes:
+      label: Title IDs
+      description: List known PPSA title IDs and regions, or explicitly state that they are unknown.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Existing community editors or format documentation
+      description: Link tools, repositories, wikis or format docs. Include platform, revision and licence if known, or state that none were found. Do not attach downloaded code or save files.
+    validations:
+      required: true
+  - type: textarea
+    id: wanted-edits
+    attributes:
+      label: Wanted edits
+      description: Describe specific fields/actions and the intended in-game result; identify an existing plugin if applicable.
+    validations:
+      required: true
