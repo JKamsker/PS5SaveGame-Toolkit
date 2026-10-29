@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Text.Json;
 using SaveToolkit.Core.Export;
 using SaveToolkit.Core.Plugins;
@@ -135,17 +136,31 @@ public sealed class SessionAndExportTests : IDisposable
     }
 
     [Fact]
-    public void Export_ChangedDirectories_IncludesSystemFiles()
+    public void Export_ChangedDirectories_WritesEditedSaveAndSystemFileBytes()
     {
         var (ws, session) = OpenCounter();
         Assert.True(session.ApplyEdits([new IncomingEdit("counter", Json("\"42\""))]).Ok);
 
         var plan = WorkspaceExporter.Plan(ws, new ExportOptions { MirrorBackups = false });
 
-        Assert.Equal(["PPSA99999/sdimg_SAVE/save.dat", "PPSA99999/sdimg_SAVE/sce_sys/param.sfo"], plan.Files.Select(f => f.RelativePath).Order());
+        var expected = new Dictionary<string, byte[]>
+        {
+            ["PPSA99999/sdimg_SAVE/save.dat"] = CounterPlugin.Create(42),
+            ["PPSA99999/sdimg_SAVE/sce_sys/param.sfo"] = [0],
+        };
+        Assert.Equal(expected.Keys.Order(), plan.Files.Select(f => f.RelativePath).Order());
         using var zip = new MemoryStream();
         WorkspaceExporter.WriteZip(plan, zip);
-        Assert.True(zip.Length > 0);
+        zip.Position = 0;
+        using var archive = new ZipArchive(zip, ZipArchiveMode.Read);
+        Assert.Equal(expected.Keys.Order(), archive.Entries.Select(entry => entry.FullName).Order());
+        foreach (var entry in archive.Entries)
+        {
+            using var input = entry.Open();
+            using var content = new MemoryStream();
+            input.CopyTo(content);
+            Assert.Equal(expected[entry.FullName], content.ToArray());
+        }
     }
 
     [Fact]
