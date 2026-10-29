@@ -101,23 +101,8 @@ internal sealed class SemanticReview
                 current.Complete = false;
             }
         }
-        var changes = new List<SemanticChange>();
-        foreach (var id in original.Fields.Keys.Union(current.Fields.Keys, StringComparer.Ordinal))
-        {
-            var before = original.Fields.GetValueOrDefault(id);
-            var after = current.Fields.GetValueOrDefault(id);
-            if ((before is null && !original.Complete) || (after is null && !current.Complete)
-                || (before is not null && after is not null && before.Value == after.Value))
-            {
-                continue;
-            }
-
-            var field = after ?? before!;
-            changes.Add(new SemanticChange(id, field.Label, field.Path,
-                before?.Value ?? FieldValue.Null, after?.Value ?? FieldValue.Null,
-                before is not null, after is not null, before is not null && after is { ReadOnly: false } && document.CanEdit)
-            { Target = after?.Target });
-        }
+        var changes = SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
+            current.Fields, current.Complete, document);
 
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges;
         IReadOnlyList<string> warnings = complete ? [] : ["Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed."];
@@ -149,6 +134,22 @@ internal sealed class SemanticReview
         var queryCut = false;
         var queryTables = new List<(QueryableTableNode Table, string[] Path, int Depth)>();
 
+        void Children(IEnumerable<ViewNode> children, string[] parent, int depth,
+            SemanticCollectionTarget? target, string? rowLabel)
+        {
+            foreach (var child in children)
+            {
+                if (visited >= MaxVisitedNodes || bytes >= _maxBytes)
+                {
+                    complete = false;
+                    queryCut |= target is not null;
+                    break;
+                }
+
+                Visit(child, parent, depth + 1, target, rowLabel);
+            }
+        }
+
         void Visit(ViewNode node, string[] path, int depth, SemanticCollectionTarget? target = null, string? rowLabel = null)
         {
             if (++visited > MaxVisitedNodes || depth > MaxDepth || bytes >= _maxBytes)
@@ -156,21 +157,6 @@ internal sealed class SemanticReview
                 complete = false;
                 queryCut |= target is not null;
                 return;
-            }
-
-            void Children(IEnumerable<ViewNode> children, string[] parent)
-            {
-                foreach (var child in children)
-                {
-                    if (visited >= MaxVisitedNodes || bytes >= _maxBytes)
-                    {
-                        complete = false;
-                        queryCut |= target is not null;
-                        break;
-                    }
-
-                    Visit(child, parent, depth + 1, target, rowLabel);
-                }
             }
 
             switch (node)
@@ -201,7 +187,7 @@ internal sealed class SemanticReview
                             {
                                 var children = document.ExpandNode(lazy);
                                 expandedLazy(lazy);
-                                Children(children, sectionPath);
+                                Children(children, sectionPath, depth, target, rowLabel);
                             }
                             finally { activeLazy.Remove(lazy); }
                         }
@@ -209,20 +195,20 @@ internal sealed class SemanticReview
                         // reviewed above. Reuse it, but never hide a recursive expansion cycle.
                         else if (target is null || activeLazy.Contains(lazy)) complete = false;
                     }
-                    else Children(s.Children, sectionPath);
+                    else Children(s.Children, sectionPath, depth, target, rowLabel);
                     break;
                 case TabsNode tabs:
                     foreach (var tab in tabs.Tabs)
                     {
                         if (++visited > MaxVisitedNodes) { complete = false; queryCut |= target is not null; break; }
-                        Children(tab.Children, path.Append("tab:" + tab.Title).ToArray());
+                        Children(tab.Children, path.Append("tab:" + tab.Title).ToArray(), depth, target, rowLabel);
                     }
                     break;
                 case TableNode table:
                     foreach (var row in table.Rows)
                     {
                         if (++visited > MaxVisitedNodes || bytes >= _maxBytes) { complete = false; queryCut |= target is not null; break; }
-                        Children(row.Cells.Values, path.Append("row:" + row.Key).ToArray());
+                        Children(row.Cells.Values, path.Append("row:" + row.Key).ToArray(), depth, target, rowLabel);
                     }
 
                     break;
@@ -246,10 +232,17 @@ internal sealed class SemanticReview
                     break;
                 }
 
-                queryTraversal.Visit(table, (cell, rowTarget, label) =>
+                queryTraversal.Visit(table, (row, rowTarget, label) =>
                 {
-                    Visit(cell, path.Append("row:" + rowTarget.RowKey).ToArray(), depth + 1, rowTarget, label);
-                    return !queryCut;
+                    // Navigation and path belong to the row, not to each individual cell.
+                    var rowPath = path.Append("row:" + rowTarget.RowKey).ToArray();
+                    foreach (var cell in row.Cells.Values)
+                    {
+                        Visit(cell, rowPath, depth + 1, rowTarget, label);
+                        if (queryCut) return false;
+                    }
+
+                    return true;
                 });
             }
         }

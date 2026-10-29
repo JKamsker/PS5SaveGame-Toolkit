@@ -41,11 +41,24 @@ public sealed class QueryableSemanticReviewApiTests(WebApplicationFactory<Progra
         using var edit = await client.PostAsJsonAsync($"{url}/edits", new { edits = new[] { new { valueId, value = "99" } }, revision = 0 }, ct);
         edit.EnsureSuccessStatusCode();
         var log = await client.GetFromJsonAsync<JsonElement>($"{url}/changes", ct);
+        Assert.Equal(["changes", "complete", "revision", "warnings"],
+            log.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         Assert.True(log.GetProperty("complete").GetBoolean());
+        Assert.Empty(log.GetProperty("warnings").EnumerateArray());
         var change = Assert.Single(log.GetProperty("changes").EnumerateArray());
+        Assert.Equal(["canRevert", "currentExists", "currentValue", "label", "originalExists", "originalValue", "path", "target", "valueId"],
+            change.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(valueId, change.GetProperty("valueId").GetString());
+        Assert.Equal("Inventory / slot/250 / Quantity", change.GetProperty("label").GetString());
+        Assert.Equal(["section:Root", "section:inventory", "row:slot/250"],
+            change.GetProperty("path").EnumerateArray().Select(p => p.GetString()));
+        Assert.True(change.GetProperty("originalExists").GetBoolean());
+        Assert.True(change.GetProperty("currentExists").GetBoolean());
         Assert.True(change.GetProperty("canRevert").GetBoolean());
         Assert.Equal("250", change.GetProperty("originalValue").GetString());
+        Assert.Equal("99", change.GetProperty("currentValue").GetString());
         var target = change.GetProperty("target");
+        Assert.Equal(["collectionId", "query", "rowKey"], target.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal));
         var query = target.GetProperty("query");
         Assert.True(query.GetProperty("includeEmpty").GetBoolean());
         var collection = Uri.EscapeDataString(target.GetProperty("collectionId").GetString()!);

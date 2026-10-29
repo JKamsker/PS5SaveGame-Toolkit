@@ -124,6 +124,56 @@ public sealed class QueryableSemanticBudgetTests : IDisposable
         Assert.Empty(current.Queries);
     }
 
+    [Theory]
+    [InlineData(9_999, true)]
+    [InlineData(10_000, true)]
+    [InlineData(10_001, false)]
+    public void DefaultRowBoundaryNeverClaimsPartialCoverageIsComplete(int rows, bool complete)
+    {
+        var current = new SemanticQueryableDocument(rows);
+        var log = Review(current, new(rows));
+        Assert.Equal(complete, log.Complete);
+        Assert.Equal(50, current.Queries.Count);
+        Assert.Equal(complete, log.Warnings.Count == 0);
+        if (!complete) Assert.Contains(log.Warnings, w => w.Contains("truncated", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData(20_000, true)]
+    [InlineData(20_001, false)]
+    public void HundredPageBoundaryIsExact(int rows, bool complete)
+    {
+        const long enlargedByteLimit = 64L * 1024 * 1024;
+        var current = new SemanticQueryableDocument(rows);
+        var log = Review(current, new(rows), new()
+        {
+            MaxReviewQueryRows = 20_001, MaxReviewQueryPages = 100,
+            MaxReviewQueryBytes = enlargedByteLimit, MaxOriginalBytes = enlargedByteLimit,
+        });
+        Assert.Equal(complete, log.Complete);
+        Assert.Equal(100, current.Queries.Count);
+        Assert.Equal(complete, log.Warnings.Count == 0);
+        if (!complete) Assert.Contains(log.Warnings, w => w.Contains("page cap 100", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData(-1, false)]
+    [InlineData(0, true)]
+    [InlineData(1, true)]
+    public void SerializedByteBoundaryIsExact(int difference, bool complete)
+    {
+        var current = new SemanticQueryableDocument(1) { Padding = "quotes: \"\\\n; ä 🎮 <>&" };
+        var original = new SemanticQueryableDocument(1) { Padding = current.Padding };
+        var page = current.Query(SemanticQueryableDocument.Collection(0), new() { IncludeEmpty = true, Limit = 200 });
+        var bytes = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(page).LongLength;
+        current.Queries.Clear();
+        var log = Review(current, original, new() { MaxReviewQueryBytes = bytes + difference });
+        Assert.Equal(complete, log.Complete);
+        Assert.Single(current.Queries);
+        Assert.Equal(complete, log.Warnings.Count == 0);
+        if (!complete) Assert.Contains(log.Warnings, w => w.Contains("byte cap", StringComparison.Ordinal));
+    }
+
     [Fact]
     public void DistinctRowsBeyondDeclaredTotalCannotProduceACompleteReview()
     {
