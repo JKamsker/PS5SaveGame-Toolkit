@@ -1,5 +1,10 @@
 # Ragnarök PS5 research log
 
+The [2026-10-29 gear/skills/XP discovery report](FIELD_DISCOVERY.md) supplements this historical
+log. A newly located public gear sheet yields inferred definition/catalog-level joins across every
+primary gameplay save. Core weapon levels, named saved skills, equipped-slot state, XP totals and
+dependency/integrity writers remain unresolved. See the README's field-discovery section for current scope.
+
 2026-10-28. Sources are linked in the [README](README.md#sources). Measurements read the main archive
 in place, preserving each `ZipInfo` occurrence. Exploration buffers and reference text stayed in OS
 temporary storage outside the repository. No account metadata or credentials were needed.

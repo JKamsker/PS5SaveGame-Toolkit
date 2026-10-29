@@ -79,7 +79,7 @@ in the XorJson README. Git history retains the earlier register.
 | AtomicHeart | 2 | 1 | 1 | 2 | 0 | 3 |
 | BaldursGate3 | 3 | 1 | 2 | 2 | 0 | 4 |
 | Cyberpunk2077 | 3 | 0 | 3 | 0 | 0 | 3 |
-| EldenRing | 3 | 4 | 4 | 1 | 2 | 7 |
+| EldenRing | 4 | 4 | 4 | 2 | 2 | 8 |
 | FinalFantasy16 | 3 | 0 | 2 | 0 | 1 | 3 |
 | FinalFantasy7 | 2 | 2 | 2 | 0 | 2 | 4 |
 | Gearbox | 5 | 4 | 5 | 0 | 4 | 9 |
@@ -92,7 +92,7 @@ in the XorJson README. Git history retains the earlier register.
 | UnrealGvas | 9 | 0 | 3 | 0 | 6 | 9 |
 | Witcher3 | 5 | 0 | 3 | 1 | 1 | 5 |
 | XorJson | 3 | 0 | 2 | 0 | 1 | 3 |
-| **Total** | 65 | 26 | 49 | 6 | 36 | 91 |
+| **Total** | 66 | 26 | 49 | 7 | 36 | 92 |
 
 ## README exclusion decisions
 
@@ -109,6 +109,7 @@ in the XorJson README. Git history retains the earlier register.
 | Cyberpunk2077 | [CDPR planner](https://www.cyberpunk.net/en/build-planner), English chunk `8603-b6e6f72c476c734a52a4.js`, retrieved 2026-10-29 | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29 | Imported | **Resolved: imported (owner decision 2026-10-29)**, official names/descriptions | Reference text and stored ranks; no invented prerequisite edges or gameplay rules. | No licence blocker remains. Build-matched prerequisites/costs/effects/entitlement remain evidence gaps. |
 | Cyberpunk2077 | Complete PS5 2.21 TweakDB/localization/icon exports, no complete matching source supplied | Missing data; publisher assets are usable under owner decision 2026-10-29 | Imported | Partial import completed: 146 item IDs, 193 perks, 16 icons; no rights refusal | Remaining identifiers keep raw/baseline names and explicit missing-art fallback. No speculative joins. | Supply complete build-matched exports and verify exact identifier joins; this is an evidence gap, not a licence refusal. |
 | EldenRing | [Hapfel1/er-save-manager, 81b55f78](https://github.com/Hapfel1/er-save-manager/blob/81b55f78d19b571f480b0ae06d680151a9b61e1e/LICENSE) | Source-Available: “may not be sublicensed, sold or included in any other package or bundle intended for distribution” | Still refused | Explicit redistribution restriction, not missing licence | Research only; independent source/sample facts; no code/data imported | Specific written redistribution permission |
+| EldenRing | [Hapfel1/er-save-manager, 5b95be5f](https://github.com/Hapfel1/er-save-manager/blob/5b95be5fe4cd7898c6a1eb30cbfa614c0fd40f28/LICENSE), accessed 2026-10-29 | er-save-manager Source-Available License, copyright 2026 Hapfel; section 3 forbids redistribution outside its authorized distribution points and inclusion in another distributed package | Still refused | Current equipment/hash implementation and associated data/documentation refused for copying or translation; read public format facts only, never executed | Independently test existing MIT layout plus actual PS5 numeric observations; no internal-hash implementation imported | Specific written redistribution permission; independently verified PS5 integrity semantics still required |
 | EldenRing | Publisher game text/icons/map art; previous ERDB / ER-Save-Lib / Paramdex / TGA leads | Publisher rights retained; owner decision 2026-10-29 permits attributed use | Imported | Resolved: selected content imported from pinned Compass extraction | 1,245 official descriptions/illustrated records, 1,096 icons and three map backgrounds; other material unneeded | No publisher-asset policy blocker remains; exact joins/alignment still require evidence |
 | EldenRing | [Map Genie](https://mapgenie.io/elden-ring/maps/the-lands-between) | Reuse terms unverified; no explicit NC/no-redistribution terms established | Not used | Publisher/art policy blocker resolved; site content not needed | Attributed external link remains; local art/coordinates use pinned Compass source instead | No permission request; optional additional sources require provenance and matching coordinates |
 | FinalFantasy16 | [Published FF16 identifier CSVs, `4b5e7eb`](https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids) | No licence published; reused with attribution per owner decision 2026-10-28 | Imported | Resolved: imported (owner decision 2026-10-28) | Attributed F2 data, names/categories/pickers, retained CSVs/hash pins and sidecars. | Resolved; no licence-based blocker remains. |

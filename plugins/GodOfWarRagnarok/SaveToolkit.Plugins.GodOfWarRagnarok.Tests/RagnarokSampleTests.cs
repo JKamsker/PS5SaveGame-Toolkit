@@ -82,7 +82,8 @@ public sealed class RagnarokSampleTests(ITestOutputHelper output)
     {
         var file = SampleSaves.Load("PPSA08330").AllDiskFiles.First(f => f.FileName == "GOWRSAVE0");
         using var document = _plugin.Open(file);
-        Assert.InRange(RagnarokTestSupport.EagerNodes(document.BuildView()).Count(), 1, 100);
+        // The eighth, read-only gear collection adds one eager shell, with rows still paged.
+        Assert.InRange(RagnarokTestSupport.EagerNodes(document.BuildView()).Count(), 1, 101);
         foreach (var kind in new[] { "directory", "secondary", "wallet", "anchors" })
         {
             foreach (var section in document.ExpandNode(kind).Cast<SectionNode>())

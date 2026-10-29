@@ -1468,6 +1468,23 @@ $env:SAVETOOLKIT_ARTIFACTS = 'C:/path/to/artifacts'
 Check each project's summary for zero skipped tests. `MemorySaveSet` copies input file buffers;
 mutating the original byte array after creating a synthetic file does not edit that file.
 
+### Allocation tests (`AllocationProbe`)
+
+Use `SaveToolkit.Testing.AllocationProbe` for managed-allocation budgets instead of reading
+`GC.GetAllocatedBytesForCurrentThread()` directly. `Measure(action)` (or `Measure(func, out result)`)
+warms the operation once and records `DefaultMeasuredRuns` (3) samples; optional setup/cleanup
+callbacks run outside the counted interval. `MeasureOpen(open, out document, firstView)` measures
+opening a fresh disposable document, optionally with its first view.
+`MeasureProcessWideAsync` covers async work that may change threads; it counts all process
+allocations, so its tests must sit in a non-parallel collection. Put allocation tests in
+`[Collection(typeof(AllocationTestCollection))]`.
+
+The returned `AllocationProbeResult` gates on its minimum sample: `AssertLessThan`, `AssertAtMost`,
+`AssertInRange` and `AssertGreaterThan`. Release builds enforce the bound, as CI does; Debug builds
+report samples and bounds without failing, because budgets are Release-calibrated. When an
+operation loops, bound bytes **per operation** (for example `bound < iterations`) rather than an
+absolute total, so tiered-JIT transitions cannot fail a correct implementation.
+
 ### Deterministic mutation fuzzing (#40)
 
 Every conformance subclass inherits `MutationFuzz`, a correctness/robustness check for malformed

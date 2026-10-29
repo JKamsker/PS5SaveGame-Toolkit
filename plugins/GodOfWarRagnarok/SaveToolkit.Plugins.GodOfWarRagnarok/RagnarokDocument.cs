@@ -50,7 +50,7 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
         return new TabsNode([
             new("Overview", overview),
             new("Resources & XP", [RagnarokWrites.RestoreAction(), CollectionViews.View("resources"), CollectionViews.View("xp")]),
-            new("Gear candidates", [CollectionViews.View("nested-ids"), CollectionViews.View("index-words")]),
+            new("Gear", [CollectionViews.View(RagnarokGearView.CollectionId), CollectionViews.View("nested-ids"), CollectionViews.View("index-words")]),
             new("Skills", RagnarokSpatialViews.SkillRoots()),
             new("Realm map", [RagnarokSpatialViews.RealmMap(references), SectionNode.Lazy("Realm reference details", "realm-details")]),
             new("Quests & collectibles", [CollectionViews.View("collectibles"), CollectionViews.View("flags"),
@@ -207,6 +207,15 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
 
     internal uint ReadWord(int offset) => RagnarokFormat.UInt32(bytes, offset);
     internal ulong ReadId(int offset) => RagnarokFormat.UInt64(bytes, offset);
+
+    internal FieldNode GearField(string id, string label, string value, ReferenceRecord? record, bool reference = false) =>
+        Field(id, label, reference ? new ReferenceSpec(RagnarokGearReferences.CatalogId) : new TextSpec(), () => FieldValue.Of(value)) with
+        {
+            Confidence = record is not null && record.Attributes.GetValueOrDefault("confidence") == "Inferred"
+                ? Confidence.Inferred : Confidence.Unknown,
+            Description = "Read-only definition/catalog evidence; saved upgrades, equip state and dependencies are unverified. " +
+                record?.Description + " " + record?.AttributionText,
+        };
 
     internal FieldNode SkillReference(ReferenceRecord record) =>
         Field(RagnarokSpatialViews.SkillValueId(record.Key), record.Name, new ReferenceSpec(RagnarokSkillReferences.CatalogId),

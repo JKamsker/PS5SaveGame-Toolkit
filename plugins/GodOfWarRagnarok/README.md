@@ -2,7 +2,7 @@
 
 **Maturity: Experimental (v0.5.0).** Opens decrypted PS5 gameplay/history saves and the separate preferences record.
 Provides metadata, five length-bounded wallet containers, F8 resource/XP/raven counters,
-nested gear/skill ID candidates, 132 grouped raw flag records, attributed F2 catalogs,
+nested gear/skill ID candidates, inferred gear definitions/catalog levels, 132 grouped raw flag records, attributed F2 catalogs,
 integrity evidence and lazy raw word/byte views. Existing decoded wallet counters and play time
 are editable, with an F6 restore-to-imported-values action. **Integrity unknown — the game may reject
 this save.** Integrity dependencies and the complete serialization grammar remain unresolved.
@@ -16,13 +16,13 @@ measurements and deterministic paging, lookup and planning regression budgets.
 | Feature | Status and evidence |
 | --- | --- |
 | F1 SaveDiff | **Used**: `RagnarokEvidenceDecoder` is the bounded decoder hook; grammar spans expose stable wallet, flag and integrity paths. |
-| F2 reference packs | **Used**: PS5/community/skill packs plus attributed resource, skill, gear, rune and map assets; 961 runtime IDs, four tree groups and 1,682 explicitly cross-game 2018 candidates; SDK-03 `EmbeddedReferenceContext.Load` decodes the direct fallback once with bounded catalog traversal, preserving per-record joins and host overrides; direct fallback and Sources-panel attribution are tested. |
+| F2 reference packs | **Used**: PS5/community/skill packs plus attributed resource, skill, gear, rune and map assets; 961 runtime IDs, four tree groups, 1,682 explicitly cross-game 2018 candidates and 2,092 PC gear definition/catalog-level candidates; SDK-03 `EmbeddedReferenceContext.Load` decodes the direct fallback once with bounded catalog traversal, preserving per-record joins and host overrides; direct fallback and Sources-panel attribution are tested. |
 | F3 rich table cells | **Used**: confidence badges/warnings, detail fields, attributed icon cells, attribution cells and per-row inspect/restore actions. |
-| F4 `ReferenceSpec` pickers | **Used**: catalogue-backed resource IDs in F8 pages and read-only skill-reference fields; unknown IDs remain raw. |
+| F4 `ReferenceSpec` pickers | **Used**: catalogue-backed resource IDs in F8 pages, read-only gear-definition references and skill-reference fields; unknown IDs remain raw. |
 | F5 structural edits | **N/A**: no safe add/remove/reorder grammar or free-slot/ownership invariant is proven. |
 | F6 action planning | **Used**: import-bounded restore supports selected/document/query scopes, skipped rows, preview revalidation and grouped undo/redo. |
 | F7 document groups | **N/A**: no proven coupled gameplay/preferences write contract; editing both would guess dependencies. |
-| F8 queryable tables | **Used**: seven server-backed collections page resources, IDs, words, flags and directory records. |
+| F8 queryable tables | **Used**: eight server-backed collections page resources, IDs, words, flags, directory records and read-only inferred gear definitions/catalog levels. |
 | F9 graphs/maps | **Used**: three attributed weapon skill DAGs and a nine-realm map with a compact Midgard background, external guide links, text alternatives and stable targets. |
 | F10 exact/nullable/union values | **N/A**: the proven grammar contains bounded integer words and UTF-8 text only. |
 | F11 shared codecs | **N/A**: no Kraken/SQLite payload was detected; opaque bytes are preserved. |
@@ -32,9 +32,10 @@ measurements and deterministic paging, lookup and planning regression budgets.
 Shared SDK helpers: **Used** — `BoundSaveDocument` for bindings/atomic edits and
 `SaveToolkit.Sdk.Binary.Crc32Ieee.Compute` for read-only IEEE CRC evidence, and SDK-03
 `EmbeddedReferenceContext.Load` / `ReferenceCatalogReader.ReadBounded` for embedded fallback records.
-The bounded binary cursor and `InMemoryCollection<T>` are **N/A** to the current implementation: local readers retain
+The bounded binary cursor remains **N/A** to the current implementation: local readers retain
 format-specific enclosing-range checks and exact diagnostics, and local F8 queries read live counter
-words while binding only page rows. See [SDK helper migration](#sdk-helper-migration-40).
+words while binding only page rows. The new gear view uses `InMemoryCollection<T>` for complete-model
+queries with page-only registration. See [SDK helper migration](#sdk-helper-migration-40).
 
 The skill dataset is a presentation catalogue, not a saved-state crosswalk. Graph states, saved hashes,
 XP ownership and eligibility are `Unknown`; source links, compact thumbnails and attribution appear in
@@ -64,7 +65,7 @@ carry explicit integrity and console/dependency warnings. Canonical counter bind
 from read-only raw diagnostics, so expanding a raw alias cannot replace an editable binding.
 
 Only decoded fixed-size words are patched. IDs, counts, lengths, metadata words, padding, links,
-opaque regions and trailing bytes are preserved. Structural inventory edits, gear/equipped references,
+opaque regions and trailing bytes are preserved. Structural inventory edits, gear/equipped-reference writes,
 quest completion, difficulty and settings writers remain **unimplemented**: their structure/dependency
 repair or field meaning/range is not established. They are not waiting solely on console permission.
 
@@ -175,6 +176,38 @@ its documented enum. No named difficulty field is published.
 Preferences receive exact-length/header validation and byte pages covering all 696 bytes. Individual
 audio, controller, language and accessibility meanings are not guessed. The two primary records
 differ at 29 positions; settings ranges and integrity remain unknown.
+
+## Gear / skills / XP field discovery (#40)
+
+The [2026-10-29 field-discovery report](FIELD_DISCOVERY.md) records public research, all-sample
+differential results, source URLs/access dates, negative results and the next capture requirements.
+The new `gow-ragnarok.gear.en` pack contains 2,092 public PC definition-hash/name/type/level
+candidates. It supplements the SDK-03 packs; their original five record/metadata fingerprints are
+unchanged. No private bytes or decoded record dumps are embedded.
+
+| Field | Outcome and evidence | Why no new write |
+| --- | --- | --- |
+| Armor / attachments and gear-instance definitions | **Read-only, Inferred** exact hash/name/catalog-level joins: 7,443 records across 76 primary gameplay saves, 141 matching definition IDs, 118 specific candidate names and 57 numeric catalog levels. Backups agree. | Catalog levels label definition variants, not a decoded upgrade word or legal maximum; costs, caches, mode bounds and integrity repair remain unknown. |
+| Core weapon upgrade levels | Some weapon names join, but numeric levels remain **Unknown**: the public table omits levels and several observed variants. | No complete Axe/Blades/Spear level crosswalk or upgrade/dependency writer. No hash interpolation. |
+| Enchantment / rune slots | Some named enchantment definitions join. Parent indices and counted six-byte subrecords stay raw/read-only, **Unknown** role. | No equipped/unlocked-slot join or repair/threshold/set-bonus dependency writer. |
+| Individual skill unlocks | Existing 132 raw rows / four attributed tree-group roles retained. Saved skill names and bit semantics remain **Unknown**. | PC runtime `0x101` is not a saved-state crosswalk; no matched skill purchase/XP-cost pair. |
+| Available / total XP | Existing labelled XP resource candidates retained, **Inferred** roles. Per-container values are tested independently; absent rows are not zero and duplicates are not summed. | Spendable versus lifetime-total semantics, character ownership and cost dependencies remain unproven. |
+
+The optional gear block is inferred by a unique u16 length ending exactly before wallet framing.
+Its variable records are `u64 definition; u32 instance; u32 parent; u32 count; count × 6 bytes`.
+All counts and references are bounded; unknown or ambiguous candidates are omitted and preserved.
+The unparsed block remainder stays opaque. The field at definition+8 is an instance index, **not**
+an upgrade level. Instance-based F8 keys survive definition changes; known catalog levels and names
+carry source attribution, missing mappings stay Unknown, and all fields reject edits. F12 exposes
+the same evidence. The game may derive stats/perks from gear and enchantments; no recomputation
+or cache-repair behavior was established. **No gear, skill, slot or new XP writer was added.**
+
+All 156 records retain byte-identical no-op serialization; 76 selected-value fingerprints check
+gear/XP/flags per primary and backup without storing extracted records. New synthetic tests cover
+framing, ambiguity, named/unknown joins, read-only rejection and bounded query behavior. Four gameplay
+protocol fingerprints intentionally change for the new collection; preferences and original SDK-03
+pack fingerprints remain unchanged. Existing allocation limits are retained. The report records the
+mutation seed coverage and final validation results.
 
 ## Integrity, compression and preservation
 
@@ -341,6 +374,7 @@ completion formula or legal maximum is displayed. Missing records remain raw IDs
 | 961 runtime identities | [mooofin / community spreadsheet contributors, 7b173021](https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/item%23.zip) | No licence published; reused with attribution per owner decision 2026-10-28. Factual names/categories/notes; numeric u64 converted to literal LE keys; one identical duplicate merged. [Sidecar and hashes](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.runtime.en/tables.source.md). |
 | Four skill-tree group IDs | [mooofin, 7b173021](https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT) | No licence published; reused with attribution per owner decision 2026-10-28. Extracted factual GetSkillTree arguments; no Lua/assembler port. Group roles inferred; individual saved skill IDs/bits unknown. |
 | 1,682 2018 crosswalk candidates | [ProtoBuffers / xcier / God of War IDs spreadsheet contributors, 9342d5f3](https://github.com/xcier/GoW-2018-PS4-editor/blob/9342d5f3967ef74bac1161581dc4eab8bb41760d/app/resources/database/gow2018_items.json) | No licence published; reused with attribution per owner decision 2026-10-28. IDs/names/categories/internal filenames only; explicit cross-game Unknown labels; safe-edit flags/offsets omitted. [Sidecar and hash](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.2018.en/tables.source.md). |
+| 2,092 gear definition/catalog-level candidates | [cfemen / community gear-sheet contributors](https://docs.google.com/spreadsheets/d/17JWS2EyV68tRAajJIungRvhL5mmePIyGUNqekWu1lBc/edit), accessed 2026-10-29, SHA-256-pinned CSV export | No licence published; reused with attribution per owner decision 2026-10-28. Hash/name/type/level facts only; duplicate disagreements remain visible, missing/conflicting levels Unknown, no legal maxima or code imported. [Sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.gear.en/gear.source.md), [complete research source register](FIELD_DISCOVERY.md#source-register-and-licence-decisions). |
 
 The new community pack has a [data sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.community.en/community.source.md), and the asset packs have
 [`assets.source.md` sidecars](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.assets.en/assets.source.md), plus the existing
@@ -350,8 +384,9 @@ Attribution reaches `Info.References`, pinned F2 Sources, every F8 source cell, 
 legacy wallet/anchor tables, container descriptions and direct callers. The selected wiki image files
 and short descriptions are embedded only in the bounded asset packs above; no bulk wiki dump or
 dialogue extraction was imported.
-Runtime and 2018 factual tables are now imported under the owner decision. No build-matched named
-Ragnarök gear/quest join was found in the samples; this is an evidence limitation, not a licence gate.
+Runtime and 2018 factual tables are now imported under the owner decision. The later gear-discovery
+pack adds inferred definition joins, while verified equipped-state/quest joins remain absent;
+this is an evidence limitation, not a licence gate.
 Asset tools remain format research because WAD/TEXPACK layouts do not establish a save grammar.
 Their LZ4 checksum does not establish save integrity; no newly inspected source supplies a save
 authentication routine or complete StdNameHash algorithm. See the latest [research log](RESEARCH.md).
@@ -387,7 +422,8 @@ runtime/2018 and skill joins, host overrides and unknown-ID labels stay local. D
 retain their previous attribution-only dataset metadata and omit icons and quantity limits; supplied
 host contexts still control those enrichments. Invalid embedded packs fail initialization atomically
 through the shared decoder; no partial or empty fallback is substituted. Characterization tests retain
-all 2,797 fallback records and metadata in order, plus unchanged direct and hosted protocol fingerprints.
+all 2,797 original fallback records and metadata in order. The gear discovery round preserves those
+pack fingerprints and intentionally updates gameplay protocol fingerprints for its new read-only view.
 
 `RagnarokIntegrity` uses `SaveToolkit.Sdk.Binary.Crc32Ieee.Compute` for its read-only IEEE CRC probes.
 Coverage, folding policy, aligned little-endian comparisons and EOF-sentinel exclusion remain local.
