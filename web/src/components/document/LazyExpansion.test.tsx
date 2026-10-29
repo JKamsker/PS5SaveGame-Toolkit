@@ -8,13 +8,26 @@ import { DocumentContext, DocumentStore } from "../../state/documentStore";
 import { ViewList } from "./ViewRenderer";
 
 const clients: QueryClient[] = [];
-afterEach(() => { cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks(); vi.useRealTimers(); });
 
 const lazy = (id: string, collapsed = false): SectionNode => ({
   type: "section", title: id, lazyId: id, collapsed, children: [],
 });
 const field = (id: string): ViewNode => ({
   type: "field", valueId: id, label: id, spec: { kind: "bool" }, value: false,
+});
+
+it("announces section loading and non-stale failures", async () => {
+  vi.useFakeTimers();
+  let fail!: (error: Error) => void;
+  vi.spyOn(api, "expand").mockImplementationOnce(() => new Promise((_resolve, reject) => { fail = reject; }))
+    .mockRejectedValue(new Error("Inventory unavailable"));
+  mount([lazy("Inventory")]);
+  const loadingText = screen.queryByRole("status")?.textContent;
+  await act(async () => { await Promise.resolve(); });
+  await act(async () => { fail(new Error("Inventory unavailable")); await vi.advanceTimersByTimeAsync(8000); });
+  expect(loadingText).toContain("Loading");
+  expect(screen.getByRole("alert").textContent).toBe("Inventory unavailable");
 });
 
 function mount(nodes: ViewNode[], strict = false, cachedNodes: Record<string, ViewNode[]> = {}) {

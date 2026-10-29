@@ -15,10 +15,12 @@ export function GameLibrary({ onChooseFolder }: { onChooseFolder: () => void }) 
   const titles = useQuery({ queryKey: ["titles"], queryFn: api.titles, staleTime: Infinity });
   const byId = useMemo(() => new Map((titles.data ?? []).map((t) => [t.titleId, t])), [titles.data]);
 
-  if (state.status === "empty") return null;
-
   return (
-    <section className="library" aria-labelledby="library-title">
+    <>
+    <p role="status" aria-label="Folder scan status" aria-atomic="true" className="visually-hidden">
+      {state.status === "empty" || state.status === "error" ? "" : describe(state.status, state.games.length, state.skipped, state.persistent)}
+    </p>
+    {state.status !== "empty" && <section className="library" aria-labelledby="library-title">
       <header className="library__head">
         <div>
           <h2 className="library__title" id="library-title">
@@ -45,7 +47,7 @@ export function GameLibrary({ onChooseFolder }: { onChooseFolder: () => void }) 
           </button>
         </div>
       </header>
-      {state.error && <p className="notice notice--Danger">{state.error}</p>}
+      {state.error && <p role="alert" className="notice notice--Danger">{state.error}</p>}
       {state.status === "ready" && state.games.length === 0 && (
         <p className="notice notice--Muted">
           No save dumps found. Pick a folder that contains PPSAxxxxx folders with sdimg_ directories, or save-dump zips.
@@ -56,7 +58,8 @@ export function GameLibrary({ onChooseFolder }: { onChooseFolder: () => void }) 
           <GameTile key={game.key} game={game} title={game.titleId ? byId.get(game.titleId) : undefined} icon={state.icons[game.key]} />
         ))}
       </ul>
-    </section>
+    </section>}
+    </>
   );
 }
 
@@ -96,6 +99,7 @@ function GameTile({ game, title, icon }: { game: LibraryGame; title: TitleInfo |
   const busy = progress !== null;
   return (
     <li className={`game${busy ? " game--busy" : ""}`}>
+      <div className="game__content">
       <button type="button" className="game__button" onClick={() => void open()} disabled={busy} aria-describedby={`${game.key}-meta`}>
         {icon ? <img className="game__art" src={icon} alt="" /> : <span className="game__art game__art--empty">{game.titleId ?? "?"}</span>}
         <span className="game__name">{name}</span>
@@ -107,13 +111,15 @@ function GameTile({ game, title, icon }: { game: LibraryGame; title: TitleInfo |
           </span>
         </span>
         <span className={`tag tag--support-${support.toLowerCase()}`}>{supportText[support]}</span>
-        {busy && (
-          <span className="game__progress" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
-            <span style={{ transform: `scaleX(${progress})` }} />
-          </span>
-        )}
       </button>
-      {error && <p className="field__error">{error}</p>}
+      {busy && <span className="game__progress" role="progressbar" aria-label={`Importing ${name}`} aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+        <span style={{ transform: `scaleX(${progress})` }} />
+      </span>}
+      </div>
+      <span role="status" aria-label={`${name} import status`} aria-atomic="true" className="visually-hidden">
+        {busy ? `Importing ${name}: ${Math.round(progress * 100)} %` : ""}
+      </span>
+      {error && <p role="alert" className="field__error">{error}</p>}
     </li>
   );
 }

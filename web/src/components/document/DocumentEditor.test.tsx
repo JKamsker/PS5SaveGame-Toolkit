@@ -37,6 +37,12 @@ function setup() {
 }
 
 describe("document snapshot lifecycle", () => {
+  it("announces pending document loading", () => {
+    const { client } = setup();
+    expect(screen.getByRole("status").textContent).toBe("Opening…");
+    client.clear();
+  });
+
   it("focuses the opened document heading without stealing focus on refresh", async () => {
     const { client } = setup();
     const heading = await screen.findByRole("heading", { name: "Group save" });

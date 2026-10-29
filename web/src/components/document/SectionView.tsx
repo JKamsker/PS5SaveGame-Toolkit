@@ -66,7 +66,7 @@ function LazyChildren({ lazyId }: { lazyId: string }) {
     <p role="alert" className="notice notice--Danger">This section is out of date. Refresh the document to load its current contents.</p>
     <button type="button" className="btn btn--small" onClick={() => void refresh().catch(() => {})}>Refresh document</button>
   </div>;
-  if (query.isPending) return <p className="section__loading">Loading…</p>;
-  if (query.isError) return <p className="notice notice--Danger">{query.error.message}</p>;
+  if (query.isPending) return <p role="status" className="section__loading">Loading…</p>;
+  if (query.isError) return <p role="alert" className="notice notice--Danger">{query.error.message}</p>;
   return <LazyDescendants><ViewList nodes={query.data} /></LazyDescendants>;
 }

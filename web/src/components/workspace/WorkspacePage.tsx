@@ -72,7 +72,7 @@ export function WorkspacePage() {
       </div>
     );
   }
-  if (!workspace.data) return <div className="empty">Loading…</div>;
+  if (!workspace.data) return <div role="status" className="empty">Loading…</div>;
 
   const ws = workspace.data;
   const activeDoc = ws.documents.find((d) => d.id === documentId);

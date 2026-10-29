@@ -96,7 +96,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
 
   // A cached snapshot may predate edits made before switching files. Wait for the mount refresh
   // before exposing controls, so its response cannot overwrite a newly submitted edit.
-  if (query.isPending || (!query.isFetchedAfterMount && query.isFetching)) return <div className="empty">Opening…</div>;
+  if (query.isPending || (!query.isFetchedAfterMount && query.isFetching)) return <div role="status" className="empty">Opening…</div>;
   if (!context || !query.data) {
     return (
       <div className="empty">
