@@ -11,8 +11,10 @@ namespace SaveToolkit.Plugins.Cyberpunk2077.Tests;
 
 public sealed class ExportSampleTests
 {
-    [Fact]
-    public void FinalZipMirrorsOnlyGameplayEditAndPreservesUnrelatedFiles()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void FinalZipMirrorsOnlyGameplayEditAndPreservesUnrelatedFiles(bool pointTargets)
     {
         var sample = SampleSaves.Load("PPSA04027");
         var (plugin, store, _) = ReferencePackFixture.Embedded();
@@ -20,8 +22,17 @@ public sealed class ExportSampleTests
         var file = sample.AllDiskFiles.Single(file => file.FileName == "sav.dat" && !file.Directory.IsBackup);
         var session = workspace.Open(file.Id, plugin.Info.Id);
         _ = session.BuildView();
-        _ = session.QueryCollection("inventory", new QueryableCollectionQuery { Limit = 200 });
-        Assert.True(session.ApplyEdits([new("inventory/49/quantity", JsonSerializer.SerializeToElement("601"))]).Ok);
+        if (pointTargets)
+        {
+            var preview = session.PlanAction(PointTargetActionTests.ActionId, PointTargetActionTests.Targets(12, 9, 3), new());
+            Assert.NotNull(preview.PlanId);
+            Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        }
+        else
+        {
+            _ = session.QueryCollection("inventory", new QueryableCollectionQuery { Limit = 200 });
+            Assert.True(session.ApplyEdits([new("inventory/49/quantity", JsonSerializer.SerializeToElement("601"))]).Ok);
+        }
         var plan = WorkspaceExporter.Plan(workspace, new ExportOptions { Scope = ExportScope.Everything });
         Assert.Equal(2, plan.Overrides.Count);
         Assert.All(plan.Overrides.Keys, path => Assert.EndsWith("/sav.dat", path));
@@ -42,7 +53,11 @@ public sealed class ExportSampleTests
             stream.CopyTo(content);
             if (original.FileName == "sav.dat")
             {
-                Assert.True(expected.AsSpan().SequenceEqual(CsavContainer.Parse(content.ToArray()).Payload), "Exported gameplay payload differs from the intended four-byte patch.");
+                var exported = CsavContainer.Parse(content.ToArray());
+                if (pointTargets)
+                    PointTargetFixtures.AssertOnlyUnspentChanges(before, exported, PointTargetActionTests.TargetValues());
+                else
+                    Assert.True(expected.AsSpan().SequenceEqual(exported.Payload), "Exported gameplay payload differs from the intended four-byte patch.");
             }
             else
             {

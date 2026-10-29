@@ -2,7 +2,7 @@
 
 Title: **PPSA04027**. Plugin **0.7.0**, maturity: **Experimental**. Writers cover five player attributes,
 unspent attribute/perk/relic points, money, named player stacks, raw Level/Street Cred/XP/thresholds,
-existing raw fact values, and F6 planned stack actions. Edits are
+existing raw fact values, and F6 planned stack and unspent-point actions. Edits are
 restricted to **save 265 / game 2210 / archive 195** (the supplied PS5 2.21 save). Scriptable progression
 also requires **RED package 4 / flags 0 / sections 6**. Unsupported versions show a reason and retain
 the applicable read-only explorers. No console load has been tested; only a human can set Stable.
@@ -19,7 +19,7 @@ slot eligibility/capacity and exact quest completion still need controlled captu
 See [REFERENCES.md](REFERENCES.md) and [EVIDENCE.md](EVIDENCE.md) for contracts and exact next steps.
 
 Documentation checked against the current implementation on **2026-10-29**: sample-backed Release
-suite **300 passed / 0 failed / 0 skipped**; Release API build **0 warnings / 0 errors**.
+suite **313 passed / 0 failed / 0 skipped**; Release API build **0 warnings / 0 errors**.
 Earlier validation counts and measurements below describe their named implementation/review rounds,
 not the current suite or a performance guarantee.
 
@@ -177,7 +177,7 @@ measure the current query engine.
 | F3 rich cells | Used | Attributed inventory icon cells/details and equipment/cyberware image cells with text alternatives, confidence badges, raw-byte sections and stack actions. Missing art stays an explicit placeholder. |
 | F4 reference fields | Used | `ReferenceSpec` inventory base-record inspection fields and selectors for every available reference catalog. Read-only IDs use the shared browse-only F13 picker; no unsafe identity-replacement setter. |
 | F5 structural undo | N/A | No complete Cyberpunk add/remove/reorder writer exists: node links/counts, duplicate prefixes, unique counters and dependent stat/effect initialization cannot be repaired from this corpus. Scalar name/property materialization already undoes via values and preserves original bytes; it does not create inventory/perk records. |
-| F6 planned actions | Used | Set-supported-stack-target and refill-to-opening-quantity previews, exclusions/warnings, document/explicit/empty/F8 whole-query scopes (#27), atomic apply and one undo group. No coherent perk-allocation preset exists without effect/requirement mutation. |
+| F6 planned actions | Used | Set-supported-stack-target and refill-to-opening-quantity previews, exclusions/warnings, document/explicit/empty/F8 whole-query scopes (#27). Explicit unspent attribute/perk/relic targets use document scope, shared `ActionPlans` revalidation, atomic scalar apply and one undo group. No coherent perk-allocation preset exists without effect/requirement mutation. |
 | F7 document groups | N/A | Only `sav.dat` is authoritative and owned here. No demonstrated coupled write to `user.gls`, settings or metadata; JSON partners belong to GenericJson. Core already mirrors gameplay backups and the ZIP test verifies that behavior. |
 | F8 collections | Used | Complete inventory, saved/merged facts, equipment, cyberware, development, modifier, garage/travel, journal and per-item attachment queries; max 200 materialized rows. `InspectionCollection` adapts shared `InMemoryCollection` search/filter/sort/paging; `BinaryData` uses shared `BoundedBinaryCursor` range/primitive reads with existing diagnostics. Spatial views use separate lazy 128-entry pages. |
 | F9 maps/graphs | Used | Completion round: `PerkGraphInspection` and `TravelMapInspection`: stable IDs, accessible text alternatives, bounded pages, independently expandable field targets, local attributed Night City background, unpositioned marker list until a save-ID crosswalk is verified, official reference perk text and no invented prerequisite edges. |
@@ -312,6 +312,7 @@ inventory instances or perk allocations are created or deleted.
 | Supported existing stack quantities | Inferred | Container 1, structure 0, 29-byte quantity-only records in the reviewed Ammo/Component/Consumable allowlist; five real sample stacks, synthetic component/sniper identities | Four-byte quantity patch; CSAV rebuilt and reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): quantities, use/charge/replenishment behavior, reload |
 | Body, Reflexes, Technical ability, Intelligence, Cool | Inferred | Five sample values 3; unique matching entity-1 additive constant forced-stat mirrors; exact two-copy patch/reopen/undo tests | Int32 attribute plus float mirror patched together and verified after reparse; conflicting/missing mirrors refuse writes | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): displayed/effective attributes, unrelated perks/points, reload |
 | Unspent attribute, perk and relic points | Inferred | `Attribute` / `Primary` / `Espionage` balances; sample 7/0/0; omitted-property growth and preservation tests | Rebuild affected RED records/pools and CSAV offsets/lengths; verify intended balances after reparse; spent points/unlocks retained | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): displayed/spendable budgets, re-save/reload |
+| Batch explicit unspent point targets (#40 shortlist 9) | Inferred | Same three existing balance setters, type/schema gates and per-field bounds; preview/cancel, sample mutation, ZIP export and one-step undo/redo tests | Shared `ActionPlans` revalidation and atomic `ApplyEdits`; existing RED/CSAV rebuild and reparse; unsupported/missing point records preserved | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): earn/spend each point type; displayed/spendable independent budgets, native save/reload |
 | Stored Level | Inferred | Owner-1 `SProficiency.currentLevel`; sample level 1; pinned WolvenKit schema | Reparsed; matching forced stat updated when present; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): load/effect/re-save/reload, rewards/unlocks |
 | Stored Street Cred | Inferred | Distinct StreetCred record, sample 1; same schema | Reparsed; matching forced stat updated when present; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): shown cred, rewards/unlocks, reload |
 | Level current XP | Inferred | Zero-default `currentExp`, schema and independent inserted-property tests | RED names/properties/offsets repaired; reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): XP display and one threshold crossing |
@@ -342,6 +343,45 @@ console warnings; apply is one undo step. Money and unsupported structures are e
 selection means document scope; an empty selection affects nothing. F8 query selections include
 unloaded matches and explicit exclusions. Refill uses opening quantities rather than guessed game
 caps; set-target retains the existing 999,999 editor policy. No catalog metadata broadens permission.
+
+### Batch unspent point targets (#40 shortlist 9)
+
+**Set unspent point targets** in Player development previews one explicit target for each existing
+supported attribute/perk/relic balance, initialized from its current value. Named old/new effects,
+unchanged/unsupported/absent records and reasons appear before apply. Cancel never applies. Shared
+`ActionPlans` revalidates the complete preview and prepares the same scalar bindings before atomic
+application; the whole batch has one undo/redo step. Direct invocation cannot bypass preview.
+Document scope applies to these three independent balances; explicit empty scope is a no-op, and
+nonempty table/query selections are rejected. A missing balance is never created. Omitted `unspent`
+properties within supported existing records retain the existing zero-default insertion behavior.
+
+Targets retain each setter's 0..100,000 editor policy, extended only to that balance's immutable
+opening value when larger. These are not verified gameplay maxima. Secondary/unknown point types
+remain untouched. The action performs no spent-point refund, perk purchase, attribute change,
+unlock or budget arithmetic. It stays **Experimental / Inferred**, with the common console and
+opaque-integrity warning plus the independent-budget qualification in its description and preview.
+No refund/respec or Relic entitlement is inferred from a writable unspent balance.
+
+Research rechecked the pinned WolvenKit `SDevelopmentPoints` Int32 `spent`/`unspent` schema and
+CP2077SaveEditor Attribute/Primary/Espionage mapping on 2026-10-29 (links and attribution below).
+Both supplied gameplay entries show 7/0/0, with perk/relic `unspent` omitted. Tests verify only
+the intended three balances change, both omitted properties add exactly 24 bytes together,
+other point fields/records and opaque chunks stay intact, and undo restores byte-identical input.
+Mutated sample fixtures cover missing/unknown types, unsupported schemas, zero/cap targets and
+larger imported values. Stale/tampered previews and invalid parameters/scopes cannot apply.
+ZIP export reparses the gameplay output and backup and retains all unrelated files. There is no
+known CSAV container checksum/signature to repair; opaque/console integrity remains unknown.
+Owner validation still needs controlled earn/spend captures for each type, menu and actual-spend
+checks, native re-save/reload and re-export under [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+
+Validation: **313 passed / 0 failed / 0 skipped** with external samples, including 12 added cases;
+Release API build: **0 warnings / 0 errors**. All C# files remain below 300 lines. No files outside
+this plugin were edited; no samples were copied into the repository. Test reports and build log:
+`D:/Temp/saveeditor/test-scratch/feat-coverage-cyberpunk2077/`.
+
+Central documentation check (`--code-ref main`): **26 passed / 1 failed**. The untouched smoke-doc
+check expects `test.fixme(` in `main`'s `web/e2e/import.e2e.ts`, where the regression is enabled.
+This existing central mismatch is outside the plugin-only scope; no central files were changed.
 
 ### Writes still disabled for structural safety
 
@@ -644,6 +684,7 @@ and every named field/details view. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOT
 | F9 official Night City map link | [Piggyback official map](https://maps.piggyback.com/cyberpunk-2077/maps/night-city), Piggyback Interactive Limited / CD PROJEKT RED | Rights reserved by Piggyback / CDPR; used with attribution per owner decision 2026-10-29. Background imported as described above; the source link, unknown geographic join and accessible marker list remain. Sidecar: `SpatialViews.source.md`. |
 | F9 stored perk schema / external planner | [SNewPerk](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SNewPerk.cs), [SAttributeData](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SAttributeData.cs), WolvenKit contributors; [official planner](https://www.cyberpunk.net/en/build-planner), CD PROJEKT RED | GPL-3.0 schemas, format research only; no implementation copied. CDPR planner text is imported with attribution under the owner decision 2026-10-29. Diagram preserves exact saved identifiers/ranks; prerequisites and gameplay effect validation remain unknown. |
 | Stored progression write schema | [WolvenKit SProficiency](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SProficiency.cs), WolvenKit contributors | GPL-3.0, rechecked 2026-10-28; format research only, independently written scalar/name-pool writer; no source/data copied. |
+| Batch unspent-point schema and labels | [WolvenKit SDevelopmentPoints](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SDevelopmentPoints.cs), WolvenKit contributors; [CP2077SaveEditor PlayerStatsControl](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Views/Controls/PlayerStatsControl.cs), DeweySalt / Deweh and contributors | GPL-3.0 schema / MIT mapping, rechecked 2026-10-29. Text-only format/behavior research; no implementation copied. Independently composed existing point setters; 7/0/0 and omitted properties verified against samples; no new gameplay limits inferred. |
 | Existing fact write framing | [PixelRick FactsTable](https://github.com/PixelRick/CyberpunkSaveEditor/blob/3afe7428e9f26165e371ea7a3ee2cfd4ee4f1062/source/redx/csav/nodes/questSystem/FactsDB/FactsTable.h), PixelRick contributors | MIT, rechecked 2026-10-28; count/hash/value-plane research only; independent fixed patches retain order and all unknown hashes. |
 | Baseline 36-name allowlist | [items.bin](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/items.bin), [ItemClasses.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/ItemClasses.json), DeweySalt / Deweh and contributors | [MIT](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/LICENSE), 2026-10-28; selected names/categories, verified hashes; preserved as write gate. Sidecar: `Resources/ItemNames.source.md`. |
 | F2 `items` (5,248) | Same pinned items.bin + ItemClasses.json, DeweySalt / Deweh and contributors | MIT, 2026-10-28; exact hash join, retained baseline, decimal-string keys and coverage annotations; no gameplay limits. |
