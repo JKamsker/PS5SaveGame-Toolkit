@@ -1,0 +1,2 @@
+Synthetic unsupported save format. No real save or account data.
+This deliberately has no recognized game signature or JSON structure.
