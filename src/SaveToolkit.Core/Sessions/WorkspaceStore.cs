@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.References;
@@ -19,8 +18,10 @@ public sealed record WorkspaceStoreOptions
 /// <summary>In-memory registry of workspaces with on-disk blob storage. Single-user, local tool.</summary>
 public sealed class WorkspaceStore : IDisposable
 {
-    private readonly ConcurrentDictionary<string, Workspace> _workspaces = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Registration> _workspaces = new(StringComparer.Ordinal);
     private readonly WorkspaceStoreOptions _options;
+    private readonly Lock _lifetimeGate = new();
+    private bool _disposed;
 
     public WorkspaceStore(PluginCatalog catalog, WorkspaceStoreOptions options, ReferencePackStore? packs = null)
     {
@@ -40,17 +41,29 @@ public sealed class WorkspaceStore : IDisposable
     /// <summary>Reference packs pinned to documents when they open.</summary>
     public ReferencePackStore Packs { get; }
 
-    public IReadOnlyCollection<Workspace> All => [.. _workspaces.Values.OrderByDescending(w => w.CreatedAt)];
+    public IReadOnlyCollection<Workspace> All
+    {
+        get { lock (_lifetimeGate) return [.. _workspaces.Values.Select(r => r.Workspace).OrderByDescending(w => w.CreatedAt)]; }
+    }
 
     public Workspace Create(string name, IEnumerable<ImportSource> sources)
     {
+        lock (_lifetimeGate) ObjectDisposedException.ThrowIf(_disposed, this);
         var id = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(8));
         var root = Path.Combine(_options.DataRoot, id);
         try
         {
             var set = SaveSetImporter.Import(sources, root, _options.Limits);
             var workspace = new Workspace(id, name, set, Catalog, Packs);
-            _workspaces[id] = workspace;
+            lock (_lifetimeGate)
+            {
+                if (_disposed)
+                {
+                    workspace.Dispose();
+                    throw new ObjectDisposedException(nameof(WorkspaceStore));
+                }
+                _workspaces[id] = new Registration(workspace);
+            }
             return workspace;
         }
         catch
@@ -60,22 +73,44 @@ public sealed class WorkspaceStore : IDisposable
         }
     }
 
+    /// <summary>Finds and touches a workspace. Use <see cref="Acquire"/> to retain it through an operation.</summary>
     public Workspace? Get(string id)
     {
-        var ws = _workspaces.GetValueOrDefault(id);
-        ws?.Touch();
-        return ws;
+        lock (_lifetimeGate)
+        {
+            var workspace = _disposed ? null : _workspaces.GetValueOrDefault(id)?.Workspace;
+            workspace?.Touch();
+            return workspace;
+        }
     }
 
-    public bool Remove(string id)
+    /// <summary>Retains a workspace and its imported blobs until the operation or response finishes.</summary>
+    public WorkspaceLease? Acquire(string id)
     {
-        if (!_workspaces.TryRemove(id, out var ws))
+        lock (_lifetimeGate)
         {
-            return false;
+            if (_disposed || !_workspaces.TryGetValue(id, out var registration)) return null;
+            registration.Workspace.Touch();
+            registration.Leases++;
+            return new WorkspaceLease(registration.Workspace, () => Release(registration));
         }
+    }
 
-        try { ws.Dispose(); }
-        finally { TryDelete(ws.Set.StorageRoot); }
+    public bool Remove(string id) => Remove(id, idleCutoff: null);
+
+    private bool Remove(string id, DateTimeOffset? idleCutoff)
+    {
+        Registration registration;
+        bool cleanup;
+        lock (_lifetimeGate)
+        {
+            if (!_workspaces.TryGetValue(id, out registration!)) return false;
+            if (idleCutoff is { } cutoff && (registration.Leases > 0 || registration.Workspace.LastAccess >= cutoff)) return false;
+            _workspaces.Remove(id);
+            registration.Removed = true;
+            cleanup = registration.Leases == 0;
+        }
+        if (cleanup) Cleanup(registration.Workspace);
         return true;
     }
 
@@ -83,11 +118,49 @@ public sealed class WorkspaceStore : IDisposable
     public int Sweep()
     {
         var cutoff = DateTimeOffset.UtcNow - _options.IdleTimeout;
-        var stale = _workspaces.Values.Where(w => w.LastAccess < cutoff).Select(w => w.Id).ToList();
-        return stale.Count(Remove);
+        string[] ids;
+        lock (_lifetimeGate) ids = [.. _workspaces.Keys];
+        var removed = 0;
+        SessionCleanup.RunAll(ids, id => { if (Remove(id, cutoff)) removed++; });
+        return removed;
     }
 
-    public void Dispose() => SessionCleanup.RunAll(_workspaces.Keys, id => Remove(id));
+    public void Dispose()
+    {
+        string[] ids;
+        lock (_lifetimeGate)
+        {
+            if (_disposed) return;
+            _disposed = true;
+            ids = [.. _workspaces.Keys];
+        }
+        SessionCleanup.RunAll(ids, id => Remove(id));
+    }
+
+    private void Release(Registration registration)
+    {
+        bool cleanup;
+        lock (_lifetimeGate)
+        {
+            registration.Leases--;
+            registration.Workspace.Touch();
+            cleanup = registration.Removed && registration.Leases == 0;
+        }
+        if (cleanup) Cleanup(registration.Workspace);
+    }
+
+    private static void Cleanup(Workspace workspace)
+    {
+        try { workspace.Dispose(); }
+        finally { TryDelete(workspace.Set.StorageRoot); }
+    }
+
+    private sealed class Registration(Workspace workspace)
+    {
+        public Workspace Workspace { get; } = workspace;
+        public int Leases { get; set; }
+        public bool Removed { get; set; }
+    }
 
     private static void TryDelete(string path)
     {

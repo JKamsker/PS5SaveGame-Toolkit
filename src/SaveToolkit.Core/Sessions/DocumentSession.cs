@@ -79,6 +79,10 @@ public sealed partial class DocumentSession : IDisposable
 
     public DocumentState State => Locked(StateUnlocked);
 
+    /// <summary>Captures the view and its revision together, without an edit or undo interleaving.</summary>
+    public DocumentViewSnapshot CaptureView() => Locked(() =>
+        new DocumentViewSnapshot(Document.Title, Document.CanEdit, StateUnlocked(), BuildView()));
+
     public ViewNode BuildView() => Locked(() =>
     {
         var view = Document.BuildView();
@@ -166,9 +170,13 @@ public sealed partial class DocumentSession : IDisposable
     /// New file contents; empty when the document equals the original (never edited, or everything undone).
     /// Imported blobs are never modified, so exporting twice yields the same result.
     /// </summary>
-    public IReadOnlyList<FileOutput> Serialize() => Locked(() => StateUnlocked().IsDirty ? Document.Serialize() : []);
+    public IReadOnlyList<FileOutput> Serialize() => Locked<IReadOnlyList<FileOutput>>(() => StateUnlocked().IsDirty
+        ? Document.Serialize().Select(output => output with { Content = output.Content.ToArray() }).ToArray()
+        : []);
 
-    public AssetContent? GetAsset(string assetId) => Locked(() => _index.KnowsAsset(assetId) ? Document.GetAsset(assetId) : null);
+    public AssetContent? GetAsset(string assetId) => Locked(() =>
+        _index.KnowsAsset(assetId) && Document.GetAsset(assetId) is { } asset
+            ? asset with { Content = asset.Content.ToArray() } : null);
 
     /// <summary>Field-specific candidates, using the same catalog and policy as edits.</summary>
     public ReferenceCandidatePage SearchReferences(string valueId, ReferenceQuery query, long? revision = null, string? actionId = null) =>
@@ -189,8 +197,8 @@ public sealed partial class DocumentSession : IDisposable
         return spec as ReferenceSpec ?? throw new KeyNotFoundException($"Unknown reference field '{valueId}'.");
     }
 
-    public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => Locked(() =>
-        _index.KnowsBlob(blobId) ? Document.ReadBlob(blobId, offset, count) : throw new KeyNotFoundException($"Unknown blob '{blobId}'."));
+    public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => Locked<ReadOnlyMemory<byte>>(() =>
+        _index.KnowsBlob(blobId) ? Document.ReadBlob(blobId, offset, count).ToArray() : throw new KeyNotFoundException($"Unknown blob '{blobId}'."));
 
     public void Dispose()
     {
@@ -207,10 +215,11 @@ public sealed partial class DocumentSession : IDisposable
     }
 
     /// <summary>Atomically closes a clean session; an in-flight edit is either completed or rejected by disposal.</summary>
-    internal bool TryCloseClean() => Locked(() =>
+    internal bool TryCloseClean(Action releaseOwnership) => Locked(() =>
     {
         if (StateUnlocked().IsDirty) return false;
-        Dispose();
+        try { Dispose(); }
+        finally { releaseOwnership(); }
         return true;
     });
 

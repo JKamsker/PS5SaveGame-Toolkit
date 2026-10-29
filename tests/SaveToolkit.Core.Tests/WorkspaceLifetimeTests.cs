@@ -105,6 +105,24 @@ public sealed class WorkspaceLifetimeTests : IDisposable
     }
 
     [Fact]
+    public void Sweep_ReleasesEveryExpiredWorkspaceWhenPluginCleanupThrows()
+    {
+        var plugin = new BlockingPlugin(() => { }, () => throw new InvalidOperationException("Plugin cleanup failed."));
+        using var store = new WorkspaceStore(new PluginCatalog([plugin]),
+            new() { DataRoot = TestZips.TempDir(), IdleTimeout = TimeSpan.Zero });
+        var workspaces = Enumerable.Range(0, 3).Select(_ => store.Create("expired",
+            [new ImportSource("save.dat", () => new MemoryStream([1]))])).ToArray();
+        foreach (var workspace in workspaces) workspace.Open(workspace.Set.AllDiskFiles.Single().Id, plugin.Info.Id);
+
+        var failure = Assert.Throws<AggregateException>(() => store.Sweep());
+
+        Assert.Equal(3, failure.Flatten().InnerExceptions.Count);
+        Assert.Empty(store.All);
+        Assert.All(workspaces, workspace => Assert.False(Directory.Exists(workspace.Set.StorageRoot)));
+        Assert.Equal(0, store.Sweep());
+    }
+
+    [Fact]
     public void StoreDisposal_ReleasesAllWorkspacesAndBlobsWhenPluginCleanupThrows()
     {
         var plugin = new BlockingPlugin(() => { }, () => throw new InvalidOperationException("Plugin cleanup failed."));

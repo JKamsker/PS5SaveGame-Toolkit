@@ -96,12 +96,21 @@ internal sealed class DocumentGroupRegistry(Workspace workspace, PluginCatalog c
             var plugin = catalog.Find(offer.PluginId)!;
             var first = workspace.Set.FindById(offer.Members[0].FileId)!;
             var group = new DocumentGroupSession(id, offer.Title, workspace.Set, plugin, offer.Members, Pin(plugin, first), options);
-            if (releaseCleanDocumentId is not null && !workspace.ReleaseCleanDocument(releaseCleanDocumentId))
+            try
             {
-                group.Session.Dispose();
-                throw new InvalidOperationException("The member acquired unsaved edits while opening the group. No group was opened.");
+                if (releaseCleanDocumentId is not null && !workspace.ReleaseCleanDocument(releaseCleanDocumentId))
+                    throw new InvalidOperationException("The member acquired unsaved edits while opening the group. No group was opened.");
+                _groups.Add(id, group);
             }
-            _groups.Add(id, group);
+            catch (Exception failure) when (failure is not OutOfMemoryException)
+            {
+                try { group.Session.Dispose(); }
+                catch (Exception cleanup) when (cleanup is not OutOfMemoryException)
+                {
+                    throw new AggregateException("Group confirmation and cleanup failed.", failure, cleanup);
+                }
+                throw;
+            }
             _offers.Remove(token);
             return group;
         }

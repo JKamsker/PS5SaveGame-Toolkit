@@ -5,6 +5,7 @@
     <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="SaveToolkit.Core.Tests" />
     <InternalsVisibleTo Include="SaveToolkit.Api.Performance.Tests" />
     <PackageReference Include="MinVer" PrivateAssets="all" />
     <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />

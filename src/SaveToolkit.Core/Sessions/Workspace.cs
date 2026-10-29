@@ -19,6 +19,7 @@ public sealed class Workspace : IDisposable
     private readonly DocumentGroupRegistry _groups;
     private int _documentCounter;
     private bool _disposed;
+    private long _lastAccessTicks;
 
     public Workspace(string id, string name, DiskSaveSet set, PluginCatalog catalog, ReferencePackStore? packs = null)
     {
@@ -36,7 +37,7 @@ public sealed class Workspace : IDisposable
     public string Name { get; }
     public DiskSaveSet Set { get; }
     public DateTimeOffset CreatedAt { get; }
-    public DateTimeOffset LastAccess { get; private set; }
+    public DateTimeOffset LastAccess => new(Interlocked.Read(ref _lastAccessTicks), TimeSpan.Zero);
 
     public IReadOnlyCollection<DocumentSession> Documents => [.. _documents.Values];
 
@@ -68,13 +69,14 @@ public sealed class Workspace : IDisposable
 
     internal bool ReleaseCleanDocument(string documentId)
     {
-        if (!_documents.TryGetValue(documentId, out var document) || !document.TryCloseClean()) return false;
-        _documents.TryRemove(documentId, out _);
-        _references.TryRemove(documentId, out _);
-        return true;
+        return _documents.TryGetValue(documentId, out var document) && document.TryCloseClean(() =>
+        {
+            _documents.TryRemove(documentId, out _);
+            _references.TryRemove(documentId, out _);
+        });
     }
 
-    public void Touch() => LastAccess = DateTimeOffset.UtcNow;
+    public void Touch() => Interlocked.Exchange(ref _lastAccessTicks, DateTimeOffset.UtcNow.Ticks);
 
     public IReadOnlyList<ProbeMatch> Probe(DiskSaveFile file) => _probes.GetOrAdd(file.Id, _ => _catalog.Probe(file));
 
@@ -106,12 +108,10 @@ public sealed class Workspace : IDisposable
                     return existing;
                 }
 
-                if (existing.State.IsDirty)
+                if (!ReleaseCleanDocument(existing.Id))
                 {
                     throw new InvalidOperationException("This file has unsaved edits in another plugin. Close that document first.");
                 }
-
-                Close(existing.Id);
             }
 
             // Reference packs are pinned per document: packs imported later only affect documents opened later.
