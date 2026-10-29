@@ -12,6 +12,17 @@ public sealed class JsonPerformanceTests
     private const long PageBudget = 100_000;
 
     [Fact]
+    public void OpeningAndFirstViewAvoidDuplicateNumberValidationAndHashBuffers()
+    {
+        var file = MemorySaveSet.SingleFile("large.json", Source());
+        var plugin = new GenericJsonPlugin();
+        using var warmup = plugin.Open(file);
+        _ = warmup.BuildView();
+        var allocated = Allocated(() => { using var document = plugin.Open(file); _ = document.BuildView(); });
+        Assert.InRange(allocated, 0, 44_000_000);
+    }
+
+    [Fact]
     public void ProbeValidatesWithoutBuildingAnEditableTree()
     {
         var bytes = Source();

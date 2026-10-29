@@ -13,6 +13,7 @@ internal static class JsonStructureActions
     internal const string SafetyWarning = JsonWriteWarnings.Raw
         + " Advanced JSON syntax edit. Membership, names and order may have game-specific dependencies; console acceptance is unknown. Templates describe JSON types, not a validated game schema.";
     private const int DisplayedIds = 64;
+    private const int HashBufferBytes = 512;
 
     public static string StructureId(JsonValueToken node) => $"structure/{node.Index}";
 
@@ -21,12 +22,19 @@ internal static class JsonStructureActions
         if (node.StructureReview is { } cached) return FieldValue.Of(cached);
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var displayed = new List<string>();
+        Span<byte> utf8 = stackalloc byte[HashBufferBytes];
         for (var i = 0; i < node.Children.Count; i++)
         {
             var child = node.Children[i];
             var entry = node.Kind == JsonTokenType.StartObject ? $"{child.ValueId}:{JsonSerializer.Serialize(child.Label)}" : child.ValueId;
             if (i > 0) hash.AppendData(", "u8);
-            hash.AppendData(Encoding.UTF8.GetBytes(entry));
+            var byteCount = Encoding.UTF8.GetByteCount(entry);
+            if (byteCount <= utf8.Length)
+            {
+                var written = Encoding.UTF8.GetBytes(entry, utf8);
+                hash.AppendData(utf8[..written]);
+            }
+            else hash.AppendData(Encoding.UTF8.GetBytes(entry));
             if (i < DisplayedIds) displayed.Add(entry.Length <= 160 ? entry : entry[..160] + "…");
         }
         var digest = Convert.ToHexStringLower(hash.GetHashAndReset());
