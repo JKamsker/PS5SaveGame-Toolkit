@@ -31,6 +31,7 @@ public sealed class PlanningPlugin : IGamePlugin
             new ActionNode("refill", "Refill selected")
             {
                 SupportsPlanning = true,
+                SelectionTableId = "inventory",
                 Parameters = [new FieldNode("value", "Target quantity", IntegerSpec.Int32 with { Min = 0, Max = 100 }, FieldValue.Of(10L))],
             },
             new ActionNode("remove", "Remove selected") { SupportsPlanning = true },
@@ -40,7 +41,7 @@ public sealed class PlanningPlugin : IGamePlugin
         public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => lazyId == "items"
             ? [new TableNode([new TableColumn("quantity", "Quantity")], _items.Select(pair => new TableRow(pair.Key,
                 new Dictionary<string, ViewNode> { ["quantity"] = Field("item/" + pair.Key, pair.Key + " quantity",
-                    IntegerSpec.Int32, () => FieldValue.Of(_items[pair.Key]), value => _items[pair.Key] = value.AsInt64()) })).ToArray())]
+                    IntegerSpec.Int32, () => FieldValue.Of(_items[pair.Key]), value => _items[pair.Key] = value.AsInt64()) })).ToArray()) { SelectionId = "inventory" }]
             : base.ExpandNode(lazyId);
 
         public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)

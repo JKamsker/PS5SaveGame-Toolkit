@@ -19,6 +19,10 @@ public sealed class ViewIndex
     private readonly HashSet<string> _lazyIds = new(StringComparer.Ordinal);
     private readonly HashSet<string> _blobIds = new(StringComparer.Ordinal);
     private readonly HashSet<string> _assetIds = new(StringComparer.Ordinal);
+    private readonly SelectionBindingIndex _selections = new();
+
+    /// <summary>Advisory selection-binding diagnostics for the currently indexed view, including loaded expansions/pages.</summary>
+    public IReadOnlyList<string> SelectionDiagnostics => _selections.Diagnostics();
 
     public IReadOnlyDictionary<string, FieldSpec> Specs => _specs;
 
@@ -81,11 +85,13 @@ public sealed class ViewIndex
         _lazyIds.Clear();
         _blobIds.Clear();
         _assetIds.Clear();
+        _selections.Clear();
     }
 
     /// <summary>Indexes a node tree. Throws <see cref="InvalidOperationException"/> on malformed views.</summary>
     public void Add(ViewNode node)
     {
+        _selections.Add(node);
         switch (node)
         {
             case SectionNode s:

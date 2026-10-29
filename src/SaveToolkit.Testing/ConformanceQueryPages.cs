@@ -10,6 +10,7 @@ internal sealed class ConformanceQueryPages(ISaveDocument document, int pageBudg
 {
     private readonly HashSet<string> _visited = new(StringComparer.Ordinal);
     private int _remaining = pageBudget;
+    internal bool BudgetCut { get; private set; }
 
     public IEnumerable<TableNode> Read(QueryableTableNode table)
     {
@@ -65,5 +66,6 @@ internal sealed class ConformanceQueryPages(ISaveDocument document, int pageBudg
                 Assert.NotEmpty(page.Rows);
             }
         }
+        BudgetCut = true;
     }
 }

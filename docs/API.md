@@ -286,9 +286,18 @@ excludedRowKeys?:string[]}`. `query` uses the collection query model (`text`,
 `filters`, `sortColumn`, `descending`, `includeEmpty`, `offset`, `limit`, `cursor`);
 Core resolves all matching rows, bounded to 5,000 before exclusions, rather than
 only the visible page. Do not supply both row keys and a query scope.
-Table-cell controls send their enclosing table's selection. Controls outside a table send document
-scope; action labels do not establish a table association. Explicit SDK calls with row keys alone
-cannot verify that a browser control is wired to that selection.
+View actions optionally publish `selectionTableId` (SDK `ActionNode.SelectionTableId`), matching an
+F8 `collectionId` or an eager table's optional stable `selectionId` (SDK `TableNode.SelectionId`).
+The IDs are case-sensitive and unique across both table kinds in the same view. SDK-04 member
+adapters map both IDs. Null/omitted bindings preserve existing behavior: table-cell controls send
+their enclosing table's selection (including `[]`); unbound sibling controls send document scope.
+A bound sibling uses the named table's current explicit keys or complete query scope/exclusions.
+No explicit selection and no query-wide selection means document scope; a fully excluded query
+still means no rows. The browser names the table in an accessible hint and disables controls whose
+table is unmounted, unknown or ambiguous. Core does not reject unknown binding declarations;
+`ViewIndex.SelectionDiagnostics` and conformance warnings describe them. This metadata does not
+add a request field, enforce server ownership or add scopes to legacy direct actions. Explicit SDK
+calls with row keys alone cannot verify that a browser control is wired to that selection.
 
 Returns `{planId?,revision,scope,plan:{changes,skippedRows,warnings,errors},stale,
 code?}` and ETag; scope is normalized. Each consequence includes ID/label,
