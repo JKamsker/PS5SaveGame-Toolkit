@@ -65,6 +65,7 @@ The linked pages own each tool's options, prerequisites and review procedure.
 | --- | --- |
 | [`scripts/test.ps1`](scripts/test.ps1) | API build and backend test projects; [parameters and coverage](docs/RELEASING.md#script-parameters). |
 | [`scripts/self-test.ps1`](scripts/self-test.ps1) | Script/scaffold regressions; [parameters](docs/RELEASING.md#script-parameters). |
+| [`scripts/build-docs.ps1`](scripts/build-docs.ps1) | Curated DocFX site, generated SDK/OpenAPI references and link checks; [local build and Pages deployment](docs-site/README.md). |
 | [`scripts/bench.ps1`](scripts/bench.ps1) | Opt-in synthetic timing/allocation baselines; [benchmark guide](docs/PERFORMANCE.md). |
 | [`scripts/release-notes.ps1`](scripts/release-notes.ps1) | Draft notes from merged work; [curation workflow](docs/RELEASING.md#prepare-curated-notes-and-check-the-candidate). |
 | [`scripts/release-check.ps1`](scripts/release-check.ps1) | Read-only pre-tag readiness checks; [candidate checks](docs/RELEASING.md#prepare-curated-notes-and-check-the-candidate). |

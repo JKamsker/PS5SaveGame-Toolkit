@@ -1,0 +1,91 @@
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build and validate documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Configure documentation scratch
+        run: |
+          $scratch = Join-Path $env:RUNNER_TEMP 'saveeditor/test-scratch/docs-site'
+          New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+          "DOCS_SCRATCH=$scratch" >> $env:GITHUB_ENV
+          "TEMP=$scratch" >> $env:GITHUB_ENV
+          "TMP=$scratch" >> $env:GITHUB_ENV
+          "TMPDIR=$scratch" >> $env:GITHUB_ENV
+          "npm_config_cache=$scratch/npm-cache" >> $env:GITHUB_ENV
+          "NUGET_PACKAGES=$scratch/nuget-packages" >> $env:GITHUB_ENV
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            global.json
+            Directory.Packages.props
+            Directory.Build.props
+            Directory.Build.targets
+            .config/dotnet-tools.json
+            **/*.csproj
+            **/packages.lock.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: docs-site/package-lock.json
+      - name: Documentation source and pipeline regressions
+        run: |
+          python3 -B docs/tests/test_documentation.py --code-ref HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Repository documentation checks failed.' }
+          python3 -B -m unittest discover -s scripts/docs/tests
+          if ($LASTEXITCODE -ne 0) { throw 'Documentation pipeline regressions failed.' }
+      - name: Generate references and check the static site
+        run: |
+          ./scripts/build-docs.ps1 -ScratchDirectory $env:DOCS_SCRATCH
+          $site = (Get-Content -LiteralPath "$env:DOCS_SCRATCH/latest-site.txt" -Raw).Trim()
+          "DOCS_SITE=$site" >> $env:GITHUB_ENV
+      - name: Upload verified Pages artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ env.DOCS_SITE }}
+
+  deploy:
+    name: Deploy GitHub Pages
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Read Pages configuration
+        uses: actions/configure-pages@v6
+        with:
+          enablement: false
+      - name: Deploy verified artifact
+        id: deployment
+        uses: actions/deploy-pages@v5
