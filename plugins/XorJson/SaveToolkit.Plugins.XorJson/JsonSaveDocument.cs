@@ -249,7 +249,9 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         return SectionNode.Lazy(label, id, count.ToString(CultureInfo.InvariantCulture));
     }
 
-    private static string CharacterWriteWarning => "Experimental character write. Field meaning is inferred from the PS5 FCharacterSaveV1 sample and has not been validated on console; the game may reject, repair or clamp the save. No checksum or dependency behavior is known.";
+    private static string CharacterWriteWarning => "Experimental character write. Not validated on console. " +
+        "The FCharacterSaveV1 storage layout is observed; gameplay meanings and dependencies remain unverified. " +
+        "The game may reject, repair or clamp the save. No checksum or dependency behavior is known.";
 
     private sealed record ChildRange(JsonValueToken Parent, int Start, int Count);
 }
