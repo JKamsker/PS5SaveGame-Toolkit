@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { actions, capture, fixture, generateFf7Fixtures, openFf7, recordApi, saved, snapshot, unchanged } from "./ff7-helpers";
+import { actions, capture, expectFiles, fixture, generateFf7Fixtures, openFf7, recordApi, saved, snapshot, unchanged } from "./ff7-helpers";
 import { contained, screenshot, tabTo } from "./unreal-helpers";
 
 let directory: string;
@@ -30,16 +30,28 @@ for (const width of [375, 768, 1024, 1440]) {
         await expect(panel.getByText("Materia type", { exact: true })).toBeVisible();
         await expect(panel.getByRole("textbox", { name: id === actions.ap ? "Target AP" : "Target stars", exact: true })).toBeVisible();
       }
+      const label = id === actions.restock ? "Target count" : id === actions.ap ? "Target AP"
+        : id === actions.stars ? "Target stars" : id === actions.level ? "Target level" : undefined;
+      const value = id === actions.restock ? "99" : id === actions.ap ? "1" : id === actions.stars ? "2" : "25";
+      if (label) {
+        const input = panel.getByRole("textbox", { name: label, exact: true });
+        await input.fill(value);
+        await input.press("Tab");
+      }
       const before = await snapshot(page.request, documentPath);
       const name = `FF7 ${width} ${id}`;
       const preset = await capture(page, name);
       expect(preset.actions[0]!.actionId).toBe(id);
       expect(preset.actions[0]!.scopeKind).toBe("document");
+      expect(preset.actions[0]!.parameters).toEqual(id === actions.restock ? { quantity: "99" }
+        : id === actions.ap ? { type: String(binary.materiaType), ap: "1" }
+          : id === actions.stars ? { type: String(binary.materiaType), stars: "2" }
+            : id === actions.level ? { level: "25" } : {});
       expect(preset.compatibility.gameBuild ?? null).toBeNull();
       expect(preset.compatibility.referencePackIdentity).toBeTruthy();
       const after = await snapshot(page.request, documentPath);
       expect(after.state).toEqual(before.state);
-      for (const member of Object.keys(before.files)) expect(Buffer.from(after.files[member]!)).toEqual(Buffer.from(before.files[member]!));
+      expectFiles(after.files, before.files);
     }
     const row = saved(page, `FF7 ${width} ${actions.restock}`);
     await row.getByText("Compatibility boundaries", { exact: true }).click();

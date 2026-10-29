@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { unzipSync } from "fflate";
 import type { DocumentState, SaveDocument, ToolkitPreset } from "../src/api/protocol";
-import { archive, expectFiles, importSave, type SaveFiles } from "./helpers";
+import { archive, importSave, type SaveFiles } from "./helpers";
 
 export const actions = {
   restock: "inventory/restock-existing", ap: "materia/set-ap-within-tier", stars: "materia/set-stars",
@@ -55,17 +55,28 @@ export async function openFf7(page: Page, binary: Ff7Fixture, file = binary.game
   expect(document.titleId).toBe(binary.titleId);
   expect(document.presetCapability?.actions).toHaveLength(file === binary.commonName ? 0 : 5);
   await expect(page.getByRole("heading", { name: document.title, exact: true })).toBeVisible();
-  await page.locator(".presets-panel summary").click();
+  await page.locator(".presets-panel > summary").click();
   return new URL(response.url()).pathname.replace(/\/files\/[^/]+\/open$/, `/documents/${document.id}`);
 }
 
 export async function capture(page: Page, name: string): Promise<ToolkitPreset> {
   const panel = page.locator(".presets-panel");
   await panel.getByLabel("Name", { exact: true }).fill(name);
+  const busy = await panel.locator(".section__body").evaluateHandle(element => {
+    let observed = element.getAttribute("aria-busy") === "true";
+    const observer = new MutationObserver(records => {
+      observed ||= element.getAttribute("aria-busy") === "true" || records.some(record => record.oldValue === "true");
+    });
+    observer.observe(element, { attributes: true, attributeFilter: ["aria-busy"], attributeOldValue: true });
+    return { stop: () => { observer.disconnect(); return observed; } };
+  });
   const saving = page.waitForResponse(response => response.url().endsWith("/presets/capture"));
   await panel.getByRole("button", { name: "Save preset", exact: true }).click();
   const response = await saving;
   expect(response.status()).toBe(200);
+  await expect(panel.getByRole("status").filter({ hasText: `Saved “${name}”.` })).toHaveCount(1);
+  expect(await busy.evaluate(observation => observation.stop())).toBe(true);
+  await busy.dispose();
   return await response.json() as ToolkitPreset;
 }
 
@@ -92,6 +103,13 @@ export async function unchanged(request: APIRequestContext, documentPath: string
   expect(after.state).toEqual(before.state);
   expect(after.library).toEqual(before.library);
   expectFiles(after.files, before.files);
+}
+
+/** Native Buffer comparison checks every member byte without constructing millions of matcher nodes. */
+export function expectFiles(actual: SaveFiles, expected: SaveFiles) {
+  expect(Object.keys(actual).sort()).toEqual(Object.keys(expected).sort());
+  for (const [name, bytes] of Object.entries(expected))
+    expect(Buffer.from(actual[name]!).equals(Buffer.from(bytes)), `Exact complete member bytes: ${name}`).toBe(true);
 }
 
 export async function state(request: APIRequestContext, documentPath: string): Promise<DocumentState> {

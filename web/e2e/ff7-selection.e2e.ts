@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { actions, capture, fixture, generateFf7Fixtures, openFf7, patch, preview, recordApi, snapshot, unchanged } from "./ff7-helpers";
-import { expectFiles } from "./helpers";
+import { actions, capture, expectFiles, fixture, generateFf7Fixtures, openFf7, patch, preview, recordApi, snapshot, unchanged } from "./ff7-helpers";
 import { applyAndHistory, selectedAction, selectRows, withFiles } from "./ff7-selection-helpers";
 import { screenshot, tabTo } from "./unreal-helpers";
 
@@ -35,8 +34,10 @@ test("FF7 selected source identity presents genuine ambiguous candidates and app
   await unchanged(page.request, documentPath, before);
   const index = resolution.candidates.findIndex(candidate => candidate.path === "inventory/7");
   expect(index).toBeGreaterThanOrEqual(0);
-  await tabTo(page, review.getByRole("radio").nth(index));
+  await tabTo(page, review.getByRole("radio").first());
+  for (let candidate = 0; candidate < index; candidate++) await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Space");
+  await expect(review.getByRole("radio").nth(index)).toBeChecked();
   await screenshot(page, testInfo, "ff7-genuine-ambiguity-choice");
   const resolving = page.waitForResponse(response => /\/presets\/[^/]+\/preview$/.test(response.url()));
   await review.getByRole("button", { name: "Preview again", exact: true }).click();

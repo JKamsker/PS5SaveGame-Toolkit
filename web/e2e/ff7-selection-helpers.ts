@@ -1,6 +1,6 @@
 import { expect, type Page, type TestInfo } from "@playwright/test";
-import { actions, manifest, snapshot, state, type Ff7Fixture } from "./ff7-helpers";
-import { expectFiles, exportFiles, type SaveFiles } from "./helpers";
+import { actions, expectFiles, manifest, snapshot, state, type Ff7Fixture } from "./ff7-helpers";
+import { exportFiles, type SaveFiles } from "./helpers";
 
 export async function selectRows(page: Page, tab: "Inventory" | "Characters" | "Materia", indices: number[]) {
   await page.getByRole("tab", { name: tab, exact: true }).click();
