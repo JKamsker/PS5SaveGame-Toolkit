@@ -42,6 +42,11 @@ test has been performed; only a human should promote this plugin to Stable.
   sorting and stable physical row keys. F6 all-matching selection includes unloaded
   pages and exclusions through Core's resolver; querying publishes bindings before
   planning. The supplied 90-row inventories retain their compact table.
+  Both sibling Set/Restore toolbar controls bind to the Inventory table's SDK-41
+  selection identity, `inventory/items`, shared by the eager and F8 presentations.
+  Selected rows and all-matching queries (including exclusions) scope their previews;
+  with no selection the toolbar retains document scope. An explicitly empty selection
+  or a fully excluded query remains empty. Row-cell controls retain enclosing-table selection.
 - An F12 SDK decoder hook, `pragmata-canonical-v1`, selectable by the stock
   `savediff` CLI, plus a versioned section/ID manifest. Canonical paths align
   reordered sections and uniquely keyed records; shared bounded F8 traversal
@@ -465,6 +470,18 @@ clean rejections, so byte mutation does not imply coverage of every decrypted ty
 
 ## Validation and development
 
+SDK-41 selection adoption, **2026-10-29**: production changes only declare the eager
+table's selection identity and bind the two sibling quantity toolbar controls to it.
+New synthetic declaration, opt-in `SelectionScopeFixture` and session regressions
+cover eager/F8 selection, meaningful Set/Restore staging, canonical/derived metadata,
+query exclusions, empty selection, matching-row budgets, pure preview, exact output
+and undo/redo. The advisory fixture explicitly distinguishes Passed, Failed and
+NotEvaluated; its 300-expansion limit includes the 251-row Raw tree. These new tests
+are authored but **not yet executed** in this implementation worker. Browser request
+wiring and inactive-table behavior still require the dedicated integration smoke;
+backend scopes alone do not establish UI behavior. Existing software-validation
+results below are historical and do not validate this change.
+
 Documentation audit, **2026-10-29**, against plugin code at `b369fa4`:
 **284 plugin tests passed, 0 failed, 0 skipped** with all 12 supplied files.
 The API build passed with **0 warnings, 0 errors**. This is software validation;
@@ -570,7 +587,7 @@ measurements and remaining mission-text/save-ID gaps are in the
 | F3 rich cells | Used | Existing inventory/evidence cells plus lazy image/name/category/source rows for the illustrated library; icons are 64×64 with attribution. |
 | F4 pickers | Used | Writable inventory item IDs; browse-only mission/item-evidence and illustrated references. Wiki file keys are never eligible inventory IDs. |
 | F5 structural undo | N/A | Only fixed-size primitive patching exists; no preserve-first resizing writer. Unknown padding/count metadata prevents safe add/remove/reorder. |
-| F6 planned actions / #27 | Used | Set quantities and restore imported eligible quantities; shared ActionPlans revalidation/application; F8 whole-query selection, exclusions, stale-plan checks and one undo unit above 200 rows. No legal-max/loadout/progression preset has proven dependency rules. |
+| F6 planned actions / #27 | Used | Set quantities and restore imported eligible quantities; SDK-41 sibling toolbar bindings share the eager/F8 Inventory selection identity; shared ActionPlans revalidation/application; F8 whole-query selection, exclusions, stale-plan checks and one undo unit above 200 rows. No legal-max/loadout/progression preset has proven dependency rules. |
 | F7 document groups | N/A | No proven coupled-file operation or partner identity. Claiming independent slot/system files would invent dependencies and lock unrelated saves. |
 | F8 queryable tables | Used | Family-view arrays register queryable collections when their containing sections expand; complete-model search/filter/sort precedes paging. Inventory switches above 200 rows, with numeric quantity sorting. |
 | F9 graphs/maps | Used | Existing mission DAG and checkpoint field targets; local 2048×585 Cradle background and 26 community hatches in the original image-pixel frame. Raw save hashes remain unpositioned and all saved states Unknown. |
@@ -592,6 +609,15 @@ is an adoption task, not a missing SDK capability. Both quantity actions now use
 are inapplicable: strings use counted UTF-16LE and integrity uses CityHash64/Murmur3.
 
 ## SDK requests
+
+SDK-41 selection-table binding is adopted using the
+[delivered contract](../../docs/PLUGIN_GUIDE.md#selection-table-binding-and-advisory-conformance-40).
+Only the sibling Set/Restore controls declare `SelectionTableId`; row-cell actions
+keep placement-based scope. The eager table publishes `SelectionId = inventory/items`,
+matching the existing F8 `CollectionId`. No selection retains the documented
+document fallback; explicit empty and fully excluded selections stay empty. No SDK,
+writer, relative-quantity action or reference-data change is needed. Plugin-only
+tests cannot establish real browser request wiring or inactive-tab disabling.
 
 SDK-02 is adopted from `360144f`, following the
 [Pragmata opt-in plan](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489058706)

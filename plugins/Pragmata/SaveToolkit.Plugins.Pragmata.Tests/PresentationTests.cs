@@ -12,6 +12,7 @@ public sealed class PresentationTests
     [Theory]
     [InlineData(200)]
     [InlineData(201)]
+    [InlineData(251)]
     public void InventoryLabelsDescribeStoredRecordsAndRetainNativeNamesAndWarnings(int itemCount)
     {
         using var document = new PragmataDocument("data000.bin", SyntheticInventory.Create(itemCount));
@@ -21,6 +22,7 @@ public sealed class PresentationTests
         {
             var table = Assert.Single(inventory.Children.OfType<TableNode>());
             Assert.Equal("Stored inventory records", table.Title);
+            Assert.Equal(InventoryCollections.CollectionId, table.SelectionId);
             Assert.Contains("_InventoryItems", table.Description!, StringComparison.Ordinal);
             rows = table.Rows;
         }
@@ -44,9 +46,15 @@ public sealed class PresentationTests
             note.Text.Contains("Player-facing item mappings and legal stack limits are unverified.", StringComparison.Ordinal));
         var actions = inventory.Children.OfType<ActionNode>().ToArray();
         Assert.Equal(2, actions.Length);
+        Assert.All(actions, control =>
+        {
+            Assert.True(control.SupportsPlanning);
+            Assert.Equal(InventoryCollections.CollectionId, control.SelectionTableId);
+        });
         var action = Assert.Single(actions, node => node.ActionId == PragmataViews.QuantityAction);
         var rowActions = rows.SelectMany(row => Assert.IsType<SectionNode>(row.Cells["action"]).Children.OfType<ActionNode>()).ToArray();
         Assert.Equal(rows.Count * 2, rowActions.Length);
+        Assert.All(rowActions, control => Assert.Null(control.SelectionTableId)); // Retain enclosing-table scope.
         foreach (var control in rowActions.Where(node => node.ActionId == PragmataViews.QuantityAction).Prepend(action))
         {
             Assert.Equal("inventory/set-quantities", control.ActionId);
@@ -63,6 +71,7 @@ public sealed class PresentationTests
         foreach (var control in rowActions.Where(node => node.ActionId == PragmataViews.RestoreQuantityAction)
             .Prepend(Assert.Single(actions, node => node.ActionId == PragmataViews.RestoreQuantityAction)))
         {
+            Assert.Equal("inventory/restore-imported-quantities", control.ActionId);
             Assert.Equal("Restore imported quantities", control.Label);
             Assert.Empty(control.Parameters);
             Assert.True(control.SupportsPlanning);
