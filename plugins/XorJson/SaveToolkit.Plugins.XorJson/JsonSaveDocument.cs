@@ -20,7 +20,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     internal const string WriteWarning = "Experimental write: no checksum or console reload has been verified. The game may reject, repair, or clamp this save; keep a backup and validate on a spare slot.";
     private IReadOnlyList<CharacterCollection>? _collections;
     private readonly JsonActionPlanner _planner;
-    private IReadOnlyList<CharacterCollection> Projections => _collections ??= JsonCollections.Build(_model.Root, _references, _character is not null);
+    private IReadOnlyList<CharacterCollection> Projections => _collections ??= JsonCollections.Build(_model.Nodes, _references, _character is not null);
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
 
     public JsonSaveDocument(string name, string path, JsonTokenTree tree, JsonEncoding encoding, IReferenceContext references)
