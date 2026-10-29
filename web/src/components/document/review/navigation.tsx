@@ -1,15 +1,27 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { ViewTarget } from "../../../api/spatial";
+import type { CollectionQuery } from "../../../api/protocol";
+import { useDocument } from "../../../state/documentStore";
+import { useDocumentContentVersion } from "../../../state/useDocumentContentVersion";
 
-interface JumpTarget { valueId?: string; actionId?: string; rowId?: string; path: readonly string[] }
-interface Navigation { target: JumpTarget | null; jump: (change: JumpTarget) => void }
-const ReviewNavigation = createContext<Navigation>({ target: null, jump: () => {} });
+interface JumpTarget {
+  valueId?: string; actionId?: string; rowId?: string; path: readonly string[];
+  collection?: { collectionId: string; rowKey: string; query: CollectionQuery };
+}
+interface Navigation { target: JumpTarget | null; jump: (change: JumpTarget) => void; clear: () => void }
+const ReviewNavigation = createContext<Navigation>({ target: null, jump: () => {}, clear: () => {} });
 const ReviewPathContext = createContext<readonly string[]>([]);
 
 export function ReviewNavigationProvider({ children }: { children: ReactNode }) {
-  const [target, setTarget] = useState<JumpTarget | null>(null);
-  const jump = useCallback((change: JumpTarget) => setTarget({ ...change }), []);
-  const navigation = useMemo(() => ({ target, jump }), [target, jump]);
+  const doc = useDocument();
+  const { revision, version } = useDocumentContentVersion(doc.store);
+  const binding = useMemo(() => ({ store: doc.store, revision, version, structureVersion: doc.structureVersion }),
+    [doc.store, revision, version, doc.structureVersion]);
+  const [requested, setRequested] = useState<{ target: JumpTarget; binding: typeof binding } | null>(null);
+  const target = requested?.binding === binding ? requested.target : null;
+  const jump = useCallback((change: JumpTarget) => setRequested({ target: { ...change }, binding }), [binding]);
+  const clear = useCallback(() => setRequested(null), []);
+  const navigation = useMemo(() => ({ target, jump, clear }), [target, jump, clear]);
   return <ReviewNavigation.Provider value={navigation}>{children}</ReviewNavigation.Provider>;
 }
 
@@ -40,10 +52,14 @@ export function useViewJump(id: string, kind: ViewTarget["kind"]) {
   useEffect(() => {
     const targetId = kind === "Field" ? target?.valueId : kind === "Action" ? target?.actionId : target?.rowId;
     if (targetId !== id || !ref.current) return;
+    // An F8 identity can also occur in another rendered projection of the save.
+    if (target?.collection && (target.path.length !== path.length || !path.every((part, index) => target.path[index] === part))) return;
     if (kind === "Row" && (target!.path.length !== path.length + 1 || !path.every((part, index) => target!.path[index] === part))) return;
     const element = ref.current;
     element.scrollIntoView?.({ block: "center" });
-    const control = element.querySelector<HTMLElement>("input:not(:disabled), select:not(:disabled), textarea:not(:disabled), button:not(:disabled)");
+    // Prefer a field's value editor over a surrounding union-type selector.
+    const control = (kind === "Field" ? element.querySelector<HTMLElement>("input:not(:disabled), textarea:not(:disabled)") : null)
+      ?? element.querySelector<HTMLElement>("input:not(:disabled), select:not(:disabled), textarea:not(:disabled), button:not(:disabled)");
     (control ?? element).focus({ preventScroll: true });
   }, [target, id, kind, path]);
   return ref;
