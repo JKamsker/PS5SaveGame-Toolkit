@@ -43,6 +43,9 @@ public sealed class GvasCataloguePolicyTests
             string? catalogId = title switch { "sackboy" => "unrealgvas_sackboy_fields", "settings" => "unrealgvas_jedi_settings", _ => null };
             var row = page.Rows.Single(row => ((TextNode)row.Cells["path"]).Text == "/" + name);
             Assert.Equal(catalogId is null ? name : references.Catalog(catalogId)!.Find(name)!.Name, ((TextNode)row.Cells["name"]).Text);
+            var caption = references.Catalog(catalogId ?? "unrealgvas_property_types")!
+                .Find(catalogId is null ? ((TextNode)row.Cells["type"]).Text : name)!;
+            Assert.Equal(caption.AttributionText, ((TextNode)row.Cells["source"]).Text);
             Assert.Equal("property/catalogue/" + expected.Split(',')[0], catalogues.OfType<FieldNode>().First().ValueId);
         }
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
