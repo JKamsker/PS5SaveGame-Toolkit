@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
@@ -14,10 +15,10 @@ namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 public sealed class ProtocolCharacterizationTests
 {
     [Theory]
-    // Captured before planner/dispatcher cleanup; authored framing, no private sample data.
+    // Captured against c8efe5d production code; authored framing, no private sample data.
     [InlineData("PPSA01911", "BDBC5BD5BD3CD7BEC53B93DBBEFE678A65036106A540F72BDF63179E1489D7F7")]
-    [InlineData("PPSA08664", "55312EB8E34AD223B36895587AC9768CBB9F112E6DAAC62E0427AD368E16EA72")]
-    [InlineData("PPSA18936", "CC1C8FFBD66F13D9EA6BF993A413D5943C06C790E058BF2DC5A9E957718C8709")]
+    [InlineData("PPSA08664", "080D773874904DF7B929B6AF862ECC1709B63D16F9EC79AEA5FBBBBBAB07F6DA")]
+    [InlineData("PPSA18936", "13872A282FF310B730434688412A7F41C967C73C39BB1D0366FAD02CD33353B3")]
     public void RootCollectionsLazyRoutesAndCompletePlansKeepTheirProtocol(string title, string expected)
     {
         var previousCulture = CultureInfo.CurrentCulture;
@@ -27,7 +28,10 @@ public sealed class ProtocolCharacterizationTests
             var fixture = SyntheticGameplay.Create(title);
             var schema = Ff7Schema.ForTitle(title)!;
             SeedMateria(fixture.Bytes, schema);
-            using var document = new FinalFantasy7Plugin().Open(MemorySaveSet.SingleFile(schema.Prefix + "000", fixture.Bytes, title));
+            // Use the host's pinned packs so optional asset resolution is consistent across platforms.
+            var plugin = new FinalFantasy7Plugin();
+            var references = new ReferencePackStore([plugin]).Pin(plugin, title);
+            using var document = plugin.Open(MemorySaveSet.SingleFile(schema.Prefix + "000", fixture.Bytes, title), references);
             var transcript = new StringBuilder();
             transcript.AppendLine(JsonSerializer.Serialize(document.BuildView()));
             CaptureCollections((IQueryableDocument)document, transcript);
