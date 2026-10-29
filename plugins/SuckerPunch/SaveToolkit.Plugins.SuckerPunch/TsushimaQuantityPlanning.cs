@@ -69,8 +69,10 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
 
         var goodsOnly = actionId == ActionId;
         var changes = new List<PlannedChange>();
+        var mirrors = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
         var warnings = new List<string> { CapacityWarning };
+        var checksum = Word(8);
         foreach (var record in inventory.Records.Where(record => selected?.Contains(record.Name) ?? IsSupported(record, goodsOnly)))
         {
             if (!IsSupported(record, goodsOnly))
@@ -94,22 +96,17 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             }
 
             changes.Add(new(record.ValueId, record.Name, FieldValue.Of((ulong)current), target));
+            checksum = AdditiveChecksum.ReplaceWord(checksum, current, target.AsUInt32());
+            if (record.IsAmmo)
+            {
+                mirrors.Add(new(record.MirrorValueId, $"{record.Name} count copy", FieldValue.Of((ulong)current), target) { Derived = true });
+                checksum = AdditiveChecksum.ReplaceWord(checksum, current, target.AsUInt32());
+            }
         }
 
         if (changes.Count > 0)
         {
-            var preview = bytes.ToArray();
-            foreach (var change in changes.ToArray())
-            {
-                var record = inventory.Records.Single(record => record.ValueId == change.ValueId);
-                record.WriteQuantity(preview, change.NewValue.AsUInt32());
-                if (record.IsAmmo)
-                {
-                    changes.Add(new(record.MirrorValueId, $"{record.Name} count copy", change.OldValue, change.NewValue) { Derived = true });
-                }
-            }
-
-            var checksum = SaveContainer.CalculateTsushimaChecksum(preview, container.Word1, container.Magic, container.Word3);
+            changes.AddRange(mirrors);
             if (checksum != Word(8))
             {
                 changes.Add(new(TsushimaIds.ChecksumValue, "Container checksum", FieldValue.Of((ulong)Word(8)), FieldValue.Of((ulong)checksum))
