@@ -5,7 +5,6 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
-using SaveToolkit.Testing.Diff;
 
 namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 
@@ -37,7 +36,7 @@ public sealed class CharacterWriteTests
             var allowed = suffix == "hp" ? Enumerable.Range(offset + 0x10, 4)
                 : suffix == "mp" ? Enumerable.Range(offset + 0x18, 4)
                 : new[] { offset }.Concat(Enumerable.Range(offset + 0x20, 4));
-            AssertScope(original, edited, allowed);
+            ByteChangeAssertions.OnlyOffsetsChanged(original, edited, allowed);
             using var reopened = plugin.Open(MemorySaveSet.SingleFile(name, edited, title));
             _ = reopened.BuildView();
             Assert.Equal(target, reopened.GetValue(key + "/" + suffix).AsInt32());
@@ -107,7 +106,7 @@ public sealed class CharacterWriteTests
         }
         Assert.True(session.ApplyEdits([new("character/0/weapon", JsonSerializer.SerializeToElement(target))]).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
-        AssertScope(original, edited, Enumerable.Range(0xCC, 4));
+        ByteChangeAssertions.OnlyOffsetsChanged(original, edited, Enumerable.Range(0xCC, 4));
         using var reopened = plugin.Open(MemorySaveSet.SingleFile(file.FileName, edited, title));
         _ = reopened.BuildView();
         Assert.Equal(target, reopened.GetValue("character/0/weapon").AsUInt32());
@@ -158,14 +157,5 @@ public sealed class CharacterWriteTests
                 Assert.Contains("Not validated on console", field.Warning);
             });
         }
-    }
-
-    private static void AssertScope(byte[] original, byte[] edited, IEnumerable<int> allowed)
-    {
-        var offsets = allowed.ToHashSet();
-        var diff = ByteDiffer.Compare(original, edited, options: new() { MergeGap = 0 });
-        Assert.True(diff.ChangedBytes > 0);
-        Assert.All(diff.Ranges, range => Assert.All(Enumerable.Range((int)range.Offset, (int)range.Length),
-            offset => Assert.Contains(offset, offsets)));
     }
 }

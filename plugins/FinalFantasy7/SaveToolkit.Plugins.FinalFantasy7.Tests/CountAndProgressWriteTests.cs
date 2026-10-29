@@ -5,7 +5,6 @@ using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
-using SaveToolkit.Testing.Diff;
 
 namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 
@@ -39,7 +38,7 @@ public sealed class CountAndProgressWriteTests
             Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(target))]).Ok);
             var edited = Assert.Single(document.Serialize()).Content.ToArray();
             Assert.Equal((byte)(original[offset] ^ (1 << bit)), edited[offset]);
-            AssertScope(original, edited, offset, 1);
+            ByteChangeAssertions.OnlyRangeChanged(original, edited, offset, 1);
             using var reopened = plugin.Open(MemorySaveSet.SingleFile(name, edited, title));
             var page = ((IQueryableDocument)reopened).Query("progress", new()
             {
@@ -79,7 +78,7 @@ public sealed class CountAndProgressWriteTests
             var edited = Assert.Single(document.Serialize()).Content.ToArray();
             var slot = int.Parse(row.Key.Split('/')[1]);
             var layout = GameplayLayout.For(schema);
-            AssertScope(original, edited, layout.InventoryOffset + slot * layout.InventoryStride + GameplayLayout.QuantityDelta, 4);
+            ByteChangeAssertions.OnlyRangeChanged(original, edited, layout.InventoryOffset + slot * layout.InventoryStride + GameplayLayout.QuantityDelta, 4);
             using var reopened = plugin.Open(MemorySaveSet.SingleFile(file.FileName, edited, title));
             _ = ((IQueryableDocument)reopened).Query("inventory", new() { Filters = new Dictionary<string, string> { ["slot"] = slot.ToString() } });
             Assert.Equal(target, reopened.GetValue(field.ValueId).AsInt32());
@@ -110,12 +109,5 @@ public sealed class CountAndProgressWriteTests
         Assert.True(session.Redo().Ok);
         Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Undo().Ok);
-    }
-
-    private static void AssertScope(byte[] original, byte[] edited, int offset, int length)
-    {
-        var diff = ByteDiffer.Compare(original, edited, options: new() { MergeGap = 0 });
-        Assert.True(diff.ChangedBytes > 0);
-        Assert.All(diff.Ranges, range => Assert.True(range.Offset >= offset && range.End <= offset + length));
     }
 }
