@@ -1,24 +1,20 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import type { ReactNode } from "react";
 import { actionReview, type ActionPreview, type SemanticChange, type SemanticChangeLog } from "../../../api/actionReview";
 import type { EditResult } from "../../../api/protocol";
-import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../../state/documentStore";
 import { ActionButton } from "../ActionButton";
 import { api } from "../../../api/client";
 import { ViewRenderer } from "../ViewRenderer";
 import { TableSelectionContext, useRowSelection } from "../table/selection";
 import { ChangesPanel } from "./ChangesPanel";
-import { ReviewNavigationProvider } from "./navigation";
+import { clearReviewClients, renderDocument } from "./reviewTestUtils";
 import { stubViewport } from "../table/tableTestUtils";
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function () { this.open = true; };
   HTMLDialogElement.prototype.close = function () { this.open = false; };
 });
-const clients: QueryClient[] = [];
-afterEach(() => { cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); clearReviewClients(); vi.restoreAllMocks(); });
 
 const change: SemanticChange = { valueId: "quantity", label: "Potion quantity", path: ["section:Inventory", "tab:Items"],
   originalValue: "2", currentValue: "10", originalExists: true, currentExists: true, canRevert: true };
@@ -30,20 +26,6 @@ const preview: ActionPreview = { planId: "p1", revision: 1, scope: { rowKeys: ["
 } };
 const result: EditResult = { ok: true, errors: [], changes: [], warnings: [], structureChanged: false,
   state: { canUndo: true, canRedo: false, isDirty: true, revision: 2 } };
-
-function renderDocument(children: ReactNode, canEdit = true) {
-  const store = new DocumentStore({ canUndo: true, canRedo: false, isDirty: true, revision: 1 });
-  const context: DocumentContextValue = { workspaceId: "w1", documentId: "d1", canEdit, store, structureVersion: 0,
-    refresh: vi.fn(async () => {}), commit: vi.fn(async () => true), runAction: vi.fn(async () => result),
-    mutate: async call => { const outcome = await call(); await context.acceptResult(outcome); return outcome; }, acceptResult: vi.fn(async outcome => { store.apply(outcome); }),
-  };
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  clients.push(client);
-  const rendered = render(<QueryClientProvider client={client}><DocumentContext.Provider value={context}>
-    <ReviewNavigationProvider>{children}</ReviewNavigationProvider>
-  </DocumentContext.Provider></QueryClientProvider>);
-  return { ...rendered, context, store };
-}
 
 function SelectedAction() {
   const selection = useRowSelection([{ key: "a", cells: {} }, { key: "b", cells: {} }]);
@@ -285,7 +267,8 @@ describe("semantic changes panel", () => {
     await screen.findByText("Potion quantity");
     changes.mockResolvedValue({ changes: [], complete: false, warnings: ["Memory limit reached"], revision: 2 });
     act(() => store.apply(result));
-    await screen.findByText("No semantic changes.");
+    await screen.findByText("No proven changes in the reviewed portion.");
+    expect(screen.queryByText("No semantic changes.")).toBeNull();
     expect(screen.getByText("Memory limit reached")).toBeTruthy();
     changes.mockResolvedValue({ ...log, revision: 3 });
     act(() => store.apply({ ...result, state: { ...result.state, revision: 3 } }));

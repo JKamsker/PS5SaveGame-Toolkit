@@ -1,5 +1,19 @@
 import { request } from "./client";
-import type { EditResult, FieldError, FieldValue } from "./protocol";
+import type { CollectionQuery, EditResult, FieldError, FieldValue } from "./protocol";
+
+/** SDK query names differ from the collection endpoint's query-string names. */
+export interface QueryableCollectionQuery extends Omit<CollectionQuery, "q" | "sort"> {
+  text?: string;
+  sortColumn?: string;
+}
+export interface SemanticCollectionTarget {
+  collectionId: string;
+  rowKey: string;
+  query: QueryableCollectionQuery;
+}
+export function collectionReviewQuery({ text, sortColumn, ...query }: QueryableCollectionQuery): CollectionQuery {
+  return { ...query, q: text, sort: sortColumn };
+}
 
 export interface ActionQueryScope {
   collectionId: string;
@@ -19,6 +33,7 @@ export interface ActionPreview {
 export interface SemanticChange {
   valueId: string; label: string; path: string[]; originalValue: FieldValue; currentValue: FieldValue;
   originalExists: boolean; currentExists: boolean; canRevert: boolean;
+  target?: SemanticCollectionTarget;
 }
 export interface SemanticChangeLog { changes: SemanticChange[]; complete: boolean; warnings: string[]; revision: number }
 
