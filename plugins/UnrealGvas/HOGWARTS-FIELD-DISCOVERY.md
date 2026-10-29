@@ -120,7 +120,9 @@ editable point bindings and missing read-only semantics. The implementation
 then passed all three. Authored GVAS + SQLite fixtures cover distinct images,
 unmapped owners/talents/states, conflicting tuples and rowid paging, edit rejection
 and atomic mixed batches, original-byte preservation, and operation with/without
-the reference catalogue. The fixture also seeds inherited mutation fuzzing.
+the reference catalogue. Authored SQL raw strings normalize line endings to LF
+before database-byte construction, so Windows CRLF checkouts and Linux agree.
+The fixture also seeds inherited mutation fuzzing; no reference pack is changed.
 
 `HogwartsDiscoverySampleTests` has 30 pinned cases for the values above and FGC
 total/complete/delayed counts, negative joins and schemas. Each checks native SQLite
@@ -136,7 +138,9 @@ seeds), with zero failures or quarantines. API build: **0 warnings, 0 errors**.
 Documentation checks (`python -B docs/tests/test_documentation.py --code-ref main`):
 **28 passed**. The report matrix was also reconciled against all 30 independently
 measured image summaries. `git diff --check` and the changed-file <300-line C#
-check passed. Final runner attachments/TRX are under `$scratch/results-final`.
+check passed. Full-suite verification after fixture newline normalization again
+passed 349 tests / 0 skipped and 800 mutation cases. Runner attachments/TRX are
+under `$scratch/results-final` and `$scratch/results-normalized`.
 
 ```powershell
 $scratch = 'D:/Temp/saveeditor/test-scratch/research-unrealgvas-hogwarts'

@@ -26,12 +26,12 @@ internal static class HogwartsDiscoveryFixture
             INSERT INTO MapLocationDataDynamic VALUES('SyntheticPage',11);
             CREATE TABLE AchievementDynamic(AchievementID TEXT,Instances INTEGER,IsComplete INTEGER,OneOfEach TEXT,RewardsDelayed INTEGER);
             INSERT INTO AchievementDynamic VALUES('FGC_Synthetic',3,1,NULL,1);
-            """);
+            """.ReplaceLineEndings("\n"));
         using var exclusive = SqliteImage.Create();
         exclusive.Execute("""
             CREATE TABLE MiscDataDynamic(DataOwner TEXT, DataName TEXT, DataValue TEXT);
             INSERT INTO MiscDataDynamic VALUES('Player0','PerkPoints','8');
-            """);
+            """.ReplaceLineEndings("\n"));
         byte[] bytes = TitleFixture.Hogwarts(HogwartsImage.EncodeStored(database.Serialize()), HogwartsImage.EncodeStored(exclusive.Serialize()));
         return MemorySaveSet.SingleFile("save.sav", bytes, "PPSA01603", "HL0000");
     }
