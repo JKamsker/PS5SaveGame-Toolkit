@@ -10,9 +10,23 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  script-tests:
+    name: Script regressions (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v5
+      - name: PowerShell script regressions
+        shell: pwsh
+        run: ./scripts/self-test.ps1 -ScratchDirectory "${{ runner.temp }}/script-tests"
+
   validate:
     name: Validate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
