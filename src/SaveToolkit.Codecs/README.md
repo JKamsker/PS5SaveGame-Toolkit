@@ -26,7 +26,9 @@ checked managed view. Entropy nesting is capped at 16; work is capped at the les
 operations and 1 million + 64 times the sum of input/output sizes. No unsafe code, native decoder,
 reflection or static mutable decoder state is used. Typed table views currently require little endian.
 Small, fixed format tables are allocated per stage; padding used by upstream word-copy loops
-never becomes caller-visible output. Work/size bounds can reject otherwise valid extreme streams.
+never becomes caller-visible output. Multi-array interval lengths are preflighted so both directions'
+consumed bits fit in their declared byte span before padded word lookahead. Work/size bounds can
+reject otherwise valid extreme streams.
 
 `EncodeStored` emits Oodle block-level uncompressed Kraken streams (`CC 06`, at most 256 KiB per
 block), rather than compressing. It round-trips through the decoder. Unreal's six-u64 framing,
@@ -77,12 +79,24 @@ intermediates and its own page cache. Callers should page results and limit conc
 Image-opening failures use `InvalidDataException`, retaining native SQLite failures as inner exceptions.
 SQL errors/interruption during operations use `SqliteException`; wrapper bounds/integrity errors use
 `InvalidDataException`. This helper does not infer how two game database images relate or mirror them.
+Each standalone `ValidateIntegrity()` call starts a fresh VM budget, including after an interrupted
+query. Integrity checks inside opening, edits and serialization share the enclosing operation's budget.
 
 ## Evidence and tests
 
 `tests/SaveToolkit.Codecs.Tests` includes stored/memset/RLE/Huffman vectors, stored round-trips
 across quantum boundaries, 3,000 seeded malformed streams, recursive-depth rejection, 100 mutations
 and systematic truncations of an actual compressed chunk, and SQLite edits/rollback/bounds/fuzz.
+
+The correctness review for #40 adds every-prefix checks for the known stored/memset/RLE/Huffman
+vectors, authored recursive/multi-array and raw/delta LZ vectors, 1,280 stage-targeted entropy
+corruptions, independently inspected stored framing at 128/256 KiB boundaries, and complete stored
+round trips of the decoded sample payloads below. Multi-array tests cover nonzero asymmetric bit
+streams in combined/separate index modes, plus truncations with repaired enclosing sizes. SQLite
+tests cover repeated/interrupted-operation integrity checks, empty-image round trips, native SQL
+limits, UTF-8/result/parameter limits, created/imported image growth and rollback, every incomplete
+header prefix and page-boundary truncations. These are bounded deterministic cases, not an
+exhaustive malformed-stream proof or a proprietary-decoder cross-check.
 
 Read-only ZIP tests use **only** `SAVETOOLKIT_ARTIFACTS` and skip if samples are absent:
 

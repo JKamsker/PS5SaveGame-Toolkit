@@ -12,6 +12,7 @@ public sealed class CodecSampleTests
         var decoded = SampleChunks.DecodeFrames(file, 2302, 14);
         Assert.Equal(1751391, decoded.Bytes.Length);
         Assert.Equal(file.Length - 20, decoded.End);
+        Assert.Equal(decoded.Bytes, OodleCodec.Decompress(OodleCodec.EncodeStored(decoded.Bytes), decoded.Bytes.Length));
         int compressedLength = checked((int)BinaryPrimitives.ReadUInt64LittleEndian(file.AsSpan(2302 + 16)));
         var random = new Random(11);
         byte[] firstChunk = file.AsSpan(2302 + 48, compressedLength).ToArray();
@@ -36,6 +37,8 @@ public sealed class CodecSampleTests
         int next = SampleChunks.FindFrames(file, primary.End);
         var exclusive = SampleChunks.DecodeFrames(file, next, 33);
         Assert.Equal(4231176, exclusive.Bytes.Length);
+        Assert.Equal(primary.Bytes, OodleCodec.Decompress(OodleCodec.EncodeStored(primary.Bytes), primary.Bytes.Length));
+        Assert.Equal(exclusive.Bytes, OodleCodec.Decompress(OodleCodec.EncodeStored(exclusive.Bytes), exclusive.Bytes.Length));
         Assert.Equal("SQLite format 3\0"u8.ToArray(), primary.Bytes.AsSpan(8, 16).ToArray());
         Assert.Equal("SQLite format 3\0"u8.ToArray(), exclusive.Bytes.AsSpan(8, 16).ToArray());
         ValidateDatabase(primary.Bytes);
