@@ -78,22 +78,21 @@ public sealed class PresetTransferMetadataApiTests(IsolatedApiFactory factory) :
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task PackagePreviewAlsoUsesCommonIntrinsicStoreValidation(bool duplicateReference)
+    public async Task PackagePreviewAlsoUsesCommonSemanticIdentityValidation(bool differentProvenance)
     {
         var root = TestZips.TempDir();
         using var host = factory.WithWebHostBuilder(builder => builder.UseSetting("Toolkit:PresetRoot", root));
         using var client = host.CreateClient();
         var package = JsonNode.Parse(PresetPackageCodec.Encode([PresetTransferFixture.Preset()]))!;
         var action = package["presets"]![0]!["actions"]![0]!;
-        if (duplicateReference)
-            action["instances"]!.AsArray().Add(action["instances"]![0]!.DeepClone());
-        else
-            action["parameters"] = new JsonObject(Enumerable.Range(0, 65).Select(index =>
-                KeyValuePair.Create<string, JsonNode?>("p" + index, JsonValue.Create(new string('x', 4096)))));
+        var duplicate = action["instances"]![0]!.DeepClone();
+        if (differentProvenance) duplicate["provenance"] = "Different provenance does not change semantic identity.";
+        action["instances"]!.AsArray().Add(duplicate);
         using var rejected = await Preview(client, package);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, rejected.StatusCode);
         var error = JsonNode.Parse(await rejected.Content.ReadAsStringAsync(Ct))!;
         Assert.Equal("invalidPresetLibrary", error["code"]!.GetValue<string>());
+        Assert.Contains("distinct", error["error"]!.GetValue<string>());
         Assert.Null(error["token"]);
         Assert.Empty((await client.GetFromJsonAsync<JsonNode[]>("/api/presets", Ct))!);
         Assert.False(File.Exists(Path.Combine(root, "presets.json")));
