@@ -29,17 +29,24 @@ internal sealed class ProgressionEdits
         {
             var hasPoints = staged.TryGetValue(pair.PointsId, out var pointsValue);
             var hasLevel = staged.TryGetValue(pair.LevelId, out var levelValue);
-            var points = hasPoints ? pointsValue!.AsUInt32() : read(pair.PointsId).AsUInt32();
+            var currentPoints = read(pair.PointsId).AsUInt32();
+            var currentLevel = read(pair.LevelId).AsInt32();
+            var points = hasPoints ? pointsValue!.AsUInt32() : currentPoints;
             var level = hasLevel ? levelValue!.AsInt32() : pair.Level(points);
             if (level < 1 || level > pair.Thresholds.Length)
                 throw new ArgumentException("Level is outside the source curve.");
+            if ((hasLevel && !hasPoints && level == currentLevel) ||
+                (hasPoints && !hasLevel && points == currentPoints))
+            {
+                continue;
+            }
             if (!hasPoints)
                 points = pair.Thresholds[level - 1];
             if (pair.Level(points) != level &&
                 !(hasPoints && hasLevel && points == pair.OriginalPoints && level == pair.OriginalLevel))
                 throw new ArgumentException("Points and level conflict; edit either field or provide a coherent pair.");
-            if (points != read(pair.PointsId).AsUInt32()) staged[pair.PointsId] = FieldValue.Of((long)points);
-            if (level != read(pair.LevelId).AsInt32()) staged[pair.LevelId] = FieldValue.Of((long)level);
+            if (points != currentPoints) staged[pair.PointsId] = FieldValue.Of((long)points);
+            if (level != currentLevel) staged[pair.LevelId] = FieldValue.Of((long)level);
         }
 
         return [.. staged.Select(edit => new ValueEdit(edit.Key, edit.Value))];
