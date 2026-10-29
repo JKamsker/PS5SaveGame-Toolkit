@@ -52,9 +52,23 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
             switch (node)
             {
                 case FieldNode f:
-                    if (fields.ContainsKey(f.ValueId)) break;
                     var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target,
                         Spec: f.Spec);
+                    if (fields.TryGetValue(f.ValueId, out var existing))
+                    {
+                        var merged = MergeNavigation(existing, field);
+                        var additional = SemanticSnapshot.Estimate(merged) - SemanticSnapshot.Estimate(existing);
+                        if (additional > limits.MaxOriginalBytes - bytes)
+                        {
+                            complete = false;
+                            queryCut |= target is not null;
+                            break;
+                        }
+
+                        bytes += additional;
+                        fields[f.ValueId] = merged;
+                        break;
+                    }
                     if (!SemanticSnapshot.TryEstimate(field, limits.MaxOriginalBytes - bytes, out var cost))
                     {
                         complete = false;
@@ -109,6 +123,17 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
                     queryTables.Add((table, path, depth));
                     break;
             }
+        }
+
+        static SemanticField MergeNavigation(SemanticField existing, SemanticField candidate)
+        {
+            var target = candidate.Target ?? existing.Target;
+            var path = candidate.Target is not null ? candidate.Path
+                : existing.Target is not null ? existing.Path
+                : existing.Path.Length == 0 && candidate.Path.Length > 0
+                ? candidate.Path
+                : existing.Path;
+            return existing with { Path = path, Target = target };
         }
 
         try

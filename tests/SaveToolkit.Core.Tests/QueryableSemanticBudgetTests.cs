@@ -236,14 +236,15 @@ public sealed class QueryableSemanticBudgetTests : IDisposable
     }
 
     [Fact]
-    public void EagerAliasKeepsLegacyLabelPathAndHasNoTarget()
+    public void EagerAliasKeepsLegacyLabelAndUsesLaterQueryNavigation()
     {
         var current = new SemanticQueryableDocument(3) { EagerAlias = true };
         current.SetQuantity(0, 0, 7);
         var change = Assert.Single(Review(current, new(3) { EagerAlias = true }).Changes);
         Assert.Equal("Legacy quantity", change.Label);
-        Assert.Equal(["section:Root", "section:inventory"], change.Path);
-        Assert.Null(change.Target);
+        Assert.Equal(["section:Root", "section:inventory", "row:slot/0"], change.Path);
+        Assert.NotNull(change.Target);
+        Assert.Null(change.CanNavigate); // Legacy rows retain the pre-metadata wire shape.
     }
 
     [Fact]
