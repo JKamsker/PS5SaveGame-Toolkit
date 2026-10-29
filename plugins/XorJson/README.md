@@ -332,7 +332,10 @@ dependencies remain Unknown.
   identities by role, capture complete immutable multi-member state restorable
   into a fresh instance, and serialize every selected member exactly once.
   Every proposal includes the selected file; the alternative limit counts only
-  its eligible partners. Backups must be explicit members. The group emits warnings because controlled
+  its eligible partners. Backups must be explicit members. Group integration tests
+  cover mixed scalar/structural history, a rejected later member, stable duplicate
+  row identities and exact ZIP outputs through repeated undo/redo for both transforms.
+  The group emits warnings because controlled
   paired-file evidence is still absent; no plugin-local transaction coordinator
   bypasses Core.
 - No new SDK gap blocks these views or writes. Game-specific dependency validation,
