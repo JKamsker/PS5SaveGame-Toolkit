@@ -12,9 +12,9 @@ internal static class JsonTreeWriter
 
     public static byte[] Write(JsonTokenTree tree)
     {
-        if (JsonScalarPatches.TryWrite(tree, out var patched))
+        if (JsonScalarPatches.TryWrite(tree, out var patched, out var changed))
         {
-            JsonTokenValidation.Validate(patched, tree);
+            if (changed) JsonTokenValidation.Validate(patched, tree);
             return patched;
         }
         if (tree.Nodes.Select(n => n.Source).Distinct().Sum(b => (long)b.Length) > MaxRetainedSourceBytes)

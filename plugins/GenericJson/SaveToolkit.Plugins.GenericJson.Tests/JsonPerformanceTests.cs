@@ -11,7 +11,9 @@ public sealed class JsonPerformanceTests(ITestOutputHelper output)
 {
     private const int Entries = 50_000;
     private const long PageBudget = 100_000;
-    private const long OpeningBudget = 44_000_000;
+    // SDK-06 retains a shared immutable lexical tree alongside GenericJson's mutable structural
+    // model. Keep this guard explicit for the reviewed dual-model adapter overhead.
+    private const long OpeningBudget = 52_000_000;
 
     [Fact]
     public void OpeningAndFirstViewAvoidDuplicateNumberValidationAndHashBuffers()

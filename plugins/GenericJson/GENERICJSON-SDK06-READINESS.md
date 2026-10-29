@@ -86,5 +86,6 @@ exact bytes at every scalar/insert/remove/undo/redo transition and verifies rest
 Build intermediates, binaries, NuGet cache, CLI home and results were redirected to the scratch
 root above using `--artifacts-path`, `--results-directory` and task-local environment settings.
 
-Adoption remains pending the reviewed SDK-06 contract landing on origin/main. No public API
-was guessed, no framework code copied, and no structural capabilities removed in preparation.
+The reviewed SDK-06 contract is adopted in the dependency merge at `72490fe8756627013c73c0b80fa874b563a0e652`.
+This consumer branch intentionally targets `t3/sdk06-lossless-json` until PR #51 reaches `main`;
+it does not merge the consumer before that foundation lands.

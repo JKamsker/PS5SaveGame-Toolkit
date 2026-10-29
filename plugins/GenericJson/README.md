@@ -34,13 +34,16 @@ The It Takes Two F9 location list shows only minigames with present profile reco
 | F7 document groups | N/A | Every supported write changes one JSON file. No cross-file invariant has been identified; unrelated co-located files and identical backups do not define a transaction. |
 | F8 queryable lists | Used | Whole-tree search plus direct-child collections for every array over 100 entries, pages capped at 200. Raw lazy navigation remains available. Direct-array browsing integrated in `01657c2` (2026-10-28). |
 | F9 spatial views | Used | External-only present-minigame MapNode with raw-field navigation and full text alternative, integrated in `01657c2` (2026-10-28). Graph prerequisites/coordinates are unknown; no graph edges or positions are guessed. |
-| F10 exact/nullable/union | Used | Exact numeric lexemes, explicit scalar choices and null; no double conversion. Out-of-budget original numbers remain verbatim read-only. |
+| F10 exact/nullable/union | Used | Exact numeric lexemes, explicit scalar choices and null; no double conversion. Out-of-budget original numbers remain verbatim read-only. SDK-06 supplies the imported lexical spans and unchanged-topology scalar patch path. |
 | F11 shared codecs | N/A | These inputs are uncompressed UTF-8 JSON; no Kraken, SQLite or private codec implementation exists. |
 | F12 bounded decoder hook | Used | SDK-only `genericjson.title-values-v1`, explicit CLI selection, sink depth/value/byte limits; test evidence uses this production hook, integrated in `01657c2` (2026-10-28). |
 | F13 inspection/browsing/sort/duration | Used | Nonmutating aggregate syntax inspection; browse-only F4 and catalogue filters/sorting, integrated in `01657c2` (2026-10-28). Float duration: N/A — no field has proven time units, so formatting would fabricate semantics. |
 
 Shared helper adoption: `BoundSaveDocument` supplies bindings, atomic scalar edits and F5 snapshots;
-`ExactJsonNumber` supplies F10 validation. The newer `ActionPlans` helpers are not consumed:
+SDK-06 `LosslessJsonDocument` supplies the strict shared lexical parse and scalar span replacement
+for unchanged topology. GenericJson retains its `value/{Index}` identities, member/trivia spans,
+structural writer, title adapters and structural snapshots. `ExactJsonNumber` supplies F10 validation;
+oversized imported lexemes remain local read-only text. The newer `ActionPlans` helpers are not consumed:
 `ApplyActionPlan` replans locally and compares ordered changes before applying them. `InMemoryCollection<T>`
 is not consumed either: the JSON query engine retains its complete-tree/direct-child traversal,
 allocation-bounded page rendering and 10,000-match sort limit. Catalogue annotations use cached direct
@@ -287,6 +290,9 @@ F10, F5, F8 and F6 are consumed directly; no plugin-local substitute history, qu
 - **Resolved by a query-string route:** the API now supports `GET .../collections?collectionId=...` for IDs containing `/`; see [API routing guidance](../../docs/API.md). The earlier encoded path-segment failure does not require changing this plugin: GenericJson continues to ship `json-array-<immutable-id>`, with its existing stable identities and working F8 features.
 
 The [central SDK request triage](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SDK_REQUESTS.md)
-records those fixes as SDK-19/20/21. Its separate **open SDK-06** proposes a shared lossless JSON lexical
-tree/scalar-patching substrate for GenericJson and XorJson; `ExactJsonNumber` supplies numeric validation,
-not that tree/writer. The plugin retains its original token model, writer and structural identities.
+records those fixes as SDK-19/20/21. SDK-06 is adopted through reviewed dependency commit
+`72490fe8756627013c73c0b80fa874b563a0e652` (PR #51): shared parsing and scalar span patching are
+used only when topology and member names remain imported. The streaming validator remains for
+Probe, structural equality and exact diagnostic mapping; GenericJson retains its local structural
+trivia writer, stable IDs, snapshots, title semantics and warning labels. SDK-06 has no structural
+API, so no working GenericJson structural feature was removed.

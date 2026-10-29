@@ -75,6 +75,7 @@ internal sealed class JsonTokenTree
         }
         foreach (var node in tree.Nodes.Where(node => node.IsContainer))
             node.OriginalChildIds = Array.AsReadOnly(node.Children.Select(child => child.Index).ToArray());
+        foreach (var node in tree.Nodes) node.BeginTracking();
         tree.InitializeSpans(bytes);
         tree.NextId = tree.Nodes.Count;
         tree.Reindex();
