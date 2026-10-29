@@ -17,12 +17,16 @@ public sealed class IdentityAllocationTests
         var leaf = new SaveNode(0x11223344, FieldTags.Int32, item);
         Assert.Equal("12345678/abcdef01[123]/11223344", leaf.Path);
         var expected = leaf.Path;
-        var start = GC.GetAllocatedBytesForCurrentThread();
+        const int reads = 10_000;
         string? actual = null;
-        for (var index = 0; index < 10_000; index++) actual = leaf.Path;
+        // Warm up first: tiered/OSR JIT work can allocate a few KB on this thread mid-loop.
+        for (var index = 0; index < reads; index++) actual = leaf.Path;
+        var start = GC.GetAllocatedBytesForCurrentThread();
+        for (var index = 0; index < reads; index++) actual = leaf.Path;
         var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
         Assert.Equal(expected, actual);
-        Assert.True(allocated == 0, $"Repeated immutable paths allocated {allocated:N0} bytes.");
+        // Any per-read string would cost tens of bytes per read; stay under one byte per read.
+        Assert.True(allocated < reads, $"Repeated immutable paths allocated {allocated:N0} bytes.");
         // Stored contents and presentation do not change physical identity.
         root.ClassHash = 42;
         array.Offset = 100;
