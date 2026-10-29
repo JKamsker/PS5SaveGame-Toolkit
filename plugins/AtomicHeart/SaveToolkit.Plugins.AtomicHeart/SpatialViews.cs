@@ -56,26 +56,29 @@ internal sealed class SpatialViews(RecordIndex index, InventoryState state,
             return nodes;
         }
         if (parts[1] == "map" && (start == 0 || start < index.Levels.Count))
-        {
-            var markers = index.Levels.Skip(start).Take(AtomicHeartDocument.PageSize).Select((level, offset) => new MapMarker(
-                level.Id, Short(level.Name), MapMarkerStatus.Unknown, Region(level.Name))
-            {
-                Confidence = Confidence.Unknown,
-                Description = $"Saved level identifier: {Clip(level.Name)}. Serialized actors: {level.ActorCount}. Presence is not discovery, completion or fast-travel availability. No geographical coordinates are inferred.",
-                ExternalLink = new(MapUrl, "Community location guide", "Atomic Heart Wiki contributors; link only, no text, coordinates or artwork imported."),
-                Target = new(ViewTargetKind.Row, level.Id) { Path = ["tab:Record explorer", "section:Levels", $"section:inspect/levels/{(start + offset) / AtomicHeartDocument.PageSize * AtomicHeartDocument.PageSize}"] },
-            }).ToArray();
-            var map = new MapNode("Saved levels · location index", new(0, 0, 1, 1), markers,
-                "All level statuses are unknown. The list links to saved level records and an external community guide; no art, coordinates, completion or prerequisite data is imported.")
-            {
-                CoordinateSpace = "External guide only; no coordinates",
-                ExternalSource = new(MapUrl, "Open community locations", "Atomic Heart Wiki contributors; link only. No supported saved-level coordinate transform has been established."),
-            };
-            var nodes = new List<ViewNode> { map };
-            More(nodes, start, index.Levels.Count, "map");
-            return nodes;
-        }
+            return MapPage(start);
         throw new KeyNotFoundException(lazyId);
+    }
+
+    private IReadOnlyList<ViewNode> MapPage(int start)
+    {
+        var markers = index.Levels.Skip(start).Take(AtomicHeartDocument.PageSize).Select((level, offset) => new MapMarker(
+            level.Id, Short(level.Name), MapMarkerStatus.Unknown, Region(level.Name))
+        {
+            Confidence = Confidence.Unknown,
+            Description = $"Saved level identifier: {Clip(level.Name)}. Serialized actors: {level.ActorCount}. Presence is not discovery, completion or fast-travel availability. No geographical coordinates are inferred.",
+            ExternalLink = new(MapUrl, "Community location guide", "Atomic Heart Wiki contributors; link only, no text, coordinates or artwork imported."),
+            Target = new(ViewTargetKind.Row, level.Id) { Path = ["tab:Record explorer", "section:Levels", $"section:inspect/levels/{(start + offset) / AtomicHeartDocument.PageSize * AtomicHeartDocument.PageSize}"] },
+        }).ToArray();
+        var map = new MapNode("Saved levels · location index", new(0, 0, 1, 1), markers,
+            "All level statuses are unknown. The list links to saved level records and an external community guide; no art, coordinates, completion or prerequisite data is imported.")
+        {
+            CoordinateSpace = "External guide only; no coordinates",
+            ExternalSource = new(MapUrl, "Open community locations", "Atomic Heart Wiki contributors; link only. No supported saved-level coordinate transform has been established."),
+        };
+        var nodes = new List<ViewNode> { map };
+        More(nodes, start, index.Levels.Count, "map");
+        return nodes;
     }
 
     private IReadOnlyList<ViewNode> Graphs(string title, IReadOnlyList<Entry> source)

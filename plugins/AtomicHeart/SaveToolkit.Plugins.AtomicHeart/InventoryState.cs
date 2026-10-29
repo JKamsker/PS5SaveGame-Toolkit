@@ -41,38 +41,44 @@ internal sealed class InventoryState
             if (collections.Length != 1) continue;
             var entries = collections[0];
             var container = record.Id + "/" + property.Name;
-            foreach (var element in entries.Children)
-            {
-                // Ambiguous duplicate tags stay in the raw inspector; never pick one to overwrite.
-                var asset = Unique(element, "ItemDataAsset");
-                var quantity = Unique(element, "Amount");
-                var instance = Unique(element, "ItemId");
-                if (asset?.Value is not { Kind: FieldValueKind.Text } text ||
-                    quantity?.Value is not { Kind: FieldValueKind.Integer } amount ||
-                    instance?.Value is not { Kind: FieldValueKind.Integer } instanceId) continue;
-                var storedAmount = ReadInteger(amount, quantity.Name);
-                var storedInstanceId = ReadInteger(instanceId, instance.Name);
-                var key = $"{record.Id}/{property.Name}/item/{storedInstanceId}";
-                if (!itemOrdinals.TryAdd(key, items.Count))
-                {
-                    key += $"/slot/{element.Name}";
-                    if (!itemOrdinals.TryAdd(key, items.Count)) throw new SaveFormatException("Duplicate inventory slot identity.");
-                }
-                var item = new InventoryItem(key, record.Name + "/" + property.Name, element,
-                    text.AsString(), storedInstanceId, storedAmount, asset, quantity, container);
-                items.Add(item);
-                values[asset.Payload.Offset] = text;
-                values[quantity.Payload.Offset] = amount;
-                if (Populated(item))
-                {
-                    containerLimits[container] = Math.Max(containerLimits.GetValueOrDefault(container), item.Amount);
-                    var id = ShortId(item.RawAsset);
-                    if (savedAssets.TryGetValue(id, out var existing) && existing != item.RawAsset) ambiguousAssets.Add(id);
-                    else savedAssets.TryAdd(id, item.RawAsset);
-                }
-            }
+            ReadContainer(items, record, property.Name, container, entries);
         }
         Items = items;
+    }
+
+    private void ReadContainer(List<InventoryItem> items, ObjectRecord record, string propertyName,
+        string container, TaggedProperty entries)
+    {
+        foreach (var element in entries.Children)
+        {
+            // Ambiguous duplicate tags stay in the raw inspector; never pick one to overwrite.
+            var asset = Unique(element, "ItemDataAsset");
+            var quantity = Unique(element, "Amount");
+            var instance = Unique(element, "ItemId");
+            if (asset?.Value is not { Kind: FieldValueKind.Text } text ||
+                quantity?.Value is not { Kind: FieldValueKind.Integer } amount ||
+                instance?.Value is not { Kind: FieldValueKind.Integer } instanceId) continue;
+            var storedAmount = ReadInteger(amount, quantity.Name);
+            var storedInstanceId = ReadInteger(instanceId, instance.Name);
+            var key = $"{record.Id}/{propertyName}/item/{storedInstanceId}";
+            if (!itemOrdinals.TryAdd(key, items.Count))
+            {
+                key += $"/slot/{element.Name}";
+                if (!itemOrdinals.TryAdd(key, items.Count)) throw new SaveFormatException("Duplicate inventory slot identity.");
+            }
+            var item = new InventoryItem(key, record.Name + "/" + propertyName, element,
+                text.AsString(), storedInstanceId, storedAmount, asset, quantity, container);
+            items.Add(item);
+            values[asset.Payload.Offset] = text;
+            values[quantity.Payload.Offset] = amount;
+            if (Populated(item))
+            {
+                containerLimits[container] = Math.Max(containerLimits.GetValueOrDefault(container), item.Amount);
+                var id = ShortId(item.RawAsset);
+                if (savedAssets.TryGetValue(id, out var existing) && existing != item.RawAsset) ambiguousAssets.Add(id);
+                else savedAssets.TryAdd(id, item.RawAsset);
+            }
+        }
     }
 
     internal bool TryGetOrdinal(string key, out int ordinal) => itemOrdinals.TryGetValue(key, out ordinal);

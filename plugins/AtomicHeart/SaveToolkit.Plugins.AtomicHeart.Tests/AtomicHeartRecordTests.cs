@@ -23,7 +23,7 @@ public sealed class AtomicHeartRecordTests
         Assert.Equal(new byte[] { 0xAA, 0xBB, 0xCC }, plain.AsSpan(record.UnknownTail.Offset, record.UnknownTail.Length).ToArray());
         Assert.Equal(4, record.Properties.Single(p => p.Name == "Amount").Value!.Value.AsInt64());
         Assert.Equal(plain.Length, Assert.Single(index.Levels).Span.End + sizeof(int));
-        using var document = Open(bytes);
+        using var document = SlotFixture.Open(bytes);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
         var blobId = $"plain/{record.UnknownTail.Offset}/{record.UnknownTail.Length}";
         Assert.Equal(new byte[] { 0xBB, 0xCC }, document.ReadBlob(blobId, 1, int.MaxValue).ToArray());
@@ -41,7 +41,7 @@ public sealed class AtomicHeartRecordTests
             // Keep every enclosing layer valid so rejection exercises the inner grammar.
             if (length >= sizeof(int))
                 BinaryPrimitives.WriteInt32LittleEndian(truncated, length - sizeof(int));
-            var error = Assert.Throws<SaveFormatException>(() => Open(SlotFixture.Create(plain: truncated)));
+            var error = Assert.Throws<SaveFormatException>(() => SlotFixture.Open(SlotFixture.Create(plain: truncated)));
             Assert.DoesNotContain("byte-array prefix", error.Message, StringComparison.Ordinal);
         }
     }
@@ -54,7 +54,7 @@ public sealed class AtomicHeartRecordTests
     {
         var plain = PlainFixture.Create();
         BinaryPrimitives.WriteInt32LittleEndian(plain, length);
-        Assert.Throws<SaveFormatException>(() => Open(SlotFixture.Create(plain: plain)));
+        Assert.Throws<SaveFormatException>(() => SlotFixture.Open(SlotFixture.Create(plain: plain)));
     }
 
     [Fact]
@@ -67,11 +67,11 @@ public sealed class AtomicHeartRecordTests
         {
             var plain = original.ToArray();
             BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(position), int.MaxValue);
-            Assert.Throws<SaveFormatException>(() => Open(SlotFixture.Create(plain: plain)));
+            Assert.Throws<SaveFormatException>(() => SlotFixture.Open(SlotFixture.Create(plain: plain)));
         }
         var trailing = original.Concat(new byte[] { 0xFF }).ToArray();
         BinaryPrimitives.WriteInt32LittleEndian(trailing, trailing.Length - 4);
-        Assert.Throws<SaveFormatException>(() => Open(SlotFixture.Create(plain: trailing)));
+        Assert.Throws<SaveFormatException>(() => SlotFixture.Open(SlotFixture.Create(plain: trailing)));
     }
 
     [Theory]
@@ -85,7 +85,7 @@ public sealed class AtomicHeartRecordTests
         var parsed = SaveExtensionFile.Parse(bytes);
         bytes[parsed.DataOffset + SlotDataDecoder.FrameHeaderBytes + 1] = (byte)decoder;
         SlotFixture.RefreshDigest(bytes);
-        var error = Assert.Throws<SaveFormatException>(() => Open(bytes));
+        var error = Assert.Throws<SaveFormatException>(() => SlotFixture.Open(bytes));
         Assert.Contains("Kraken", error.Message, StringComparison.Ordinal);
     }
 
@@ -98,7 +98,7 @@ public sealed class AtomicHeartRecordTests
         {
             var plain = original.ToArray();
             plain[random.Next(plain.Length)] ^= (byte)random.Next(1, 256);
-            try { using var document = Open(SlotFixture.Create(plain: plain)); }
+            try { using var document = SlotFixture.Open(SlotFixture.Create(plain: plain)); }
             catch (SaveFormatException) { /* Some mutations remain valid opaque data; rejection is not required. */ }
         }
     }
@@ -141,9 +141,8 @@ public sealed class AtomicHeartRecordTests
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(outer.DataOffset + 24), declared);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(outer.DataOffset + 40), declared);
         SlotFixture.RefreshDigest(bytes);
-        Assert.Throws<SaveFormatException>(() => Open(bytes));
+        Assert.Throws<SaveFormatException>(() => SlotFixture.Open(bytes));
     }
 
     private static Sdk.Saves.ISaveFile File(byte[] plain) => MemorySaveSet.SingleFile("slot", SlotFixture.Create(plain: plain), "PPSA10695");
-    private static ISaveDocument Open(byte[] bytes) => new AtomicHeartPlugin().Open(MemorySaveSet.SingleFile("slot", bytes));
 }

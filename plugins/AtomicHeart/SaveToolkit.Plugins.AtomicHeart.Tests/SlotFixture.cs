@@ -1,11 +1,16 @@
 using System.Security.Cryptography;
 using System.Text;
+using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 using SaveToolkit.Codecs;
 
 namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
 internal static class SlotFixture
 {
+    internal static ISaveDocument Open(byte[] bytes, string fileName = "slot") =>
+        new AtomicHeartPlugin().Open(MemorySaveSet.SingleFile(fileName, bytes));
+
     internal static byte[] Create(bool includeMetadata = true, int chunks = 1, byte[]? plain = null, byte[]? metadataPayload = null)
     {
         using var stream = new MemoryStream();
