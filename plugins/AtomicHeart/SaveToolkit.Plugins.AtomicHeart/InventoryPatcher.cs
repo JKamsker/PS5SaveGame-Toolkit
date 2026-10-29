@@ -39,7 +39,14 @@ internal static class InventoryPatcher
             BinaryPrimitives.WriteInt32LittleEndian(bytes, checked(BinaryPrimitives.ReadInt32LittleEndian(index.Plain.AsSpan(size.Key)) + size.Value));
             patches.Add(new(new(size.Key, sizeof(int)), bytes));
         }
-        var length = checked(index.Plain.Length + patches.Sum(p => p.Bytes.Length - p.Span.Length));
+        return Splice(index.Plain, patches);
+
+        void AddSize(int offset, int delta) => sizes[offset] = checked(sizes.GetValueOrDefault(offset) + delta);
+    }
+
+    private static byte[] Splice(byte[] plain, IReadOnlyList<Patch> patches)
+    {
+        var length = checked(plain.Length + patches.Sum(p => p.Bytes.Length - p.Span.Length));
         if (length > SaveExtensionFile.MaxBytes) throw new SaveFormatException("Edited SlotData exceeds 128 MiB.");
         var output = new byte[length];
         var source = 0;
@@ -48,16 +55,14 @@ internal static class InventoryPatcher
         {
             if (patch.Span.Offset < source) throw new SaveFormatException("Overlapping inventory patches.");
             var retained = patch.Span.Offset - source;
-            index.Plain.AsSpan(source, retained).CopyTo(output.AsSpan(target));
+            plain.AsSpan(source, retained).CopyTo(output.AsSpan(target));
             target += retained;
             patch.Bytes.CopyTo(output, target);
             target += patch.Bytes.Length;
             source = patch.Span.End;
         }
-        index.Plain.AsSpan(source).CopyTo(output.AsSpan(target));
+        plain.AsSpan(source).CopyTo(output.AsSpan(target));
         return output;
-
-        void AddSize(int offset, int delta) => sizes[offset] = checked(sizes.GetValueOrDefault(offset) + delta);
     }
 
     private static byte[] Encode(byte[] plain, TaggedProperty property, FieldValue value)

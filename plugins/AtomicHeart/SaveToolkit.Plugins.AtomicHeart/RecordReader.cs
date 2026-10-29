@@ -89,22 +89,9 @@ internal sealed class RecordReader(byte[] plain)
         var tagCount = reader.Count(RecordIndex.MaxCollection);
         var tags = new List<string>();
         for (var index = 0; index < tagCount; index++) tags.Add(reader.String(RecordIndex.MaxNameUnits));
-        var classIdentity = $"{Uri.EscapeDataString(classPath)}|{Uri.EscapeDataString(classSubPath)}";
-        var id = $"{owner}/{kind}/{classIdentity}/{Uri.EscapeDataString(name)}";
-        var occurrence = identities.GetValueOrDefault(id);
-        identities[id] = occurrence + 1;
-        if (occurrence != 0) id += $"#{occurrence + 1}";
-        identityUnits = checked(identityUnits + id.Length);
-        if (identityUnits > RecordIndex.MaxIndexPathUnits) throw new SaveFormatException("Record identity text exceeds the index budget.");
+        var id = NextIdentity(owner, kind, classPath, classSubPath, name);
         var cursor = SaveExtensionBinary.Cursor(plain, payload.Offset, payload.End);
-        IReadOnlyList<string> prefixIds = [];
-        if (classPath.EndsWith(InventoryClasses.Player, StringComparison.Ordinal))
-        {
-            var count = cursor.Count(RecordIndex.MaxCollection);
-            var ids = new List<string>();
-            for (var index = 0; index < count; index++) ids.Add(cursor.String(RecordIndex.MaxNameUnits));
-            prefixIds = ids;
-        }
+        var prefixIds = ReadInventoryPrefix(ref cursor, classPath);
         IReadOnlyList<TaggedProperty> members = [];
         // A payload may start with native state. Do not search arbitrary bytes for a plausible tag.
         var tagged = IsTaggedStart(cursor);
@@ -120,6 +107,27 @@ internal sealed class RecordReader(byte[] plain)
         recordPositions.Add(id, objects.Count);
         objects.Add(record);
         return record;
+    }
+
+    private string NextIdentity(string owner, string kind, string classPath, string classSubPath, string name)
+    {
+        var classIdentity = $"{Uri.EscapeDataString(classPath)}|{Uri.EscapeDataString(classSubPath)}";
+        var id = $"{owner}/{kind}/{classIdentity}/{Uri.EscapeDataString(name)}";
+        var occurrence = identities.GetValueOrDefault(id);
+        identities[id] = occurrence + 1;
+        if (occurrence != 0) id += $"#{occurrence + 1}";
+        identityUnits = checked(identityUnits + id.Length);
+        if (identityUnits > RecordIndex.MaxIndexPathUnits) throw new SaveFormatException("Record identity text exceeds the index budget.");
+        return id;
+    }
+
+    private static IReadOnlyList<string> ReadInventoryPrefix(ref BoundedBinaryCursor cursor, string classPath)
+    {
+        if (!classPath.EndsWith(InventoryClasses.Player, StringComparison.Ordinal)) return [];
+        var count = cursor.Count(RecordIndex.MaxCollection);
+        var ids = new List<string>();
+        for (var index = 0; index < count; index++) ids.Add(cursor.String(RecordIndex.MaxNameUnits));
+        return ids;
     }
 
     private static bool IsTaggedStart(BoundedBinaryCursor probe)
