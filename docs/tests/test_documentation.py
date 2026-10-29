@@ -18,7 +18,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[2]
 CODE_REF = "HEAD"
 EXCLUDED = ROOT / "docs/LICENCE_EXCLUSIONS.md"
-FRAMEWORK_PAGES = ("README.md", "AGENTS.md", "docs/PLUGIN_GUIDE.md", "docs/RELEASING.md",
+FRAMEWORK_PAGES = ("README.md", "CONTRIBUTING.md", "AGENTS.md", "docs/PLUGIN_GUIDE.md", "docs/RELEASING.md",
                    "docs/API.md", "docs/USER_GUIDE.md", "docs/SDK_REQUESTS.md", "docs/SAMPLES.md",
                    "docs/PERFORMANCE.md")
 
@@ -229,7 +229,8 @@ class DocumentationTests(unittest.TestCase):
             self.assertEqual(len(list(plugins())), int(count[1]))
 
     def test_local_markdown_links_resolve(self):
-        pages = [ROOT / "README.md", ROOT / "AGENTS.md", *sorted((ROOT / "docs").rglob("*.md"))]
+        pages = [ROOT / "README.md", ROOT / "CONTRIBUTING.md", ROOT / "AGENTS.md",
+                 *sorted((ROOT / "docs").rglob("*.md"))]
         for page in pages:
             if page == EXCLUDED:
                 continue
@@ -292,6 +293,57 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn(project, source("SaveToolkit.slnx"))
         for page in ("README.md", "docs/RELEASING.md"):
             self.assertIn("PERFORMANCE.md", document(page))
+
+    def test_developer_tool_index_points_to_authoritative_homes(self):
+        section = markdown_section(document("CONTRIBUTING.md"), "## Developer tooling at a glance")
+        homes = {
+            "scripts/test.ps1": "docs/RELEASING.md#script-parameters",
+            "scripts/self-test.ps1": "docs/RELEASING.md#script-parameters",
+            "scripts/bench.ps1": "docs/PERFORMANCE.md",
+            "scripts/release-notes.ps1": "docs/RELEASING.md#prepare-curated-notes-and-check-the-candidate",
+            "scripts/release-check.ps1": "docs/RELEASING.md#prepare-curated-notes-and-check-the-candidate",
+            "Stryker": "tests/README.md",
+            "OpenAPI": "docs/API.md#openapi-contract-and-regression-guard",
+            "pack": "docs/PLUGIN_GUIDE.md#embedded-pack-snapshot-baseline",
+        }
+        _, rows = markdown_table(section)
+        for tool, home in homes.items():
+            with self.subTest(tool=tool):
+                self.assertEqual(1, sum(tool.lower() in row[0].lower() and home in " ".join(row)
+                                        for row in rows))
+        manifest = json.loads(source(".config/dotnet-tools.json"))
+        self.assertIn("dotnet-stryker", manifest["tools"])
+        self.assertIn("tests/Invoke-Mutations.ps1", source_paths())
+
+    def test_documented_repin_commands_match_test_helpers(self):
+        for helper, constant, page, heading, baseline in (
+            ("tests/SaveToolkit.Api.Performance.Tests/OpenApiSnapshot.cs", "RepinCommand", "docs/API.md",
+             "## OpenAPI contract and regression guard", "OpenApi.v1.json"),
+            ("tests/SaveToolkit.Core.Tests/References/PackSnapshotBaseline.cs", "PrintCommand",
+             "docs/PLUGIN_GUIDE.md", "### Embedded pack snapshot baseline", "EmbeddedPackHashes.txt"),
+        ):
+            with self.subTest(helper=helper):
+                code = source(helper)
+                expression = re.search(rf"\b{constant} = (.*?);\n", code, re.DOTALL)[1]
+                command = "".join(re.findall(r'"([^"\n]*)"', expression))
+                section = markdown_section(document(page), heading)
+                self.assertIn(command, section)
+                self.assertIn(baseline, section)
+                path = next(path for path in source_paths() if path.endswith("/" + baseline))
+                self.assertIn(path, code)
+
+    def test_detection_matrix_inventory_matches_documented_fuzz_seeds(self):
+        matrix = source("tests/SaveToolkit.Core.Tests/Detection/DetectionMatrix.txt")
+        plugin_ids = {plugin_id for _, plugin_id, _ in plugins()} | {"builtin.raw"}
+        self.assertEqual(plugin_ids, set(re.findall(r"(?m)^plugin (.+)$", matrix)))
+        seeds = re.findall(r"(?m)^synthetic (.+?) =>", matrix)
+        guide = markdown_section(document("docs/PLUGIN_GUIDE.md"), "## Tests")
+        self.assertIn("DetectionMatrixTests", guide)
+        self.assertIn("DetectionMatrix.txt", guide)
+        self.assertIn(f"{len(seeds)} synthetic fixtures", guide)
+        checks = source("tests/SaveToolkit.Core.Tests/Detection/DetectionMatrixTests.cs")
+        for method in ("SyntheticSeedsRouteIndependentlyOfRegistrationOrder", "AllAvailableSampleFilesHaveNoForeignClaims"):
+            self.assertIn(method, checks)
 
     def test_release_preparation_documents_draft_and_check_contracts(self):
         guide = markdown_section(document("docs/RELEASING.md"), "### Prepare curated notes and check the candidate")
@@ -412,7 +464,13 @@ class DocumentationTests(unittest.TestCase):
                 self.assertNotIn("test.fixme(", source(f"web/e2e/{spec}"))
         self.assertIn('test("unknown-layout export preserves the imported path', source("web/e2e/import.e2e.ts"))
         self.assertIn('test("clearing a JSON-type filter restores all rows', source("web/e2e/table.e2e.ts"))
-        self.assertIn("No browser case is currently skipped", text)
+        optional = source("web/e2e/reference-batch.e2e.ts")
+        self.assertIn('test.skip(!process.env.SAVETOOLKIT_ARTIFACTS', optional)
+        self.assertIn('test.skip(!existsSync(samplePath)', optional)
+        archive = re.search(r'"(PPSA\d+_saves_dec\.zip)"', optional)[1]
+        self.assertIn(f"SAVETOOLKIT_ARTIFACTS/{archive}", text)
+        self.assertIn("skips when", text)
+        self.assertNotIn("No browser case is currently skipped", text)
         for page in ("README.md", "docs/API.md", "docs/USER_GUIDE.md"):
             with self.subTest(page=page):
                 self.assertNotIn("acquire an `UNKNOWN/` prefix", document(page))
@@ -654,11 +712,10 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("StatusCodes.Status413PayloadTooLarge",
                       source("src/SaveToolkit.Api/Infrastructure/ApiRequestValidation.cs"))
 
-    def test_selection_table_binding_matches_the_shipped_working_tree_contract(self):
+    def test_selection_table_binding_matches_the_code_ref_contract(self):
         contract = markdown_section(document("docs/PLUGIN_GUIDE.md"),
                                     "### Selection-table binding and advisory conformance (#40)")
-        # A feature branch can ship additive APIs ahead of --code-ref's plugin inventory snapshot.
-        sdk = document("src/SaveToolkit.Sdk/Views/ViewNode.cs")
+        sdk = source("src/SaveToolkit.Sdk/Views/ViewNode.cs")
         for name in ("SelectionTableId", "SelectionId"):
             self.assertIn(name, contract)
             self.assertIn(name, sdk)
