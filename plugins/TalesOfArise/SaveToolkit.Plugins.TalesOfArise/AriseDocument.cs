@@ -24,6 +24,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     internal const int ConsumableStackLimit = 15;
     internal const string ExperimentalWarning = "Experimental: PS5 field mapping is inferred from PS4 research and sample bytes; edits have not been tested in-game. The game may reject an edited save even though ciphertext SHA1 and encryption self-check succeed.";
     private readonly AriseReferences _references = new(references);
+    private readonly AriseReadOnlyAliases _readOnlyAliases = new(save.Payload);
     private AriseInventoryActions? _inventoryActions;
     private AriseReadOnlyViews? _readOnlyViews;
     private AriseSpatialViews? _spatialViews;
@@ -122,11 +123,14 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
+        var before = _readOnlyAliases.Capture();
         var result = base.ApplyEdits(edits);
         return result.Succeeded && result.Changes.Count > 0
-            ? result with { Warnings = [ExperimentalWarning] }
+            ? result with { Changes = [.. result.Changes, .. _readOnlyAliases.Changes(before)], Warnings = [ExperimentalWarning] }
             : result;
     }
+
+    internal IReadOnlyList<PlannedChange> PlanReadOnlyAliases(IReadOnlyDictionary<int, byte> byteWrites) => _readOnlyAliases.Plan(byteWrites);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
@@ -196,16 +200,19 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             var active = i < MainCharacterCount && Read(offset + LevelOffset) != 0;
             var prefix = $"character/{i}";
             var name = names[i];
+            FieldNode Scalar(string suffix, string label, int relative, uint maximum, bool writable = false, uint minimum = 0) =>
+                Number($"{prefix}/{suffix}", label, offset + relative, maximum, writable, minimum) with
+                { Confidence = i < MainCharacterCount ? Confidence.Inferred : Confidence.Unknown };
             rows.Add(new TableRow(prefix, new Dictionary<string, ViewNode>
             {
                 ["name"] = Field($"{prefix}/name", "Character", new TextSpec(), () => FieldValue.Of(name))
                     with { Description = _references.Character(i)?.AttributionText ?? CharacterAttribution, Confidence = i < MainCharacterCount ? Confidence.Inferred : Confidence.Unknown },
-                ["level"] = Number($"{prefix}/level", "Level", offset + LevelOffset, MaximumLevel, active, active ? 1u : 0u)
+                ["level"] = Scalar("level", "Level", LevelOffset, MaximumLevel, active, active ? 1u : 0u)
                     with { Warning = "Level alone does not recalculate experience or stats. The preserved load-screen preview can show the old level." },
-                ["hp"] = Number($"{prefix}/hp", "Current HP", offset + CurrentHpOffset, MaximumHp, active),
-                ["baseHp"] = Number($"{prefix}/base-hp", "Base HP", offset + BaseHpOffset, uint.MaxValue, false),
-                ["experience"] = Number($"{prefix}/experience", "Experience", offset + ExperienceOffset, uint.MaxValue, false),
-                ["sp"] = Number($"{prefix}/sp", "SP", offset + SkillPointsOffset, MaximumSkillPoints, active),
+                ["hp"] = Scalar("hp", "Current HP", CurrentHpOffset, MaximumHp, active),
+                ["baseHp"] = Scalar("base-hp", "Base HP", BaseHpOffset, uint.MaxValue),
+                ["experience"] = Scalar("experience", "Experience", ExperienceOffset, uint.MaxValue),
+                ["sp"] = Scalar("sp", "SP", SkillPointsOffset, MaximumSkillPoints, active),
             }));
         }
 
@@ -240,7 +247,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             () => FieldValue.Of((long)save.Payload[offset]),
             canWrite ? v => save.Payload[offset] = checked((byte)v.AsUInt32()) : null,
             v => v.AsInteger() < 0 || v.AsInteger() > ConsumableStackLimit ? $"Consumable quantities must be between 0 and {ConsumableStackLimit}." : null)
-            with { Confidence = Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
+            with { Confidence = row.Name is null ? Confidence.Unknown : Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
         var cells = new Dictionary<string, ViewNode>
         {
             ["icon"] = AriseAssets.Icon(reference),
@@ -261,6 +268,11 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     {
         var current = Read(offset);
         writable = writable && current >= minimum && current <= maximum;
+        if (!writable)
+        {
+            _readOnlyAliases.Register(id, label, offset);
+        }
+
         var spec = new IntegerSpec(Math.Min(minimum, current), Math.Max(maximum, current));
         return Field(id, label, spec, () => FieldValue.Of((long)Read(offset)),
             writable ? v => BinaryPrimitives.WriteUInt32LittleEndian(save.Payload.AsSpan(offset), v.AsUInt32()) : null,

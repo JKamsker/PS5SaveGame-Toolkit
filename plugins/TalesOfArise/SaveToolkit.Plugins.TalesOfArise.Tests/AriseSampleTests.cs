@@ -110,7 +110,9 @@ public sealed class AriseSampleTests
 
             var outcome = document.ApplyEdits(edits);
             Assert.True(outcome.Succeeded);
-            Assert.Equal(edits.Count, outcome.Changes.Count);
+            Assert.Equal(edits.Count, outcome.Changes.Count(change => edits.Any(edit => edit.ValueId == change.ValueId)));
+            Assert.All(outcome.Changes.Where(change => change.ValueId.StartsWith("sheet/", StringComparison.Ordinal)),
+                change => Assert.Equal(change.NewValue, document.GetValue(change.ValueId)));
             var output = Assert.Single(document.Serialize()).Content.ToArray();
             Assert.True(output.AsSpan(0, AriseFormat.PayloadOffset).SequenceEqual(before.Original.AsSpan(0, AriseFormat.PayloadOffset)));
             var after = AriseFormat.Decode(output);
@@ -131,7 +133,8 @@ public sealed class AriseSampleTests
             }
 
             // Undo through the same bindings restores even the original ciphertext and SHA1.
-            Assert.True(document.ApplyEdits(outcome.Changes.Select(c => new ValueEdit(c.ValueId, c.OldValue)).ToArray()).Succeeded);
+            Assert.True(document.ApplyEdits(outcome.Changes.Where(change => edits.Any(edit => edit.ValueId == change.ValueId))
+                .Select(change => new ValueEdit(change.ValueId, change.OldValue)).ToArray()).Succeeded);
             Assert.Equal(before.Original, Assert.Single(document.Serialize()).Content.ToArray());
 
             void Allow(int offset, int count) => allowed.UnionWith(Enumerable.Range(offset, count));

@@ -102,6 +102,8 @@ internal sealed class AriseInventoryActions(AriseDocument document)
             changes.Add(new PlannedChange(key, $"{row.Name} · quantity (raw ID 0x{row.Id:X4})", oldValue, target));
         }
 
+        changes.AddRange(document.PlanReadOnlyAliases(changes.ToDictionary(change => byKey[change.ValueId].Offset,
+            change => checked((byte)change.NewValue.AsUInt32()))));
         var selectionDescription = scope.RowKeys is null
             ? $"Document scope selected {keys.Count} existing inventory rows."
             : $"Explicit selection contains {keys.Count} existing inventory rows.";
@@ -128,7 +130,8 @@ internal sealed class AriseInventoryActions(AriseDocument document)
         }
 
         document.EnsureInventoryBindings();
-        var result = document.ApplyEdits(fresh.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray());
+        var result = document.ApplyEdits(fresh.Changes.Where(change => !change.Derived)
+            .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray());
         return result with { Warnings = [.. fresh.Warnings, .. result.Warnings] };
     }
 

@@ -234,6 +234,8 @@ by default; there is no item
 insertion, flag editing, accessory editing or bulk grant action. Existing values
 outside the supported editing guardrails remain visible but read-only. IDs 6/7 of the
 character sections are unmapped and read-only, not assumed to be active party members.
+Their scalar meanings, and quantities attached to empty or unrecognised item IDs,
+are labelled **Unknown**. Recognised consumable quantities retain **Inferred** confidence.
 
 **Verified** means the byte-level observations, cipher, integrity coverage and
 round-trip preservation described above. Curated PS5 **meanings remain Inferred**:
@@ -246,6 +248,14 @@ load-screen preview. Current HP need not equal base HP once equipment/bonuses ar
 involved. Play time is read-only because it has duplicate counters and an outer
 copy which this plugin deliberately preserves. Bulk inventory codes in the source
 have reports of broken accessory/key-item acquisition; this plugin does not implement them.
+
+Scalar edits report the old and new values of all published read-only numeric views
+over the same bytes, including character sheets, Explorer words and queried F8
+evidence. Undo/redo refresh those values while writing only the editable fields.
+F6 quantity previews include exposed packed-word effects as derived changes; they
+preserve the adjacent ID/flag bytes and never make those words writable. Preview
+calculation leaves the save unchanged, and changed effects, warnings or parameters
+require a fresh preview.
 
 ### Measured samples
 
