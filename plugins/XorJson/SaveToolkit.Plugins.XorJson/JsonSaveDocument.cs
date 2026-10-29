@@ -36,6 +36,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     }
 
     public override string Title => _name;
+    public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
     public override bool CanEdit => _character is null || _character.CanWrite;
     internal bool IsCharacter => _character is not null;
     internal bool IsGlobalSettings => _model.Root.Member("blobs") is { Kind: System.Text.Json.JsonTokenType.StartArray };

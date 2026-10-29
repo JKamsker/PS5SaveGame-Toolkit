@@ -1,6 +1,6 @@
 # Obfuscated JSON / Dungeons II (`format.json-xor`)
 
-**Experimental, version 0.4.1.** Lossless token editing for byte-minus-one and
+**Experimental, version 0.5.0.** Lossless token editing for byte-minus-one and
 synthetic XOR-1 JSON, plus Experimental existing-token and structural writes for
 the tested offline Minecraft Dungeons II character shape.
 Only an owner can promote console-tested features to Stable.
@@ -39,20 +39,20 @@ JSON. Whether external integrity or console-side validation exists is
 | Feature | Status and location | Evidence / reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used: `XorJsonDecoder` and sample ledger tests | Production SDK hook now shares the bounded token parser; no-op and settings delta tests run against external samples. |
-| F2 reference packs | Used: `ReferencePacks/xorjson.community.en` | MIT identifiers, attributes, rarity, items and quest relationships; 60 effect summaries add attributed dungeons.tools reference facts. All carry hashes and provenance. |
-| F3 rich table cells | Used: F8 character collections | Inventory labels include attributed details and confidence; raw details stay lazy. |
+| F2 reference packs | Used: `ReferencePacks/xorjson.community.en` 1.4.0 | MIT identifiers and relationships; 388 deduplicated game icons serve 418 records, with 399 official descriptions and one Overworld background. All carry hashes and provenance. |
+| F3 rich table cells | Used: F8 character collections | Inventory/collection image cells and attributed game descriptions; raw details stay lazy. |
 | F4 ReferenceSpec | Used: item, effect, enchantment, world, attribute and rarity IDs | Existing-value picker and planned-action parameters use native catalog validation, category filtering and declared sorting. |
 | F5 structural edits | Used: `JsonEditModel` / detached mementos | Generic object/array add, remove and replace preserve unknown members and support undo/redo; output is reparsed. |
 | F6 planned actions | Added this round: `JsonActionPlanner` | Scalar, attribute, stack, item and rarity actions preview changes/skips/warnings and accept F8 selected/query scopes through Core. |
 | F7 document groups | Used: character + GlobalSaveDataDefault | Same-generation role validation, role-prefixed IDs, complete mementos and staged multi-file serialization. |
 | F8 queryable tables | Used and extended this round | Seven character collections plus automatic server-backed tables for raw arrays with 100+ rows. |
-| F9 graphs / maps | Added this round: `CharacterSpatialViews` / `CharacterMapView` | Quest follows relationships are a bounded attributed DAG; locations are unpositioned/link-first with text alternatives. |
+| F9 graphs / maps | Used: `CharacterSpatialViews` / `CharacterMapView` | Bounded quest DAG and attributed Overworld reference art; saved locations remain unpositioned with text alternatives because no verified ID-to-pixel mapping exists. |
 | F10 exact numbers | Used: token parser and `ExactNumberSpec` | Numeric lexemes, nulls, duplicate members and unchanged spelling survive edits. |
 | F11 shared codecs | N/A | XorJson is UTF-8 JSON with byte transforms; it has no Kraken, SQLite or Oodle payload. |
 | F12 decoder hook | Added this round: `XorJsonDecoder` | `ISaveDecoderProvider` exposes `xorjson.tokens`; F1 tests use `HookSaveDecoder`, with depth/value/byte bounds. |
 | F13 inspection / browse picker | Used | `json/inspect` is explicitly non-mutating; catalog pickers inherit browse search/category/sort from Core. |
 
-The pack sidecars and this README document pinned sources, modifications, hashes and PS5 uncertainty. No proprietary artwork, coordinates, game tooltip prose or wiki text is embedded. Unlicensed community facts are attributed under the owner decision of 2026-10-28.
+The pack sidecars and this README document pinned sources, modifications, hashes and PS5 uncertainty. Game artwork and game descriptions are attributed under the owner decision of 2026-10-29; earlier community facts retain their 2026-10-28 policy basis. No saved-location coordinates or wiki text are imported.
 
 ## Typed paths, exact values and preservation
 
@@ -98,7 +98,7 @@ lexical (including number columns), with stable session-token IDs as tie-breaks.
 No page offset or catalog ID is used as a row identity, so repeated IDs remain
 distinct. Only requested rows become view nodes. Raw details stay lazy.
 
-Inventory columns show the raw TypeTag, attributed name/category, RarityTag,
+Inventory columns show a local icon, the raw TypeTag, attributed name/category, RarityTag,
 EquippedSlot, TargetSlotOverride, StackCount, generated ItemPower and stored
 effect count. Target slots are shown verbatim, including merchant tags; they
 are not interpreted as proof of ownership or equip eligibility. Details retain
@@ -137,7 +137,7 @@ be edited. No caps, reward behavior or integrity repair is guessed.
 
 ## Reference catalogs and picker
 
-The embedded F2 pack `xorjson.community.en` version 1.3.0 contains **328 item**,
+The embedded F2 pack `xorjson.community.en` version 1.4.0 contains **328 item**,
 **60 effect**, **30 enchantment**, **9 attribute**, **5 rarity** and **1,346 world/quest/task** records. Catalog
 IDs are `xorjson-items`, `xorjson-effects`, `xorjson-enchantments` and
 `xorjson-world`. This covers every base/unique item ID, effect/enchantment ID,
@@ -186,11 +186,29 @@ Percentages are display facts, not serialized `Strength` values, validators or
 PS5 limits. All five sample inventory entries have empty effect arrays; there
 are **zero populated PS5 effect records** against which to verify those facts.
 
-No game artwork, verbatim tooltip prose, long quest prose or effect synthesis is
-included. Community descriptions are regenerated from facts in original words;
-their absence of a published licence is resolved by owner decision 2026-10-28.
-See [effect-notes.source.md](SaveToolkit.Plugins.XorJson/ReferencePacks/xorjson.community.en/effect-notes.source.md)
-for the snapshot pin, extraction method and separate MIT identifier provenance.
+The asset round adds icons to all **328 items, 60 effects and 30 enchantments**
+(**388 distinct files** after decoded-image deduplication). **309 item, 60 effect
+and 30 enchantment descriptions** append the official PC game text; 19 talismans
+have no source description and keep that absence. Effect game text is explicitly
+the tier I display description, alongside the earlier advisory summaries and tier
+observations. It never supplies serialized Strength or PS5 validators.
+
+The **2022 × 1340 Overworld WebP** is a reference background only. Its source
+tiles have a documented pixel transform, but the save's location IDs have no
+verified crosswalk to those pixels and can belong to other regions. Every marker
+therefore stays unpositioned/Unknown in the always-available text list. Without
+the pack the background and icons are omitted; raw IDs and controls remain.
+
+New image assets total **974,007 bytes**: icons **784,515 bytes** and map
+**189,492 bytes**. Icons are at most 64 × 64, encoded as lossless WebP or PNG-8,
+whichever is smaller. All downloaded inputs were header-validated and processed
+with isolated Python outside the repository; downloaded scripts were never run.
+The exact source URLs, input hashes and record mappings are in
+[game-assets.sources.json](SaveToolkit.Plugins.XorJson/ReferencePacks/xorjson.community.en/game-assets.sources.json).
+See [game-assets.source.md](SaveToolkit.Plugins.XorJson/ReferencePacks/xorjson.community.en/game-assets.source.md)
+for conversion details and [effect-notes.source.md](SaveToolkit.Plugins.XorJson/ReferencePacks/xorjson.community.en/effect-notes.source.md)
+for the earlier factual summaries.
+
 CC BY-SA text remains approved with attribution and share-alike;
 no wiki text was embedded this round. Direct retrieval of Minecraft Wiki's
 `Dungeons_II:Sword`, `Dungeons_II:Echo_Shard` and `Minecraft_Wiki:Copyrights`
@@ -208,9 +226,11 @@ notice is retained in the pack's `LICENSE.txt`; dataset modifications are in
 
 | Dataset / research | Author and source | Licence / use |
 | --- | --- | --- |
+| Game icons and official descriptions | Mojang Studios/Microsoft; extracted by dungeons.tools: [weapons](https://www.dungeons.tools/2/weapons), [armor](https://www.dungeons.tools/2/armor), [artifacts](https://www.dungeons.tools/2/artifacts), [effects](https://www.dungeons.tools/2/effects), [enchantments](https://www.dungeons.tools/2/enchantments); PC 1.1.2.0 / Steam 25754144; retrieved 2026-10-29 | Rights reserved by Mojang Studios/Microsoft; used with attribution per owner decision 2026-10-29. 418 icon associations, 388 deduplicated 64-pixel files, 399 official descriptions; exact-name matches constrained to gear/book/effect/enchantment classes. Original MIT identifier notices remain. |
+| Overworld map art | Mojang Studios/Microsoft; dungeons.tools [map](https://www.dungeons.tools/2/map) and its tile data; retrieved 2026-10-29 | Rights reserved by Mojang Studios/Microsoft; used with attribution per owner decision 2026-10-29. Zoom-3 tiles stitched/cropped to 2022 × 1340, WebP quality 82. Saved ID-to-pixel alignment is unverified; all markers remain unpositioned. |
 | Item IDs, short names, categories | Ishiaki and mcd2-save-editor contributors, [items.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/items.json) | [MIT](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/LICENSE); base/unique ID-name pairs and optional slot; no descriptions, artwork or caps. |
 | Effect IDs, short names, categories | Same contributors, [effects.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json) | MIT; 60 effects, no tiers, numbers or tooltip prose. |
-| Effect summaries, compatible gear counts, tier display percentages | dungeons.tools community author, [effects](https://www.dungeons.tools/2/effects), retrieved 2026-10-29; PC 1.1.2.0 / Steam 25754144; snapshot SHA-256 `fce93f92b4d8fcaf99b9d95069a0de34d7dc0694d81009aea44a61e232f580b6` | No licence published; reused with attribution per owner decision 2026-10-28. 60 unique-name crosswalks; original summaries replace game prose. MIT continues to cover identifiers. Dataset metadata, each record, UI and sidecar retain both sources. No new write limits or assets. |
+| Effect summaries, compatible gear counts, tier display percentages | dungeons.tools community author, [effects](https://www.dungeons.tools/2/effects), retrieved 2026-10-29; PC 1.1.2.0 / Steam 25754144; snapshot SHA-256 `fce93f92b4d8fcaf99b9d95069a0de34d7dc0694d81009aea44a61e232f580b6` | No licence published; reused with attribution per owner decision 2026-10-28. 60 unique-name crosswalks; original summaries remain alongside newly appended official descriptions. MIT continues to cover identifiers. Dataset metadata, each record, UI and sidecar retain both sources. No display percentage becomes a write limit. |
 | Enchantment IDs / short names | Same contributors, [effects.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json) | MIT; 30 `enchantments` ID/name pairs, no strengths, points or tiers. |
 | World/quest/task IDs and labels | Same contributors, [world.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/world.json) | MIT; 420 original identifiers plus 926 task IDs. Quest/task short labels from `names`/`labels`; other labels expanded from IDs. No reward rules or coordinates. |
 | Shifted settings / plain character codec | Same project, [codec.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/codec.py) | MIT research corroboration; inspected as text, not executed. No downloaded Python implementation is shipped or executed. |
@@ -223,8 +243,8 @@ notice is retained in the pack's `LICENSE.txt`; dataset modifications are in
 | Source (pinned revision / snapshot) | Licence found / terms | Reason excluded | Alternative | What would unblock it |
 | --- | --- | --- | --- | --- |
 | dungeons.tools community effect descriptions/facts; PC 1.1.2.0, snapshot `fce93f92b4d8fcaf99b9d95069a0de34d7dc0694d81009aea44a61e232f580b6` | No licence published; reused with attribution per owner decision 2026-10-28 | **Resolved:** 60 factual effect summaries imported/regenerated with attribution. | Retain MIT IDs, exact-name crosswalk warnings, source hashes and original summaries. | Resolved; no author permission request pending. |
-| MetaBot descriptions, icons and data; [methodology](https://metabot.gg/en/minecraft-dungeons-2/methodology), PC 1.1.1.0, and [terms](https://metabot.gg/en/legal/terms-of-service), effective 2026-04-01; snapshot hashes in sidecar | General terms limit use to “personal, non-commercial use”; a later aggregate-data exception requires specific linked attribution. Methodology identifies tooltip wording and textures as game content. | Direct import remains excluded for NC/general terms and proprietary game prose/assets; not merely absence of a licence. No reliance on the aggregate-data exception for game descriptions. | Facts from dungeons.tools; original summary wording; existing MIT identifier attribution retained. No new MetaBot text or assets imported. | Compatible terms for community-authored material; publisher permission for game prose/art. |
-| dungeons.tools verbatim game tooltips, icons and art; same pinned effect snapshot and [privacy notice](https://www.dungeons.tools/privacy) | No redistribution licence for game assets; notice states game data/assets belong to Mojang/Microsoft. | Proprietary game prose and artwork remain excluded by the brief, independently of the community author's licence status. | Import facts and regenerate summaries; retain text-only presentation. | Publisher permission, or independently community-made assets with attributable provenance. |
+| MetaBot descriptions, icons and data; [methodology](https://metabot.gg/en/minecraft-dungeons-2/methodology), PC 1.1.1.0, and [terms](https://metabot.gg/en/legal/terms-of-service), effective 2026-04-01; earlier snapshot hashes in sidecar | General personal/non-commercial terms remain; publisher-asset refusal superseded by owner decision 2026-10-29. | Publisher assets are no longer refused. Direct MetaBot import is unnecessary because equivalent game content is sourced from dungeons.tools. | Attributed dungeons.tools assets/text, with original MIT identifier provenance. | No publisher-asset blocker remains; direct community-data reuse would still require reviewing MetaBot's applicable terms. |
+| dungeons.tools verbatim game tooltips, icons and art; [privacy notice](https://www.dungeons.tools/privacy); current snapshots in game-assets.sources.json | Rights reserved by Mojang Studios/Microsoft; used with attribution per owner decision 2026-10-29. | **Resolved: imported (owner decision 2026-10-29).** 388 icons, 399 official descriptions and one map background. | Local F2 assets and text, full attribution, unpositioned map fallback. | Resolved; no permission request pending. |
 
 No GPL-2.0-only code or downloaded implementation was imported or executed.
 

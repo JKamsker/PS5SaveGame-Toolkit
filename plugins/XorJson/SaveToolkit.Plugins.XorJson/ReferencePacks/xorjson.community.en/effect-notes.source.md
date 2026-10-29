@@ -1,5 +1,10 @@
 # Effect reference facts and original summaries
 
+This is the historical pack-1.3.0 extraction record. Pack 1.4.0 retains these
+facts and adds official game descriptions/icons under the owner decision of
+2026-10-29; see game-assets.source.md and game-assets.sources.json. Its combined
+dataset attribution now records publisher rights as well as MIT identifiers.
+
 Author/source: dungeons.tools community author,
 https://www.dungeons.tools/2/effects (individual page URLs on every record).
 Retrieved: 2026-10-29. Source revision: PC version 1.1.2.0, Steam build 25754144.
@@ -58,7 +63,7 @@ existing Experimental warning, version/online gates and unknown-field behavior
 are retained. F4 candidate details and raw scalar field descriptions display
 the summaries and dataset attribution; Sources lists the combined provenance.
 
-## Sources still excluded
+## Earlier exclusions (superseded for publisher assets)
 
 - MetaBot methodology identifies its descriptions as game translation/template
   text and icons as game textures/models:
@@ -71,9 +76,9 @@ the summaries and dataset attribution; Sources lists the combined provenance.
   https://metabot.gg/en/legal/terms-of-service (effective 2026-04-01;
   retrieved 2026-10-29; HTML SHA-256
   `87affdb5a94632a778185bdcf0666c6e1f151ba727d756d08125bdaf76c19520`).
-- dungeons.tools game tooltip wording, icons and art remain excluded under the
-  owner's proprietary-assets rule; the privacy notice identifies the publisher
-  ownership. Facts are summarized in original words instead. No community-made
-  replacement icons were established during this audit.
+- The earlier refusal of dungeons.tools game wording/icons/art is resolved by
+  the owner decision of 2026-10-29. Pack 1.4.0 imports that content with publisher
+  attribution; see game-assets.source.md. MetaBot is not a direct import source
+  this round; its separate community-data terms are recorded above.
 
 README `## Licence exclusions` records reasons, alternatives and unblock routes.

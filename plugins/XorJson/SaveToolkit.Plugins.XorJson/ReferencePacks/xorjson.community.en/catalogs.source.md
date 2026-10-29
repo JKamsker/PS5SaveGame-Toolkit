@@ -1,5 +1,9 @@
 # Source and modifications
 
+This records the original MIT identifier conversion. Pack 1.4.0 adds game icons
+and official descriptions with separate publisher attribution; see
+game-assets.source.md. The MIT notice here continues to cover identifier data.
+
 Copyright (c) 2026 Ishiaki. MIT licence: see LICENSE.txt in this folder.
 
 Source: Ishiaki and mcd2-save-editor contributors,

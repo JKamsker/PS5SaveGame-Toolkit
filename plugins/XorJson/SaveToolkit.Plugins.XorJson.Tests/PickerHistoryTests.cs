@@ -43,7 +43,7 @@ public sealed class PickerHistoryTests
         Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());
         var candidates = session.SearchReferences(field.ValueId, new ReferenceQuery { Text = "Bow" }, revision: 0);
         Assert.Contains(candidates.Items, candidate => candidate.RawId == "SW.Item.Bow");
-        Assert.All(candidates.Items, candidate => Assert.Equal("MIT", candidate.Dataset!.Attribution.License));
+        Assert.All(candidates.Items, candidate => Assert.Equal(GameAssetTests.OwnerDecision, candidate.Dataset!.Attribution.License));
         Assert.Equal(!unknownOriginal, session.FindReference(field.ValueId, originalId).Eligibility.Selectable);
         Assert.False(session.ApplyEdits([Incoming(field.ValueId, "SW.Item.NotInCatalog")]).Ok);
         Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());

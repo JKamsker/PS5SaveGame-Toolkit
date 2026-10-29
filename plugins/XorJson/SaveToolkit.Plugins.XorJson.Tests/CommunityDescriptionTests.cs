@@ -9,11 +9,11 @@ namespace SaveToolkit.Plugins.XorJson.Tests;
 public sealed class CommunityDescriptionTests
 {
     private const string CatalogId = "xorjson-effects";
-    private const string OwnerDecision = "No licence published; reused with attribution per owner decision 2026-10-28";
+    private const string OwnerDecision = "Rights reserved by Mojang Studios/Microsoft; used with attribution per owner decision 2026-10-29";
     private const string SnapshotHash = "fce93f92b4d8fcaf99b9d95069a0de34d7dc0694d81009aea44a61e232f580b6";
 
     [Fact]
-    public void EveryEffectHasPinnedAdvisoryDescriptionsWithoutAssetsOrWriteLimits()
+    public void EveryEffectRetainsPinnedAdvisoryDescriptionsWithoutWriteLimits()
     {
         var plugin = new XorJsonPlugin();
         var store = new ReferencePackStore([plugin]);
@@ -36,7 +36,8 @@ public sealed class CommunityDescriptionTests
             Assert.StartsWith("https://www.dungeons.tools/2/effects/", record.Source!);
             Assert.Contains("dungeons.tools", record.AttributionText);
             Assert.Contains("Ishiaki", record.AttributionText);
-            Assert.Null(record.AssetId);
+            Assert.NotNull(record.AssetId);
+            Assert.Contains("Game description (PC tier I):", record.Description!);
             Assert.Null(record.Limit);
             Assert.DoesNotContain("strength", record.Attributes.Keys);
             Assert.DoesNotContain("text", record.Attributes.Keys);

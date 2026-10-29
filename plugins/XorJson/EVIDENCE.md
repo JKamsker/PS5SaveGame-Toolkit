@@ -119,3 +119,61 @@ The lack of a published community licence is resolved under owner decision
 MetaBot direct imports also remain excluded under its general NC terms. The
 README exclusions table and `effect-notes.source.md` preserve exact source pins,
 attribution and alternatives. Write warnings and Experimental maturity remain.
+
+## Asset round (2026-10-29)
+
+Plugin 0.5.0 / reference pack 1.4.0 adds 418 catalog icon associations
+(388 distinct icons), 399 official PC descriptions (309 item, 60 effect,
+30 enchantment), and one Overworld reference background. New image bytes:
+974,007 (784,515 icons + 189,492 map). All image inputs were validated and
+processed outside the repository with Python -I; no downloaded code was run.
+Source URLs, input hashes, crosswalks, processing and publisher attribution are
+recorded in the pack's game-assets.source.md and game-assets.sources.json.
+
+The map source's native pixel transform is known, but its saved identifier
+crosswalk is unverified. Markers remain unpositioned/Unknown with a text list;
+Overworld art is explicitly a reference and may not depict a saved location's
+region. There are no imported saved-location coordinates or gameplay changes.
+Existing warnings, Experimental maturity and original MIT notices remain.
+
+### First-load measurement
+
+A temporary net10.0 Release console referenced Testing/Core and the plugin.
+It imported PPSA16064 before timing and selected the largest non-system file
+(40,062 bytes). Stopwatch and GC.GetTotalAllocatedBytes(true) measured creating
+one ReferencePackStore, pinning its context, opening the document, BuildView,
+and querying the first character/inventory page. The warm measurement repeated
+Open/BuildView/Query 100 times against that same store/context, disposing each
+document. Both measurements used the same code and external artifact directory.
+The benchmark source/output stayed under %TEMP%/xorjson-assets/benchmark.
+
+- Before: first load 132.907 ms, 14,747,720 allocated bytes;
+  warm mean 4.274 ms, 2,755,751 allocated bytes per document.
+- After: first load 153.595 ms, 50,376,336 allocated bytes;
+  warm mean 5.745 ms, 2,773,732 allocated bytes per document.
+
+These are quick single-process observations on a shared machine, not a stable
+performance regression threshold. Startup includes the eager Core pack loader's
+image validation and JIT; image bytes are cached once per host store. Warm
+allocation increases by 17,981 bytes per document; no document copies or decodes
+the image pack. Tests assert reference reuse across two documents. Making the
+host loader lazy would require a separate Core change outside this plugin.
+
+### Verification
+
+With SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts
+exported in the same shell:
+
+- dotnet test --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests:
+  84 passed, 0 failed, 0 skipped (including sample conformance).
+- dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -v:q:
+  0 warnings, 0 errors.
+- Pack validation covers normalized catalog hashes, binary asset hashes,
+  image types/dimensions and every assetId. New tests cover native picker
+  image/text provenance, all catalog icons, byte budget, actual sample F3 images,
+  cached asset reuse, map validation, missing-pack fallback and no-op bytes.
+
+All repository edits stay under plugins/XorJson/. The central licence register
+still has the prior publisher-asset refusal and needs the integrating agent's
+update; this worker does not edit docs/ because of the assigned plugin boundary.
+Console acceptance and populated PS5 effect evidence remain owner work (#31).
