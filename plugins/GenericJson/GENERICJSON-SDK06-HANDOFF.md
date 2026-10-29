@@ -4,12 +4,14 @@
 
 - Consumer branch: `t3/genericjson-sdk06-adoption`
 - Consumer base before dependency merge: `e76e51035fec308a56e5c26b5d97a9c08089f881`
+- Consumer implementation head: `ee2b5a6c` (`feat(genericjson): adopt SDK06 lossless scalar substrate`)
 - Reviewed dependency: SDK-06 PR #51, exact commit
   `72490fe8756627013c73c0b80fa874b563a0e652` (parent `a466a4b16ef271eb98e30f784cfcaba03e8654ae`)
 - Dependency branch/base: `t3/sdk06-lossless-json` / `e76e51035fec308a56e5c26b5d97a9c08089f881`
 - Consumer dependency merge: `5e452662` (ordinary `--no-ff` merge; no cherry-pick/rebase/squash)
 - Consumer PR target: `t3/sdk06-lossless-json` while PR #51 is pending main; parent must retarget to
   `main` after PR #51 lands and rerun CI. Do not merge this consumer before that foundation.
+- Consumer PR: https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/62
 
 ## Actual adoption
 
