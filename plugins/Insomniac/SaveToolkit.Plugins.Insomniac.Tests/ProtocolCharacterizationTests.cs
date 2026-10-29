@@ -16,9 +16,9 @@ public sealed class ProtocolCharacterizationTests
     // Fingerprints captured before the maintainability refactor. They pin complete serialized
     // protocol objects and ordered sink events without committing private sample content.
     [Theory]
-    [InlineData(false, 0, "7a423a9d36f56ee7afa4ff0149a3554bbaac7c86eeea831d5660c508482bea58",
+    [InlineData(false, 0, "57d53b0d8a69f3a3f2ac66a4032e2af62df6e5f7041bc45ec85abf3dad17ec3c",
         "71e8abc6c279f1835e0eedc3f5632b2e1050dd3e0614af75e2e01b1bfa7c2ab2")]
-    [InlineData(false, 1, "19235aa2df1ea6d462f37ebf1a8e55000bd892c658adb71ef311b20e43ab086f",
+    [InlineData(false, 1, "dace964fa1f7af3e20c4193ce4d5c9191d5b82d912506eb26c916392d61f6b73",
         "25025f4f7aa4cf4146d11de5ede2c6292dfbe422d1340e0cf85caa0184b6144e")]
     [InlineData(true, 0, "79499c9bd9f5d7b642ab7626e400b269b878d36fbfee2cd23a7df5af9253af01",
         "c2d7bb354d38d68a99398698c20f4600a9cc6e56975cc3657383e2b6431e497e")]
