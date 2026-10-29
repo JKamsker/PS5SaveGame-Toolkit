@@ -171,6 +171,48 @@ public sealed class ParamSfoPatchTests
         Assert.Throws<ParamSfoPatchException>(() => document.PlanExistingUtf8("COUNT", "2"));
     }
 
+    [Fact]
+    public void ForgedPlansCannotTargetUnknownOrIntegerFormatsAndNullTextIsControlled()
+    {
+        var source = Build(
+            new Entry("OPAQUE", 0x9999, "a", 4),
+            new Entry("COUNT", Integer, 49, 4),
+            new Entry("TITLE", Utf8, "old", 8));
+        var document = ParamSfoDocument.Parse(source, Limits);
+
+        foreach (var entry in document.Entries.Take(2))
+        {
+            var forged = new ParamSfoPatchPlan(
+                entry.Key, entry.Format, entry.Index, entry.DataOffset, entry.Length, entry.MaximumLength,
+                "1", "2", document.OriginalFileSha256, entry.EntrySha256);
+            Assert.Throws<ParamSfoPatchException>(() => document.Apply(forged));
+            Assert.Equal(source, document.OriginalBytes.ToArray());
+        }
+
+        var valid = document.PlanExistingUtf8("TITLE", "new");
+        var nullReplacement = valid with { NewText = null! };
+        Assert.Throws<ParamSfoPatchException>(() => document.Apply(nullReplacement));
+        Assert.Equal(source, document.OriginalBytes.ToArray());
+    }
+
+    [Fact]
+    public void LargeFiniteDocumentUsesBoundedRangeSweep()
+    {
+        var entries = Enumerable.Range(0, 16_000)
+            .Select(index => new Entry(KeyFor(index), 0x9999, "", 0))
+            .ToArray();
+        var source = Build(entries, []);
+        var limits = new ParamSfoPatchLimits(source.Length, 128, 8, 32);
+
+        var document = ParamSfoDocument.Parse(source, limits);
+
+        Assert.Equal(entries.Length, document.Entries.Count);
+        Assert.Throws<ParamSfoPatchException>(() =>
+            ParamSfoDocument.Parse(source,
+                new ParamSfoPatchLimits(source.Length - 1, limits.MaxEntryBytes, limits.MaxKeyBytes,
+                    limits.MaxEncodedValueBytes)));
+    }
+
     private static int DataStart(byte[] source, ParamSfoEntry entry) =>
         BinaryPrimitives.ReadInt32LittleEndian(source.AsSpan(12)) + entry.DataOffset;
 
@@ -198,15 +240,20 @@ public sealed class ParamSfoPatchTests
             var start = HeaderSize + index * IndexSize;
             BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(start), checked((ushort)keyOffset));
             BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(start + 2), entry.Format);
-            var logical = entry.Format == Integer ? sizeof(int) : Encoding.UTF8.GetByteCount((string)entry.Value) + 1;
+            var logical = entry.MaximumLength == 0
+                ? 0
+                : entry.Format == Integer ? sizeof(int) : Encoding.UTF8.GetByteCount((string)entry.Value) + 1;
             BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(start + 4), logical);
             BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(start + 8), entry.MaximumLength);
             BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(start + 12), dataOffset);
             var valueStart = dataTable + dataOffset;
-            if (entry.Format == Integer)
-                BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(valueStart), (int)entry.Value);
-            else
-                Encoding.UTF8.GetBytes((string)entry.Value + "\0").CopyTo(bytes, valueStart);
+            if (entry.MaximumLength > 0)
+            {
+                if (entry.Format == Integer)
+                    BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(valueStart), (int)entry.Value);
+                else
+                    Encoding.UTF8.GetBytes((string)entry.Value + "\0").CopyTo(bytes, valueStart);
+            }
             keyOffset += entry.Key.Length + 1;
             dataOffset += entry.MaximumLength;
         }
@@ -215,6 +262,15 @@ public sealed class ParamSfoPatchTests
     }
 
     private static int Align(int value) => (value + 3) & ~3;
+
+    private static string KeyFor(int index)
+    {
+        Span<char> chars = stackalloc char[3];
+        chars[2] = (char)('A' + (index % 26));
+        chars[1] = (char)('A' + (index / 26 % 26));
+        chars[0] = (char)('A' + (index / (26 * 26) % 26));
+        return new string(chars);
+    }
 
     private sealed record Entry(string Key, ushort Format, object Value, int MaximumLength);
 }

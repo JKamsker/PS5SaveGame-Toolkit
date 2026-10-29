@@ -85,11 +85,6 @@ public sealed class ParamSfoDocument
             if (keyTerminator < 0 || keyTerminator > limits.MaxKeyBytes)
                 throw Error($"Entry {index} key is missing its terminator or exceeds MaxKeyBytes.");
             var keyEnd = keyStart + keyTerminator + 1;
-            foreach (var previous in keyRanges)
-            {
-                if (keyStart < previous.End && previous.Start < keyEnd)
-                    throw Error($"SFO key ranges for entries {previous.Index} and {index} overlap.");
-            }
             keyRanges.Add((keyStart, keyEnd, index));
             var keyBytes = bytes.Slice(keyStart, keyTerminator).ToArray();
             var key = Encoding.ASCII.GetString(keyBytes);
@@ -106,13 +101,8 @@ public sealed class ParamSfoDocument
                 ComputeEntryFingerprint(rawIndex, keyBytes, reservedBytes)));
         }
 
-        foreach (var left in slots)
-        foreach (var right in slots)
-        {
-            if (left.Index >= right.Index) continue;
-            if (left.Start < right.End && right.Start < left.End)
-                throw Error($"SFO data slots for entries {left.Index} and {right.Index} overlap.");
-        }
+        ValidateNonOverlappingRanges(keyRanges, "key");
+        ValidateNonOverlappingRanges(slots, "data slot");
 
         return new ParamSfoDocument(bytes.ToArray(), limits, entries);
     }
@@ -166,8 +156,12 @@ public sealed class ParamSfoDocument
             || plan.MaximumLength != entry.MaximumLength
             || !string.Equals(plan.OriginalEntrySha256, entry.EntrySha256, StringComparison.OrdinalIgnoreCase))
             throw Error("The patch plan entry identity does not match this SFO document.");
+        if (entry.Format is not (FormatUtf8 or FormatUtf8Special))
+            throw Error($"SFO key '{entry.Key}' has unsupported format 0x{entry.Format:X4}.");
         if (!string.Equals(plan.OriginalText, DecodeOriginalText(entry), StringComparison.Ordinal))
             throw Error("The patch plan original text does not match this SFO document.");
+        if (plan.NewText is null)
+            throw Error("The patch plan replacement text cannot be null.");
         if (plan.NewText.Contains('\0', StringComparison.Ordinal))
             throw Error("The patch plan replacement contains an embedded NUL.");
 
@@ -210,6 +204,30 @@ public sealed class ParamSfoDocument
         keyBytes.CopyTo(input, rawIndex.Length);
         reservedBytes.CopyTo(input, rawIndex.Length + keyBytes.Length);
         return Convert.ToHexStringLower(SHA256.HashData(input));
+    }
+
+    private static void ValidateNonOverlappingRanges(
+        List<(int Start, int End, int Index)> ranges,
+        string rangeName)
+    {
+        ranges.Sort(static (left, right) =>
+        {
+            var start = left.Start.CompareTo(right.Start);
+            return start != 0 ? start : left.End.CompareTo(right.End);
+        });
+
+        var maximumEnd = int.MinValue;
+        var maximumIndex = -1;
+        foreach (var range in ranges)
+        {
+            if (range.Start < maximumEnd)
+                throw Error($"SFO {rangeName} ranges for entries {maximumIndex} and {range.Index} overlap.");
+            if (range.End > maximumEnd)
+            {
+                maximumEnd = range.End;
+                maximumIndex = range.Index;
+            }
+        }
     }
 
     private static ParamSfoPatchException Error(string message) => new(message);
