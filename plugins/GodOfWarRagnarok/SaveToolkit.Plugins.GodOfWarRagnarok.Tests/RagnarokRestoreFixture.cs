@@ -90,7 +90,7 @@ internal sealed class RagnarokRestoreFixture : IDisposable
         return expected;
     }
 
-    public byte[] Serialized() => Assert.Single(Session.Serialize(TestContext.Current.CancellationToken)).Content.ToArray();
+    public byte[] Serialized() => Assert.Single(Document.Serialize()).Content.ToArray();
     public static IncomingEdit Incoming(string id, int value) =>
         new(id, JsonSerializer.SerializeToElement(value.ToString(CultureInfo.InvariantCulture)));
     public void Dispose() => Session.Dispose();

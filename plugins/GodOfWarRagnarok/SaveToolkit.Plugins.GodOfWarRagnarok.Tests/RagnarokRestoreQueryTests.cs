@@ -29,7 +29,7 @@ public sealed class RagnarokRestoreQueryTests
         var loaded = Assert.Single(session.QueryCollection(CollectionId, new() { Limit = 1 }, expectedRevision: null,
             cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.DoesNotContain(loaded.Key, reducedRows.Select(LargeRowKey));
-        Assert.Equal(reduced, Serialize(session));
+        Assert.Equal(reduced, Serialize(document));
 
         var filters = new Dictionary<string, string> { ["id"] = "9E5240D27406E85A" };
         string[] excluded = [LargeRowKey(8), "not/a/matching/row?value=%26&other=1"];
@@ -67,7 +67,7 @@ public sealed class RagnarokRestoreQueryTests
         Assert.Equal(0, retained.Query.Offset);
         Assert.Null(retained.Query.Cursor);
         Assert.Equal(excluded, retained.ExcludedRowKeys);
-        Assert.Equal(reduced, Serialize(session));
+        Assert.Equal(reduced, Serialize(document));
 
         // Mutating the caller's request cannot change the retained preview/apply selection.
         filters["id"] = "no match";
@@ -75,12 +75,12 @@ public sealed class RagnarokRestoreQueryTests
         Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, TestContext.Current.CancellationToken).Ok);
         var restored = reduced.ToArray();
         foreach (var row in new[] { 4, 14 }) WriteQuantity(restored, row, RagnarokPerformanceFixture.Quantity(row));
-        Assert.Equal(restored, Serialize(session));
+        Assert.Equal(restored, Serialize(document));
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
-        Assert.Equal(reduced, Serialize(session));
+        Assert.Equal(reduced, Serialize(document));
         Assert.True(session.Redo().Ok);
-        Assert.Equal(restored, Serialize(session));
+        Assert.Equal(restored, Serialize(document));
     }
 
     [Fact]
@@ -125,6 +125,6 @@ public sealed class RagnarokRestoreQueryTests
         return $"wallet/00004895C643225F/resource/{id:X16}/{occurrence}";
     }
 
-    private static byte[] Serialize(DocumentSession session) =>
-        Assert.Single(session.Serialize(TestContext.Current.CancellationToken)).Content.ToArray();
+    private static byte[] Serialize(RagnarokDocument document) =>
+        Assert.Single(document.Serialize()).Content.ToArray();
 }
