@@ -55,22 +55,23 @@ not imply support for every game build or region.
 | [GodOfWarRagnarok](plugins/GodOfWarRagnarok/README.md) — God of War Ragnarök | Experimental | Wallet/resource/XP/raven counters, gear/skill candidates, flags, references and integrity diagnostics | Existing decoded wallet counters, play time and reviewed restore-to-imported counters; preferences remain read-only |
 | [Insomniac](plugins/Insomniac/README.md) — Ratchet & Clank: Rift Apart | Experimental | Weapons/armour/upgrades, collectibles/world, preferences and raw DDL | CareerBolts/SpentBolts, seven existing gold-bolt options, 61 scalar boolean preferences and reviewed calculated bolt target |
 | [Pragmata](plugins/Pragmata/README.md) — Pragmata | Experimental | Inventory, gadgets/loadout, progress/quests/world, mission references and raw tree | Existing IDs/quantities, header/clocks and supported primitives in five family tabs; reviewed quantities. RSA trailer remains unverified |
-| [SuckerPunch](plugins/SuckerPunch/README.md) — Ghost of Tsushima / Ghost of Yōtei | Experimental | Tsushima resources/ammo, equipment/technique/world candidates; Yōtei diagnostics | Tsushima existing resources/ammo, supported v48/v49 timer and reviewed quantities. Yōtei remains read-only |
+| [SuckerPunch](plugins/SuckerPunch/README.md) — Ghost of Tsushima / Ghost of Yōtei | Experimental | Tsushima resources/ammo and equipment/technique/world candidates; Yōtei inventory, statistics and gear-registry diagnostics | Tsushima existing resources/ammo, supported v48/v49 timer and reviewed quantities; Yōtei 14 eligible existing quantity types and reviewed targets, with unknown checksum tail coverage |
 | [TalesOfArise](plugins/TalesOfArise/README.md) — Tales of Arise EU base game | Experimental | Sections, characters, inventory/equipment, skill/arte and progress evidence | Gald, existing active-character level/HP/SP, recognized consumable quantities and reviewed quantity batches |
 | [UnrealGvas](plugins/UnrealGvas/README.md) — GVAS; Hogwarts Legacy, Jedi: Fallen Order, Sackboy | Experimental | Nested properties/actors, schema references and Hogwarts database rows | Supported existing GVAS scalars, including warned Jedi/Sackboy fields; bounded Hogwarts nonidentity integer/real/text cells in unwrapped, fully decoded image pairs. Known checksum fields and Jedi actor-stream lengths stay read-only |
 | [Witcher3](plugins/Witcher3/README.md) — The Witcher 3 Complete Edition | Experimental | Player/inventory, skills/mutations, Gwent, facts/journal and map-tag evidence | Level/XP/free points/Crowns, quantities/durability, existing non-core ranks/Gwent copies; reviewed repair and food/water refill |
 | [XorJson](plugins/XorJson/README.md) — obfuscated JSON / Minecraft Dungeons II offline schema | Experimental | Exact settings/character tree, inventory, attributes, quests/world and reference graph | Scalar/structural JSON, reviewed existing-value batches and F7 character/global group edits; unsupported character versions/online modes stay read-only |
 
-## Run
-
-### Download a release
+## Using the toolkit
 
 Download the bundle for your OS from [GitHub Releases](https://github.com/JKamsker/PS5SaveGame-Toolkit/releases)
 (repository access is required while this project is private). Verify its SHA-256 checksum, extract
 the whole archive into a writable folder, and run `start.cmd` on Windows or `./start.sh` on macOS/Linux.
-Open http://127.0.0.1:5180. No .NET or Node.js installation is needed. The home-page footer shows the running
-version; `/api/version` exposes it as JSON. See [release instructions](docs/RELEASING.md) for packaging,
-checksums, platform prerequisites, version tags and rollback.
+On macOS/Linux, run `chmod +x start.sh SaveToolkit.Api` first if needed. Open
+http://127.0.0.1:5180. No .NET or Node.js installation is needed.
+The [user guide](docs/USER_GUIDE.md) covers checksum commands, other ports, importing,
+editing, review/undo, export, supported titles and troubleshooting. Keep backups;
+edits are experimental and not console-validated. Maintainers: see
+[release instructions](docs/RELEASING.md) for packaging and publishing.
 
 ### Run from source
 
