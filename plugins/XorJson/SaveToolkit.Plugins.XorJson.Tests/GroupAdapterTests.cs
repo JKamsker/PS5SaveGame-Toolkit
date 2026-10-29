@@ -98,6 +98,8 @@ public sealed class GroupAdapterTests
         Assert.NotNull(outcome.Revert);
         Assert.Equal(new[] { volume.ValueId, volume.ValueId, level.ValueId }, outcome.Changes.Select(change => change.ValueId));
         var changed = fixture.Group.CaptureMemento();
+        var groupBytes = fixture.Group.Serialize().Select(output =>
+            $"{output.RelativePath}:{Convert.ToBase64String(output.Content.ToArray())}").ToArray();
         using var fresh = fixture.Open();
         for (var attempt = 0; attempt < 2; attempt++)
         {
@@ -105,6 +107,18 @@ public sealed class GroupAdapterTests
             var nodes = ViewTraversal.Nodes(fresh);
             Assert.Equal(FieldValue.ExactNumber("2"), fresh.GetValue(level.ValueId));
             Assert.Equal(FieldValue.ExactNumber("49"), fresh.GetValue(volume.ValueId));
+            Assert.True(fresh.ApplyEdits([new(level.ValueId, FieldValue.ExactNumber("3"))]).Succeeded);
+            Assert.Equal(groupBytes, fixture.Group.Serialize().Select(output =>
+                $"{output.RelativePath}:{Convert.ToBase64String(output.Content.ToArray())}"));
+            var failed = fresh.ApplyEdits([
+                new(level.ValueId, FieldValue.ExactNumber("4")),
+                new("global/value/999999", FieldValue.ExactNumber("5")),
+            ]);
+            Assert.False(failed.Succeeded);
+            var reboundLevel = ViewTraversal.Fields(fresh).Single(field => field.Label == "Level");
+            Assert.Equal(FieldValue.ExactNumber("3"), reboundLevel.Value);
+            Assert.Equal(groupBytes, fixture.Group.Serialize().Select(output =>
+                $"{output.RelativePath}:{Convert.ToBase64String(output.Content.ToArray())}"));
             var remove = nodes.OfType<ActionNode>().First(action => action.ActionId.StartsWith("global/json/remove/", StringComparison.Ordinal));
             var structural = fresh.InvokeAction(remove.ActionId, new Dictionary<string, FieldValue>());
             Assert.NotNull(structural.Revert);
