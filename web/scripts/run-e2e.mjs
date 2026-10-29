@@ -49,19 +49,20 @@ try {
   const all = discover("");
   const canonical = discover("canonical");
   const unreal = discover("unreal");
-  const combined = [...canonical, ...unreal].sort();
+  const ff7 = discover("ff7");
+  const combined = [...canonical, ...unreal, ...ff7].sort();
   if (!all.length || new Set(combined).size !== combined.length || JSON.stringify(all) !== JSON.stringify(combined))
     throw new Error("E2E suites must partition every selected test exactly once, with no empty overall selection.");
-  writeFileSync(path.join(invocation, "discovery.json"), JSON.stringify({ all, canonical, unreal }, null, 2));
-  console.log(`E2E discovery: ${all.length} selected = ${canonical.length} canonical + ${unreal.length} real Unreal. Reports: ${invocation}`);
+  writeFileSync(path.join(invocation, "discovery.json"), JSON.stringify({ all, canonical, unreal, ff7 }, null, 2));
+  console.log(`E2E discovery: ${all.length} selected = ${canonical.length} canonical + ${unreal.length} real Unreal + ${ff7.length} real FF7. Reports: ${invocation}`);
   if (!args.includes("--list")) {
-    for (const [suite, selected] of [["canonical", canonical], ["unreal", unreal]]) {
+    for (const [suite, selected] of [["canonical", canonical], ["unreal", unreal], ["ff7", ff7]]) {
       if (!selected.length) continue; // A developer's file/grep filter can select only one complementary suite.
       const result = spawnSync(process.execPath, [cli, "test", ...args],
         { env: environment(suite), stdio: "inherit" });
       if (result.error) throw result.error;
       if (result.status !== 0) process.exitCode = result.status || 1;
-      // Run the second mandatory suite even when the first fails, retaining both reports.
+      // Run every mandatory suite even when an earlier one fails, retaining all reports.
     }
   }
 } catch (error) {

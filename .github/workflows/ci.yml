@@ -90,7 +90,7 @@ jobs:
         env:
           JOB_STATUS: ${{ job.status }}
         run: python3 -B .github/scripts/ci_summary.py --title 'Built app smoke (Chromium)' --junit "$SAVETOOLKIT_E2E_SCRATCH"
-      - name: Upload browser test counts
+      - name: Upload browser counts and real FF7 acceptance evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -98,6 +98,7 @@ jobs:
           path: |
             ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/invocation-*/discovery.json
             ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/invocation-*/**/e2e.xml
+            ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/invocation-*/ff7/test-results/**
           if-no-files-found: warn
           retention-days: 14
       - name: Upload Playwright report on failure
@@ -259,6 +260,7 @@ jobs:
       - name: Backend build and every test project (without samples)
         env:
           SAVETOOLKIT_TEST_TEMP: ${{ runner.temp }}/savetoolkit-tests
+          SAVETOOLKIT_FF7_EVIDENCE: ${{ runner.temp }}/test-results/ff7-api
           # Reusable release validation always runs every project, including manual releases.
           BACKEND_FILTER: ${{ github.event_name == 'workflow_dispatch' && github.workflow == 'CI' && inputs.backend_filter || '' }}
         run: |
@@ -327,6 +329,7 @@ jobs:
           path: |
             ${{ runner.temp }}/test-results/backend/**/*.trx
             ${{ runner.temp }}/test-results/backend/project-timings.json
+            ${{ runner.temp }}/test-results/ff7-api/**
             ${{ runner.temp }}/test-results/web.xml
           if-no-files-found: warn
           retention-days: 14

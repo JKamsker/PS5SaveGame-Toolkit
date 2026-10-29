@@ -7,8 +7,9 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
 const unrealTests = "**/unreal-*.e2e.ts";
+const ff7Tests = "**/ff7-*.e2e.ts";
 const suite = process.env.SAVETOOLKIT_E2E_SUITE;
-if (suite && suite !== "canonical" && suite !== "unreal") throw new Error(`Unknown e2e suite: ${suite}`);
+if (suite && !["canonical", "unreal", "ff7"].includes(suite)) throw new Error(`Unknown e2e suite: ${suite}`);
 const scratch = path.resolve(process.env.SAVETOOLKIT_E2E_SCRATCH ?? (process.platform === "win32"
   ? "D:/Temp/saveeditor/test-scratch/e2e-smoke"
   : path.join(tmpdir(), "saveeditor/test-scratch/e2e-smoke")));
@@ -36,8 +37,8 @@ const runDirectory = process.env.SAVETOOLKIT_E2E_RUN_DIRECTORY ??= mkdtempSync(p
 export default defineConfig({
   testDir: "./e2e",
   // Keep browser tests out of Vitest's *.test / *.spec discovery.
-  testMatch: suite === "unreal" ? unrealTests : "**/*.e2e.ts",
-  testIgnore: suite === "canonical" ? unrealTests : [],
+  testMatch: suite === "unreal" ? unrealTests : suite === "ff7" ? ff7Tests : "**/*.e2e.ts",
+  testIgnore: suite === "canonical" ? [unrealTests, ff7Tests] : [],
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
@@ -55,7 +56,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `dotnet run --project src/SaveToolkit.Api --configuration Release --no-build --no-launch-profile --urls ${baseURL} -- --Toolkit:DataRoot="${path.join(runDirectory, "workspaces")}" --Toolkit:PackRoot="${path.join(runDirectory, "reference-packs")}"`,
+    command: `dotnet run --project src/SaveToolkit.Api --configuration Release --no-build --no-launch-profile --urls ${baseURL} -- --Toolkit:DataRoot="${path.join(runDirectory, "workspaces")}" --Toolkit:PackRoot="${path.join(runDirectory, "reference-packs")}" --Toolkit:PresetRoot="${path.join(runDirectory, "presets")}"`,
     cwd: repositoryRoot,
     url: `${baseURL}/api/version`,
     reuseExistingServer: false,

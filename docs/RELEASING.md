@@ -418,12 +418,13 @@ by projects named `*.Tests` in `Directory.Packages.props`; new test projects sho
 ## Built app browser smoke tests
 
 The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. The official
-`npm run e2e` entry runs two complementary suites sequentially: the original canonical tests,
-then the real Unreal plugin tests with generated synthetic binary saves. Each suite retains its
+`npm run e2e` entry runs three complementary suites sequentially: the original canonical tests,
+the real Unreal plugin tests, then the real FF7 plugin tests with generated authored binary saves. Each suite retains its
 own 180-second overall deadline, 30-second test timeout, one worker and zero retries. The aggregate
-wall allowance grows with the added mandatory coverage; all tests do not share one 180-second budget.
-Discovery verifies that both suites partition every selected test exactly once and records their IDs.
-Either suite or teardown failure fails the command, and both suites still run when the first fails.
+wall allowance is now 540 seconds (three times 180) plus discovery/server startup; the CI job retains
+its 12-minute limit. Tests do not share one 180-second budget.
+Discovery verifies the disjoint union of canonical, Unreal and FF7 identities equals every selected test.
+Any suite, process or teardown failure fails the command; later suites still run after an earlier failure.
 CLI file/grep filters remain supported, for example `npm run e2e -- unreal-reference.e2e.ts`.
 Chromium imports
 the committed synthetic fixtures through the bundled UI. The suite covers import errors and recovery,
