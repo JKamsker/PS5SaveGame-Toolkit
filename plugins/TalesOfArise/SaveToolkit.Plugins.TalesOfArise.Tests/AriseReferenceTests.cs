@@ -42,7 +42,8 @@ public sealed class AriseReferenceTests
         Assert.Equal(45, alphen.Rows.Count);
         Assert.All(alphen.Rows, row => Assert.Equal("Alphen", Assert.IsType<TextNode>(row.Cells["character"]).Text));
         var view = Assert.IsType<TabsNode>(document.BuildView());
-        var inventory = Assert.Single(document.ExpandNode("inventory")).AsTable();
+        _ = document.ExpandNode("inventory");
+        var inventory = query.Query("inventory", new());
         var known = Assert.Single(inventory.Rows, row => row.Cells["id"] is FieldNode field && field.Value.AsString() == "1");
         var id = Assert.IsType<FieldNode>(known.Cells["id"]);
         Assert.IsType<ReferenceSpec>(id.Spec);
@@ -73,5 +74,9 @@ public sealed class AriseReferenceTests
 
 internal static class ViewNodeTestExtensions
 {
-    public static TableNode AsTable(this ViewNode node) => Assert.IsType<TableNode>(node);
+    public static QueryableCollectionPage LoadInventory(this SaveToolkit.Sdk.ISaveDocument document)
+    {
+        _ = document.ExpandNode("inventory");
+        return Assert.IsAssignableFrom<IQueryableDocument>(document).Query("inventory", new());
+    }
 }

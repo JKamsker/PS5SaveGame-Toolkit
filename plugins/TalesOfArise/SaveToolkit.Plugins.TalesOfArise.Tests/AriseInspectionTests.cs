@@ -102,7 +102,8 @@ public sealed class AriseInspectionTests
             Assert.False(session.ApplyEdits([new(identity.ValueId, JsonSerializer.SerializeToElement(page.Items[0].RawId))]).Ok);
         }
 
-        var inventory = Assert.IsType<TableNode>(Assert.Single(session.Expand("inventory")));
+        _ = session.Expand("inventory");
+        var inventory = session.QueryCollection("inventory", new());
         var unknown = inventory.Rows.Select(row => Assert.IsType<FieldNode>(row.Cells["id"]))
             .First(field => references.Catalog("items")!.Find(field.Value.AsString()) is null);
         Assert.True(Assert.IsType<ReferenceSpec>(unknown.Spec).ReadOnly);

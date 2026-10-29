@@ -53,7 +53,7 @@ public sealed class AriseSpatialViewTests
     }
 
     [Fact]
-    public void InventoryF8RowsSupportSearchAndStableKeysWithoutAddingWritableQueryBindings()
+    public void InventoryF8RowsSupportSearchAndStableEditableQuantityBindings()
     {
         var context = new SaveToolkit.Core.References.ReferencePackStore([new TalesOfArisePlugin()]).Pin(new TalesOfArisePlugin(), "PPSA02745");
         using var document = new TalesOfArisePlugin().Open(AriseSampleTests.GameplayFiles().First(file => file.FileName == "SaveData_002.sav"), context);
@@ -62,7 +62,9 @@ public sealed class AriseSpatialViewTests
         Assert.Contains(page.Rows, candidate => candidate.Key == "inventory/24/quantity");
         var row = page.Rows.First(candidate => candidate.Key == "inventory/24/quantity");
         Assert.Equal("inventory/24/quantity", row.Key);
-        Assert.DoesNotContain(row.Cells.Values, cell => cell is FieldNode field && !field.Spec.ReadOnly);
+        var quantity = Assert.IsType<FieldNode>(row.Cells["quantity"]);
+        Assert.False(quantity.Spec.ReadOnly);
+        Assert.Equal("inventory/24/quantity", quantity.ValueId);
         Assert.Throws<ArgumentException>(() => query.Query("inventory", new QueryableCollectionQuery { SortColumn = "unknown" }));
     }
 

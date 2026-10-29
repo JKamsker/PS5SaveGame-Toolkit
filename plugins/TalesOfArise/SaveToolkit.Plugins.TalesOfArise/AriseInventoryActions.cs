@@ -40,9 +40,9 @@ internal sealed class AriseInventoryActions(AriseDocument document)
             errors.Add(new(actionId, "The framework must resolve the query selection to stable inventory row keys before planning."));
         }
 
-        if (!document.InventoryBindingsReady && scope.QueryScope is null)
+        if (!document.InventoryExpanded && scope.QueryScope is null)
         {
-            errors.Add(new(actionId, "Expand the inventory table before planning so every quantity change has a live undo binding."));
+            errors.Add(new(actionId, "Expand the inventory table before planning a document or explicit selection, or use an inventory query scope."));
         }
 
         if (parameters.Count != 1 || !parameters.TryGetValue(QuantityParameter, out var candidate)
@@ -59,7 +59,7 @@ internal sealed class AriseInventoryActions(AriseDocument document)
         var target = parameters[QuantityParameter];
         var rows = document.ReadInventoryRows();
         var byKey = rows.ToDictionary(RowKey, StringComparer.Ordinal);
-        var keys = scope.RowKeys ?? rows.Select(RowKey).ToArray();
+        var keys = scope.RowKeys ?? rows.Where(row => !row.IsEmpty).Select(RowKey).ToArray();
         if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Count || keys.Any(key => !byKey.ContainsKey(key)))
         {
             return new ActionPlan
@@ -74,6 +74,12 @@ internal sealed class AriseInventoryActions(AriseDocument document)
         foreach (var key in keys)
         {
             var row = byKey[key];
+            if (row.IsEmpty)
+            {
+                skipped.Add(new(key, "Empty slot; no item is inserted or changed."));
+                continue;
+            }
+
             if (row.Name is null)
             {
                 skipped.Add(new(key, "Numeric ID is not one of the recognised consumable mappings; preserved."));
@@ -129,4 +135,8 @@ internal sealed class AriseInventoryActions(AriseDocument document)
     public static string RowKey(AriseInventoryRow row) => $"inventory/{row.Index}/quantity";
 }
 
-internal sealed record AriseInventoryRow(int Index, int Offset, ushort Id, byte Quantity, byte Flags, string? Name);
+internal sealed record AriseInventoryRow(int Index, int Offset, ushort Id, byte Quantity, byte Flags, string? Name)
+{
+    public const string EmptySlotLabel = "Empty slot";
+    public bool IsEmpty => Id == 0;
+}

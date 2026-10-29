@@ -20,34 +20,42 @@ internal static class AriseInventoryQuery
         new("inspect", "Inspect"),
     ];
 
-    public static QueryableCollection Metadata(int count) => new(CollectionId, "Existing inventory records", Columns, count)
+    public static QueryableCollection Metadata(int count) => new(CollectionId, "Inventory", Columns, count)
     {
-        Description = "All currently present nonzero records. Unknown IDs and equipment remain visible with numeric fallback; rows are stable fixed slots.",
+        Description = "All fixed inventory slots. Zero IDs mark empty slots, hidden by default; unknown nonzero IDs and zero-count items remain visible. IDs, flags and slot order are preserved.",
+        EmptyRows = new EmptyRowPresentation("name"),
     };
+
+    public static QueryableTableNode View(int count)
+    {
+        var metadata = Metadata(count);
+        return new(CollectionId, metadata.Title, Columns, count)
+        {
+            Description = metadata.Description,
+            EmptyRows = metadata.EmptyRows,
+        };
+    }
 
     public static QueryableCollectionPage Query(AriseDocument document, QueryableCollectionQuery query)
     {
         Validate(query);
         var all = document.ReadInventoryRows();
-        var matching = all.Where(row => Matches(row, query)).ToArray();
+        var includeEmpty = query.IncludeEmpty ?? !Metadata(all.Count).EmptyRows!.HideByDefault;
+        var candidates = all.Where(row => Matches(row, query)).ToArray();
+        var hiddenEmptyCount = includeEmpty ? 0 : candidates.Count(row => row.IsEmpty);
+        var matching = candidates.Where(row => includeEmpty || !row.IsEmpty).ToArray();
         var ordered = query.Descending
             ? matching.OrderByDescending(row => Cell(row, query.SortColumn ?? "id"), StringComparer.OrdinalIgnoreCase)
             : matching.OrderBy(row => Cell(row, query.SortColumn ?? "id"), StringComparer.OrdinalIgnoreCase);
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, ReferenceQuery.MaxLimit);
         var rows = ordered.ThenBy(row => row.Index).Skip(offset).Take(limit)
-            .Select(row => ReadOnly(document.BuildInventoryRow(row))).ToArray();
-        return new QueryableCollectionPage(CollectionId, Columns, rows, all.Count, matching.Length, offset, limit);
+            .Select(document.BuildInventoryRow).ToArray();
+        return new QueryableCollectionPage(CollectionId, Columns, rows, all.Count, matching.Length, offset, limit)
+        {
+            HiddenEmptyCount = hiddenEmptyCount,
+        };
     }
-
-    private static TableRow ReadOnly(TableRow row) => row with
-    {
-        Cells = row.Cells.ToDictionary(pair => pair.Key,
-            pair => pair.Key == "quantity" && pair.Value is FieldNode field
-                ? (ViewNode)new TextNode(field.Value.ToString())
-                : pair.Value,
-            StringComparer.Ordinal),
-    };
 
     private static void Validate(QueryableCollectionQuery query)
     {
@@ -61,7 +69,7 @@ internal static class AriseInventoryQuery
 
     private static bool Matches(AriseInventoryRow row, QueryableCollectionQuery query)
     {
-        if (!string.IsNullOrWhiteSpace(query.Text) && !string.Join(' ', row.Id, row.Name ?? "Unknown", row.Quantity, $"0x{row.Flags:X2}")
+        if (!string.IsNullOrWhiteSpace(query.Text) && !string.Join(' ', row.Id, DisplayName(row), row.Quantity, $"0x{row.Flags:X2}")
                 .Contains(query.Text, StringComparison.OrdinalIgnoreCase))
         {
             return false;
@@ -73,11 +81,13 @@ internal static class AriseInventoryQuery
     private static string Cell(AriseInventoryRow row, string column) => column switch
     {
         "id" => row.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
-        "name" => row.Name ?? "Unknown",
+        "name" => DisplayName(row),
         "quantity" => row.Quantity.ToString(System.Globalization.CultureInfo.InvariantCulture),
         "flags" => $"0x{row.Flags:X2}",
         "inspect" => row.Name is null ? "—" : "Inspect",
         "icon" => row.Name ?? "No icon",
         _ => throw new ArgumentException($"Unknown inventory column '{column}'.", nameof(column)),
     };
+
+    private static string DisplayName(AriseInventoryRow row) => row.IsEmpty ? AriseInventoryRow.EmptySlotLabel : row.Name ?? "Unknown";
 }

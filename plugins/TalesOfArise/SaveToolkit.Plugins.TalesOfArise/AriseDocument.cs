@@ -27,7 +27,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     private AriseInventoryActions? _inventoryActions;
     private AriseReadOnlyViews? _readOnlyViews;
     private AriseSpatialViews? _spatialViews;
-    private bool _inventoryBindingsReady;
+    private bool _inventoryExpanded;
     private AriseReadOnlyViews ReadOnlyViews => _readOnlyViews ??= new(save, _references);
 
     private AriseSpatialViews SpatialViews => _spatialViews ??= new(_references);
@@ -60,7 +60,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             [
                 new TextNode("Only existing, recognised consumables can be edited (0–15). Equipment and unknown IDs are read-only. Item flags, IDs and order are preserved.")
                     { Tone = Tone.Warning },
-                SectionNode.Lazy("Owned inventory records", "inventory"),
+                SectionNode.Lazy("Inventory", "inventory"),
                 AriseInventoryActions.View(),
             ]),
             new Tab("Catalogs", _references.BuildView()),
@@ -132,7 +132,8 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     {
         if (lazyId == "inventory")
         {
-            return [Inventory()];
+            _inventoryExpanded = true;
+            return [AriseInventoryQuery.View(ItemRecordCount)];
         }
 
         return AriseExplorer.Expand(lazyId, save, offset => Number($"raw/{offset:X}", $"0x{offset:X}", offset, uint.MaxValue, false)
@@ -143,8 +144,15 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
 
     public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
 
-    internal void EnsureInventoryBindings() => _ = Inventory();
-    internal bool InventoryBindingsReady => _inventoryBindingsReady;
+    internal void EnsureInventoryBindings()
+    {
+        foreach (var row in ReadInventoryRows().Where(row => !row.IsEmpty))
+        {
+            _ = BuildInventoryRow(row);
+        }
+    }
+
+    internal bool InventoryExpanded => _inventoryExpanded;
 
     internal IReadOnlyList<AriseInventoryRow> ReadInventoryRows()
     {
@@ -154,11 +162,6 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
         {
             var offset = section.Offset + relative;
             var id = BinaryPrimitives.ReadUInt16LittleEndian(save.Payload.AsSpan(offset + ItemIdOffset));
-            if (id == 0)
-            {
-                continue;
-            }
-
             rows.Add(new(relative / ItemRecordSize, offset, id, save.Payload[offset], save.Payload[offset + ItemFlagsOffset], AriseSchema.ConsumableName(id)));
         }
 
@@ -213,33 +216,21 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
         ], rows) { Title = "Characters (PS5 mapping inferred)" };
     }
 
-    private TableNode Inventory()
-    {
-        _inventoryBindingsReady = true;
-        var rows = new List<TableRow>();
-        rows.AddRange(ReadInventoryRows().Select(BuildInventoryRow));
-
-        return new TableNode([new("icon", "Icon"), new("id", "ID"), new("name", "Item"), new("quantity", "Quantity"), new("flags", "Raw flags"), new("inspect", "Inspect")], rows)
-        {
-            Title = "Existing inventory records",
-            Description = "Only the recognised fixed-slot consumable quantity fields are writable. Unknown IDs and equipment remain preserved.",
-        };
-    }
-
     internal TableRow BuildInventoryRow(AriseInventoryRow row)
     {
         var offset = row.Offset;
         var id = row.Id;
-        var reference = _references.Items?.Find(id.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        var name = reference?.Name ?? row.Name;
+        var reference = row.IsEmpty ? null : _references.Items?.Find(id.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        var name = row.IsEmpty ? AriseInventoryRow.EmptySlotLabel : reference?.Name ?? row.Name;
         var attribution = reference?.AttributionText ?? ConsumableAttribution;
         var valueId = AriseInventoryActions.RowKey(row);
         var idField = Field($"inventory/{row.Index}/id", $"0x{id:X4}",
             new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true, AllowCustom = true },
             () => FieldValue.Of(id.ToString())) with
             {
-                Confidence = name is null ? Confidence.Unknown : Confidence.Inferred,
-                Description = name is null
+                Confidence = row.IsEmpty || name is null ? Confidence.Unknown : Confidence.Inferred,
+                Description = row.IsEmpty ? "Zero item ID marks an empty slot; raw slot bytes are preserved."
+                    : name is null
                     ? "Unknown item/equipment identity; raw numeric ID is preserved."
                     : $"{name}; raw numeric ID is preserved. {attribution}",
             };
@@ -263,7 +254,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                 ? new TextNode("—")
                 : AriseReferences.InspectionAction(AriseReferences.ItemsCatalogId, reference),
         };
-        return new TableRow(valueId, cells);
+        return new TableRow(valueId, cells) { IsEmpty = row.IsEmpty };
     }
 
     private FieldNode Number(string id, string label, int offset, uint maximum, bool writable = true, uint minimum = 0)
