@@ -601,16 +601,14 @@ and neither; they remain identical to the pre-migration baseline.
 
 ## Licence exclusions
 
-The legacy wiki refusal and resolved publisher-asset decision match the
-[central register](../../docs/LICENCE_EXCLUSIONS.md). The new bg3se refusal needs the
-central row proposed in [field discovery](FIELD_DISCOVERY.md); updating `docs/` is
-outside this task's scope. Unlicensed factual research is
+The legacy wiki refusal, the bg3se refusal and the resolved publisher-asset decision match the
+[central register](../../docs/LICENCE_EXCLUSIONS.md). Unlicensed factual research is
 permitted by the owner decision dated 2026-10-28; its behaviour is independently
 reimplemented and attributed in the table above.
 
 | Source and revision | Licence found (exact) | Why it was refused | What we did instead | What would unblock it |
 | --- | --- | --- | --- | --- |
-| [Norbyte/bg3se, 60fb4caf99c08de604abac26e07af13a2e0a028d](https://github.com/Norbyte/bg3se/tree/60fb4caf99c08de604abac26e07af13a2e0a028d), accessed 2026-10-29 | [MIT License + “Commons Clause” License Condition v1.0](https://github.com/Norbyte/bg3se/blob/60fb4caf99c08de604abac26e07af13a2e0a028d/LICENSE) | No-sale restriction; component-definition code reuse excluded under rule 9's commercial-use restriction policy. This is not plain MIT. | Read for facts only; independently measured PS5 storage and used existing plugin primitives. No bg3se code or implementation copied, ported or executed. | Compatible source-specific grant or a revision without the restrictive condition. Central-register row is proposed in FIELD_DISCOVERY.md; docs/ is outside this task's edit scope. |
+| [Norbyte/bg3se, 60fb4caf99c08de604abac26e07af13a2e0a028d](https://github.com/Norbyte/bg3se/tree/60fb4caf99c08de604abac26e07af13a2e0a028d), accessed 2026-10-29 | [MIT License + “Commons Clause” License Condition v1.0](https://github.com/Norbyte/bg3se/blob/60fb4caf99c08de604abac26e07af13a2e0a028d/LICENSE) | No-sale restriction; component-definition code reuse excluded under rule 9's commercial-use restriction policy. This is not plain MIT. | Read for facts only; independently measured PS5 storage and used existing plugin primitives. No bg3se code or implementation copied, ported or executed. | Compatible source-specific grant or a revision without the restrictive condition. Mirrored in the central register. |
 | [bg3.wiki copyright policy and legacy contributions](https://bg3.wiki/wiki/bg3wiki:Copyrights), retrieved 2026-10-28 | CC BY-NC-SA (legacy expressive contributions) | Non-commercial terms remain a refusal for legacy wiki editorial prose; this is separate from directly attributed Larian game assets. | Used attributed CC BY-SA label facts and technical mappings plus separately attributed Larian icons/game-text excerpts; kept legacy wiki editorial content out of the pack. | A source-specific CC BY/CC BY-SA or other compatible relicensing grant covering the exact material. |
 | Larian Studios Baldur's Gate 3 art, icons and extracted game text, exact source/file revisions in assets.source.md | Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29).** | 51 compact icons and 39 distinct game-description excerpts embedded with attribution. | No remaining publisher-asset policy blocker for this import. |
 
