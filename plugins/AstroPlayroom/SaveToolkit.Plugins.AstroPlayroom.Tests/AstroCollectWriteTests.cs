@@ -113,6 +113,8 @@ public sealed class AstroCollectWriteTests
         var (plugin, _, context) = AstroCatalogueTestData.References();
         var file = AstroTestData.Samples().Single(file => file.Directory.Generation == 1 && !file.Directory.IsBackup);
         using var document = plugin.Open(file, context);
+        var original = file.ReadAllBytes();
+        var originalFields = AstroTestData.Fields(document).Where(field => field.ValueId.StartsWith('/')).ToArray();
         var table = Assert.Single(AstroCatalogueTestData.Group(document, title).Children.OfType<TableNode>());
         var missing = table.Rows.First(row => Assert.IsType<TextNode>(row.Cells["status"]).Text == "Missing");
         var owned = table.Rows.First(row => Assert.IsType<TextNode>(row.Cells["status"]).Text == "Owned");
@@ -124,14 +126,32 @@ public sealed class AstroCollectWriteTests
         var plan = planner.PlanAction(CollectAction, new Dictionary<string, FieldValue>(), scope);
         var change = Assert.Single(plan.Changes);
         Assert.StartsWith(group + "/", change.Label, StringComparison.Ordinal);
+        Assert.Equal(missing.Key + "/IsGot[0]/text[0]", change.ValueId);
+        Assert.Equal(FieldValue.Of(false), change.OldValue);
+        Assert.Equal(FieldValue.Of(true), change.NewValue);
         Assert.Equal(owned.Key, Assert.Single(plan.SkippedRows).RowKey);
-        var field = Assert.Single(AstroTestData.Fields(document), field => field.ValueId == change.ValueId);
+        var field = Assert.Single(originalFields, field => field.ValueId == change.ValueId);
         Assert.Equal(Confidence.Inferred, field.Confidence);
         Assert.Contains("not validated on console", field.Warning, StringComparison.Ordinal);
-        Assert.True(planner.ApplyActionPlan(CollectAction, new Dictionary<string, FieldValue>(), scope, plan).Succeeded);
-        using var reopened = plugin.Open(AstroTestData.File(AstroTestData.Output(document)));
+        Assert.Equal(original, AstroTestData.Output(document));
+        var outcome = planner.ApplyActionPlan(CollectAction, new Dictionary<string, FieldValue>(), scope, plan);
+        Assert.True(outcome.Succeeded);
+        Assert.Equal(new ValueChange(change.ValueId, FieldValue.Of(false), FieldValue.Of(true)), Assert.Single(outcome.Changes));
+        var output = AstroTestData.Output(document);
+        using var reopened = plugin.Open(AstroTestData.File(output));
         Assert.Equal(FieldValue.Of(true), reopened.GetValue(change.ValueId));
-        Assert.All(AstroTestData.Fields(document).Where(field => field.ValueId.StartsWith('/') && field.ValueId != change.ValueId),
+        Assert.All(originalFields.Where(field => field.ValueId != change.ValueId),
             field => Assert.Equal(field.Value, reopened.GetValue(field.ValueId)));
+
+        // Derive the expected patch from the selected saved key, independently of the plan.
+        var key = Assert.IsType<TextNode>(missing.Cells["key"]).Text.Split('/')[1];
+        var terminator = original.AsSpan(AstroTestData.TextOffset).IndexOf((byte)0) + AstroTestData.TextOffset;
+        var text = Encoding.UTF8.GetString(original, AstroTestData.TextOffset, terminator - AstroTestData.TextOffset);
+        var pattern = $@"(<{group}>.*?<{Regex.Escape(key)}>.*?<IsGot>)false(</IsGot>)";
+        Assert.Single(Regex.Matches(text, pattern, RegexOptions.Singleline));
+        var expected = Regex.Replace(text, pattern, match => match.Groups[1].Value + "true" + match.Groups[2].Value,
+            RegexOptions.Singleline);
+        Assert.NotEqual(text, expected);
+        Assert.Equal(AstroTestData.Bytes(expected), output);
     }
 }

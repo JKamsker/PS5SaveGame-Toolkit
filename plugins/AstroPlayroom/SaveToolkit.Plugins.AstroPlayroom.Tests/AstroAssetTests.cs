@@ -138,7 +138,27 @@ public sealed class AstroAssetTests
             Assert.Null(Assert.Single(missing.ExpandNode("astro-map:Artwork:0").OfType<MapNode>()).Background);
             Assert.Null(missing.GetAsset(MapAsset));
         }
-        using var unknown = plugin.Open(AstroTestData.File(AstroTestData.Bytes()), context);
-        Assert.Null(Assert.Single(unknown.ExpandNode("astro-map:Artwork:0").OfType<MapNode>()).Background);
+    }
+
+    [Fact]
+    public void UnknownSchemaOmitsArtworkEvenWhenThePackIsAvailable()
+    {
+        var (plugin, _, context) = AstroCatalogueTestData.References();
+        Assert.NotNull(context.GetAsset(MapAsset));
+        var bytes = AstroTestData.Bytes("\r\n<PreInstall><World><CPU_PLAZA><IsVisited>false</IsVisited>" +
+            "<IsCleared>true</IsCleared></CPU_PLAZA></World></PreInstall>opaque");
+        using var unknown = plugin.Open(AstroTestData.File(bytes), context);
+        var map = Assert.Single(unknown.ExpandNode("astro-map:Artwork:0").OfType<MapNode>());
+        SpatialViewValidation.Validate(map);
+        Assert.Null(map.Background);
+        Assert.Equal("Levels — original schematic", map.Title);
+        Assert.Equal(new[] { MapMarkerStatus.Missing, MapMarkerStatus.Found }, map.Markers.Select(marker => marker.Status));
+        Assert.All(map.Markers, marker =>
+        {
+            Assert.Equal(Confidence.Unknown, marker.Confidence);
+            Assert.Equal(ViewTargetKind.Field, marker.Target!.Kind);
+            Assert.Equal(unknown.GetValue(marker.Target.Id).AsBool(), marker.Status == MapMarkerStatus.Found);
+        });
+        Assert.Equal(bytes, AstroTestData.Output(unknown));
     }
 }

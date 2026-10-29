@@ -331,6 +331,29 @@ contradict this evidence. No control-pair churn masks or unsupported gameplay ca
 
 ## Validation
 
+Test-quality review (#40, 2026-10-29): **210 passed / 0 failed / 0 skipped** in Release
+with external samples (baseline 176). With `SAVETOOLKIT_ARTIFACTS` unset: **155 passed /
+0 failed / 55 skipped**, exit 0. All **34 added cases** run without private samples. API Release
+build with warnings as errors: **0 warnings / 0 errors**. No production code changed.
+
+- Selected-row preservation now compares against raw values captured **before** applying the action,
+  checks the exact change report and verifies an independent ownership-only byte patch. A temporary
+  collateral-write injection passed all three old assertions and failed all three strengthened cases;
+  the injection was removed. Six synthetic cases select each duplicate-name occurrence across
+  artifacts, puzzles and props, preserving other flags, imported spelling, attributes and opaque bytes,
+  then restore the original allocation using the reported undo values.
+- Eighteen explicit attempt/budget vectors exercise all supported 0–17 attempts across **88 balance
+  variants**: zero, immediately below/at/above each target and the maximum signed-storage balance.
+  They check preview purity, exact coin-only bytes, complete change reports, reopen, unchanged leading
+  zeroes on no-ops and idempotent application. Eight malformed/ambiguous coin-schema cases reject both
+  preview and apply without writes. These characterize existing correct behavior.
+- Synthetic unknown-schema catalogue/artwork fallback checks are separate facts, so absent samples
+  cannot skip them. Catalogue assertions require the actual raw name and special-bot field; artwork
+  fallback keeps known saved flags with Unknown confidence even when the publisher pack is available.
+- The stopwatch only reports measurements; there is no wall-clock deadline. The disk-backed boundary
+  test and shared sample loader use process-managed scratch; no imported `memory.dat` files or process
+  folders remained after the runs. Scratch and reports stayed on D:.
+
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/AstroPlayroom/SaveToolkit.Plugins.AstroPlayroom.Tests

@@ -99,21 +99,33 @@ public sealed class AstroCatalogueTests
     }
 
     [Fact]
-    public void MissingPackOrMismatchedSchemaUsesRawKeysAndDoesNotModifyUnknownRecords()
+    public void MissingPackUsesRawKeys()
     {
-        var (plugin, _, context) = AstroCatalogueTestData.References();
+        var plugin = new AstroPlayroomPlugin();
         var file = AstroTestData.Samples()[0];
         using var withoutPack = plugin.Open(file);
         var ds2 = AstroCatalogueTestData.Row(withoutPack, "Artifacts", "Artifact/ds2");
         Assert.Equal("Artifact/ds2", Assert.IsType<FieldNode>(ds2.Cells["name"]).Value.AsString());
         Assert.Equal(Confidence.Unknown, Assert.IsType<FieldNode>(ds2.Cells["name"]).Confidence);
+        Assert.Equal(file.ReadAllBytes(), AstroTestData.Output(withoutPack));
+    }
+
+    [Fact]
+    public void MismatchedSchemaUsesRawKeysAndDoesNotModifyUnknownRecords()
+    {
+        var (plugin, _, context) = AstroCatalogueTestData.References();
         var text = "\r\n<PreInstall><Artifact><new_item><IsGot>true</IsGot></new_item></Artifact><Common><ArmadilloUnlockPhase>3</ArmadilloUnlockPhase></Common></PreInstall>opaque";
         var bytes = AstroTestData.Bytes(text);
         using var newer = plugin.Open(AstroTestData.File(bytes), context);
         Assert.NotEqual(AstroCatalogueTestData.Fingerprint, AstroCatalogueTestData.SchemaHash(newer));
         Assert.Equal("1/1 owned; 0 mapped / 1 unmapped; 0 unknown ownership", AstroCatalogueTestData.Group(newer, "Artifacts").Badge);
+        var name = Assert.IsType<FieldNode>(AstroCatalogueTestData.Row(newer, "Artifacts", "Artifact/new_item").Cells["name"]);
+        Assert.Equal("Artifact/new_item", name.Value.AsString());
+        Assert.Equal(Confidence.Unknown, name.Confidence);
         Assert.Equal(bytes, AstroTestData.Output(newer));
-        Assert.All(AstroTestData.Fields(newer).Where(f => f.Description!.Contains("Armadillo", StringComparison.Ordinal)), f => Assert.True(f.Spec.ReadOnly));
+        var specialBot = AstroTestData.Find(newer, "PreInstall/Common/ArmadilloUnlockPhase");
+        Assert.True(specialBot.Spec.ReadOnly);
+        Assert.Equal(FieldValue.Of(3L), specialBot.Value);
         Assert.Equal("collectibles/collect-all", Assert.Single(AstroCatalogueTestData.Catalogue(newer).Children.OfType<ActionNode>()).ActionId);
     }
 }
