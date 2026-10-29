@@ -4,7 +4,6 @@ using SaveToolkit.Testing;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 
@@ -13,13 +12,16 @@ public sealed class GodOfWarRagnarokConformanceTests : PluginConformanceTests<Go
     protected override IReadOnlyList<string> SampleTitleIds => ["PPSA08330"];
 
     protected override IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds =>
-        [RagnarokTestSupport.GameplayFile(new RagnarokNestedFixture().Create())];
+        [
+            RagnarokTestSupport.GameplayFile(new RagnarokNestedFixture().Create()),
+            RagnarokTestSupport.GameplayFile(RagnarokGearTests.Fixture()),
+        ];
 
     [Fact]
     public void MutationFuzzSyntheticSeedsOpenAndRender()
     {
         var seeds = MutationFuzzSyntheticSeeds.ToArray();
-        Assert.Single(seeds);
+        Assert.Equal(2, seeds.Length);
         foreach (var file in seeds)
         {
             Assert.True(Plugin.Probe(file).IsMatch);
@@ -34,8 +36,6 @@ public sealed class GodOfWarRagnarokConformanceTests : PluginConformanceTests<Go
     protected override int LazyExpansionBudget => 12;
     // Cover preferences and a real gameplay record, plus variable gear framing without samples in CI.
     protected override int MaxMutationFuzzFilesPerTitle => 3;
-    protected override IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds =>
-        [RagnarokTestSupport.GameplayFile(RagnarokGearTests.Fixture())];
 
     protected override IReadOnlyList<ValueEdit> ChooseEdits(ISaveDocument document, IReadOnlyList<FieldNode> fields)
     {
