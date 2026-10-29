@@ -549,12 +549,19 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("StatusCodes.Status413PayloadTooLarge",
                       source("src/SaveToolkit.Api/Infrastructure/ApiRequestValidation.cs"))
 
-    def test_selection_table_hints_remain_explicitly_proposed(self):
-        proposal = markdown_section(document("docs/PLUGIN_GUIDE.md"), "### Selection-scope conformance proposal (#40)")
-        self.assertIn("minimal proposed association", proposal)
+    def test_selection_table_binding_matches_the_shipped_working_tree_contract(self):
+        contract = markdown_section(document("docs/PLUGIN_GUIDE.md"),
+                                    "### Selection-table binding and advisory conformance (#40)")
+        # A feature branch can ship additive APIs ahead of --code-ref's plugin inventory snapshot.
+        sdk = document("src/SaveToolkit.Sdk/Views/ViewNode.cs")
         for name in ("SelectionTableId", "SelectionId"):
-            self.assertIn(name, proposal)
-            self.assertNotIn(name, source("src/SaveToolkit.Sdk/Views/ViewNode.cs"))
+            self.assertIn(name, contract)
+            self.assertIn(name, sdk)
+        for term in ("NotEvaluated", "PermittedSharedValueIds", "PermittedDerivedValueIds",
+                     "ExpectedChangedValueIds", "RowOwnedValueIds", "SelectionScopeFixture"):
+            self.assertIn(term, contract)
+        self.assertIn("no automatic selection-scope conformance fact", contract)
+        self.assertIn("document scope", contract)
 
     def test_group_proposal_status_documents_empty_success_and_offer_errors(self):
         code = source("src/SaveToolkit.Core/Sessions/Groups/DocumentGroupRegistry.cs")

@@ -115,6 +115,10 @@ public sealed record TableRow(string Key, IReadOnlyDictionary<string, ViewNode> 
 /// <summary>Homogeneous records (inventory, party members, ...). The browser handles paging, search and virtualisation.</summary>
 public sealed record TableNode(IReadOnlyList<TableColumn> Columns, IReadOnlyList<TableRow> Rows) : ViewNode
 {
+    /// <summary>Optional stable selection identity, unique among eager SelectionIds and F8 CollectionIds in this view.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SelectionId { get; init; }
+
     /// <summary>Optional display policy for confirmed empty slots; all saved rows and bindings remain intact.</summary>
     public EmptyRowPresentation? EmptyRows { get; init; }
 
@@ -172,6 +176,14 @@ public sealed record ImageNode(string AssetId, string Alt) : ViewNode;
 /// </summary>
 public sealed record ActionNode(string ActionId, string Label) : ViewNode
 {
+    /// <summary>
+    /// Optional table selection binding for planned actions: an eager TableNode.SelectionId or F8 CollectionId
+    /// in the same view. Null preserves placement-based scope. A bound sibling with no selection uses document scope.
+    /// Member adapters map this identity with the table identity. This does not declare value ownership.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SelectionTableId { get; init; }
+
     /// <summary>False opts into isolated, verified inspection. Results are messages, never save or view changes.</summary>
     public bool Mutates { get; init; } = true;
 

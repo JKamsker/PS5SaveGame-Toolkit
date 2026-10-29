@@ -17,7 +17,7 @@ in `src/SaveToolkit.Testing/PluginConformanceTests.MutationFuzz.cs`; see its
 Storage registration is delivered (SDK-32), and host metadata/alias discovery (SDK-02) was subsequently resolved by `de78531`; SDK-01's F8
 semantic review is delivered with bounded F8 navigation and individual revert in the web UI; SDK-04's member adapter is resolved by `f869910` (adopted by Gearbox and XorJson). SDK-02–05 adoption was rechecked against local `main` at `9d7a35b`; see the [per-plugin status](PLUGIN_GUIDE.md#sdk-0105-adoption-on-main). This recheck does not claim a new complete issue-comment census.
 
-**40 deduplicated items: 4 open, 0 partially resolved, 33 resolved, 3 obsolete.**
+**41 deduplicated items: 4 open, 0 partially resolved, 34 resolved, 3 obsolete.**
 Counts describe capabilities, not individual comments or plugin migrations. Related
 requests are merged; delivered foundations and genuinely different remaining contracts
 have separate IDs. “Requested by” also names the plugin candidates explicitly identified
@@ -76,6 +76,8 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 | SDK-39 | Rich image/nested cells instead of blank table cells | UnrealGvas; Insomniac R5/R8/R9 concern | resolved | `dcd836c`; `src/SaveToolkit.Sdk/Views/ViewNode.cs` permits arbitrary ViewNode cells; `web/src/components/document/table/TableCell.tsx:39` renders images and detail chips | 2 historical concerns; icons and nested content remain reachable | — | Delivered renderer support | Use `ImageNode` and existing rich cells/details. No concrete additional image-cell requirement is specified; SDK-05 concerns helper fidelity, not cell support. |
 | SDK-40 | Mixed platform newlines from shared SaveDiff text renderer reach CLI output | SaveDiff tool/test review | resolved | [outside-scope renderer observation](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6487099886); `6c4353d`, `20a84cf`; `tools/SaveToolkit.SaveDiff/CliApp.cs:95` normalizes at emission | Every CLI report consumer; deterministic stdout/file bytes on Windows and Unix | — | Delivered CLI boundary normalization | Keep `CliApp.Emit` normalization. Shared `TextReportWriter` still uses a platform blank line internally; no unresolved CLI contract remains. |
 
+| SDK-41 | Explicit selection-table binding for sibling planned controls and opt-in ownership evidence | FinalFantasy7, TalesOfArise, SuckerPunch; SDK API review | resolved | [API review proposal](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489901577); `src/SaveToolkit.Sdk/Views/ViewNode.cs` `ActionNode.SelectionTableId` / `TableNode.SelectionId`; `src/SaveToolkit.Testing/SelectionScopeFixture.cs` | Sibling controls can use explicit or full-query selections/exclusions without moving into cells | — | Delivered additive opt-in; no plugin migration | Match a unique table ID, retain document fallback with no selection, adopt staged advisory fixtures and browser tests independently. See [shipped contract](PLUGIN_GUIDE.md#selection-table-binding-and-advisory-conformance-40). |
+
 ### SDK-01 alias follow-up through SDK-02
 
 SDK-01 retains distinct value IDs as distinct review entries. Pragmata's existing
@@ -96,7 +98,7 @@ is implemented. It is separate from the pending web navigation/coverage UI.
 
 ## Resolved appendix
 
-The 33 resolved rows identify both the introducing commit and the surviving API or
+The 34 resolved rows identify the delivery and the surviving API or
 implementation above. All 29 earlier deliveries (SDK-01 adds its web UI in `520ee2f`), including SDK-05 (`0e31467`, merged in
 `bfb666d`), were checked as ancestors of the reviewed local `main`; SDK-02, SDK-03 and SDK-04 name their implementation commits `de78531`, `1a348ab` and `f869910`. An issue comment saying “fixed” was not treated as sufficient evidence by itself.
 

@@ -19,6 +19,19 @@ public sealed class ActionReviewApiTests(WebApplicationFactory<Program> factory)
     }).CreateClient();
 
     [Fact]
+    public async Task SelectionBindingSurvivesDocumentAndLazyViewResponses()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var url = await OpenAsync(ct);
+        var document = await _client.GetFromJsonAsync<JsonElement>(url, ct);
+        var action = document.GetProperty("view").GetProperty("children").EnumerateArray()
+            .Single(node => node.TryGetProperty("actionId", out var id) && id.GetString() == "refill");
+        Assert.Equal("inventory", action.GetProperty("selectionTableId").GetString());
+        var expansion = await _client.GetFromJsonAsync<JsonElement>($"{url}/nodes?id=items", ct);
+        Assert.Equal("inventory", expansion[0].GetProperty("selectionId").GetString());
+    }
+
+    [Fact]
     public async Task PlanApplyReviewRevertUndoAndStale_OverHttp()
     {
         var ct = TestContext.Current.CancellationToken;

@@ -13,6 +13,7 @@ import { scrollTableByKey } from "./table/keyboardScroll";
 import { columnTrack, numericColumns } from "./table/presentation";
 import { uniformConfidence } from "./table/columnConfidence";
 import { ColumnHeading } from "./table/ColumnHeading";
+import { usePublishTableSelection } from "./table/selectionBindings";
 
 /** Height of one data row; must match `.table__cell` height in table.css. Detail rows are measured. */
 const ROW_HEIGHT = 41;
@@ -33,6 +34,7 @@ export function TableView({ node }: { node: TableNode }) {
   const [includeEmpty, setIncludeEmpty] = useState(!(node.emptyRows?.hideByDefault ?? true));
   const { rows, eligibleRows, hiddenEmptyCount, facetOptions, valueOf } = useTableRows(node, deferredQuery, facets, includeEmpty);
   const selection = useRowSelection(eligibleRows);
+  usePublishTableSelection(node.selectionId, node.title ?? "Table", selection);
   const { setMany } = selection;
   useEffect(() => {
     if (node.emptyRows && !includeEmpty) setMany(node.rows.filter(row => row.isEmpty).map(row => row.key), false);

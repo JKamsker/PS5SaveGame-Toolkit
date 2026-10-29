@@ -828,31 +828,62 @@ focuses the field. Individual revert restores an **existing editable field** thr
 validation, so dependent values are recomputed and the revert itself can be undone. Added,
 removed, read-only and unexposed fields require undo rather than guessed inverse edits.
 
-### Selection-scope conformance proposal (#40)
+### Selection-table binding and advisory conformance (#40)
 
-No automatic selection-scope conformance fact is currently shipped. A planned action inside an
-eager or queryable table cell receives that table's selection. A sibling action receives document
-scope, even when its label mentions selected rows. The view protocol cannot declare which table
-a sibling action intends to target: eager tables have no stable table ID and `ActionNode` has no
-table association. Labels, ID prefixes and sibling proximity cannot establish that relationship.
+`ActionNode.SelectionTableId` optionally binds an F6 planned control to the current selection of
+one table in the same document view. Match an F8 `QueryableTableNode.CollectionId`, or publish a
+stable `TableNode.SelectionId` on an eager table. IDs are opaque, case-sensitive and unique across
+both table kinds in that view; keep them stable across rebuilds. SDK-04's `DocumentMemberAdapter`
+maps both declarations through the member's identity codec, including lazy nodes and F8 page cells.
+Parameters retain their local names. This adds no constructor or interface requirements.
+
+Null preserves placement-based behavior: table-cell actions receive the enclosing selection
+(including an explicitly empty row list); unbound sibling actions receive document scope.
+A bound sibling sends the named table's explicit selection, including unloaded F8 pages, or its
+complete query scope with revision, filters, sort, empty-slot policy and exclusions. With no explicit
+selection and no query-wide selection, it uses **document scope**. A fully excluded query remains
+an empty query selection, never document scope. A visible, accessible hint names the table and the
+document-scope fallback. Unmounted tables (including inactive tabs), unknown IDs and ambiguous
+mounted IDs disable the bound control until one table is available. Selection is local to that
+mounted table and resets when it unmounts. Bindings are republished for each document view generation.
+
+Core indexes these declarations without throwing for unknown or ambiguous IDs.
+`ViewIndex.SelectionDiagnostics` explains unresolved bindings; ordinary conformance prints advisory
+warnings after its bounded view walk. An unloaded lazy table may still be unresolved. These warnings
+do not fail existing plugins. The binding is a UI scope declaration for planned actions, not server
+authorization or value ownership; legacy direct/inspection action requests have no row-scope parameter.
 Placement alone also does not declare selection support: addressed container/index operations can
-intentionally reject row scopes, as GenericJson's structural actions do.
-Likewise, a plan's value IDs do not identify row ownership. Legitimate derived effects may live
-outside the selected row, and a restore plan on an untouched sample may contain no changes.
+intentionally reject row scopes, as GenericJson's structural actions do. Labels, ID prefixes and
+sibling proximity cannot establish table association or row ownership.
 
-The minimal proposed association is an optional `ActionNode.SelectionTableId`, matching an F8
-`CollectionId` or an optional stable `TableNode.SelectionId` for eager tables. These are **proposed,
-not available SDK members**. Null would preserve current behavior. A future host integration must
-explicitly define how a declared sibling action obtains that table's selection; a hint alone does
-not change the UI. Member adapters would also need to map both identities consistently.
+Adoption recipe:
 
-An opt-in test fixture could then supply deterministic action parameters, a meaningful staged
-state, expected row-owned value IDs and permitted shared/derived effects. It should select one row,
-plan twice, compare results and reject effects owned by another row. Missing association, unknown
-ownership, validation errors, no-op-only coverage and traversal cuts must report **not evaluated**,
-not a passing selection assertion. Keep this advisory until every plugin has sufficient evidence;
-ordinary conformance must retain its existing behavior. Browser tests remain necessary to verify
-that the actual control sends explicit/query selection and exclusions.
+1. Give the eager table a stable `SelectionId`, or reuse the F8 `CollectionId`. Set the sibling
+   planned action's `SelectionTableId` to the exact same ID and test explicit/document/query scopes
+   supported by that action. Keep `SupportsPlanning = true` and the normal preview/apply contract.
+2. Opt into `SaveToolkit.Testing.SelectionScopeFixture.Evaluate(openDocument, fixture, limits)`
+   explicitly from a plugin-specific test. The factory must create a fresh independently owned
+   document; the helper disposes it and never applies a plan. No plugin is opted in by this delivery,
+   and no automatic selection-scope conformance fact is installed.
+3. Supply a `SelectionScopeCase(actionId, selectionTableId, rowKeys)` with deterministic `Parameters`,
+   a `Stage` callback that makes meaningful edits (throw if staging is rejected), `RowOwnedValueIds`
+   for known selected and unselected rows, and nonempty `ExpectedChangedValueIds` owned by selected
+   rows. `BuildView` is called before staging to register eager bindings; the callback must query or
+   expand any additional bindings it needs. Supply `PermittedSharedValueIds` and/or
+   `PermittedDerivedValueIds` for evidenced outside-row effects; the latter require `Derived = true`.
+   These allowlists cannot override known unselected-row ownership. Do not guess ownership from cells
+   or names. Unknown effects and ambiguous ownership make the case **NotEvaluated**.
+4. Report all three `SelectionScopeStatus` outcomes separately. **Passed** means only that the
+   specific staged advisory case met its explicit ownership expectations. Rejected plans, absent
+   associations/expectations/staging, no-op-only plans, preparation errors and traversal cuts are
+   **NotEvaluated**, never passes. Known foreign-row effects, missing expected meaningful changes,
+   nondeterminism or detected planning writes are **Failed**. Plans run twice; serialized outputs and
+   known row-owned values must remain unchanged after each. This is bounded evidence, not a proof of
+   purity for every hidden internal state. Defaults: 100,000 nodes/rows, depth 128, 150 lazy expansions
+   and 12 F8 pages of 50 rows, including empty rows; limits can be supplied explicitly.
+5. Add browser coverage for the real control's request scope/exclusions and apply/undo effects.
+   SDK/Core calls with prebuilt row keys cannot establish UI wiring. Framework e2e tests use committed
+   GenericJson saves with a synthetic sibling added to its view response; plugin views remain unchanged.
 
 ## Shared SDK helpers
 

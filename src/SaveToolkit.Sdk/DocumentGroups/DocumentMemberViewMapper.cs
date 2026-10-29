@@ -40,6 +40,7 @@ internal sealed class DocumentMemberViewMapper(DocumentMemberAdapter member, Doc
         },
         TableNode table => table with
         {
+            SelectionId = table.SelectionId is { } selectionId ? member.Prefix(selectionId) : null,
             Rows = table.Rows.Select(row => row with
             {
                 Key = member.Prefix(policy.TableRowIdentity(scope, row.Key)),
@@ -49,7 +50,11 @@ internal sealed class DocumentMemberViewMapper(DocumentMemberAdapter member, Doc
         },
         QueryableTableNode table => table with { CollectionId = member.Prefix(table.CollectionId) },
         // Parameter ValueIds are dictionary keys in the local action contract, not document fields.
-        ActionNode action => action with { ActionId = member.Prefix(action.ActionId) },
+        ActionNode action => action with
+        {
+            ActionId = member.Prefix(action.ActionId),
+            SelectionTableId = action.SelectionTableId is { } selectionId ? member.Prefix(selectionId) : null,
+        },
         HexNode hex => hex with { BlobId = member.Prefix(hex.BlobId) },
         GraphNode graph => graph with
         {

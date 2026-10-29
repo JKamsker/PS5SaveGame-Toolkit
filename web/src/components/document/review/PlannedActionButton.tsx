@@ -3,7 +3,7 @@ import { actionReview, reviewValue, type ActionPreview, type ActionScope } from 
 import type { ActionNode, FieldValue } from "../../../api/protocol";
 import { useDocument, useDocumentState } from "../../../state/documentStore";
 import { FieldControl } from "../../fields/FieldControl";
-import { useTableSelection } from "../table/selection";
+import { useActionSelection } from "../table/selectionBindings";
 import { ReviewPager, useReviewPage } from "./paging";
 import { useActionDialog } from "../../ui/useActionDialog";
 import { useAsyncTask } from "../../ui/useAsyncTask";
@@ -12,7 +12,9 @@ import "./review.css";
 export function PlannedActionButton({ node, compact, ariaLabel }: { node: ActionNode; compact?: boolean; ariaLabel?: string }) {
   const doc = useDocument();
   const { state } = useDocumentState(doc.store);
-  const selection = useTableSelection();
+  const binding = useActionSelection(node.selectionTableId);
+  const selection = binding.selection;
+  const documentScope = node.selectionTableId != null && selection?.count === 0 && !selection.queryScope;
   const id = useId();
   const parameters = useMemo(() => (node.parameters ?? []).map(parameter => ({
     ...parameter, spec: { ...parameter.spec, readOnly: false },
@@ -31,17 +33,17 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
     query: { text: queryScope.query.q, filters: queryScope.query.filters, sortColumn: queryScope.query.sort, descending: queryScope.query.descending, includeEmpty: queryScope.query.includeEmpty },
     revision: queryScope.revision,
     excludedRowKeys: queryScope.excludedRowKeys,
-  } } : selection ? { rowKeys: [...selection.selectedKeys] } : {};
+  } } : selection && !documentScope ? { rowKeys: [...selection.selectedKeys] } : {};
   const scopeKey = JSON.stringify(scope);
   const [previewScope, setPreviewScope] = useState("");
   const changesPage = useReviewPage(preview?.plan.changes ?? []);
   const skippedPage = useReviewPage(preview?.plan.skippedRows ?? []);
-  const selectedCount = preview?.scope.rowKeys?.length ?? selection?.count;
+  const selectedCount = preview?.scope.rowKeys?.length ?? (documentScope ? undefined : selection?.count);
   const scopeLabel = selectedCount === undefined ? "Whole document" : `${selectedCount} selected ${selectedCount === 1 ? "row" : "rows"}`;
   const stale = Boolean(preview && (preview.revision !== state.revision || previewScope !== scopeKey));
 
   const plan = (params = values) => submit(async isCurrent => {
-    if (invalid) return;
+    if (invalid || binding.unavailable) return;
     focusHeading();
     setError("");
     setPreview(null);
@@ -62,7 +64,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   });
 
   const apply = () => submit(async isCurrent => {
-    if (!preview?.planId || stale) return;
+    if (!preview?.planId || stale || binding.unavailable) return;
     focusHeading();
     setError("");
     try {
@@ -94,7 +96,10 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   };
 
   return <div className={compact ? "action action--compact" : "action"}>
-    <button ref={trigger} type="button" className={`btn${compact ? " btn--small" : ""}${node.tone === "Danger" ? " btn--danger" : ""}`} aria-label={ariaLabel} title={compact ? node.description : undefined} disabled={busy} onClick={open}>{node.label}</button>
+    <button ref={trigger} type="button" className={`btn${compact ? " btn--small" : ""}${node.tone === "Danger" ? " btn--danger" : ""}`} aria-label={ariaLabel} aria-describedby={node.selectionTableId != null ? `${id}-selection` : undefined} title={compact ? node.description : undefined} disabled={busy || binding.unavailable} onClick={open}>{node.label}</button>
+    {node.selectionTableId != null && <span id={`${id}-selection`} className="action__description">{binding.unavailable
+      ? `Selection table ${binding.title} is unavailable or ambiguous. Open the table to use this action.`
+      : `Applies to ${binding.title}. With no selection, applies to the whole document.`}</span>}
     {node.description && !compact && <span className="action__description">{node.description}</span>}
     <dialog ref={dialog} className="dialog review-dialog" aria-labelledby={`${id}-title`} onClose={onClose}>
       <form onSubmit={event => { event.preventDefault(); if (!busy && !invalid) void (preview?.planId && !stale ? apply() : plan()); }}>
@@ -149,7 +154,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
         <div className="dialog__footer">
           <button type="button" className="btn btn--quiet" disabled={busy} onClick={closeDialog}>Cancel</button>
           {preview && <button type="button" className="btn" disabled={busy} onClick={() => { setPreview(null); setError(""); requestFocus("parameters"); }}>Change parameters</button>}
-          <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || invalid || Boolean(preview?.planId && !stale && !doc.canEdit)}>
+          <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || invalid || binding.unavailable || Boolean(preview?.planId && !stale && !doc.canEdit)}>
             {preview?.planId && !stale ? "Apply" : "Preview"}
           </button>
         </div>

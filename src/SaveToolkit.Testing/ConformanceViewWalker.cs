@@ -33,6 +33,8 @@ internal sealed class ConformanceViewWalker(ISaveDocument document, string path,
             }
         }
 
+        foreach (var diagnostic in _index.SelectionDiagnostics)
+            TestContext.Current.TestOutputHelper?.WriteLine("Selection binding warning: " + diagnostic);
         return _fields.Values.ToList();
     }
 
