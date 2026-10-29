@@ -99,6 +99,49 @@ public sealed class PresetTransferCompositionTests
         Assert.Empty(store.List());
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ExternalAdditionCannotBeAcknowledgedWithoutLoadingItsRecords(bool alreadyPreviewed)
+    {
+        var root = TestZips.TempDir();
+        var store = PresetTransferFixture.Store(root);
+        var source = PresetTransferFixture.Preset();
+        var original = store.Create("A", source.Compatibility, source.Actions);
+        var service = new PresetTransferService(store);
+        var bytes = PresetPackageCodec.Encode([source with { Name = "C" }]);
+        var oldReview = alreadyPreviewed ? PresetTransferFixture.Resolve(service, service.Preview(bytes)) : null;
+        var external = source with { Id = "external-B", Name = "B" };
+        var path = Path.Combine(root, "presets.json");
+        File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(new[] { original, external }, JsonOptions));
+        var externalBytes = File.ReadAllBytes(path);
+        if (oldReview is not null)
+            Assert.Equal("presetLibraryReloadRequired", Assert.Throws<PresetTransferException>(() => service.Commit(new(oldReview.Token))).Code);
+        for (var retry = 0; retry < 2; retry++)
+            Assert.Equal("presetLibraryReloadRequired", Assert.Throws<PresetTransferException>(() => service.Preview(bytes)).Code);
+        Assert.Single(store.List());
+        Assert.Equal(externalBytes, File.ReadAllBytes(path));
+        Assert.Equal(2, store.Reload().Count);
+        var reviewed = PresetTransferFixture.Resolve(service, service.Preview(bytes));
+        service.Commit(new(reviewed.Token));
+        Assert.Equal(3, store.List().Count);
+        Assert.Equal("B", PresetTransferFixture.Store(root).Find(external.Id)!.Name);
+    }
+
+    [Fact]
+    public async Task ControlReaderUsesItsOwnFiniteCapBeforeReadingOrMaterializing()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        using var stream = new MemoryStream(new byte[PresetPackageCodec.MaxBytes]);
+        await Assert.ThrowsAsync<PresetTransferException>(() => PresetPackageCodec.ReadBoundedAsync(stream,
+            PresetTransferLimits.MaxControlBytes + 1, ct, PresetTransferLimits.MaxControlBytes));
+        Assert.Equal(0, stream.Position);
+        await Assert.ThrowsAsync<PresetTransferException>(() => PresetPackageCodec.ReadBoundedAsync(stream,
+            null, ct, PresetTransferLimits.MaxControlBytes));
+        Assert.Equal(PresetTransferLimits.MaxControlBytes + 1, stream.Position);
+        Assert.True(PresetTransferLimits.MaxControlBytes < PresetPackageCodec.MaxBytes);
+    }
+
     private sealed class ImportClock : TimeProvider
     {
         internal DateTimeOffset Now { get; set; } = new(2026, 10, 29, 0, 0, 0, TimeSpan.Zero);

@@ -10,7 +10,7 @@ public static class PresetPackageCodec
     public const string SchemaVersion = "1";
     public const string Producer = "PS5 Save Game Toolkit";
     public const int MaxBytes = 512 * 1024;
-    public const int MaxPresets = 256;
+    public const int MaxPresets = PresetTransferLimits.MaxRecords;
     public const int MaxDepth = 16;
     private const int MaxTextLength = 4096;
     internal static JsonSerializerOptions JsonOptions { get; } = new(JsonSerializerDefaults.Web)
@@ -23,11 +23,13 @@ public static class PresetPackageCodec
         WriteIndented = true,
     };
 
-    public static async Task<byte[]> ReadBoundedAsync(Stream stream, long? length, CancellationToken cancellationToken)
+    public static async Task<byte[]> ReadBoundedAsync(Stream stream, long? length, CancellationToken cancellationToken, int maximumBytes = MaxBytes)
     {
-        if (length > MaxBytes) throw TooLarge();
+        ArgumentOutOfRangeException.ThrowIfLessThan(maximumBytes, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(maximumBytes, MaxBytes);
+        if (length > maximumBytes) throw TooLarge();
         // Fixed allocation before parsing, including requests without Content-Length.
-        var buffer = new byte[MaxBytes + 1];
+        var buffer = new byte[maximumBytes + 1];
         var count = 0;
         while (count < buffer.Length)
         {
@@ -99,7 +101,7 @@ public static class PresetPackageCodec
         if (preset is null) throw Invalid("invalidPresetPackage", "A preset record is missing.");
         if (preset.SchemaVersion != PresetStore.CurrentSchemaVersion)
             throw Invalid("unsupportedPresetSchema", "A preset uses an unsupported schema version.");
-        Text(preset.Id, "preset ID", 128);
+        Text(preset.Id, "preset ID", PresetTransferLimits.MaxPresetIdLength);
         Text(preset.Name, "preset name", 100);
         if (preset.CreatedAt == default || preset.UpdatedAt < preset.CreatedAt)
             throw Invalid("presetPackageTimestamp", "Preset timestamps are missing or out of order.");

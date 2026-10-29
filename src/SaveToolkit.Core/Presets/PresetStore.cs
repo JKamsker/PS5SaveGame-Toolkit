@@ -23,12 +23,11 @@ public sealed record PresetCompatibilityCheck(bool Compatible, string? Message =
 public sealed class PresetStore
 {
     public const string CurrentSchemaVersion = "1";
-    private const string FileName = "presets.json";
     private readonly PresetStoreOptions _options;
     private readonly PresetLibraryStorage _storage;
     private readonly object _gate = new();
     private readonly Dictionary<string, ToolkitPreset> _presets = new(StringComparer.Ordinal);
-    private string _generation = Guid.NewGuid().ToString("N");
+    private readonly PresetStorageIdentity _identity;
 
     public PresetStore(PresetStoreOptions options)
     {
@@ -37,6 +36,7 @@ public sealed class PresetStore
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaxPayloadBytes);
         _options = options;
         _storage = new(options, JsonOptions);
+        _identity = new(options);
         Directory.CreateDirectory(options.StorageRoot);
         Load();
     }
@@ -51,10 +51,11 @@ public sealed class PresetStore
     {
         lock (_gate)
         {
-            var staged = Stage(_storage.Read(allowMissing: false), allowUnknownSchema: true);
+            var snapshot = _storage.Read(allowMissing: false);
+            var staged = Stage(snapshot.Records, allowUnknownSchema: true);
             _presets.Clear();
             foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
-            _generation = Guid.NewGuid().ToString("N");
+            _identity.Publish(snapshot.Fingerprint);
             return [.. _presets.Values.OrderByDescending(p => p.UpdatedAt).Select(ClonePreset)];
         }
     }
@@ -67,7 +68,7 @@ public sealed class PresetStore
     /// <summary>Snapshot bound to successful CRUD and the current durable file identity.</summary>
     public PresetLibrarySnapshot Snapshot()
     {
-        lock (_gate) return new(StorageIdentity(), List());
+        lock (_gate) return new(_identity.Verify(), List());
     }
 
     /// <summary>Publishes a reviewed whole-library transaction with one durable write.</summary>
@@ -75,7 +76,7 @@ public sealed class PresetStore
     {
         lock (_gate)
         {
-            if (!string.Equals(expectedIdentity, StorageIdentity(), StringComparison.Ordinal))
+            if (!string.Equals(expectedIdentity, _identity.Verify(), StringComparison.Ordinal))
                 throw new PresetTransferException("stalePresetImport", "The preset library changed. Preview the package again before importing.", 409);
             var staged = StageImport(records);
             // Persist before publication: a failed file replacement cannot mutate the live graph.
@@ -114,19 +115,6 @@ public sealed class PresetStore
         }
         _ = _storage.Serialize(staged.Values);
         return staged;
-    }
-
-    private string StorageIdentity()
-    {
-        try
-        {
-            var path = Path.Combine(_options.StorageRoot, FileName);
-            return _generation + ":" + PresetStorageIdentity.Read(path, _options.MaxPayloadBytes);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            throw new PresetStorageException("Preset storage is temporarily unavailable. Retry the operation.", ex);
-        }
     }
 
     /// <summary>Stable fingerprint of the reviewed preset payload, excluding mutable timestamps.</summary>
@@ -235,17 +223,18 @@ public sealed class PresetStore
 
     private void Load()
     {
-        var staged = Stage(_storage.Read(allowMissing: true), allowUnknownSchema: true);
+        var snapshot = _storage.Read(allowMissing: true);
+        var staged = Stage(snapshot.Records, allowUnknownSchema: true);
         lock (_gate)
         {
             foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
+            _identity.Publish(snapshot.Fingerprint);
         }
     }
 
     private void Persist(IEnumerable<ToolkitPreset>? records = null)
     {
-        _storage.Write(records ?? _presets.Values);
-        _generation = Guid.NewGuid().ToString("N");
+        _identity.Publish(_storage.Write(records ?? _presets.Values));
     }
 
     private void ValidatePayload(PresetCompatibility compatibility, IReadOnlyList<PresetAction> actions)

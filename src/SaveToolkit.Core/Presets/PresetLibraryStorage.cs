@@ -6,14 +6,15 @@ namespace SaveToolkit.Core.Presets;
 /// <summary>Finite file I/O shared by reload, CRUD and staged import publication.</summary>
 internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSerializerOptions jsonOptions)
 {
+    internal const string FileName = "presets.json";
     private const int ReadBufferSize = 64 * 1024;
-    private string Path => System.IO.Path.Combine(options.StorageRoot, "presets.json");
+    private string Path => System.IO.Path.Combine(options.StorageRoot, FileName);
 
-    internal IReadOnlyList<ToolkitPreset> Read(bool allowMissing)
+    internal PresetStorageSnapshot Read(bool allowMissing)
     {
         if (!File.Exists(Path))
         {
-            if (allowMissing) return [];
+            if (allowMissing) return new([], PresetStorageIdentity.Missing);
             throw new InvalidDataException("Preset storage disappeared during reload.");
         }
         try
@@ -33,7 +34,9 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
                     throw new InvalidDataException("Preset storage exceeds the configured size limit.");
                 content.Write(buffer, 0, read);
             }
-            return JsonSerializer.Deserialize<List<ToolkitPreset>>(content.ToArray(), jsonOptions) ?? [];
+            var bytes = content.ToArray();
+            return new(JsonSerializer.Deserialize<List<ToolkitPreset>>(bytes, jsonOptions) ?? [],
+                PresetStorageIdentity.Fingerprint(bytes));
         }
         catch (FileNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
         catch (DirectoryNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
@@ -48,7 +51,7 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
         return bytes;
     }
 
-    internal void Write(IEnumerable<ToolkitPreset> records)
+    internal string Write(IEnumerable<ToolkitPreset> records)
     {
         var bytes = Serialize(records);
         var temp = Path + ".tmp";
@@ -56,6 +59,7 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
         {
             File.WriteAllBytes(temp, bytes);
             File.Move(temp, Path, overwrite: true);
+            return PresetStorageIdentity.Fingerprint(bytes);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -65,3 +69,5 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
         }
     }
 }
+
+internal sealed record PresetStorageSnapshot(IReadOnlyList<ToolkitPreset> Records, string Fingerprint);

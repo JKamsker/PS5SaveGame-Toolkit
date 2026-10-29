@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { ApiError } from "../../../api/client";
+import { api, ApiError } from "../../../api/client";
 import { presetTransfer, type ImportChoice, type ImportPreview } from "../../../api/presetTransfer";
 import type { PresetCompatibilitySummary } from "../../../api/protocol";
 import { TransferDialog } from "./TransferDialog";
 
-export default function ImportPresetDialog({ workspaceId, documentId, trigger, onDismiss, onImported }: {
-  workspaceId: string; documentId: string; trigger: HTMLElement; onDismiss: () => void; onImported: (message: string) => void;
+export default function ImportPresetDialog({ workspaceId, documentId, trigger, onDismiss, onImported, onReloaded }: {
+  workspaceId: string; documentId: string; trigger: HTMLElement; onDismiss: () => void; onImported: (message: string) => void; onReloaded: () => Promise<void>;
 }) {
   const [statuses, setStatuses] = useState<Record<number, PresetCompatibilitySummary>>({});
   const [file, setFile] = useState<File>();
@@ -13,6 +13,7 @@ export default function ImportPresetDialog({ workspaceId, documentId, trigger, o
   const [choices, setChoices] = useState<Record<number, ImportChoice>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const [reloadRequired, setReloadRequired] = useState(false);
   const [stale, setStale] = useState(false);
   const tokens = useRef(new Set<string>());
   const alive = useRef(true);
@@ -26,13 +27,15 @@ export default function ImportPresetDialog({ workspaceId, documentId, trigger, o
   const run = async (operation: () => Promise<void>) => {
     setBusy(true); setError(undefined);
     try { await operation(); }
-    catch (failure) { if (alive.current) { setError(failure instanceof Error ? failure.message : "Could not import presets."); setStale(failure instanceof ApiError && failure.status === 409); } }
+    catch (failure) { if (alive.current) { setError(failure instanceof Error ? failure.message : "Could not import presets."); setStale(failure instanceof ApiError && failure.status === 409);
+      if (failure instanceof ApiError && failure.body && typeof failure.body === "object" && "code" in failure.body && failure.body.code === "presetLibraryReloadRequired") setReloadRequired(true); } }
     finally { if (alive.current) setBusy(false); }
   };
-  const load = (selected: File) => run(async () => {
-    setFile(selected); setPreview(undefined); setChoices({}); setStale(false);
+  const load = (selected: File, reload = false) => run(async () => {
+    setFile(selected); setPreview(undefined); setChoices({}); setStale(false); setReloadRequired(reload);
     for (const token of tokens.current) await presetTransfer.cancel(token).catch(() => { /* Expiry still bounds abandoned previews. */ });
     tokens.current.clear();
+    if (reload) { await api.reloadPresets(); await onReloaded(); setReloadRequired(false); }
     const result = await presetTransfer.preview(selected);
     tokens.current.add(result.token);
     const compatibility = await presetTransfer.compatibility(workspaceId, documentId, result.token);
@@ -59,7 +62,7 @@ export default function ImportPresetDialog({ workspaceId, documentId, trigger, o
     }} /></label>
     {busy && <p role="status">{preview?.readyToCommit ? "Importing presets…" : "Validating preset package…"}</p>}
     <h4 ref={summary} tabIndex={-1}>{preview?.readyToCommit ? "Confirm import" : "Package preview"}</h4>
-    {error && <div><p role="alert">{error}</p>{file && <button className="btn" type="button" disabled={busy} onClick={() => void load(file)}>{stale ? "Preview file again" : "Retry validation"}</button>}</div>}
+    {error && <div><p role="alert">{error}</p>{file && <button className="btn" type="button" disabled={busy} onClick={() => void load(file, reloadRequired)}>{reloadRequired ? "Reload library and preview again" : stale ? "Preview file again" : "Retry validation"}</button>}</div>}
     {preview && <>
       <p>Schema {preview.schemaVersion} · {preview.items.length} presets · {preview.provenance.producer}</p>
       <p className="presets-meta">Exported {preview.provenance.exportedAt}. Preview expires {preview.expiresAt}.</p>

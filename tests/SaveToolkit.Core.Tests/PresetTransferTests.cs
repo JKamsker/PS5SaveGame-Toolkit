@@ -71,7 +71,7 @@ public sealed class PresetTransferTests
         Assert.Equal(409, Assert.Throws<PresetTransferException>(() => service.Commit(new(review.Token))).StatusCode);
         var next = PresetTransferFixture.Resolve(service, service.Preview(PresetPackageCodec.Encode([source])));
         File.AppendAllText(Path.Combine(root, "presets.json"), " ");
-        Assert.Equal("stalePresetImport", Assert.Throws<PresetTransferException>(() => service.Commit(new(next.Token))).Code);
+        Assert.Equal("presetLibraryReloadRequired", Assert.Throws<PresetTransferException>(() => service.Commit(new(next.Token))).Code);
         Assert.Single(store.List());
         Assert.NotNull(store.Find(existing.Id));
     }

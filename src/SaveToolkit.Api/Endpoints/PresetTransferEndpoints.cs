@@ -8,7 +8,7 @@ namespace SaveToolkit.Api.Endpoints;
 
 internal static class PresetTransferEndpoints
 {
-    private const int ControlRequestLimit = 32 * 1024;
+    private const int ControlRequestLimit = PresetTransferLimits.MaxControlBytes;
 
     public static void MapPresetTransferApi(this IEndpointRouteBuilder app)
     {
@@ -16,8 +16,8 @@ internal static class PresetTransferEndpoints
             .WithApiErrors(Status400BadRequest, Status409Conflict, Status413PayloadTooLarge,
                 Status422UnprocessableEntity, Status503ServiceUnavailable);
         api.MapPost("/export", Export).Accepts<PresetExportRequest>("application/json")
-            .Produces(Status200OK, contentType: "application/json");
-        api.MapPost("/preview", Preview).Accepts<PresetPackage>("application/json")
+            .Produces<byte[]>(Status200OK, contentType: "application/json");
+        api.MapPost("/preview", Preview).Accepts<PresetPackageDto>("application/json")
             .Produces<PresetImportPreview>();
         api.MapPost("/resolve", Resolve).Accepts<PresetImportResolution>("application/json")
             .Produces<PresetImportPreview>();
@@ -33,7 +33,7 @@ internal static class PresetTransferEndpoints
         {
             service.Cancel(token);
             return Results.NoContent();
-        });
+        }).Produces(Status204NoContent);
     }
 
     private static async Task<IResult> Compatibility(DocumentRef document, HttpRequest request,
@@ -69,9 +69,12 @@ internal static class PresetTransferEndpoints
     {
         LimitBody(request, ControlRequestLimit);
         // The same streaming guard also covers chunked requests before deserialization.
-        var bytes = await PresetPackageCodec.ReadBoundedAsync(request.Body, request.ContentLength, ct);
-        if (bytes.Length > ControlRequestLimit)
-            throw new PresetTransferException("presetTransferRequestTooLarge", "Choose a smaller preset selection.", 413);
+        byte[] bytes;
+        try { bytes = await PresetPackageCodec.ReadBoundedAsync(request.Body, request.ContentLength, ct, ControlRequestLimit); }
+        catch (PresetTransferException ex) when (ex.StatusCode == Status413PayloadTooLarge)
+        {
+            throw new PresetTransferException("presetTransferRequestTooLarge", "The transfer control request exceeds its finite byte limit.", 413);
+        }
         try
         {
             return System.Text.Json.JsonSerializer.Deserialize<T>(bytes, ControlJson)

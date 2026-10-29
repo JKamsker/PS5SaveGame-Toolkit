@@ -73,3 +73,19 @@ it("requires an explicit export selection and retains it for a failed-download r
   await waitFor(() => expect(download).toHaveBeenNthCalledWith(2, ["one"]));
   await waitFor(() => expect(globalThis.document.activeElement).toBe(trigger));
 });
+
+it("requires a successful explicit reload before retrying an externally stale preview", async () => {
+  const validate = vi.spyOn(presetTransfer, "preview").mockRejectedValueOnce(new ApiError("The library changed on disk.", 409,
+    { code: "presetLibraryReloadRequired" })).mockResolvedValue(preview);
+  const reload = vi.spyOn(api, "reloadPresets").mockRejectedValueOnce(new ApiError("Storage unavailable", 503)).mockResolvedValue([]);
+  renderSpatial(<PresetTransferToolbar />);
+  const trigger = screen.getByRole("button", { name: "Import presets" }); fireEvent.click(trigger); await chooseFile();
+  fireEvent.click(await screen.findByRole("button", { name: "Reload library and preview again" }));
+  expect((await screen.findByRole("alert")).textContent).toContain("Storage unavailable");
+  expect(validate).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole("button", { name: "Reload library and preview again" }));
+  await screen.findByRole("radio", { name: /Keep both/ });
+  expect(validate).toHaveBeenCalledTimes(2); expect(reload).toHaveBeenCalledTimes(2);
+  fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+  await waitFor(() => expect(globalThis.document.activeElement).toBe(trigger));
+});

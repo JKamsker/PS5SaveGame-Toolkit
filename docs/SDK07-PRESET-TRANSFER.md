@@ -52,7 +52,11 @@ The whole package is at most 512 KiB, with 1–256 presets and a JSON depth of 1
 Each preset has 1–32 actions, each action at most 128 parameters and 256 semantic targets.
 Title IDs are limited to 32 per preset; names to 100 characters; identifiers and field
 text have explicit conservative limits in the codec. Arrays/arbitrary nested save
-objects are not parameter values. Control requests are limited to 32 KiB/depth 8.
+objects are not parameter values. Control requests are separately limited to 258 KiB/depth 8. This is derived from
+256 records × (128 UTF-16 ID units × 6 maximum JSON-escape bytes + 256 choice syntax
+bytes), plus 2 KiB for the escaped token/envelope and formatting. It covers every
+maximum-length ID, including quotes, backslashes, Unicode and escaped surrogate pairs,
+for full-library export and explicit replacement. The package limit remains 512 KiB.
 The server checks declared length before reading and limits streamed/chunked reads to
 the cap plus one byte. Record/action/parameter/instance counts are checked before
 typed record materialization. Storage's separate whole-file/count limits also apply
@@ -76,13 +80,18 @@ to the resulting library before confirmation.
    names with ` (2)`, ` (3)`, etc. Replace preserves the chosen target ID and replaces
    only that record; other name collisions still receive a distinct reviewed name.
 4. Confirm with `POST /commit`, `{token}`. `PresetStore.ImportLibrary` rechecks the
-   whole-library identity, validates a staged dictionary, writes one atomic file
+   whole-library identity against the fingerprint published with the live map, validates a staged dictionary, writes one atomic file
    replacement, then publishes the staged in-memory library. Persistence failure leaves
    both disk and memory unchanged; the same confirmation can be explicitly retried.
 
 Successful CRUD, imports, reloads or changed durable file content invalidate old previews.
 A successful reload increments the generation even when bytes are identical. A failed
-reload preserves the last-good library and generation. Reload and import share a
+reload preserves the last-good library, fingerprint and generation. The fingerprint
+is derived from the same bounded file bytes that produced the staged map, or the exact
+bytes of a successful atomic write. Snapshot/commit reject externally changed bytes
+until a successful bounded reload; a fresh preview alone cannot acknowledge a new
+file while retaining an older live map. The dialog offers **Reload library and preview
+again**, preserves the selected file and filter, and refreshes server-owned list summaries. Reload and import share a
 validated staged map and bounded storage helper under the store lock, preventing a
 concurrent host CRUD operation from being lost during publication. Unknown historical
 schemas retain the existing load policy (skipped); transfers reject unsupported schemas.
@@ -97,10 +106,21 @@ of 1–256 distinct library IDs. The UI can select one, several or all records. 
 selection fails rather than producing an incomplete package. The human download name
 is `Toolkit presets.toolkit-presets.json` and never derives from save paths.
 
+## Published API contract
+
+`PresetPackageDto` and its transfer-only record/compatibility/action/reference graph in
+`src/SaveToolkit.Api/Contracts/PresetPackageDtos.cs` describe the stricter wire contract.
+Every compatibility member is required, including the six explicitly nullable boundaries;
+`instances` (including an empty array) and `scopeKind` are required for every action.
+Legacy CRUD schemas keep their optional/default fields. Version, cardinality and text
+bounds are described in OpenAPI; cross-field timestamp ordering, nonblank/no-control
+text and exact typed parameter validation remain codec checks. Export success describes
+an `application/json` binary download body, and cancellation explicitly describes 204.
+
 ## Failures and accessible recovery
 
 Transfer failures return the normal typed API error envelope: 400 for malformed control
-requests/choices, 409 for stale or consumed previews/selections, 413 for request size,
+requests/choices, 409 for stale or consumed previews/selections or a library requiring reload, 413 for request size,
 422 for invalid/future/domain-invalid packages or an overfull resulting library, and
 503 for host storage failure or the bounded preview capacity. Capacity responses include
 `Retry-After`. Invalid packages never partially persist. A stale import requires a fresh
@@ -120,6 +140,9 @@ styles load only when the corresponding transfer dialog opens.
 - [Native dialog accessibility](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog)
   and [showModal](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal)
   document modal focus and Escape behavior.
+- [ASP.NET Core OpenAPI metadata](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/include-metadata?view=aspnetcore-10.0)
+  documents required/nullability metadata; [document transformers](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/customize-openapi)
+  allow the transfer graph to reuse the existing recursive value component after export.
 - `PresetPackageTests`, `PresetTransferTests`, `PresetTransferApiTests` and
   `web/e2e/preset-transfer.e2e.ts` cover synthetic transfer/transaction paths. Native-game
   semantic identity, actual title/build compatibility and game acceptance remain plugin

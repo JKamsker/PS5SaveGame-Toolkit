@@ -14,7 +14,7 @@ public sealed class PresetTransferService(PresetStore store, TimeProvider? timeP
     public byte[] Export(PresetExportRequest request)
     {
         if (request.Ids is null || request.Ids.Count is < 1 or > PresetPackageCodec.MaxPresets
-            || request.Ids.Any(id => string.IsNullOrWhiteSpace(id) || id.Length > 128) || request.Ids.Distinct(StringComparer.Ordinal).Count() != request.Ids.Count)
+            || request.Ids.Any(id => string.IsNullOrWhiteSpace(id) || id.Length > PresetTransferLimits.MaxPresetIdLength) || request.Ids.Distinct(StringComparer.Ordinal).Count() != request.Ids.Count)
             throw new PresetTransferException("invalidPresetSelection", "Select 1–256 distinct presets to export.", 400);
         var snapshot = store.Snapshot();
         var selected = request.Ids.Select(id => snapshot.Presets.FirstOrDefault(p => p.Id == id)

@@ -16,7 +16,7 @@ export function PresetTransferToolbar() {
       <button type="button" className="btn btn--small" onClick={event => { setMessage(undefined); setDialog({ kind: "export", trigger: event.currentTarget }); }}>Export presets</button></div>
     {message && <p role="status">{message}</p>}
     <Suspense fallback={<p role="status">Opening preset transfer…</p>}>
-      {dialog?.kind === "import" && <ImportPresetDialog workspaceId={workspaceId} documentId={documentId} trigger={dialog.trigger} onDismiss={() => setDialog(undefined)} onImported={imported} />}
+      {dialog?.kind === "import" && <ImportPresetDialog workspaceId={workspaceId} documentId={documentId} trigger={dialog.trigger} onDismiss={() => setDialog(undefined)} onImported={imported} onReloaded={() => client.invalidateQueries({ queryKey: ["presets"] })} />}
       {dialog?.kind === "export" && <ExportPresetDialog trigger={dialog.trigger} onDismiss={() => setDialog(undefined)} onDownloaded={setMessage} />}
     </Suspense>
   </div>;

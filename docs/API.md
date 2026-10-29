@@ -201,7 +201,7 @@ previews with 409. Storage failure returns 503 and leaves disk/memory unchanged.
 ### `DELETE /api/presets/transfer/previews/{token}`
 
 Cancels read-only staging, returning 204. Preview tokens expire after ten minutes;
-at most eight are retained. Control bodies are at most 32 KiB. Transfer never changes
+at most eight are retained. Control bodies are at most 258 KiB (derived from the full 256-record/128-unit escaped-ID domain). Transfer never changes
 open documents, dirty state or history. All failures use stable typed API problems.
 
 ### `GET /api/presets`
