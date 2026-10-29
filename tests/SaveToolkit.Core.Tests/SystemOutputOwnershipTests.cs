@@ -190,7 +190,8 @@ public sealed class SystemOutputOwnershipTests
         var sfo = workspace.Set.AllDiskFiles.Single(f => f.PathInDirectory.EndsWith("param.sfo", StringComparison.OrdinalIgnoreCase));
         plugin.AfterRoleOpen = () => Delete(sfo);
 
-        Assert.ThrowsAny<IOException>(() => workspace.OpenGroup(offer.Token, single.Id));
+        var error = Assert.Throws<InvalidOperationException>(() => workspace.OpenGroup(offer.Token, single.Id));
+        Assert.Contains("param.sfo", error.Message, StringComparison.OrdinalIgnoreCase);
 
         Assert.Same(single, workspace.FindDocument(single.Id));
         _ = single.BuildView();

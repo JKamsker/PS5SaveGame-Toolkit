@@ -96,8 +96,9 @@ public sealed class DocumentGroupSession
         foreach (var member in Members)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            using var stream = _set.FindById(member.FileId)!.OpenRead();
-            var actual = OperationCancellation.HashSha256(stream, cancellationToken);
+            var file = _set.FindById(member.FileId)
+                ?? throw new InvalidOperationException($"Owned output '{member.RelativePath}' could not be read. Close and reimport the dump.");
+            var actual = OwnedSourceReader.Hash(file, member.RelativePath, cancellationToken);
             if (!string.Equals(actual, member.Sha256, StringComparison.Ordinal))
                 throw new InvalidOperationException($"Group input '{member.RelativePath}' changed since selection. Close and reimport the dump.");
         }

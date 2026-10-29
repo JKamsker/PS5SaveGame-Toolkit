@@ -52,7 +52,14 @@ public static class WorkspaceExporter
         var reasons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var dirty = workspace.Documents.Where(d => d.GetState(cancellationToken).IsDirty).ToList();
         var groups = workspace.DocumentGroups;
-        foreach (var group in groups) group.CheckFingerprints(cancellationToken);
+        foreach (var group in groups)
+        {
+            try { group.CheckFingerprints(cancellationToken); }
+            catch (Exception ex) when (ex is InvalidOperationException or SaveFormatException or IOException)
+            {
+                throw new ExportException(ex.Message, ex);
+            }
+        }
 
         foreach (var session in dirty)
         {

@@ -21,8 +21,7 @@ internal sealed class OutputOwnershipBinding
         {
             var file = _saveSet.FindAnyFile(path) as DiskSaveFile
                 ?? throw new SaveFormatException($"Additional output '{path}' does not exist in the opened save directory.");
-            using var stream = file.OpenRead();
-            var actual = OperationCancellation.HashSha256(stream, CancellationToken.None);
+            var actual = OwnedSourceReader.Hash(file, path, CancellationToken.None);
             if (!string.Equals(actual, file.Sha256, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException($"Owned output '{path}' changed while the document was opening. Close and reimport the dump.");
             fingerprints.Add(path, file.Sha256);
@@ -44,7 +43,7 @@ internal sealed class OutputOwnershipBinding
             var file = _saveSet.FindAnyFile(path)
                 ?? throw new InvalidOperationException($"Owned output '{path}' disappeared; close and reimport the dump.");
             var actual = file is DiskSaveFile disk
-                ? HashCurrentSource(disk, path, cancellationToken)
+                ? OwnedSourceReader.Hash(disk, path, cancellationToken)
                 : throw new InvalidOperationException($"Owned output '{path}' could not be read. Close and reimport the dump.");
             if (!string.Equals(actual, expected, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException($"Owned output '{path}' changed since the document was opened. Close and reimport the dump.");
@@ -53,22 +52,9 @@ internal sealed class OutputOwnershipBinding
 
     private static string HashImportedSource(DiskSaveFile file)
     {
-        var actual = HashCurrentSource(file, file.RelativePath, CancellationToken.None);
+        var actual = OwnedSourceReader.Hash(file, file.RelativePath, CancellationToken.None);
         if (!string.Equals(actual, file.Sha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException($"Owned output '{file.RelativePath}' changed while the document was opening. Close and reimport the dump.");
         return file.Sha256;
-    }
-
-    private static string HashCurrentSource(DiskSaveFile file, string path, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using var stream = file.OpenRead();
-            return OperationCancellation.HashSha256(stream, cancellationToken);
-        }
-        catch (Exception error) when (error is IOException)
-        {
-            throw new InvalidOperationException($"Owned output '{path}' could not be read. Close and reimport the dump.", error);
-        }
     }
 }
