@@ -254,17 +254,16 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
         _writePlans.Owns(actionId) ? _writePlans.Plan(actionId, parameters, scope) : _runes.Plan(actionId, parameters, scope);
 
-    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
-    {
-        var current = PlanAction(actionId, parameters, scope);
-        if (current.Errors.Count > 0) return new EditOutcome { Errors = current.Errors };
-        if (plan.Errors.Count > 0 || !current.Changes.SequenceEqual(plan.Changes)
-            || !current.Warnings.SequenceEqual(plan.Warnings) || !current.SkippedRows.SequenceEqual(plan.SkippedRows))
-            return EditOutcome.Rejected(actionId, "The preview no longer matches the requested changes.");
-        _ = CharacterFields(_writePlans.Owns(actionId) ? _writePlans.Slot(actionId) : _runes.Slot(actionId));
-        _writes.RegisterQuantities(Field); // Bind unopened rows for complete preview/apply/undo.
-        return ApplyEdits(current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray());
-    }
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
+        ActionPlans.ApplyScalar(plan, () => PlanAction(actionId, parameters, scope),
+            new(actionId, "The preview no longer matches the requested changes."),
+            _ =>
+            {
+                CharacterFields(_writePlans.Owns(actionId) ? _writePlans.Slot(actionId) : _runes.Slot(actionId));
+                _writes.RegisterQuantities(Field); // Bind unopened rows for complete preview/apply/undo.
+            },
+            current => current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray(),
+            ApplyEdits, ActionPlanWarningPolicy.PreserveApplication);
 
     private FieldNode Name(CharacterSlot slot) => _writes.Name(slot, Field);
 

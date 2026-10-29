@@ -49,7 +49,17 @@ internal sealed class CommunityReferences
 internal sealed class CommunityCatalogView(string id, string title, IReferenceCatalog? catalog)
 {
     private const int MaximumRecords = 20_000;
-    private readonly Lazy<IReadOnlyList<ReferenceRecord>> _index = new(() => Read(catalog));
+    private readonly Lazy<IReadOnlyList<ReferenceRecord>> _index = new(() =>
+    {
+        if (catalog is null || catalog.Count == 0) return [];
+        if (catalog.Count is < 0 or > MaximumRecords)
+            throw new InvalidOperationException($"Community catalog exceeds the {MaximumRecords}-record budget.");
+        var records = ReferenceCatalogReader.ReadBounded(catalog, new() { Limit = ReferenceQuery.MaxLimit }, MaximumRecords);
+        // This unfiltered index must cover the whole catalog, not just a consistent query subset.
+        if (records.Count != catalog.Count)
+            throw new InvalidOperationException("Community catalog returned incomplete or duplicate pages.");
+        return records;
+    });
     private readonly ReferenceSearchText _searchText = new();
     private static IReadOnlyList<QueryableColumn> Columns =>
         [new("id", "Source identity"), new("name", "Name / declaration"), new("category", "Category / table"),
@@ -94,23 +104,5 @@ internal sealed class CommunityCatalogView(string id, string title, IReferenceCa
             || record.Attributes.Any(attribute => ReferenceSearchText.Contains(attribute.Key, search)
                 || ReferenceSearchText.Contains(attribute.Value, search)
                 || search.Contains(':') && ReferenceSearchText.Contains(attribute.Key + ": " + attribute.Value, search));
-    }
-
-    private static IReadOnlyList<ReferenceRecord> Read(IReferenceCatalog? catalog)
-    {
-        if (catalog is null) return [];
-        if (catalog.Count is < 0 or > MaximumRecords)
-            throw new InvalidOperationException($"Community catalog exceeds the {MaximumRecords}-record budget.");
-        var rows = new List<ReferenceRecord>(catalog.Count);
-        var keys = new HashSet<string>(StringComparer.Ordinal);
-        for (var offset = 0; offset < catalog.Count; offset += ReferenceQuery.MaxLimit)
-        {
-            var page = catalog.Search(new() { Offset = offset, Limit = ReferenceQuery.MaxLimit });
-            if (page.Items.Count != Math.Min(ReferenceQuery.MaxLimit, catalog.Count - offset)
-                || page.Items.Any(record => !keys.Add(record.Key)))
-                throw new InvalidOperationException("Community catalog returned incomplete or duplicate pages.");
-            rows.AddRange(page.Items);
-        }
-        return rows;
     }
 }
