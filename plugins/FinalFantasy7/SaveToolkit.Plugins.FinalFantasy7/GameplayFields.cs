@@ -16,6 +16,8 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
     public const int MateriaCount = 1000;
     public const int RowsPerPage = 128;
     private readonly GameplayLayout _layout = GameplayLayout.For(schema);
+    private readonly uint _openingPlayTime = bytes.Length == Ff7Schema.CommonFileLength ? 0 :
+        BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(GameplayLayout.For(schema).PlayTimeOffset));
     private const int RemakeChapterOffset = 0x2E;
     private const string DemoWarning = "PC retail field mapping is inferred for the PS5 demo; no in-game confirmation.";
     private const string EditWarning = WriteWarnings.Experimental;
@@ -39,7 +41,10 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
         var nodes = new List<ViewNode>
         {
             bind(Define("game/playtime", "Play time", PlayTimeOffset,
-                IntegerSpec.UInt32 with { Format = IntegerFormat.Duration, UnitsPerSecond = 1 })),
+                IntegerSpec.UInt32 with { Max = _openingPlayTime, Format = IntegerFormat.Duration, UnitsPerSecond = 1 },
+                editable: true, warning: WriteWarnings.Experimental +
+                    "Inferred write: first-record stored seconds only, bounded by the immutable opening value. " +
+                    "Historic records and other menu/play counters are preserved; displayed time and native resave normalization need console validation. " + EmbeddedCatalogs.Attribution)),
         };
         var gilId = _layout.GilType;
         var gilSlots = Enumerable.Range(0, InventoryCount).Where(i => U32(InventoryOffset + i * InventoryStride) == gilId).ToArray();

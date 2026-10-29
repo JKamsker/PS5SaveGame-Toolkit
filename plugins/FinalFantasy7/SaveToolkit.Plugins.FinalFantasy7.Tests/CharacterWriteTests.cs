@@ -147,7 +147,7 @@ public sealed class CharacterWriteTests
             var file = SampleSaves.Load(title).AllDiskFiles.First(file => file.FileName == schema.Prefix + "000");
             using var document = new FinalFantasy7Plugin().Open(file);
             var view = Assert.IsType<TabsNode>(document.BuildView());
-            var table = Assert.IsType<TableNode>(Assert.Single(view.Tabs.Single(tab => tab.Title == "Characters").Children));
+            var table = Assert.IsType<TableNode>(Assert.Single(view.Tabs.Single(tab => tab.Title == "Characters").Children.OfType<TableNode>()));
             var fields = table.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>();
             Assert.Contains(fields, field => !field.Spec.ReadOnly);
             Assert.All(fields.Where(field => !field.Spec.ReadOnly), field =>

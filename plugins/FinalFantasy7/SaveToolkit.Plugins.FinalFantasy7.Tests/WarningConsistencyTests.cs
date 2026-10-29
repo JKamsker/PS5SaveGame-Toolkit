@@ -31,7 +31,7 @@ public sealed class WarningConsistencyTests
         if (title == "PPSA18936")
             Assert.Contains("PC retail field mapping is inferred for the PS5 demo", gil.Warning);
 
-        var characters = Assert.IsType<TableNode>(Assert.Single(view.Tabs.Single(tab => tab.Title == "Characters").Children));
+        var characters = Assert.IsType<TableNode>(Assert.Single(view.Tabs.Single(tab => tab.Title == "Characters").Children.OfType<TableNode>()));
         var editable = characters.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>()
             .Where(field => !field.Spec.ReadOnly).ToArray();
         Assert.NotEmpty(editable);

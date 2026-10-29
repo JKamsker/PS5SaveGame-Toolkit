@@ -11,7 +11,7 @@ public sealed class FinalFantasy7Plugin : IGamePlugin, ISaveDecoderProvider
 
     public PluginInfo Info { get; } = new("ff7r", "Final Fantasy VII Remake / Rebirth", "0.5.0")
     {
-        Description = "Experimental linked-record editor with attributed catalogs, queryable inventories/progress, regional maps, read-only folio/socket graphs and previewed restock/AP/star actions.",
+        Description = "Experimental linked-record editor with attributed catalogs, queryable inventories/progress, regional maps, read-only folio/socket graphs, bounded stored time and previewed recovery/level/restock/AP/star actions.",
         Games =
         [
             new GameTitle("PPSA01911", "Final Fantasy VII Remake Intergrade"),
