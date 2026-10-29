@@ -110,7 +110,6 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
     {
         _ when lazyId.StartsWith("live/", StringComparison.Ordinal) => _live.Expand(lazyId),
         _ when lazyId.StartsWith(LsmfInspection.Prefix, StringComparison.Ordinal) => _lsmf.Expand(lazyId),
-        _ when lazyId.StartsWith(SavedItemInspection.Prefix, StringComparison.Ordinal) => _items.Expand(lazyId),
         _ when lazyId.StartsWith(StoryInspection.Prefix, StringComparison.Ordinal) => _story.Expand(lazyId),
         _ => _explorer.Expand(lazyId, _package),
     };

@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
@@ -48,9 +49,14 @@ public sealed class SampleLsmfTests
         var (plugin, _, references) = ReferenceViewTests.References();
         var save = Save();
         using var document = plugin.Open(save, references);
-        var overview = document.ExpandNode("saved-items/all");
-        var rows = overview.OfType<SectionNode>().SelectMany(page => document.ExpandNode(page.LazyId!).OfType<TableNode>())
-            .SelectMany(table => table.Rows).ToArray();
+        var inventory = Assert.Single(Assert.IsType<TabsNode>(document.BuildView()).Tabs, tab => tab.Title == "Inventory");
+        Assert.Empty(inventory.Children.OfType<SectionNode>());
+        var table = Assert.Single(inventory.Children.OfType<QueryableTableNode>());
+        var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
+        var pageCount = (int)((table.TotalCount + QueryableCollectionLimits.MaxPageSize - 1) / QueryableCollectionLimits.MaxPageSize);
+        var rows = Enumerable.Range(0, pageCount).SelectMany(page => queryable.Query(table.CollectionId,
+            new QueryableCollectionQuery { Offset = page * QueryableCollectionLimits.MaxPageSize,
+                Limit = QueryableCollectionLimits.MaxPageSize }).Rows).ToArray();
         Assert.Equal(761, rows.Length);
         Assert.Equal(761, rows.Select(row => row.Key).Distinct().Count());
         Assert.Equal(40, rows.Count(row => Assert.IsType<FieldNode>(row.Cells["name"]).Confidence == Confidence.Inferred));

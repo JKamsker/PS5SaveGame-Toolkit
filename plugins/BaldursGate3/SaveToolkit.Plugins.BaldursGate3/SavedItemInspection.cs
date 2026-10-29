@@ -1,4 +1,3 @@
-using System.Globalization;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
@@ -9,7 +8,6 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 /// <summary>LSF item occurrences across every owner; deliberately not a resolved player inventory.</summary>
 internal sealed class SavedItemInspection
 {
-    internal const string Prefix = "saved-items/";
     private const int MaxItems = 100_000;
     private readonly Lazy<IReadOnlyList<Item>> _items;
     private readonly Bg3References _references;
@@ -35,7 +33,6 @@ internal sealed class SavedItemInspection
         [
             new TextNode("Saved Item nodes from Globals.lsf, including world/trader items. Explicit numeric quantity candidates can be edited experimentally; live ownership, equipment and NewAge stacks remain unresolved. No party gold total is calculated. Not validated on console; edited saves may be rejected.") { Tone = Tone.Warning },
             new QueryableTableNode(collection.Id, collection.Title, collection.Columns, collection.TotalCount) { Description = collection.Description },
-            SectionNode.Lazy("Browse saved items with provenance (all owners)", Prefix + "all"),
         ];
     }
 
@@ -46,6 +43,7 @@ internal sealed class SavedItemInspection
             new QueryableColumn("name", "Candidate name") { Width = ColumnWidth.Wide },
             new QueryableColumn("template", "CurrentTemplate") { Width = ColumnWidth.Wide },
             new QueryableColumn("stats", "Stats ID"),
+            new QueryableColumn("provenance", "Occurrence provenance") { Width = ColumnWidth.Wide },
             new QueryableColumn("ownership", "Original owner / quantity") { Width = ColumnWidth.Wide },
             new QueryableColumn("quantity", "Explicit quantity candidate"),
         ], _items.Value.Count)
@@ -55,18 +53,23 @@ internal sealed class SavedItemInspection
 
     internal QueryableCollectionPage Query(QueryableCollectionQuery query)
     {
+        if (query.Offset < 0 || query.Limit is < 1 or > QueryableCollectionLimits.MaxPageSize || query.Cursor is not null)
+            throw new ArgumentException("Use a bounded saved-item offset page without a cursor.", nameof(query));
+        var columns = Collection.Columns.Select(column => column.Key).ToHashSet(StringComparer.Ordinal);
+        if (query.Filters.Keys.Any(key => !columns.Contains(key)) || query.SortColumn is { } sort && !columns.Contains(sort))
+            throw new ArgumentException("Unknown saved-item filter or sort column.", nameof(query));
         var items = _items.Value;
         var text = query.Text?.Trim();
-        var filtered = items.Where(item => string.IsNullOrEmpty(text) ||
-            item.Template.Contains(text, StringComparison.OrdinalIgnoreCase) ||
-            item.Stats.Contains(text, StringComparison.OrdinalIgnoreCase) ||
-            (_references.Template(item.Template)?.Name.Contains(text, StringComparison.OrdinalIgnoreCase) ?? false));
+        var filtered = items.Where(item => (string.IsNullOrEmpty(text) || columns.Any(column =>
+            ColumnValue(item, column).Contains(text, StringComparison.OrdinalIgnoreCase))) &&
+            query.Filters.All(filter => string.Equals(ColumnValue(item, filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase)));
         var ordered = query.SortColumn switch
         {
             null => filtered.OrderBy(item => item.Key, StringComparer.Ordinal),
             "name" or "icon" => query.Descending ? filtered.OrderByDescending(item => _references.Template(item.Template)?.Name ?? item.Template, StringComparer.OrdinalIgnoreCase) : filtered.OrderBy(item => _references.Template(item.Template)?.Name ?? item.Template, StringComparer.OrdinalIgnoreCase),
             "template" => query.Descending ? filtered.OrderByDescending(item => item.Template, StringComparer.Ordinal) : filtered.OrderBy(item => item.Template, StringComparer.Ordinal),
             "stats" => query.Descending ? filtered.OrderByDescending(item => item.Stats, StringComparer.Ordinal) : filtered.OrderBy(item => item.Stats, StringComparer.Ordinal),
+            "provenance" => query.Descending ? filtered.OrderByDescending(Provenance, StringComparer.Ordinal) : filtered.OrderBy(Provenance, StringComparer.Ordinal),
             "ownership" => query.Descending ? filtered.OrderByDescending(item => Ownership(item), StringComparer.Ordinal) : filtered.OrderBy(item => Ownership(item), StringComparer.Ordinal),
             "quantity" => query.Descending ? filtered.OrderByDescending(item => _readQuantity?.Invoke(item.Entry, item.Node)) : filtered.OrderBy(item => _readQuantity?.Invoke(item.Entry, item.Node)),
             _ => throw new ArgumentException($"Unknown BG3 saved-item sort column '{query.SortColumn}'.", nameof(query)),
@@ -78,36 +81,18 @@ internal sealed class SavedItemInspection
             items.Count, total, query.Offset, query.Limit);
     }
 
-    internal IReadOnlyList<ViewNode> Expand(string id)
+    private string ColumnValue(Item item, string column) => column switch
     {
-        try { return ExpandSupported(id); }
-        catch (SaveFormatException exception)
-        {
-            return [new TextNode($"Saved-item inspection unavailable: {exception.Message} Original resource bytes remain available raw.") { Tone = Tone.Warning }];
-        }
-    }
+        "icon" or "name" => _references.Template(item.Template)?.Name ?? item.Template,
+        "template" => item.Template,
+        "stats" => item.Stats,
+        "provenance" => Provenance(item),
+        "ownership" => Ownership(item),
+        "quantity" => _readQuantity?.Invoke(item.Entry, item.Node)?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "",
+        _ => throw new ArgumentException($"Unknown saved-item column '{column}'.", nameof(column)),
+    };
 
-    private IReadOnlyList<ViewNode> ExpandSupported(string id)
-    {
-        var items = _items.Value;
-        if (id == Prefix + "all")
-            return [new StatsNode([new Stat("Saved item occurrences", items.Count.ToString(CultureInfo.InvariantCulture))]),
-                .. ResourceExplorer.Pages("Saved items", Prefix.TrimEnd('/'), items.Count)];
-        if (id.Split('/') is not ["saved-items", var startText, var countText] ||
-            !int.TryParse(startText, NumberStyles.None, CultureInfo.InvariantCulture, out var start) ||
-            !int.TryParse(countText, NumberStyles.None, CultureInfo.InvariantCulture, out var count) ||
-            start > items.Count || count > items.Count - start)
-            throw new KeyNotFoundException("Invalid BG3 saved-item page.");
-        if (count > ResourceExplorer.PageSize)
-            return ResourceExplorer.Pages("Saved items", Prefix.TrimEnd('/'), count, start);
-        return [new TableNode([new("icon", "Icon"), new("name", "Candidate name"), new("template", "CurrentTemplate"), new("stats", "Stats ID"),
-            new("provenance", "Occurrence provenance"), new("ownership", "Original owner / quantity"), new("quantity", "Explicit quantity candidate")],
-            ResourceExplorer.Range(start, count, items.Count).Select(index => Row(items[index])).ToArray())
-        {
-            Title = "Original saved items — all owners",
-            Description = "Names retain source attribution in each cell. Missing reference records preserve raw IDs; repeated templates are not merged.",
-        }];
-    }
+    private static string Provenance(Item item) => $"Globals entry {item.Entry}, node {item.Node}; template occurrence {item.Occurrence}";
 
     private TableRow Row(Item item)
     {
@@ -120,7 +105,7 @@ internal sealed class SavedItemInspection
             ["template"] = Bg3References.Describe(_bind($"{item.Key}/template", "CurrentTemplate", FieldValue.Of(item.Template)), record, item.Template)
                 with { Spec = new ReferenceSpec(Bg3References.Templates) { ReadOnly = true, AllowCustom = true } },
             ["stats"] = _bind($"{item.Key}/stats", "Stats ID", FieldValue.Of(item.Stats)),
-            ["provenance"] = new TextNode($"Globals entry {item.Entry}, node {item.Node}; template occurrence {item.Occurrence}"),
+            ["provenance"] = new TextNode(Provenance(item)),
             ["ownership"] = new TextNode(Ownership(item)),
             ["quantity"] = (ViewNode?)_bindQuantity?.Invoke(item.Entry, item.Node) ?? new TextNode("Unavailable: no unambiguous positive integer quantity attribute. Inspect raw resources for other primitives."),
         });
