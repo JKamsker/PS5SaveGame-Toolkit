@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Sessions;
@@ -16,12 +17,17 @@ public sealed class WorkspaceRequestLifetimeTests
     public async Task RemovingWorkspace_DuringRequest_RetainsBlobsUntilCompletion(bool cancel)
     {
         var probing = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var completed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var resume = new ManualResetEventSlim();
         var plugin = new BlockingProbePlugin(probing, resume);
-        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        using var factory = new IsolatedApiFactory().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("Toolkit:DataRoot", TestZips.TempDir());
-            builder.ConfigureServices(services => services.AddSingleton(new PluginCatalog([plugin])));
+            builder.ConfigureServices(services =>
+            {
+                services.AddSingleton(new PluginCatalog([plugin]));
+                services.AddSingleton<IStartupFilter>(new ResponseCompletionFilter(completed));
+            });
         });
         using var client = factory.CreateClient();
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
@@ -34,6 +40,7 @@ public sealed class WorkspaceRequestLifetimeTests
             Assert.True(store.Remove(workspace.Id));
             Assert.Null(store.Get(workspace.Id));
             Assert.True(Directory.Exists(workspace.Set.StorageRoot), "An active request still needs its imported blobs.");
+            Assert.False(completed.Task.IsCompleted);
             if (cancel) cancellation.Cancel();
             resume.Set();
             if (cancel) await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await request);
@@ -42,8 +49,7 @@ public sealed class WorkspaceRequestLifetimeTests
                 using var response = await request;
                 response.EnsureSuccessStatusCode();
             }
-            for (var attempt = 0; attempt < 1_000 && Directory.Exists(workspace.Set.StorageRoot); attempt++)
-                await Task.Delay(TimeSpan.FromMilliseconds(10), TestContext.Current.CancellationToken);
+            await completed.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
             Assert.False(Directory.Exists(workspace.Set.StorageRoot));
         }
         finally
@@ -52,6 +58,25 @@ public sealed class WorkspaceRequestLifetimeTests
             try { using var response = await request; }
             catch (OperationCanceledException) { }
         }
+    }
+
+    private sealed class ResponseCompletionFilter(TaskCompletionSource completed) : IStartupFilter
+    {
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
+        {
+            app.Use(async (context, nextMiddleware) =>
+            {
+                // Completion callbacks run in reverse registration order. Register before the
+                // endpoint's lease so this signal follows lease disposal, even after cancellation.
+                context.Response.OnCompleted(() =>
+                {
+                    completed.TrySetResult();
+                    return Task.CompletedTask;
+                });
+                await nextMiddleware();
+            });
+            next(app);
+        };
     }
 
     private sealed class BlockingProbePlugin(TaskCompletionSource probing, ManualResetEventSlim resume) : IGamePlugin
