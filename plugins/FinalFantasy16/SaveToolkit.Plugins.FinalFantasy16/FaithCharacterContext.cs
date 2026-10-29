@@ -67,7 +67,12 @@ internal sealed class FaithCharacterContext(byte[] bytes, FaithContainer contain
             new TextNode("A map ID alone does not identify a single asset/sky variant. Changing IDs does not relocate member transforms, " +
                 "reconcile quests or constitute a validated teleport.") { Tone = Tone.Warning },
         };
-        if (FaithLocationView.Build(bytes, container, _catalog) is { } location) nodes.Add(location);
+        if (FaithLocationView.Build(bytes, container, _catalog, references) is { } location)
+        {
+            nodes.Add(location);
+            nodes.Add(SectionNode.Lazy("Regional map artwork (spoilers)", FaithMapArt.RegionalLazyId,
+                "Four reference regions; no save-to-image coordinate mapping"));
+        }
         var record = _catalog.Find(FaithCatalog.MapsId, map);
         if (record is not null)
         {

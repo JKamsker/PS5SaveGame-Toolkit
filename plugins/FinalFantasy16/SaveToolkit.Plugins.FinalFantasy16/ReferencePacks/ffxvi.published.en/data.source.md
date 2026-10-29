@@ -18,9 +18,10 @@ and checks pinned LF-normalized source hashes before generating JSON and F2 hash
 | `ffxvi_published_bnpc` | `bnpc_ids.csv` | 1,758 battle-NPC reference identifiers. Speaker-linked subset, not all NPCs. |
 | `ffxvi_published_enpc` | `enpc_ids.csv` | 1,085 event-NPC reference identifiers. Speaker-linked subset, not all NPCs. |
 
-Only published identifier/name facts and map variant path/note facts are imported.
+The original dataset imports published identifier/name facts and map variant path/note facts.
 Documented italic/color display tags are removed for plain-text names; original
-tagged names remain in record attributes. Added descriptions are original warnings.
+tagged names remain in record attributes. Original descriptions are mapping warnings;
+the asset round appends separately attributed short official-description excerpts.
 Categories are an **Inferred**, plugin-authored taxonomy from the published ID
 bands: resources 1–3; consumables 5–11; materials 21–499 and 1001–1199; curiosities
 501–599 and 705–799; orchestrion rolls 604–699; quest items 1203–1352; weapons
@@ -41,5 +42,8 @@ for **172/172 retail and 2/2 demo**. Numeric IDs match actual sample bytes; the
 name joins remain **Inferred**. No controlled name observation or console edit
 acceptance is claimed. Build coverage, learned/unlocked states, NPC save joins,
 legal caps and dependencies remain unknown. Zero, 900000 and unmapped IDs keep
-numeric fallbacks. No art, images, coordinates, game prose, saves or upstream code
-are included. All existing write ranges and console warnings remain in force.
+numeric fallbacks. No coordinates, saves or upstream code are included. The asset
+round adds 92 separately attributed item icons and official-description excerpts:
+see [media.source.md](media.source.md). Their rights are separate from the original
+identifier facts. After rebuilding the base pack, run `research/apply_game_assets.py`.
+All existing write ranges and console warnings remain in force.

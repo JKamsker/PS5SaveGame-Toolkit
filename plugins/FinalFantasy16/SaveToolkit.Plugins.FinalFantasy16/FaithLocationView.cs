@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.FinalFantasy16;
@@ -7,7 +8,7 @@ internal static class FaithLocationView
 {
     public const string GuideUrl = "https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_locations";
 
-    public static MapNode? Build(byte[] bytes, FaithContainer container, FaithCatalog catalog)
+    public static MapNode? Build(byte[] bytes, FaithContainer container, FaithCatalog catalog, IReferenceContext references)
     {
         var block = FaithSchema.Unique(container, FaithSchema.PartyType, FaithSchema.SupportsParty);
         if (block is null) return null;
@@ -27,12 +28,14 @@ internal static class FaithLocationView
                 },
             }],
             "One stored candidate location; its status is Unknown. Open the map-ID control for the exact value and provenance, " +
-            "or the external location guide. No art, coordinates, transforms, completion totals or teleportation are supplied.")
+            "or consult the reference artwork. Save-to-art alignment is Unknown: the stored location remains in the text list " +
+            "without a positioned pin. Artwork does not establish visited locations, completion or teleportation.")
         {
-            CoordinateSpace = "External guide only; save-to-map transform Unknown",
+            CoordinateSpace = "Reference artwork only; save-to-map transform Unknown",
             ExternalSource = new ExternalViewLink(GuideUrl, "Final Fantasy Wiki location guide",
-                "Final Fantasy Wiki contributors. External link only; no artwork or coordinates imported."),
+                "Final Fantasy Wiki contributors; additional external location reference."),
         };
+        map = FaithMapArt.WithBackground(map, references, "valisthea");
         SpatialViewValidation.Validate(map);
         return map;
     }

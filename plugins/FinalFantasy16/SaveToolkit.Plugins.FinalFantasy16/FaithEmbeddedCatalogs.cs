@@ -77,6 +77,7 @@ internal static class FaithEmbeddedCatalogs
                         {
                             Category = Optional(row, "category"), Source = Optional(row, "source"),
                             Description = Optional(row, "description"), Dataset = dataset,
+                            AssetId = Optional(row, "assetId") is { } asset ? dataset.PackId + ":" + asset : null,
                             Attributes = row.TryGetProperty("attributes", out var attributes)
                                 ? attributes.EnumerateObject().ToFrozenDictionary(value => value.Name, value => value.Value.GetString()!, StringComparer.Ordinal)
                                 : FrozenDictionary<string, string>.Empty,

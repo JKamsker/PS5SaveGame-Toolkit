@@ -14,12 +14,15 @@ Master; this adaptation follows the detailed table. Wings of Light uses that
 feat label rather than the article infobox's combined Megaflare label.
 
 Modifications: 48 names across ten groups; selected individual AP facts;
-original stable slug keys, reference-stage relationships and warnings. No game
-artwork, icons, copied prose, save data or Nex-to-save-index mapping. Missing AP
+original stable slug keys, reference-stage relationships and warnings. This wiki
+adaptation imports no game artwork/prose, save data or Nex-to-save-index mapping. Missing AP
 costs stay Unknown, including the five Leviathan abilities. An absent learn cost
 does not assert a free unlock. These are reference progression diagrams, not
 learned/mastered/unlocked status or authoritative build/mode/DLC limits.
 
 The source slugs are plugin reference identities only. The existing three named
 Nex skill IDs remain separate; none is joined to the 68 saved rank bytes.
-Regenerate offline with `research/build_ability_catalog.py`.
+The asset round adds separately attributed publisher icons and short game-text
+excerpts from Game8; see [media.source.md](media.source.md). They are not covered
+by this wiki adaptation's licence. Regenerate the original catalogue offline with
+`research/build_ability_catalog.py`, then run `research/apply_game_assets.py`.

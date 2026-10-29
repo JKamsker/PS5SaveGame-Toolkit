@@ -1,3 +1,33 @@
+# Square Enix game assets / Game8 (2026-10-29)
+
+Final Fantasy XVI game artwork, item/ability icons and game text: **Square Enix**.
+Source pages, regional screenshots and guide annotations: **Game8**. Retrieved
+2026-10-29. Sources: [Square Enix official story page](https://na.finalfantasyxvi.com/story),
+[Game8 items](https://game8.co/games/Final-Fantasy-XVI/archives/415576),
+[accessories](https://game8.co/games/Final-Fantasy-XVI/archives/414895),
+[abilities](https://game8.co/games/Final-Fantasy-XVI/archives/409930),
+[regional maps](https://game8.co/games/Final-Fantasy-XVI/archives/410003), and the
+exact individual article/image URLs in [research/game-assets.json](research/game-assets.json).
+
+**Rights reserved by Square Enix and Game8; used with attribution per owner
+decision 2026-10-29**. The official Valisthea artwork has the corresponding
+Square Enix-only notice. This is the owner's reuse decision, not a new licence
+grant from Square Enix or Game8. The repository licence and existing CC BY-SA/MIT
+notices do not relicense publisher assets or Game8 annotations.
+
+Modifications: 140 selected icons resized to at most 64×64 and converted to WebP;
+140 official-description excerpts up to 24 words, with ellipses when shortened;
+Valisthea and four regional map backgrounds converted to bounded WebP. Input/output
+hashes, dimensions, exact sources and retrieval date are retained. New images
+total **398,116 bytes**. No save-derived coordinate transform or completion state
+is claimed. Regional map screenshot symbols are reference artwork, not saved pins.
+Full processing notes: [research/game-assets.source.md](research/game-assets.source.md).
+
+The historical statements below about excluding media describe the earlier data
+imports only; this separate media addition supersedes that exclusion. Original
+Final Fantasy Wiki adaptations retain CC BY-SA 3.0 and Nenkai imports retain their
+separate licence/owner-policy notices.
+
 # Nenkai / 010GameTemplates
 
 Schema research used by this plugin comes from

@@ -1,0 +1,25 @@
+{
+  "format": "ffxvi-assets-load/1",
+  "measuredOn": "2026-10-29",
+  "configuration": "Release, net10.0, Windows x64",
+  "sample": "PPSA10665/sdimg_FAITHDATA0004/game-save-data",
+  "sampleBytes": 1075780,
+  "scope": "New ReferencePackStore([plugin]), Pin, plugin.Open and BuildView. Input loaded before measurement. Stopwatch and GC.GetTotalAllocatedBytes(true), full GC before each iteration. Seven iterations in one fresh process per revision; iteration zero includes JIT/static initialization. Serialize equality checked outside timing.",
+  "before": {
+    "coldMilliseconds": 204.683,
+    "coldAllocatedBytes": 60882536,
+    "repeatMilliseconds": [63.219, 59.296, 65.964, 78.689, 63.973, 90.627],
+    "repeatAllocatedBytes": [42799840, 42799840, 42799840, 42799840, 42799840, 42920224]
+  },
+  "after": {
+    "coldMilliseconds": 211.826,
+    "coldAllocatedBytes": 73289496,
+    "repeatMilliseconds": [59.169, 63.845, 59.785, 82.217, 74.383, 73.657],
+    "repeatAllocatedBytes": [54994512, 54994512, 54994512, 54994512, 54994512, 54994176]
+  },
+  "newImages": 145,
+  "newImageBytes": 398116,
+  "caching": "Runtime shares one Core reference-pack store; assets are validated/read once per store. Repeated GetAsset returns the same AssetContent. Repeats above deliberately recreate the store to measure load work, not the normal cached-document path. Ability/regional views expand lazily.",
+  "allocationNote": "Core PackFileReader.ReadBounded currently creates an 81920-byte temporary chunk per resource read. The additional 145 images therefore cause temporary cold-load allocations beyond their encoded size. No Core change was made under plugin-only scope.",
+  "limitation": "Quick stopwatch measurements with JIT and host scheduling noise; not a statistically controlled benchmark. No sample bytes are stored here."
+}

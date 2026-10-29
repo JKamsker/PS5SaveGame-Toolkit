@@ -32,7 +32,7 @@ public sealed class FaithPublishedReferenceTests
         Assert.Equal("Inferred", record.Attributes["confidence"]);
         Assert.Equal("Inferred", record.Attributes["categoryConfidence"]);
         Assert.Null(record.Limit);
-        Assert.Null(record.AssetId);
+        if (record.AssetId is { } asset) Assert.NotNull(context.GetAsset(asset));
         Assert.Contains("No save-index", record.Description);
         Assert.Contains(record.Source!, _plugin.Info.References);
         var query = new ReferenceQuery { Text = name, Category = category, SortBy = ReferenceSortKey.Name };

@@ -17,6 +17,7 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
     };
 
     private static readonly QueryableColumn[] Columns = [
+        new("icon", "Icon"),
         new("slot", "Storage slot", IntegerSpec.Int32), new("id", "Raw ID / reference", IntegerSpec.Int32),
         new("name", "Name"), new("category", "Category"), new("quantity", "Stored stack", IntegerSpec.Int32),
         new("flags", "Raw new-flag word"), new("details", "Evidence"), new("action", "Selected rows"),
@@ -53,6 +54,7 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
     public TableRow Row(FaithItem item, string bank, Func<FaithItem, string, FieldNode> quantity,
         Func<string, int, FieldNode> identity) => new($"{bank}/{item.Slot}", new Dictionary<string, ViewNode>
     {
+        ["icon"] = catalog.Icon(catalog.Item(item.Id)),
         ["slot"] = new TextNode(FaithCatalog.Key(item.Slot)),
         ["id"] = identity($"{bank}/{item.Slot}/item", item.Id),
         ["name"] = new TextNode(catalog.Name(item.Id)),

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.FinalFantasy16;
 
@@ -26,6 +27,8 @@ internal sealed class FaithCatalog(IReferenceContext references)
     public ReferenceRecord? Item(int id) => Find(ItemsId, id) ?? Find(WikiItemsId, id);
     public string Name(int id) => Item(id) is { } record ? PlainText(record.Name) : $"Unknown item {id}";
     public string Category(int id) => Item(id)?.Category ?? "unmapped";
+    public ViewNode Icon(ReferenceRecord? record) => record?.AssetId is { } asset && references.AssetProvenance(asset) is not null
+        ? new ImageNode(asset, PlainText(record.Name)) : new TextNode("Icon unavailable");
     public string Provenance(int id)
     {
         if (Item(id) is not { } record) return "No reference name mapping is available; raw ID is preserved.";
