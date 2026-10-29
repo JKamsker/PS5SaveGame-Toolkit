@@ -140,9 +140,11 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
             }
             else if (node.Children.Count > 0)
             {
-                var children = TreePage(node.Children, 0, id);
-                if (CanRemoveLast(node)) children = [.. children, RemoveLastAction(id, node)];
-                result.Add(Lazy(label, id, () => children) with { Badge = node.Children.Count.ToString() });
+                result.Add(Lazy(label, id, () =>
+                {
+                    var children = TreePage(node.Children, 0, id);
+                    return CanRemoveLast(node) ? [.. children, RemoveLastAction(id, node)] : children;
+                }) with { Badge = node.Children.Count.ToString() });
             }
             else
                 result.Add(Lazy(label, id, () => [new TextNode(node.Note ?? "Opaque or empty property; preserved verbatim.") { Tone = Tone.Muted },
