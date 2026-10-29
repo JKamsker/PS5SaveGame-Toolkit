@@ -29,7 +29,8 @@ internal sealed class YoteiPlanning(byte[] bytes, YoteiState? state, IReadOnlyDi
             return Reject("Selection contains an unknown Yōtei inventory row.");
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
-        var preview = bytes.ToArray();
+        var oldChecksum = YoteiFormat.Word(bytes, YoteiFormat.ChecksumOffset);
+        var checksum = oldChecksum;
         foreach (var row in state.Inventory.Where(row => selected?.Contains(row.Name) ?? row.ObservedMaximum.HasValue))
         {
             if (!editable.Contains(row.Name) || !limits.TryGetValue(row.Name, out var max))
@@ -49,11 +50,13 @@ internal sealed class YoteiPlanning(byte[] bytes, YoteiState? state, IReadOnlyDi
             }
             var before = FieldValue.Of((ulong)row.Quantity(bytes));
             changes.Add(new(row.QuantityId, row.Name, before, target));
-            row.Write(preview, target.AsUInt32());
-            if (row.Ammo) changes.Add(new(row.CopyId, row.Name + " count copy", before, target) { Derived = true });
+            checksum = AdditiveChecksum.ReplaceWord(checksum, before.AsUInt32(), target.AsUInt32());
+            if (row.Ammo)
+            {
+                changes.Add(new(row.CopyId, row.Name + " count copy", before, target) { Derived = true });
+                checksum = AdditiveChecksum.ReplaceWord(checksum, before.AsUInt32(), target.AsUInt32());
+            }
         }
-        var checksum = YoteiFormat.Checksum(preview);
-        var oldChecksum = YoteiFormat.Word(bytes, YoteiFormat.ChecksumOffset);
         if (changes.Count > 0 && checksum != oldChecksum)
             changes.Add(new("container/word3", "Additive checksum candidate", FieldValue.Of((ulong)oldChecksum),
                 FieldValue.Of((ulong)checksum)) { Derived = true });
