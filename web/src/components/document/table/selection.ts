@@ -109,7 +109,7 @@ export function useQueryableSelection(rows: readonly TableRow[], collectionId: s
     setScope(null);
   }, []);
   const count = scope ? Math.max(0, scope.totalCount - selected.size) : selected.size;
-  const queryScope = scope ? { ...scope, excludedRowKeys: [...selected].sort() } : null;
+  const queryScope = useMemo(() => scope ? { ...scope, excludedRowKeys: [...selected].sort() } : null, [scope, selected]);
   return useMemo(
     () => ({ selectedKeys, selectedRows, count, queryScope, isSelected, toggle, setMany, clear, selectFiltered }),
     [selectedKeys, selectedRows, count, queryScope, isSelected, toggle, setMany, clear, selectFiltered],

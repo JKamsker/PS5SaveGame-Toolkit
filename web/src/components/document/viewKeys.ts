@@ -6,6 +6,7 @@ function identity(node: ViewNode): string {
     case "field": return JSON.stringify([node.type, node.valueId]);
     case "action": return JSON.stringify([node.type, node.actionId]);
     case "queryableTable": return JSON.stringify([node.type, node.collectionId]);
+    case "table": return JSON.stringify([node.type, node.selectionId ?? node.title]);
     case "section": return JSON.stringify([node.type, node.lazyId ?? node.title]);
     case "hex": return JSON.stringify([node.type, node.blobId]);
     case "image": return JSON.stringify([node.type, node.assetId]);

@@ -15,6 +15,7 @@ import { uniformConfidence } from "./columnConfidence";
 import { ColumnHeading } from "./ColumnHeading";
 import { collectionQueryKey, DEFAULT_COLLECTION_PAGE_SIZE } from "./collectionQuery";
 import { useCollectionQuery } from "./useCollectionQuery";
+import { usePublishTableSelection } from "./selectionBindings";
 
 /** Paged table for an SDK IQueryableDocument. Eager TableNode rendering remains in TableView. */
 export function ServerTableView({ node }: { node: QueryableTableNode }) {
@@ -72,6 +73,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
     return { row, rowIndex };
   });
   const selection = useQueryableSelection(rows, node.collectionId, query, page?.revision ?? revision, page?.filteredCount ?? 0);
+  usePublishTableSelection(node.collectionId, node.title, selection);
   const { clear } = selection;
   useEffect(() => { clear(); }, [revision, node.collectionId, clear]);
   const visibleSelected = rows.reduce((count, row) => count + (selection.isSelected(row.key) ? 1 : 0), 0);

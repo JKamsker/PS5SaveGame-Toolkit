@@ -72,11 +72,12 @@ export interface FieldNode {
 export interface TableColumn { key: string; label: string; description?: string; width?: "Narrow" | "Normal" | "Wide" }
 export interface EmptyRowPresentation { labelColumnKey: string; pluralLabel?: string; hideByDefault?: boolean }
 export interface TableRow { key: string; cells: Record<string, ViewNode>; isEmpty?: boolean }
-export interface TableNode { type: "table"; columns: TableColumn[]; rows: TableRow[]; title?: string; description?: string; emptyRows?: EmptyRowPresentation }
+export interface TableNode { type: "table"; columns: TableColumn[]; rows: TableRow[]; title?: string; description?: string; emptyRows?: EmptyRowPresentation; selectionId?: string | null }
 export interface TextNode { type: "text"; text: string; tone?: Tone; monospace?: boolean }
 export interface StatsNode { type: "stats"; items: { label: string; value: string; hint?: string }[] }
 export interface ImageNode { type: "image"; assetId: string; alt: string }
 export interface ActionNode {
+  selectionTableId?: string | null;
   type: "action";
   actionId: string;
   supportsPlanning?: boolean;
