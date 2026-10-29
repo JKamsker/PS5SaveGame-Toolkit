@@ -5,21 +5,22 @@ import type { EditResult, ReferenceCandidate, ReferenceCandidatePage } from "../
 import { DocumentContext, DocumentStore } from "../../../state/documentStore";
 import { ReferencePicker } from "./ReferencePicker";
 import { deferred } from "../../../test/deferred";
+import { installDialogStub } from "../../../test/dialog";
 
 const potion: ReferenceCandidate = { rawId: "1001", label: "Potion",
   eligibility: { available: true, eligible: true, selectable: true, reasons: [] } };
 const page: ReferenceCandidatePage = { catalogId: "items", items: [potion], total: 1,
   offset: 0, limit: 30, categories: [], revision: 7 };
+let restoreDialog: () => void;
 
 beforeEach(() => {
   vi.useFakeTimers();
-  Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true,
-    value: function (this: HTMLDialogElement) { this.open = true; } });
+  restoreDialog = installDialogStub({ methods: ["showModal"] });
   vi.spyOn(api, "referenceCandidates").mockResolvedValue(page);
 });
 afterEach(() => {
   cleanup(); vi.restoreAllMocks(); vi.useRealTimers();
-  Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal");
+  restoreDialog();
 });
 
 function setup() {
@@ -159,6 +160,26 @@ it("ignores an obsolete search failure after the current search succeeds", async
   expect(screen.queryByRole("alert")).toBeNull();
   expect(screen.getByRole("option", { name: /Potion/ })).toBeTruthy();
   expect(screen.getByRole("status").textContent).toBe("1 matches · 1–1");
+});
+
+it.each(["success", "failure"])("retires a pending raw lookup %s when the search changes", async outcome => {
+  const pending = deferred<ReferenceCandidate>();
+  vi.spyOn(api, "referenceCandidate").mockReturnValue(pending.promise);
+  const { onCommit } = setup();
+  await advanceSearch();
+  fireEvent.click(screen.getByRole("button", { name: "Preview raw ID" }));
+  fireEvent.change(screen.getByRole("combobox", { name: "Search" }), { target: { value: "pot" } });
+  await advanceSearch();
+  await act(async () => {
+    if (outcome === "success") pending.resolve({ ...potion, label: "Obsolete raw lookup" });
+    else pending.reject(new ApiError("Obsolete failure", 409, { code: "stale" }));
+    await pending.promise.catch(() => {});
+  });
+  expect(screen.queryByRole("heading", { name: "Obsolete raw lookup" })).toBeNull();
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.getByLabelText("Raw ID")).toHaveProperty("disabled", false);
+  expect(screen.getByRole("option", { name: /Potion/ })).toBeTruthy();
+  expect(onCommit).not.toHaveBeenCalled();
 });
 
 it("allows raw lookup to recover after a request failure without committing the failed ID", async () => {
