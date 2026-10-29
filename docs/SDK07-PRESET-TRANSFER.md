@@ -28,9 +28,13 @@ host's `PresetContractValidation.MaxMetadataLength` (512 UTF-16 code units). Ove
 metadata is rejected during package preview with the field name and limit, before a
 preview token or choices are allocated. Values are never truncated. Unicode surrogate
 pairs count as two units; independent UTF-8 package and durable-file byte caps still apply.
-Preview also runs the common host staging validator without persistence, so intrinsic
-record constraints cannot first fail after conflict decisions. Resolution repeats staging
-against the complete resulting library, including its aggregate count and byte limits.
+Preview runs the common host record validator without persistence, so intrinsic record
+constraints (including duplicate semantic identities) cannot first fail after conflict decisions.
+The compact package and incoming durable array have different byte representations. Explicit
+replacements can shorten IDs or names, so preview does not impose a final-library aggregate
+byte/count check on the incoming array. Resolution stages the complete resulting library
+against its aggregate count and byte limits before confirmation; commit repeats that full
+validation before its single durable write. Keep both cannot bypass either resulting-library limit.
 Unknown plugins/titles/builds may be stored for later. The import preview labels their
 status relative to the current save using the server's `ToDocumentDto` compatibility
 summary, including read-only, unsupported-action and `canPreview`/`previewReason` status.

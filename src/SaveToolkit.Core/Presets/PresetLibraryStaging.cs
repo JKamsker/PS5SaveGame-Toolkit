@@ -8,6 +8,14 @@ internal sealed class PresetLibraryStaging(PresetStoreOptions options, PresetLib
     internal Dictionary<string, ToolkitPreset> Stage(IReadOnlyList<ToolkitPreset> records)
     {
         if (records.Count > options.MaxPresets) throw new InvalidDataException("Preset storage exceeds the configured count limit.");
+        var staged = StageRecords(records);
+        _ = storage.Serialize(staged.Values);
+        return staged;
+    }
+
+    // Transfer decisions can change IDs/names. Validate intrinsic records now, the resulting library after decisions.
+    internal Dictionary<string, ToolkitPreset> StageRecords(IReadOnlyList<ToolkitPreset> records)
+    {
         var staged = new Dictionary<string, ToolkitPreset>(StringComparer.Ordinal);
         foreach (var preset in records)
         {
@@ -20,7 +28,6 @@ internal sealed class PresetLibraryStaging(PresetStoreOptions options, PresetLib
             if (!staged.TryAdd(preset.Id, PresetStore.ClonePreset(preset)))
                 throw new InvalidDataException($"Preset storage contains duplicate id '{preset.Id}'.");
         }
-        _ = storage.Serialize(staged.Values);
         return staged;
     }
 }

@@ -90,9 +90,12 @@ public sealed class PresetStore
 
     public void ValidateImportLibrary(IReadOnlyList<ToolkitPreset> records) => _ = StageImport(records);
 
-    private Dictionary<string, ToolkitPreset> StageImport(IReadOnlyList<ToolkitPreset> records)
+    /// <summary>Validates detached incoming records before choices, without imposing final-library aggregate limits.</summary>
+    public void ValidateImportRecords(IReadOnlyList<ToolkitPreset> records) => _ = StageImport(records, validateLibrary: false);
+
+    private Dictionary<string, ToolkitPreset> StageImport(IReadOnlyList<ToolkitPreset> records, bool validateLibrary = true)
     {
-        try { return _staging.Stage(records); }
+        try { return validateLibrary ? _staging.Stage(records) : _staging.StageRecords(records); }
         catch (Exception ex) when (ex is ArgumentException or InvalidDataException or InvalidOperationException)
         {
             throw new PresetTransferException("invalidPresetLibrary", $"The resulting preset library is invalid: {ex.Message}");

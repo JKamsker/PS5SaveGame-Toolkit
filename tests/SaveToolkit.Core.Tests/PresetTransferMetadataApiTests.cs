@@ -96,6 +96,16 @@ public sealed class PresetTransferMetadataApiTests(IsolatedApiFactory factory) :
         Assert.Null(error["token"]);
         Assert.Empty((await client.GetFromJsonAsync<JsonNode[]>("/api/presets", Ct))!);
         Assert.False(File.Exists(Path.Combine(root, "presets.json")));
+        action["instances"]!.AsArray().RemoveAt(1);
+        var tokens = new List<string>();
+        for (var index = 0; index < 8; index++)
+        {
+            using var accepted = await Preview(client, package);
+            Assert.Equal(HttpStatusCode.OK, accepted.StatusCode);
+            tokens.Add((await accepted.Content.ReadFromJsonAsync<PresetImportPreview>(Ct))!.Token);
+        }
+        foreach (var token in tokens)
+            Assert.Equal(HttpStatusCode.NoContent, (await client.DeleteAsync(Transfer + "/previews/" + token, Ct)).StatusCode);
     }
 
     private static Task<HttpResponseMessage> Preview(HttpClient client, JsonNode package) =>
