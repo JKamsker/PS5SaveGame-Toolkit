@@ -29,3 +29,14 @@ it("searches enum IDs consistently on Turkish browsers", () => {
   expect(screen.getByRole("option", { name: "Item 1" })).toBeTruthy();
   expect(screen.getByRole("option", { name: "Item 19" })).toBeTruthy();
 });
+
+it("uses Turkish casing for human enum labels while keeping IDs stable", () => {
+  const lowerCase = String.prototype.toLocaleLowerCase;
+  vi.spyOn(String.prototype, "toLocaleLowerCase").mockImplementation(function (this: string) {
+    return lowerCase.call(this, "tr-TR");
+  });
+  const options = Array.from({ length: 20 }, (_, index) => ({ value: `city${index}`, label: index === 1 ? "İstanbul" : `City ${index}` }));
+  render(<FieldControl id="enum" spec={{ kind: "enum", options }} value="city0" onCommit={() => true} />);
+  fireEvent.change(screen.getByRole("searchbox"), { target: { value: "istanbul" } });
+  expect(screen.getByRole("option", { name: "İstanbul" })).toBeTruthy();
+});
