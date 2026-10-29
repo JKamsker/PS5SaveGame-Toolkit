@@ -73,13 +73,23 @@ are additional). All commands below run from the repository root in PowerShell 7
 
 | Script | Declared parameters | Defaults / requirements |
 | --- | --- | --- |
-| `test.ps1` | `-Filter`, `-Configuration`, `-ResultsDirectory`, `-Coverage` | Always builds the API first; empty filter runs all backend test projects. Configuration defaults to Debug; only Debug/Release are accepted. Results are optional unless coverage is requested. |
+| `test.ps1` | `-Filter`, `-Configuration`, `-ResultsDirectory`, `-Coverage`, `-MaxParallel` | Builds the API and selected tests together once; empty filter runs all backend test projects. Configuration defaults to Debug; only Debug/Release are accepted. MaxParallel defaults to 2 (1–32 accepted; use 1 for serial execution). Results are optional unless coverage is requested. |
 | `self-test.ps1` | `-ScratchDirectory` | Defaults to system temp. Runs script and real scaffold build/test checks; requires the selected .NET SDK and restore access, no Pester or private saves. |
 | `package.ps1` | `-Runtime`, `-OutputDirectory`, `-SkipWebBuild` | Output directory is required. Runtime is an array defaulting to all four supported RIDs; web build is included by default. |
 | `smoke-package.ps1` | `-PackageDirectory`, `-Runtime`, `-ScratchDirectory`, `-ExpectedVersion` | First three are required; exactly one matching archive plus its `.sha256` must exist. Expected version is optional. |
 | `new-plugin.ps1` | `-Name`, `-Id`, `-TitleIds`, `-GameName` | Name/ID are required; title IDs default to empty, game name to Name. See the [scaffold walkthrough](PLUGIN_GUIDE.md#scaffold) for format and name restrictions. |
 
 ## Disk and scratch
+
+The backend runner builds a temporary solution containing the API and selected tests once, then
+uses `dotnet test --no-build`. Test projects run in bounded batches of two by default; use
+`-MaxParallel 1` for serial execution or choose a value from 1 to 32 for the available CPU/RAM.
+Each worker is a separate process with its own sample/temp scratch folder. Existing xUnit
+non-parallel allocation collections remain unchanged. Complete project logs and failure summaries
+always follow sorted project-path order. With `-ResultsDirectory`, `project-timings.json` records
+build, total and per-project wall times alongside the unchanged per-project TRX/coverage paths.
+The worker bound changes scheduling only: test selection, assertions and default fuzz counts are
+unchanged. Allow enough memory for both test processes, including their isolated fuzz workers.
 
 Keep private saves outside the checkout, and keep temporary extraction/build data separate from
 those originals. On the owner's Windows workstation, use a task-specific directory under

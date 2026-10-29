@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.IO.Compression;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Testing;
@@ -6,15 +7,25 @@ namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
 
 internal static class FaithSamples
 {
+    private static readonly ConcurrentDictionary<string, Lazy<IReadOnlyList<ISaveFile>>> Cache = new(StringComparer.Ordinal);
+
     public static IEnumerable<ISaveFile> Records(string title)
     {
-        // Read ZIP entries themselves so repeated paths are tested without content deduplication.
         var path = SampleSaves.FindArchive(title);
         if (path is null)
         {
             Assert.Skip($"Sample archive for {title} is absent.");
         }
 
+        // MemorySaveSet owns the bytes and returns copies on reads. Documents and mutation inputs
+        // remain independent, while repeated tests share one decompression of every ZIP occurrence.
+        return Cache.GetOrAdd(title, _ => new Lazy<IReadOnlyList<ISaveFile>>(() =>
+            Array.AsReadOnly(ReadRecords(title, path).ToArray()))).Value;
+    }
+
+    private static IEnumerable<ISaveFile> ReadRecords(string title, string path)
+    {
+        // Read ZIP entries themselves so repeated paths are tested without content deduplication.
         using var archive = ZipFile.OpenRead(path);
         foreach (var entry in archive.Entries)
         {
