@@ -41,6 +41,7 @@ public sealed class CompressionRobustnessTests
     }
 
     [Theory]
+    [InlineData((byte)1, false)]
     [InlineData((byte)2, false)]
     [InlineData((byte)2, true)]
     [InlineData((byte)3, false)]
@@ -55,5 +56,17 @@ public sealed class CompressionRobustnessTests
             Assert.True(error is SaveFormatException, $"Codec {codec}, framed {framed}, prefix {length}/{encoded.Length}: {error}");
         }
         Assert.Equal(payload, LarianCompression.Decode(encoded, payload.Length, codec, framed));
+    }
+
+    [Fact]
+    public void ZlibValidatesItsChecksumAndPreservesAcceptanceOfTrailingResidue()
+    {
+        byte[] payload = [1, 2, 3];
+        var encoded = PackageFixture.Compress(payload, 1);
+        Assert.Equal(payload, LarianCompression.Decode([.. encoded, 0xde, 0xad], payload.Length, 1));
+        encoded[^1] ^= 1;
+        Assert.Throws<SaveFormatException>(() => LarianCompression.Decode(encoded, payload.Length, 1));
+        Assert.Empty(LarianCompression.Decode(Convert.FromHexString("789C030000000001"), 0, 1));
+        Assert.Throws<SaveFormatException>(() => LarianCompression.Decode([], 0, 1));
     }
 }

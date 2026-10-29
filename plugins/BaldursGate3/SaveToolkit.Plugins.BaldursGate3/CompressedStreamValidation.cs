@@ -10,7 +10,8 @@ internal static class CompressedStreamValidation
 
     internal static byte[] Decode(ReadOnlySpan<byte> source, int expectedSize, LarianCompressionMethod method)
     {
-        using var input = new MemoryStream(source.ToArray(), false);
+        using var input = method == LarianCompressionMethod.Zlib
+            ? new ZlibInputStream(source.ToArray()) : new MemoryStream(source.ToArray(), false);
         // Validate the complete stream with fixed scratch before trusting its declared output size.
         // Reuse the compressed bytes; only the second pass allocates the retained payload buffer.
         using (var decoder = CreateDecoder(input, method))
