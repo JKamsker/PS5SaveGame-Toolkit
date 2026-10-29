@@ -2499,6 +2499,9 @@
       },
       "PresetCompatibilitySummaryDto": {
         "properties": {
+          "canApply": {
+            "type": "boolean"
+          },
           "canPreview": {
             "type": "boolean"
           },
@@ -2538,6 +2541,9 @@
           "currentPluginVersion": {
             "type": "string"
           },
+          "currentPresetKind": {
+            "type": "string"
+          },
           "currentReferencePackIdentity": {
             "type": [
               "null",
@@ -2545,6 +2551,12 @@
             ]
           },
           "currentSchemaFingerprint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentTitleId": {
             "type": [
               "null",
               "string"
@@ -2567,6 +2579,9 @@
           },
           "readOnly": {
             "type": "boolean"
+          },
+          "readiness": {
+            "type": "string"
           },
           "reason": {
             "type": [
@@ -2612,6 +2627,12 @@
               "null",
               "string"
             ]
+          },
+          "savedTitleIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "unsupportedActions": {
             "items": {

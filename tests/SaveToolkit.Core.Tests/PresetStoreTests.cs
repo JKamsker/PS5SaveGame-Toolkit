@@ -131,6 +131,23 @@ public sealed class PresetStoreTests
     }
 
     [Fact]
+    public void ReloadRejectsUnsupportedScopeAndRetainsLastGoodLibrary()
+    {
+        var root = TestZips.TempDir();
+        var store = new PresetStore(new() { StorageRoot = root });
+        var created = store.Create("safe", new("p", "1", ["T"]),
+            [new PresetAction("set", new Dictionary<string, JsonElement>())]);
+        var path = Path.Combine(root, "presets.json");
+        var malformed = File.ReadAllText(path).Replace("\"scopeKind\": \"document\"", "\"scopeKind\": \"session\"", StringComparison.Ordinal);
+        File.WriteAllText(path, malformed);
+
+        var error = Assert.Throws<InvalidDataException>(() => store.Reload());
+
+        Assert.Contains("malformed", error.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(created.Id, Assert.Single(store.List()).Id);
+    }
+
+    [Fact]
     public async Task ReloadSerializesWithMutationPublication()
     {
         var root = TestZips.TempDir();

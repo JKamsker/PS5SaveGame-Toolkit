@@ -109,7 +109,7 @@ internal static class DtoMapper
         }
         var canPreview = check.Compatible && unsupported.Count == 0;
         if (!check.Compatible) { previewCode = check.Code; previewReason = check.Message; }
-        return new DocumentPresetDto(preset.ToDto(), new(
+        var summary = new PresetCompatibilitySummaryDto(
             check.Compatible,
             check.Code,
             check.Message,
@@ -132,7 +132,17 @@ internal static class DtoMapper
             capability?.FileRole,
             preset.Compatibility.CapabilitySchemaVersion,
             capability?.SchemaVersion,
-            unsupported));
+            unsupported)
+        {
+            SavedTitleIds = preset.Compatibility.TitleIds,
+            CurrentTitleId = document.File.Directory.TitleId,
+            CurrentPresetKind = capability?.PresetKind ?? "toolkit.action-parameters",
+            CanApply = canPreview && document.CanEdit,
+            Readiness = !check.Compatible ? "incompatible"
+                : unsupported.Count > 0 ? "unsupported"
+                : !document.CanEdit ? "readOnly" : "ready",
+        };
+        return new DocumentPresetDto(preset.ToDto(), summary);
     }
 
     private static DirectoryDto ToDto(Workspace ws, DiskSaveDirectory dir, Dictionary<string, string> openByFile)

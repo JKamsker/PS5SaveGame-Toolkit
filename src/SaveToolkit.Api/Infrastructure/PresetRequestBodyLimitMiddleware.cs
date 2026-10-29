@@ -11,6 +11,7 @@ internal static class PresetRequestBodyLimits
     public const int CaptureBytes = 256 * 1024;
     public const int PreviewBytes = 256 * 1024;
     public const int ApplyBytes = 64 * 1024;
+    public const int RenameBytes = 16 * 1024;
 }
 
 /// <summary>Buffers only the bounded request envelope so oversized JSON never reaches model binding.</summary>
@@ -19,7 +20,7 @@ internal sealed class PresetRequestBodyLimitMiddleware(RequestDelegate next)
     public async Task InvokeAsync(HttpContext context)
     {
         var metadata = context.GetEndpoint()?.Metadata.GetMetadata<PresetRequestBodyLimitMetadata>();
-        if (metadata is null || !context.Request.ContentLength.HasValue && !context.Request.Headers.ContainsKey("Transfer-Encoding"))
+        if (metadata is null)
         {
             await next(context);
             return;

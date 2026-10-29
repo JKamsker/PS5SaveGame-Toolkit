@@ -269,12 +269,15 @@ public sealed class PresetStore
             || compatibility.CapabilitySchemaVersion is { Length: > PresetContractValidation.MaxMetadataLength })
             throw new ArgumentException("Preset compatibility metadata exceeds the bounded limit.");
         if (actions.Count is < 1 or > 32) throw new ArgumentException("A preset must contain between one and 32 actions.");
+        if (actions.Select(action => action?.ActionId).Distinct(StringComparer.Ordinal).Count() != actions.Count)
+            throw new ArgumentException("Preset action identifiers must be distinct.");
         if (PresetContractValidation.ValidateAggregateInstances(actions) is { } aggregateError)
             throw new ArgumentException(aggregateError);
         if (actions.Any(action => action is null || string.IsNullOrWhiteSpace(action.ActionId) || action.ActionId.Length > PresetContractValidation.MaxKeyLength
             || action.Parameters is null || action.Parameters.Count > 128
             || action.Parameters.Keys.Any(key => string.IsNullOrWhiteSpace(key) || key.Length > PresetContractValidation.MaxKeyLength)
-            || string.IsNullOrWhiteSpace(action.ScopeKind) || action.ScopeKind.Length > PresetContractValidation.MaxKeyLength))
+            || string.IsNullOrWhiteSpace(action.ScopeKind) || action.ScopeKind.Length > PresetContractValidation.MaxKeyLength
+            || !PresetContractValidation.IsSupportedScope(action.ScopeKind)))
             throw new ArgumentException("Preset actions must have an id and at most 128 parameters.");
         foreach (var action in actions)
             if (PresetContractValidation.ValidateInstanceReferences(action.Instances) is { } instanceError)

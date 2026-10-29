@@ -236,6 +236,7 @@ export interface PresetCompatibilitySummary {
   savedReferencePackIdentity?: string; currentReferencePackIdentity?: string; savedSchemaFingerprint?: string; currentSchemaFingerprint?: string;
   savedFileRole?: string; currentFileRole?: string; savedCapabilitySchemaVersion?: string; currentCapabilitySchemaVersion?: string;
   unsupportedActions: string[];
+  savedTitleIds?: string[]; currentTitleId?: string; currentPresetKind?: string; canApply?: boolean; readiness?: string;
 }
 export interface DocumentPreset { preset: ToolkitPreset; compatibility: PresetCompatibilitySummary }
 export interface PresetResolutionItem { requested: PresetInstanceReference; status: "Resolved" | "Missing" | "Ambiguous" | "Unsupported"; candidates?: PresetInstanceReference[]; message?: string }
