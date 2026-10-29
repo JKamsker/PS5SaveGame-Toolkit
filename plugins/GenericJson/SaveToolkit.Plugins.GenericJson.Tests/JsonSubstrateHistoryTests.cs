@@ -6,6 +6,23 @@ namespace SaveToolkit.Plugins.GenericJson.Tests;
 public sealed class JsonSubstrateHistoryTests
 {
     [Fact]
+    public void ScalarExportsFromSiblingSnapshotsNeverChangeTheirSharedOriginalSource()
+    {
+        const string source = "\uFEFF[ 1e999999999999999999999, \"\\u0041\", -0 ]\n";
+        var original = JsonTokenTree.Parse(source);
+        var first = original.Clone();
+        var second = original.Clone();
+        first.Nodes[2].Current = JsonEditingTests.Text("first");
+        second.Nodes[3].Current = JsonEditingTests.Number("123456789.000E-02");
+        for (var i = 0; i < 2; i++)
+        {
+            Assert.Equal(Encoding.UTF8.GetBytes(source.Replace("\"\\u0041\"", "\"first\"", StringComparison.Ordinal)), JsonTreeWriter.Write(first));
+            Assert.Equal(Encoding.UTF8.GetBytes(source.Replace("-0", "123456789.000E-02", StringComparison.Ordinal)), JsonTreeWriter.Write(second));
+            Assert.Equal(Encoding.UTF8.GetBytes(source), JsonTreeWriter.Write(original));
+        }
+    }
+
+    [Fact]
     public void InsertedScalarAndImportedDuplicateKeepSeparateSourcesAcrossEveryHistoryTransition()
     {
         const string source = "\uFEFF \r\n{ \"\\u0061\" : -0,\t\"a\":1.2300E+02,\t\"huge\":1e999999999999999999999,\t\"nil\":null }\n";

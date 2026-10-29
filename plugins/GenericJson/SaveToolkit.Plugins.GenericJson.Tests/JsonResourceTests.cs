@@ -1,10 +1,27 @@
 using System.Text;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GenericJson.Tests;
 
 public sealed class JsonResourceTests
 {
+    [Fact]
+    public void AtomicScalarBatchMayGrowOneTokenAndShrinkAnotherAtTheExactByteLimit()
+    {
+        const string root = "[\"a\",\"bbb\"]";
+        var source = root.PadRight(JsonTokenTree.MaxBytes);
+        using var document = new GenericJsonPlugin().Open(MemorySaveSet.SingleFile("limit.json", Encoding.UTF8.GetBytes(source)));
+        var fields = JsonEditingTests.Fields(document);
+        Assert.True(document.ApplyEdits([
+            new(fields[0].ValueId, JsonEditingTests.Text("bbb")),
+            new(fields[1].ValueId, JsonEditingTests.Text("a")),
+        ]).Succeeded);
+        Assert.Equal(Encoding.UTF8.GetBytes("[\"bbb\",\"a\"]".PadRight(JsonTokenTree.MaxBytes)), document.Serialize()[0].Content.ToArray());
+        Assert.True(document.ApplyEdits(fields.Select(field => new SaveToolkit.Sdk.ValueEdit(field.ValueId, field.Value)).ToArray()).Succeeded);
+        Assert.Equal(Encoding.UTF8.GetBytes(source), document.Serialize()[0].Content.ToArray());
+    }
+
     [Fact]
     public void InvalidUnicodeTemplatesRejectWithoutReplacementOrMutation()
     {
