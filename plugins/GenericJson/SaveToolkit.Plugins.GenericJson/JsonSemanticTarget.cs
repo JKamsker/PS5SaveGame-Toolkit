@@ -33,18 +33,8 @@ internal sealed record JsonSemanticTarget(JsonValueToken Node, FieldSpec Spec, F
             ? [Parameter(), new FieldNode("index", "Explicit raw index (domain unknown)",
                 new IntegerSpec(0, JsonSemanticValues.IndexCeiling(Index)), FieldValue.Of(JsonSemanticValues.IndexCurrent(Index)))
                 { Confidence = Confidence.Unknown, Warning = JsonSemanticActions.Warning, Description = JsonOverlay.Provenance + " " + JsonSemanticActions.Warning }]
-            : [ViewParameter()],
+            : [Parameter()],
     };
-
-    private FieldNode ViewParameter()
-    {
-        var parameter = Parameter();
-        // The shared F6 dialog supports ReferenceSpec since 63580dc; migration remains pending here.
-        // Keep the browse-only F4 field and the existing attributed raw-ID enum until that migration.
-        return Spec is ReferenceSpec && ChoiceKeys is { } keys
-            ? parameter with { Spec = new EnumSpec(keys.Select(key => new EnumOption(key, JsonLabels.Friendly(key))).ToArray()) }
-            : parameter;
-    }
 
     public IReadOnlyDictionary<string, FieldValue> Changes(IReadOnlyDictionary<string, FieldValue> parameters)
     {
