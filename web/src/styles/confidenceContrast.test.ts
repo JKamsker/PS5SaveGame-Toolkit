@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 
 const tokens = readFileSync("src/styles/tokens.css", "utf8");
-const viewStyles = readFileSync("src/styles/view.css", "utf8");
+const viewStyles = readFileSync("src/styles/view.css", "utf8") + readFileSync("src/styles/table.css", "utf8");
 const uiStyles = readFileSync("src/styles/ui.css", "utf8");
 
 type Palette = Record<string, string>;

@@ -8,6 +8,7 @@ import { ActionButton } from "../ActionButton";
 import { useFieldJump } from "../review/navigation";
 import { CellBadges } from "./CellBadges";
 import { fieldSummary, statsSummary } from "./cellText";
+import { isNumericCell } from "./presentation";
 
 export interface TableCellProps {
   node: ViewNode | undefined;
@@ -31,7 +32,7 @@ export function TableCell({ node, emptySlot, rowLabel, onOpenDetails }: TableCel
       return <FieldCell node={node} rowLabel={rowLabel} onOpenDetails={onOpenDetails} />;
     case "text":
       return (
-        <Cell>
+        <Cell className={isNumericCell(node) ? " table__cell--number" : ""}>
           <span className={`cell-text cell-text--${node.tone ?? "Normal"}${node.monospace ? " mono" : ""}`} title={node.text}>
             {node.text}
           </span>
@@ -133,7 +134,7 @@ function FieldCell({ node, rowLabel, onOpenDetails }: { node: FieldNode; rowLabe
   const name = rowLabel && rowLabel !== node.label ? `${node.label} (${rowLabel})` : node.label;
   const description = [node.warning, node.description, shownError].filter(Boolean).join(". ");
   const editable = canEdit && !node.spec.readOnly;
-  const classes = `${modified ? " table__cell--modified" : ""}${shownError ? " table__cell--error" : ""}`;
+  const classes = `${isNumericCell(node) ? " table__cell--number" : ""}${modified ? " table__cell--modified" : ""}${shownError ? " table__cell--error" : ""}`;
 
   let control: ReactNode;
   if (!needsDetailsEditor(node)) {

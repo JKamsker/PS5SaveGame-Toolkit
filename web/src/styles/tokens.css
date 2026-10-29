@@ -48,6 +48,18 @@
   --radius-slot: 12px;
   --radius-control: 6px;
   --radius-button: 8px;
+  --radius-panel: 10px;
+
+  /* Keep data tracks stable as rows and pages change. Row height stays owned by virtualisation. */
+  --table-column-narrow: 112px;
+  --table-column-normal: 184px;
+  --table-column-wide: 280px;
+  --table-filter-min: 144px;
+  --control-height: 34px;
+  --control-height-compact: 28px;
+  --weight-label: 560;
+  --weight-heading: 650;
+  --row-hover: #f1f4fa;
 
   --duration-fast: 120ms;
   --duration-normal: 220ms;
@@ -78,6 +90,7 @@
     --unknown: #8994a3;
     --info: #6aa7e6;
     --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 28px -12px rgb(0 0 0 / 0.7);
+    --row-hover: #1d2633;
     color-scheme: dark;
   }
 }

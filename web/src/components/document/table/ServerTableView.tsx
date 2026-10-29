@@ -10,6 +10,7 @@ import { TableCell } from "./TableCell";
 import { EmptyRowsToggle } from "./EmptyRowsToggle";
 import { TableSelectionContext, useQueryableSelection } from "./selection";
 import { ReviewPath, useNextReviewPath, useViewJump } from "../review/navigation";
+import { columnTrack, numericColumns } from "./presentation";
 
 const PAGE_SIZE = 50;
 
@@ -108,7 +109,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
               <button type="button" className="btn btn--quiet btn--small" onClick={selection.clear}>Clear selection</button>
             </span>
           )}
-          <div className="table__filters">
+          <div className="table__filters table__filters--paged">
             <input className="table__search" type="search" placeholder="Search all rows" aria-label={`Search ${node.title}`} value={text} onChange={(e) => updateQuery({ text: e.target.value })} />
             <select className="input input--compact" aria-label="Sort rows" value={sort} onChange={(e) => updateQuery({ sort: e.target.value })}>
               <option value="">Default order</option>
@@ -138,7 +139,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
           }}>{stale ? "Refresh document" : "Retry rows"}</button>
         </div>}
         <div className="table__scroller" inert={retired}>
-          <div className="table__grid" role="table" aria-label={node.title} aria-busy={result.isFetching} aria-rowcount={(page?.filteredCount ?? node.totalCount) + detailCount + 1} style={{ gridTemplateColumns: `36px ${hasDetails ? "36px " : ""}repeat(${columns.length}, minmax(160px, 1fr))` }}>
+          <div className="table__grid" role="table" aria-label={node.title} aria-busy={result.isFetching} aria-rowcount={(page?.filteredCount ?? node.totalCount) + detailCount + 1} style={{ gridTemplateColumns: `36px ${hasDetails ? "36px " : ""}${columns.map(columnTrack).join(" ")}` }}>
             <Header columns={columns} rows={rows} hasDetails={hasDetails} selected={visibleSelected} selection={selection} />
             {indexedRows.map(({ row, rowIndex }) => <ServerRow key={row.key} row={row} emptyRows={node.emptyRows} columns={columns} showDetailsColumn={hasDetails}
               rowIndex={rowIndex} selected={selection.isSelected(row.key)} onToggle={selection.toggle} expanded={expanded.has(row.key)} onExpand={expandRow} onToggleDetails={toggleDetails} />)}
@@ -157,11 +158,12 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
 
 function Header({ columns, rows, hasDetails, selected, selection }: { columns: readonly TableColumn[]; rows: readonly TableRow[]; hasDetails: boolean; selected: number; selection: ReturnType<typeof useQueryableSelection> }) {
   const all = rows.length > 0 && selected === rows.length;
+  const numbers = numericColumns(columns, rows);
   return (
     <div className="table__row" role="row" aria-rowindex={1}>
       <div className="table__head table__head--control" role="columnheader"><input type="checkbox" aria-label="Select all rows on this page" checked={all} disabled={rows.length === 0} onChange={() => selection.setMany(rows.map((row) => row.key), !all)} /></div>
       {hasDetails && <div className="table__head table__head--control" role="columnheader"><span className="visually-hidden">Details</span></div>}
-      {columns.map((column) => <div key={column.key} className="table__head" role="columnheader">{column.label}</div>)}
+      {columns.map((column) => <div key={column.key} className={`table__head${numbers.has(column.key) ? " table__head--number" : ""}`} role="columnheader" title={column.description ? `${column.label}: ${column.description}` : column.label}>{column.label}</div>)}
     </div>
   );
 }
