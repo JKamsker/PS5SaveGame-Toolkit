@@ -549,6 +549,16 @@ requests; console evidence is not a prerequisite for the enabled Experimental wr
 ## SDK requests
 
 No blocking SDK request. F9/F8 meet the shipped map/graph/regulation requirements.
+The SDK helper migration (#40) uses `ActionPlans.ApplyScalar` with application warnings preserved,
+all planned writes (including derived history) selected, and unopened bindings registered locally.
+Community catalog indexing uses `ReferenceCatalogReader.ReadBounded` with an explicit 20,000-record
+budget. Local policy still rejects invalid/oversized counts before searching and requires the final
+unfiltered index to cover the declared catalog count; missing/empty catalogs remain empty without
+searching. Budget and paging failures propagate rather than publishing a partial index. As required
+by the shared traversal contract, malformed-page diagnostics now come from the SDK and complete
+short intermediate pages advance by their actual size rather than being rejected. Valid pinned-pack
+results, search provenance caching and direct `Find`/`Search` lookups are unchanged.
+
 The asset-round performance follow-up is resolved on the current baseline: Core `PackFileReader.ReadBounded`
 reads seekable embedded resources into exact arrays and pools its nonseekable scratch buffer. The older
 81,920-byte-per-file measurements in [ASSET_ROUND.md](Evidence/ASSET_ROUND.md) are historical.
