@@ -261,6 +261,21 @@ one occurrence of its type and a supported version/length. A mixed known/unknown
 duplicate also disables that reader. Unrecognized schemas stay in Structure/Hex.
 `Serialize()` recomputes CRC and reparses the container/inventory.
 
+Malformed recognized containers and invalid recognized allocator bounds throw
+`SaveFormatException` with a format-specific message. The evidence decoder enforces
+the same 64 MiB limit before reading the full file, as well as the host's separate
+input limit (`InvalidDataException`). It validates framing, CRC and recognized
+allocators before emitting values or truncating output for depth/value limits.
+Output truncation therefore does not bypass input validation. Unsupported schemas
+and unconfirmed allocator arrangements still use the lossless opaque fallback above.
+
+Robustness regression tests include every prefix of a synthetic multi-block save
+for both title IDs and gameplay/system roles; repaired-CRC truncations of retail
+and demo sample block headers, payloads and terminators; extreme block-size fields;
+the 4,096-block boundary; both inventory banks' extreme/inconsistent counts and
+empty/full capacity boundaries. Decoder tests mutate samples only in memory and
+use a body-read sentinel to check oversized rejection without large allocations.
+
 ## Curated schemas and confidence
 
 Offsets are relative to payloads. See [supported-schema.json](research/supported-schema.json)

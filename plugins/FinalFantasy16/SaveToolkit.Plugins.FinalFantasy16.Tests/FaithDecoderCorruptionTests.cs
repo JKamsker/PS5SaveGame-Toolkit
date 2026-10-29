@@ -95,5 +95,4 @@ public sealed class FaithDecoderCorruptionTests
         Assert.Equal(calls, sink.AddCalls);
         Assert.Equal(truncated, sink.Truncated);
     }
-
 }

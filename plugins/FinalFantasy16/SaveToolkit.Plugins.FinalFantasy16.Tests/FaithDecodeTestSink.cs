@@ -19,4 +19,3 @@ internal sealed class FaithDecodeTestSink : ISaveDecodeSink
     public void Warn(string message) => Assert.Fail(message);
     public void MarkTruncated(string reason) => Truncated = true;
 }
-
