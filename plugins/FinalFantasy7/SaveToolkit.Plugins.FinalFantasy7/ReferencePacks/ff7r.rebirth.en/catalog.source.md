@@ -14,9 +14,14 @@ User-pack metadata cannot widen the plugin's embedded write policy.
 Rebirth card labels retain source numbering, which duplicates 012 and omits 013. Booster
 packs have a separate derived category; no sequential type-ID-to-card-number rule is used.
 
-Reproduce using `python -I plugins/FinalFantasy7/research/build_reference_data.py <scratch>`.
-The script reads pinned files with `git show`, parses text without executing TypeScript,
-and normalizes generated JSON to UTF-8/LF for manifest hashes. No private save bytes are used.
+The historical metadata/progress extractor is
+`python -I plugins/FinalFantasy7/research/build_reference_data.py <scratch>`.
+It requires a GTC Git checkout at `<scratch>/gtc` containing the pinned revision and reads it
+with `git show`, without executing TypeScript. It writes UTF-8/LF JSON directly into the plugin
+checkout, including version-1.0.0 manifests for both games. It does not reproduce the later
+version-1.1.0 icons, maps, effect summaries or asset datasets and would overwrite their JSON/manifest
+additions. Run it only in an isolated checkout when researching the original extraction.
+No private save bytes are used.
 
 
 ## Regional map assets
@@ -25,6 +30,12 @@ The six `maps/*.webp` files are downscaled captures from [PowerPyx's Rebirth reg
 
 
 ## Asset and text sources
+
+Retrieved 2026-10-29. Publisher images and guidance use
+`Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29`.
+Guide summaries use
+`Rights reserved by Gamer Guides; used with attribution per owner decision 2026-10-29`.
+These notices are separate from the MIT licence on GTC metadata.
 
 * [Final Fantasy Wiki Remake item images](https://finalfantasy.fandom.com/wiki/Category:Final_Fantasy_VII_Remake_item_images) supplied the selected item, materia and weapon image files. Rights remain reserved by Square Enix; the pack records the owner-authorized attribution basis, and images are downscaled to 64x64 WebP.
 * [Gamer Guides consumables reference](https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables) supplies short attributed effects for 21 common consumables; these summaries do not establish Rebirth-wide item semantics.

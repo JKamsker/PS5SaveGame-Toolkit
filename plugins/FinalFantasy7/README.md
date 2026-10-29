@@ -3,18 +3,21 @@
 **Maturity: Experimental, v0.5.0.** The owner-authorized write-enable round turns on mapped existing
 character values, ordinary materia AP/star transitions, owned Rebirth weapon references, mapped
 non-equipment counts and individual progress bits on Remake/INTERmission, retail Rebirth and demo.
-All new writes are **Inferred**. Not validated on console. The game may reject or overwrite the edited save.
+All writable fields are **Inferred**. Not validated on console. The game may reject or overwrite the edited save.
 Internal integrity is unconfirmed. Unknown bytes are preserved and `Serialize()` structurally reparses
 its output; this does not prove gameplay compatibility. Keep a backup and use a disposable slot.
 
 ## Enabled writes and their evidence
 
 Owner evidence is tracked separately in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
-It is validation work, not a prerequisite to using these Experimental controls. The nine rows below
-count new or expanded write kinds; legacy gil/ordinary-stack editing is also retained for demo.
+It is validation work, not a prerequisite to using these Experimental controls. The table includes
+the retained gil/ordinary-stack writers. Except for Rebirth weapon references, these write kinds
+are available on Remake/INTERmission, retail Rebirth and demo when their per-row eligibility checks pass.
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
+| Gil | Inferred | Exactly one matching inventory type (20 Remake, 1 Rebirth/demo), nonnegative original count; editor bound 9,999,999 or original value if higher | Unknown internal integrity; count word only; Overview and Inventory aliases must agree | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): load, spend, resave/reimport |
+| Existing ordinary item stacks | Inferred | Known embedded `Items` type and nonnegative original count; editor bound 9,999 or original value if higher; direct edits permit zero | Unknown; count word only; no allocation or acquisition-flag update | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): item count, use, persistence |
 | Current HP | Inferred | Public u32 offsets; sample values; bound by original current/max HP | Unknown internal integrity; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): load, battle, resave/reimport |
 | Current MP | Inferred | Public u32 offsets; sample values; bound by original current/max MP | Unknown; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spend MP, resave/reimport |
 | Character XP | Inferred | Pinned MIT character curves; updates level atomically | Unknown; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): progression/stats/abilities |
@@ -22,8 +25,14 @@ count new or expanded write kinds; legacy gil/ordinary-stack editing is also ret
 | Rebirth owned weapon reference | Inferred | Unique inventory/detail joins; original inferred source type family; rejects foreign, duplicate, dangling instances | Unknown; only reference word changes | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): sockets/capacity, proficiency, folios, combat |
 | Ordinary AP, including tier crossing | Inferred | 995 coherent retail rows and pinned strict AP curves; updates stored stars; F6 preview/apply | Unknown; AP word and dependent star byte only | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): below/at/above star threshold, ability effect |
 | Ordinary stored stars | Inferred | Same curves; sets AP to target tier threshold | Unknown; AP/star pair reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): both increase and decrease, equipped copies |
-| Existing mapped non-equipment counts | Inferred | Existing allocated type rows; new categories use original observed category maxima (minimum editor bound 1) | Unknown; count word only; flags/decks/rewards untouched | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): materials, tokens, keys, cards/boosters, progression categories |
+| Other existing mapped non-equipment counts | Inferred | Known embedded type with a nonnegative original count; excludes Weapons, Armor, Accessories and Chocobo Gear; range 0 to original observed category maximum (minimum upper bound 1) | Unknown; count word only; flags/decks/rewards untouched | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): materials, tokens, keys, cards/boosters, progression categories |
 | Individual progress candidate bits | Inferred | 69 Remake / 470 Rebirth/demo distinct pinned public-template mappings | Unknown; neighboring bits preserved; rewards/actors/counters not repaired; softlocks possible | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): each domain, rewards/actors, chapter reset and reversal |
+
+Character HP/MP/XP/level writes require an original level within the source curve. Current HP/MP
+range from zero to the greater of original current and original maximum; maxima remain read-only.
+Weapon-reference writes additionally require unique matching inventory/detail instances with count
+one and no other character referencing the original or target instance. Eligibility and editor bounds
+are established from the opened bytes; imported catalogue metadata cannot widen them.
 
 Completion adds two F6 presets over these existing write kinds: **restock existing consumables**
 (only positive ordinary `Items` stacks below a chosen target of 1–99; no reduction or allocation),
@@ -39,23 +48,23 @@ select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as 
 | F1 SaveDiff | Used | Existing `ByteDiffer` golden-byte tests; shared `FixtureManifest`/`FixtureVerifier` self-comparison fixtures for all three titles; an SDK-native `ff7r-character-evidence` hook for stable character paths; and F8 traversal tests. These are repeatability fixtures, not invented controlled events. |
 | F2 reference packs | Used | Build-scoped embedded MIT item/weapon/materia packs plus attributed icon and Rebirth map-asset datasets, per-dataset attribution and Sources panel; optional imported text/images through pinned `IReferenceContext`. Pack validity/build/provenance tests. |
 | F3 rich table cells | Used | Inventory/catalog row-detail sections retain attributed official descriptions and imported `ImageNode` icons. Bound numeric cells carry confidence/warnings. Tested detail nodes, imported image identity and `GetAsset` routing. |
-| F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Read-only inventory/materia IDs and Rebirth owned weapon/materia type IDs publish browse-only `ReferenceSpec`s, retaining raw IDs and attribution. Writable weapon references remain **instance IDs**, while catalog keys are **type IDs**; substituting that catalog would select the wrong domain. |
+| F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Inventory/materia type IDs publish browse-only `ReferenceSpec`s. Main Owned items F8 tables display type IDs as text; only retained legacy owned-page endpoints bind browse-only weapon/materia type fields. Writable weapon references remain **instance IDs**, while catalog keys are **type IDs**; substituting that catalog would select the wrong domain. |
 | F5 reversible structure | N/A | No safe allocation/removal/reorder writer exists: free-slot initialization, serial uniqueness, acquisition order and all inventory/detail/owner dependencies remain unknown. Current writers patch fixed-size existing values. Owner acquisition/discard/capacity pairs are required before a structural transaction can be implemented. |
 | F6 planning / #27 scopes | Used | Existing AP plan plus star-tier and consumable-restock presets; pure previews, warnings, skipped rows, derived AP/stars, stale rejection and one undo group, including Core-resolved F8 query scopes. `MateriaPlanningTests`, `PresetPlanningTests`. |
 | F7 document groups | N/A | No implemented operation changes more than the primary gameplay file; common and prior-state RESD dependencies are unmapped. Grouping them would claim a coupling that has not been established. Existing backup mirroring remains framework-owned. |
-| F8 queryable tables | Used | Complete inventories, materia, catalogs, cards, progress and owned relationships already use F8. Added paging/search/filter/sort for the linked-header index (including common files), named enemy records (161 Remake / 230 Rebirth) and the 388-row research collection. Legacy raw-word/lazy endpoints remain bounded. |
+| F8 queryable tables | Used | Complete inventories, materia, catalogs, cards, progress, owned relationships, linked-header index (including common files), named enemy records (161 Remake / 230 Rebirth) and the 388-row research collection. `GameplayCollection` and `CollectionQuery` use SDK `InMemoryCollection<T>` with `ToTableNode`; whole-model search/filter/sort precedes page-only rendering. Legacy raw-word/lazy endpoints remain bounded. |
 | F9 graphs / maps | Used | Six attributed Rebirth regional backgrounds with local field targets and distinct bit domains; unverified coordinates remain list-only; seven read-only folio candidate graphs (238 bits) and seven Rebirth equipment-reference graphs. Accessible text alternatives, bounded/lazy groups, JSON/SDK validation and Core edit/undo refresh tests. No fabricated prerequisite edges, socket links, capacity, coordinates or weapon-upgrade grid. |
 | F10 exact / nullable / union | N/A | Mapped payload values are fixed-width u8/u32/i32 integers and bits, exactly represented by `IntegerSpec`/`FieldValue` and the framework's integer transport. There are no decimal text numbers, nullable scalar encodings or tagged unions to represent. Sentinels remain literal bytes rather than guessed nulls. |
-| F11 shared codecs | N/A | Supported inputs are already decrypted, uncompressed custom linked records. They contain neither a Kraken stream nor SQLite data. No local codec or native dependency is used. |
+| F11 shared codecs | N/A | Mapped structures are directly readable in decrypted custom linked records; no demonstrated Kraken/SQLite structure requires a codec. Opaque bodies remain preserved, including any unrecognized compressed structures. No local codec or native dependency is used. |
 | F12 | Used | `FinalFantasy7Plugin` exposes the SDK-only `ff7r-character-evidence` hook with bounded, stable character paths; `HookSaveDecoder` and F8 traversal tests cover deterministic reads, host caps, foreign-file rejection and byte preservation. |
-| F13 | Used | Browse-only reference fields cover read-only weapon, materia and item type IDs; existing F8 catalog queries cover bounded filter/sort; integer duration remains appropriate for whole-second play time. N/A for non-mutating inspection actions because this plugin has no message-only action to publish. |
+| F13 | Used | Inventory/materia type fields and retained legacy owned-page type fields use browse-only references; main owned F8 type cells are text. Existing F8 catalog queries cover bounded filter/sort; integer duration remains appropriate for whole-second play time. N/A for non-mutating inspection actions because this plugin has no message-only action to publish. |
 | F14 empty slots | Used | Inventory, materia and Rebirth owned weapon/materia relationships each publish one F8 table with empty-row metadata. Confirmed empty slots are hidden by default, labelled `Empty slot` when shown, and counted before paging. Native keys, raw fields, F6 query visibility/exclusions and byte-identical no-op saves are covered by `EmptySlotTests`. |
 
 ## Completion-round spatial and research views
 
 **Regional maps** groups the six mapped Rebirth regions. Each marker represents one existing
 candidate bit, retaining separate discovery/completion/repair domains and an Inferred badge.
-Found/Missing means bit 1/0 only. When the pinned Rebirth pack is available, each section displays
+Found/Missing means bit 1/0 only. When a bundled or document-pinned Rebirth map asset resolves, each section displays
 the attributed, downscaled PowerPyx regional background. Candidate bits have no verified native
 positions, so markers remain list-only and the text alternative is authoritative. The map and its
 local editable checklist expand together, so navigation does not rely on an unloaded F8 row.
@@ -122,7 +131,9 @@ matching dimensions do not establish conversion compatibility.
 All integers are little endian. The shared walker checks each absolute next pointer, allocation size,
 kind sequence, repeated tags, declared length, supported version words and terminal record. Strictly
 forward links and a 512-record safety ceiling reject cycles, overlap, overflow and out-of-file access.
-Only headers are decoded at open time; bodies stay in the original buffer.
+The record walker decodes only headers; bodies stay in the original buffer. Opening a gameplay
+document also reads mapped body values to establish quantity, character, weapon and materia edit
+policies. It does not decode or rebuild all record bodies.
 
 | Relative offset | Size | Observation |
 | --- | --- | --- |
@@ -211,17 +222,22 @@ Gil is exposed only if exactly one matching entry exists. Unknown names remain `
 no game-specific dictionary is shared across Remake/Rebirth. Confirmed empty slots are hidden by default
 and can be shown as `Empty slot`; other unknown IDs and zero/negative quantities remain visible.
 Negative quantities receive a warning. No arbitrary gameplay limits are imposed on
-read-only values. Ordinary item stacks use an editor cap of 9,999, gil 9,999,999 and final-tier AP
-999,999; these are not proven game caps. An original value above a cap remains restorable after
+read-only values. Ordinary item stacks use an editor cap of 9,999, gil 9,999,999 and ordinary AP
+999,999; these are not proven game caps. Direct AP edits can cross every supported ordinary tier;
+their upper bound retains a higher original AP value, while the bulk AP action caps targets at
+999,999. An original value above a cap remains restorable after
 editing and refreshing bindings. Negative quantities, ambiguous gil and instance-bearing gear quantities are read-only. Existing mapped
 non-equipment counts are writable with the warnings above. Qualified ordinary AP can cross tiers and
 updates stored stars atomically; every summon, unknown type and AP/level mismatch remains read-only.
 Names, categories and source-metadata descriptions use the embedded MIT reference packs below.
+Play time, Remake chapter ID, type IDs and raw record/body controls remain read-only. Character
+maxima and all folio, socket, enemy-intel, relationship and crafting/minigame research values are
+also read-only; writable progress candidates are the separate Progress/local map bit controls.
 
 ### Characters and owned relationships
 
-The **Characters** tab exposes seven candidate party records for each gameplay file. Remake uses the
-measured `0x40` stride and Rebirth/demo use the measured `0x100` stride; level, XP, current/max HP/MP and
+The **Characters** tab exposes seven candidate party records for each gameplay file, starting at
+absolute `0x30`. Remake uses the measured `0x40` stride and Rebirth/demo use the measured `0x100` stride; level, XP, current/max HP/MP and
 (for Rebirth) weapon-detail references are `Inferred` fields with the write scope listed above. The names and order are the
 MIT resource order, while guest, past and cached records still need controlled screenshots.
 
@@ -257,8 +273,8 @@ undo restoration, and Core F6 select-all visibility/exclusions. Catalogues, card
 enemy intel, character records and raw record/body inspection are not vacant inventory slots;
 their zero/unknown states remain visible, including allocated linked records with empty headers.
 
-F14 validation: **135 passed, 0 failed, 0 skipped**, with all three sample archives present;
-API build passed with **0 warnings and 0 errors**. No files outside this plugin were changed.
+The F14 round was validated with all three sample archives present and a clean API build.
+Current suite results are recorded under Research log and validation.
 
 ### Semantic safety evidence
 
@@ -272,7 +288,9 @@ Across all primary supplied retail snapshots, **465 Remake and 530 Rebirth ordin
 agree with the pinned AP curves and stored stars. The write-enable decision now allows source-derived star transitions with warnings; these
 observations still do not establish console compatibility. The Rebirth Titan type `14011` illustrates why all
 summons remain disabled: repeated-zero source thresholds disagree with stored levels in three retail
-samples. Empty, unknown, incoherent and out-of-policy values remain visible and byte-preserved.
+samples. Empty, unknown and incoherent rows remain read-only. Coherent ordinary rows with original
+AP above the editor cap remain editable up to that original value. All original values are
+byte-preserved until edited.
 
 The **Set AP and derived stars** action uses an F4 picker over owned eligible types and F6
 planning over selected rows or all copies of that type. F8 select-all-filtered scopes are resolved by
@@ -308,7 +326,9 @@ owned-item names also show attribution.
 The **Cards** collection contains 145 individual Rebirth card types, with stored inventory quantities.
 Its 16 booster-pack types remain separate in the item catalog. Source labels duplicate display
 number 012 and omit 013; these labels are retained with an explicit warning, not corrected by an
-unverified numeric formula. Quantity, deck membership and opponent wins remain separate domains.
+unverified numeric formula. The Cards collection is a read-only summary: it sums matching inventory
+quantities by type. Editing qualified counts happens in Inventory. Quantity, deck membership and
+opponent wins remain separate domains.
 
 The **Progress** collection shows 69 distinct Remake candidate bits for obtained dresses, battle
 intel entries/completion/rewards and VR missions. Rebirth/demo show 470 candidate bits for hard
@@ -416,7 +436,14 @@ ordinal text fallback, whitespace-only search normalization and ascending ordina
 (also for descending column sorts). F14 still uses the native slot predicates; only requested page
 rows render bindings. Characterization tests pin these policies before the helper migration (#40).
 
-Performance review (#40, 2026-10-29): Release, .NET SDK 10.0.400, largest sample
+The shared helper migrations are complete: `BoundSaveDocument` supplies field binding and atomic
+scalar rollback, `InMemoryCollection<T>`/`ToTableNode` supply collection querying/presentation, and
+`ReferenceCatalogReader.ReadBounded` supplies bounded imported-catalogue traversal. Fixed-address
+payload reads and the linked-record walker remain local; no missing binary-cursor SDK capability
+is implied.
+
+Historical plugin performance review (#40, 2026-10-29), before the later SDK allocation optimization
+in `63be7a2`: Release, .NET SDK 10.0.400, largest sample
 `PPSA08664/ff7rebirth000` (23,381,104 bytes), pinned built-in packs, synchronous per-thread allocations.
 Five warmups and 21 measurements with tiered compilation disabled; elapsed/allocation medians are
 independent. Sample import and reference-store setup are outside timings. Pages contain 50 rows;
@@ -440,8 +467,8 @@ cost on the first query and retains that immutable projection for subsequent que
 latency is not improved. These are warm-process measurements, not process-startup/static-resource
 loading measurements. Timing changes are diagnostic, never test gates. Sixteen new sample-free cases
 cover allocation ceilings, current values after edits/restoration, relationship/legacy equivalence,
-owner freshness and canonical action selection. Complete plugin suite: 387 passed, zero failed/skipped;
-API Release build: zero warnings/errors. The reproducible harness, original source snapshot, all
+owner freshness and canonical action selection. That historical plugin suite and API Release build
+passed; current suite results are recorded below. The reproducible harness, original source snapshot, all
 collection measurements and test-first failure logs remain at
 `D:/Temp/saveeditor/review-perf-finalfantasy7/` (`run.ps1`, `before-stable.txt`, `after-stable.txt`).
 
@@ -485,7 +512,7 @@ and explorer tests run without samples. Artificial gameplay bodies are not evide
 semantics; their independent record-group fixture covers all three layouts, corruption rejection,
 empty allocations and byte preservation. The conformance suite retains its six-files-per-title default; the dedicated
 format test walks and no-op serializes **all** matching sample files, including backup/generation files.
-Edit conformance nudges a writable field on selected Remake and retail Rebirth samples; dedicated
+Edit conformance nudges writable fields on selected samples; dedicated
 tests verify in-place byte scope, round-trip reopening, undo-by-old-value and atomic range rejection.
 
 Malformed-input coverage also checks every common-file prefix, gameplay truncation at every partial
@@ -496,18 +523,23 @@ synthetic cases. Random/all-`FF` bodies and opaque slot bytes exercise every que
 Rebirth folio/socket expansion with byte-identical serialization. These are robustness checks, not
 new claims about gameplay validity or internal checksums.
 
-Completion local validation: **121/121 plugin tests, 0 failed, 0 skipped**, with the supplied archives and the API build passing with zero warnings/errors. Tests include Core F4/F6/F8/F9 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
+Historical completion validation used the supplied archives and a clean API build. Tests include Core F4/F6/F8/F9 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
 every measured sample Open call stayed below two seconds in that historical local run.
 
 Maintainability review (#40, 2026-10-29), after the robustness, SDK-helper and performance rounds:
-**401 passed, 0 failed, 0 skipped** in the complete sample-backed Release plugin suite; API Release
-build with `--warnaserror`: **0 warnings / 0 errors**. Fourteen added characterization cases cover
+the complete sample-backed Release plugin suite and API Release build with `--warnaserror` passed.
+Fourteen added characterization cases cover
 exact multi-fault rejection precedence, synthetic protocol/plan fingerprints, fallback names and
 shared byte-scope assertions. These characterize existing behavior before cleanup; no functional
 regression is claimed. Existing no-op round trips, rejection-before-evidence checks and allocation
-bounds remain green. Every production method is at most 50 lines. No runtime strings, IDs,
+bounds remain green. No runtime strings, IDs,
 confidence labels, write warnings or edit policies changed. Earlier counts above describe their
 respective historical rounds.
+
+Documentation accuracy validation (#40, 2026-10-29): **401 passed, 0 failed, 0 skipped** with all
+three sample archives present; API Release build with `--warnaserror`: **0 warnings / 0 errors**.
+This pass changes documentation only; runtime strings, protocol fingerprints and write policies
+are unchanged.
 
 For the sample-backed run, set `SAVETOOLKIT_ARTIFACTS` to the external archive root,
 `SAVETOOLKIT_TEST_TEMP` to the D: test-scratch root and `TEMP`/`TMP` to a D: task folder in the same
@@ -525,17 +557,17 @@ shell command, then run `dotnet test --project plugins/FinalFantasy7/SaveToolkit
 
 ## SDK requests
 
-No framework bug blocks the shipped subset. F12/F13 are adopted as recorded above. The plugin has no message-only inspection action to mark `Mutates = false`.
+No framework bug blocks the shipped subset. The shared collection and bounded catalogue-reader
+requests are resolved by the adopted helpers described above. F12/F13 are adopted as recorded in
+the feature table. The plugin has no message-only inspection action to mark `Mutates = false`.
 
-Performance (#40, deferred because `src/` is outside this review's scope): `InMemoryCollection<T>`
-allocates a reference-type `Entry` per source item, clones it for matching/empty-state metadata,
-and allocates full snapshots, a uniqueness set and ordering machinery on every query. An isolated
-native-int source with prebuilt keys, no text/filter/sort and 50 empty rendered rows allocates
-278,760 bytes for 1,000 rows and 565,200 bytes for 2,048 rows (0.085 / 0.218 ms in the review run).
-Consider value-type entries and fewer intermediate materializations while preserving full-model key
-validation, empty counts and ordinal tie breaks. No SDK code was changed. `ReadBounded` remains the
-complete one-time index reader behind the existing document catalogue cache; no repeated catalogue
-traversal was found in paging/search/sort/planning.
+Resolved performance request (#40): SDK commit `63be7a2` replaced per-row reference-type entries
+with value-type entries and reuses one list for matching and sorting. The earlier request for
+fewer intermediate materializations is implemented; its old allocation figures do not describe
+the current helper. Full-model key validation, empty counts and ordinal tie breaks remain.
+`ReadBounded` remains the complete one-time index reader behind the document catalogue cache;
+no repeated catalogue traversal was found in paging/search/sort/planning. This documentation pass
+does not change SDK code or remeasure the historical performance table.
 
 R19 remains a framework-owned request: versioned toolkit preset storage outside save bytes with
 title/build compatibility and explicit missing/ambiguous owned-instance resolution. A later loadout
@@ -550,8 +582,8 @@ profiles would violate the contract. F5/F7 exist already and need no replacement
 | Rebirth folio candidates (238), crafting (220), minigame (168), equipment-reference offsets | [GTC template.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts), [shift overrides](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils.ts) | MIT, RyudoSynbios; filtered literal candidate metadata and independently implemented reference inspection; no topology/cost/art imports; sidecar and full notice retained |
 | Regional map backgrounds | [PowerPyx, published 2024-02-29; retrieved 2026-10-29](https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/) | Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29; six downscaled WebP backgrounds, no imported coordinates |
 | Catalogue icons | [Final Fantasy Wiki Remake item images, retrieved 2026-10-29](https://finalfantasy.fandom.com/wiki/Category:Final_Fantasy_VII_Remake_item_images) | Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29; selected 64px WebP icons |
-| Common item effects | [Gamer Guides consumables reference](https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables) | Attributed guide summaries for 21 common consumables; item/save joins remain unverified |
-| Official materia and weapon guidance | [Square Enix](https://www.square-enix-games.com/en_US/news/final-fantasy-vii-remake-screenshots), [PlayStation Blog](https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more) | Publisher text paraphrased with attribution; save joins and exact effects remain unverified |
+| Common item effects | [Gamer Guides consumables reference](https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables), retrieved 2026-10-29 | Rights reserved by Gamer Guides; used with attribution per owner decision 2026-10-29; summaries for 21 common consumables; item/save joins remain unverified |
+| Official materia and weapon guidance | [Square Enix](https://www.square-enix-games.com/en_US/news/final-fantasy-vii-remake-screenshots), [PlayStation Blog](https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more), retrieved 2026-10-29 | Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29; publisher text paraphrased with Square Enix / PlayStation Blog source credit; save joins and exact effects remain unverified |
 | Remake item categories/names (369) | [GTC resource.ts](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts) | MIT, RyudoSynbios; extracted metadata, merged weapons, original summaries |
 | Remake weapons (32) | Same pinned Remake resource | MIT; extracted type/name rows, original identity description |
 | Remake materia (54) | Same pinned Remake resource | MIT; category/AP arrays, original AP summaries |

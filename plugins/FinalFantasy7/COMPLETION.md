@@ -21,7 +21,7 @@ historical; current suite results are recorded in README.
 | R6 | Candidate character sheets shipped; owner-blocked for observed identity, guest/past/live classification and summon screenshots. |
 | R7 | F8 complete fixed-slot/catalog/owned/card/progress search/filter/sort/paging. Added 388-row research collection. |
 | R8 | F4 materia picker eligibility plus F2 imported names/assets. Weapon type catalog is not an instance-ID catalog; raw IDs retain their domains. |
-| R9 | F3 confidence/warnings and row-detail sections/images with text fallback and asset-route tests. F13 browse-only reference fields expose item/materia/weapon type IDs; writable weapon instance IDs retain their separate domain. |
+| R9 | F3 confidence/warnings and row-detail sections/images with text fallback and asset-route tests. F13 browse-only inventory/materia type fields remain; retained legacy owned-page endpoints also bind weapon/materia type fields. Main Owned items F8 type cells are text after the performance round. Writable weapon instance IDs retain their separate domain. |
 | R10 | Added F9 Rebirth weapon/armor materia reference inspection with local field targets. Owner-blocked for usable capacities, links, complete moves/swaps and Remake upgrade-node topology. |
 | R11 | Existing final-state staging and exact original restoration; scalar/F6 undo/redo remains byte-exact. No safe structural writer exists. |
 | R12 | 145 card types / 16 separate packs and numbering anomaly warning shipped. Owner-blocked for verified 012/013 crosswalk, decks/rank and acquisition dependencies. |
