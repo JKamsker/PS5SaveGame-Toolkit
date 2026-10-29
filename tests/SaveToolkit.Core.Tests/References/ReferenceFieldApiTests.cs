@@ -97,6 +97,15 @@ public sealed class ReferenceFieldApiTests(WebApplicationFactory<Program> factor
         Assert.Equal(1, result.GetProperty("state").GetProperty("revision").GetInt64());
         var stale = await _client.GetAsync(new Uri($"{doc}/reference-fields/candidates?actionId=replace-first&valueId=replacement&revision=0", UriKind.Relative), Ct);
         Assert.Equal(HttpStatusCode.Conflict, stale.StatusCode);
+        var staleBatch = await _client.PostAsJsonAsync($"{doc}/reference-fields/records", new
+        {
+            pairs = new[] { new { fieldId = "replacement", recordKey = "1002", actionId = "replace-first" } },
+            revision = 0,
+        }, Ct);
+        Assert.Equal(HttpStatusCode.Conflict, staleBatch.StatusCode);
+        var problem = await staleBatch.Content.ReadFromJsonAsync<JsonElement>(Ct);
+        Assert.Equal("stale", problem.GetProperty("code").GetString());
+        Assert.False(problem.TryGetProperty("results", out _));
     }
 
     [Fact]

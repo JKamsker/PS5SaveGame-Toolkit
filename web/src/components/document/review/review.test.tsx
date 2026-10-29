@@ -173,7 +173,10 @@ describe("action preview", () => {
   });
 
   it("binds reference parameters of planned actions so the picker is usable", async () => {
-    const candidate = vi.spyOn(api, "referenceCandidate").mockResolvedValue({ id: "World/COOLING", label: "Cooling Springs" } as never);
+    const candidate = vi.spyOn(api, "referenceRecords").mockResolvedValue({ revision: 1, results: [{
+      fieldId: "world", recordKey: "World/COOLING", actionId: "set-world", status: 200,
+      candidate: { rawId: "World/COOLING", label: "Cooling Springs", eligibility: { available: true, eligible: true, selectable: true, reasons: [] } },
+    }] });
     renderDocument(<ActionButton node={{ type: "action", actionId: "set-world", label: "Set world", supportsPlanning: true,
       parameters: [{ type: "field", valueId: "world", label: "World", spec: { kind: "reference", catalogId: "astro_worlds" } as never, value: "World/COOLING" }] }} />);
     fireEvent.click(screen.getByRole("button", { name: "Set world" }));
@@ -181,7 +184,7 @@ describe("action preview", () => {
     expect(trigger.textContent).toContain("World/COOLING");
     expect(trigger.disabled).toBe(false);
     await waitFor(() => expect(candidate).toHaveBeenCalledWith("w1", "d1",
-      expect.objectContaining({ valueId: "world", actionId: "set-world", rawId: "World/COOLING" })));
+      [{ fieldId: "world", actionId: "set-world", recordKey: "World/COOLING" }], 1)));
   });
 
   it("requires another preview when the table selection changes", async () => {
