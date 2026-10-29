@@ -8,6 +8,7 @@ import type {
   ReferencePackInfo,
   ReferencePacks,
   ReferencePage,
+  ReferenceRecordDetail,
   ReferenceSortKey,
   ReferenceCandidate,
   ReferenceCandidatePage,
@@ -138,6 +139,9 @@ export const api = {
     for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== "") params.set(key, String(value));
     return request<ReferencePage>(`${doc(wsId, docId)}/references/${encodeURIComponent(catalogId)}?${params.toString()}`);
   },
+  /** One catalog record with its pack metadata and full dataset provenance. */
+  referenceRecord: (wsId: string, docId: string, catalogId: string, key: string, signal?: AbortSignal) =>
+    request<ReferenceRecordDetail>(`${doc(wsId, docId)}/references/${encodeURIComponent(catalogId)}/record?${referenceParams({ key })}`, { signal }),
   referenceAssetUrl: (wsId: string, docId: string, assetId: string) =>
     `/api${doc(wsId, docId)}/reference-assets?id=${encodeURIComponent(assetId)}`,
   referenceCandidates: (wsId: string, docId: string, query: { valueId: string; actionId?: string; q?: string; category?: string; sortBy?: ReferenceSortKey; descending?: boolean; offset?: number; limit?: number; revision?: number }) =>
