@@ -2932,7 +2932,7 @@
         "additionalProperties": false,
         "properties": {
           "capabilitySchemaVersion": {
-            "maxLength": 4096,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",
@@ -2940,7 +2940,7 @@
             ]
           },
           "fileRole": {
-            "maxLength": 4096,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",
@@ -2948,7 +2948,7 @@
             ]
           },
           "formatVariant": {
-            "maxLength": 4096,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",
@@ -2956,7 +2956,7 @@
             ]
           },
           "gameBuild": {
-            "maxLength": 4096,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",
@@ -2979,7 +2979,7 @@
             "type": "string"
           },
           "referencePackIdentity": {
-            "maxLength": 4096,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",
@@ -2990,7 +2990,7 @@
             "type": "boolean"
           },
           "schemaFingerprint": {
-            "maxLength": 4096,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",
@@ -3074,7 +3074,7 @@
             ]
           },
           "path": {
-            "maxLength": 1024,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",
@@ -3082,7 +3082,7 @@
             ]
           },
           "provenance": {
-            "maxLength": 4096,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",

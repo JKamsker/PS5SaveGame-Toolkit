@@ -29,6 +29,8 @@ public sealed class PresetTransferService(PresetStore store, TimeProvider? timeP
     public PresetImportPreview Preview(ReadOnlyMemory<byte> bytes)
     {
         var package = PresetPackageCodec.Decode(bytes);
+        // A valid package must also be intrinsically storeable, before retaining a token or asking for choices.
+        store.ValidateImportLibrary(package.Presets);
         lock (_gate)
         {
             var snapshot = store.Snapshot();

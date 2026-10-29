@@ -116,9 +116,10 @@ public static class PresetPackageCodec
         if (compatibility.TitleIds is null || compatibility.TitleIds.Count is < 1 or > 32)
             throw Invalid("presetPackageTitles", "Each preset needs 1–32 explicit title identifiers.");
         foreach (var title in compatibility.TitleIds) Text(title, "title ID", 128);
-        foreach (var boundary in new[] { compatibility.GameBuild, compatibility.FormatVariant, compatibility.ReferencePackIdentity,
-            compatibility.SchemaFingerprint, compatibility.FileRole, compatibility.CapabilitySchemaVersion })
-            if (boundary is not null) Text(boundary, "compatibility boundary", MaxTextLength);
+        foreach (var (field, value) in new[] { ("gameBuild", compatibility.GameBuild), ("formatVariant", compatibility.FormatVariant),
+            ("referencePackIdentity", compatibility.ReferencePackIdentity), ("schemaFingerprint", compatibility.SchemaFingerprint),
+            ("fileRole", compatibility.FileRole), ("capabilitySchemaVersion", compatibility.CapabilitySchemaVersion) })
+            if (value is not null) Text(value, $"compatibility.{field}", PresetContractValidation.MaxMetadataLength);
         foreach (var action in preset.Actions)
         {
             Text(action.ActionId, "action ID", 256);
@@ -138,9 +139,9 @@ public static class PresetPackageCodec
                 Text(instance.StableId, "semantic target ID", PresetContractValidation.MaxKeyLength);
                 if (instance.Label is not null) Text(instance.Label, "semantic target label", 256);
                 if (instance.Role is not null) Text(instance.Role, "semantic target role", 256);
-                if (instance.Path is not null) Text(instance.Path, "semantic target path", 1024);
+                if (instance.Path is not null) Text(instance.Path, "semantic target path", PresetContractValidation.MaxMetadataLength);
                 if (instance.Build is not null) Text(instance.Build, "semantic target build", 256);
-                if (instance.Provenance is not null) Text(instance.Provenance, "semantic target provenance", MaxTextLength);
+                if (instance.Provenance is not null) Text(instance.Provenance, "semantic target provenance", PresetContractValidation.MaxMetadataLength);
             }
         }
     }

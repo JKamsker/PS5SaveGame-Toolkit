@@ -14,7 +14,7 @@ created/updated timestamps, compatibility envelope and semantic actions. Every a
 contains `actionId`, typed `parameters`, `instances` and `scopeKind`.
 Semantic references retain `kind`, `stableId`, and optional `label`, `role`, `path`,
 `build` and `provenance` exactly. Stable IDs, labels, roles and builds are bounded to
-256 characters, paths to 1,024 and provenance to 4,096; non-null values must be
+256 UTF-16 code units, paths and provenance to 512; non-null values must be
 nonblank without control characters. These are public semantic metadata, never
 opaque candidate IDs or transient resolution choices.
 
@@ -23,6 +23,14 @@ unknown build/variant/reference/schema/role/capability-version values. Missing f
 are rejected before record constructors can supply defaults. This does not turn null
 into a wildcard: [the preset compatibility contract](SDK07-PRESETS.md) is enforced again
 when applying, and the current plugin must prove every boundary it publishes.
+The six nullable compatibility boundaries and semantic path/provenance reuse the
+host's `PresetContractValidation.MaxMetadataLength` (512 UTF-16 code units). Oversized
+metadata is rejected during package preview with the field name and limit, before a
+preview token or choices are allocated. Values are never truncated. Unicode surrogate
+pairs count as two units; independent UTF-8 package and durable-file byte caps still apply.
+Preview also runs the common host staging validator without persistence, so intrinsic
+record constraints cannot first fail after conflict decisions. Resolution repeats staging
+against the complete resulting library, including its aggregate count and byte limits.
 Unknown plugins/titles/builds may be stored for later. The import preview labels their
 status relative to the current save using the server's `ToDocumentDto` compatibility
 summary, including read-only, unsupported-action and `canPreview`/`previewReason` status.
@@ -63,6 +71,13 @@ The server checks declared length before reading and limits streamed/chunked rea
 the cap plus one byte. Record/action/parameter/instance counts are checked before
 typed record materialization. Storage's separate whole-file/count limits also apply
 to the resulting library before confirmation.
+
+Transfer endpoints read bounded raw request streams directly. The host's route-local
+`PresetRequestBodyLimitMetadata` applies to CRUD/capture/preview/apply JSON binding;
+it does not add a global 256 KiB limit or a second buffering pass to transfer routes.
+This preserves the distinct 264,192-byte control and 524,288-byte package limits,
+including valid requests padded to their exact cap and chunked requests without a
+declared length. An oversized transfer stream is rejected after at most cap + 1 bytes.
 
 ## Review and transaction
 
@@ -155,3 +170,7 @@ styles load only when the corresponding transfer dialog opens.
   record; the bounded worst-case 65,536 conflict matches is not a UI performance claim. Native-game
   semantic identity, actual title/build compatibility and game acceptance remain plugin
   adopter responsibilities; transfer alone establishes none of those claims.
+- [ASP.NET Core middleware testing](https://learn.microsoft.com/en-us/aspnet/core/test/middleware?view=aspnetcore-10.0)
+  documents direct `TestServer.SendAsync` request-stream control. The combined pipeline
+  regression `PresetTransferRequestLimitTests` supplies explicit declared/chunked headers
+  and observes consumed bytes; native browser tests separately exercise running Kestrel.

@@ -88,9 +88,9 @@ public sealed class PresetPackageTests
     [InlineData("stableId", 256)]
     [InlineData("label", 256)]
     [InlineData("role", 256)]
-    [InlineData("path", 1024)]
+    [InlineData("path", PresetContractValidation.MaxMetadataLength)]
     [InlineData("build", 256)]
-    [InlineData("provenance", 4096)]
+    [InlineData("provenance", PresetContractValidation.MaxMetadataLength)]
     public void SemanticProvenanceFieldsHaveExplicitDomains(string field, int limit)
     {
         var json = JsonNode.Parse(PresetPackageCodec.Encode([PresetTransferFixture.Preset()]))!;

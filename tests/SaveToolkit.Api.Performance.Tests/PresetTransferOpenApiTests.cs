@@ -31,7 +31,10 @@ public sealed class PresetTransferOpenApiTests
             var types = compatibility["properties"]![field]!["type"]!.AsArray().Select(type => type!.GetValue<string>());
             Assert.Contains("null", types);
             Assert.Contains("string", types);
+            Assert.Equal(PresetContractValidation.MaxMetadataLength, compatibility["properties"]![field]!["maxLength"]!.GetValue<int>());
         }
+        foreach (var field in new[] { "path", "provenance" })
+            Assert.Equal(PresetContractValidation.MaxMetadataLength, schemas["PresetPackageInstanceDto"]!["properties"]![field]!["maxLength"]!.GetValue<int>());
         AssertRequired(schemas["PresetPackageActionDto"]!, "actionId", "parameters", "instances", "scopeKind");
         Assert.Equal("^1$", schemas["PresetPackageDto"]!["properties"]!["schemaVersion"]!["pattern"]!.GetValue<string>());
         Assert.Equal(256, schemas["PresetPackageDto"]!["properties"]!["presets"]!["maxItems"]!.GetValue<int>());

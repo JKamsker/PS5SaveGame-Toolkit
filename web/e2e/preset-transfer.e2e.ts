@@ -60,7 +60,12 @@ for (const width of [375, 768, 1024, 1440]) test(`preset transfer handles errors
   await expect(dialog.getByRole("heading", { name: "Import toolkit presets" })).toBeFocused();
   await dialog.getByLabel("Preset package").setInputFiles({ name: "bad.json", mimeType: "application/json", buffer: Buffer.from("{") });
   await expect(dialog.getByRole("alert")).toContainText("malformed");
-  await dialog.getByLabel("Preset package").setInputFiles(transferFile("長い名前🧰".repeat(12)));
+  const maximumBuild = "🧰" + "界".repeat(510); // 512 UTF-16 units, more than 512 UTF-8 bytes.
+  await dialog.getByLabel("Preset package").setInputFiles(transferFile("Metadata overflow", maximumBuild + "x"));
+  await expect(dialog.getByRole("alert")).toHaveCount(1);
+  await expect(dialog.getByRole("alert")).toContainText("compatibility.gameBuild");
+  await expect(dialog.getByRole("alert")).toContainText("512");
+  await dialog.getByLabel("Preset package").setInputFiles(transferFile("長い名前🧰".repeat(12), maximumBuild));
   await expect(dialog.getByText(/Stored for later/)).toBeVisible();
   expect(await dialog.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -68,10 +73,10 @@ for (const width of [375, 768, 1024, 1440]) test(`preset transfer handles errors
   await page.keyboard.press("Escape"); await expect(dialog).not.toBeVisible(); await expect(trigger).toBeFocused();
 });
 
-function transferFile(name = "装備 · exact 🧰") {
+function transferFile(name = "装備 · exact 🧰", gameBuild: string | null = null) {
   const preset = {
     schemaVersion: "1", id: "synthetic-portable", name, createdAt: "2026-10-29T00:00:00Z", updatedAt: "2026-10-29T00:01:00Z",
-    compatibility: { pluginId: "unknown-for-later", pluginVersion: "1", titleIds: ["OTHER"], gameBuild: null, formatVariant: null,
+    compatibility: { pluginId: "unknown-for-later", pluginVersion: "1", titleIds: ["OTHER"], gameBuild, formatVariant: null,
       referencePackIdentity: null, requiresExplicitInstanceResolution: true, presetKind: "toolkit.action-parameters", schemaFingerprint: null, fileRole: null, capabilitySchemaVersion: null },
     actions: [{ actionId: "semantic-action", parameters: { exact: { kind: "exactNumber", text: "1.2300e+120" }, huge: "REPLACE_NUMBER" }, instances: [], scopeKind: "document" }],
   };

@@ -32,14 +32,14 @@ public sealed record PresetPackageCompatibilityDto(
     [property: StringLength(128, MinimumLength = 1)] string PluginId,
     [property: StringLength(128, MinimumLength = 1)] string PluginVersion,
     [property: MinLength(1), MaxLength(32)] IReadOnlyList<string> TitleIds,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(4096, MinimumLength = 1)] string? GameBuild,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(4096, MinimumLength = 1)] string? FormatVariant,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(4096, MinimumLength = 1)] string? ReferencePackIdentity,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? GameBuild,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? FormatVariant,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? ReferencePackIdentity,
     bool RequiresExplicitInstanceResolution,
     [property: StringLength(128, MinimumLength = 1)] string PresetKind,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(4096, MinimumLength = 1)] string? SchemaFingerprint,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(4096, MinimumLength = 1)] string? FileRole,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(4096, MinimumLength = 1)] string? CapabilitySchemaVersion);
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? SchemaFingerprint,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? FileRole,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? CapabilitySchemaVersion);
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record PresetPackageActionDto(
@@ -54,6 +54,6 @@ public sealed record PresetPackageInstanceDto(
     [property: StringLength(256, MinimumLength = 1)] string StableId,
     [property: StringLength(256, MinimumLength = 1)] string? Label = null,
     [property: StringLength(256, MinimumLength = 1)] string? Role = null,
-    [property: StringLength(1024, MinimumLength = 1)] string? Path = null,
+    [property: StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? Path = null,
     [property: StringLength(256, MinimumLength = 1)] string? Build = null,
-    [property: StringLength(4096, MinimumLength = 1)] string? Provenance = null);
+    [property: StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? Provenance = null);
