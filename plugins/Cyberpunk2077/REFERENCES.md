@@ -6,10 +6,10 @@ descriptions, icons or gameplay limits. Native item keys are **unsigned invarian
 decimal-string TweakDBIDs**, preserving all 64 bits. Fact keys are unsigned
 decimal-string FNV-1a/32 hashes. No string trimming, truncated hashes or fuzzy joins.
 
-Every document resolves `items`, `facts`, `vehicles`, `travel` and optional `item-labels` through
+Every document resolves `items`, `facts`, `vehicles`, `travel`, `item-labels`, `item-art` and `perks` through
 `IReferenceContext.Catalog(id, gameBuild)`; build is the native integer string,
 e.g. **`2210`**, not `2.21`. Exact-build local packs can therefore override the
-build-agnostic labels. The context stays pinned until reopen. Missing or stale
+build-agnostic labels. The context stays pinned until reopen. Missing or nonmatching
 packs retain the 36-entry baseline item dictionary and raw fact IDs. Category,
 limit, localization or image metadata never affects write permission or writer caps.
 
@@ -25,9 +25,10 @@ names must be resolved by the pack author, never silently selected by the plugin
 F4 pickers in the Reference catalogs tab inspect records without changing the save.
 Items never receive a replacement setter: a base-ID swap is not validated item creation.
 Vehicle/travel catalogs alone make no saved-state/unlock claim; the separate read-only world tables
-join the decoded garage lists/travel handles and clearly distinguish missing entries. The current Core
-requires `CanEdit` even for read-only actions, so unsupported/read-only documents
-show catalog provenance without publishing these inspection actions.
+join the decoded garage lists/travel handles and clearly distinguish missing entries. Each available
+nonempty catalog publishes an inspection action with `Mutates = false`, including on unsupported
+read-only schemas. F13 permits these actions without `CanEdit`; inspection changes no bytes,
+revision, dirty state or undo/redo history. Read-only reference fields also use the browse-only picker.
 
 ## Rebuild the reviewed embedded pack
 
@@ -53,8 +54,8 @@ Keep both dataset sidecars and third-party notices when updating the pack.
 Complete same-build TweakDB/localization joins remain evidence work; the attributed asset round
 adds publisher icons/text/map art under the owner decision 2026-10-29. See README and the game-assets pack ledger.
 The remaining complete-resource work is tracked
-(CP2077-R2/R8/R18). The UI supports separately attributed local text/images without
-claiming that source availability licenses redistribution.
+(CP2077-R2/R8/R18). The UI supports separately attributed local text/images. Publisher assets follow
+the owner decision 2026-10-29; this repository policy does not relicense the rights holders' work.
 
 ## Pinned wiki names
 
@@ -80,4 +81,6 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-To
 The generator rejects revision/content changes and conflicting keys and produces byte-identical LF
 JSON/manifests. It computes TweakDB hashes and intersects the existing technical catalog, never guesses
 cutscene/variant/clothing IDs, downloads assets, reads saves or executes upstream code. Keep the derived
-names under CC BY-SA 3.0 with the notices. CDPR localization and art remain research-only.
+names under CC BY-SA 3.0 with the notices. This labels-only generator imports no art or descriptions;
+the separate `cyberpunk2077.game-assets.en` pack bundles the attributed icons, captions, planner text
+and map described in its [source ledger](SaveToolkit.Plugins.Cyberpunk2077/ReferencePacks/cyberpunk2077.game-assets.en/data.source.md).

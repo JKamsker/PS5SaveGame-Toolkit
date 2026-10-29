@@ -3,6 +3,10 @@
 Observed **2026-10-28**. Machine: Windows x64, .NET SDK 10.0.400.
 No controlled console capture or load test was performed. The plugin remains Experimental.
 
+Documentation rechecked **2026-10-29** against plugin 0.7.0: the full sample-backed Release suite
+passes **300 tests / 0 failed / 0 skipped** and the Release API build has **0 warnings / 0 errors**.
+Round-specific counts and timings below are historical, not current totals or latency guarantees.
+
 ## Completion round
 
 Plugin 0.6.0 adopts F9 GraphNode/MapNode and F10 NullableSpec without adding a write category.
@@ -13,8 +17,9 @@ and F13 read-only catalogue inspection; see the README for concrete scope and va
 - Six saved modern perk groups, no allocated perks: graph states Unknown; no edges, prerequisites,
   costs, effects or entitlement inferred. Populated ranks use independent synthetic fixtures only.
 - 232 travel catalog/saved markers, exactly one saved registration. Found denotes registration,
-  every other marker is Unknown. No background/coordinates/geographic joins; the official Piggyback
-  map is an attributed external link only. Missing packs retain the raw saved ID.
+  every other marker is Unknown. Plugin 0.7.0 adds the attributed local Piggyback/CDPR Night City
+  background and retains the external source link. There are no saved-ID/coordinate joins;
+  markers remain unpositioned. Missing packs omit the background and retain the raw saved ID.
 - Lazy pages publish at most 128 spatial entries with stable identities, text alternatives and
   read-only field targets. Host publication tests expand every page before loading any F8 row,
   verify each target/path/binding, reject edits and retain a clean session and byte-identical output.
@@ -43,7 +48,9 @@ threshold is asserted. The test suite retains stopwatch output for open plus exp
   catalog-only rows remain Unknown. No in-game edit is requested for these read-only presentations.
 
 Earlier exact capture and enabled-write validation checklists below remain open in #31. Only the
-owner may promote Stable. No private save data, game artwork or local resource exports are bundled.
+owner may promote Stable. No private save data or local resource exports are bundled. The separate
+public-source asset pack includes attributed publisher icons, captions, planner text and map art;
+see [ASSET-VALIDATION.md](ASSET-VALIDATION.md) and the README source table.
 
 ## F1 baseline
 
@@ -52,7 +59,7 @@ Run with `SAVETOOLKIT_ARTIFACTS` pointing to the owner's private artifacts direc
 ```powershell
 $archive = Join-Path $env:SAVETOOLKIT_ARTIFACTS 'PPSA04027_saves_dec.zip'
 dotnet run --project tools/SaveToolkit.SaveDiff -- list $archive
-dotnet run --project tools/SaveToolkit.SaveDiff -- compare $archive $archive --file sav.dat --semantic cyberpunk2077 --all
+dotnet run --project tools/SaveToolkit.SaveDiff -- compare $archive $archive --file sav.dat --decoder cyberpunk2077-evidence --all
 ```
 
 Results: **one generation**, two `sav.dat` entries (primary + **one identical backup twin**),
@@ -137,8 +144,10 @@ slot, exact action and observed item/stat values. Omit account identifiers and c
   Log exact build and results. Only the owner can promote Stable.
 - [ ] **Same-build data:** provide a lawful same-build TweakDB/localization export as a separately
   attributed local F2 pack if desired. Wiki embedding with attribution/share-alike is already approved.
-  Include resource hashes, locale, DLC coverage and permissions. No artwork is requested for
-  repository bundling without clear redistribution permission; no game/cloud credentials needed.
+  Include resource hashes, locale, DLC coverage and attribution. Publisher assets follow the owner
+  decision 2026-10-29 and community facts follow the owner decision 2026-10-28; a missing licence alone
+  is not a blocker. Explicit NC/no-redistribution terms remain excluded under plugin-guide rule 9.
+  No game/cloud credentials are needed.
 
 Later phases still need the plan's level/Street Cred threshold, skill reward, perk-rank buy/refund,
 Relic-access, car acquisition/summon, travel discovery and specific quest-stage pairs, plus later
@@ -267,5 +276,6 @@ coverage; they still need owner captures. Journal diagnostics retain 594 opaque 
 The merged facts collection holds 20,978 rows: 2,750 saved entries plus 18,228 hash-verified catalog
 facts absent from the save. Absence is not zero. Canonical whitespace and all unknown saved hashes
 are preserved, and no quest completion is inferred. Collection query results materialize at most
-200 rows; attachment pages at most 128. Initial open/view measurements were roughly 0.46–0.5 seconds
-in sample tests on the development machine (not a cross-hardware benchmark).
+200 rows, including the per-item F8 attachment tables introduced by the F14 round. Spatial map/graph
+pages remain bounded at 128 entries. Historical round-2 open/view measurements were roughly
+0.46–0.5 seconds in sample tests on the development machine (not a cross-hardware benchmark).

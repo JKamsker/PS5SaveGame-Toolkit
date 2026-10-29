@@ -4,6 +4,12 @@ Compared the plan and every #13 handoff with the checked-out main baseline, 2026
 Owner validation is tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 The write-enable directive supersedes the plan's old evidence gate for implemented scalar writers.
 
+This records the historical 0.6.0 completion round, with later feature-adoption notes. Current
+plugin **0.7.0** includes a local attributed Night City background, item/cyberware icons/captions
+and official planner text. Documentation rechecked **2026-10-29**: sample-backed Release suite
+**300 passed / 0 failed / 0 skipped**; Release API build **0 warnings / 0 errors**. Earlier counts
+below apply to the completion round only. See the README for current write scope and F1–F14 adoption.
+
 | Requirements | Baseline / gap | Classification and completion-round work |
 | --- | --- | --- |
 | R1 | One distinct early-game save; full-identity equipment and extended-item inspection exist | Owner-blocked: controlled buy/use/equip/stash/upgrade/cyberware captures in #31 |
@@ -13,17 +19,17 @@ The write-enable directive supersedes the plan's old evidence gate for implement
 | R5 | No console acceptance | Owner-blocked: load/effect/re-save/reload each write independently in #31 |
 | R6 | F2 context, build matching, local labels/icons and deterministic fallback implemented | Done; no plugin I/O or private resource export |
 | R7 | F4 catalog inspection implemented, IDs exact; replacement intentionally absent | Done for inspection; won't do base-ID swaps without complete instance initialization |
-| R8 | Pinned MIT identifiers and CC BY-SA labels, canonical whitespace/conflict refusal | Done: new spatial-source ledger, README/notices/Info.References and full linked-detail attribution; no external assets copied |
+| R8 | Pinned MIT identifiers and CC BY-SA labels, canonical whitespace/conflict refusal | Done: spatial-source ledger, README/notices/Info.References and full linked-detail attribution; 0.7.0 adds separately attributed publisher art/text under the 2026-10-29 owner decision |
 | R9 | All large inventory/fact/equipment/development/world lists use F8 | Done: spatial views additionally use lazy 128-entry pages, tested over 1,100 entries |
 | R10 | F6 selected stack target/refill, exclusions and atomic grouped undo | Done; retain shared planning rather than a plugin substitute |
 | R11 | Raw Level/Cred/XP/threshold setters enabled, not gameplay transitions | Owner-blocked: actual threshold/reward/perk/Relic captures in #31 |
 | R12 | F1 test decoder, independent binary fixtures and payload diffs | Done for supported inventory/facts/progression; owner-blocked for new semantic joins |
 | R13 | F9 available, travel registration union already decoded | Done: bounded link-first MapNodes, full-ID marker identities, working lazy field targets and text alternatives |
-| R14 | No proven journal completion joins or licensed coordinate transform | Done: attributed external official-map link. Owner-blocked for quest/collectible mappings/coordinate validation; no invented positions or percentages |
+| R14 | No proven journal completion joins or saved-ID/geographic coordinate transform | Done: attributed local reference background and external official-map link. Owner-blocked for quest/collectible mappings/coordinate validation; no invented positions or percentages |
 | R15 | Read-only typed garage/travel and opaque journal diagnostics exist | Owner-blocked: acquisition/summon/discovery/quest/gig/collectible pairs in #31 |
 | R16 | Full instance identity, original node keys and refusal of ambiguous joins | Done for existing records; structural restoration follows R3 |
 | R17 | Exact 265/2210/195 and package guards | Owner-blocked: later/mature/PL/other-region PS5 samples in #31 |
-| R18 | Owner approved attributed permissive/share-alike data; link-first for unclear rights | Updated 2026-10-29: attributed art/text/map subset imported per owner decision; no downloaded code executed |
+| R18 | Owner permits attributed community facts and publisher/rights-reserved assets under the 2026-10-28/29 decisions; explicit NC/no-redistribution terms remain excluded | Updated 2026-10-29: attributed art/text/map subset imported per owner decision; no downloaded code executed |
 | R19 | Serialize reparses; intended scalar/mirror checks, F1 diffs and final ZIP/backup test | Done: new spatial publication preserves clean session/no-op bytes; existing serialization/ZIP checks pass |
 | R20 | Confidence, evidence, editor-policy bounds and refusal reasons present | Done: F9 explanations retain Unknown eligibility and registration/accessibility distinction; README/evidence updated |
 | R21 | F6 atomic stack changes implemented; no sibling coupling demonstrated | Done for supported actions; won't invent F7 writes to files owned by GenericJson |
@@ -53,6 +59,9 @@ Cyberpunk structural writer, F7 has no demonstrated coupled member files, and F1
 codecs do not match CSAV's managed raw LZ4 format. The follow-up adopts merged F12 through a
 production SDK-only evidence hook and F13 through non-mutating catalogue actions on read-only
 documents and the shared browse-only reference picker. No replacement protocols were built.
+The later F14 round uses one inventory table through 100 rows (F8 above), per-item F8 attachment
+tables and default-hidden proven empty equipment slots. `InspectionCollection` now adapts shared
+`InMemoryCollection`; binary range/primitive reads use shared `BoundedBinaryCursor`.
 
 ## Completion outcome
 
@@ -61,7 +70,7 @@ The prepared writers from the earlier rounds are already enabled. Structural all
 garage/travel creation and story presets remain explicitly out of scope until complete dependency
 writers can be established from the requested owner captures; warnings cannot repair missing records.
 
-Shipped plugin 0.6.0: F9 stored-perk graphs / external-only travel maps; F10 typed absent-fact values;
+Completion-round plugin 0.6.0 shipped F9 stored-perk graphs / external-only travel maps; F10 typed absent-fact values;
 overlapping-sibling refusal; indexed equipment/world/stat joins; full adoption/evidence/attribution docs.
 No files outside the plugin, new packages, hooks or tooling. Existing nine write-enable capabilities
 remain enabled with their prior warnings; maturity stays Experimental.
