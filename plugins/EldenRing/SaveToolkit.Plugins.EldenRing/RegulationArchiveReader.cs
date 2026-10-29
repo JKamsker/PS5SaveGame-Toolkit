@@ -70,8 +70,8 @@ internal static class RegulationArchiveReader
         var typeOffset = U64(bytes, 0x10);
         var rows = BinaryPrimitives.ReadUInt16LittleEndian(bytes[0x0A..]);
         var directoryEnd = ParamHeaderSize + rows * ParamRowSize;
-        Require(directoryEnd <= bytes.Length && typeOffset >= (ulong)directoryEnd && typeOffset < (ulong)bytes.Length,
-            $"{name}: PARAM strings or row count exceed the table.");
+        if (directoryEnd > bytes.Length || typeOffset < (ulong)directoryEnd || typeOffset >= (ulong)bytes.Length)
+            throw new SaveFormatException($"{name}: PARAM strings or row count exceed the table.");
         // Validate the type tag's termination; never infer a field schema from an arbitrary file name.
         var typeStart = (int)typeOffset;
         var typeEnd = bytes.Slice(typeStart, Math.Min(MaximumNameBytes, bytes.Length - typeStart)).IndexOf((byte)0);
@@ -82,10 +82,12 @@ internal static class RegulationArchiveReader
             var dataOffset = U64(bytes, position + 8);
             var nameOffset = U64(bytes, position + 16);
             // Duplicate numeric row ids occur in the real snapshot; row identity is not id alone.
-            Require(dataOffset >= (ulong)directoryEnd && dataOffset < typeOffset,
-                $"{name}: PARAM has invalid row data offsets.");
-            Require(nameOffset == 0 || nameOffset >= typeOffset && nameOffset < (ulong)bytes.Length,
-                $"{name}: PARAM row name is outside its string region.");
+            // Keep contextual diagnostics on the failure path: large PARAM tables have
+            // thousands of valid rows and must not allocate two discarded messages per row.
+            if (dataOffset < (ulong)directoryEnd || dataOffset >= typeOffset)
+                throw new SaveFormatException($"{name}: PARAM has invalid row data offsets.");
+            if (nameOffset != 0 && (nameOffset < typeOffset || nameOffset >= (ulong)bytes.Length))
+                throw new SaveFormatException($"{name}: PARAM row name is outside its string region.");
         }
         return new RegulationTable(name, bytes.Length, rows, BinaryPrimitives.ReadUInt16LittleEndian(bytes[8..]), bytes[0x2F]);
     }
