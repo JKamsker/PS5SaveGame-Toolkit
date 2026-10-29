@@ -365,6 +365,34 @@ cover fixed-record selection and fresh-document/Core inspection; the five direct
 failed before migration. Existing byte-identical no-op, edits/reopen, aliases and undo/redo
 tests still pass. Only `plugins/TalesOfArise` changed.
 
+Malformed-input robustness review (#40): **312 passed, 0 failed, 0 skipped** in Release
+with external samples; API Release build with warnings as errors: **0 warnings/errors**.
+The 122 additional cases extend the existing corruption suites and fixture. They cover
+generated and all-six-sample encrypted-prefix cuts around the envelope, SHA1, AES,
+directory, section-header and body boundaries; all final partial-block lengths; and
+in-body deletions with repaired SHA1. Public `Probe` declines wrong-size files and
+`Open` rejects them with the documented `SaveFormatException`, before decryption.
+
+Every schema section now has invalid version/ID/size words, signed/unsigned integer
+edges, a valid encrypted header whose body overruns EOF, and ciphertext-header damage
+with repaired SHA1. Directory counts, first links and payload-length declarations
+also have explicit bounded-allocation assertions (8 MiB per warmed-up public rejection,
+including fixed-size file copies). Real-sample structural mutations cover every slot
+and backup and first/middle/last sections; captured encryption schedules have exact
+no-op controls. Mutations and synthetic fixtures stay in memory, never in the repository.
+
+Integrity tests pin every stored SHA1 byte and each encrypted region's boundaries.
+Opaque outer/alignment bytes remain preserved outside the hash. The supported PS5
+container uses AES without PKCS padding and fixed-schema linked tables, not a generic
+GVAS/FString parser: padding-like final plaintext blocks remain byte-identical. Inner
+body words with unknown semantics are not interpreted as allocation counts or strings.
+These cases pass against unchanged production code; no runtime defect or failing-first
+production regression is claimed. The two review findings were test-coverage gaps;
+neither is deferred. Existing write warnings, Experimental maturity, sample digests,
+byte-identical no-op output and edited reopen/undo/redo behavior remain covered.
+The generated corruption suite also passes **147/147, 0 skipped** with the artifacts
+environment variable unset, independently of private samples.
+
 ### Native SaveDiff evidence
 
 ```powershell

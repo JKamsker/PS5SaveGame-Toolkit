@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 namespace SaveToolkit.Plugins.TalesOfArise.Tests;
 
 /// <summary>
-/// Generated format fixtures, never copied from private saves. Encryption follows a fixed block
+/// Generated fixtures and in-memory sample mutations; private bytes are never embedded. Encryption follows a fixed block
 /// schedule rather than pointers in the mutated plaintext, so malformed files bypass Encode's guards.
 /// Independent cipher vectors and real-sample digests remain the crypto/schema oracles.
 /// </summary>
@@ -15,6 +15,7 @@ internal sealed class AriseTestContainer
     public const int SectionIdOffset = 4;
     public const int SectionSizeOffset = 8;
     public const int NextSectionOffset = 12;
+    public const int FirstSectionPointerOffset = DirectoryOffset + 8;
     public const int ItemRecordSize = 16;
     public const string FileName = "SaveData_000.sav";
     public const string TitleId = "PPSA02745";
@@ -22,6 +23,7 @@ internal sealed class AriseTestContainer
     private const int TableSize = 0x40;
     private const int FirstSectionOffset = DirectoryOffset + TableSize;
     private readonly List<(int Offset, int Size)> _blocks = [(OffsetTableOffset, TableSize), (DirectoryOffset, TableSize)];
+    private readonly byte[]? _original;
 
     public byte[] Payload { get; } = new byte[AriseFormat.FileSize - AriseFormat.PayloadOffset];
     public IReadOnlyList<AriseSection> Sections { get; }
@@ -67,19 +69,45 @@ internal sealed class AriseTestContainer
         InitializeEditableFields();
     }
 
+    public AriseTestContainer(AriseSave save)
+    {
+        Payload = save.Payload.ToArray();
+        Sections = save.Sections;
+        _original = save.Original;
+        // Capture the validated schedule before the test mutates any pointers or sizes.
+        _blocks[1] = (checked((int)AriseFormat.U32(Payload, DirectoryPointerOffset)), TableSize);
+        foreach (var section in Sections)
+        {
+            _blocks.Add((section.Offset - AriseFormat.HeaderSize, AriseFormat.HeaderSize));
+            _blocks.Add((section.Offset, section.Size));
+        }
+    }
+
     public int Body(string name) => Sections.Single(section => section.Name == name).Offset;
     public int Header(int index) => Sections[index].Offset - AriseFormat.HeaderSize;
     public void Write(int offset, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(Payload.AsSpan(offset), value);
 
-    public byte[] Encrypt()
+    public byte[] Encrypt() => Encrypt(_blocks.Select(block => (block.Offset, block.Offset, block.Size)));
+
+    // Stop after placing a valid header at a deliberately invalid body location. Later blocks
+    // must not overwrite that header, and the decoder must reject before reading its body.
+    public byte[] EncryptThroughHeader(int index, int destination) => Encrypt(_blocks.Take(2 + 2 * index)
+        .Select(block => (block.Offset, block.Offset, block.Size))
+        .Append((Header(index), destination, AriseFormat.HeaderSize)));
+
+    private byte[] Encrypt(IEnumerable<(int Source, int Destination, int Size)> blocks)
     {
-        var bytes = new byte[AriseFormat.FileSize];
-        bytes.AsSpan(0, AriseFormat.PayloadOffset).Fill(0xA5);
+        var bytes = _original?.ToArray() ?? new byte[AriseFormat.FileSize];
+        if (_original is null)
+        {
+            bytes.AsSpan(0, AriseFormat.PayloadOffset).Fill(0xA5);
+        }
+
         Payload.CopyTo(bytes, AriseFormat.PayloadOffset);
         using var cipher = new AriseCipher();
-        foreach (var (offset, size) in _blocks)
+        foreach (var (source, destination, size) in blocks)
         {
-            cipher.Transform(Payload.AsSpan(offset, size), bytes.AsSpan(AriseFormat.PayloadOffset + offset, size), encrypt: true);
+            cipher.Transform(Payload.AsSpan(source, size), bytes.AsSpan(AriseFormat.PayloadOffset + destination, size), encrypt: true);
         }
 
         AriseSampleTests.Hash(bytes.AsSpan(AriseFormat.CipherOffset)).CopyTo(bytes, AriseFormat.HashOffset);
