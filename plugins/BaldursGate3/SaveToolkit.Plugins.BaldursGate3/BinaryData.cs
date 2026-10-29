@@ -1,6 +1,6 @@
-using System.Buffers.Binary;
 using System.Text;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.BaldursGate3;
 
@@ -26,19 +26,18 @@ internal static class BinaryData
 
     internal static ReadOnlySpan<byte> Slice(ReadOnlySpan<byte> data, int offset, int length)
     {
-        Require(offset >= 0 && length >= 0 && offset <= data.Length && length <= data.Length - offset,
-            "BG3 data is truncated or contains an invalid offset.");
-        return data.Slice(offset, length);
+        try { return new BoundedBinaryCursor(data, nameof(BinaryData), offset).Take(length); }
+        catch (SaveFormatException) { throw new SaveFormatException("BG3 data is truncated or contains an invalid offset."); }
     }
 
     internal static uint U32(ReadOnlySpan<byte> data, int offset) =>
-        BinaryPrimitives.ReadUInt32LittleEndian(Slice(data, offset, sizeof(uint)));
+        new BoundedBinaryCursor(Slice(data, offset, sizeof(uint)), nameof(BinaryData)).ReadUInt32LE();
 
     internal static int I32(ReadOnlySpan<byte> data, int offset) => unchecked((int)U32(data, offset));
 
     internal static ushort U16(ReadOnlySpan<byte> data, int offset) =>
-        BinaryPrimitives.ReadUInt16LittleEndian(Slice(data, offset, sizeof(ushort)));
+        new BoundedBinaryCursor(Slice(data, offset, sizeof(ushort)), nameof(BinaryData)).ReadUInt16LE();
 
     internal static ulong U64(ReadOnlySpan<byte> data, int offset) =>
-        BinaryPrimitives.ReadUInt64LittleEndian(Slice(data, offset, sizeof(ulong)));
+        new BoundedBinaryCursor(Slice(data, offset, sizeof(ulong)), nameof(BinaryData)).ReadUInt64LE();
 }
