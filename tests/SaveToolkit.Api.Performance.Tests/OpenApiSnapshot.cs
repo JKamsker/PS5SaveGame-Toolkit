@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -41,12 +42,17 @@ internal static class OpenApiSnapshot
         _ => node?.DeepClone(),
     };
 
-    private static string RepositoryRoot()
+    private static string RepositoryRoot([CallerFilePath] string sourceFile = "")
     {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "SaveToolkit.slnx")))
-            directory = directory.Parent;
-        Assert.NotNull(directory);
-        return directory.FullName;
+        // Redirected build output may live outside the checkout; keep the reviewed
+        // snapshot tied to this test's source tree rather than the scratch drive.
+        foreach (var start in new[] { AppContext.BaseDirectory, Path.GetDirectoryName(sourceFile) })
+        {
+            var directory = start is null ? null : new DirectoryInfo(start);
+            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "SaveToolkit.slnx")))
+                directory = directory.Parent;
+            if (directory is not null) return directory.FullName;
+        }
+        throw new DirectoryNotFoundException("Could not locate the checkout containing the reviewed OpenAPI snapshot.");
     }
 }
