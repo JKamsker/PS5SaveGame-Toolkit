@@ -99,32 +99,34 @@ internal static class WorkspaceEndpoints
 
     private static IResult QueryCollection(HttpRequest request, DocumentRef document, string collectionId)
     {
-        if (!TryInt(request, "offset", 0, out var offset) || !TryInt(request, "limit", QueryableCollectionLimits.DefaultPageSize, out var limit))
+        var (query, revision) = BindCollectionQuery(request);
+        QueryableCollectionPage page;
+        try
         {
-            return Results.BadRequest(new ErrorDto("Offset and limit must be integers."));
+            page = document.Value.QueryCollection(collectionId, query, revision);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new ErrorDto(ex.Message));
         }
 
-        if (limit is < 1 or > QueryableCollectionLimits.MaxPageSize)
-        {
-            return Results.BadRequest(new ErrorDto($"Page size must be between 1 and {QueryableCollectionLimits.MaxPageSize}."));
-        }
+        return CollectionPageResponse.Create(QueryablePageDto.From(page));
+    }
 
-        if (offset < 0)
-        {
-            return Results.BadRequest(new ErrorDto("Offset cannot be negative."));
-        }
-
+    private static (QueryableCollectionQuery Query, long? Revision) BindCollectionQuery(HttpRequest request)
+    {
+        var (offset, limit) = ReadCollectionPaging(request);
         if (!TryBool(request, "descending", false, out var descending)
             || !TryBool(request, "includeEmpty", false, out var includeEmpty)
             || !TryLong(request, "revision", out var revision))
         {
-            return Results.BadRequest(new ErrorDto("Descending, includeEmpty and revision must be valid values."));
+            throw new BadHttpRequestException("Descending, includeEmpty and revision must be valid values.");
         }
 
         var filters = ParseFilters(request);
         if (filters is null)
         {
-            return Results.BadRequest(new ErrorDto("Filters must be a JSON object of string values."));
+            throw new BadHttpRequestException("Filters must be a JSON object of string values.");
         }
 
         var query = new QueryableCollectionQuery
@@ -144,24 +146,34 @@ internal static class WorkspaceEndpoints
             || query.Filters.Count > QueryableCollectionLimits.MaxFilterCount
             || query.Filters.Any(f => f.Key.Length == 0 || f.Key.Length > 128 || f.Value.Length > QueryableCollectionLimits.MaxFilterLength))
         {
-            return Results.BadRequest(new ErrorDto("Collection query exceeds the protocol limits."));
+            throw new BadHttpRequestException("Collection query exceeds the protocol limits.");
         }
 
         // Apply clearing after all overrides and bounds checks, preserving nonempty/whitespace values.
         foreach (var key in filters.Where(filter => filter.Value.Length == 0).Select(filter => filter.Key).ToArray())
             filters.Remove(key);
 
-        QueryableCollectionPage page;
-        try
+        return (query, revision);
+    }
+
+    private static (int Offset, int Limit) ReadCollectionPaging(HttpRequest request)
+    {
+        if (!TryInt(request, "offset", 0, out var offset) || !TryInt(request, "limit", QueryableCollectionLimits.DefaultPageSize, out var limit))
         {
-            page = document.Value.QueryCollection(collectionId, query, revision);
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.BadRequest(new ErrorDto(ex.Message));
+            throw new BadHttpRequestException("Offset and limit must be integers.");
         }
 
-        return CollectionPageResponse.Create(QueryablePageDto.From(page));
+        if (limit is < 1 or > QueryableCollectionLimits.MaxPageSize)
+        {
+            throw new BadHttpRequestException($"Page size must be between 1 and {QueryableCollectionLimits.MaxPageSize}.");
+        }
+
+        if (offset < 0)
+        {
+            throw new BadHttpRequestException("Offset cannot be negative.");
+        }
+
+        return (offset, limit);
     }
 
     private static Dictionary<string, string>? ParseFilters(HttpRequest request)
