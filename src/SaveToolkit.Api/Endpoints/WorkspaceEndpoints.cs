@@ -236,7 +236,7 @@ internal static class WorkspaceEndpoints
         var name = form["name"].FirstOrDefault() is { Length: > 0 } n ? n : Path.GetFileNameWithoutExtension(form.Files[0].FileName);
         var sources = form.Files.Select(f => new ImportSource(f.FileName, f.OpenReadStream)).ToList();
         var workspace = await Task.Run(() => store.Create(name, sources), ct);
-        return Results.Ok(workspace.ToDto(store.Catalog));
+        return Results.Ok(WorkspaceRef.Retain(request.HttpContext, store, workspace.Id).ToDto(store.Catalog));
     }
 
     private static IResult ToResult(SessionEditResult result) =>

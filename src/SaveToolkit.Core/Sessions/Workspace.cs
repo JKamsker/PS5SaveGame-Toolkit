@@ -19,6 +19,7 @@ public sealed class Workspace : IDisposable
     private readonly DocumentGroupRegistry _groups;
     private int _documentCounter;
     private bool _disposed;
+    private long _lastAccessTicks;
 
     public Workspace(string id, string name, DiskSaveSet set, PluginCatalog catalog, ReferencePackStore? packs = null)
     {
@@ -36,7 +37,7 @@ public sealed class Workspace : IDisposable
     public string Name { get; }
     public DiskSaveSet Set { get; }
     public DateTimeOffset CreatedAt { get; }
-    public DateTimeOffset LastAccess { get; private set; }
+    public DateTimeOffset LastAccess => new(Interlocked.Read(ref _lastAccessTicks), TimeSpan.Zero);
 
     public IReadOnlyCollection<DocumentSession> Documents => [.. _documents.Values];
 
@@ -74,7 +75,7 @@ public sealed class Workspace : IDisposable
         return true;
     }
 
-    public void Touch() => LastAccess = DateTimeOffset.UtcNow;
+    public void Touch() => Interlocked.Exchange(ref _lastAccessTicks, DateTimeOffset.UtcNow.Ticks);
 
     public IReadOnlyList<ProbeMatch> Probe(DiskSaveFile file) => _probes.GetOrAdd(file.Id, _ => _catalog.Probe(file));
 
