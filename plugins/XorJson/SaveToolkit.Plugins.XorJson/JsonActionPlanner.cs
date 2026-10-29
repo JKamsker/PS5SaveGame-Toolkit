@@ -87,6 +87,8 @@ internal sealed class JsonActionPlanner(JsonEditModel model, IReferenceContext r
             if (value.Kind != FieldValueKind.Text) throw new SaveFormatException("Provide one JSON scalar literal.");
             var scalar = JsonTokenTree.Parse(Encoding.UTF8.GetBytes(value.AsString())).Nodes[0];
             if (scalar.IsContainer) throw new SaveFormatException("Bulk writes accept a scalar, not an object or array.");
+            if (scalar.Spec?.ReadOnly == true)
+                throw new SaveFormatException("The JSON scalar exceeds editable exact-number limits.");
             return scalar.Current;
         }
         if (id is JsonActions.Item or JsonActions.Rarity)

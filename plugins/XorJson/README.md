@@ -170,6 +170,8 @@ tokens, skip merchant/special rows and report unverified PC bounds/dependencies.
 The generic **Set selected scalar values** action uses F6
 `IActionPlanningDocument` preview/apply, including skipped incompatible rows and
 one atomic undo step; it does not synthesize game-aware presets.
+Numeric literals beyond the exact-number editing limits are rejected by this
+action; their read-only text fallback is never written as a JSON string.
 Catalog-valued edits and their undo/redo request a view rebuild so labels,
 provenance and picker specs follow the current ID.
 
