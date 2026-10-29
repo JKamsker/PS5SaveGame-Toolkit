@@ -319,6 +319,26 @@ ordinal text with a stable row-key tie-break; queries use offsets, not cursors.
 
 ## Validation and development
 
+Malformed-input correctness review (#40): **216 passed, 0 failed, 0 skipped**
+with all 12 supplied files; API build **0 warnings, 0 errors**. Three fixes
+preflight complete Mandarin block extents before plaintext allocation/decryption,
+apply scalar type/width rejection to empty value arrays, and safely present
+optional header strings, structs, containers and non-finite floats. Existing
+primitive IDs, primary/Raw aliases, fixed-size writes and no-op bytes are preserved.
+
+The 71 added cases include 70 that run without private saves: every truncation
+point in authored scalar/compound records, UTF-16 lengths and alignment, value
+and class arrays with/without hash metadata, depth 100/101, invalid array headers,
+physical truncation/extra bytes with repaired hashes, metadata/ciphertext damage,
+valid-integrity truncated plaintext, exact block boundaries and header fallbacks.
+In-memory mutations of all 12 real files cover late block truncation and invalid
+typed counts with repaired integrity. Invalid input retains the documented
+`SaveFormatException` rejection. A 156-byte file declaring 64 MiB previously
+allocated about 67 MB before rejection; its regression now limits rejection
+allocation to under 1 MiB without a timing threshold. The complete sample-free
+run passes 132 cases and cleanly skips 84 sample-dependent cases. Initial
+regressions reproduced 14 failures before their respective fixes.
+
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests

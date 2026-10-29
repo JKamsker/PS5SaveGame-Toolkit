@@ -30,6 +30,11 @@ internal sealed class TypedPayloadFixture : IDisposable
     {
         Field(hash, FieldTags.String);
         Align(4);
+        StringValue(utf16);
+    }
+
+    public void StringValue(byte[] utf16)
+    {
         Word((uint)utf16.Length / sizeof(char));
         _writer.Write(utf16);
         Align(4);
