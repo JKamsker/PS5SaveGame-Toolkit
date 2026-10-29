@@ -76,6 +76,7 @@
     <Project Path="src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/SaveToolkit.Api.Performance.Tests/SaveToolkit.Api.Performance.Tests.csproj" />
     <Project Path="tests/SaveToolkit.Codecs.Tests/SaveToolkit.Codecs.Tests.csproj" />
     <Project Path="tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj" />
     <Project Path="tests/SaveToolkit.SaveDiff.Tests/SaveToolkit.SaveDiff.Tests.csproj" />
