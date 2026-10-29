@@ -74,11 +74,11 @@ internal static class WorkspaceEndpoints
             QueryCollection(request, document, collectionId));
         doc.MapGet("/collections/{collectionId}", QueryCollection);
         doc.MapPost("/edits", (DocumentRef d, EditRequest request) =>
-            ToResult(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
+            SessionEditResponse.Create(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
         doc.MapPost("/actions", (DocumentRef d, ActionRequest request) =>
-            ToResult(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)));
-        doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Undo()));
-        doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Redo()));
+            SessionEditResponse.Create(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)));
+        doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Undo()));
+        doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Redo()));
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
             d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content, asset.ContentType) : Results.NotFound());
         doc.MapGet("/blobs", (DocumentRef d, [FromQuery] string id, [FromQuery] long offset, [FromQuery] int count) =>
@@ -240,11 +240,6 @@ internal static class WorkspaceEndpoints
         var workspace = await Task.Run(() => store.Create(name, sources), ct);
         return Results.Ok(WorkspaceRef.Retain(request.HttpContext, store, workspace.Id).ToDto(store.Catalog));
     }
-
-    private static IResult ToResult(SessionEditResult result) =>
-        result.Ok ? Results.Ok(result)
-        : result.Stale ? Results.Conflict(result)
-        : Results.UnprocessableEntity(result);
 
     private static ExportOptions ToOptions(ExportRequest r) => new() { Scope = r.Scope, MirrorBackups = r.MirrorBackups };
 
