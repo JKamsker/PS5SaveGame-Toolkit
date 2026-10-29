@@ -1,8 +1,8 @@
 # Owner captures and console validation (#20 / #31)
 
 The write-enable round exposes career/spent bolts, seven gold-bolt switches and
-existing boolean preferences as Experimental. Not validated on console: unknown
-integrity means the game may reject the edited save. These captures now track
+existing boolean preferences as Experimental. Not validated on console. The game may
+reject or overwrite the edited save. Integrity coverage is unknown. These captures now track
 confidence and acceptance under [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31),
 not permission to enable those edits. Only the owner can establish acceptance or Stable.
 
