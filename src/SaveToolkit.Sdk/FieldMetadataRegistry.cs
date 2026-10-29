@@ -61,7 +61,7 @@ internal sealed class FieldMetadataRegistry
 
                 if (field.CanonicalValueId == field.ValueId)
                 {
-                    if (field.BindingKind == FieldBindingKind.Primary && !hasSetter)
+                    if (field.BindingKind == FieldBindingKind.Primary && !field.Spec.ReadOnly && !hasSetter)
                         throw new InvalidOperationException($"Canonical field '{field.ValueId}' must be writable.");
                     return;
                 }

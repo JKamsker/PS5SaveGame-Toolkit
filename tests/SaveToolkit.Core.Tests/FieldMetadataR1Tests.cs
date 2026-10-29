@@ -56,6 +56,29 @@ public sealed class FieldMetadataR1Tests : IDisposable
     }
 
     [Fact]
+    public void IndependentReadOnlyPrimaryRemainsInspectable()
+    {
+        using var document = new ReadOnlyPrimaryDocument();
+        var metadata = document.ResolveFieldMetadata(["protected"]);
+        Assert.Equal("protected", Assert.Single(metadata).ValueId);
+        Assert.True(metadata[0].Spec.ReadOnly);
+        Assert.NotNull(new ViewIndex(document).Metadata("protected"));
+    }
+
+    [Fact]
+    public void ExplicitCanonicalAliasesProduceOnePrimarySemanticRow()
+    {
+        using var document = new AliasReviewDocument();
+        using var session = Open(document, "canonical-semantic-review");
+        Assert.True(session.ApplyEdits([new IncomingEdit("primary", JsonSerializer.SerializeToElement(2))]).Ok);
+
+        var review = session.GetChanges();
+        var change = Assert.Single(review.Changes);
+        Assert.Equal("primary", change.ValueId);
+        Assert.True(change.CanRevert);
+    }
+
+    [Fact]
     public void MetadataIndexPublishesNoEarlierBatchWhenLaterBatchFails()
     {
         using var document = new BatchDocument();
@@ -65,6 +88,26 @@ public sealed class FieldMetadataR1Tests : IDisposable
         Assert.Throws<InvalidOperationException>(() => index.ResolveMetadata(ids));
         Assert.DoesNotContain("f0", index.BindingIds);
         Assert.DoesNotContain("f199", index.BindingIds);
+    }
+
+    [Fact]
+    public void MetadataIndexValidatesWarmAliasesAgainstTheFinalPrimaryBatch()
+    {
+        using var document = new WarmAliasDocument();
+        var index = new ViewIndex(document);
+        var fillers = Enumerable.Range(0, 199).Select(i => $"f{i}");
+        index.ResolveMetadata(["alias", .. fillers, "primary"]);
+
+        document.Changed = true;
+        Assert.Throws<InvalidOperationException>(() => index.ResolveMetadata(["alias"]));
+    }
+
+    [Fact]
+    public void MetadataIndexRejectsLongDerivedChainsWithoutRecursiveWalk()
+    {
+        using var document = new DerivedChainDocument();
+        Assert.Throws<InvalidOperationException>(() => new ViewIndex(document).ResolveMetadata(["a0"]));
+        Assert.InRange(document.ResolutionCalls, 1, 2);
     }
 
     [Fact]
@@ -121,6 +164,28 @@ public sealed class FieldMetadataR1Tests : IDisposable
         Assert.False(review.Complete);
         Assert.Empty(review.Changes);
         Assert.Contains(review.Warnings, warning => warning.Contains("Targeted metadata coverage", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RenderedAndNewlyRenderedMetadataDriftRevokesReviewAuthority()
+    {
+        var document = new DriftingMetadataDocument { Rendered = true };
+        using var session = Open(document, "rendered-drift", () => new DriftingMetadataDocument { Rendered = true });
+        _ = session.BuildView();
+        Assert.True(session.ApplyEdits([new IncomingEdit("hidden", JsonSerializer.SerializeToElement(2))]).Ok);
+        document.Drift = true;
+        Assert.False(session.GetChanges().Complete);
+        Assert.Empty(session.GetChanges().Changes);
+
+        var newlyRendered = new DriftingMetadataDocument();
+        using var second = Open(newlyRendered, "newly-rendered-drift", () => new DriftingMetadataDocument());
+        _ = second.BuildView();
+        Assert.True(second.ApplyEdits([new IncomingEdit("hidden", JsonSerializer.SerializeToElement(2))]).Ok);
+        newlyRendered.Rendered = true;
+        newlyRendered.Drift = true;
+        var review = second.GetChanges();
+        Assert.False(review.Complete);
+        Assert.Empty(review.Changes);
     }
 
     private DocumentSession Open(ISaveDocument document, string name, Func<ISaveDocument>? openOriginal = null) =>
@@ -185,6 +250,37 @@ public sealed class FieldMetadataR1Tests : IDisposable
         public override IReadOnlyList<FileOutput> Serialize() => [];
     }
 
+    private sealed class ReadOnlyPrimaryDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        public ReadOnlyPrimaryDocument() => RegisterField(
+            new FieldMetadata("protected", "Protected", IntegerSpec.Int32 with { ReadOnly = true }),
+            () => FieldValue.Of(1), _ => { });
+
+        public override string Title => "Read only primary";
+        public override ViewNode BuildView() => new TextNode("Protected value");
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+    }
+
+    private sealed class AliasReviewDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private int _value = 1;
+
+        public AliasReviewDocument()
+        {
+            RegisterField(new FieldMetadata("primary", "Primary", IntegerSpec.Int32),
+                () => FieldValue.Of(_value), value => _value = value.AsInt32());
+            foreach (var id in new[] { "raw/primary", "inspect/primary" })
+                RegisterField(new FieldMetadata(id, "Primary projection", IntegerSpec.Int32 with { ReadOnly = true })
+                    { BindingKind = FieldBindingKind.Derived, CanonicalValueId = "primary" },
+                    () => FieldValue.Of(_value));
+        }
+
+        public override string Title => "Canonical aliases";
+        public override ViewNode BuildView() => new SectionNode("Aliases",
+            [Field("primary", "Primary"), Field("raw/primary", "Raw"), Field("inspect/primary", "Inspect")]);
+        public override IReadOnlyList<FileOutput> Serialize() => [new("save.dat", new byte[] { (byte)_value })];
+    }
+
     private sealed class BatchDocument : BoundSaveDocument, IFieldMetadataDocument
     {
         public override string Title => "Batch";
@@ -197,6 +293,70 @@ public sealed class FieldMetadataR1Tests : IDisposable
             foreach (var id in valueIds)
                 RegisterField(new FieldMetadata(id, id, IntegerSpec.Int32), () => FieldValue.Of(1), _ => { });
             return base.ResolveFieldMetadata(valueIds);
+        }
+    }
+
+    private sealed class WarmAliasDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private int _value = 1;
+        public bool Changed { get; set; }
+
+        public WarmAliasDocument()
+        {
+            RegisterField("primary", new IntegerSpec(0, 10), () => FieldValue.Of(_value), value => _value = value.AsInt32());
+            RegisterField("alias", IntegerSpec.Int32 with { ReadOnly = true }, () => FieldValue.Of(_value));
+            for (var i = 0; i < 199; i++)
+                RegisterField($"f{i}", IntegerSpec.Int32, () => FieldValue.Of(1), _ => { });
+        }
+
+        public override string Title => "Warm aliases";
+        public override ViewNode BuildView() => new TextNode("No fields");
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids)
+        {
+            var result = new List<FieldMetadata>(ids.Count);
+            foreach (var id in ids.Distinct(StringComparer.Ordinal))
+            {
+                if (id == "primary")
+                    result.Add(new FieldMetadata(id, "Primary", new IntegerSpec(0, Changed ? 20 : 10)));
+                else if (id == "alias")
+                    result.Add(new FieldMetadata(id, "Alias", new IntegerSpec(0, 10) { ReadOnly = true })
+                    { BindingKind = FieldBindingKind.Derived, CanonicalValueId = "primary" });
+                else if (id.StartsWith('f'))
+                    result.Add(new FieldMetadata(id, id, IntegerSpec.Int32));
+            }
+            return result;
+        }
+    }
+
+    private sealed class DerivedChainDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        public int ResolutionCalls { get; private set; }
+
+        public DerivedChainDocument()
+        {
+            for (var i = 0; i < 4097; i++)
+            {
+                var id = $"a{i}";
+                RegisterField(id, IntegerSpec.Int32 with { ReadOnly = true }, () => FieldValue.Of(1));
+            }
+        }
+
+        public override string Title => "Derived chain";
+        public override ViewNode BuildView() => new TextNode("No fields");
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids)
+        {
+            ResolutionCalls++;
+            return ids.Where(id => id.StartsWith('a')
+                && int.TryParse(id.AsSpan(1), out var number))
+                .Select(id => new FieldMetadata(id, id, IntegerSpec.Int32 with { ReadOnly = true })
+                {
+                    BindingKind = FieldBindingKind.Derived,
+                    CanonicalValueId = $"a{int.Parse(id.AsSpan(1)) + 1}",
+                }).ToArray();
         }
     }
 
@@ -254,12 +414,13 @@ public sealed class FieldMetadataR1Tests : IDisposable
     {
         private int _value = 1;
         public bool Drift { get; set; }
+        public bool Rendered { get; set; }
 
         public DriftingMetadataDocument() => RegisterField(new FieldMetadata("hidden", "Hidden", IntegerSpec.Int32),
             () => FieldValue.Of(_value), value => _value = value.AsInt32());
 
         public override string Title => "Drifting metadata";
-        public override ViewNode BuildView() => new TextNode("No rendered fields");
+        public override ViewNode BuildView() => Rendered ? Field("hidden", "Hidden") : new TextNode("No rendered fields");
         public override IReadOnlyList<FileOutput> Serialize() => [];
 
         public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)

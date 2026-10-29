@@ -61,9 +61,9 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
                         break;
                     }
 
+                    index(f);
                     bytes += cost;
                     fields[f.ValueId] = field;
-                    index(f);
                     break;
                 case SectionNode s:
                     var sectionPath = path.Append("section:" + (s.LazyId ?? s.Title)).ToArray();
@@ -164,6 +164,16 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
             pair => pair.Value with { Path = pair.Value.Path.ToArray() }, StringComparer.Ordinal), Complete, Bytes)
         { QueryWarnings = QueryWarnings.ToArray() };
         return copy;
+    }
+
+    internal void ReplaceWith(SemanticSnapshot source)
+    {
+        Fields.Clear();
+        foreach (var (id, field) in source.Fields)
+            Fields.Add(id, field with { Path = field.Path.ToArray() });
+        Complete = source.Complete;
+        Bytes = source.Bytes;
+        QueryWarnings = source.QueryWarnings.ToArray();
     }
 
     internal void Merge(SemanticSnapshot source, long maxBytes)

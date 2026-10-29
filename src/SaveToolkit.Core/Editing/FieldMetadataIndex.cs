@@ -47,87 +47,89 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
     public void ResolveAll(IEnumerable<string> ids, CancellationToken cancellationToken = default)
     {
         var working = new Dictionary<string, FieldMetadata>(_fields, StringComparer.Ordinal);
-        ResolveAll(ids, working, new HashSet<string>(StringComparer.Ordinal), cancellationToken);
+        ResolveAll(ids, working, cancellationToken);
         _fields.Clear();
         foreach (var (id, field) in working) _fields.Add(id, field);
     }
 
     private void ResolveAll(IEnumerable<string> ids, Dictionary<string, FieldMetadata> cache,
-        HashSet<string> resolving, CancellationToken cancellationToken)
+        CancellationToken cancellationToken)
     {
         if (document is not IFieldMetadataDocument source) return;
-        var requestedIds = ids.Distinct(StringComparer.Ordinal).Where(resolving.Add).ToArray();
-        try
+        const int MaxClosureIds = 4096;
+        var pending = new Queue<string>(ids.Distinct(StringComparer.Ordinal));
+        var scheduled = pending.ToHashSet(StringComparer.Ordinal);
+        var fetched = new HashSet<string>(StringComparer.Ordinal);
+        var touched = new HashSet<string>(StringComparer.Ordinal);
+        while (pending.Count > 0)
         {
-            foreach (var batch in requestedIds.Chunk(BatchSize))
+            cancellationToken.ThrowIfCancellationRequested();
+            var batch = pending.Take(BatchSize).ToArray();
+            foreach (var id in batch) _ = pending.Dequeue();
+            var requested = batch.ToHashSet(StringComparer.Ordinal);
+            var resolved = source.ResolveFieldMetadata(Array.AsReadOnly(batch));
+            if (resolved.Count > batch.Length) throw new InvalidOperationException("Too many field descriptors returned.");
+            var next = new Dictionary<string, FieldMetadata>(StringComparer.Ordinal);
+            foreach (var field in resolved)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var requested = batch.ToHashSet(StringComparer.Ordinal);
-                var resolved = source.ResolveFieldMetadata(Array.AsReadOnly(batch));
-                if (resolved.Count > batch.Length) throw new InvalidOperationException("Too many field descriptors returned.");
-                var next = new Dictionary<string, FieldMetadata>(StringComparer.Ordinal);
-                foreach (var field in resolved)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    var normalized = Normalize(field);
-                    if (string.IsNullOrEmpty(normalized.ValueId) || !requested.Contains(normalized.ValueId)
-                        || string.IsNullOrEmpty(normalized.Label) || normalized.Spec is null
-                        || !Enum.IsDefined(normalized.BindingKind)
-                        || (normalized.Presentation?.Confidence is { } confidence && !Enum.IsDefined(confidence))
-                        || (normalized.BindingKind == FieldBindingKind.Derived && !normalized.Spec.ReadOnly)
-                        || !next.TryAdd(normalized.ValueId, normalized))
-                        throw new InvalidOperationException("Invalid or duplicate field metadata.");
-                    _ = document.GetValue(normalized.ValueId); // A descriptor promises a live binding.
-                }
-
-                cancellationToken.ThrowIfCancellationRequested();
-
-                foreach (var id in batch.Where(id => !next.ContainsKey(id))) cache.Remove(id);
-                foreach (var (id, field) in next)
-                    if (!cache.TryGetValue(id, out var previous) || !Agree(previous, field)) cache[id] = Snapshot(field);
-
-                // Alias targets are resolved separately because the SDK contract returns only requested
-                // descriptors. This remains bounded and never enumerates the document.
-                var canonicalIds = next.Values
-                    .Select(field => field.CanonicalValueId)
-                    .Where(id => !string.IsNullOrEmpty(id))
-                    .Where(id => !next.ContainsKey(id))
-                    .Distinct(StringComparer.Ordinal)
-                    .ToArray();
-                if (canonicalIds.Length > 0) ResolveAll(canonicalIds, cache, resolving, cancellationToken);
-                foreach (var field in next.Values) ValidateCanonical(field, cache, new HashSet<string>(StringComparer.Ordinal));
+                var normalized = Normalize(field);
+                if (string.IsNullOrEmpty(normalized.ValueId) || !requested.Contains(normalized.ValueId)
+                    || string.IsNullOrEmpty(normalized.Label) || normalized.Spec is null
+                    || !Enum.IsDefined(normalized.BindingKind)
+                    || (normalized.Presentation?.Confidence is { } confidence && !Enum.IsDefined(confidence))
+                    || (normalized.BindingKind == FieldBindingKind.Derived && !normalized.Spec.ReadOnly)
+                    || !next.TryAdd(normalized.ValueId, normalized))
+                    throw new InvalidOperationException("Invalid or duplicate field metadata.");
+                _ = document.GetValue(normalized.ValueId); // A descriptor promises a live binding.
             }
+            cancellationToken.ThrowIfCancellationRequested();
+            foreach (var id in batch.Where(id => !next.ContainsKey(id))) cache.Remove(id);
+            foreach (var (id, field) in next)
+            {
+                if (!cache.TryGetValue(id, out var previous) || !Agree(previous, field))
+                    cache[id] = Snapshot(field);
+                touched.Add(id);
+                fetched.Add(id);
+            }
+
+            foreach (var field in next.Values)
+            {
+                var canonicalId = Normalize(field).CanonicalValueId;
+                if (canonicalId != field.ValueId && !fetched.Contains(canonicalId)
+                    && scheduled.Add(canonicalId))
+                {
+                    if (scheduled.Count > MaxClosureIds)
+                        throw new InvalidOperationException("Canonical metadata closure exceeded its bounded limit.");
+                    pending.Enqueue(canonicalId);
+                }
+            }
+
+            // A target that has arrived can reject an alias-of-derived relationship immediately;
+            // no recursive chain traversal is needed. Final agreement waits until all batches finish.
+            foreach (var field in cache.Values.Where(field => touched.Contains(field.ValueId)))
+                if (HasAvailableTarget(field, fetched)) ValidateCanonical(field, cache);
         }
-        finally
-        {
-            foreach (var id in requestedIds) resolving.Remove(id);
-        }
+        foreach (var field in cache.Values.Where(field => touched.Contains(field.ValueId)
+            || touched.Contains(Normalize(field).CanonicalValueId)))
+            ValidateCanonical(field, cache);
     }
 
-    private static void ValidateCanonical(FieldMetadata field, IReadOnlyDictionary<string, FieldMetadata> cache,
-        HashSet<string> visiting)
+    private static bool HasAvailableTarget(FieldMetadata field, IReadOnlySet<string> fetched) =>
+        Normalize(field).CanonicalValueId == field.ValueId || fetched.Contains(Normalize(field).CanonicalValueId);
+
+    private static void ValidateCanonical(FieldMetadata field, IReadOnlyDictionary<string, FieldMetadata> cache)
     {
-        var canonicalId = string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId;
+        var canonicalId = Normalize(field).CanonicalValueId;
         if (canonicalId == field.ValueId)
-        {
-            if (field.BindingKind == FieldBindingKind.Primary && field.Spec.ReadOnly)
-                throw new InvalidOperationException($"Canonical primary '{field.ValueId}' is read-only.");
             return;
-        }
-        if (!visiting.Add(field.ValueId))
-            throw new InvalidOperationException($"Canonical field alias cycle includes '{field.ValueId}'.");
-        try
-        {
-            if (field.BindingKind != FieldBindingKind.Derived || !field.Spec.ReadOnly
-                || !cache.TryGetValue(canonicalId, out var canonical)
-                || canonical.BindingKind != FieldBindingKind.Primary
-                || canonical.Spec.ReadOnly
-                || (string.IsNullOrEmpty(canonical.CanonicalValueId) ? canonical.ValueId : canonical.CanonicalValueId) != canonical.ValueId
-                || !FieldSpecMetadata.Agree(field.Spec, canonical.Spec with { ReadOnly = true }))
-                throw new InvalidOperationException($"Invalid canonical alias '{field.ValueId}'.");
-            ValidateCanonical(canonical, cache, visiting);
-        }
-        finally { visiting.Remove(field.ValueId); }
+        if (field.BindingKind != FieldBindingKind.Derived || !field.Spec.ReadOnly
+            || !cache.TryGetValue(canonicalId, out var canonical)
+            || canonical.BindingKind != FieldBindingKind.Primary
+            || canonical.Spec.ReadOnly
+            || Normalize(canonical).CanonicalValueId != canonical.ValueId
+            || !FieldSpecMetadata.Agree(field.Spec, canonical.Spec with { ReadOnly = true }))
+            throw new InvalidOperationException($"Invalid canonical alias '{field.ValueId}'.");
     }
 
     private static FieldMetadata Normalize(FieldMetadata field) =>
