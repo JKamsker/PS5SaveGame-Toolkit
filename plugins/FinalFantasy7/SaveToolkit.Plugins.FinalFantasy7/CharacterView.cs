@@ -54,22 +54,26 @@ internal sealed class CharacterView
         return field.Byte ? _bytes[field.Offset] : U32(_bytes, field.Offset);
     }
 
-    public TableNode Build()
+    public TableNode Build(IReadOnlyList<ActionNode>? actions = null)
     {
         var rows = _fields.Select((fields, index) =>
         {
             var cells = fields.ToDictionary(pair => pair.Key, pair => (ViewNode)_bind(pair.Value), StringComparer.Ordinal);
             cells["name"] = new TextNode(_references.Character(index));
             cells["source"] = new TextNode(_references.CharacterSource(index));
+            foreach (var action in actions ?? []) cells[action.ActionId] = action;
             return new TableRow($"character/{index}", cells);
         }).ToArray();
         List<TableColumn> columns = [new("name", "Character"), new("level", "Level"), new("experience", "XP"),
             new("hp", "HP"), new("max-hp", "Max HP"), new("mp", "MP"), new("max-mp", "Max MP"), new("source", "Source")];
         if (_fields.Any(fields => fields.ContainsKey("weapon"))) columns.Add(new("weapon", "Weapon instance"));
+        if (actions is not null) columns.AddRange(actions.Select(action => new TableColumn(action.ActionId, action.Label)));
         return new(columns, rows)
         {
             Title = "Character sheets",
-            Description = WriteWarnings.Progression + "HP/MP are bounded by the original stored maxima. Maxima remain read-only caches. " + EmbeddedCatalogs.Attribution,
+            Description = WriteWarnings.Progression + "HP/MP are bounded by the original stored maxima. Maxima remain read-only caches. " +
+                "Select rows, then use a table action to preview only that selection; an empty selection changes nothing. " +
+                "The separate controls above the table target all seven records. " + EmbeddedCatalogs.Attribution,
         };
     }
 

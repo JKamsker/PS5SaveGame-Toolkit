@@ -17,7 +17,7 @@ internal sealed class CharacterPlanning(Ff7Schema schema, CharacterView characte
         "Inferred character level targets set XP to the source tier threshold. Maxima, abilities, rewards and guest/past-character progression are not repaired. ";
     private readonly uint[][] _curves = ProgressionEdits.CharacterCurves(schema);
 
-    public IReadOnlyList<ViewNode> Views() =>
+    public IReadOnlyList<ActionNode> Views() =>
     [
         new ActionNode(RecoveryActionId, "Recover selected characters' current HP/MP")
         {
@@ -114,7 +114,9 @@ internal sealed class CharacterPlanning(Ff7Schema schema, CharacterView characte
     private void Add(int character, string suffix, uint value, List<PlannedChange> changes, bool derived = false)
     {
         var old = characters.Value(character, suffix);
-        if (old == value) return;
+        // Keep XP in the replay tuple even when only the level changes. Without it,
+        // undo derives XP from the old level and loses an inconsistent opening pair.
+        if (old == value && !derived) return;
         var field = characters.Definition(character, suffix);
         changes.Add(new(field.Id, $"{references.Character(character)} · {field.Label}", FieldValue.Of((long)old), FieldValue.Of((long)value)) { Derived = derived });
     }

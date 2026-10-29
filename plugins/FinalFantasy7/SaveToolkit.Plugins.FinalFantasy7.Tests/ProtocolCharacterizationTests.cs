@@ -15,10 +15,10 @@ namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 public sealed class ProtocolCharacterizationTests
 {
     [Theory]
-    // Refreshed for #40's two character actions and bounded play-time field; authored framing, no private sample data.
-    [InlineData("PPSA01911", "0A7977BA23DD85F0F4C2509B799AF921AB29A67F022520D4B829306C143DA471")]
-    [InlineData("PPSA08664", "0B150DC74247F5773EBEEE763DE6474F90166372AF7853A799B57476D2C503A7")]
-    [InlineData("PPSA18936", "54363FA26FFDE98D9E4E16594784B0D686C9E36AA3447D39A3AC1474E231151F")]
+    // Refreshed for #40's character table actions; authored framing, no private sample data.
+    [InlineData("PPSA01911", "BD10E291DA189F14B3AA1D9FBC071E02B0FEB808C8A310589694F8B8DE8C51DF")]
+    [InlineData("PPSA08664", "ED32F63E669571032B1A9F96EC88C462955C35486BB725A4F56DE89C298B2C7B")]
+    [InlineData("PPSA18936", "D16F56DAB11B8A338C08CAF083D6F3F751765A2157683E6B5CD6E2EDBE7F4193")]
     public void RootCollectionsLazyRoutesAndCompletePlansKeepTheirProtocol(string title, string expected)
     {
         var previousCulture = CultureInfo.CurrentCulture;

@@ -50,15 +50,18 @@ select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as 
 
 The **Characters** tab provides **Recover selected characters' current HP/MP** and
 **Set selected character levels**. Both use F6 previews with old/new values, skipped-row reasons,
-source attribution and the common console/integrity warning. Explicit character row keys scope the
-operation; no selection means all seven displayed records, while an empty selection changes nothing.
+source attribution and the common console/integrity warning. Select rows and use either action in
+the character table to send those explicit row keys; an empty table selection changes nothing.
+The separate controls above the table use document scope and target all seven displayed records.
 Character queries and foreign/noncanonical keys cannot broaden that scope. Records outside these
 seven mapped slots, including unqualified guest/past records, are not targets. Original out-of-curve
 levels remain locked. Recovery never changes maxima, XP, equipment or status effects. Level targets
 use the existing 1–50 Remake/INTERmission or 1–70 Rebirth/demo curves; duplicate-zero guest tiers
 that cannot represent the requested level coherently are skipped. Selecting the current level
 preserves its XP tuple. Apply is atomic and one undo/redo entry, including restoration of an
-inconsistent opening XP/level pair; dismissing a preview writes nothing. Stale or altered plans reject.
+inconsistent opening XP/level pair even when XP already equals the target tier's threshold. The
+preview retains that unchanged XP as a derived consequence so history replays the complete pair;
+dismissing a preview writes nothing. Stale or altered plans reject.
 
 The Overview **Play time** duration field edits only the first RESD u32 seconds at `0x2B0` (Remake/
 INTERmission) or `0x3C30` (Rebirth/demo). Its conservative bound is the observed opening value of
@@ -72,12 +75,17 @@ the attributed [character-curve sidecar](SaveToolkit.Plugins.FinalFantasy7/Resou
 All three shortlist items are implemented within these bounds; console acceptance is still unverified.
 
 Validation on 2026-10-29: `dotnet test --project plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.Tests`
-passed **424 tests, 0 failures, 0 skips**, with all three private sample archives supplied and test
-scratch on D:. This includes 22 new coverage cases, all-sample byte-identical no-op round trips,
-conformance and mutation fuzzing. New tests cover each of the four file variants, preview/cancel,
+passed **444 tests, 0 failures, 0 skips**, with all three private sample archives supplied and test
+scratch on D:. This includes the 22 original coverage cases and 20 review regression cases,
+all-sample byte-identical no-op round trips, conformance and mutation fuzzing. Tests cover each of the four file variants, preview/cancel,
 multi-row apply/undo/redo, scope/curve limits, locked and unknown rows, stale/tampered plans,
 exact write offsets and export/reopen framing. Internal integrity remains unconfirmed; no checksum
-or signature algorithm is asserted. The full API build passed with **0 warnings and 0 errors**.
+or signature algorithm is asserted. `CharacterActionRegressionTests` covers repeated apply/undo/redo
+of coherent and inconsistent opening pairs (including unchanged target XP), table-cell action placement,
+Cloud-only changes, document scope and explicit empty selections. Six additional React checks ran
+from task scratch against the plugin's actual synthetic Characters view: both table controls sent
+only Cloud's key or an empty selection, and both separate controls retained document scope.
+The full Release API build passed with **0 warnings and 0 errors**.
 
 ## Framework feature adoption
 
