@@ -18,7 +18,7 @@ internal sealed class AstroCollectionBrowser(
     public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Catalogue labels are read-only. Ownership means the saved IsGot flag; names and locations are candidates, not console-validated mappings. Search/filter to find missing records, then preview the ownership action before applying."),
         BuildSummary(),
-        new SectionNode("All saved collectibles", [Queryable.View(), AstroPlanning.CollectionAction(), .. InspectionActions()]),
+        new SectionNode("All saved collectibles", [Queryable.View(), AstroPlanning.CollectionAction(), AstroRestorePlanning.View(), .. InspectionActions()]),
         Group("Artifact", "Artifacts"), Group("Puzzle", "Puzzle pieces"), Group("Prop", "Props"),
         .. AstroPlanning.Views(coins()),
         .. AstroWorldPlanning.Views(schema, locations),
@@ -137,7 +137,7 @@ internal sealed class AstroCollectionBrowser(
                         : "No piece-location mapping supplied."),
                 new TextNode(provenance),
                 new TextNode("Select rows in this table, then review the selection below. An empty selection changes nothing. Individual experimental flag controls remain in Raw.") { Tone = Tone.Warning },
-                AstroPlanning.CollectionAction()
+                AstroPlanning.CollectionAction(), AstroRestorePlanning.View()
             ])
         });
     }

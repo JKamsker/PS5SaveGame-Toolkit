@@ -92,7 +92,7 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
                 TsushimaWriteWarnings.Console + " Experimental edits: only existing unlocked records can change. " +
                 "Ammo updates both count copies. The game may clamp quantities to its capacity limits.") { Tone = Tone.Warning },
                 _views.Inventory(_inventory, QuantityField, MirrorField), TsushimaQuantityPlanning.View, TsushimaQuantityPlanning.InventoryView,
-                TsushimaReferenceViews.ResourceGuide]));
+                TsushimaQuantityPlanning.RestoreAmmoView, TsushimaReferenceViews.ResourceGuide]));
             if (_identifiers.Count > 0)
             {
                 tabs.Add(new Tab("Equipment", [new TextNode(
@@ -127,23 +127,13 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
         => _queryableCollections.Query(collectionId, query);
-    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
-    {
-        var current = PlanAction(actionId, parameters, scope);
-        if (current.Errors.Count > 0)
-        {
-            return new EditOutcome { Errors = current.Errors };
-        }
-
-        if (!QuantityPlanComparison.Matches(current, plan))
-        {
-            return EditOutcome.Rejected(actionId, "The quantity preview is stale or does not match the request. Preview again.");
-        }
-
-        _ = BuildView();
-        return ApplyEdits(current.Changes.Where(change => !change.Derived)
-            .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray()) with { Warnings = current.Warnings };
-    }
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
+        ActionPlans.ApplyScalar(plan, () => PlanAction(actionId, parameters, scope),
+            new(actionId, "The quantity preview is stale or does not match the request. Preview again."),
+            _ => { BuildView(); },
+            current => current.Changes.Where(change => !change.Derived)
+                .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray(),
+            ApplyEdits, ActionPlanWarningPolicy.UsePlan);
 
     protected override IEnumerable<ValueChange> DerivedChanges(IReadOnlyList<ValueChange> applied)
     {

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SaveToolkit.Core.References;
+namespace SaveToolkit.Sdk.References;
 
 /// <summary>Wire shape of <c>pack.json</c>. Unknown members are rejected so typos ("licence") fail loudly.</summary>
 internal sealed record PackManifest
@@ -83,11 +83,11 @@ internal static class PackJson
 
         try
         {
-            return JsonSerializer.Deserialize<T>(utf8, Options) ?? throw new ReferencePackException($"{what} is empty.");
+            return JsonSerializer.Deserialize<T>(utf8, Options) ?? throw new EmbeddedReferencePackException($"{what} is empty.");
         }
         catch (JsonException ex)
         {
-            throw new ReferencePackException($"{what} is not valid: {ex.Message}", ex);
+            throw new EmbeddedReferencePackException($"{what} is not valid: {ex.Message}", ex);
         }
     }
 }

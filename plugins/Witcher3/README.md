@@ -43,7 +43,7 @@ truncation and in-memory sample mutation tests from #40.
 | F3 rich cells | Used | Image cells in inventory, saved abilities/Gwent and all catalogue tables; 150 expanded historical/cross-build tooltip/effect descriptions, inferred-mapping badges, warnings and separate text/image provenance. Missing images retain labels/raw IDs. |
 | F4 reference pickers | Used | Saved skill/mutation identities use read-only `ReferenceSpec("abilities")` with raw fallback and F13 browse-only category/search/sort/details. Lookup action parameters remain selectable references. Rank/count writes stay numeric; identity replacement has no safe writer. |
 | F5 structural history | N/A | No safe item/skill creation, deletion, reordering or identity/reference/ownership cleanup writer exists. Scalar omitted-zero property insertion is replayable by value ID; it does not create a gameplay record. Controlled ownership captures are in #31. |
-| F6 planned actions | Used | Repair plus imported-quantity refill; document, explicit row and Core-resolved #27 F8 query scopes, exclusions/warnings, stale/forged revalidation and one undo step. |
+| F6 planned actions | Used | Repair, imported-quantity refill and explicit ordinary Gwent copy targets; document, explicit row and Core-resolved #27 F8 query scopes, exclusions/warnings, stale/forged revalidation and one undo step. |
 | F7 document groups | N/A | Only selected `.sav` changes. Same-stem `.req` is an invariant content list, not a coupled gameplay/checksum file; no demonstrated cross-file edit invariant. Core handles identical backup mirroring. |
 | F8 queryable lists | Used | Full inventory/catalog/recipe/fact/journal queries, every ability array, Gwent and native map tags, with full-list search/filter/sort and bounded pages. Raw field groups remain for reliable F9 navigation to unloaded data. |
 | F9 graph/map nodes | Used | 102 saved skill definitions, 13 mutation definitions/11 native prerequisite edges, and counted known/discovered/disabled map tags. Five lazy regional reference backgrounds with local F2 provenance and missing-pack fallback; native tag/region alignment remains unknown, so tags are never plotted on artwork. Text alternatives, stable links and external map guides remain. |
@@ -137,15 +137,39 @@ the gameplay effect, reward accounting, achievement behavior or persistence afte
 | Existing inventory durability | Inferred | Native float32 at item +19; converter layout and all eight bounded PS5 records. Editable only when original is in 0..100; -1 and other unsupported ranges stay read-only. | Exactly four body bytes; rebuild LZ4 descriptors; reparse and verify intended durability plus all inventory metadata. No known SNFH checksum. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): damaged weapon/armor, load, verify displayed durability and combat, re-save/reload, re-export. 100 is a conservative repair target, not a proven legal PS5 limit. |
 | Non-core existing skill rank | Inferred | Player-owned counted SSkill array, saved `level`/`maxLevel`; converter/native core identities. Bound 0..saved maxLevel. Omitted rank zero is inserted using existing dictionary names. | Original properties retained; changed array length and containing PORP/BLCK/SS/directory pointers repaired; reparse and verify every skill property's bytes. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): rank up/down, check free/spent/path points, slots, prerequisite UI, modifiers/stats and combat; native save/reload/re-export. No purchase/refund/respec logic runs. |
 | Existing Gwent ordinary/leader copies | Inferred | Typed cardIndex/numCopies pairs before the deck boundary; MIT tracker and 27 indices / 35 copies in all eight records. Ordinary 0..3, leaders 0..1, widened only to preserve an already larger original count. | Exactly four body bytes per pair; LZ4 framing rebuilt; reparse and compare every card identity/group/count. Deck bytes remain unchanged. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): duplicate count and leader removal/restoration, collection/deck/gameplay/quest/achievement checks, save/reload/re-export. Counts can invalidate a deck; tracker targets are not legal caps. |
+| Set selected ordinary Gwent counts (F6 batch, #40 shortlist #11) | Inferred | Composes the existing count fields with an explicit shared target; each record retains its opening 0..max(3, imported count) bound. Only saved ordinary pairs with recognised Unit/Hero/Special catalog identities qualify. Leaders, unmapped/missing-pack records, over-bound targets and unchanged counts are named skips. | Pure preview, shared `ActionPlans.ApplyScalar` revalidation, atomic scalar edits and one undo/redo group. Exact whole-payload audits and independent reopens on all eight samples preserve leaders, decks, excluded/unselected rows and unknown bytes; existing SNFH framing validation remains. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): gain/remove ordinary copies; validate collection, decks, gameplay, quests, rewards and achievements; native save/reload/re-export. No acquisition/reward transaction or collection-completion guarantee; decreases may invalidate decks. |
 | Repair existing items (F6 bulk) | Inferred | Same durability encoding; preview lists each old/new value and skipped sentinel/unsupported/already-100 row. Document, explicit-row and resolved F8 query scopes. | One atomic edit/undo group; pure preview, apply-time revalidation, no direct invocation; only intended float ranges change. No money or repair rewards change. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): bulk repair two damaged items, check unrelated inventory/Crowns/achievements, native save/reload/re-export. |
 | Refill ordinary food/water to imported quantity (F6 bulk) | Inferred | Exact observed native IDs `Bread` / `Bottled water`, unequipped, unslotted and untagged only. Target is each instance's imported quantity; already higher values are preserved. No claimed legal cap. | Original fixed-width quantity writer; exact byte/F1 intended ranges, reparse, no-op/undo identity and F6 plan revalidation. Unknown game dependencies remain warned. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): lower then refill an existing eligible stack, test selected/full/filter-with-exclusion scope and two eligible stacks together; inspect food slots, consumption, quantities, money/quests/rewards and native save/reload/re-export. |
 | Existing level / XP / free ability points / Crowns / quantities (retained) | Inferred | Existing preserving writer, player IdTag, saved level definitions and native inventory widths. | Existing edit conformance, relocation/reparse and exact no-op/undo checks remain. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): original spare-slot validation checklist in EVIDENCE.md. Level-up/stack dependencies remain warned. |
 
-The first four rows shipped in the write round; refill is **one additional write capability** this
-completion round. Core skills and definition/sentinel
+Durability, non-core ranks, individual Gwent counts and repair shipped in the write round;
+refill was added in the completion round. Core skills and definition/sentinel
 records remain intact. A missing zero property inside an existing skill is a scalar edit with a stable
 identity; it does not add a skill or inventory record. Two rank pages can be edited together with
 progression dictionary growth, durability and Gwent counts, then undone together.
+
+Shortlist #11 adds a reviewed workflow over those existing Gwent fields, rather than a new setter.
+The row-cell action uses the table's explicit selection or complete Core-resolved F8 query,
+including unloaded pages and exclusions; the separate control uses document scope. Empty selections
+remain empty. Parameters name one target count, preview lists each old/new count and every skip,
+and dismissing it leaves bytes/history unchanged. Apply revalidates before binding unopened fields
+and uses the existing atomic edit path. A missing/incompatible Gwent pack preserves all rows;
+catalog metadata only narrows eligibility and never supplies copy limits or acquisition targets.
+Larger imported counts widen only their own original field bounds, even after staged reductions.
+The action remains Inferred and Experimental, with the common console, deck-invalidity and
+reward/dependency warnings. It never creates a card index, changes leaders/decks or promises rewards.
+
+Batch evidence reuses the [pinned MIT tracker parser](https://github.com/vishalgupta-git/GwentTracker/blob/d8eab8c25c409be42a0ea7b43b901a43dfefed18/src/lib/save/parse.ts)
+and the attributed catalog below; the parser was rechecked before implementation. Its collection-pair
+layout is independently checked against all eight PS5 records. No upstream code or new dataset is copied.
+
+Shortlist #11 validation: **302 passed, 0 failed, 0 skipped** with all eight sample saves;
+API build **0 warnings / 0 errors**. Ten new cases cover preview/cancel, document/selected/filtered
+scopes with unloaded pages and exclusions, invalid/forged/stale requests, limits and skipped
+leaders/unknowns/read-only state, exact payload preservation, independent reopen and one-step undo/redo.
+There is no known SNFH checksum/signature to repair; the existing LZ4 framing/reparse checks apply.
+Samples stay external via `SAVETOOLKIT_ARTIFACTS`; test/temp/results paths are under
+`D:/Temp/saveeditor/test-scratch/feat-coverage-witcher3`.
 
 Structural item creation/deletion/replacement, stash/Roach transfers and equipment swaps are not
 implemented: native identity allocation, references and ownership cleanup remain undecoded, so

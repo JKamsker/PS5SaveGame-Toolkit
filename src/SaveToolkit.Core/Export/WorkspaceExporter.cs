@@ -62,7 +62,8 @@ public static class WorkspaceExporter
                     throw new ExportException($"Plugin '{session.Plugin.Info.Id}' tried to write unknown file '{output.RelativePath}'.");
                 }
 
-                if (!overrides.TryAdd(output.RelativePath, output.Content.ToArray()))
+                // Serialize already snapshots plugin-owned buffers under the session lock.
+                if (!overrides.TryAdd(output.RelativePath, output.Content))
                 {
                     throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
                 }
@@ -86,7 +87,7 @@ public static class WorkspaceExporter
         var included = Select(set, overrides, options.Scope);
         var files = included
             .Select(f => new ExportedFile(
-                f.RelativePath,
+                ExportPath(f),
                 overrides.TryGetValue(f.RelativePath, out var c) ? c.Length : f.Length,
                 reasons.GetValueOrDefault(f.RelativePath, "unchanged")))
             .ToList();
@@ -98,7 +99,7 @@ public static class WorkspaceExporter
         using var zip = new ZipArchive(output, ZipArchiveMode.Create, leaveOpen: true);
         foreach (var file in plan.Included)
         {
-            var entry = zip.CreateEntry(file.RelativePath, CompressionLevel.Fastest);
+            var entry = zip.CreateEntry(ExportPath(file), CompressionLevel.Fastest);
             using var target = entry.Open();
             if (plan.Overrides.TryGetValue(file.RelativePath, out var content))
             {
@@ -111,6 +112,8 @@ public static class WorkspaceExporter
             }
         }
     }
+
+    private static string ExportPath(ISaveFile file) => file is DiskSaveFile disk ? disk.ExportRelativePath : file.RelativePath;
 
     private static void Verify(Workspace workspace, IReadOnlyList<DocumentSession> dirty, Dictionary<string, ReadOnlyMemory<byte>> overrides)
     {

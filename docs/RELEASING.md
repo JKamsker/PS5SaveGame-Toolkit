@@ -25,17 +25,71 @@ Private samples are absent, so sample-dependent tests skip while synthetic tests
 There is no sample download step. This validates the sample-free path, not gameplay or console
 compatibility. Web checks include lint when configured, TypeScript, Vitest and the production build.
 NuGet/npm downloads are cached; per-project TRX and web JUnit results are uploaded even on failure,
-and each job writes a summary. The repository currently has no web lint script.
+and the validation jobs write summaries. The repository currently has no web lint script.
+
+The job IDs below are the workflow keys, rather than matrix-expanded display names:
+
+| Workflow | Job ID | Work |
+| --- | --- | --- |
+| [ci.yml](../.github/workflows/ci.yml) | `validate` | Ubuntu/Windows backend and web checks; .NET coverage on Windows, web coverage and documentation/actionlint checks on Linux. |
+| [ci.yml](../.github/workflows/ci.yml) | `script-tests` | PowerShell script/scaffold regressions on Ubuntu, Windows and macOS. |
+| [ci.yml](../.github/workflows/ci.yml) | `e2e` | Ubuntu Chromium tests against the built API/UI. |
+| [nightly-fuzz.yml](../.github/workflows/nightly-fuzz.yml) | `fuzz` | Ubuntu scheduled/manual mutation sweep with synthetic seeds, reproducible seed/count overrides and metadata-only failure reports. |
+| [release.yml](../.github/workflows/release.yml) | `resolve` | Validate the requested tag/version and pin the source commit. |
+| [release.yml](../.github/workflows/release.yml) | `validate` | Call the complete reusable CI workflow, including script tests and e2e. |
+| [release.yml](../.github/workflows/release.yml) | `package` | Package and smoke-test all four RIDs on matching runners. |
+| [release.yml](../.github/workflows/release.yml) | `publish` | Verify checksums, upload a draft and publish it. |
+
+The inherited conformance `MutationFuzz` fact runs in ordinary backend test projects and the
+[nightly mutation sweep](#nightly-mutation-fuzz). It skips when neither private samples nor
+synthetic seeds are available. See the
+[mutation harness contract](PLUGIN_GUIDE.md#deterministic-mutation-fuzzing-40).
+
+## Script parameters
+
+These are the repository scripts' declared parameters (PowerShell common parameters, where enabled,
+are additional). All commands below run from the repository root in PowerShell 7.
+
+| Script | Declared parameters | Defaults / requirements |
+| --- | --- | --- |
+| `test.ps1` | `-Filter`, `-Configuration`, `-ResultsDirectory`, `-Coverage` | Always builds the API first; empty filter runs all backend test projects. Configuration defaults to Debug; only Debug/Release are accepted. Results are optional unless coverage is requested. |
+| `self-test.ps1` | `-ScratchDirectory` | Defaults to system temp. Runs script and real scaffold build/test checks; requires the selected .NET SDK and restore access, no Pester or private saves. |
+| `package.ps1` | `-Runtime`, `-OutputDirectory`, `-SkipWebBuild` | Output directory is required. Runtime is an array defaulting to all four supported RIDs; web build is included by default. |
+| `smoke-package.ps1` | `-PackageDirectory`, `-Runtime`, `-ScratchDirectory`, `-ExpectedVersion` | First three are required; exactly one matching archive plus its `.sha256` must exist. Expected version is optional. |
+| `new-plugin.ps1` | `-Name`, `-Id`, `-TitleIds`, `-GameName` | Name/ID are required; title IDs default to empty, game name to Name. See the [scaffold walkthrough](PLUGIN_GUIDE.md#scaffold) for format and name restrictions. |
+
+## Disk and scratch
+
+Keep private saves outside the checkout, and keep temporary extraction/build data separate from
+those originals. On the owner's Windows workstation, use a task-specific directory under
+`D:/Temp/saveeditor/test-scratch/`; this documentation pass uses
+`D:/Temp/saveeditor/test-scratch/framework-docs`. On other machines choose a writable equivalent;
+hosted CI uses `runner.temp`. Create it before redirecting environment variables.
+
+Set `SAVETOOLKIT_TEST_TEMP` for `TestScratch`/sample imports and `TEMP`, `TMP`, `TMPDIR` for other
+tools. The runner restores those three temp variables after each project; an ordinary direct
+`dotnet test` needs the environment set too. Direct source runs also put workspaces under the
+system temp directory unless `Toolkit:DataRoot` is configured. Bundle launchers use `./data`;
+see [user storage guidance](USER_GUIDE.md#where-your-data-lives).
+
+Allow space for expanded samples, concurrent workers, coverage reports, npm cache, package staging
+and extracted smoke bundles; compressed archive size is not a sufficient disk estimate. Automatic
+cleanup covers invocation-owned test/staging/extraction directories, not retained reports, caches,
+package archives or smoke logs. Inspect warnings and clean up known task-owned leftovers after
+review. Never recursively delete a sample directory or another task's scratch.
 
 Local equivalent (PowerShell 7, .NET SDK from global.json, Node.js 24):
 
 ```powershell
 Remove-Item Env:SAVETOOLKIT_ARTIFACTS -ErrorAction SilentlyContinue
-$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/scratch/cicd/tests'
-$env:TEMP = 'D:/Temp/saveeditor/scratch/cicd'
-$env:TMP = $env:TEMP
-$env:npm_config_cache = 'D:/Temp/saveeditor/scratch/cicd/npm-cache'
-./scripts/test.ps1 -Configuration Release -ResultsDirectory D:/Temp/saveeditor/scratch/cicd/results
+$scratch = 'D:/Temp/saveeditor/test-scratch/framework-docs'
+New-Item -ItemType Directory -Force $scratch | Out-Null
+$env:SAVETOOLKIT_TEST_TEMP = "$scratch/tests"
+$env:TEMP = $env:TMP = $env:TMPDIR = $scratch
+$env:npm_config_cache = "$scratch/npm-cache"
+./scripts/self-test.ps1 -ScratchDirectory $scratch
+python -B docs/tests/test_documentation.py
+./scripts/test.ps1 -Configuration Release -ResultsDirectory "$scratch/results"
 Push-Location web
 npm ci --no-audit --no-fund
 npm run lint --if-present
@@ -50,7 +104,68 @@ Keep the checkout outside a sample tree when reproducing CI: SampleSaves can als
 hide such a directory. Workflow syntax is checked with [actionlint](https://github.com/rhysd/actionlint)
 on Linux; run `actionlint` locally after workflow edits too.
 
-### Code coverage
+## Nightly mutation fuzz
+
+`.github/workflows/nightly-fuzz.yml` runs daily at **03:23 UTC**, or manually through
+`workflow_dispatch` with optional `seed` and `mutations` inputs. It runs only plugin test projects,
+using the MTP/xUnit `--filter-method '*MutationFuzz'` filter, on Ubuntu with coverage disabled.
+The default nightly seed is the UTC run date as a decimal `YYYYMMDD` integer. The summary records
+both its decimal and hexadecimal forms, mutation count, and actual per-plugin seed/case coverage.
+The nightly count is **5,000 mutations per seed**. A **60-second per-plugin wall-clock cap**
+(including worker startup/preparation) and a **30-minute job timeout** bound the run. Exceeding a
+cap fails the test and kills the isolated worker; it never silently passes an incomplete run.
+
+Nightly CI has **synthetic seeds only**, with no private sample download. The shared harness currently
+supplies one GenericJson fixture and two XorJson fixtures (XOR-1 and byte-minus-one JSON).
+The other 15 plugin conformance classes have no synthetic seeds and report explicit skips.
+This run therefore covers those two formats, not all game parsers. Plugins can extend coverage with
+`MutationFuzzSyntheticSeeds`; the summary exposes gaps instead of counting skips as fuzz coverage.
+Local runs also use the selected real samples when available, as described in the plugin guide.
+The 5,000 count was checked locally on Windows with coverage off: the sample-free plugin sweep
+ran 15,000 cases in about 82 seconds; a separate deep run across all 17 plugins, 26 private-sample
+seeds and three synthetic seeds ran 145,000 cases in 683 seconds with no failures. These are local
+wall-clock measurements including build/test startup, not a hosted Ubuntu performance guarantee.
+
+The harness accepts these optional environment overrides; **unset** variables retain existing
+plugin defaults (normally seed `0x40C0FFEE`, 200 mutations per selected file, no overall plugin cap):
+
+| Variable | Accepted value |
+| --- | --- |
+| `SAVETOOLKIT_FUZZ_SEED` | Unsigned 32-bit decimal or `0x`-prefixed hexadecimal integer, including zero |
+| `SAVETOOLKIT_FUZZ_MUTATIONS` | Positive 32-bit integer, per synthetic or selected real seed file |
+| `SAVETOOLKIT_FUZZ_TIME_BUDGET` | Optional positive 32-bit integer number of seconds per plugin |
+| `SAVETOOLKIT_FUZZ_REPORT_DIRECTORY` | Optional directory for metadata-only JSON results/reproducers |
+
+Empty, malformed, negative and out-of-range numeric values fail with a named configuration error.
+Ordinary CI sets none of these overrides and remains deterministic. On failure, the nightly workflow
+uploads only `*-failure.json` reports for 14 days: plugin, seed, mutation index/description,
+sample identity/hash when applicable, exception type and stack frames. Reports exclude sample bytes,
+exception messages and raw worker output. A process/build failure before a mutation starts has no
+mutation index; its fallback report identifies the project and seed. Nothing from scratch or private
+sample directories is uploaded. Known quarantined failures remain visible in result counts.
+
+Reproduce a failure locally with the exact plugin project and seed from the report (PowerShell 7):
+
+```powershell
+$scratch = 'D:/Temp/saveeditor/test-scratch/nightly-fuzz'
+New-Item -ItemType Directory -Force $scratch | Out-Null
+$env:TEMP = $env:TMP = $env:TMPDIR = $scratch
+$env:SAVETOOLKIT_TEST_TEMP = "$scratch/tests"
+$env:SAVETOOLKIT_FUZZ_REPORT_DIRECTORY = "$scratch/repro-reports"
+$env:SAVETOOLKIT_FUZZ_SEED = '0x013528A5' # replace with the reported seed (20261029 here)
+$env:SAVETOOLKIT_FUZZ_MUTATIONS = '5000' # at least the reported zero-based index + 1
+$env:SAVETOOLKIT_FUZZ_TIME_BUDGET = '300' # allow more time for local private-sample runs
+dotnet test --project plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests --configuration Release --filter-method '*MutationFuzz'
+```
+
+For nightly reproduction, leave private samples unavailable (including any ancestor `artifacts/`
+fallback). For a sample-backed reproducer, set `SAVETOOLKIT_ARTIFACTS` to external samples on D:
+and match the report's original SHA-256. Each mutation depends only on original bytes, seed and
+zero-based index, so changing the mutation count does not change earlier cases. Per-case timeout
+and allocation guards continue to apply independently of the optional overall cap. Remove the
+overrides before returning to normal CI-equivalent validation.
+
+## Code coverage
 
 Windows validation collects .NET coverage through the Microsoft.Testing.Platform extension; Ubuntu
 validation collects web coverage through Vitest V8. (On Linux the .NET coverage extension adds about
@@ -77,13 +192,19 @@ Pop-Location
 is omitted. Ordinary test runs remain unchanged. The coverage package is centrally referenced only
 by projects named `*.Tests` in `Directory.Packages.props`; new test projects should follow that name.
 
-### Built app browser smoke tests
+## Built app browser smoke tests
 
 The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. Chromium imports
-the committed synthetic fixtures through the bundled UI, edits a Generic JSON field, reviews its
-change and visible confidence/console warning, then verifies every exported payload byte. A second
-test undoes the edit and verifies the original bytes. No private samples or `SAVETOOLKIT_ARTIFACTS`
-are needed. Failures upload the Playwright HTML report with traces and screenshots.
+the committed synthetic fixtures through the bundled UI. The suite covers import errors and recovery,
+raw read-only inspection, editing/review/undo, document isolation and redo, full-collection search/filter/
+sort/paging, bulk preview/cancel/apply, keyboard-only application interaction, and repeated exports.
+Export assertions compare every path and decompressed payload byte; ZIP metadata is not compared.
+No private samples or `SAVETOOLKIT_ARTIFACTS` are needed. Failures upload the Playwright HTML report
+with traces and screenshots.
+
+Unknown-layout export path preservation is covered by an active regression in
+[import.e2e.ts](../web/e2e/import.e2e.ts), and clearing a JSON-type column filter by one in
+[table.e2e.ts](../web/e2e/table.e2e.ts). No browser case is currently skipped.
 
 Build the Release API and UI before running locally (Node.js 24):
 
@@ -110,10 +231,10 @@ above on Windows, a directory under the system temp folder elsewhere).
 ## Build and check bundles locally
 
 ```powershell
-./scripts/package.ps1 -Runtime win-x64 -OutputDirectory D:/Temp/saveeditor/scratch/cicd/packages
+./scripts/package.ps1 -Runtime win-x64 -OutputDirectory D:/Temp/saveeditor/test-scratch/framework-docs/packages
 ./scripts/smoke-package.ps1 -Runtime win-x64 `
-  -PackageDirectory D:/Temp/saveeditor/scratch/cicd/packages `
-  -ScratchDirectory D:/Temp/saveeditor/scratch/cicd/smoke
+  -PackageDirectory D:/Temp/saveeditor/test-scratch/framework-docs/packages `
+  -ScratchDirectory D:/Temp/saveeditor/test-scratch/framework-docs/smoke
 ```
 
 Omit `-Runtime` to build all four RIDs: win-x64, linux-x64, osx-arm64 and osx-x64. The script runs
@@ -150,7 +271,7 @@ Two entry paths run the same validation and release pipeline:
 
 1. **Tag:** tag the intended committed revision, then push that tag, e.g.
    `git tag v1.2.3 <commit>` and `git push origin v1.2.3`. The `v*.*.*` workflow validates the
-   version and runs both OS validation jobs before packaging all four RIDs.
+   version and runs the complete reusable CI workflow before packaging all four RIDs.
 2. **Manual:** Actions → Release → Run workflow, select the intended branch/revision and enter
    `1.2.3` or `1.2.3-rc.1` (without `v`). Or use
    `gh workflow run release.yml --ref main -f version=1.2.3`. The workflow records the exact commit,
@@ -162,8 +283,14 @@ Each RID is packaged and smoke-tested on its matching OS/architecture. Failure b
 Manual and tag release runs for the same version share a concurrency group, so publication is serialized.
 [git-cliff](https://git-cliff.org/docs/) uses `cliff.toml` to group conventional commits since the
 previous version tag, retain breaking-change markers, and include other commit subjects separately.
-Write commits as `feat(scope): ...`, `fix(scope): ...`, `ci(scope): ...`, etc. Give commit bodies the
-reason for changes; use `BREAKING CHANGE:` for incompatible changes.
+Follow [repository commit policy](../AGENTS.md#collaboration-policy); use `BREAKING CHANGE:`
+for incompatible changes so release notes retain that signal.
+
+For curated highlights, commit `docs/release-notes/<tag>.md` (including the `v` prefix,
+for example `docs/release-notes/v0.1.0-rc.2.md`) at the revision being released. The publish
+job prepends that file to the git-cliff changelog with a blank line between them; without
+the file, the generated notes are unchanged. Use absolute GitHub links so citations also
+work in the release body.
 
 The publish job verifies all four checksums, creates a **draft**, uploads archives, per-archive
 `.sha256` files and combined `SHA256SUMS`, then publishes with the generated notes. Tags containing

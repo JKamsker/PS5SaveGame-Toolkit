@@ -8,6 +8,7 @@ import type {
   ReferencePackInfo,
   ReferencePacks,
   ReferencePage,
+  ReferenceRecordDetail,
   ReferenceSortKey,
   ReferenceCandidate,
   ReferenceCandidatePage,
@@ -99,7 +100,8 @@ export const api = {
   queryCollection: (wsId: string, docId: string, collectionId: string, query: CollectionQuery = {}, revision?: number) => {
     const params = new URLSearchParams({ collectionId });
     if (query.q) params.set("q", query.q);
-    if (query.filters && Object.keys(query.filters).length > 0) params.set("filters", JSON.stringify(query.filters));
+    const filters = Object.fromEntries(Object.entries(query.filters ?? {}).filter(([, value]) => value !== ""));
+    if (Object.keys(filters).length > 0) params.set("filters", JSON.stringify(filters));
     if (query.sort) params.set("sort", query.sort);
     if (query.descending) params.set("descending", "true");
     if (query.includeEmpty !== undefined) params.set("includeEmpty", String(query.includeEmpty));
@@ -138,6 +140,9 @@ export const api = {
     for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== "") params.set(key, String(value));
     return request<ReferencePage>(`${doc(wsId, docId)}/references/${encodeURIComponent(catalogId)}?${params.toString()}`);
   },
+  /** One catalog record with its pack metadata and full dataset provenance. */
+  referenceRecord: (wsId: string, docId: string, catalogId: string, key: string, signal?: AbortSignal) =>
+    request<ReferenceRecordDetail>(`${doc(wsId, docId)}/references/${encodeURIComponent(catalogId)}/record?${referenceParams({ key })}`, { signal }),
   referenceAssetUrl: (wsId: string, docId: string, assetId: string) =>
     `/api${doc(wsId, docId)}/reference-assets?id=${encodeURIComponent(assetId)}`,
   referenceCandidates: (wsId: string, docId: string, query: { valueId: string; actionId?: string; q?: string; category?: string; sortBy?: ReferenceSortKey; descending?: boolean; offset?: number; limit?: number; revision?: number }) =>

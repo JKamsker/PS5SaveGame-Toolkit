@@ -1,7 +1,7 @@
-import { useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError, isStaleError } from "../../../api/client";
-import type { CollectionQuery, QueryablePage, QueryableTableNode, TableColumn, TableRow } from "../../../api/protocol";
+import type { Confidence, QueryablePage, QueryableTableNode, TableColumn, TableRow } from "../../../api/protocol";
 import { useDocument } from "../../../state/documentStore";
 import { useDocumentContentVersion } from "../../../state/useDocumentContentVersion";
 import { RowDetails, rowHasDetails } from "./RowDetails";
@@ -11,8 +11,10 @@ import { EmptyRowsToggle } from "./EmptyRowsToggle";
 import { TableSelectionContext, useQueryableSelection } from "./selection";
 import { ReviewPath, useNextReviewPath, useViewJump } from "../review/navigation";
 import { columnTrack, numericColumns } from "./presentation";
-
-const PAGE_SIZE = 50;
+import { uniformConfidence } from "./columnConfidence";
+import { ColumnHeading } from "./ColumnHeading";
+import { collectionQueryKey, DEFAULT_COLLECTION_PAGE_SIZE } from "./collectionQuery";
+import { useCollectionQuery } from "./useCollectionQuery";
 
 /** Paged table for an SDK IQueryableDocument. Eager TableNode rendering remains in TableView. */
 export function ServerTableView({ node }: { node: QueryableTableNode }) {
@@ -20,11 +22,8 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
   const content = useDocumentContentVersion(store);
   const version = content.version;
   const revision = content.revision ?? 0;
-  const [text, setText] = useState("");
-  const [filters, setFilters] = useState<Record<string, string>>({});
-  const [sort, setSort] = useState("");
-  const [descending, setDescending] = useState(false);
-  const [offset, setOffset] = useState(0);
+  const { query, update, text, pendingSearch, reviewing } = useCollectionQuery(node);
+  const { filters = {}, sort = "", descending = false, offset = 0, includeEmpty = false } = query;
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
   const expandRow = useCallback((key: string) => setExpanded(previous => previous.has(key) ? previous : new Set([...previous, key])), []);
   const toggleDetails = useCallback((key: string) => setExpanded(previous => {
@@ -33,15 +32,10 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
     else next.add(key);
     return next;
   }), []);
-  const [includeEmpty, setIncludeEmpty] = useState(!(node.emptyRows?.hideByDefault ?? true));
-  const deferredText = useDeferredValue(text);
-  const query = useMemo<CollectionQuery>(
-    () => ({ q: deferredText || undefined, filters, sort: sort || undefined, descending, offset, limit: PAGE_SIZE,
-      includeEmpty: node.emptyRows ? includeEmpty : undefined }),
-    [deferredText, filters, sort, descending, offset, includeEmpty, node.emptyRows],
-  );
   const result = useQuery({
-    queryKey: ["collection", workspaceId, documentId, node.collectionId, query, revision, version, structureVersion],
+    queryKey: collectionQueryKey(workspaceId, documentId, node.collectionId, query, revision, version, structureVersion),
+    // Jump has just fetched and checked this exact revision-bound page.
+    staleTime: reviewing ? Infinity : 0,
     queryFn: () => api.queryCollection(workspaceId, documentId, node.collectionId, query, revision),
     retry: (count, error) => !(error instanceof ApiError && error.status >= 400 && error.status < 500) && count < 2,
   });
@@ -60,13 +54,15 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
   const pageKey = JSON.stringify([node.collectionId, query, revision, version]);
   const loaded = useRef<{ key: string; generation: number; page: QueryablePage } | undefined>(undefined);
   if (result.data) loaded.current = { key: pageKey, generation: structureVersion, page: result.data };
-  const page = text !== deferredText ? undefined : result.data ?? (loaded.current?.key === pageKey ? loaded.current.page : undefined);
+  const page = pendingSearch ? undefined : result.data ?? (loaded.current?.key === pageKey ? loaded.current.page : undefined);
   const retired = stale || loaded.current?.generation !== structureVersion;
   const columns = useMemo<TableColumn[]>(
     () => (page?.columns ?? node.columns).map((column) => ({ key: column.key, label: column.label, description: column.description, width: column.width })),
     [node.columns, page?.columns],
   );
   const rows = page?.rows ?? [];
+  const limit = page?.limit ?? query.limit ?? DEFAULT_COLLECTION_PAGE_SIZE;
+  const confidence = uniformConfidence(columns, rows);
   const hasDetails = rows.some(rowHasDetails);
   const detailCount = rows.filter(row => expanded.has(row.key) && rowHasDetails(row)).length;
   let nextRowIndex = (page?.offset ?? 0) + 2;
@@ -80,14 +76,16 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
   useEffect(() => { clear(); }, [revision, node.collectionId, clear]);
   const visibleSelected = rows.reduce((count, row) => count + (selection.isSelected(row.key) ? 1 : 0), 0);
   const canNext = page ? Boolean(page.nextCursor) || page.offset + rows.length < page.filteredCount : false;
-  const canPrevious = offset > 0;
-  const updateQuery = (change: Partial<{ text: string; filters: Record<string, string>; sort: string; descending: boolean }>) => {
-    if (change.text !== undefined) setText(change.text);
-    if (change.filters !== undefined) setFilters(change.filters);
-    if (change.sort !== undefined) setSort(change.sort);
-    if (change.descending !== undefined) setDescending(change.descending);
-    setOffset(0);
-    selection.clear();
+  const canPrevious = (page?.offset ?? offset) > 0;
+  const updateQuery = (patch: Parameters<typeof update>[0], resetPage = true) => {
+    update(patch, resetPage);
+    if (resetPage) selection.clear();
+  };
+  const updateFilter = (key: string, value: string) => {
+    const next = { ...filters };
+    if (value === "") delete next[key];
+    else next[key] = value;
+    updateQuery({ filters: next });
   };
 
   return (
@@ -99,9 +97,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
             {page ? `${page.filteredCount.toLocaleString()} of ${page.totalCount.toLocaleString()} rows` : result.isError ? "Rows unavailable" : "Loading rows…"}
           </span>
           <EmptyRowsToggle presentation={node.emptyRows} includeEmpty={includeEmpty} hiddenCount={page?.hiddenEmptyCount ?? 0} onChange={value => {
-            setIncludeEmpty(value);
-            setOffset(0);
-            selection.clear();
+            updateQuery({ includeEmpty: value });
           }} />
           {selection.count > 0 && (
             <span className="table__selected" aria-live="polite">
@@ -110,8 +106,8 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
             </span>
           )}
           <div className="table__filters table__filters--paged">
-            <input className="table__search" type="search" placeholder="Search all rows" aria-label={`Search ${node.title}`} value={text} onChange={(e) => updateQuery({ text: e.target.value })} />
-            <select className="input input--compact" aria-label="Sort rows" value={sort} onChange={(e) => updateQuery({ sort: e.target.value })}>
+            <input className="table__search" type="search" placeholder="Search all rows" aria-label={`Search ${node.title}`} value={text} onChange={(e) => updateQuery({ q: e.target.value || undefined })} />
+            <select className="input input--compact" aria-label="Sort rows" value={sort} onChange={(e) => updateQuery({ sort: e.target.value || undefined })}>
               <option value="">Default order</option>
               {columns.map((column) => <option key={column.key} value={column.key}>{column.label}</option>)}
             </select>
@@ -119,7 +115,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
             {columns.map((column) => (
               <label key={column.key} className="table__facet">
                 <span className="visually-hidden">Filter {column.label}</span>
-                <input className="input input--compact" title={`Filter ${column.label}`} placeholder={`Filter ${column.label}`} value={filters[column.key] ?? ""} onChange={(e) => updateQuery({ filters: { ...filters, [column.key]: e.target.value } })} />
+                <input className="input input--compact" title={`Filter ${column.label}`} placeholder={`Filter ${column.label}`} value={filters[column.key] ?? ""} onChange={(e) => updateFilter(column.key, e.target.value)} />
               </label>
             ))}
           </div>
@@ -140,31 +136,31 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
         </div>}
         <div className="table__scroller" inert={retired}>
           <div className="table__grid" role="table" aria-label={node.title} aria-busy={result.isFetching} aria-rowcount={(page?.filteredCount ?? node.totalCount) + detailCount + 1} style={{ gridTemplateColumns: `36px ${hasDetails ? "36px " : ""}${columns.map(column => columnTrack(column)).join(" ")}` }}>
-            <Header columns={columns} rows={rows} hasDetails={hasDetails} selected={visibleSelected} selection={selection} />
+            <Header columns={columns} rows={rows} confidence={confidence} hasDetails={hasDetails} selected={visibleSelected} selection={selection} />
             {indexedRows.map(({ row, rowIndex }) => <ServerRow key={row.key} row={row} emptyRows={node.emptyRows} columns={columns} showDetailsColumn={hasDetails}
-              rowIndex={rowIndex} selected={selection.isSelected(row.key)} onToggle={selection.toggle} expanded={expanded.has(row.key)} onExpand={expandRow} onToggleDetails={toggleDetails} />)}
+              confidence={confidence} rowIndex={rowIndex} selected={selection.isSelected(row.key)} onToggle={selection.toggle} expanded={expanded.has(row.key)} onExpand={expandRow} onToggleDetails={toggleDetails} />)}
           </div>
           {!page && !result.isError && <p role="status" className="table__empty">Loading rows…</p>}
           {page && rows.length === 0 && <p className="table__empty">No rows match the current filters.</p>}
         </div>
         <nav className="table__pagination" aria-label={`${node.title} pages`}>
-          <button type="button" className="btn btn--small" disabled={!canPrevious || result.isFetching} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>Previous</button>
-          <span>Page {Math.floor((page?.offset ?? offset) / PAGE_SIZE) + 1}</span>
-          <button type="button" className="btn btn--small" disabled={!canNext || result.isFetching} onClick={() => setOffset(offset + PAGE_SIZE)}>Next</button>
+          <button type="button" className="btn btn--small" disabled={!canPrevious || result.isFetching} onClick={() => updateQuery({ offset: Math.max(0, (page?.offset ?? offset) - limit), cursor: undefined }, false)}>Previous</button>
+          <span>Page {Math.floor((page?.offset ?? offset) / limit) + 1}</span>
+          <button type="button" className="btn btn--small" disabled={!canNext || result.isFetching} onClick={() => updateQuery({ offset: page?.nextCursor ? 0 : (page?.offset ?? offset) + limit, cursor: page?.nextCursor }, false)}>Next</button>
         </nav>
       </section>
     </TableSelectionContext.Provider>
   );
 }
 
-function Header({ columns, rows, hasDetails, selected, selection }: { columns: readonly TableColumn[]; rows: readonly TableRow[]; hasDetails: boolean; selected: number; selection: ReturnType<typeof useQueryableSelection> }) {
+function Header({ columns, rows, confidence, hasDetails, selected, selection }: { columns: readonly TableColumn[]; rows: readonly TableRow[]; confidence: ReadonlyMap<string, Confidence>; hasDetails: boolean; selected: number; selection: ReturnType<typeof useQueryableSelection> }) {
   const all = rows.length > 0 && selected === rows.length;
   const numbers = numericColumns(columns, rows);
   return (
     <div className="table__row" role="row" aria-rowindex={1}>
       <div className="table__head table__head--control" role="columnheader"><input type="checkbox" aria-label="Select all rows on this page" checked={all} disabled={rows.length === 0} onChange={() => selection.setMany(rows.map((row) => row.key), !all)} /></div>
       {hasDetails && <div className="table__head table__head--control" role="columnheader"><span className="visually-hidden">Details</span></div>}
-      {columns.map((column) => <div key={column.key} className={`table__head${numbers.has(column.key) ? " table__head--number" : ""}`} role="columnheader" title={column.description ? `${column.label}: ${column.description}` : column.label}>{column.label}</div>)}
+      {columns.map((column) => <ColumnHeading key={column.key} column={column} numeric={numbers.has(column.key)} confidence={confidence.get(column.key)} />)}
     </div>
   );
 }
@@ -173,6 +169,7 @@ interface ServerRowProps {
   row: TableRow;
   emptyRows?: QueryableTableNode["emptyRows"];
   columns: readonly TableColumn[];
+  confidence: ReadonlyMap<string, Confidence>;
   showDetailsColumn: boolean;
   rowIndex: number;
   selected: boolean;
@@ -182,7 +179,7 @@ interface ServerRowProps {
   onToggleDetails: (key: string) => void;
 }
 
-function ServerRow({ row, emptyRows, columns, showDetailsColumn, rowIndex, selected, onToggle, expanded, onExpand, onToggleDetails }: ServerRowProps) {
+function ServerRow({ row, emptyRows, columns, confidence, showDetailsColumn, rowIndex, selected, onToggle, expanded, onExpand, onToggleDetails }: ServerRowProps) {
   const ref = useViewJump(row.key, "Row");
   const next = useNextReviewPath();
   const label = rowLabel(row, columns.map((column) => column.key), (node) => node.value);
@@ -198,7 +195,7 @@ function ServerRow({ row, emptyRows, columns, showDetailsColumn, rowIndex, selec
             aria-expanded={expanded} aria-controls={expanded ? detailId : undefined} onClick={() => onToggleDetails(row.key)} />}
         </div>}
         <ReviewPath part={`row:${row.key}`}>
-          {columns.map((column) => <TableCell key={column.key} node={row.cells[column.key]} emptySlot={row.isEmpty && emptyRows?.labelColumnKey === column.key} rowLabel={label} onOpenDetails={() => onExpand(row.key)} />)}
+          {columns.map((column) => <TableCell key={column.key} node={row.cells[column.key]} columnConfidence={confidence.get(column.key)} emptySlot={row.isEmpty && emptyRows?.labelColumnKey === column.key} rowLabel={label} onOpenDetails={() => onExpand(row.key)} />)}
         </ReviewPath>
       </div>
       {expanded && hasDetails && <div className="table__detail" role="row" aria-rowindex={rowIndex + 1}><div id={detailId} role="cell" aria-colspan={columns.length + 2} className="table__detail-cell"><ReviewPath part={`row:${row.key}`}><RowDetails row={row} columns={columns} /></ReviewPath></div></div>}

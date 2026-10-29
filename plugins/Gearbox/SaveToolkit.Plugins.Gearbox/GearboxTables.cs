@@ -25,6 +25,7 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
         nodes.Add(document.Integer("world/playthrough", "Last playthrough index", () => document.Root, "last_play_through_index", writable: false));
         nodes.Add(document.Integer("world/completed", "Playthroughs completed", () => document.Root, "playthroughs_completed", writable: false));
         nodes.Add(lazy.Register("ammo", "Ammo pools", () => [AmmoTable().Build()]));
+        nodes.Add(GearboxCoverageActions.AmmoAction());
         nodes.Add(lazy.Register("difficulty", "Mayhem / Chaos levels", () => Difficulty(0)));
         nodes.AddRange(document.Missions.Build());
         return nodes;

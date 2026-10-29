@@ -90,7 +90,8 @@ public sealed class DiskSaveDirectory : ISaveDirectory
 
 public sealed class DiskSaveFile : ISaveFile
 {
-    internal DiskSaveFile(DiskSaveDirectory directory, string id, string pathInDirectory, string blobPath, long length, string sha256)
+    internal DiskSaveFile(DiskSaveDirectory directory, string id, string pathInDirectory, string blobPath, long length, string sha256,
+        string? importedRelativePath)
     {
         Directory = directory;
         Id = id;
@@ -98,12 +99,15 @@ public sealed class DiskSaveFile : ISaveFile
         BlobPath = blobPath;
         Length = length;
         Sha256 = sha256;
+        ExportRelativePath = importedRelativePath ?? RelativePath;
     }
 
     public string Id { get; }
     public ISaveDirectory Directory { get; }
     public string PathInDirectory { get; }
     public string RelativePath => $"{((DiskSaveDirectory)Directory).RelativeRoot}/{PathInDirectory}";
+    /// <summary>Source layout for title-less imports; otherwise the established title/generation layout.</summary>
+    internal string ExportRelativePath { get; }
     public string FileName => PathInDirectory[(PathInDirectory.LastIndexOf('/') + 1)..];
     public long Length { get; }
 

@@ -13,6 +13,15 @@ public sealed record DocumentSessionOptions
     /// <summary>Memory budget for semantic original values; incomplete coverage is explicitly reported.</summary>
     public long MaxOriginalBytes { get; init; } = 16L * 1024 * 1024;
 
+    /// <summary>Global F8 row budget per original/current semantic snapshot, including empty rows.</summary>
+    public int MaxReviewQueryRows { get; init; } = 10_000;
+
+    /// <summary>Global F8 page budget per original/current semantic snapshot.</summary>
+    public int MaxReviewQueryPages { get; init; } = 100;
+
+    /// <summary>Global serialized UTF-8 F8 page budget per original/current semantic snapshot.</summary>
+    public long MaxReviewQueryBytes { get; init; } = 16L * 1024 * 1024;
+
     /// <summary>Maximum matching rows (before exclusions) resolved for a query-scoped action.</summary>
     public int MaxQueryActionRows { get; init; } = 5_000;
 

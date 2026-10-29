@@ -26,6 +26,9 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     internal const string ExperimentalWarning = ConsoleWarning + "PS5 field mapping is inferred from PS4 research and sample bytes; edits have not been tested in-game. The game may reject an edited save even though ciphertext SHA1 and encryption self-check succeed.";
     private readonly AriseReferences _references = new(references);
     private readonly AriseReadOnlyAliases _readOnlyAliases = new(save.Payload);
+    // Capture at opening, before setters or the lazily created action planner can observe staged edits.
+    private readonly byte[] _importedInventory = save.Payload.AsSpan(save.Sections.Single(section => section.Name == "SaveData_ItemManager").Offset,
+        ItemRecordCount * ItemRecordSize).ToArray();
     private AriseInventoryActions? _inventoryActions;
     private AriseReadOnlyViews? _readOnlyViews;
     private AriseSpatialViews? _spatialViews;
@@ -64,6 +67,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                     { Tone = Tone.Warning },
                 SectionNode.Lazy("Inventory", "inventory"),
                 AriseInventoryActions.View(),
+                AriseInventoryActions.RestoreImportedView(),
             ]),
             new Tab("Catalogs", _references.BuildView()),
             new Tab("Character sheets", ReadOnlyViews.CharacterView(ReadOnlyNumber)),
@@ -160,6 +164,8 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
 
     internal bool InventoryExpanded => _inventoryExpanded;
 
+    internal byte ImportedInventoryQuantity(AriseInventoryRow row) => _importedInventory[row.Index * ItemRecordSize];
+
     internal IReadOnlyList<AriseInventoryRow> ReadInventoryRows()
     {
         var section = Section("SaveData_ItemManager");
@@ -244,7 +250,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             };
         var cells = new Dictionary<string, ViewNode>
         {
-            ["icon"] = AriseAssets.Icon(reference),
+            ["icon"] = AriseAssets.Icon(references, reference),
             ["id"] = idField,
             ["name"] = Field($"inventory/{row.Index}/name", "Item", new TextSpec(),
                 () => FieldValue.Of(name ?? "Unknown item / equipment"))

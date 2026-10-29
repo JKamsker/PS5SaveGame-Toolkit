@@ -29,15 +29,9 @@ internal sealed class Bg3References(IReferenceContext context)
 
     internal IReferenceCatalog? Catalog(string id) => _catalogs.GetValueOrDefault(id);
 
-    internal ViewNode Icon(ReferenceRecord? record)
-    {
-        var icon = ReferenceViews.Icon(context, record);
-        if (icon is ImageNode) return icon;
-        // BG3 historically also exposes images with provenance but unavailable bytes.
-        return record?.AssetId is { } asset && context.AssetProvenance(asset) is { } provenance
-            ? new ImageNode(asset, $"{record.Name}. {record.AttributionText}. Icon: {provenance.Attribution.ToShortText()}")
-            : icon;
-    }
+    internal ViewNode Icon(ReferenceRecord? record) =>
+        ReferenceViews.Icon(context, record, label: null, fallback: null,
+            options: new() { Availability = ReferenceIconAvailability.RequireProvenance });
 
     internal static FieldNode Describe(FieldNode field, ReferenceRecord? record, string rawId) => field with
     {

@@ -10,7 +10,7 @@ internal sealed class GwentCollection(IReadOnlyList<GwentCard> cards, IReference
 {
     public const string CollectionId = "saved/gwent";
     private static IReadOnlyList<QueryableColumn> Columns => [new("image", "Card art"), new("index", "Native card index"),
-        new("name", "Reference name"), new("copies", "Saved copies"), new("kind", "Collection group")];
+        new("name", "Reference name"), new("copies", "Saved copies"), new("kind", "Collection group"), new(GwentPlanning.ActionColumn, "Reviewed batch")];
     public QueryableCollection Collection => new(CollectionId, "Gwent collection (native indices)", Columns, cards.Count);
     public QueryableTableNode Build() => new(CollectionId, Collection.Title, Columns, cards.Count);
 
@@ -18,8 +18,8 @@ internal sealed class GwentCollection(IReadOnlyList<GwentCard> cards, IReference
     {
         if (query.Cursor is not null || query.Offset < 0 || query.Text?.Length > QueryableCollectionLimits.MaxQueryLength ||
             query.Filters.Count > QueryableCollectionLimits.MaxFilterCount || query.Filters.Any(f =>
-                f.Key is not ("image" or "index" or "name" or "copies" or "kind") || f.Value.Length > QueryableCollectionLimits.MaxFilterLength) ||
-            query.SortColumn is not (null or "image" or "index" or "name" or "copies" or "kind"))
+                f.Key is not ("image" or "index" or "name" or "copies" or "kind" or GwentPlanning.ActionColumn) || f.Value.Length > QueryableCollectionLimits.MaxFilterLength) ||
+            query.SortColumn is not (null or "image" or "index" or "name" or "copies" or "kind" or GwentPlanning.ActionColumn))
         {
             throw new ArgumentException("Unsupported Gwent collection query.");
         }
@@ -43,6 +43,7 @@ internal sealed class GwentCollection(IReadOnlyList<GwentCard> cards, IReference
         "name" => catalog?.Find(Key(card))?.Name ?? Key(card),
         "copies" => card.Copies.ToString(CultureInfo.InvariantCulture),
         "kind" => card.Leader ? "Leader collection" : "Ordinary collection",
+        GwentPlanning.ActionColumn => GwentPlanning.ActionLabel,
         _ => Key(card),
     };
     public static string Key(GwentCard card) => card.Index.ToString(CultureInfo.InvariantCulture);

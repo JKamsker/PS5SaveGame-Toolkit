@@ -161,6 +161,7 @@ internal sealed class ItemBrowser
             new TextNode($"Rerolls: {info.Rerolls?.ToString(CultureInfo.InvariantCulture) ?? "unknown"}; Chaos raw tier: {info.Chaos?.ToString(CultureInfo.InvariantCulture) ?? "n/a"}; remaining padding bits: {(info.Complete ? info.RemainingBits : "unknown")}."),
             new TextNode("Original serial bytes (BL3 wrapper is shared by both games; it does not identify the game):"),
             new TextNode(item.Serial.Length <= SerialEnvelope.MaximumLength ? $"BL3({Convert.ToBase64String(item.Serial)})" : "Oversized serial preserved; code display suppressed.") { Monospace = true }];
+        nodes.AddRange(GearboxCoverageActions.ItemActions(_document.Profile));
         foreach (var property in new[] { "level", "rerolls", "chaos" })
         {
             var located = property switch { "level" => info.LevelOffset, "rerolls" => info.RerollOffset, _ => info.ChaosOffset };
@@ -171,13 +172,10 @@ internal sealed class ItemBrowser
                 () => SerialWrites.Value(_document.Inventory.Info(item.Id), property)!.Value,
                 value => _document.Inventory.SetSerial(item.Id, SerialWrites.Set(_document.Inventory.Find(item.Id).Serial, _document.Root.Schema.Wonderlands, property, value))));
         }
-        if (_document.Inventory.Find(item.Id).Field.Message is { } itemMessage && (itemMessage.Integer("flags") & 6) != 6)
+        if (_document.Inventory.Find(item.Id).Field.Message is { } itemMessage && GearboxItemMarks.Supported(itemMessage))
             nodes.Add(_document.ItemNumber(item.Id + "/mark", "Mark (0 ordinary, 1 favourite, 2 junk)", 0, 2,
-                () => (int)(_document.Inventory.Find(item.Id).Field.Message!.Integer("flags") & 6) switch { 2 => 1, 4 => 2, _ => 0 },
-                value => {
-                    var message = _document.Inventory.Find(item.Id).Field.Message!;
-                    message.SetInteger("flags", (message.Integer("flags") & ~6L) | (value == 1 ? 2L : value == 2 ? 4L : 0L));
-                }));
+                () => GearboxItemMarks.Get(_document.Inventory.Find(item.Id).Field.Message!),
+                value => GearboxItemMarks.Set(_document.Inventory.Find(item.Id).Field.Message!, value)));
         var parts = info.Parts.Concat(info.GenericParts).Select((p, i) => new TableRow(i.ToString(CultureInfo.InvariantCulture),
             new Dictionary<string, ViewNode> { ["category"] = new TextNode(p.Category), ["index"] = new TextNode(p.Index.ToString(CultureInfo.InvariantCulture)),
                 ["icon"] = _references.Image(_references.Index(p.Key), part: true),

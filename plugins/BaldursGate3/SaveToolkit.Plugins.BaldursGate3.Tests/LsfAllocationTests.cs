@@ -19,7 +19,8 @@ public sealed class LsfAllocationTests
         {
             for (var index = 0; index < AttributeCount; index++) AttributeDecoder.Validate(attribute);
         });
-        allocated.AssertLessThan(1024, $"Successful validation allocated {allocated.MinimumBytes:N0} diagnostic bytes.");
+        // Stay below one byte per validation: a diagnostic string costs at least 24 bytes per call.
+        allocated.AssertLessThan(AttributeCount, $"Successful validation allocated {allocated.MinimumBytes:N0} diagnostic bytes.");
     }
 
     [Fact]

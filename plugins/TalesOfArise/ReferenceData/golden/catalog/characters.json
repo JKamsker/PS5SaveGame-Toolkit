@@ -1,0 +1,70 @@
+{
+  "records": [
+    {
+      "id": "character:alphen",
+      "name": "Alphen",
+      "category": "Playable",
+      "source": "https://example.invalid/wiki/Template:ToA_Characters",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.\nCommunity crosswalk: https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT (SHA-256 5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46). No licence published; reused with attribution per owner decision 2026-10-28",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "playable",
+        "sourceRevision": "119",
+        "character": "Alphen",
+        "statusIndex": "0",
+        "mappingConfidence": "Inferred",
+        "mappingSource": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+        "mappingSourceSha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+        "mappingSourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28"
+      }
+    },
+    {
+      "id": "character:dohalim",
+      "name": "Dohalim il Qaras",
+      "category": "Playable",
+      "source": "https://example.invalid/wiki/Template:ToA_Characters",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.\nCommunity crosswalk: https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT (SHA-256 5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46). No licence published; reused with attribution per owner decision 2026-10-28",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "playable",
+        "sourceRevision": "119",
+        "character": "Dohalim",
+        "statusIndex": "5",
+        "mappingConfidence": "Inferred",
+        "mappingSource": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+        "mappingSourceSha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+        "mappingSourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28"
+      }
+    },
+    {
+      "id": "character:example-alias",
+      "name": "Example Alias",
+      "category": "Allies",
+      "source": "https://example.invalid/wiki/Template:ToA_Characters",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "allies",
+        "sourceRevision": "119"
+      }
+    },
+    {
+      "id": "character:shionne",
+      "name": "Shionne Vymer Imeris Daymore",
+      "category": "Playable",
+      "source": "https://example.invalid/wiki/Template:ToA_Characters",
+      "description": "Character or group named by the source navigation template. This is not a party/recruitment flag.\nCommunity crosswalk: https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT (SHA-256 5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46). No licence published; reused with attribution per owner decision 2026-10-28",
+      "attributes": {
+        "serializedId": "Unknown",
+        "role": "playable",
+        "sourceRevision": "119",
+        "character": "Shionne",
+        "statusIndex": "1",
+        "mappingConfidence": "Inferred",
+        "mappingSource": "https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT",
+        "mappingSourceSha256": "5d6da1f98b12aed7a0d6c580d77842d114064acf6892183c213c5f66b99bbb46",
+        "mappingSourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28"
+      }
+    }
+  ]
+}

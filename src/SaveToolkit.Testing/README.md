@@ -28,6 +28,15 @@ The generic `Measure` overload returns the last result, independently of which
 sample was smallest. `TransformSamples` supports per-operation normalization or
 subtracting a separately measured baseline without discarding samples.
 
+For an operation repeated in a loop, derive the total bound from a per-operation
+budget instead of requiring a tiny absolute total across the entire loop. For
+example, `allocation.AssertLessThan(iterations * BytesPerOperationBudget)` can
+require less than one byte per cached lookup while tolerating a few KB of
+one-off tiered/OSR JIT work. A per-call string would still exceed that budget by
+orders of magnitude. Multiply the budget by the invocation count rather than
+rounding fractional bytes per operation down. Keep existing Release-calibrated
+bounds when migrating guards; changing a budget needs separate evidence.
+
 `collectBetweenRuns: true` performs collection, waits for pending finalizers and
 collects again before each invocation. It is optional and disabled by default.
 Allocation guard classes use a non-parallel xUnit collection (the shared

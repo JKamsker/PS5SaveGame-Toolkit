@@ -1,0 +1,99 @@
+{
+  "records": [
+    {
+      "id": "accessory:all:example-charm",
+      "name": "Example Charm",
+      "category": "Accessory",
+      "source": "https://example.invalid/wiki/ToA_-_Accessories",
+      "description": "Reference only; save-state identity is not established.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "107",
+        "section": "Examples",
+        "character": "All"
+      }
+    },
+    {
+      "id": "armor:dohalim:example-cape",
+      "name": "Example Cape",
+      "category": "Armor",
+      "source": "https://example.invalid/wiki/ToA_-_Armor_(Capes)",
+      "description": "Defense: 30",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "106",
+        "section": "Examples",
+        "character": "Dohalim",
+        "type": "Capes"
+      }
+    },
+    {
+      "id": "attachment:all:example-attachment",
+      "name": "Example Attachment",
+      "category": "Attachment",
+      "source": "https://example.invalid/wiki/ToA_-_Attachments",
+      "description": "Reference only; save-state identity is not established.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "110",
+        "section": "Examples",
+        "character": "All"
+      }
+    },
+    {
+      "id": "costume:alphen:example-costume",
+      "name": "Example Costume",
+      "category": "Costume",
+      "source": "https://example.invalid/wiki/ToA_-_Alphen:_Costumes",
+      "description": "Reference only; save-state identity is not established.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "108",
+        "section": "Examples",
+        "character": "Alphen"
+      }
+    },
+    {
+      "id": "style:shionne:example-style",
+      "name": "Example Style",
+      "category": "Style",
+      "source": "https://example.invalid/wiki/ToA_-_Shionne_Imeris:_Haircut,_Style",
+      "description": "Reference only; save-state identity is not established.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "109",
+        "section": "Examples",
+        "character": "Shionne"
+      }
+    },
+    {
+      "id": "weapon:alphen:example-blade",
+      "name": "Example Blade",
+      "category": "Weapon",
+      "source": "https://example.invalid/wiki/ToA_-_Weapons_(Swords)",
+      "description": "Attack: 10",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "105",
+        "section": "Examples",
+        "character": "Alphen",
+        "type": "Swords"
+      }
+    },
+    {
+      "id": "weapon:alphen:example-blade:variant:2073f7b790ee",
+      "name": "Example Blade",
+      "category": "Weapon",
+      "source": "https://example.invalid/wiki/ToA_-_Weapons_(Swords)",
+      "description": "Attack: 20",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "105",
+        "section": "Examples",
+        "character": "Alphen",
+        "type": "Swords",
+        "sourceVariant": "Duplicate published name; kept separately, not a new save ID."
+      }
+    }
+  ]
+}

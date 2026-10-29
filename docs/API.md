@@ -113,6 +113,10 @@ Plugin versions are independent of the application version.
 
 No parameters. Returns `{titleId,name,support,pluginIds}[]`, ordered by title ID.
 `support` is `None`, `View`, or `Edit`; includes known unsupported titles.
+It is derived from registered title IDs and plugin maturity, rather than probing each file or
+checking its writer. Content-based JSON overlays do not register extra title IDs, so a title
+listed with `None` can still contain editable JSON. Consult the
+[user guide's per-file limits](USER_GUIDE.md#supported-titles-and-write-limits).
 
 ### `GET /api/workspaces`
 
@@ -164,8 +168,10 @@ format parsing: 422. Does not require a revision or `If-Match`.
 Required query `pluginId`. Returns `{token,pluginId,title,members,errors}[]`.
 Offers include explicit members (`fileId,relativePath,role`) and diagnostics;
 do not confirm offers with errors. At most 32 members/alternatives and 128 retained
-offers per workspace. Unknown anchor/plugin: 404; unsupported/invalid proposal:
-422. Proposals do not open a document or edit file bytes.
+offers per workspace. Unknown anchor/plugin: 404. A plugin without group support returns **200
+with an empty array**. Invalid member/validation results can appear in each offer's `errors`
+while the listing still returns 200; format exceptions or too many alternatives return 422.
+Proposals do not open a document or edit file bytes.
 
 ### `POST /api/workspaces/{workspaceId}/document-groups`
 
@@ -205,9 +211,9 @@ parameters and responses are identical to the route alias below.
 | `offset` | Integer 0, minimum 0, up to Int32 maximum. |
 | `limit` | Integer 50, inclusive 1–200; invalid values rejected, not clamped. |
 | `q` (alias `text`) | Optional substring, maximum 256 UTF-16 code units; `q` takes precedence. |
-| `filters` | Optional JSON object of string values; null values rejected. |
-| `filter.<column>` | Optional per-column string; overrides the same JSON filter, last value wins. |
-| `sort` | Optional published column key. |
+| `filters` | Optional JSON object of string values; null values rejected; empty-string values mean no filter. |
+| `filter.<column>` | Optional per-column string; overrides the same JSON filter, last value wins; an empty string clears it. |
+| `sort` | Optional published column key; an empty string uses default ordering. |
 | `descending` | Boolean false. |
 | `includeEmpty` | Optional boolean; omission uses collection policy. |
 | `cursor` | Optional opaque cursor, length 1–4096; cannot combine with nonzero offset. |
@@ -215,6 +221,8 @@ parameters and responses are identical to the route alias below.
 
 At most 32 filters, nonempty keys up to 128 units, values up to 256 units. Invalid
 syntax, bounds, sort/filter columns, or cursor: 400. Missing collection: 404.
+Empty-string filters are removed after per-column overrides and bounds checks,
+before querying the document. Whitespace-only values remain literal filters.
 Returns `{collectionId,columns,rows,totalCount,filteredCount,offset,limit,
 nextCursor?,revision,hiddenEmptyCount}`. Rows have stable keys and ViewNode cells.
 Pages over 2 MiB serialized JSON: 413, with no partial page emitted.
@@ -224,7 +232,8 @@ Pages over 2 MiB serialized JSON: 413, with no partial page emitted.
 JSON `{edits:[{valueId:string,value:any}],revision?:number}`. `edits` must be an
 array with non-null entries and explicit IDs/values. Applies atomically. Returns
 **EditResult** and revision ETag; semantic/spec/read-only rejection: 422; stale:
-409. Edits must refer to bindings already exposed by a view/expanded/query page.
+409. Edits must refer to fields already indexed through the root view, lazy expansion, collection
+page or semantic-review walk. Storage-only SDK registration does not publish a field to HTTP clients.
 
 ### `POST /api/workspaces/{workspaceId}/documents/{documentId}/actions`
 
@@ -297,8 +306,35 @@ Transport/header rejection happens before invoking the domain operation.
 
 No parameters. Returns `{changes,complete,warnings,revision}`. Each change has
 `valueId,label,path,originalValue,currentValue,originalExists,currentExists,
-canRevert`. `complete:false` means bounded traversal/baseline coverage is partial;
-do not infer missing changes. Baseline survives normal history eviction.
+canRevert`, plus optional `target` for fields reached through current F8 queryable
+rows. Eager/lazy changes retain their existing JSON shape. `target` contains
+`{collectionId,rowKey,query}`: the exact unfiltered page query (including
+`includeEmpty:true`, `limit`, and either `offset` or `cursor`). Open the enclosing
+sections/tabs from `path`, query the opaque `collectionId` through the query-string
+collection endpoint with the log's `revision`, then locate `rowKey` and `valueId`
+in that page. Translate query `text`/`sortColumn` to endpoint `q`/`sort` if present;
+encode all identities and cursors. Navigation never edits the save. A removed
+field has no current target; refresh the review after any mutation or stale page.
+
+F8 labels include the collection title, stable row key and field label. Review
+scans the original and current documents separately in deterministic native order,
+including empty slots. Global limits **per snapshot**, across all collections:
+10,000 query rows, 100 pages of at most 200 rows, and 16 MiB of complete serialized
+UTF-8 pages (including read-only cells). Retained field/navigation data also uses
+the existing 16 MiB original/current memory cap; the shared view walk remains
+bounded to 100,000 nodes and depth 128. Hosts can configure query budgets with
+`DocumentSessionOptions.MaxReviewQueryRows`, `MaxReviewQueryPages`, and
+`MaxReviewQueryBytes`. No collection-dirtiness capability exists, so exposed
+collections are scanned to discover changes; only changed fields are returned.
+
+`complete:false` means bounded traversal/baseline coverage is partial; do not
+infer missing changes or field additions/removals from unvisited data. F8 budget
+cuts and invalid/failed paging add explicit **truncated** warnings identifying the
+collection/reason. Display these warnings even when `changes` is empty; never show
+“no changes” or “complete review” for partial coverage. Baseline survives normal
+history eviction. Existing `canRevert` governs individual revert, including F8
+fields; derived/read-only fields and structural additions/removals cannot revert
+individually.
 
 ### `POST /api/workspaces/{workspaceId}/documents/{documentId}/changes/revert`
 
@@ -322,7 +358,11 @@ An unchanged workspace can return an empty plan (200).
 Same required JSON/options as export plan. Returns `application/zip` with
 `Content-Disposition: attachment` and `<safe-workspace-name>-edited.zip`.
 Safe names retain letters/digits/hyphen/underscore and replace other characters
-with `_`. Entries preserve imported relative paths. `ChangedFiles` includes only
+with `_`. Entries follow the toolkit's imported relative paths. Standard `<TITLE>/sdimg_<directory>/...`
+layouts are retained; additional generations are prefixed `genN/`. Wrapper prefixes before the
+recognized title/save directory are not retained. Unknown-title layouts keep their normalized
+imported path without an `UNKNOWN/` prefix: for example `unrecognized-layout/mystery.dat` exports as
+`unrecognized-layout/mystery.dat`. `ChangedFiles` includes only
 rewritten files; `ChangedDirectories` includes entire changed save directories
 and system files; `Everything` includes the imported set. Mirroring replaces
 identical original console backups unless separately owned/open.

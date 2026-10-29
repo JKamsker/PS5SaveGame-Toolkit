@@ -24,42 +24,47 @@ artifacts/                Sample saves (git-ignored, never commit, never copy in
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj           # builds Core, Sdk and every plugin
 dotnet test --project tests/SaveToolkit.Core.Tests                 # framework tests
 dotnet test --project plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests
-./scripts/test.ps1 [-Filter <Name>]                                # everything
-./scripts/test.ps1 -Configuration Release -ResultsDirectory <path>  # CI-equivalent backend + TRX
-./scripts/package.ps1 -Runtime win-x64 -OutputDirectory <path>      # self-contained UI/API bundle + SHA-256
-./scripts/smoke-package.ps1 -Runtime win-x64 -PackageDirectory <path> -ScratchDirectory <path>
-./scripts/new-plugin.ps1 -Name <Name> -Id <id> -TitleIds PPSA..... -GameName "<Game>"
+./scripts/test.ps1 -Filter <Name>                                  # API build + matching backend projects
+./scripts/test.ps1 -Coverage -Configuration Release -ResultsDirectory <path>
+./scripts/self-test.ps1 -ScratchDirectory <path>                    # script/scaffold regressions
 cd web; npm ci; npm run dev                                        # UI on :5173, proxies /api to :5180
 dotnet run --project src/SaveToolkit.Api                           # API on http://127.0.0.1:5180
 ```
 
 Tests use the MTP runner (`global.json`), so pass `--project`. Warnings are errors.
-CI runs without private samples on Ubuntu and Windows; missing samples must skip cleanly.
-Use Node.js 24, `npm ci`, `npm run typecheck`, `npm test` and `npm run build` for web validation
-(run `npm run lint --if-present` when lint is configured). Validate workflow edits with `actionlint`.
-Application versions come from `v`-prefixed SemVer tags through API-only MinVer; plugin versions
-stay independent. See `docs/RELEASING.md` before creating release tags or running the Release workflow.
+See [RELEASING.md](docs/RELEASING.md) for the authoritative script parameters, CI jobs,
+web checks, coverage, packaging, versioning and release procedure. Configure scratch as described
+in its [disk and scratch guidance](docs/RELEASING.md#disk-and-scratch) before running tests/builds.
+See [the scaffold walkthrough](docs/PLUGIN_GUIDE.md#scaffold) to create a new plugin.
+Documentation checks: `python -B docs/tests/test_documentation.py --code-ref main`.
 
 ## Rules for plugin work
 
-- Stay inside your `plugins/<Name>/` folder. Do **not** edit `src/`, `web/`, `tests/` or other plugins.
-  If the SDK is missing something, work around it and describe the need under `## SDK requests` in your
-  plugin README. Exception: adding a `<PackageVersion>` line to `Directory.Packages.props`.
-- Follow `docs/PLUGIN_GUIDE.md` (hard rules: never lose data, fix integrity, honest confidence labels,
-  bounded views, stateless plugin, no I/O).
-- **Research before you implement.** Use web search for existing format documentation, community
-  tools (GitHub: save editors, extractors, 010 Editor templates, wikis), crypto keys and checksum
-  algorithms for your game/engine. Port proven approaches instead of guessing. Cite every source in
-  the plugin README. Treat downloaded code as untrusted: read it, do not execute it blindly.
-- Verify claims against the actual sample bytes. Mark anything unconfirmed as `Inferred`/`Unknown`.
-- Tests: the conformance suite must pass; add format-specific tests (hash vectors, known sample values,
-  corruption rejection). Tests must skip, not fail, when samples are absent.
+Read [PLUGIN_GUIDE.md](docs/PLUGIN_GUIDE.md) before touching a plugin. Its
+[contribution workflow](docs/PLUGIN_GUIDE.md#contribution-workflow) and
+[hard rules](docs/PLUGIN_GUIDE.md#hard-rules) are the detailed source; the essentials:
+
+- Stay inside your `plugins/<Name>/` folder. Do **not** edit `src/`, `web/`, `tests/` or other plugins
+  (exception: a `<PackageVersion>` line in `Directory.Packages.props`). Record SDK needs under
+  `## SDK requests` in the plugin README.
+- Hard rules: never lose data, fix integrity, honest confidence labels, bounded views, stateless
+  plugin, no I/O. Licence policy: rule 9 in the guide.
+- **Research before you implement**, cite every source in the plugin README, treat downloaded code as
+  untrusted, and verify claims against the actual sample bytes (`Inferred`/`Unknown` otherwise).
+- Tests: conformance must pass; add format-specific tests; tests must skip, not fail, without samples.
 - C#: nullable enabled, file-scoped namespaces, `sealed` by default, small files (<400 lines),
   no `dynamic`, no reflection tricks, no unsafe code unless justified in a comment.
-- Do not add repo tooling: no git hooks, build targets, `Directory.Build.*` files, lint scripts or
-  `.gitattributes` in plugin folders. File size and style are checked in review.
-- Git: conventional commits (`feat(pragmata): ...`). Commit on your branch only; never push.
-  Never commit anything from `artifacts/` or extracted sample data.
+- No repo tooling in plugin folders (hooks, build targets, `Directory.Build.*`, lint scripts,
+  `.gitattributes`).
+
+## Collaboration policy
+
+- Use conventional commits (`feat(pragmata): ...`) with a short summary and a body explaining
+  the changes and why they were needed. Commit on your assigned branch only; never push or merge
+  unless the task explicitly authorizes it. Never commit private samples or extracted save data.
+- For [#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40), security and vulnerability
+  reviews are out of scope by owner rule. Correctness, data safety and malformed-input robustness
+  checks remain in scope; mutation fuzzing is such a robustness check.
 
 ## Forge
 

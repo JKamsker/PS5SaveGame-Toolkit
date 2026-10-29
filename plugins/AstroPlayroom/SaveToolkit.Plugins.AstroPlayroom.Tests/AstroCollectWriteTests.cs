@@ -124,7 +124,8 @@ public sealed class AstroCollectWriteTests
         var table = Assert.Single(AstroCatalogueTestData.Group(document, title).Children.OfType<TableNode>());
         var missing = table.Rows.First(row => Assert.IsType<TextNode>(row.Cells["status"]).Text == "Missing");
         var owned = table.Rows.First(row => Assert.IsType<TextNode>(row.Cells["status"]).Text == "Owned");
-        var action = Assert.Single(Assert.IsType<SectionNode>(missing.Cells["details"]).Children.OfType<ActionNode>());
+        var action = Assert.Single(Assert.IsType<SectionNode>(missing.Cells["details"]).Children.OfType<ActionNode>(),
+            action => action.ActionId == CollectAction);
         Assert.Equal(CollectAction, action.ActionId);
         Assert.True(action.SupportsPlanning);
         var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);

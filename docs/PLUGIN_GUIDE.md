@@ -42,8 +42,9 @@ The supplied title IDs are targets, not evidence of game support. Research the r
 replacing the demonstration probe, parser, fixture and README claims together.
 
 The initial test run exercises synthetic parsing, bounded collection queries, read-only bindings,
-corruption rejection and byte-identical serialization. Four sample-dependent tests (including
-conformance) skip when the archive is absent; this is a passing bootstrap, not real-save validation.
+corruption rejection and byte-identical serialization. Sample-dependent tests, including conformance
+and its inherited `MutationFuzz` fact, skip when the archive is absent; this is a bootstrap,
+not real-save validation.
 `<Name>SampleTests.cs` demonstrates `SampleSaves.Load`, which reports a real skip instead of silently
 returning. Once you implement the real parser, supply samples as described under [Tests](#tests)
 and check that those skips disappear.
@@ -87,6 +88,27 @@ native record identities that survive insertion, removal and reorder.
 Scaffold regression coverage (including real generated-project builds and tests with absent and
 synthetic samples) runs through `./scripts/self-test.ps1 -ScratchDirectory <scratch-path>`.
 It needs the repository's .NET SDK and package restore access, but no private saves or Pester.
+See [script parameters](RELEASING.md#script-parameters) and [disk and scratch](RELEASING.md#disk-and-scratch)
+for shared runner options and temporary-storage setup.
+
+## Contribution workflow
+
+- Stay inside `plugins/<Name>/`; do not edit `src/`, `web/`, `tests/` or other plugins.
+  Adding a `<PackageVersion>` to `Directory.Packages.props` is the exception. Work around missing
+  SDK capabilities and record them under `## SDK requests` in the plugin README; consult
+  [the triaged backlog](SDK_REQUESTS.md) before treating a shipped helper as missing.
+- Research before implementation: search format documentation, community editors/extractors,
+  templates, wikis, format keys and checksum algorithms. Reuse proven approaches within rule 9,
+  cite sources in the README and verify claims against actual sample bytes. Treat downloaded code
+  as untrusted: read it before use. Mark unconfirmed meanings `Inferred` or `Unknown`.
+- Use nullable C#, file-scoped namespaces and `sealed` by default. Keep files small (<400 lines,
+  owner rule in [AGENTS.md](../AGENTS.md#rules-for-plugin-work)). Prefer composition
+  and reused helpers; do not split into partials merely to meet a line count. Avoid `dynamic`,
+  reflection tricks and unsafe code (any exception needs a reason in a comment).
+- Do not add repository tooling inside plugin folders: no hooks, build targets, `Directory.Build.*`,
+  lint scripts or `.gitattributes`. File size and style are reviewed centrally.
+- Follow [repository collaboration policy](../AGENTS.md#collaboration-policy) for commits and review
+  scope, and [Tests](#tests) for conformance, format-specific cases and missing-sample skips.
 
 ## Contract (src/SaveToolkit.Sdk)
 
@@ -95,7 +117,7 @@ It needs the repository's .NET SDK and package restore access, but no private sa
 | `IGamePlugin.Info` | Lower-case dotted `Id` (`pragmata`, `engine.unreal-gvas`), semver `Version`, every PS5 title id you support in `Games` (all regions you know of), `References` with upstream URLs. |
 | `Probe(file)` | Cheap: use `file.ReadHeader(n)`, `file.FileName`, `file.Directory.TitleId`. **Never throw.** Return `ProbeScore.Title` (title id + layout/magic match), `Engine` (generic engine format), `Format` (generic container) or `ProbeResult.None`. Put a human label in `Label` ("Gameplay save, slot 3"). |
 | `Open(file)` | Parse fully and validate (magic, checksums, decryption). Throw `SaveFormatException` with a user-facing message on bad data. Siblings are available through `file.Sibling(...)`/`file.Directory`. |
-| `Open(file, references)` | Optional overload (default: calls `Open(file)`). The framework always calls this one, with the reference packs pinned for the document. Implement it when you use [reference packs](#reference-packs); let `Open(file)` forward with `IReferenceContext.Empty`. |
+| `Open(file, references)` | Optional overload (default: calls `Open(file)`). The framework always calls this one, with the reference packs pinned for the document. Implement it when you use [reference packs](#reference-packs); let `Open(file)` forward with `IReferenceContext.Empty` or a title-pinned `EmbeddedReferenceContext`. |
 | `ISaveDocument.BuildView()` | Root `ViewNode`. Called again after `StructureChanged`. |
 | `ExpandNode(lazyId)` | Children of a lazy `SectionNode`. Use for anything big (raw trees, long lists). |
 | `GetValue(valueId)` | Current value of every field you ever exposed. |
@@ -107,11 +129,70 @@ It needs the repository's .NET SDK and package restore access, but no private sa
 
 `BoundSaveDocument` implements the bookkeeping (binding registry, atomic apply with rollback,
 `GetValue`). Prefer it: build views with `Field(id, label, spec, get, set, validate)`.
+For storage-only registration, use the protected
+`RegisterField(valueId, spec, get, set = null, validate = null)`, then render with
+`Field(valueId, label)` when needed. Registration retains the spec/getter/setter/validator without
+calling the getter or creating a node; a missing setter makes the rendered field read-only.
+Structural changes and memento restores clear these bindings, so register them again against the
+current model. This does not publish host metadata or bypass host spec validation; direct plugin
+calls still own validation for unpublished IDs. See [SDK-02](SDK_REQUESTS.md#prioritized-inventory)
+for the remaining metadata/primary-alias contract.
 See `tests/SaveToolkit.Core.Tests/Fakes/CounterPlugin.cs` for the smallest complete example.
 `BoundSaveDocument.ApplyEdits` rollback includes setters that throw after changing their bound value, failed
 readbacks and failures while enumerating `DerivedChanges`. Setters must accept their previous value
 for rollback; `DerivedChanges` reports consequences and must not independently mutate state outside
 those bindings. Custom `ApplyEdits` and action implementations still own their atomicity.
+
+### Field metadata without rendering a page (SDK-02)
+
+Implement the optional `IFieldMetadataDocument` to publish canonical `FieldMetadata` for requested
+stable value IDs. Core requests at most 200 IDs per call; return only unique requested IDs and omit
+unknown ones. Resolve against the current model without building/expanding a view or querying a
+table page. A descriptor guarantees that `GetValue` works and that writable fields already have
+live setters and plugin validation. Registration changes bookkeeping only, never save values.
+
+For a `BoundSaveDocument`, explicitly add `IFieldMetadataDocument` to your document's interfaces
+and use the additive registration overload:
+
+```csharp
+RegisterField(new FieldMetadata("item/stable-key/quantity", "Stored quantity", new IntegerSpec(0, int.MaxValue)),
+    () => FieldValue.Of(item.Quantity), value => item.Quantity = value.AsInt32(), ValidateQuantity);
+RegisterField(new FieldMetadata("inventory/total", "Total quantity", IntegerSpec.Int32 with { ReadOnly = true })
+    { BindingKind = FieldBindingKind.Derived }, () => FieldValue.Of(items.Sum(item => item.Quantity)));
+```
+
+The inherited `ResolveFieldMetadata(ids)` returns these registrations. For large or structural
+models, override it to register only the requested current bindings before calling the base method.
+Structural changes and memento restores clear both bindings and published metadata; resolve them
+again from stable logical identity. Do not capture objects from a model replaced by undo or group
+publication. Group implementations opting in must forward resolution to their current/staged members
+and map identities themselves; the group interfaces are unchanged.
+
+`FieldBindingKind.Primary` is the default. A derived alias/consequence must use `Derived` and a
+`ReadOnly` spec, with no independent setter. Report primary and derived `ValueChange`s; setters
+recompute consequences atomically. Undo/redo re-resolves current metadata and replays writable
+primaries only. Read-only primary metadata is also permitted and is never replayed. This policy
+does not bypass dependency checks, custom validation, or format-integrity repair.
+
+Render a registered field later with `Field(id, label)`. Registered metadata takes precedence over
+view-learned metadata, and specs must agree in all properties, including nested options and hints;
+a conflict rejects indexing/preflight. Labels may differ across projections. Action parameter
+specs remain separate from document-field metadata. `FieldSpecMetadata.Snapshot` / `Agree` copy
+nested spec collections and compare their definitions while retaining executable `ReferenceSpec.Assess`
+policies; ordinary JSON round-tripping loses those callbacks. Keep eligibility delegates stable for
+the same model revision: callback equality is part of agreement and preview revalidation.
+
+Core validates unloaded edits and all F6 planned consequences with these specs, rejects missing or
+duplicate planned IDs and inconsistent primary/derived classification, and checks the old values.
+Preview retention includes immutable metadata within the existing byte budget. Apply re-resolves
+and compares metadata and effects; stale metadata requires another preview. Plan generation must
+itself establish any bindings it needs before calculating changes (for example by calling your
+resolver for selected quantities); Core cannot discover IDs that a rejected plan never returns.
+
+Existing documents do not opt in merely by inheriting `BoundSaveDocument` or using the older
+`RegisterField(id, spec, get, set, validate)` overload. Their view discovery, planning and replay
+behavior is preserved. Canonical labels and paths are published for consumers, but targeted semantic
+review of unloaded IDs is separate work; this API alone does not promise complete review coverage.
 
 ## View vocabulary (src/SaveToolkit.Sdk/Views)
 
@@ -523,6 +604,39 @@ bounded shell immediately. Core registers bindings only for rows returned by a p
 page sends that page's `revision`; after a structural edit, old pages receive the same stale 409 used by
 ordinary views and must be refetched.
 
+Original/current semantic review also traverses exposed F8 tables, after eager/lazy
+fields so an existing canonical presentation keeps its label and path. The original
+is opened separately; current pages register ordinary live field bindings for
+individual Revert. Return the same stable field IDs and specs as ordinary queries.
+Queryable search projections can reuse an already reviewed canonical lazy subtree;
+recursive expansion cycles still report incomplete coverage.
+The review requests unfiltered native ordering with `IncludeEmpty = true`, pages
+by offset or cursor, and stops at the declared total even if a trailing cursor is
+present. Do not hide saved rows or change totals while paging. Lazy collections
+must become available when their containing section expands.
+
+Budgets are global across collections **within each snapshot**: 10,000 rows,
+100 pages (at most 200 rows each), 16 MiB of serialized UTF-8 pages including
+read-only content, plus the shared field/navigation memory, node and depth caps.
+Hosts can set `DocumentSessionOptions.MaxReviewQueryRows`, `MaxReviewQueryPages`
+and `MaxReviewQueryBytes`. A budget cut or invalid/failed page returns
+`complete:false` with explicit truncated warnings; unvisited fields never establish
+additions/removals. There is no collection-dirtiness contract, so discovery queries
+all exposed collections within these limits and emits only changed fields.
+
+F8 changes use `collection title / stable row key / field label`, retain enclosing
+section/tab paths plus `row:<key>`, and add a current-page navigation
+`target:{collectionId,rowKey,query}`. A client must load that exact query (including
+empty rows) at the review revision, then locate the row/value ID. This is separate
+from `ViewTarget`, which only navigates already loaded controls. The web review UI
+must consume these targets and visibly present incomplete/truncated coverage;
+backend delivery alone does not provide that UI. Existing eager/lazy JSON is
+unchanged. Undo/redo remains available when a field is read-only, structurally
+added/removed, or outside proven coverage; do not remove plugin safety guards for
+unpublished field metadata (SDK-02).
+Distinct value IDs remain distinct review entries, even if their transitions are
+equal; Core does not guess primary/raw alias relationships from values or ID prefixes.
+
 The web selection context exposes `queryScope` when the user chooses “select all filtered rows”. It is a
 serialisable object containing `collectionId`, the normalized query (`q`, `filters`, `sort`,
 `descending`, `includeEmpty`, with `offset` reset), the F5 `revision`, `totalCount`, and `excludedRowKeys`. Bulk action
@@ -627,8 +741,10 @@ eviction. `DocumentSessionOptions.MaxOriginalBytes` defaults to 16 MiB of estima
 field data; walks are also bounded to 100,000 nodes/rows/tabs and depth 128. Exceeding a bound,
 failure to open the original, failing lazy expansion, or unmatchable internal identities yields
 `Complete = false` with a visible warning. Missing coverage is never reported as a proven addition
-or removal. This is a field-level review; it does not describe binary differences or record order. Use structural
-undo for reorder-only changes.
+or removal. The current walker does not page `QueryableTableNode` collections (see
+[SDK-01](SDK_REQUESTS.md#prioritized-inventory)); `Complete = true` describes that walk, not coverage
+of every F8 field. This is a field-level review; it does not describe binary differences or record
+order. Use structural undo for reorder-only changes.
 
 Jump opens parent sections/tabs and lazy views, clears table filters, scrolls virtual rows and
 focuses the field. Individual revert restores an **existing editable field** through normal
@@ -691,6 +807,33 @@ can adopt them independently; retain game-specific validation, evidence labels a
   and image provenance, registers the image dataset in Sources and includes separate record/image
   attribution in the alt text. Missing records/images/provenance use the supplied fallback (or a text
   fallback). Supply evidence caveats such as whole-item-versus-part appearance in `label`.
+  The additive five-argument overload accepts **`ReferenceIconOptions`**; pass `label` and `fallback`
+  explicitly (null is allowed). Null/default options preserve the original overload's output.
+  `ExactAltText` overrides the label and composed attribution verbatim, including empty text and
+  whitespace; the caller must retain all required publisher/source notices. Null keeps composed alt text.
+  `Availability` defaults to `RequireBytesAndProvenance`; `RequireProvenance` preserves an image when
+  provenance exists but bytes are unavailable (BG3 compatibility). `AssetIdOnly` preserves an image for
+  any non-null asset ID even without bytes/provenance (Tales of Arise compatibility with exact alt text).
+  Composed alt text still needs provenance under every policy; otherwise the helper uses the fallback.
+  Every policy requests provenance and resolves permitted assets through `GetAsset` to register available
+  image datasets in Sources, including with exact alt text. Missing records/asset IDs always use the
+  supplied fallback or `new TextNode("No reference icon")`. For example:
+
+  ```csharp
+  // BG3: retain composed, separate record/image attribution, including missing-byte images.
+  ReferenceViews.Icon(context, record, label: null, fallback: null,
+      options: new() { Availability = ReferenceIconAvailability.RequireProvenance });
+
+  // Tales of Arise: retain exact role/publisher text and the historical em-dash fallback.
+  ReferenceViews.Icon(context, record, label: null, fallback: new TextNode("—"), options: new()
+  {
+      Availability = ReferenceIconAvailability.AssetIdOnly,
+      ExactAltText = record is null ? null
+          : $"{record.Name}: {record.Attributes.GetValueOrDefault("iconRole") ?? "game icon"}. {MediaLicense}",
+  });
+  ```
+
+  `MediaLicense` above is the caller's existing publisher notice (`AriseAssets.MediaLicense`).
   **`ReferenceInspection.Create`** creates an attributed `Mutates = false` action with one `ReferenceSpec`
   parameter; absent/empty catalogs yield null. Pass an explicit initial key for a fixed record, and
   `fixedRecord: true` for a read-only picker. `ResolveSelection` accepts exactly one text parameter and
@@ -838,12 +981,11 @@ eligibility reason. F2's catalog-wide endpoints remain unchanged. The attributed
 and `tests/SaveToolkit.Core.Tests/Fakes/ItemsPlugin.cs` demonstrate the complete contract.
 
 The shipped F13 scope is read-only inspection, browse-only reference pickers, catalogue query
-filter/sort and float duration hints. Publishing field specs without rendering pages is a separate
-proposed capability; see
-[F13 field-spec publishing design](plans/F13-FIELD-SPEC-PUBLISHING.md). Unknown action-reported
-IDs already replay during undo, but that alone does not establish primary bindings, alias policy,
-complete semantic review or safe unloaded-page preflight. Retain plugin guards until that
-capability is implemented.
+filter/sort and float duration hints. Storage-only `RegisterField` is also shipped, and SDK-02 now
+supplies optional field metadata and canonical primary/derived policy independently of views (see
+above and the historical [F13 field-spec publishing design](plans/F13-FIELD-SPEC-PUBLISHING.md)).
+Keep plugin guards until the plugin adopts live binding resolution and verifies unloaded edits and
+exact undo/redo. Complete targeted semantic review remains a separate integration concern.
 
 ## Reference packs
 
@@ -940,6 +1082,7 @@ the extension. SVG and anything else is rejected.
 | --- | --- |
 | Archive | 64 MiB |
 | All files together | 128 MiB |
+| Manifest | 256 KiB |
 | One records file | 32 MiB |
 | One image | 1 MiB |
 | Image size | 2048 × 2048 |
@@ -958,6 +1101,53 @@ Every `refpacks/<folder>/pack.json` in a plugin assembly is loaded at startup. T
 test `EmbeddedReferencePacks_AreValid` fails with the loader's message if a pack is broken, for example
 on a hash mismatch. Keep a `*.source.md` next to the data and the README table from rule 9 as well.
 The pack attribution does not replace them.
+
+### Embedded fallback for direct opens
+
+`SaveToolkit.Sdk.References.EmbeddedReferenceContext` implements `IReferenceContext` using only
+assembly manifest resources. It shares Core's decoder and catalog implementation: SHA-256 validation,
+CRLF-to-LF record hashing (assets remain byte-exact), record attributes and limits, qualified asset IDs,
+dataset attribution, bounded search and deterministic selection are identical. No ZIP, filesystem,
+network, persistence or global cache is involved.
+
+Cache the decoded assembly once and pin it for each document's plugin/title:
+
+```csharp
+private static readonly EmbeddedReferenceContext Embedded =
+    EmbeddedReferenceContext.Load(typeof(MyPlugin).Assembly);
+
+public ISaveDocument Open(ISaveFile file) =>
+    Open(file, Embedded.Pin(Info.Id, file.Directory.TitleId));
+
+public ISaveDocument Open(ISaveFile file, IReferenceContext references)
+{
+    var save = Parse(file);
+    return new MyDocument(save, references.Catalog("items", save.Build), references);
+}
+```
+
+For a single open, `EmbeddedReferenceContext.Load(assembly, pluginId, titleId, limits, preferredLocales)`
+combines decoding and pinning. `EmbeddedReferencePackLimits` has the same per-pack manifest, total-byte,
+records-file, image-byte, image-dimension, file-count and record-count defaults as Core (no archive
+limit applies). Total bytes count listed dataset files before text normalization; the manifest has its
+own cap. Each discovered folder must contain a valid pack. Invalid packs and duplicate pack IDs throw
+`EmbeddedReferencePackException`; the SDK returns no partial context. Core retains its existing
+startup policy of reporting rejected packs and continuing to load other packs.
+
+`Pin` filters plugin/title case-insensitively; a null title excludes title-specific packs. Call `Pin`
+on the original loaded collection for each open, since pinning a filtered context only narrows it.
+`Catalog(id, gameBuild)` uses Core's build, locale (default `en`), version and ordinal pack-ID policy;
+pass `preferredLocales` to `Pin` for another locale order. Pack bytes/catalogs are shared between pins.
+Missing catalogs, records, assets and provenance return null. Host contexts retain ownership of Sources
+usage tracking; the embedded SDK context exposes attribution without host usage state.
+
+The two-argument `Open` must keep the supplied context. Do not replace it merely because `Packs` is
+empty: custom contexts may supply catalogs without pack metadata. For existing per-record fallback
+policies, replace the local embedded parser with a cached SDK context and retain explicit
+`hostCatalog?.Find(key) ?? embeddedCatalog?.Find(key)` logic. Keep game-specific catalog joins,
+source preference, numeric ordering, unknown-ID labels and icon options in the plugin. In particular,
+FinalFantasy7 still merges fallback rows with host overrides; FinalFantasy16 still prefers published
+items over wiki rows; GodOfWarRagnarok still orders original, collectible and community evidence.
 
 ### Reading the context
 
@@ -998,7 +1188,7 @@ public override AssetContent? GetAsset(string assetId) => references.GetAsset(as
 - Asset ids from records are pack-qualified (`packId:path`). Pass them through unchanged.
 - The context is immutable and safe to keep in the document. It records which datasets you resolved,
   so the Sources panel lists exactly what the document uses.
-- Always handle `null`. Tests and `Open(file)` see an empty context, and users may have no pack.
+- Always handle `null`. Tests and direct opens may use an empty context, and users may have no pack.
 - If `Open(file)` forwards to `Open(file, IReferenceContext.Empty)`, you **must** implement the two-argument
   overload. Otherwise the default overload calls back into `Open(file)` and recurses forever.
 
@@ -1126,6 +1316,79 @@ $env:SAVETOOLKIT_ARTIFACTS = 'C:/path/to/artifacts'
 
 Check each project's summary for zero skipped tests. `MemorySaveSet` copies input file buffers;
 mutating the original byte array after creating a synthetic file does not edit that file.
+
+### Deterministic mutation fuzzing (#40)
+
+Every conformance subclass inherits `MutationFuzz`, a correctness/robustness check for malformed
+saves. By default it runs **200 mutations per selected file**, with fixed seed **`0x40C0FFEE`** and zero-based
+indices. Each mutation starts from the original bytes, using a specified xorshift32 sequence;
+`SaveMutation.Create(original, seed, index)` reproduces a case independently of earlier cases.
+The six mutation kinds cycle through bit flips, byte insertion, byte deletion, random truncation,
+2/4/8-byte length-style overwrites (zero, all ones and huge values, both byte orders), and bounded
+block duplication. Overwrites alternate between header and arbitrary payload locations. This is
+bounded sampled coverage, not exhaustive validation or a security review.
+
+For each available title, the harness uses `SelectFiles`, orders eligible files by size then ordinal
+relative path, and takes up to `MaxMutationFuzzFilesPerTitle` (**1**) distinct file. Small files keep
+the default run fast while exercising real format bytes. This independent cap keeps existing exhaustive
+`MaxFilesPerTitle` overrides from expanding the fuzz run without limit. Missing titles are ignored
+without hiding available titles. Every selected file gets the full mutation count; increase the
+file cap for a broader local corpus run. Built-in synthetic seeds cover GenericJson (one) and
+XorJson (two); other plugins must supply valid fixtures to run without private samples.
+Override `MutationFuzzSyntheticSeeds` to supply small valid
+`ISaveFile`s, including required siblings, for sample-free CI. With neither samples nor synthetic
+seeds the fact reports a real skip. Environment overrides can select a different seed/count and
+an overall time cap; see the single source of truth for
+[nightly configuration and local reproduction](RELEASING.md#nightly-mutation-fuzz). For example:
+
+```csharp
+protected override IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds =>
+    [MemorySaveSet.SingleFile("save.dat", CreateSmallValidSave(), "PPSA12345")];
+protected override int MutationFuzzCount => 200;
+```
+
+Mutations use an in-memory overlay, preserving file names, title, generation, backup status and
+unmodified siblings; no mutated sample is written to disk. Each case calls `Probe`, and on a
+match calls `Open(file, pinnedReferences)`, `BuildView`, the first 50-row page of **every** collection
+(including empty collections), and `Dispose`. Nonmatches, success, `InvalidDataException` and the
+SDK's documented `SaveFormatException` are accepted. `MutationFuzzRejectionTypes` can declare
+additional exact documented rejection types. Broad exception classes, argument/bounds errors,
+null dereferences, overflow and out-of-memory errors cannot be declared clean rejections.
+Lazy expansion, later pages, edits and serialization remain covered by the other conformance facts.
+
+`MutationFuzzAllocationBudget(file)` defaults to **64 MiB + 32 × original file length**, capped at
+**1 GiB** per case. It measures managed allocations on the synchronous plugin thread, from probe
+through disposal, including rejected cases; fixture construction and reference loading are excluded.
+It does not count native allocations or work a plugin starts on other threads. The default
+`MutationFuzzCaseTimeout` is a generous **30 seconds**. One isolated child xUnit process per plugin
+lets the parent kill a stuck parser and its process tree, rather than leave background tasks running.
+Worker/sample preparation has a separate two-minute guard. A completed case also checks elapsed time,
+so a timeout cannot be missed between progress polls. Allocation accounting is checked after a case;
+it is a regression budget, not an allocator limit. Keep plugin parsers' own pre-allocation bounds.
+
+Run the inherited check alone with the normal .NET 10 MTP runner:
+
+```powershell
+$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch/conformance-fuzz'
+$env:TEMP = $env:TMP = $env:TMPDIR = $env:SAVETOOLKIT_TEST_TEMP
+dotnet test --project plugins/ExampleGame/SaveToolkit.Plugins.ExampleGame.Tests --filter-method '*MutationFuzz'
+```
+
+Keep `SAVETOOLKIT_ARTIFACTS` pointed at external private samples. The worker checkpoints and result
+JSON use `TestScratch` and are cleaned after the run. Failure reports include the seed, smallest
+observed index for each sample/error/stack signature, relative sample path, original SHA-256,
+mutation description, exception type and stack. They omit exception messages and sample values.
+The test output and `mutation-fuzz.json` attachment record case counts, parser work time and expected failure counts; the test's wall
+time additionally includes worker startup, fixture loading and mutation generation. Re-run the
+same fact with the same sample hash, or call `SaveMutation.Create` with the reported coordinates.
+
+`ExpectedFuzzFailures` is a virtual list of `ExpectedFuzzFailure(exceptionType, stackFrame,
+trackingNote)`. It quarantines only an observed exception/stack signature, still runs every case,
+and fails on other errors. Entries need a tracking note and should be removed when fixed. The
+central `MutationFuzzKnownFailures` registry can seed per-plugin defaults while plugin folders are
+outside the harness task's scope. Add entries only after reproducing a real failure and recording
+its lowest observed index, stack top and analysis on the tracking issue. This list is temporary
+debt, never a broader definition of acceptable parser behavior.
 
 ## Plugin README
 

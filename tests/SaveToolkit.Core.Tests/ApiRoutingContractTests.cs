@@ -13,7 +13,10 @@ public sealed class ApiRoutingContractTests
         Directory.CreateDirectory(webRoot);
         const string page = "<!doctype html><title>SPA navigation fixture</title>";
         await File.WriteAllTextAsync(Path.Combine(webRoot, "index.html"), page, ApiContractFixture.Ct);
+        // Production disables the Development static-web-assets manifest, which would otherwise layer a
+        // locally built src/SaveToolkit.Api/wwwroot over this fixture web root.
         using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder
+            .UseEnvironment("Production")
             .UseWebRoot(webRoot).UseSetting("Toolkit:DataRoot", TestZips.TempDir())
             .UseSetting("Toolkit:PackRoot", TestZips.TempDir()));
         using var client = factory.CreateClient();

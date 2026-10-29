@@ -110,11 +110,15 @@ internal sealed class GearboxItemActions(GearboxDocument document)
         _ = document.Serialize();
     }
 
-    private InventoryEntry[] Select(ActionScope scope, bool requireSelection)
+    internal InventoryEntry[] Select(ActionScope scope, bool requireSelection)
     {
         if (scope.QueryScope is not null && scope.RowKeys is null) throw new SaveFormatException("The host must resolve the query selection first.");
         if (requireSelection && scope.RowKeys is null) throw new SaveFormatException("Select explicit item rows before this structural action.");
         var entries = document.Inventory.Entries.ToArray();
+        if (scope.QueryScope is { } query &&
+            (query.CollectionId is not (GearboxInventory.Backpack or GearboxInventory.Bank or GearboxInventory.LostLoot) ||
+             scope.RowKeys!.Any(key => document.Inventory.Find(key).List != query.CollectionId)))
+            throw new SaveFormatException("The resolved selection belongs to another item collection.");
         if (scope.RowKeys is null) return entries;
         var keys = scope.RowKeys.ToHashSet(StringComparer.Ordinal);
         var known = entries.Select(entry => entry.Id).ToHashSet(StringComparer.Ordinal);

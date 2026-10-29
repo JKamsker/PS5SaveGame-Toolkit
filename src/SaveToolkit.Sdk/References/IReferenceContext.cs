@@ -10,6 +10,8 @@ namespace SaveToolkit.Sdk.References;
 /// Always handle the no-pack case: <see cref="Catalog"/> returns null and the plugin falls back to
 /// raw ids or its own embedded tables. <see cref="Empty"/> is what tests and the old
 /// <see cref="IGamePlugin.Open(Saves.ISaveFile)"/> path see.
+/// Plugins can opt into <see cref="EmbeddedReferenceContext"/> to decode their assembly's embedded
+/// packs for direct opens, while preserving the host-supplied context for hosted opens.
 /// </remarks>
 public interface IReferenceContext
 {

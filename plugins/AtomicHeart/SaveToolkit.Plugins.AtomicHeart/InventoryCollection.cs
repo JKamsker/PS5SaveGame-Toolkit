@@ -16,7 +16,7 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
         new("container", "Container", new TextSpec()), new("icon", "Icon"), new("asset", "Item reference", new TextSpec()),
         new("category", "Category", new TextSpec()), new("raw", "Saved object path", new TextSpec()),
         new("instance", "ItemId", IntegerSpec.Int64), new("amount", "Amount", IntegerSpec.Int64),
-        new("action", "Bulk edit"), new("details", "Details"), new("span", "Original decoded span"),
+        new("action", "Bulk edit"), new("restore", "Restore imported"), new("details", "Details"), new("span", "Original decoded span"),
     ];
 
     internal QueryableCollection Info => new(Id, "Inventory slots", Columns, state.Items.Count) { EmptyRows = EmptyRows };

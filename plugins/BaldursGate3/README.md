@@ -525,15 +525,18 @@ Shared helpers (#40): `BinaryData` delegates checked ranges and little-endian re
 to `BoundedBinaryCursor`; its adapter retains the exact BG3 format-error text and
 exception shape. Buffer/record budgets, strict UTF-8, LSF/LSV layout, compression
 and all preflight checks remain local. `Bg3References` uses `ReferenceViews.Icon`
-and one catalog index, retaining separate record/image attribution and the existing
+with `ReferenceIconOptions.Availability = RequireProvenance` (SDK-05) and one catalog
+index, retaining separate record/image attribution and the existing
 candidate descriptions; live NewAge candidates remain Unknown. `ReferenceInspection`
 is not applicable to the existing browse-only fields: adding an inspection action
 would change the view/action contract.
 
-Optional SDK request: allow `ReferenceViews.Icon` to preserve an image node when
-provenance exists but image bytes are unavailable. BG3 retains that historical
-case in a local fallback; the SDK's normal missing-image fallback would change
-the existing node type. No SDK change is required for this migration.
+**SDK-05 resolved and adopted:** `RequireProvenance` preserves the historical image
+node when provenance exists but image bytes are unavailable, replacing the local
+fallback. Complete-node characterizations pin exact alt text, separate record/image
+attribution and missing-image fallbacks. Sample-backed view fingerprints cover the
+root, every collection page and expanded spell details with bytes, provenance only,
+and neither; they remain identical to the pre-migration baseline.
 
 ## Framework feature adoption
 
@@ -541,7 +544,7 @@ the existing node type. No SDK change is required for this migration.
 | --- | --- | --- |
 | F1 SaveDiff | Used | Pinned byte-only baseline `fixtures.json` (no decoder); original whole/component fingerprints and F12 live-value semantic checks use `PluginViewDecoder` / `--decoder bg3`. Intended-byte assertions separately check writes. No fake event/control or churn mask. |
 | F2 reference packs | Used | Embedded catalogs and 51 compact game icons, pinned per-file source revisions, mixed-rights attribution and Sources panel; host cache shares assets across documents. |
-| F3 rich cells | Used | Catalog and saved-item image cells, game descriptions with sources, class badges and spell-detail icons; raw fields and confidence/warnings remain available. |
+| F3 rich cells | Used | Catalog/saved-item image cells, class badges and spell-detail icons use `ReferenceViews.Icon` with SDK-05 `RequireProvenance`; exact alt text, attribution and provenance-only images retain their pinned view fingerprints. Game descriptions with sources, raw fields and confidence/warnings remain available. |
 | F4 ReferenceSpec | Used | Catalog raw IDs, saved CurrentTemplate, origin IDs, saved spell IDs and class UUIDs; F13 browse-only where replacement needs an unimplemented dependency writer. |
 | F5 structural undo | Used | Two-existing-container-key reorder with scoped inverse memento, stable row IDs, exact bytes on undo. Allocation/removal/transfers remain unsupported. |
 | F6 preview/apply | Used | Restore imported quantities supports explicit/document/Core-resolved values-query scopes with exclusions; swap requires exactly two entries in one source/container via explicit/slots-query selection and rejects document scope. Preview includes changes, skipped rows and warnings; each apply is one undo step. |

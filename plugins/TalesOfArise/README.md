@@ -43,8 +43,9 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
 - Progress views combine 128 recipe/fish/artifact guide records with separate raw
   section evidence for owls, quests/scenario, fishing, camps/maps, PartyProfile and
   ItemManager. They do not infer ownership, learned/cooked, caught/rewarded, found/
-  reported/rewarded, effect toggles or completion percentages. The only bulk action is
-  the bounded existing-row quantity action, which uses F6 planning and grouped undo.
+  reported/rewarded, effect toggles or completion percentages. Bulk actions only set
+  bounded existing-row quantities or restore reductions to their opening quantities,
+  using F6 planning and grouped undo.
 - F9 adds six bounded skill-panel graphs and six arte-prerequisite graphs. It also adds
   a Dahna artwork background behind the original schematic progress map with attributed external links for 128 guide rows
   plus owl, camp and map domains. Coordinates are plugin-authored grouping positions,
@@ -69,11 +70,11 @@ only returns its own file, without silently changing the console backup twin.
 | Feature | Status | Concrete adoption or reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | `AriseDiff` aligns decrypted sections by schema ID and relative offsets; twin and slot tests prove the alignment. The shared `PluginViewDecoder` can traverse the plugin without plugin I/O; private sample bytes stay outside git. |
-| F2 reference packs | Used | The embedded `talesofarise.catalog` v3 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. Without a matching pinned pack, catalog sections show an unavailable message, catalog queries are empty, local inferred labels and raw IDs remain available, and the map omits its background. |
+| F2 reference packs | Used | The embedded `talesofarise.catalog` v3 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. SDK-05 `ReferenceViews.Icon` uses `AssetIdOnly` and exact icon-role/publisher alt text with the em-dash fallback, preserving inventory/catalog nodes while resolving image Sources through the pinned context. Without a matching pinned pack, catalog sections show an unavailable message, catalog queries are empty, local inferred labels and raw IDs remain available, and the map omits its background. |
 | F3 rich table cells | Used | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. Local F2 icons appear in catalog and inventory image cells, with shared category symbols labelled explicitly. |
 | F4 reference pickers | Used | Inventory ID fields and all catalog identity columns use read-only `ReferenceSpec` browse-only pickers, preserve unknown numeric IDs and allow custom fallback. Standalone inspection parameters select an existing reference without changing saved IDs. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: allocation, inverse records and acquisition invariants are unproven, so fixed-slot scalar writes remain the only structural-safe scope. |
-| F6 planned actions | Used | `inventory/set-quantity` previews changes and skips unsupported rows. Shared `ActionPlans.ApplyScalar` replans and compares the preview, binds only changed scalar fields and merges application/plan warnings with `ActionPlanWarningPolicy.Merge`. Document, explicit and Core-resolved F8 query scopes are tested; the batch records one undo group. |
+| F6 planned actions | Used | `inventory/set-quantity` and `inventory/restore-imported` preview changes and skip unsupported rows. Restoration raises only quantities below their immutable opening values, with imported/current quantities both in 0–15. Shared `ActionPlans.ApplyScalar` replans and compares the preview, binds only changed scalar fields and merges application/plan warnings with `ActionPlanWarningPolicy.Merge`. Document, explicit and Core-resolved F8 query scopes are tested; each batch records one undo group. |
 | F7 document groups | N/A | `SystemSaveData.sav` is opaque and the console backup twin has no proven independent ownership contract; this plugin intentionally edits one selected gameplay file only. |
 | F8 queryable collections | Used | Catalogs page and sort all 2,157 records; the inventory collection supplies stable fixed-slot rows for search and query-scoped planning. |
 | F9 maps and graphs | Used | Skill-panel and arte prerequisite DAGs plus an attributed Dahna background behind the schematic map use bounded `GraphNode`/`MapNode` views, text alternatives, stable targets and spatial validation. |
@@ -83,11 +84,11 @@ only returns its own file, without silently changing the console backup twin.
 | F13 inspect/picker/filter and float-duration improvements | Used | Shared `ReferenceInspection.Create` declares `Mutates = false` and builds the attributed picker; `ResolveSelection` enforces pinned membership and fixed-row identity on fresh inspection documents. Read-only identities retain browse-only `ReferenceSpec` pickers. Standard category filtering and declared Key/Name/Category sorting delegate to F2; rich facts/character/title filters retain plugin policy. Float durations are N/A: only play seconds use integer duration formatting; play ticks remain a labelled integer counter. |
 | F14 empty inventory slots | Used | One F8 inventory table retains all 934 fixed slots; zero-ID rows carry `IsEmpty`, matching `EmptyRows` metadata and default hiding. Queries filter before visibility/paging and report matching hidden counts. F6 query scopes preserve visibility/exclusions and skip empty rows even when shown. |
 
-Among the extracted SDK helpers, this plugin uses the action-plan and reference-inspection
+Among the extracted SDK helpers, this plugin uses the action-plan, reference-inspection and icon
 helpers above. Collections, linked binary traversal and catalog enumeration retain their local
 implementations; `InMemoryCollection`, the binary cursor/range helpers and
-`ReferenceCatalogReader.ReadBounded` are not used. `AriseAssets.Icon` also remains
-local; its exact alt-text and asset-availability policy differ from `ReferenceViews.Icon`
+`ReferenceCatalogReader.ReadBounded` are not used. `AriseAssets.Icon` supplies its exact
+alt text, publisher notice and asset-availability policy through `ReferenceIconOptions`
 (see [SDK requests](#sdk-requests)). These are implementation choices, not missing SDK APIs.
 
 ## Publisher assets (2026-10-29)
@@ -150,6 +151,15 @@ before promoting any feature or plugin to Stable.
 | Level, current HP and SP in status blocks 000–005 with nonzero level | Inferred | Body offsets match the cited PS4/PC layout and sample values; edit/reopen and unrelated-byte preservation tests. Nonzero level permits these bindings; it does not prove recruitment or active-party membership. Level dependencies and effective stats are intentionally untouched. | Known ciphertext SHA1 is recomputed and self-checked; load-screen preview and dependent caches are preserved. | Load a spare edited slot, verify menus, perform a normal level/HP/SP event, save/reload; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
 | Existing recognised consumable quantity (IDs 1–13, current and target quantity 0–15) | Inferred | 13 legacy numeric mappings; Apple Gel is observed once in slot 002. Fixed record offsets, flags/IDs/order preservation, range rejection and edit/reopen tests. Existing quantities above 15 are read-only. | Known ciphertext SHA1 is recomputed and self-checked; no records, IDs, flags or padding are changed. | Buy/use an item, test zero and later acquisition, and validate normal/effective stack caps; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
 | `inventory/set-quantity` F6 action over explicit, document or Core-resolved inventory-query scope | Inferred | Deterministic preview, skipped empty/unknown/over-bound/unchanged rows, bounded target 0–15, apply-time revalidation and one grouped undo. Document/explicit scopes require inventory expansion; query scope supplies resolved fixed-slot keys. No record creation or grant behavior. | Same known SHA1/AES self-check as scalar edits; the game may reject inferred semantics. | Restore a spare slot, apply a preview, verify the effect and later acquisition after reload; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
+| `inventory/restore-imported` F6 action over the same scopes | Inferred | Captures an isolated inventory baseline when the document opens, before any staged edit or first preview. Only existing recognised IDs 1–13 whose imported/current quantities are both 0–15 and whose current quantity is lower are restored. Raised, equal, unknown/equipment, empty and over-bound rows are skipped. Synthetic coverage exercises all 13 IDs and boundaries; the observed Apple Gel in slot 002 and its backup cover preview, apply, grouped undo/redo, query exclusions and derived packed-word effects. | Same ciphertext SHA1 and AES/XOR re-encryption self-check; quantity-only changes preserve every unrelated byte and the outer preview. | Buy/use/zero/reacquire each eligible ID on a spare slot, restore a staged reduction, consume after editing, save and reload; inferred caps/mappings and console acceptance remain unvalidated under [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
+
+“Restore imported” uses this workspace's immutable opening quantities, not a game
+maximum, the value before the last edit or a historical balance lost before import.
+Quantities already above the baseline stay unchanged. Re-importing an edited save
+establishes a new baseline. The action accepts no quantity parameter and uses the
+same preview/revalidation, atomic scalar application and undo/redo path as setting
+quantities. Dismissing a preview makes no changes. It adds no item mappings or cap
+claims beyond the [legacy mapping evidence](SaveToolkit.Plugins.TalesOfArise/Resources/Consumables.source.md).
 
 Equipment replacement, item insertion/removal, structural changes, HP/CP restore,
 growth/XP edits, skill/title/arte writes and progression/completion mutations remain
@@ -311,15 +321,17 @@ byte-identical no-op serialization retain the original slot identities.
 
 ## Validation
 
-From the repository root, with the private sample archive stored outside this checkout:
+From the repository root, with the private sample archive available in the external
+task scratch's `samples/` directory:
 
 ```powershell
-$taskScratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-talesofarise'
+$taskScratch = 'D:/Temp/saveeditor/test-scratch/coverage-talesofarise'
 New-Item -ItemType Directory -Force -Path $taskScratch | Out-Null
-$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$env:SAVETOOLKIT_ARTIFACTS = "$taskScratch/samples"
 $env:SAVETOOLKIT_TEST_TEMP = $taskScratch
 $env:TEMP = $taskScratch
 $env:TMP = $taskScratch
+$env:TMPDIR = $taskScratch
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release --warnaserror
 dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests -c Release
 python -I -X utf8 plugins/TalesOfArise/ReferenceData/test_wiki_tables.py
@@ -334,6 +346,32 @@ full rerun passed. No runtime code, test, view string, ID or confidence label
 was changed by this documentation pass.
 API Release build with warnings as errors: **0 warnings, 0 errors**;
 documentation checks: **14 passed**; Python table-parser checks: **3 passed**.
+
+SDK-05 adoption, **2026-10-29**: the pre-migration suite passed **365 tests**;
+the final Release suite passed **366 tests, 0 failed, 0 skipped**, including
+17 unchanged icon/view characterization cases and a new pinned-image Sources check.
+Catalog and all three sample view/inventory fingerprints stayed identical.
+The first post-migration run hit the same intermittent cipher-allocation guard
+documented above; the full unchanged rerun passed. API Release build: **0 warnings,
+0 errors**; offline Python checks: **18 passed**; documentation checks: **14 passed**.
+Samples, test scratch, TEMP/TMP/TMPDIR, logs and TRX reports were under
+`D:/Temp/saveeditor/test-scratch/adopt-sdk05-tales`.
+
+Edit-coverage addition (#40), **2026-10-29**: Release suite **383 passed,
+0 failed, 0 skipped** with the sample archive and all scratch on D:. Seventeen new
+restore cases cover immutable opening values, all 13 recognised IDs, imported and
+current bounds, raised quantities, unsupported rows, dismissed/altered/stale previews,
+query exclusions, derived aliases, re-import baselines and multi-row grouped undo/redo.
+All 147 generated corruption cases and existing allocation guards remain green;
+new restore guards retain the 1 MiB planning and 512 KiB single-row apply bounds.
+The three existing sample-view fingerprints remain identical after removing only
+the separately asserted new action node. API Release build with `--warnaserror`:
+**0 warnings, 0 errors**. `git diff --check` passed.
+The repository documentation check (`--code-ref main`) ran **27 tests: 26 passed,
+1 failed**: `test_built_app_smoke_docs_cover_shipped_flows_and_skipped_regressions`
+still expects `test.fixme(` in `web/e2e/import.e2e.ts`, although the referenced test
+is enabled. Both inputs are unchanged from this branch's starting commit; correcting
+that baseline mismatch is outside this plugin's scope.
 
 The suite covers independent chained cipher vectors and SHA1 `abc`, pinned
 whole-plaintext SHA256 digests, all three gameplay slots and their backup twins,
@@ -507,7 +545,8 @@ establishes that a named source has GPL-2.0-only or no-redistribution terms.
 
 Resolved and adopted: F12 native decoder hooks, F13 read-only inspection and
 browse/category/sort contracts, shared `ActionPlans.ApplyScalar` and
-`ReferenceInspection`. Quantity application uses `ActionPlanWarningPolicy.Merge`;
+`ReferenceInspection`, and SDK-05 `ReferenceViews.Icon` with `ReferenceIconOptions`.
+Quantity application uses `ActionPlanWarningPolicy.Merge`;
 eligibility, scope validation, unopened bindings and preview-only derived aliases
 remain plugin policy. Fixed row actions encode their record key so
 `ResolveSelection` enforces it on Core's fresh inspection document. Catalog-wide
@@ -519,17 +558,17 @@ ID, but query-only inventory fields have no semantic-review jump or individual R
 use undo/redo or edit the loaded quantity field. F6 previews still include named
 old/new quantities and apply as one undo group. No duplicate eager editor is added.
 
-Optional helper extension: an exact-alt/availability-policy option for
-`ReferenceViews.Icon`. `AriseAssets.Icon` remains local because the shared helper
-always composes record/image attribution and falls back when image bytes or
-provenance are absent; the local renderer preserves exact icon-role/publisher text
-and emits an image whenever a record has an asset ID. The shared helper already
-exists; this is a behavior-preserving adoption constraint, not an unavailable icon API.
+SDK-05 is resolved and adopted: `AriseAssets.Icon` delegates to the five-argument
+`ReferenceViews.Icon` overload with the document's pinned context. `AssetIdOnly`
+preserves image nodes for any non-null asset ID, including missing bytes/provenance;
+`ExactAltText` retains the exact role text and publisher notice. Missing records or
+asset IDs retain `TextNode("—")`. Characterization tests and catalog/sample view
+fingerprints pin these nodes, detail attribution and inspection descriptions.
 Map artwork, rich catalog filtering and reference detail prose also remain local.
 
-The F6 reference-parameter fix needs no migration: the only planned-action parameter
-is an integer quantity. Float-duration hints do not apply to the integer counters.
-There is no `docs/SDK_REQUESTS.md` register in this checkout. Existing bindings,
+The F6 reference-parameter fix needs no migration: setting quantities uses an integer
+parameter, and restoring imported quantities has no parameters. Float-duration hints do not apply to the integer counters.
+The shared request register is [`docs/SDK_REQUESTS.md`](../../docs/SDK_REQUESTS.md). Existing bindings,
 reference packs, queryable tables, F6 planning/query resolution, lazy sections and
 paged blobs support the current plugin. Evidence, rather than a missing framework
 contract, gates equipment, arte/skill and progression writes.

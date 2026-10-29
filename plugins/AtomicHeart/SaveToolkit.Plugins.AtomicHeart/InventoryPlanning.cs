@@ -7,6 +7,7 @@ namespace SaveToolkit.Plugins.AtomicHeart;
 internal static class InventoryPlanning
 {
     internal const string ActionId = "inventory/set-amount";
+    internal const string RestoreActionId = "inventory/restore-imported-amounts";
 
     internal static ActionNode Action() => new(ActionId, "Set existing quantities (preview)") {
         SupportsPlanning = true, Tone = Tone.Warning,
@@ -14,14 +15,23 @@ internal static class InventoryPlanning
         Parameters = [new FieldNode("amount", "Target quantity (Amount)", new IntegerSpec(0, long.MaxValue), FieldValue.Of(1))],
     };
 
+    internal static ActionNode RestoreAction() => new(RestoreActionId, "Restore imported quantities (preview)") {
+        SupportsPlanning = true, Tone = Tone.Warning,
+        Description = "Restore eligible existing Amounts to their opening import values, only when lower. Equal or higher values stay unchanged. No slots are created or removed. " + InventoryState.WriteWarning,
+    };
+
     internal static ActionPlan Plan(InventoryState state, string actionId,
         IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
-        if (actionId != ActionId || (scope.QueryScope is { } query &&
+        var restore = actionId == RestoreActionId;
+        if (actionId is not (ActionId or RestoreActionId) || (scope.QueryScope is { } query &&
             (query.CollectionId != InventoryCollection.Id || scope.RowKeys is null)))
             return Error(actionId, "Choose inventory rows or a server-resolved inventory query scope.");
-        if (parameters.Count != 1 || !parameters.TryGetValue("amount", out var amount) ||
-            amount.Kind != FieldValueKind.Integer || amount.AsInteger() < 0 || amount.AsInteger() > long.MaxValue)
+        var amount = default(FieldValue);
+        if (restore && parameters.Count != 0)
+            return Error(actionId, "Restore imported quantities does not accept parameters.");
+        if (!restore && (parameters.Count != 1 || !parameters.TryGetValue("amount", out amount) ||
+            amount.Kind != FieldValueKind.Integer || amount.AsInteger() < 0 || amount.AsInteger() > long.MaxValue))
             return Error("amount", "Target quantity must be a nonnegative signed 64-bit integer.");
         IEnumerable<InventoryItem> items = state.Items;
         if (scope.RowKeys is { } keys)
@@ -40,18 +50,22 @@ internal static class InventoryPlanning
         var skipped = new List<SkippedActionRow>();
         foreach (var item in items)
         {
-            var reason = !state.CanSetAmount(item) ? "Empty or unsupported slot; no structure is changed." : state.ValidateAmount(item, amount);
+            // Amount belongs to the immutable parsed model; Current reads the staged binding.
+            var target = restore ? FieldValue.Of(item.Amount) : amount;
+            var current = state.Current(item.Quantity);
+            var reason = !state.CanSetAmount(item) ? "Empty or unsupported slot; no structure is changed." : state.ValidateAmount(item, target);
             if (reason is not null) skipped.Add(new(item.Key, reason));
-            else if (state.Current(item.Quantity) == amount) skipped.Add(new(item.Key, "Amount already equals the target."));
+            else if (restore && current.AsInteger() >= item.Amount)
+                skipped.Add(new(item.Key, "Amount already equals or exceeds its opening import value."));
+            else if (current == target) skipped.Add(new(item.Key, "Amount already equals the target."));
             else changes.Add(new(item.Key + "/amount", $"{item.Container}/{InventoryState.ShortId(state.Asset(item))} Amount (Inferred)",
-                state.Current(item.Quantity), amount));
+                current, target));
         }
-        return new ActionPlan { Changes = changes, SkippedRows = skipped, Warnings = [InventoryState.WriteWarning,
-            "Bounds are original per-container observed maxima, not proven stack limits. Only Amount changes; item identity, equipment, resources/costs and ownership dependencies are unchanged."] };
+        var warnings = new List<string> { InventoryState.WriteWarning,
+            "Bounds are original per-container observed maxima, not proven stack limits. Only Amount changes; item identity, equipment, resources/costs and ownership dependencies are unchanged." };
+        if (restore) warnings.Add("Opening values belong to this import, not an earlier gameplay balance; re-import establishes a new baseline. Changed stored Kraken blocks may grow; output allocation limits do not guarantee console slot capacity.");
+        return new ActionPlan { Changes = changes, SkippedRows = skipped, Warnings = warnings };
     }
-
-    internal static bool Equivalent(ActionPlan left, ActionPlan right) => left.Changes.SequenceEqual(right.Changes) &&
-        left.SkippedRows.SequenceEqual(right.SkippedRows) && left.Warnings.SequenceEqual(right.Warnings) && left.Errors.SequenceEqual(right.Errors);
 
     private static ActionPlan Error(string id, string message) => new() { Errors = [new FieldError(id, message)] };
     private static ActionPlan InvalidSelection(string id) => Error(id, "Selection must contain distinct existing inventory row keys.");

@@ -170,14 +170,27 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
-        StackEditor.IsAction(actionId) ? new ActionOutcome { Message = "Preview and apply this action through F6 planning.", Warnings = [WriteSafety.Warning] }
+        StackEditor.IsAction(actionId) || actionId == PointEditor.SetTargets
+        ? new ActionOutcome { Message = "Preview and apply this action through F6 planning.", Warnings = [WriteSafety.Warning] }
         : _references.IsInspection(actionId) ? _references.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        _stacks.Plan(actionId, parameters, scope);
+        actionId == PointEditor.SetTargets
+            ? _progressionEditor?.Points.Plan(parameters, scope) ?? new ActionPlan
+            {
+                Errors = [new FieldError(actionId, "Point edits refused: no verified player development layout.")],
+                Warnings = [WriteSafety.Warning],
+            }
+            : _stacks.Plan(actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
+        if (actionId == PointEditor.SetTargets)
+            return ActionPlans.ApplyScalar(plan, () => PlanAction(actionId, parameters, scope),
+                new FieldError(actionId, "The action plan is invalid or stale; preview again."),
+                current => _progressionEditor!.Points.BindTargets(current, Bind),
+                current => current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray(),
+                ApplyEdits, ActionPlanWarningPolicy.UsePlan);
         var current = PlanAction(actionId, parameters, scope);
         if (current.Errors.Count > 0 || !current.Changes.SequenceEqual(plan.Changes) || !current.SkippedRows.SequenceEqual(plan.SkippedRows) ||
             !current.Warnings.SequenceEqual(plan.Warnings) || plan.Errors.Count > 0)

@@ -1,0 +1,40 @@
+{
+  "records": [
+    {
+      "id": "artifact:example-artifact",
+      "name": "Example Artifact",
+      "category": "Artifact",
+      "source": "https://example.invalid/wiki/ToA_-_Artifacts",
+      "description": "Artifact: symbol\nEffect: Unknown",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "117",
+        "section": "Examples"
+      }
+    },
+    {
+      "id": "fish:example-fish",
+      "name": "Example Fish",
+      "category": "Fish",
+      "source": "https://example.invalid/wiki/ToA_-_Fishing",
+      "description": "Fish: symbol\nRegion: Pool",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "116",
+        "section": "Examples"
+      }
+    },
+    {
+      "id": "recipe:example-recipe",
+      "name": "Example Recipe",
+      "category": "Recipe",
+      "source": "https://example.invalid/wiki/ToA_-_Cooking",
+      "description": "Effect: Effect",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "115",
+        "section": "Examples"
+      }
+    }
+  ]
+}

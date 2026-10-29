@@ -2,25 +2,16 @@
 
 ## Owner policy — 2026-10-28
 
-**No licence is not a blocker.** Unlicensed community facts, including IDs, names, offsets,
-hash tables, format layouts and coordinates, are usable with full attribution. Record exactly:
-`No licence published; reused with attribution per owner decision 2026-10-28`.
-Reimplement unlicensed code from documented behaviour with source credit; do not copy its
-implementation. This is the owner's reuse decision, not an upstream licence grant.
+[Plugin-guide rule 9](PLUGIN_GUIDE.md#hard-rules) is the source of truth for this decision,
+including the exact notice for unlicensed community facts and independent code reimplementation.
+This register records source dispositions; it does not grant an upstream licence.
 
 ## Owner policy — 2026-10-29
 
-**"All rights reserved" sites and publisher game assets are usable with attribution.** This
-includes art, icons, screenshots and extracted game text. Name the source, rights holder and
-revision/retrieval date in source sidecars, README tables, plugin references and UI provenance,
-as required by [plugin-guide rule 9](PLUGIN_GUIDE.md#hard-rules). Record exactly:
-`Rights reserved by <holder>; used with attribution per owner decision 2026-10-29`.
-Retain separately applicable community licences/notices and keep embedded binary packs bounded.
-
-The only remaining licence-based refusal reasons are **GPL-2.0-only code and explicit NC or
-no-redistribution terms**. Publisher ownership or a missing licence alone is not a refusal.
-No specific GPL-2.0-only refusal is identified by the current README tables. Generic
-historical entries below do not establish a source-specific restriction.
+Use [rule 9](PLUGIN_GUIDE.md#hard-rules) for rights-reserved guides, publisher assets, required
+attribution/notices and the remaining refusal grounds. Older refusals in historical plans do not
+override that policy. No specific GPL-2.0-only refusal is identified by the current README tables;
+generic historical entries below do not establish a source-specific restriction.
 
 ## Upstream licence requests
 

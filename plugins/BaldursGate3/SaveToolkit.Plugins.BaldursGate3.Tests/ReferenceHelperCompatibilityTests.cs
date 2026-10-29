@@ -22,13 +22,14 @@ public sealed class ReferenceHelperCompatibilityTests
             },
         };
         var references = new Bg3References(new ImageContext(pinned, provenance, hasBytes));
-        var icon = Assert.IsType<ImageNode>(references.Icon(record));
-        Assert.Equal(record.AssetId, icon.AssetId);
-        Assert.Equal($"{record.Name}. {record.AttributionText}. Icon: {provenance.Attribution.ToShortText()}", icon.Alt);
+        Assert.Equal(new ImageNode(record.AssetId!,
+            $"{record.Name}. {record.AttributionText}. Icon: {provenance.Attribution.ToShortText()}"), references.Icon(record));
     }
 
-    [Fact]
-    public void MissingRecordAssetIdOrProvenanceKeepsTheExactFallback()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void MissingRecordAssetIdOrProvenanceKeepsTheExactFallback(bool hasBytes)
     {
         var (_, _, pinned) = ReferenceViewTests.References();
         var record = pinned.Catalog(Bg3References.Items)!.Search(new() { Limit = 1 }).Items[0];
@@ -36,7 +37,23 @@ public sealed class ReferenceHelperCompatibilityTests
         Assert.Equal(new TextNode("No reference icon"), references.Icon(null));
         Assert.Equal(new TextNode("No reference icon"), references.Icon(record with { AssetId = null }));
         Assert.Equal(new TextNode("No reference icon"), new Bg3References(
-            new ImageContext(pinned, null, true)).Icon(record));
+            new ImageContext(pinned, null, hasBytes)).Icon(record));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("  Label with punctuation.  ")]
+    public void AltTextKeepsTheExactRecordNameAndRecordSource(string name)
+    {
+        var (_, _, pinned) = ReferenceViewTests.References();
+        var record = pinned.Catalog(Bg3References.Items)!.Search(new() { Limit = 1 }).Items[0] with { Name = name };
+        var provenance = pinned.AssetProvenance(record.AssetId!)!;
+        var references = new Bg3References(pinned);
+        Assert.Equal(new ImageNode(record.AssetId!,
+            $"{name}. {record.AttributionText}. Icon: {provenance.Attribution.ToShortText()}"), references.Icon(record));
+        var withoutSource = record with { Source = null };
+        Assert.Equal(new ImageNode(record.AssetId!,
+            $"{name}. {withoutSource.AttributionText}. Icon: {provenance.Attribution.ToShortText()}"), references.Icon(withoutSource));
     }
 
     [Fact]

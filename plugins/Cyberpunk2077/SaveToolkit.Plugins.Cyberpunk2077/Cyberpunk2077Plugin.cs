@@ -19,6 +19,8 @@ public sealed class Cyberpunk2077Plugin : IGamePlugin, ISaveDecoderProvider
             CyberpunkReferences.Upstream + "/CP2077SaveEditor/Resources/Vehicles.json",
             CyberpunkReferences.Upstream + "/CP2077SaveEditor/Resources/FastTravel.json",
             ScriptableReader.SourceUrl,
+            "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SDevelopmentPoints.cs",
+            PointEditor.MappingSource,
             TravelMapInspection.SourceUrl,
             "https://www.cyberpunk.net/en/build-planner",
             "https://www.cyberpunk.net/build/8603-b6e6f72c476c734a52a4.js",

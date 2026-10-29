@@ -58,10 +58,7 @@ internal static class WorkspaceEndpoints
                 return Results.UnprocessableEntity(new ErrorDto("Nothing has been changed yet."));
             }
 
-            var buffer = new MemoryStream();
-            WorkspaceExporter.WriteZip(plan, buffer);
-            buffer.Position = 0;
-            return Results.File(buffer, "application/zip", $"{SafeName(w.Value.Name)}-edited.zip");
+            return WorkspaceExportResponse.Create(plan, $"{SafeName(w.Value.Name)}-edited.zip");
         });
     }
 
@@ -83,11 +80,11 @@ internal static class WorkspaceEndpoints
         doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Undo()));
         doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Redo()));
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
-            d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content.ToArray(), asset.ContentType) : Results.NotFound());
+            d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content, asset.ContentType) : Results.NotFound());
         doc.MapGet("/blobs", (DocumentRef d, [FromQuery] string id, [FromQuery] long offset, [FromQuery] int count) =>
             offset < 0
                 ? (IResult)Results.BadRequest(new ErrorDto("Offset cannot be negative."))
-                : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)).ToArray(), "application/octet-stream"));
+                : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)), "application/octet-stream"));
         doc.MapGet("/download", (DocumentRef d) =>
         {
             var session = d.Value;
@@ -96,7 +93,7 @@ internal static class WorkspaceEndpoints
             var own = session.Serialize().FirstOrDefault(o => o.RelativePath == session.File.RelativePath);
             return own is null
                 ? Results.Stream(session.File.OpenRead(), "application/octet-stream", session.File.FileName)
-                : Results.File(own.Content.ToArray(), "application/octet-stream", session.File.FileName);
+                : Results.Bytes(own.Content, "application/octet-stream", session.File.FileName);
         });
     }
 
@@ -134,7 +131,7 @@ internal static class WorkspaceEndpoints
         {
             Text = request.Query["q"].FirstOrDefault() ?? request.Query["text"].FirstOrDefault(),
             Filters = filters,
-            SortColumn = request.Query["sort"].FirstOrDefault(),
+            SortColumn = request.Query["sort"].FirstOrDefault() is { Length: > 0 } sort ? sort : null,
             Descending = descending,
             IncludeEmpty = request.Query.ContainsKey("includeEmpty") ? includeEmpty : null,
             Offset = offset,
@@ -149,6 +146,10 @@ internal static class WorkspaceEndpoints
         {
             return Results.BadRequest(new ErrorDto("Collection query exceeds the protocol limits."));
         }
+
+        // Apply clearing after all overrides and bounds checks, preserving nonempty/whitespace values.
+        foreach (var key in filters.Where(filter => filter.Value.Length == 0).Select(filter => filter.Key).ToArray())
+            filters.Remove(key);
 
         QueryableCollectionPage page;
         try

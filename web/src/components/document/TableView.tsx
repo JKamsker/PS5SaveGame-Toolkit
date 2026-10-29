@@ -1,6 +1,6 @@
 import { memo, useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import type { TableColumn, TableNode, TableRow } from "../../api/protocol";
+import type { Confidence, TableColumn, TableNode, TableRow } from "../../api/protocol";
 import { ReviewPath, useNextReviewPath, useViewJump } from "./review/navigation";
 import { rowLabel } from "./table/cellText";
 import { RowDetails, rowHasDetails } from "./table/RowDetails";
@@ -11,6 +11,8 @@ import { useTableRows, type FacetSelection } from "./table/useTableRows";
 import { EmptyRowsToggle } from "./table/EmptyRowsToggle";
 import { scrollTableByKey } from "./table/keyboardScroll";
 import { columnTrack, numericColumns } from "./table/presentation";
+import { uniformConfidence } from "./table/columnConfidence";
+import { ColumnHeading } from "./table/ColumnHeading";
 
 /** Height of one data row; must match `.table__cell` height in table.css. Detail rows are measured. */
 const ROW_HEIGHT = 41;
@@ -85,6 +87,7 @@ export function TableView({ node }: { node: TableNode }) {
   const template = useMemo(() => [CONTROL_COLUMN, ...(hasDetails ? [CONTROL_COLUMN] : []),
     ...node.columns.map(column => columnTrack(column, node.rows))].join(" "), [node.columns, node.rows, hasDetails]);
   const numbers = useMemo(() => numericColumns(node.columns, node.rows), [node.columns, node.rows]);
+  const confidence = useMemo(() => uniformConfidence(node.columns, rows), [node.columns, rows]);
   const items = virtualizer.getVirtualItems();
   const padTop = items[0]?.start ?? 0;
   const padBottom = virtualizer.getTotalSize() - (items.at(-1)?.end ?? 0);
@@ -111,7 +114,7 @@ export function TableView({ node }: { node: TableNode }) {
         <div className="table__scroller" ref={scroller} tabIndex={0} role="region" aria-label={`${node.title ?? "Table"} rows`}
           onKeyDown={event => scrollTableByKey(event, virtualizer.getTotalSize(), ROW_HEIGHT)}>
           <div className="table__grid" role="table" aria-label={node.title} aria-rowcount={entries.length + 1} style={{ gridTemplateColumns: template }}>
-            <HeaderRow columns={node.columns} numbers={numbers} hasDetails={hasDetails} visible={rows} visibleSelected={visibleSelected} selection={selection} />
+            <HeaderRow columns={node.columns} numbers={numbers} confidence={confidence} hasDetails={hasDetails} visible={rows} visibleSelected={visibleSelected} selection={selection} />
             {padTop > 0 && <div aria-hidden style={{ gridColumn: "1 / -1", height: padTop }} />}
             {items.map((item) => {
               const entry = entries[item.index];
@@ -142,6 +145,7 @@ export function TableView({ node }: { node: TableNode }) {
                   rowIndex={item.index + 2}
                   label={rowLabel(entry.row, columnKeys, valueOf)}
                   columnKeys={columnKeys}
+                  confidence={confidence}
                   hasDetails={hasDetails}
                   detailId={detailId}
                   expanded={expanded.has(entry.row.key)}
@@ -163,13 +167,14 @@ export function TableView({ node }: { node: TableNode }) {
 interface HeaderRowProps {
   columns: readonly TableColumn[];
   numbers: ReadonlySet<string>;
+  confidence: ReadonlyMap<string, Confidence>;
   hasDetails: boolean;
   visible: readonly TableRow[];
   visibleSelected: number;
   selection: TableSelection;
 }
 
-function HeaderRow({ columns, numbers, hasDetails, visible, visibleSelected, selection }: HeaderRowProps) {
+function HeaderRow({ columns, numbers, confidence, hasDetails, visible, visibleSelected, selection }: HeaderRowProps) {
   const box = useRef<HTMLInputElement>(null);
   const all = visible.length > 0 && visibleSelected === visible.length;
   const some = visibleSelected > 0 && !all;
@@ -195,10 +200,7 @@ function HeaderRow({ columns, numbers, hasDetails, visible, visibleSelected, sel
         </div>
       )}
       {columns.map((c) => (
-        <div key={c.key} className={`table__head${numbers.has(c.key) ? " table__head--number" : ""}`} role="columnheader" title={c.description ? `${c.label}: ${c.description}` : c.label}>
-          {c.label}
-          {c.description && <span className="visually-hidden">: {c.description}</span>}
-        </div>
+        <ColumnHeading key={c.key} column={c} numeric={numbers.has(c.key)} confidence={confidence.get(c.key)} />
       ))}
     </div>
   );
@@ -211,6 +213,7 @@ interface RowProps {
   /** Accessible row name; computed by the parent so memoisation survives unrelated edits. */
   label: string;
   columnKeys: readonly string[];
+  confidence: ReadonlyMap<string, Confidence>;
   hasDetails: boolean;
   detailId: string;
   expanded: boolean;
@@ -219,7 +222,7 @@ interface RowProps {
   onToggleExpanded: (key: string) => void;
 }
 
-const Row = memo(function Row({ row, emptyRows, rowIndex, label, columnKeys, hasDetails, detailId, expanded, selected, onToggleSelected, onToggleExpanded }: RowProps) {
+const Row = memo(function Row({ row, emptyRows, rowIndex, label, columnKeys, confidence, hasDetails, detailId, expanded, selected, onToggleSelected, onToggleExpanded }: RowProps) {
   const ref = useViewJump(row.key, "Row");
   const openDetails = () => {
     if (!expanded) onToggleExpanded(row.key);
@@ -245,7 +248,7 @@ const Row = memo(function Row({ row, emptyRows, rowIndex, label, columnKeys, has
       )}
       <ReviewPath part={`row:${row.key}`}>
         {columnKeys.map((key) => (
-          <TableCell key={key} node={row.cells[key]} emptySlot={row.isEmpty && emptyRows?.labelColumnKey === key} rowLabel={label} onOpenDetails={openDetails} />
+          <TableCell key={key} node={row.cells[key]} columnConfidence={confidence.get(key)} emptySlot={row.isEmpty && emptyRows?.labelColumnKey === key} rowLabel={label} onOpenDetails={openDetails} />
         ))}
       </ReviewPath>
     </div>

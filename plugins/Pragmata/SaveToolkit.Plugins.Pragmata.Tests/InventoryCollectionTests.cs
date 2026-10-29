@@ -43,8 +43,10 @@ public sealed class InventoryCollectionTests
             Assert.ThrowsAny<ArgumentException>(() => document.Query(table.CollectionId, invalid));
     }
 
-    [Fact]
-    public void WholeQueryPublishesUnloadedBindingsAndAppliesUndoesAndRedoesAsOneStep()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void WholeQueryPublishesUnloadedBindingsAndAppliesUndoesAndRedoesAsOneStep(bool revertRawAlias)
     {
         var original = SyntheticInventory.Create(251);
         using var fixture = new SyntheticSessionFile(original);
@@ -79,7 +81,34 @@ public sealed class InventoryCollectionTests
             quantity => range.Offset >= quantity.Offset && range.Offset + range.Length <= quantity.Offset + quantity.Size));
         var review = session.GetChanges();
         Assert.True(review.Complete);
-        Assert.Equal(250, review.Changes.Count);
+        // SDK-01 discovers primary F8 IDs alongside the pre-existing eager raw IDs.
+        // SDK-02 will supply the canonical alias policy; distinct IDs stay visible today.
+        var changedQuantities = document.Layout.Items.Skip(1).Select(item => item.Find(KnownHashes.Quantity)!).ToArray();
+        Assert.Equal(500, review.Changes.Count);
+        Assert.Equal(250, review.Changes.Count(change => change.Target?.CollectionId == InventoryCollections.CollectionId));
+        Assert.All(changedQuantities, quantity =>
+        {
+            Assert.True(review.Changes.Single(change => change.ValueId == quantity.Path).CanRevert);
+            Assert.True(review.Changes.Single(change => change.ValueId == $"raw/{quantity.Path}").CanRevert);
+        });
+
+        var primaryId = changedQuantities[0].Path;
+        var rawId = $"raw/{primaryId}";
+        var revertId = revertRawAlias ? rawId : primaryId;
+        var otherId = revertRawAlias ? primaryId : rawId;
+        var originalQuantity = review.Changes.Single(change => change.ValueId == revertId).OriginalValue;
+        Assert.True(session.RevertChange(revertId, review.Revision).Ok);
+        Assert.Equal(originalQuantity, document.Read(changedQuantities[0]));
+        var afterRevert = session.GetChanges();
+        Assert.True(afterRevert.Complete);
+        Assert.Equal(498, afterRevert.Changes.Count);
+        Assert.DoesNotContain(afterRevert.Changes, change => change.ValueId == primaryId || change.ValueId == rawId);
+        Assert.True(session.RevertChange(otherId, review.Revision).Stale);
+        Assert.False(session.RevertChange(otherId, afterRevert.Revision).Ok);
+        Assert.Equal(afterRevert.Revision, session.State.Revision);
+        Assert.True(session.Undo().Ok); // Exactly one undo restores both presentations of this edit.
+        Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
+        Assert.Equal(500, session.GetChanges().Changes.Count);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());

@@ -22,7 +22,7 @@ internal static class AriseCatalogQuery
         new("inspect", "Inspect", null) { Width = ColumnWidth.Narrow },
     ];
 
-    public static QueryableCollectionPage Query(string id, IReferenceCatalog catalog, QueryableCollectionQuery query)
+    public static QueryableCollectionPage Query(IReferenceContext context, string id, IReferenceCatalog catalog, QueryableCollectionQuery query)
     {
         var columnKeys = Columns(id).Select(column => column.Key).ToHashSet(StringComparer.Ordinal);
         if (query.Cursor is not null || query.Filters.Keys.Any(key => !columnKeys.Contains(key)) ||
@@ -53,7 +53,7 @@ internal static class AriseCatalogQuery
         if (useCatalogSort && string.IsNullOrWhiteSpace(query.Text) && query.Filters.Keys.All(key => key == "category"))
         {
             var page = catalog.Search(referenceQuery with { Offset = offset, Limit = limit });
-            return new QueryableCollectionPage(id, Columns(id), page.Items.Select(record => Row(id, catalog, record)).ToArray(),
+            return new QueryableCollectionPage(id, Columns(id), page.Items.Select(record => Row(context, id, catalog, record)).ToArray(),
                 catalog.Count, page.Total, offset, limit);
         }
 
@@ -68,7 +68,7 @@ internal static class AriseCatalogQuery
         }
 
         var rows = ordered.Skip(offset).Take(limit)
-            .Select(record => Row(id, catalog, record)).ToArray();
+            .Select(record => Row(context, id, catalog, record)).ToArray();
         return new QueryableCollectionPage(id, Columns(id), rows, catalog.Count, matching.Length, offset, limit);
     }
 
@@ -122,12 +122,12 @@ internal static class AriseCatalogQuery
         _ => throw new ArgumentException($"Unknown catalog column '{column}'.", nameof(column)),
     };
 
-    private static TableRow Row(string id, IReferenceCatalog catalog, ReferenceRecord record)
+    private static TableRow Row(IReferenceContext context, string id, IReferenceCatalog catalog, ReferenceRecord record)
     {
         var cells = Columns(id).ToDictionary(column => column.Key,
             column => (ViewNode)new TextNode(CellText(record, column.Key)), StringComparer.Ordinal);
         cells["inspect"] = AriseReferences.InspectionAction(catalog, record);
-        cells["icon"] = AriseAssets.Icon(record);
+        cells["icon"] = AriseAssets.Icon(context, record);
         cells["id"] = new FieldNode($"catalog/{id}/{record.Key}/id", "Catalog identity",
             new ReferenceSpec(id) { ReadOnly = true, AllowCustom = true }, FieldValue.Of(record.Key))
         {

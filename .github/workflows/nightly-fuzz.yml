@@ -1,0 +1,124 @@
+name: Nightly mutation fuzz
+
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Unsigned decimal or 0x-prefixed hex seed (blank uses UTC YYYYMMDD)'
+        type: string
+        default: ''
+      mutations:
+        description: 'Mutations per synthetic seed'
+        type: string
+        default: '5000'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly-fuzz-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      SAVETOOLKIT_ARTIFACTS: ''
+      SAVETOOLKIT_FUZZ_TIME_BUDGET: '60'
+      TESTINGPLATFORM_PIPE_DIRECTORY: /tmp
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - uses: actions/cache@v6
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+      - name: Select reproducible seed and scratch
+        env:
+          DISPATCH_SEED: ${{ inputs.seed }}
+          DISPATCH_MUTATIONS: ${{ inputs.mutations || '5000' }}
+        run: |
+          $seedText = if ($env:DISPATCH_SEED) { $env:DISPATCH_SEED } else { [DateTime]::UtcNow.ToString('yyyyMMdd') }
+          $hex = $seedText.StartsWith('0x', [StringComparison]::OrdinalIgnoreCase)
+          $digits = if ($hex) { $seedText.Substring(2) } else { $seedText }
+          $style = if ($hex) { [Globalization.NumberStyles]::AllowHexSpecifier } else { [Globalization.NumberStyles]::None }
+          [uint]$seed = 0
+          if (![uint]::TryParse($digits, $style, [Globalization.CultureInfo]::InvariantCulture, [ref]$seed)) {
+            throw 'Seed must be an unsigned 32-bit decimal or 0x-prefixed hexadecimal integer.'
+          }
+          [int]$mutations = 0
+          if (![int]::TryParse($env:DISPATCH_MUTATIONS, [Globalization.NumberStyles]::None,
+              [Globalization.CultureInfo]::InvariantCulture, [ref]$mutations) -or $mutations -le 0) {
+            throw ('Seed 0x{0:X8}: mutations must be a positive 32-bit integer.' -f $seed)
+          }
+          $scratch = Join-Path $env:RUNNER_TEMP 'nightly-fuzz'
+          New-Item -ItemType Directory -Force $scratch | Out-Null
+          "SAVETOOLKIT_FUZZ_REPORT_DIRECTORY=$scratch/reports" >> $env:GITHUB_ENV
+          "SAVETOOLKIT_TEST_TEMP=$scratch/tests" >> $env:GITHUB_ENV
+          "SAVETOOLKIT_FUZZ_SEED=0x$($seed.ToString('X8'))" >> $env:GITHUB_ENV
+          "SAVETOOLKIT_FUZZ_MUTATIONS=$mutations" >> $env:GITHUB_ENV
+          foreach ($variable in 'TEMP', 'TMP', 'TMPDIR') { "$variable=$scratch" >> $env:GITHUB_ENV }
+          @"
+          ### Nightly mutation fuzz
+          Seed: **0x$($seed.ToString('X8'))** (decimal $seed); **$mutations** mutations per synthetic seed.
+          Per-plugin wall-clock cap: 60 seconds; total job cap: 30 minutes; coverage disabled.
+          Private samples are absent. Built-in seeds cover GenericJson (1) and XorJson (2).
+          The other 15 plugins currently skip until their conformance classes supply synthetic seeds.
+          "@ >> $env:GITHUB_STEP_SUMMARY
+      - name: Run plugin mutation fuzz facts (no coverage)
+        timeout-minutes: 25
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $projects = @(Get-ChildItem plugins -Recurse -Filter '*.Tests.csproj' |
+            Where-Object { $_.FullName -notmatch '[\\/](bin|obj)[\\/]' } | Sort-Object FullName)
+          if (!$projects.Count) { throw 'No plugin test projects found.' }
+          New-Item -ItemType Directory -Force $env:SAVETOOLKIT_FUZZ_REPORT_DIRECTORY | Out-Null
+          $failed = @()
+          foreach ($project in $projects) {
+            # MTP/xUnit method filtering, matching docs/PLUGIN_GUIDE.md. Do not enable coverage.
+            dotnet test --project $project.FullName --configuration Release --filter-method '*MutationFuzz' `
+              --results-directory (Join-Path $env:RUNNER_TEMP "nightly-fuzz/results/$($project.BaseName)")
+            if ($LASTEXITCODE -ne 0) {
+              $failed += $project.BaseName
+              # Build/runner failures may happen before the harness can emit a report.
+              @{
+                Plugin = $project.BaseName; Seed = $env:SAVETOOLKIT_FUZZ_SEED
+                MutationIndex = $null; Exception = 'TestProcessFailure'
+                Detail = 'See job log; a separate harness failure report has case coordinates when available.'
+              } | ConvertTo-Json | Set-Content (Join-Path $env:SAVETOOLKIT_FUZZ_REPORT_DIRECTORY "$($project.BaseName)-failure.json")
+            }
+          }
+          if ($failed.Count) { throw "Failing plugin projects: $($failed -join ', ')" }
+      - name: Summarize actual seed coverage
+        if: always()
+        run: |
+          '| Plugin | Synthetic seeds | Sample seeds | Cases | Outcome |' >> $env:GITHUB_STEP_SUMMARY
+          '| --- | ---: | ---: | ---: | --- |' >> $env:GITHUB_STEP_SUMMARY
+          Get-ChildItem (Join-Path $env:RUNNER_TEMP 'nightly-fuzz/reports') -Filter '*.json' -ErrorAction SilentlyContinue |
+            ForEach-Object {
+              $result = Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json
+              if ($null -ne $result.Cases) {
+                $outcome = if ($result.Failures.Count) { 'FAIL' } elseif (!$result.Samples) { 'SKIP: no seeds' } else { 'PASS' }
+                "| $($result.Plugin) | $($result.SyntheticSeeds) | $($result.SampleSeeds) | $($result.Cases) | $outcome |" >> $env:GITHUB_STEP_SUMMARY
+              }
+            }
+      - name: Upload metadata-only reproducers on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-fuzz-reproducers-${{ github.run_id }}
+          path: ${{ runner.temp }}/nightly-fuzz/reports/*-failure.json
+          if-no-files-found: warn
+          retention-days: 14
