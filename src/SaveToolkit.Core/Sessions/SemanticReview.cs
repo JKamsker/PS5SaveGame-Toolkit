@@ -8,7 +8,8 @@ namespace SaveToolkit.Core.Sessions;
 
 internal sealed record SemanticField(string ValueId, string Label, string[] Path, FieldValue Value, bool ReadOnly,
     SemanticCollectionTarget? Target = null, string? CanonicalValueId = null,
-    FieldBindingKind BindingKind = FieldBindingKind.Primary);
+    FieldBindingKind BindingKind = FieldBindingKind.Primary, FieldPresentation? Presentation = null,
+    bool MetadataPublished = false);
 
 /// <summary>
 /// A separate original-value baseline survives history eviction. Both baseline and current walks
@@ -257,8 +258,17 @@ internal sealed class SemanticReview
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges
             && _captureDiagnostics.Count == 0;
         IReadOnlyList<string> warnings = complete ? [] : ["Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed."];
-        return new SemanticChangeLog(changes, complete,
-            [.. warnings, .. _captureDiagnostics, .. original.QueryWarnings.Concat(current.QueryWarnings).Distinct(StringComparer.Ordinal)], revision);
+        List<string> allWarnings = [.. warnings, .. _captureDiagnostics,
+            .. original.QueryWarnings.Concat(current.QueryWarnings).Distinct(StringComparer.Ordinal)];
+        var coverage = original.MetadataPublished || current.MetadataPublished || !complete
+            ? new SemanticReviewCoverage(
+                Math.Max(original.ExaminedCount, current.ExaminedCount),
+                original.OmittedCount + current.OmittedCount,
+                _maxBytes,
+                Math.Max(original.Bytes, current.Bytes),
+                allWarnings)
+            : null;
+        return new SemanticChangeLog(changes, complete, allWarnings, revision) { Coverage = coverage };
     }
 
     private static void ValidateTargetedAuthority(SemanticSnapshot original, SemanticSnapshot current)
@@ -339,10 +349,15 @@ internal sealed class SemanticReview
                 {
                     snapshot.Fields[field.ValueId] = existing with
                     {
+                        Label = field.Label,
+                        Path = field.Path?.ToArray() ?? existing.Path,
                         ReadOnly = field.Spec.ReadOnly,
                         CanonicalValueId = string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId,
                         BindingKind = field.BindingKind,
+                        Presentation = field.Presentation,
+                        MetadataPublished = true,
                     };
+                    snapshot.MetadataPublished = true;
                     continue;
                 }
 
@@ -350,7 +365,9 @@ internal sealed class SemanticReview
                     field.Path?.ToArray() ?? [], Value: document.GetValue(field.ValueId),
                     ReadOnly: field.Spec.ReadOnly,
                     CanonicalValueId: string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId,
-                    BindingKind: field.BindingKind);
+                    BindingKind: field.BindingKind, Presentation: field.Presentation, MetadataPublished: true);
+                snapshot.MetadataPublished = true;
+                snapshot.ExaminedCount++;
                 var cost = SemanticSnapshot.Estimate(semantic);
                 if (cost > _maxBytes - snapshot.Bytes)
                 {
@@ -362,7 +379,11 @@ internal sealed class SemanticReview
                 snapshot.Fields.Add(field.ValueId, semantic);
             }
 
-            if (seen.Count != requested.Count) snapshot.Complete = false;
+            if (seen.Count != requested.Count)
+            {
+                snapshot.Complete = false;
+                snapshot.OmittedCount += requested.Count - seen.Count;
+            }
         }
     }
 
@@ -392,10 +413,15 @@ internal sealed class SemanticReview
                 if (snapshot.Fields[id] is not { } semantic || index.Cached(id) is not { } metadata) continue;
                 snapshot.Fields[id] = semantic with
                 {
+                    Label = metadata.Label,
+                    Path = metadata.Path?.ToArray() ?? semantic.Path,
                     ReadOnly = metadata.Spec.ReadOnly,
                     CanonicalValueId = string.IsNullOrEmpty(metadata.CanonicalValueId) ? id : metadata.CanonicalValueId,
                     BindingKind = metadata.BindingKind,
+                    Presentation = metadata.Presentation,
+                    MetadataPublished = true,
                 };
+                snapshot.MetadataPublished = true;
             }
         }
     }

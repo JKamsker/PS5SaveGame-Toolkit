@@ -19,7 +19,7 @@ internal static class SemanticSnapshotComparison
         {
             beforeGroups.TryGetValue(key, out var before);
             afterGroups.TryGetValue(key, out var after);
-            Add(key, before, after);
+            Add(key, before, after, original, current);
         }
         return changes;
 
@@ -39,17 +39,47 @@ internal static class SemanticSnapshotComparison
             || (candidate.BindingKind == existing.BindingKind && candidate.ValueId == candidate.CanonicalValueId
                 && existing.ValueId != existing.CanonicalValueId);
 
-        void Add(string id, SemanticField? before, SemanticField? after)
+        void Add(string id, SemanticField? before, SemanticField? after,
+            IReadOnlyDictionary<string, SemanticField> beforeFields, IReadOnlyDictionary<string, SemanticField> afterFields)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if ((before is null && !originalComplete) || (after is null && !currentComplete)
                 || (before is not null && after is not null && before.Value == after.Value)) return;
 
             var field = after ?? before!;
+            var canonical = field.MetadataPublished ? id : null;
+            var canNavigate = after is not null && (after.Path.Length > 0 || after.Target is not null);
+            var navigation = new SemanticNavigationTarget(after?.Path ?? before?.Path ?? [], after?.Target ?? before?.Target,
+                canNavigate, canNavigate ? null : "The field is unavailable in the current reviewed view.");
+            var aliases = beforeFields.Values.Concat(afterFields.Values)
+                .Where(candidate => candidate.MetadataPublished
+                    && (string.IsNullOrEmpty(candidate.CanonicalValueId) ? candidate.ValueId : candidate.CanonicalValueId) == id)
+                .GroupBy(candidate => candidate.ValueId, StringComparer.Ordinal)
+                .Select(group => group.First())
+                .Where(alias => alias.MetadataPublished && alias.ValueId != field.ValueId)
+                .Select(alias => new SemanticProjection(alias.ValueId, alias.Label, alias.Path,
+                    alias.BindingKind, alias.Presentation)).ToArray();
+            var canRevert = before is not null && after is { ReadOnly: false } && document.CanEdit;
             changes.Add(new SemanticChange(field.ValueId, field.Label, field.Path,
                 before?.Value ?? FieldValue.Null, after?.Value ?? FieldValue.Null,
-                before is not null, after is not null, before is not null && after is { ReadOnly: false } && document.CanEdit)
-            { Target = after?.Target });
+                before is not null, after is not null, canRevert)
+            {
+                // The legacy collection target is only valid for a current row. Historical
+                // paths remain available through NavigationTarget with an explicit unavailable state.
+                Target = after?.Target,
+                CanonicalValueId = canonical,
+                BindingKind = field.MetadataPublished ? field.BindingKind : null,
+                Presentation = field.Presentation,
+                Aliases = aliases.Length == 0 ? null : aliases,
+                NavigationTarget = field.MetadataPublished ? navigation : null,
+                CanNavigate = field.MetadataPublished ? canNavigate : null,
+                RevertReason = canRevert ? null : before is null || after is null
+                    ? "This field was added or removed; use Undo for structural changes."
+                    : field.BindingKind == FieldBindingKind.Derived || field.ReadOnly
+                        ? "This projection is read-only and updates when its canonical primary changes."
+                        : document.CanEdit ? "The server could not validate a safe revert for this field."
+                            : "The document is read-only."
+            });
         }
     }
 }

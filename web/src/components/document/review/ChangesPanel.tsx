@@ -24,7 +24,10 @@ function ChangesPanelBody({ review, focusSummary }: { review: ReturnType<typeof 
       if (document.activeElement === event.currentTarget) searchInput.current?.focus();
       void query.refetch();
     }}>Retry changes</button>}
-    {partial && <p className="notice notice--Warning" role="status">Review coverage is incomplete. Only proven changes are listed; other changes may be unreviewed.</p>}
+    {partial && <p className="notice notice--Warning" role="status">
+      Review coverage is incomplete. Only proven changes are listed; other changes may be unreviewed.
+      {query.data?.coverage && <> Examined {query.data.coverage.examinedCount}; omitted {query.data.coverage.omittedCount} within a {query.data.coverage.budgetBytes}-byte budget.</>}
+    </p>}
     {query.data?.warnings.map((warning, index) => <p className="notice notice--Warning" key={index}>{warning}</p>)}
     {query.data && query.data.changes.length === 0 && <p>{partial ? "No proven changes in the reviewed portion." : "No semantic changes."}</p>}
     {changes.length > 0 && <ChangedFieldsTable review={review} focusSummary={focusSummary} />}

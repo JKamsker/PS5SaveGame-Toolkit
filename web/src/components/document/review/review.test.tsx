@@ -181,6 +181,20 @@ describe("action preview", () => {
 });
 
 describe("semantic changes panel", () => {
+  it("searches canonical and alias identities and explains derived context", async () => {
+    vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [{ ...change,
+      canonicalValueId: "quantity", bindingKind: "Primary", aliases: [
+        { valueId: "raw/quantity", label: "Raw quantity", path: ["section:Raw"], bindingKind: "Derived" },
+      ], canNavigate: true }] });
+    renderDocument(<ChangesPanel />);
+    fireEvent.click(screen.getByText("Changes against original"));
+    await screen.findByText("Potion quantity");
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "raw/quantity" } });
+    expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();
+    fireEvent.click(screen.getByText("Also shown as 1 projection"));
+    expect(screen.getByText("Raw quantity")).toBeTruthy();
+  });
+
   it("retries a failed changes load while retaining the search", async () => {
     vi.spyOn(actionReview, "changes").mockRejectedValueOnce(new Error("Change log unavailable")).mockResolvedValue(log);
     renderDocument(<ChangesPanel />);

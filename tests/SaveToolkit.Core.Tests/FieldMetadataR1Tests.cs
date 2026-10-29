@@ -76,6 +76,12 @@ public sealed class FieldMetadataR1Tests : IDisposable
         var change = Assert.Single(review.Changes);
         Assert.Equal("primary", change.ValueId);
         Assert.True(change.CanRevert);
+        Assert.Equal("primary", change.EffectiveCanonicalValueId);
+        Assert.Equal(FieldBindingKind.Primary, change.BindingKind);
+        Assert.Equal(2, change.Aliases?.Count);
+        Assert.Contains(change.Aliases!, alias => alias.ValueId == "raw/primary");
+        Assert.True(change.CanNavigate);
+        Assert.NotNull(review.Coverage);
     }
 
     [Fact]

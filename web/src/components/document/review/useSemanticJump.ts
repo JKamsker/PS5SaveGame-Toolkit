@@ -14,9 +14,17 @@ export function useSemanticJump() {
   return async (change: SemanticChange, revision: number, isCurrent: () => boolean) => {
     const version = doc.store.valueVersion;
     if (doc.store.state.revision !== revision) throw new ApiError("This review is out of date. Refresh changes before jumping.", 409);
-    if (!change.target) { jump(change); return; }
-    const { collectionId, rowKey } = change.target;
-    const query = collectionReviewQuery(change.target.query);
+    if (change.canNavigate === false) {
+      throw new Error(change.navigationTarget?.unavailableReason ?? "This field is unavailable in the current reviewed view.");
+    }
+    const navigation = change.navigationTarget;
+    const target = navigation?.collection ?? change.target;
+    if (!target) {
+      jump({ ...change, path: navigation?.path ?? change.path });
+      return;
+    }
+    const { collectionId, rowKey } = target;
+    const query = collectionReviewQuery(target.query);
     const page = await client.fetchQuery({
       queryKey: collectionQueryKey(doc.workspaceId, doc.documentId, collectionId, query, revision, version, doc.structureVersion),
       queryFn: () => api.queryCollection(doc.workspaceId, doc.documentId, collectionId, query, revision),
@@ -33,7 +41,7 @@ export function useSemanticJump() {
     if (!Object.values(row.cells).some(cell => canReachField(cell, change.valueId))) {
       throw new Error("The changed field was not found on its review page. Refresh changes before trying again.");
     }
-    jump({ ...change, collection: { collectionId, rowKey, query } });
+    jump({ ...change, path: navigation?.path ?? change.path, collection: { collectionId, rowKey, query } });
   };
 }
 
