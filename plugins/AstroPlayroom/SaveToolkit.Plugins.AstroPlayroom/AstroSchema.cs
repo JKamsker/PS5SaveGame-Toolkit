@@ -8,6 +8,7 @@ internal sealed class AstroSchema
 {
     private readonly AstroAllocation _allocation;
     private readonly IReadOnlyList<AstroElement> _elements;
+    private IReadOnlyDictionary<string, int> _recordIndexes = new Dictionary<string, int>(StringComparer.Ordinal);
 
     public AstroSchema(AstroAllocation allocation)
     {
@@ -32,6 +33,25 @@ internal sealed class AstroSchema
             .SelectMany(g => g.Children.Select(e => new AstroCollectionRecord(g.Name, e,
                 e.Children.SelectMany(c => byElement[c]).ToArray())))
             .ToArray();
+        _recordIndexes = Records.Select((record, index) => (record.Element.Id, Index: index))
+            .ToDictionary(item => item.Id, item => item.Index, StringComparer.Ordinal);
+    }
+
+    public bool TrySelectRecords(IReadOnlyList<string>? keys, out IReadOnlyList<AstroCollectionRecord> records)
+    {
+        records = Records;
+        if (keys is null) return true;
+        var indexes = new int[keys.Count];
+        var seen = new HashSet<int>();
+        for (var i = 0; i < keys.Count; i++)
+        {
+            if (keys[i] is not { } key || !_recordIndexes.TryGetValue(key, out var index) || !seen.Add(index)) return false;
+            indexes[i] = index;
+        }
+        // Plans have always followed native save order, independent of selection order.
+        Array.Sort(indexes);
+        records = indexes.Select(index => Records[index]).ToArray();
+        return true;
     }
 
     public SectionNode Report() => new("Schema report", [

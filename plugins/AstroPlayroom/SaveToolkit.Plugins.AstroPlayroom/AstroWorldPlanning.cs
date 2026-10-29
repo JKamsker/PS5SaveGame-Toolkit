@@ -38,16 +38,19 @@ internal static class AstroWorldPlanning
 
         // First validate the complete supplied scope: foreign/duplicate keys must not disappear
         // silently when it is intersected with the requested world.
-        var all = AstroPlanning.PlanCollectAll(scope, schema, current);
-        if (all.Errors.Count > 0) return all;
-        var selected = scope.RowKeys?.ToHashSet(StringComparer.Ordinal);
-        var included = schema.Records.Where(record => selected is null || selected.Contains(record.Element.Id)).ToArray();
-        var matching = included.Where(record => locations.World(record)?.Key == value.AsString()).ToArray();
-        var plan = AstroPlanning.PlanCollectAll(new ActionScope(matching.Select(record => record.Element.Id).ToArray()), schema, current);
+        if (!schema.TrySelectRecords(scope.RowKeys, out var included)) return AstroPlanning.InvalidSelection();
+        var matching = new List<AstroCollectionRecord>();
+        var outside = new List<SkippedActionRow>();
+        foreach (var record in included)
+        {
+            if (locations.World(record)?.Key == value.AsString()) matching.Add(record);
+            else outside.Add(new SkippedActionRow(record.Element.Id,
+                "Outside the requested candidate world or no unambiguous schema-qualified world mapping."));
+        }
+        var plan = AstroPlanning.PlanRecords(matching, current);
         return plan with
         {
-            SkippedRows = [.. plan.SkippedRows, .. included.Except(matching).Select(record =>
-                new SkippedActionRow(record.Element.Id, "Outside the requested candidate world or no unambiguous schema-qualified world mapping."))],
+            SkippedRows = [.. plan.SkippedRows, .. outside],
             Warnings = [.. plan.Warnings, "Candidate world joins are Inferred. No clear, cinematic, notification, reward, UDS or trophy state is derived."]
         };
     }
