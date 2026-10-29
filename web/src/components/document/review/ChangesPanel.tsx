@@ -29,7 +29,8 @@ export function ChangesPanel() {
       const result = await doc.mutate(() => actionReview.revert(doc.workspaceId, doc.documentId, valueId, query.data.revision));
       if (!isCurrent()) return;
       if (!result.ok) setError(result.errors.map(e => e.message).join(" "));
-      await query.refetch();
+      // Accepting the mutation refreshes the content-keyed query. Refetching this
+      // captured query would also read the retired version after a successful revert.
     } catch (failure) {
       if (!isCurrent()) return;
       setError(failure instanceof Error ? failure.message : "Could not revert this change.");

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { api } from "../../api/client";
 import type { StatsNode, TextNode, ViewNode } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
@@ -25,9 +26,10 @@ export function ViewList({ nodes }: { nodes: ViewNode[] }) {
 }
 
 /** Maps abstract view nodes to components. Unknown node types render nothing rather than crash. */
-export function ViewRenderer({ node }: { node: ViewNode }) {
+// Snapshots are immutable; live fields and navigation retain their own subscriptions.
+export const ViewRenderer = memo(function ViewRenderer({ node }: { node: ViewNode }) {
   return <LazyExpansionBoundary><ViewContent node={node} /></LazyExpansionBoundary>;
-}
+});
 
 function ViewContent({ node }: { node: ViewNode }) {
   switch (node.type) {

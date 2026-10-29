@@ -47,11 +47,12 @@ it.each([400, 409, 503, 0])("retains drafts, selection and live undo state after
   field.focus();
   vi.mocked(api.workspace).mockRejectedValueOnce(new ApiError("Workspace temporarily unavailable", status));
   await act(async () => { await client.refetchQueries({ queryKey: ["workspace", "w"] }); });
+  // Query notifications are scheduled separately from the completed network promise.
+  expect((await screen.findByRole("alert")).textContent).toContain("Workspace temporarily unavailable");
   expect(screen.getByRole("textbox", { name: /Quantity/ })).toBe(field);
   expect(field.value).toBe("9");
   expect(selected.checked).toBe(true);
   expect(document.activeElement).toBe(field);
-  expect(screen.getByRole("alert").textContent).toContain("Workspace temporarily unavailable");
   expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", false);
   fireEvent.click(screen.getByRole("button", { name: "Retry workspace" }));
   await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());

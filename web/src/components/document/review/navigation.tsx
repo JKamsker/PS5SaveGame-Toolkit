@@ -9,7 +9,8 @@ const ReviewPathContext = createContext<readonly string[]>([]);
 export function ReviewNavigationProvider({ children }: { children: ReactNode }) {
   const [target, setTarget] = useState<JumpTarget | null>(null);
   const jump = useCallback((change: JumpTarget) => setTarget({ ...change }), []);
-  return <ReviewNavigation.Provider value={{ target, jump }}>{children}</ReviewNavigation.Provider>;
+  const navigation = useMemo(() => ({ target, jump }), [target, jump]);
+  return <ReviewNavigation.Provider value={navigation}>{children}</ReviewNavigation.Provider>;
 }
 
 export const useReviewNavigation = () => useContext(ReviewNavigation);
