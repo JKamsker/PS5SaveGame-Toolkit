@@ -55,5 +55,12 @@ finally {
     if ([IO.Path]::GetDirectoryName($resolved) -ne [IO.Path]::TrimEndingDirectorySeparator($scratchRoot)) {
         throw "Refusing to delete unexpected test directory: $resolved"
     }
-    Remove-Item -LiteralPath $resolved -Recurse -Force
+    try { Remove-Item -LiteralPath $resolved -Recurse -Force -ErrorAction Stop }
+    catch {
+        # Scaffold builds leave the shared compiler server holding analyzer DLLs under the scratch
+        # TEMP on Windows; stop it and retry once, then only warn so cleanup never hides results.
+        dotnet build-server shutdown *> $null
+        try { Remove-Item -LiteralPath $resolved -Recurse -Force -ErrorAction Stop }
+        catch { Write-Warning "Could not remove script-test scratch '${resolved}': $_" }
+    }
 }
