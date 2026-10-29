@@ -186,15 +186,26 @@ public sealed class HogwartsTalentSummaryTests
     [InlineData(true)]
     public void InvalidCompanionImageDoesNotHideTheSuccessfulSummary(bool badExclusive)
     {
-        byte[] good = Image("4");
-        byte[] bad = [0, 1, 2, 3];
-        var sample = badExclusive ? Save(good, bad) : Save(bad, good);
+        byte[] goodFrames = HogwartsImage.EncodeStored(Image("4"));
+        // Corrupt the encoded companion, after the encoder has validated the authored SQLite image.
+        byte[] badFrames = goodFrames[..^1];
+        byte[] bytes = badExclusive ? TitleFixture.Hogwarts(goodFrames, badFrames) : TitleFixture.Hogwarts(badFrames, goodFrames);
+        var sample = MemorySaveSet.SingleFile("save.sav", bytes, "PPSA01603");
+        Assert.Throws<SaveFormatException>(() => HogwartsImage.Decode(badFrames));
         using var document = new UnrealGvasPlugin().Open(sample);
         Assert.False(document.CanEdit);
         var section = Assert.Single(Summaries(document));
         Assert.StartsWith(badExclusive ? "RawDatabaseImage" : "RawExclusiveImage", section.Title);
         Assert.Equal("SQLite text: \"4\"", Stat(section, PointsLabel));
-        Assert.Contains(Overview(document).OfType<TextNode>(), text => text.Text.Contains("overlay unavailable", StringComparison.Ordinal));
+        Assert.Equal("2", Stat(section, RowsLabel));
+        string badImage = badExclusive ? "RawExclusiveImage" : "RawDatabaseImage";
+        var warning = Assert.Single(Overview(document).OfType<TextNode>(), text =>
+            text.Text.StartsWith(badImage + ": database validation failed", StringComparison.Ordinal));
+        Assert.Equal(Tone.Warning, warning.Tone);
+        Assert.Contains("overlay unavailable", warning.Text);
+        var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
+        Assert.DoesNotContain(queryable.Collections, collection => collection.Id.StartsWith("hogwarts/" + badImage + "/", StringComparison.Ordinal));
+        Assert.Equal(2, queryable.Collections.Count);
         AssertNoOp(document, sample);
     }
 
