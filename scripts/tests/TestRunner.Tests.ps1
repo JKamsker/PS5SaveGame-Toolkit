@@ -68,7 +68,7 @@ Invoke-Case 'parallel runner bounds workers, orders logs, retains reports and co
     $fakeScript = Join-Path $fakeBin 'fake-dotnet.ps1'
     @'
 if ($args[0] -eq 'build') {
-    Copy-Item -LiteralPath $args[1] -Destination (Join-Path (Split-Path -Parent $PSScriptRoot) 'build.slnx')
+    Copy-Item -LiteralPath $args[1] -Destination (Join-Path $env:FAKE_DOTNET_FIXTURE 'build.slnx')
     exit 0
 }
 $project = [IO.Path]::GetFileNameWithoutExtension($args[[array]::IndexOf($args, '--project') + 1])
@@ -109,6 +109,8 @@ exit 0
         Set-Content -LiteralPath $shim -Value ("#!/usr/bin/env pwsh`n" + (Get-Content -LiteralPath $fakeScript -Raw)) -NoNewline
         & chmod +x $shim
     }
+    # $PSScriptRoot is empty for extensionless shebang scripts on Unix, so the shim gets its target explicitly.
+    $env:FAKE_DOTNET_FIXTURE = $fixture
     $savedPath = $env:PATH
     $savedTemp, $savedTmp, $savedTmpDir = $env:TEMP, $env:TMP, $env:TMPDIR
     $results = Join-Path $fixture 'results space'
