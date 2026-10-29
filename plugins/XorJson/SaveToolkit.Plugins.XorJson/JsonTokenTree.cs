@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Runtime.InteropServices;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Json;
 using SaveToolkit.Sdk.Values;
@@ -39,6 +40,7 @@ internal sealed class JsonTokenTree
         }
 
         var tree = new JsonTokenTree { Lossless = document };
+        var source = SourceArray(document.OriginalBytes, bytes);
         var mapped = new Dictionary<int, JsonValueToken>();
         foreach (var sourceNode in document.Nodes)
         {
@@ -46,7 +48,7 @@ internal sealed class JsonTokenTree
             var token = new JsonValueToken(sourceNode.Id, Label(sourceNode, parent), Kind(sourceNode),
                 sourceNode.OriginalSpan.Offset, sourceNode.OriginalSpan.Length)
             {
-                Source = bytes, Parent = parent, SdkNode = sourceNode,
+                Source = source, Parent = parent, SdkNode = sourceNode,
             };
             if (parent is null)
             {
@@ -71,6 +73,14 @@ internal sealed class JsonTokenTree
             tree.Nodes.Add(token);
         }
         return tree;
+    }
+
+    private static byte[] SourceArray(ReadOnlyMemory<byte> original, byte[] fallback)
+    {
+        if (MemoryMarshal.TryGetArray(original, out var segment) && segment.Offset == 0 &&
+            segment.Count == original.Length && segment.Array is { } source)
+            return source;
+        return fallback;
     }
 
     private static string Label(LosslessJsonNode node, JsonValueToken? parent) =>
