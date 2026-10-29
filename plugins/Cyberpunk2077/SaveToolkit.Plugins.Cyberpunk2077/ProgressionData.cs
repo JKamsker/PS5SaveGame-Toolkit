@@ -7,10 +7,15 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 internal sealed record ProgressionScalar(string Id, string Label, int Value, int Offset, int? MirrorOffset);
 internal sealed class PointBalance(string type, PackageClass record)
 {
+    private const string UnspentName = "unspent";
+    private const string Int32Name = "Int32";
+
     public string Type { get; } = type;
     public PackageClass Record { get; } = record;
-    public int Original { get; } = record.Int("unspent");
-    public int Value { get; set; } = record.Int("unspent");
+    public int Original { get; } = record.Int(UnspentName);
+    public int Value { get; set; } = record.Int(UnspentName);
+    public bool Changed => Value != Original;
+    public IReadOnlyList<string> RequiredNames => Changed ? [UnspentName, Int32Name] : [];
 }
 
 internal sealed class ProgressionData
@@ -153,7 +158,9 @@ internal sealed class ProgressionData
         }
 
         // Read from the patched payload so attribute writes in this same batch are retained.
-        var package = new RedPackage(PackageBytes(editedPayload, _node), true).WithNames(Proficiencies.SelectMany(p => p.RequiredNames));
+        var requiredNames = Proficiencies.SelectMany(p => p.RequiredNames)
+            .Concat(Points.SelectMany(point => point.RequiredNames));
+        var package = new RedPackage(PackageBytes(editedPayload, _node), true).WithNames(requiredNames);
         var player = package.Chunk(_playerIndex);
         using var array = new MemoryStream();
         Span<byte> integer = stackalloc byte[4];

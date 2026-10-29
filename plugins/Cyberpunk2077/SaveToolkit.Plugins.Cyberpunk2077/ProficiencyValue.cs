@@ -4,6 +4,8 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 
 internal sealed class ProficiencyValue(string type, PackageClass record, int? mirrorOffset, string? levelWarning)
 {
+    private const string Int32Name = "Int32";
+
     public string Type { get; } = type;
     public PackageClass Record { get; } = record;
     public int OriginalLevel { get; } = record.Int("currentLevel");
@@ -15,11 +17,18 @@ internal sealed class ProficiencyValue(string type, PackageClass record, int? mi
     public int? MirrorOffset { get; } = mirrorOffset;
     public string? LevelWarning { get; } = levelWarning;
     public bool Changed => Level != OriginalLevel || Experience != OriginalExperience || Threshold != OriginalThreshold;
-    public IEnumerable<string> RequiredNames => new[]
+    public IEnumerable<string> RequiredNames
     {
-        ("currentLevel", Level != OriginalLevel), ("currentExp", Experience != OriginalExperience),
-        ("expToLevel", Threshold != OriginalThreshold),
-    }.Where(pair => pair.Item2).Select(pair => pair.Item1);
+        get
+        {
+            var names = new[]
+            {
+                ("currentLevel", Level != OriginalLevel), ("currentExp", Experience != OriginalExperience),
+                ("expToLevel", Threshold != OriginalThreshold),
+            }.Where(pair => pair.Item2).Select(pair => pair.Item1).ToArray();
+            return names.Length == 0 ? Array.Empty<string>() : [.. names, Int32Name];
+        }
+    }
 
     public byte[] Rebuild(PackageClass patchedRecord)
     {
