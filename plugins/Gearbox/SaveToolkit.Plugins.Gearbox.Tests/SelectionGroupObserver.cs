@@ -14,6 +14,9 @@ namespace SaveToolkit.Plugins.Gearbox.Tests;
 /// </summary>
 internal sealed class SelectionGroupObserver : IGamePlugin, IDocumentGroupPlugin
 {
+    // Require explicit construction so default plugin discovery cannot register this test observer.
+    internal SelectionGroupObserver() { }
+
     private readonly GearboxPlugin _plugin = new();
     private readonly HashSet<ObservedGroup> _open = [];
     internal GearboxGroupDocument Current => Assert.Single(_open).Document;
