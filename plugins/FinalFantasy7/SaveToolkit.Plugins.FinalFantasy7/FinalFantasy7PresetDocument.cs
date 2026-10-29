@@ -90,21 +90,25 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
             {
                 if (target.AllMatches || current.Status != PresetTargetStatus.Ambiguous)
                 {
-                    results.Add(new(requested, PresetInstanceResolutionStatus.Unsupported, candidates,
+                    results.Add(new(requested, PresetInstanceResolutionStatus.Unsupported, [],
                         "choice-is-not-valid-for-this-identity"));
                     continue;
                 }
                 var choice = current.Candidates.FirstOrDefault(candidate => FinalFantasy7PresetIdentity.ToCandidate(target, candidate, _references).StableId == choiceId);
                 if (choice is null)
                 {
-                    results.Add(new(requested, PresetInstanceResolutionStatus.Missing, candidates, "choice-is-not-current"));
+                    results.Add(new(requested, PresetInstanceResolutionStatus.Missing, [], "choice-is-not-current"));
                     continue;
                 }
                 current = _semantic.ResolveTarget(target, choice.RowKey);
                 candidates = [FinalFantasy7PresetIdentity.ToCandidate(target, choice, _references)];
             }
 
-            results.Add(new(requested, FinalFantasy7PresetIdentity.Status(current.Status), candidates, current.Reason));
+            var status = FinalFantasy7PresetIdentity.Status(current.Status);
+            var presented = status == PresetInstanceResolutionStatus.Ambiguous || choiceId is not null && status == PresetInstanceResolutionStatus.Resolved
+                ? candidates
+                : [];
+            results.Add(new(requested, status, presented, current.Reason));
         }
         return new(results);
     }
@@ -259,8 +263,11 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
         {
             var resolved = resolution.Instances.Single(item => item.Requested.StableId == reference.StableId);
             var target = FinalFantasy7PresetIdentity.ParseTarget(reference);
-            return target.AllMatches ? resolved.Candidates.Select(candidate => FinalFantasy7PresetIdentity.CandidateRow(target, candidate)) :
-                [FinalFantasy7PresetIdentity.CandidateRow(target, resolved.Candidates.Single())];
+            var candidates = resolved.Candidates is { Count: 1 } presented
+                ? presented
+                : _semantic.ResolveTarget(target).Candidates.Select(candidate =>
+                    FinalFantasy7PresetIdentity.ToCandidate(target, candidate, _references)).ToArray();
+            return candidates.Select(candidate => FinalFantasy7PresetIdentity.CandidateRow(target, candidate));
         }).SelectMany(rows => rows).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         return new(rows);
     }

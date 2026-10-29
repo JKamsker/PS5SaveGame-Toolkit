@@ -178,6 +178,30 @@ public sealed class Sdk07PresetAdapterTests
     }
 
     [Fact]
+    public void ResolvedTargetsOmitCandidatesUnlessAnExplicitChoiceWasMade()
+    {
+        var fixture = new SemanticPresetFixture();
+        fixture.Materia(0, 0);
+        fixture.Materia(1, 1, instance: SemanticPresetFixture.Instance + 1);
+        var adapter = (IPresetDocument)fixture.Open();
+        var allCopies = adapter.CapturePreset(new(MateriaPlanning.ActionId, new Dictionary<string, JsonElement>
+        {
+            ["type"] = JsonSerializer.SerializeToElement("10020"),
+            ["ap"] = JsonSerializer.SerializeToElement(20),
+        },
+            PresetScopeKinds.AllCopies, null, true));
+        var allCopiesResolution = adapter.ResolvePresetInstances(allCopies.Instances);
+        Assert.Equal(PresetInstanceResolutionStatus.Resolved, Assert.Single(allCopiesResolution.Instances).Status);
+        Assert.Empty(allCopiesResolution.Instances[0].Candidates);
+
+        var character = adapter.CapturePreset(new(CharacterPlanning.RecoveryActionId,
+            new Dictionary<string, JsonElement>(), PresetScopeKinds.Selected, ["character/0"]));
+        var characterResolution = adapter.ResolvePresetInstances(character.Instances);
+        Assert.Equal(PresetInstanceResolutionStatus.Resolved, Assert.Single(characterResolution.Instances).Status);
+        Assert.Empty(characterResolution.Instances[0].Candidates);
+    }
+
+    [Fact]
     public void ExplicitEmptySelectedScopeRemainsEmptyAndDoesNotWiden()
     {
         using var fixture = new BulkSelectionFixture("PPSA08664", CharacterPlanning.RecoveryActionId);

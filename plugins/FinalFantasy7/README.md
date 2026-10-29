@@ -655,6 +655,10 @@ joins the current owned inventory to the current AP-editable detail row; those p
 are different domains. Missing/duplicate details, duplicate inventory instances, mismatched detail
 types and owned counts other than one remain unresolved with stable reasons and all relevant
 candidate placements. Nothing repairs those relationships or silently selects a first match.
+The public SDK resolution keeps candidate lists for genuinely ambiguous targets and for a
+transiently chosen candidate only; Resolved targets without a choice carry no candidate list, and
+Missing/Unsupported targets carry stable reasons without candidates so the host can reject the
+whole preset deterministically. Internal F6 relation diagnostics retain the detailed join status.
 All-copies scope uses current owned joins; unowned detail records are not promoted to owned copies.
 Remake selected-materia capture rejects because its current model has no proven owned-instance
 identity; its existing type-wide all-copies planner remains available. Summon and incoherent
