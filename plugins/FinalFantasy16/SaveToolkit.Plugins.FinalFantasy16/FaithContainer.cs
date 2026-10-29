@@ -38,24 +38,7 @@ internal sealed record FaithContainer(ulong Version, IReadOnlyList<FaithBlock> B
 
     public static FaithContainer Parse(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length < HeaderSize + sizeof(uint) || bytes.Length > MaximumFileSize ||
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes) != HeaderSize)
-        {
-            throw new SaveFormatException("Invalid Faith header size or truncated save.");
-        }
-
-        var version = BinaryPrimitives.ReadUInt64LittleEndian(bytes[VersionOffset..]);
-        if (version is not (GameVersion or SystemVersion))
-        {
-            throw new SaveFormatException("Unsupported Faith container version (expected plaintext PS5 data).");
-        }
-
-        var expected = BinaryPrimitives.ReadUInt32LittleEndian(bytes[CrcOffset..]);
-        if (expected != Crc32Ieee.Compute(bytes[HeaderSize..]))
-        {
-            throw new SaveFormatException("Faith CRC32 mismatch: the save is damaged or still wrapped/encrypted.");
-        }
-
+        var version = ValidateHeader(bytes);
         var blocks = new List<FaithBlock>();
         var position = HeaderSize;
         while (position <= bytes.Length - sizeof(uint))
@@ -90,5 +73,27 @@ internal sealed record FaithContainer(ulong Version, IReadOnlyList<FaithBlock> B
         }
 
         throw new SaveFormatException("Faith block terminator is missing.");
+    }
+
+    private static ulong ValidateHeader(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length < HeaderSize + sizeof(uint) || bytes.Length > MaximumFileSize ||
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes) != HeaderSize)
+        {
+            throw new SaveFormatException("Invalid Faith header size or truncated save.");
+        }
+
+        var version = BinaryPrimitives.ReadUInt64LittleEndian(bytes[VersionOffset..]);
+        if (version is not (GameVersion or SystemVersion))
+        {
+            throw new SaveFormatException("Unsupported Faith container version (expected plaintext PS5 data).");
+        }
+
+        var expected = BinaryPrimitives.ReadUInt32LittleEndian(bytes[CrcOffset..]);
+        if (expected != Crc32Ieee.Compute(bytes[HeaderSize..]))
+        {
+            throw new SaveFormatException("Faith CRC32 mismatch: the save is damaged or still wrapped/encrypted.");
+        }
+        return version;
     }
 }

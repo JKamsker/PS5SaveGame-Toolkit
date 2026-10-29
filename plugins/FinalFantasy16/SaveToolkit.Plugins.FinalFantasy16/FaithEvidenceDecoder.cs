@@ -44,6 +44,17 @@ internal sealed class FaithEvidenceDecoder : ISaveDecoderHook
         }
 
         var schema = FaithSchema.ForTitle(file.Directory.TitleId);
+        if (!DecodePlayerAndUser(bytes, container, schema, sink) ||
+            !DecodeInventory(bytes, inventory, sink) || !DecodeParty(bytes, container, sink) ||
+            !DecodeEquipment(bytes, container, sink))
+        {
+            return;
+        }
+        DecodeSkills(bytes, container, sink);
+    }
+
+    private static bool DecodePlayerAndUser(byte[] bytes, FaithContainer container, FaithSchema schema, ISaveDecodeSink sink)
+    {
         var player = FaithSchema.Unique(container, FaithSchema.PlayerType, schema.SupportsPlayer);
         if (player is not null)
         {
@@ -52,36 +63,40 @@ internal sealed class FaithEvidenceDecoder : ISaveDecoderHook
                 !AddInt(sink, "player/childLevel", ReadInt(bytes, player.PayloadOffset + FaithContextLayout.ChildLevelOffset)) ||
                 !AddInt(sink, "player/childXp", ReadInt(bytes, player.PayloadOffset + FaithContextLayout.ChildXpOffset)))
             {
-                return;
+                return false;
             }
         }
 
         var user = FaithSchema.Unique(container, FaithSchema.UserType, FaithSchema.SupportsUser);
-        if (user is not null && !AddInt(sink, "user/playTime", ReadInt(bytes, user.PayloadOffset)))
-        {
-            return;
-        }
+        return user is null || AddInt(sink, "user/playTime", ReadInt(bytes, user.PayloadOffset));
+    }
 
+    private static bool DecodeInventory(byte[] bytes, FaithInventory inventory, ISaveDecodeSink sink)
+    {
         foreach (var item in inventory.Items)
         {
             var path = $"inventory/{item.Slot}";
             if (!AddInt(sink, path + "/item", ReadInt(bytes, item.Offset)) ||
                 !AddInt(sink, path + "/quantity", ReadInt(bytes, item.Offset + sizeof(int))))
             {
-                return;
+                return false;
             }
         }
+        return true;
+    }
 
+    private static bool DecodeParty(byte[] bytes, FaithContainer container, ISaveDecodeSink sink)
+    {
         var party = FaithSchema.Unique(container, FaithSchema.PartyType, FaithSchema.SupportsParty);
-        if (party is not null &&
-            (!AddInt(sink, "party/scene", ReadInt(bytes, party.PayloadOffset)) ||
-             !AddInt(sink, "party/map", ReadInt(bytes, party.PayloadOffset + FaithContextLayout.MapOffset)) ||
-             !AddInt(sink, "party/id", ReadInt(bytes, party.PayloadOffset + FaithContextLayout.PartyIdOffset)) ||
-             !AddInt(sink, "party/count", ReadInt(bytes, party.PayloadOffset + FaithContextLayout.PartyCountOffset))))
-        {
-            return;
-        }
+        return party is null ||
+            AddInt(sink, "party/scene", ReadInt(bytes, party.PayloadOffset)) &&
+            AddInt(sink, "party/map", ReadInt(bytes, party.PayloadOffset + FaithContextLayout.MapOffset)) &&
+            AddInt(sink, "party/id", ReadInt(bytes, party.PayloadOffset + FaithContextLayout.PartyIdOffset)) &&
+            AddInt(sink, "party/count", ReadInt(bytes, party.PayloadOffset + FaithContextLayout.PartyCountOffset));
+    }
 
+    private static bool DecodeEquipment(byte[] bytes, FaithContainer container, ISaveDecodeSink sink)
+    {
         var equipment = FaithSchema.Unique(container, FaithSchema.EquipmentType, FaithSchema.SupportsEquipment);
         if (equipment is not null)
         {
@@ -89,10 +104,14 @@ internal sealed class FaithEvidenceDecoder : ISaveDecoderHook
             for (var slot = 0; slot < FaithContextLayout.EquipmentSlots; slot++)
             {
                 var offset = equipment.PayloadOffset + (bank * FaithContextLayout.EquipmentSlots + slot) * sizeof(int);
-                if (!AddInt(sink, $"equipment/{bank}/{slot}/item", ReadInt(bytes, offset))) return;
+                if (!AddInt(sink, $"equipment/{bank}/{slot}/item", ReadInt(bytes, offset))) return false;
             }
         }
+        return true;
+    }
 
+    private static void DecodeSkills(byte[] bytes, FaithContainer container, ISaveDecodeSink sink)
+    {
         var skills = FaithSchema.Unique(container, FaithSchema.SkillType, FaithSchema.SupportsSkills);
         if (skills is not null)
         {
