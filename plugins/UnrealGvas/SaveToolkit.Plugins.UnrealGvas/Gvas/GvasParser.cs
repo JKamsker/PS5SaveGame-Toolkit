@@ -79,7 +79,12 @@ internal sealed class GvasParser(byte[] bytes)
                 node.Scalar = GvasPrimitives.Read(ref reader, "StrProperty");
             else
                 node.Scalar = GvasPrimitives.Read(ref reader, tag.Type);
-            if (reader.Remaining != 0) throw new UnsupportedGvasValueException("Payload layout is not fully understood.");
+            if (reader.Remaining != 0)
+            {
+                if (tag.Type == "StructProperty" && !IsKnownNativeStruct(tag.StructType))
+                    throw new UnsupportedGvasValueException("Payload layout is not fully understood.");
+                throw new GvasRejectionException($"GVAS property '{tag.Name}' size disagrees with its {tag.Type} contents ({reader.Remaining} trailing bytes).");
+            }
         }
         catch (UnsupportedGvasValueException ex)
         {
@@ -152,7 +157,8 @@ internal sealed class GvasParser(byte[] bytes)
             var inner = GvasTag.Read(ref reader, _header);
             if (inner is null || inner.Type != "StructProperty") throw new SaveFormatException("Missing struct array inner tag.");
             structType = inner.StructType;
-            if (inner.Size != reader.Remaining) throw new UnsupportedGvasValueException("Struct array inner size differs from payload length.");
+            if (inner.Size != reader.Remaining)
+                throw new GvasRejectionException($"GVAS struct array '{tag.Name}' inner size differs from payload length.");
             innerSize = new SizeRegion(inner.SizeOffset, reader.Position, inner.Size);
         }
         if (tag.InnerType == "StructProperty" && structType is null)

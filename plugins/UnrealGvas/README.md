@@ -41,6 +41,22 @@ limits, malformed encoding and edit width choices. The full plugin suite retains
 Hogwarts/Jedi/Sackboy and generic byte-identical round trips, the Hogwarts
 allocation checks, lazy Jedi pages and consistency wording checks.
 
+## Malformed-input review (#40)
+
+Known primitive, fixed native-struct and fully understood container payloads must
+consume their declared sizes exactly. Extra bytes and inconsistent struct-array
+inner sizes reject with a contextual `SaveFormatException`, including inside
+tagged custom structs. A mismatched Jedi byte-array count therefore rejects during
+GVAS parsing before the actor overlay is constructed. Unsupported native/custom
+layouts keep their documented opaque, read-only fallback; bytes after the root
+`None` terminator remain game-owned and preserved.
+
+The size interpretation was rechecked against the existing credited
+[uesave tag/array writer at revision 1917a22](https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs),
+which measures payload bytes separately from tags, and against the supplied PS5
+round trips. Regression fixtures contain synthetic bytes; sample mutations remain
+in memory and no private data is embedded.
+
 ## Framework feature adoption
 
 | Feature | Status | Concrete use / evidence or reason |

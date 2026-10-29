@@ -87,6 +87,13 @@ public sealed class NonHogwartsSampleViewTests
             case "declared-large": BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(size.Offset), GvasFile.MaxFileLength + 1); break;
             case "count": BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(actor.Offset), actor.Length - sizeof(int) - 1); break;
         }
+        if (corruption == "count")
+        {
+            var error = Assert.Throws<SaveFormatException>(() => new UnrealGvasPlugin().Open(MemorySaveSet.SingleFile("save.sav", bytes, "PPSA02199")));
+            Assert.Contains("CompressedActorRecords", error.Message);
+            Assert.Contains("size", error.Message);
+            return;
+        }
         using var document = new UnrealGvasPlugin().Open(MemorySaveSet.SingleFile("save.sav", bytes, "PPSA02199"));
         Assert.False(document.CanEdit);
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
