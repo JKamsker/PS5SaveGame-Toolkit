@@ -69,7 +69,7 @@ only returns its own file, without silently changing the console backup twin.
 | Feature | Status | Concrete adoption or reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | `AriseDiff` aligns decrypted sections by schema ID and relative offsets; twin and slot tests prove the alignment. The shared `PluginViewDecoder` can traverse the plugin without plugin I/O; private sample bytes stay outside git. |
-| F2 reference packs | Used | The embedded `talesofarise.catalog` v3 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. Without a matching pinned pack, catalog sections show an unavailable message, catalog queries are empty, local inferred labels and raw IDs remain available, and the map omits its background. |
+| F2 reference packs | Used | The embedded `talesofarise.catalog` v3 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. SDK-05 `ReferenceViews.Icon` uses `AssetIdOnly` and exact icon-role/publisher alt text with the em-dash fallback, preserving inventory/catalog nodes while resolving image Sources through the pinned context. Without a matching pinned pack, catalog sections show an unavailable message, catalog queries are empty, local inferred labels and raw IDs remain available, and the map omits its background. |
 | F3 rich table cells | Used | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. Local F2 icons appear in catalog and inventory image cells, with shared category symbols labelled explicitly. |
 | F4 reference pickers | Used | Inventory ID fields and all catalog identity columns use read-only `ReferenceSpec` browse-only pickers, preserve unknown numeric IDs and allow custom fallback. Standalone inspection parameters select an existing reference without changing saved IDs. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: allocation, inverse records and acquisition invariants are unproven, so fixed-slot scalar writes remain the only structural-safe scope. |
@@ -83,11 +83,11 @@ only returns its own file, without silently changing the console backup twin.
 | F13 inspect/picker/filter and float-duration improvements | Used | Shared `ReferenceInspection.Create` declares `Mutates = false` and builds the attributed picker; `ResolveSelection` enforces pinned membership and fixed-row identity on fresh inspection documents. Read-only identities retain browse-only `ReferenceSpec` pickers. Standard category filtering and declared Key/Name/Category sorting delegate to F2; rich facts/character/title filters retain plugin policy. Float durations are N/A: only play seconds use integer duration formatting; play ticks remain a labelled integer counter. |
 | F14 empty inventory slots | Used | One F8 inventory table retains all 934 fixed slots; zero-ID rows carry `IsEmpty`, matching `EmptyRows` metadata and default hiding. Queries filter before visibility/paging and report matching hidden counts. F6 query scopes preserve visibility/exclusions and skip empty rows even when shown. |
 
-Among the extracted SDK helpers, this plugin uses the action-plan and reference-inspection
+Among the extracted SDK helpers, this plugin uses the action-plan, reference-inspection and icon
 helpers above. Collections, linked binary traversal and catalog enumeration retain their local
 implementations; `InMemoryCollection`, the binary cursor/range helpers and
-`ReferenceCatalogReader.ReadBounded` are not used. `AriseAssets.Icon` also remains
-local; its exact alt-text and asset-availability policy differ from `ReferenceViews.Icon`
+`ReferenceCatalogReader.ReadBounded` are not used. `AriseAssets.Icon` supplies its exact
+alt text, publisher notice and asset-availability policy through `ReferenceIconOptions`
 (see [SDK requests](#sdk-requests)). These are implementation choices, not missing SDK APIs.
 
 ## Publisher assets (2026-10-29)
@@ -335,6 +335,16 @@ was changed by this documentation pass.
 API Release build with warnings as errors: **0 warnings, 0 errors**;
 documentation checks: **14 passed**; Python table-parser checks: **3 passed**.
 
+SDK-05 adoption, **2026-10-29**: the pre-migration suite passed **365 tests**;
+the final Release suite passed **366 tests, 0 failed, 0 skipped**, including
+17 unchanged icon/view characterization cases and a new pinned-image Sources check.
+Catalog and all three sample view/inventory fingerprints stayed identical.
+The first post-migration run hit the same intermittent cipher-allocation guard
+documented above; the full unchanged rerun passed. API Release build: **0 warnings,
+0 errors**; offline Python checks: **18 passed**; documentation checks: **14 passed**.
+Samples, test scratch, TEMP/TMP/TMPDIR, logs and TRX reports were under
+`D:/Temp/saveeditor/test-scratch/adopt-sdk05-tales`.
+
 The suite covers independent chained cipher vectors and SHA1 `abc`, pinned
 whole-plaintext SHA256 digests, all three gameplay slots and their backup twins,
 byte-identical no-op serialization, known sample values, atomic edits, reopen,
@@ -507,7 +517,8 @@ establishes that a named source has GPL-2.0-only or no-redistribution terms.
 
 Resolved and adopted: F12 native decoder hooks, F13 read-only inspection and
 browse/category/sort contracts, shared `ActionPlans.ApplyScalar` and
-`ReferenceInspection`. Quantity application uses `ActionPlanWarningPolicy.Merge`;
+`ReferenceInspection`, and SDK-05 `ReferenceViews.Icon` with `ReferenceIconOptions`.
+Quantity application uses `ActionPlanWarningPolicy.Merge`;
 eligibility, scope validation, unopened bindings and preview-only derived aliases
 remain plugin policy. Fixed row actions encode their record key so
 `ResolveSelection` enforces it on Core's fresh inspection document. Catalog-wide
@@ -519,17 +530,17 @@ ID, but query-only inventory fields have no semantic-review jump or individual R
 use undo/redo or edit the loaded quantity field. F6 previews still include named
 old/new quantities and apply as one undo group. No duplicate eager editor is added.
 
-Optional helper extension: an exact-alt/availability-policy option for
-`ReferenceViews.Icon`. `AriseAssets.Icon` remains local because the shared helper
-always composes record/image attribution and falls back when image bytes or
-provenance are absent; the local renderer preserves exact icon-role/publisher text
-and emits an image whenever a record has an asset ID. The shared helper already
-exists; this is a behavior-preserving adoption constraint, not an unavailable icon API.
+SDK-05 is resolved and adopted: `AriseAssets.Icon` delegates to the five-argument
+`ReferenceViews.Icon` overload with the document's pinned context. `AssetIdOnly`
+preserves image nodes for any non-null asset ID, including missing bytes/provenance;
+`ExactAltText` retains the exact role text and publisher notice. Missing records or
+asset IDs retain `TextNode("—")`. Characterization tests and catalog/sample view
+fingerprints pin these nodes, detail attribution and inspection descriptions.
 Map artwork, rich catalog filtering and reference detail prose also remain local.
 
 The F6 reference-parameter fix needs no migration: the only planned-action parameter
 is an integer quantity. Float-duration hints do not apply to the integer counters.
-There is no `docs/SDK_REQUESTS.md` register in this checkout. Existing bindings,
+The shared request register is [`docs/SDK_REQUESTS.md`](../../docs/SDK_REQUESTS.md). Existing bindings,
 reference packs, queryable tables, F6 planning/query resolution, lazy sections and
 paged blobs support the current plugin. Evidence, rather than a missing framework
 contract, gates equipment, arte/skill and progression writes.

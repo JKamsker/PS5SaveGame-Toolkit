@@ -103,12 +103,13 @@ public sealed class AriseReferenceCharacterizationTests
     [Fact]
     public void Icon_PreservesAssetRoleAndPublisherNotice_AndNullFallback()
     {
-        var record = AriseTestReferences.CreateContext().Catalog(ItemsId)!.Find("1")!;
-        var icon = Assert.IsType<ImageNode>(AriseAssets.Icon(record));
+        var context = AriseTestReferences.CreateContext();
+        var record = context.Catalog(ItemsId)!.Find("1")!;
+        var icon = Assert.IsType<ImageNode>(AriseAssets.Icon(context, record));
         Assert.Equal(record.AssetId, icon.AssetId);
         Assert.Equal($"{record.Name}: {record.Attributes["iconRole"]}. {AriseAssets.MediaLicense}", icon.Alt);
-        Assert.Equal("—", Assert.IsType<TextNode>(AriseAssets.Icon(null)).Text);
-        Assert.Equal("—", Assert.IsType<TextNode>(AriseAssets.Icon(record with { AssetId = null })).Text);
+        Assert.Equal("—", Assert.IsType<TextNode>(AriseAssets.Icon(context, null)).Text);
+        Assert.Equal("—", Assert.IsType<TextNode>(AriseAssets.Icon(context, record with { AssetId = null })).Text);
     }
 
     private static void AssertPicker(ActionNode action, ReferenceRecord record, bool fixedRecord)
