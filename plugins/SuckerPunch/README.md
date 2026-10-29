@@ -183,6 +183,8 @@ content bytes are not re-encoded. After edits, only selected count words/the pla
 `Serialize()` validates the emitted container, inventory structure and recognised progress block before
 returning it. Invalid batches leave every byte unchanged. Undo replays the primary quantity values and
 recomputes the checksum, restoring the original bytes. Timer undo/redo likewise restores the exact float bits.
+Timer assignments that round to the imported value preserve its original float32 representation,
+including the sign of zero; entering numeric `0` cannot silently normalize an accepted `-0` timer.
 
 ## Inventory structure and anchor evidence
 
