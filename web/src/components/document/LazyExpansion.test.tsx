@@ -64,7 +64,7 @@ function mount(nodes: ViewNode[], strict = false, cachedNodes: Record<string, Vi
   const context = { workspaceId: "w", documentId: "fake", canEdit: true, structureVersion: 1,
     store: new DocumentStore({ canUndo: false, canRedo: false, isDirty: false }),
     refresh: vi.fn(async () => {}), commit: vi.fn(async () => false),
-    acceptResult: vi.fn(async () => {}), runAction: vi.fn() };
+    mutate: async (call: () => Promise<import("../../api/protocol").EditResult>) => call(), acceptResult: vi.fn(async () => {}), runAction: vi.fn() };
   const view = (version: number) => <QueryClientProvider client={client}>
     <DocumentContext.Provider value={{ ...context, structureVersion: version }}>
       <ViewList nodes={nodes} />

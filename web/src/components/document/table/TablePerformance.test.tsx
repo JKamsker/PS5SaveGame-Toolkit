@@ -13,7 +13,7 @@ function setup(size = 10_000) {
   } })), ["value"]);
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false });
   const context: DocumentContextValue = { workspaceId: "w", documentId: "d", store, canEdit: true,
-    structureVersion: 0, refresh: vi.fn(), commit: vi.fn(), acceptResult: vi.fn(), runAction: vi.fn() };
+    structureVersion: 0, refresh: vi.fn(), commit: vi.fn(), mutate: async call => call(), acceptResult: vi.fn(), runAction: vi.fn() };
   const reads = vi.spyOn(store, "value");
   const hook = renderHook(() => useTableRows(node, "yes", {}), {
     wrapper: ({ children }) => <StrictMode><DocumentContext.Provider value={context}>{children}</DocumentContext.Provider></StrictMode>,

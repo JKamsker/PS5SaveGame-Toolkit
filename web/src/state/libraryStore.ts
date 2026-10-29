@@ -23,6 +23,9 @@ const initial: LibraryState = { status: "empty", folderName: null, games: [], ic
 
 let state: LibraryState = initial;
 let restoreStarted = false;
+let scanGeneration = 0;
+let pickerSequence = 0;
+let persistence = Promise.resolve();
 const listeners = new Set<() => void>();
 
 function set(next: Partial<LibraryState>): void {
@@ -72,27 +75,53 @@ async function idb<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => 
   }
 }
 
-async function applyScan(folderName: string, files: ScannedFile[], persistent: boolean): Promise<void> {
-  set({ status: "scanning", folderName, error: null, persistent });
+function clearIcons(): void {
+  Object.values(state.icons).forEach(url => URL.revokeObjectURL(url));
+}
+
+function beginScan(folderName: string, persistent: boolean): void {
+  clearIcons();
+  set({ ...initial, status: "scanning", folderName, persistent });
+}
+
+/** Keep remembered-folder writes in user-intent order, including a concurrent Forget. */
+function persist(generation: number, run: (store: IDBObjectStore) => IDBRequest): Promise<void> {
+  const next = persistence.then(async () => {
+    if (generation !== scanGeneration) return;
+    await idb("readwrite", store => generation === scanGeneration ? run(store) : store.get(tabId()));
+  });
+  persistence = next;
+  return next;
+}
+
+async function applyScan(files: ScannedFile[], generation: number): Promise<void> {
+  if (generation !== scanGeneration) return;
   try {
     const { games, skipped } = await groupIntoGames(files);
-    Object.values(state.icons).forEach((url) => URL.revokeObjectURL(url));
+    if (generation !== scanGeneration) return;
+    clearIcons();
     const icons = Object.fromEntries(games.filter((g) => g.icon).map((g) => [g.key, URL.createObjectURL(g.icon!)]));
     set({ status: "ready", games, icons, skipped });
   } catch (error) {
+    if (generation !== scanGeneration) return;
     set({ status: "error", error: error instanceof Error ? error.message : "The folder could not be read." });
   }
 }
 
-async function scanHandle(handle: FileSystemDirectoryHandle): Promise<void> {
-  await idb("readwrite", (s) => s.put(handle, tabId()));
-  set({ status: "scanning", folderName: handle.name, persistent: true });
+async function scanDirectory(handle: FileSystemDirectoryHandle, generation: number): Promise<void> {
+  if (generation !== scanGeneration) return;
+  beginScan(handle.name, true);
+  await persist(generation, store => store.put(handle, tabId()));
+  if (generation !== scanGeneration) return;
   try {
-    await applyScan(handle.name, await listDirectory(handle), true);
+    await applyScan(await listDirectory(handle), generation);
   } catch (error) {
+    if (generation !== scanGeneration) return;
     set({ status: "error", error: error instanceof Error ? error.message : "The folder could not be read." });
   }
 }
+
+const scanHandle = (handle: FileSystemDirectoryHandle) => scanDirectory(handle, ++scanGeneration);
 
 export const library = {
   get: (): LibraryState => state,
@@ -105,10 +134,13 @@ export const library = {
   supportsHandles: (): boolean => typeof window !== "undefined" && typeof window.showDirectoryPicker === "function",
 
   /** Opens the folder picker (File System Access API). Returns false if unsupported or cancelled. */
-  async pickFolder(): Promise<boolean> {
+  async pickFolder(isCurrent: () => boolean = () => true): Promise<boolean> {
     if (!window.showDirectoryPicker) return false;
+    const sequence = ++pickerSequence;
+    const generation = scanGeneration;
     try {
       const handle = await window.showDirectoryPicker({ id: "savebench-dumps", mode: "read" });
+      if (!isCurrent() || sequence !== pickerSequence || generation !== scanGeneration) return true;
       await scanHandle(handle);
       return true;
     } catch (error) {
@@ -120,30 +152,39 @@ export const library = {
   scanHandle,
 
   /** Fallback for browsers without handles: the files live only as long as this page. */
-  scanFiles: (folderName: string, files: ScannedFile[]) => applyScan(folderName, files, false),
+  scanFiles: (folderName: string, files: ScannedFile[]) => {
+    const generation = ++scanGeneration;
+    beginScan(folderName, false);
+    return applyScan(files, generation);
+  },
 
   /** Re-attaches this tab's folder after a reload. Permission prompts need a user gesture, see reconnect(). */
   async restore(): Promise<void> {
     if (restoreStarted || state.status !== "empty") return;
     restoreStarted = true;
+    const generation = scanGeneration;
     const handle = await idb<FileSystemDirectoryHandle>("readonly", (s) => s.get(tabId()) as IDBRequest<FileSystemDirectoryHandle>);
-    if (!handle) return;
+    if (!handle || generation !== scanGeneration) return;
     const permission = (await handle.queryPermission?.({ mode: "read" })) ?? "prompt";
-    if (permission === "granted") await scanHandle(handle);
+    if (generation !== scanGeneration) return;
+    if (permission === "granted") await scanDirectory(handle, generation);
     else set({ status: "reconnect", folderName: handle.name, persistent: true });
   },
 
   async reconnect(): Promise<void> {
+    const generation = ++scanGeneration;
     const handle = await idb<FileSystemDirectoryHandle>("readonly", (s) => s.get(tabId()) as IDBRequest<FileSystemDirectoryHandle>);
-    if (!handle) return void set(initial);
+    if (generation !== scanGeneration) return;
+    if (!handle) { clearIcons(); set(initial); return; }
     const permission = (await handle.requestPermission?.({ mode: "read" })) ?? "denied";
-    if (permission === "granted") await scanHandle(handle);
+    if (generation === scanGeneration && permission === "granted") await scanDirectory(handle, generation);
   },
 
   async forget(): Promise<void> {
-    await idb("readwrite", (s) => s.delete(tabId()));
-    Object.values(state.icons).forEach((url) => URL.revokeObjectURL(url));
+    const generation = ++scanGeneration;
+    clearIcons();
     set(initial);
+    await persist(generation, store => store.delete(tabId()));
   },
 
   importedWorkspace: (gameKey: string): string | undefined =>

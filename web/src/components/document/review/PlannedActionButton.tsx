@@ -6,6 +6,7 @@ import { FieldControl } from "../../fields/FieldControl";
 import { useTableSelection } from "../table/selection";
 import { ReviewPager, useReviewPage } from "./paging";
 import { useActionDialog } from "../../ui/useActionDialog";
+import { useAsyncTask } from "../../ui/useAsyncTask";
 import "./review.css";
 
 export function PlannedActionButton({ node, compact, ariaLabel }: { node: ActionNode; compact?: boolean; ariaLabel?: string }) {
@@ -18,7 +19,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   })), [node.parameters]);
   const [values, setValues] = useState<Record<string, FieldValue>>(() => Object.fromEntries(parameters.map(p => [p.valueId, p.value])));
   const [preview, setPreview] = useState<ActionPreview | null>(null);
-  const [busy, setBusy] = useState(false);
+  const { busy, run: submit } = useAsyncTask(node.actionId);
   const { dialog, heading, trigger, openDialog, closeDialog, onClose, focusHeading, requestFocus } = useActionDialog(busy);
   const [error, setError] = useState("");
   const [parameterErrors, setParameterErrors] = useState<Record<string, string | undefined>>({});
@@ -39,35 +40,34 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   const scopeLabel = selectedCount === undefined ? "Whole document" : `${selectedCount} selected ${selectedCount === 1 ? "row" : "rows"}`;
   const stale = Boolean(preview && (preview.revision !== state.revision || previewScope !== scopeKey));
 
-  const plan = async (params = values) => {
-    if (busy || invalid) return;
+  const plan = (params = values) => submit(async isCurrent => {
+    if (invalid) return;
     focusHeading();
-    setBusy(true);
     setError("");
     setPreview(null);
     setParameterErrors({});
     try {
       const result = await actionReview.plan(doc.workspaceId, doc.documentId, node.actionId, params, scope, doc.store.state.revision);
+      if (!isCurrent()) return;
       setPreview(result);
       setPreviewScope(scopeKey);
       if (result.stale) await doc.refresh();
+      if (!isCurrent()) return;
       requestFocus(result.plan.errors.length ? "error" : "heading");
     } catch (failure) {
+      if (!isCurrent()) return;
       setError(failure instanceof Error ? failure.message : "Could not preview this action.");
       requestFocus("error");
-    } finally {
-      setBusy(false);
     }
-  };
+  });
 
-  const apply = async () => {
+  const apply = () => submit(async isCurrent => {
     if (!preview?.planId || stale) return;
     focusHeading();
-    setBusy(true);
     setError("");
     try {
-      const result = await actionReview.apply(doc.workspaceId, doc.documentId, preview.planId, preview.revision);
-      await doc.acceptResult(result);
+      const result = await doc.mutate(() => actionReview.apply(doc.workspaceId, doc.documentId, preview.planId!, preview.revision));
+      if (!isCurrent()) return;
       if (result.ok) closeDialog();
       else {
         setPreview(null);
@@ -75,13 +75,12 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
         requestFocus("error");
       }
     } catch (failure) {
+      if (!isCurrent()) return;
       setPreview(null);
       setError(failure instanceof Error ? failure.message : "Could not apply this action.");
       requestFocus("error");
-    } finally {
-      setBusy(false);
     }
-  };
+  });
 
   const open = () => {
     const defaults = Object.fromEntries(parameters.map(p => [p.valueId, p.value]));

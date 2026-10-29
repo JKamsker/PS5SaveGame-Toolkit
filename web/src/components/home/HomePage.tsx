@@ -8,12 +8,17 @@ import { fromInput, walkEntries, type UploadFile } from "./collectFiles";
 import { GameLibrary } from "./GameLibrary";
 import { AppVersion } from "../ui/AppVersion";
 import { useEntryFocus } from "../ui/useEntryFocus";
+import { useAsyncTask } from "../ui/useAsyncTask";
+import { ImportTaskContext } from "./importTask";
+import { useLatestRequest } from "../ui/useLatestRequest";
 
 const maturityText = { ReadOnly: "view only", Experimental: "editing, untested on console", Stable: "editing, tested in-game" } as const;
 
 export function HomePage() {
   const focusHeading = useEntryFocus("home");
   const navigate = useNavigate();
+  const importTask = useAsyncTask();
+  const beginFolderSelection = useLatestRequest("home-folder");
   const [dragging, setDragging] = useState(false);
   const [status, setStatus] = useState<{ text: string; isError: boolean } | null>(null);
   const [failedUpload, setFailedUpload] = useState<UploadFile[]>([]);
@@ -24,45 +29,57 @@ export function HomePage() {
 
   useEffect(() => void library.restore(), []);
 
-  const upload = async (files: UploadFile[]) => {
+  const upload = (files: UploadFile[]) => {
     if (files.length === 0) return;
-    setFailedUpload([]);
-    const total = files.reduce((n, f) => n + f.file.size, 0);
-    const label = files.length === 1 ? files[0]?.path : `${files.length} files`;
-    setStatus({ text: `Importing ${label} (${Math.round(total / 1048576)} MiB)…`, isError: false });
-    try {
-      const ws = await api.upload(files, undefined, (p) =>
-        setStatus({ text: `Importing ${label}: ${Math.round(p * 100)} %`, isError: false }),
-      );
-      navigate(`/w/${ws.id}`);
-    } catch (error) {
-      setFailedUpload(files);
-      setStatus({ text: error instanceof ApiError ? error.message : "The import failed. Is the server running?", isError: true });
-    }
+    return importTask.run(async isCurrent => {
+      setFailedUpload([]);
+      const total = files.reduce((n, f) => n + f.file.size, 0);
+      const label = files.length === 1 ? files[0]?.path : `${files.length} files`;
+      setStatus({ text: `Importing ${label} (${Math.round(total / 1048576)} MiB)…`, isError: false });
+      try {
+        const ws = await api.upload(files, undefined, (p) =>
+          { if (isCurrent()) setStatus({ text: `Importing ${label}: ${Math.round(p * 100)} %`, isError: false }); },
+        );
+        if (isCurrent()) navigate(`/w/${ws.id}`);
+      } catch (error) {
+        if (!isCurrent()) return;
+        setFailedUpload(files);
+        setStatus({ text: error instanceof ApiError ? error.message : "The import failed. Is the server running?", isError: true });
+      }
+    });
   };
 
   const chooseFolder = async () => {
+    const isCurrent = beginFolderSelection();
     setStatus(null);
-    if (!(library.supportsHandles() && (await library.pickFolder()))) folderInput.current?.click();
+    const handled = library.supportsHandles() && await library.pickFolder(isCurrent);
+    if (!handled && isCurrent()) folderInput.current?.click();
   };
 
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
     setDragging(false);
+    const isCurrent = beginFolderSelection();
     // DataTransfer is only readable synchronously inside the event, so grab entries/handles first.
     const items = Array.from(e.dataTransfer.items);
     const entries = items.map((i) => i.webkitGetAsEntry?.()).filter((x): x is FileSystemEntry => !!x);
     const handle = entries.length === 1 && entries[0]!.isDirectory ? items[0]?.getAsFileSystemHandle?.() : undefined;
     void (async () => {
-      if (!entries.some((x) => x.isDirectory)) return upload(await walkEntries(entries));
+      if (!entries.some((x) => x.isDirectory)) {
+        const files = await walkEntries(entries);
+        if (isCurrent()) return upload(files);
+        return;
+      }
       const resolved = await handle;
+      if (!isCurrent()) return;
       if (resolved?.kind === "directory") return library.scanHandle(resolved as FileSystemDirectoryHandle);
-      return library.scanFiles(entries.length === 1 ? entries[0]!.name : "Dropped folders", await walkEntries(entries));
+      const files = await walkEntries(entries);
+      if (isCurrent()) return library.scanFiles(entries.length === 1 ? entries[0]!.name : "Dropped folders", files);
     })();
   };
 
   return (
-    <main className="home">
+    <ImportTaskContext.Provider value={importTask}><main className="home">
       <div className="home__brand">
         <span className="bar__mark" aria-hidden="true" />
         Savebench
@@ -87,16 +104,16 @@ export function HomePage() {
             <p className="drop__title">Drop a folder or zip here</p>
             <p className="drop__hint">Folders are scanned in the browser for PPSAxxxxx/sdimg_… dumps and save-dump zips. A zip dropped here is opened right away.</p>
             <div className="drop__buttons">
-              <button type="button" className="btn btn--primary" onClick={() => void chooseFolder()}>
+              <button type="button" className="btn btn--primary" disabled={importTask.busy} onClick={() => void chooseFolder()}>
                 Choose folder
               </button>
-              <button type="button" className="btn" onClick={() => zipInput.current?.click()}>
+              <button type="button" className="btn" disabled={importTask.busy} onClick={() => zipInput.current?.click()}>
                 Open zip
               </button>
             </div>
             {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role={status.isError ? "alert" : "status"}>{status.text}</p>}
             {status?.isError && failedUpload.length > 0 && <button type="button" className="btn btn--small" onClick={() => void upload(failedUpload)}>Retry import</button>}
-            <input ref={zipInput} type="file" accept=".zip" multiple hidden onChange={(e) => {
+            <input ref={zipInput} type="file" accept=".zip" multiple hidden disabled={importTask.busy} onChange={(e) => {
               const files = e.target.files ? fromInput(e.target.files) : [];
               e.target.value = "";
               void upload(files);
@@ -110,6 +127,7 @@ export function HomePage() {
               onChange={(e) => {
                 const files = e.target.files;
                 if (!files || files.length === 0) return;
+                beginFolderSelection();
                 const root = files[0]!.webkitRelativePath.split("/")[0] || "Folder";
                 void library.scanFiles(root, fromInput(files));
               }}
@@ -146,7 +164,7 @@ export function HomePage() {
         </div>
       </div>
       <AppVersion />
-    </main>
+    </main></ImportTaskContext.Provider>
   );
 }
 

@@ -15,7 +15,7 @@ const page: QueryablePage = { collectionId: "items", columns, totalCount: 100, f
 function setup(refresh = vi.fn(async () => {})) {
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 1 });
   const context: DocumentContextValue = { workspaceId: "w", documentId: "d", store, canEdit: true, structureVersion: 0,
-    refresh, commit: vi.fn(async () => true), acceptResult: vi.fn(), runAction: vi.fn() };
+    refresh, commit: vi.fn(async () => true), mutate: async call => call(), acceptResult: vi.fn(), runAction: vi.fn() };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   const view = (generation: number) => <QueryClientProvider client={client}><DocumentContext.Provider value={{ ...context, structureVersion: generation }}>
     <ServerTableView node={{ type: "queryableTable", collectionId: "items", title: "Items", columns, totalCount: 100 }} />

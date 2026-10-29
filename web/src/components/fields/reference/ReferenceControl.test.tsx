@@ -28,7 +28,7 @@ function renderField(options: { readOnly?: boolean; canEdit?: boolean; custom?: 
   const context: DocumentContextValue = {
     workspaceId: "w1", documentId: "d1", canEdit: options.canEdit ?? true,
     store: new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 0 }), structureVersion: 0, commit,
-    acceptResult: vi.fn(async () => {}), runAction: vi.fn(), refresh: vi.fn(async () => {}),
+    mutate: async call => call(), acceptResult: vi.fn(async () => {}), runAction: vi.fn(), refresh: vi.fn(async () => {}),
   };
   const spec = { kind: "reference" as const, catalogId: "items", readOnly: options.readOnly, allowCustom: options.custom };
   render(<DocumentContext.Provider value={context}><FieldRow node={{ ...node, spec }} /></DocumentContext.Provider>);

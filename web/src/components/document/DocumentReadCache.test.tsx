@@ -16,7 +16,7 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 function setup(children: ReactNode) {
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 1 });
   const context: DocumentContextValue = { workspaceId: "w", documentId: "d", canEdit: true, store,
-    structureVersion: 0, refresh: vi.fn(), commit: vi.fn(), acceptResult: vi.fn(), runAction: vi.fn() };
+    structureVersion: 0, refresh: vi.fn(), commit: vi.fn(), mutate: async call => call(), acceptResult: vi.fn(), runAction: vi.fn() };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   const rendered = render(<QueryClientProvider client={client}><DocumentContext.Provider value={context}>
     {children}

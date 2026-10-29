@@ -1,8 +1,10 @@
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useContext, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { ExportScope } from "../../api/protocol";
 import { formatBytes } from "../../lib/values";
+import { useAsyncTask } from "../ui/useAsyncTask";
+import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 
 const scopes: { value: ExportScope; label: string; hint: string }[] = [
   { value: "ChangedDirectories", label: "Changed save folders", hint: "Complete folders including sce_sys, ready to restore with your save manager." },
@@ -19,24 +21,31 @@ interface ExportDialogProps {
 
 export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(function ExportDialog({ workspaceId, open, onClose, onToast }, ref) {
   const [scope, setScope] = useState<ExportScope>("ChangedDirectories");
+  const activity = useContext(WorkspaceActivityContext);
   const [mirror, setMirror] = useState(true);
-  const [busy, setBusy] = useState(false);
+  const { busy, run: submit } = useAsyncTask(`${workspaceId}:${open}`);
   const [downloadError, setDownloadError] = useState("");
   useEffect(() => { if (open) setDownloadError(""); }, [open]);
   const plan = useQuery({
     queryKey: ["export-plan", workspaceId, scope, mirror],
-    queryFn: () => api.exportPlan(workspaceId, scope, mirror),
+    queryFn: async () => {
+      if (activity) await activity.waitForMutations();
+      return api.exportPlan(workspaceId, scope, mirror);
+    },
     enabled: open,
     // Edits can occur while this mounted dialog is closed, even inside the global freshness window.
     staleTime: 0,
     retry: false,
   });
 
-  const download = async () => {
+  const download = () => submit(async isCurrent => {
+    if (!open) return;
     setDownloadError("");
-    setBusy(true);
     try {
+      if (activity) await activity.waitForMutations();
+      if (!isCurrent()) return;
       const { blob, name } = await api.exportZip(workspaceId, scope, mirror);
+      if (!isCurrent()) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -46,13 +55,12 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
       onToast(`Exported ${name}`);
       onClose();
     } catch (error) {
+      if (!isCurrent()) return;
       const message = error instanceof ApiError ? error.message : "Export failed.";
       setDownloadError(message);
       onToast(message, true);
-    } finally {
-      setBusy(false);
     }
-  };
+  });
 
   const changed = plan.data?.files.filter((f) => f.reason !== "unchanged") ?? [];
   return (
@@ -62,7 +70,7 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
           Export edited saves
         </h2>
         <p className="section__description">Every edited file is re-opened by its plugin before it is packed. Keep your original dump as a backup.</p>
-        <fieldset style={{ border: 0, padding: 0, margin: "0 0 16px" }}>
+        <fieldset disabled={busy} style={{ border: 0, padding: 0, margin: "0 0 16px" }}>
           <legend className="visually-hidden">What to include</legend>
           {scopes.map((s) => (
             <label key={s.value} style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "2px 10px", padding: "6px 0" }}>
@@ -75,7 +83,7 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
           ))}
         </fieldset>
         <label style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 16 }}>
-          <input type="checkbox" checked={mirror} onChange={(e) => setMirror(e.target.checked)} />
+          <input type="checkbox" disabled={busy} checked={mirror} onChange={(e) => setMirror(e.target.checked)} />
           Also update the console backup copy (sce_bu) when it matched the original
         </label>
         <p role="status" aria-atomic="true">{busy ? "Packing edited saves…" : plan.isFetching ? "Checking current export…" : plan.data && !plan.isError ? `Export plan ready: ${plan.data.changedCount} changed files.` : ""}</p>
