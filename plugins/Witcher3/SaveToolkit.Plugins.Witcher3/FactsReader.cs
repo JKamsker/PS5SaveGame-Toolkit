@@ -69,16 +69,7 @@ internal static class FactsReader
             var opaque = BinaryData.UInt16(raw, position);
             var entryCount = BinaryData.UInt16(raw, position + 2);
             position += 4;
-            var bytes = BinaryData.Slice(raw, position, entryCount * EntrySize);
-            var entries = new FactValue[entryCount];
-            for (var entry = 0; entry < entryCount; entry++)
-            {
-                var value = bytes.Slice(entry * EntrySize, EntrySize);
-                entries[entry] = new FactValue(BinaryPrimitives.ReadInt16LittleEndian(value),
-                    BinaryPrimitives.ReadUInt32LittleEndian(value[2..]), BinaryPrimitives.ReadUInt32LittleEndian(value[6..]));
-            }
-
-            position += bytes.Length;
+            var entries = ReadValues(raw, ref position, entryCount);
             result.Add(new SavedFact(name, opaque, entries) { NameBytes = encodedName.ToArray(), OpaqueName = opaqueName });
         }
 
@@ -88,5 +79,20 @@ internal static class FactsReader
         }
 
         return result;
+    }
+
+    private static FactValue[] ReadValues(ReadOnlySpan<byte> raw, ref int position, int entryCount)
+    {
+        var bytes = BinaryData.Slice(raw, position, entryCount * EntrySize);
+        var entries = new FactValue[entryCount];
+        for (var entry = 0; entry < entryCount; entry++)
+        {
+            var value = bytes.Slice(entry * EntrySize, EntrySize);
+            entries[entry] = new FactValue(BinaryPrimitives.ReadInt16LittleEndian(value),
+                BinaryPrimitives.ReadUInt32LittleEndian(value[2..]), BinaryPrimitives.ReadUInt32LittleEndian(value[6..]));
+        }
+
+        position += bytes.Length;
+        return entries;
     }
 }

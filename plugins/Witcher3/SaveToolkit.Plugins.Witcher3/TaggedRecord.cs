@@ -38,8 +38,8 @@ internal sealed record TaggedRecord(IReadOnlyList<TaggedProperty> Properties)
                 break;
             }
 
-            var name = Name(index);
-            var type = Name(BinaryData.UInt16(data, position + 2));
+            var name = Name(index, names);
+            var type = Name(BinaryData.UInt16(data, position + 2), names);
             var size = BinaryData.Int32(data, position + 4);
             if (size < 4 || size > end - position - 4 || !seen.Add(name))
             {
@@ -51,16 +51,16 @@ internal sealed record TaggedRecord(IReadOnlyList<TaggedProperty> Properties)
         }
 
         throw new SaveFormatException("Truncated Witcher saved structure.");
+    }
 
-        string Name(int index)
+    private static string Name(int index, IReadOnlyList<string> names)
+    {
+        if (index < 1 || index > names.Count)
         {
-            if (index < 1 || index > names.Count)
-            {
-                throw new SaveFormatException("Invalid Witcher saved property name/type index.");
-            }
-
-            return names[index - 1];
+            throw new SaveFormatException("Invalid Witcher saved property name/type index.");
         }
+
+        return names[index - 1];
     }
 
     public TaggedProperty? Find(string name) => Properties.SingleOrDefault(p => p.Name == name);

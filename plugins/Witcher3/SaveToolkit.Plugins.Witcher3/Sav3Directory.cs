@@ -30,6 +30,14 @@ internal sealed record Sav3Directory(IReadOnlyList<string> Names, IReadOnlyList<
             throw new SaveFormatException("Invalid SAV3 RB/NM name-table pointers.");
         }
 
+        ValidateRootEntries(data, rb, nm, container.HeaderSize);
+
+        var names = ReadNames(BinaryData.Slice(data, nm + 2, table - 10 - nm - 2));
+        return new Sav3Directory(names, ReadEntries(data, table, rb, nm, container.HeaderSize), table);
+    }
+
+    private static void ValidateRootEntries(ReadOnlySpan<byte> data, int rb, int nm, int headerSize)
+    {
         var rbCount = BinaryData.Int32(data, rb + 2);
         if (rbCount < 0 || rbCount > (nm - rb - 6) / 6)
         {
@@ -39,15 +47,17 @@ internal sealed record Sav3Directory(IReadOnlyList<string> Names, IReadOnlyList<
         for (var index = 0; index < rbCount; index++)
         {
             var entry = rb + 6 + index * 6;
-            var offset = BinaryData.PayloadOffset(data, entry + 2, container.HeaderSize);
+            var offset = BinaryData.PayloadOffset(data, entry + 2, headerSize);
             // The uint16 is opaque: upstream calls it size, but sample values resemble name indices.
             if (offset < 16 || offset >= rb)
             {
                 throw new SaveFormatException("SAV3 RB entry exceeds the variable region.");
             }
         }
+    }
 
-        var names = ReadNames(BinaryData.Slice(data, nm + 2, table - 10 - nm - 2));
+    private static Sav3Entry[] ReadEntries(ReadOnlySpan<byte> data, int table, int rb, int nm, int headerSize)
+    {
         var count = BinaryData.Int32(data, table);
         const int maxEntries = 200_000;
         if (count is < 1 or > maxEntries || (long)table + 4 + (long)count * 8 != data.Length - 6)
@@ -59,7 +69,7 @@ internal sealed record Sav3Directory(IReadOnlyList<string> Names, IReadOnlyList<
         for (var index = 0; index < count; index++)
         {
             var entry = table + 4 + index * 8;
-            var offset = BinaryData.PayloadOffset(data, entry, container.HeaderSize);
+            var offset = BinaryData.PayloadOffset(data, entry, headerSize);
             var size = BinaryData.Int32(data, entry + 4);
             var isNameTable = offset == nm + 2 && size == table - 10 - offset;
             if (offset < 16 || size < 1 || !isNameTable && (offset >= rb || size > rb - offset))
@@ -71,7 +81,7 @@ internal sealed record Sav3Directory(IReadOnlyList<string> Names, IReadOnlyList<
         }
 
         Array.Sort(entries, (left, right) => left.Offset.CompareTo(right.Offset));
-        return new Sav3Directory(names, entries, table);
+        return entries;
     }
 
     private static string[] ReadNames(ReadOnlySpan<byte> data)
