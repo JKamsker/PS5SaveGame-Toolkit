@@ -26,6 +26,8 @@ internal sealed class ObservedFeatures
     public IReadOnlyList<string> Warnings { get; }
     private AbilityCollections AbilityTables => new(Abilities, _abilities, SkillEdits, AbilityRow);
     private GwentCollection GwentTable => new(Cards ?? [], _gwent, GwentRow);
+    private GwentPlanning? _gwentActions;
+    public GwentPlanning GwentActions => _gwentActions ??= new(CopyEdits, _gwent, _writeFields is not null && _originalCards is not null);
     public IReadOnlyList<QueryableCollection> Collections => [.. AbilityTables.Collections, .. (Cards is null ? Array.Empty<QueryableCollection>() : [GwentTable.Collection])];
     public QueryableCollectionPage Query(string id, QueryableCollectionQuery query) => id == GwentCollection.CollectionId
         ? GwentTable.Query(query) : AbilityTables.Query(id, query);
@@ -79,6 +81,7 @@ internal sealed class ObservedFeatures
         .. (Cards is null ? new ViewNode[] { new TextNode("No supported Gwent collection was decoded.") } : [
             new StatsNode([new Stat("Gwent indices", Cards.Count.ToString()), new Stat("Saved copies", Cards.Sum(c => (long)c.Copies).ToString())]),
             GwentTable.Build(),
+            .. (_writeFields is null ? Array.Empty<ViewNode>() : [GwentActions.Action]),
             new TextNode("Collection pairs stop at SBSelectedDeckIndex. Catalog targets are community expectations, not legal limits or achievement guarantees. " +
                 "Not recorded does not prove a card is obtainable in this build. Deck contents remain separate."),
         ]),
@@ -135,6 +138,7 @@ internal sealed class ObservedFeatures
             _writeFields.Copies(CopyEdits.Single(c => c.Card.Index == card.Index)),
         ["name"] = ReferenceCell(_gwent?.Find(GwentCollection.Key(card)), GwentCollection.Key(card)),
         ["kind"] = new TextNode(card.Leader ? "Leader collection" : "Ordinary collection"),
+        [GwentPlanning.ActionColumn] = _writeFields is null ? new TextNode("Read-only") : GwentActions.Action,
     });
 
     private string Value(TaggedProperty property)

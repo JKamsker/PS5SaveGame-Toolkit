@@ -4,7 +4,7 @@ namespace SaveToolkit.Plugins.Witcher3;
 
 internal sealed class GwentCopies(GwentCard card)
 {
-    private const int ObservedOrdinaryMaximum = 3;
+    public const int ObservedOrdinaryMaximum = 3;
     private const int ObservedLeaderMaximum = 1;
     public GwentCard Card { get; } = card;
     public int Value { get; set; } = card.Copies;

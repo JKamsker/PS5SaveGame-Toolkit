@@ -41,11 +41,23 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         ? Inventory.Inspect(parameters) : Catalogs.HandlesAction(actionId) ? Catalogs.Inspect(actionId, parameters) : base.InvokeAction(actionId, parameters);
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        actionId == RefillPlanning.ActionId ? new RefillPlanning(_player?.Inventory?.Items ?? [], CanEdit).Plan(parameters, scope)
+        actionId == GwentPlanning.ActionId ? Features.GwentActions.Plan(parameters, scope)
+            : actionId == RefillPlanning.ActionId ? new RefillPlanning(_player?.Inventory?.Items ?? [], CanEdit).Plan(parameters, scope)
             : Repair.Plan(actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
+        if (actionId == GwentPlanning.ActionId)
+        {
+            return ActionPlans.ApplyScalar(plan, () => PlanAction(actionId, parameters, scope),
+                new(actionId, "The Gwent preview is stale or has been modified. Review a new preview."),
+                fresh => {
+                    var ids = fresh.Changes.Select(c => c.ValueId).ToHashSet(StringComparer.Ordinal);
+                    foreach (var copy in Features.CopyEdits.Where(c => ids.Contains(c.ValueId))) { _ = Writes.Copies(copy); }
+                },
+                fresh => fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray(),
+                ApplyEdits, ActionPlanWarningPolicy.UsePlan);
+        }
         var expected = PlanAction(actionId, parameters, scope);
         if (expected.Errors.Count > 0) { return new EditOutcome { Errors = expected.Errors, Warnings = expected.Warnings }; }
         if (!RepairPlanning.Matches(expected, plan))
