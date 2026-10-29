@@ -1,0 +1,12 @@
+{
+  "stryker-config": {
+    "test-runner": "mtp",
+    "configuration": "Release",
+    "target-framework": "net10.0",
+    "concurrency": 4,
+    "mutation-level": "Standard",
+    "coverage-analysis": "perTest",
+    "reporters": ["progress", "json"],
+    "thresholds": { "high": 80, "low": 60, "break": 0 }
+  }
+}
