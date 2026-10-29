@@ -12,6 +12,8 @@
 - Consumer PR target: `t3/sdk06-lossless-json` while PR #51 is pending main; parent must retarget to
   `main` after PR #51 lands and rerun CI. Do not merge this consumer before that foundation.
 - Consumer PR: https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/62
+- Immutable dependency-to-consumer diff contains **11 changed paths**, all under `plugins/GenericJson`.
+  The earlier 12-file note was incorrect and is superseded by this count.
 
 ## Actual adoption
 
