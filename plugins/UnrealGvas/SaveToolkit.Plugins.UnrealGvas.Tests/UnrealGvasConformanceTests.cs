@@ -1,5 +1,6 @@
 using SaveToolkit.Testing;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -9,6 +10,7 @@ public sealed class UnrealGvasConformanceTests : PluginConformanceTests<UnrealGv
 {
     protected override IReadOnlyList<string> SampleTitleIds => ["PPSA01288", "PPSA01603", "PPSA02199"];
     protected override int MaxFilesPerTitle => int.MaxValue;
+    protected override IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds => [HogwartsDiscoveryFixture.Create()];
 
     protected override IReadOnlyList<ValueEdit> ChooseEdits(ISaveDocument document, IReadOnlyList<FieldNode> fields)
     {

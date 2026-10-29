@@ -167,6 +167,20 @@ Shared F12 view traversal is also verified against 205 generic F8 rows over mult
 pages, including truncation at the query-row cap. It describes rendered storage;
 the native Hogwarts hook remains the row-identity evidence mode.
 
+## Hogwarts talent / Field Guide discovery (#40, 2026-10-29)
+
+Talent points, learned talents, collection states, page flags, map states and Field
+Guide challenge cells now have **read-only, Inferred** fields in the existing
+independent-image tables. `PerkPoints` and `PageCollected*` `DataValue` rows are
+excluded from the generic cell writer. No grant action or new writable cell is
+added. All 15 gameplay saves / 30 images are pinned by regression tests; conflicting
+collection tuples, image divergence and missing effect/reward joins block writes.
+See [field discovery, sources, per-sample values and negative results](HOGWARTS-FIELD-DISCOVERY.md).
+Validation: **349 passed, 0 skipped**, including conformance and 800 mutation cases;
+API build **0 warnings / 0 errors**; documentation checks **28 passed**.
+
+Verified storage; only allowlisted database cells are editable and game effects remain unverified.
+
 ## Enabled writes and their evidence
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
@@ -189,6 +203,8 @@ to 1,048,576 units, subject to the shared SQLite limits. Identity columns, SQL N
 blobs, resolved collectible reference cells, metadata-only files and malformed or
 partial database pairs remain read-only. This is an implementation allowlist,
 not proof of gameplay-safe quantities or flags.
+`MiscDataDynamic` rows named `PerkPoints` or starting `PageCollected` are read-only
+regardless of their owner, value type or reference-pack availability.
 
 Compressed outer envelopes, including Hogwarts zlib and Astroneer wrappers, remain
 read-only until envelope recompression is verified. Database inspection is still
@@ -495,6 +511,10 @@ upstream code was copied and no downloaded program was executed.
 
 | Dataset / implementation | Pinned source, author, license | Changes and display provenance |
 | --- | --- | --- |
+| Hogwarts talent/collection storage interpretation | HLSGE contributors / falker47, [`saveGameDB.ts` 349c3f0](https://github.com/falker47/HogwartsLegacy-SaveEditor/blob/349c3f0b75e4d158e5b7d7920bded999b518de36/HLSE-src/src/client/resources/saveGameDB.ts); embedded package UNLICENSED: No licence published; reused with attribution per owner decision 2026-10-28. Malin001 / Legilimens, [`legilimens.py` 02525dde](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/blob/02525dde0fd9bc0be72982478680377dccb41246/legilimens.py), [MIT](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/blob/02525dde0fd9bc0be72982478680377dccb41246/LICENSE). Accessed 2026-10-29 | Original GPL-3.0-or-later captions and read-only guards independently implemented from documented behavior and all PS5 samples; no code/data port. Source constants beside implementation, `Info.References` and each new field description retain attribution. [Discovery report](HOGWARTS-FIELD-DISCOVERY.md) records exact joins and limits. |
+| Hogwarts progression guard / collection dependency research | Same HLSGE revision, [`playerEdits.ts`](https://github.com/falker47/HogwartsLegacy-SaveEditor/blob/349c3f0b75e4d158e5b7d7920bded999b518de36/HLSE-src/src/client/resources/playerEdits.ts), [`collectionsPage.vue`](https://github.com/falker47/HogwartsLegacy-SaveEditor/blob/349c3f0b75e4d158e5b7d7920bded999b518de36/HLSE-src/src/client/pages/collectionsPage.vue), [upstream third-party licence boundary](https://github.com/falker47/HogwartsLegacy-SaveEditor/blob/349c3f0b75e4d158e5b7d7920bded999b518de36/THIRD_PARTY_NOTICES.md); same no-licence owner-policy basis; accessed 2026-10-29 | Research only. Lifetime point bound, initialization gates and collection/reward separation are leads, not validated PS5 setters. No implementation copied. |
+| Hogwarts editor comparison | jianastrero, [`README` 4100ac5](https://github.com/jianastrero/hogwarts-legacy-save-editor/blob/4100ac5c0972fda15809a41cfe48812c38fb6f12/README.md), [GPL-3.0](https://github.com/jianastrero/hogwarts-legacy-save-editor/blob/4100ac5c0972fda15809a41cfe48812c38fb6f12/LICENSE); accessed 2026-10-29 | Public research only; implemented talent-point editing distinguished from planned collections/achievements. No code copied or executed. |
+| Hogwarts talent datamine research | [GamesRef.com talents](https://hogwartslegacy.gamesref.com/talents), [Confringo Mastery](https://hogwartslegacy.gamesref.com/talents/confringo-mastery), [Ancient Magic reward](https://hogwartslegacy.gamesref.com/talents/ancient-magic-mastery-skill-amupgrade1), GamesRef.com / Warner Bros. Games / Portkey Games; Rights reserved by GamesRef.com / Warner Bros. Games / Portkey Games; used with attribution per owner decision 2026-10-29; accessed 2026-10-29 | Research only, no imported dataset/prose/assets. Distinct definitions do not supply a build-matched PS5 effect/reward join. |
 | Hogwarts vacant inventory slot presentation | [HLSGE-derived `saveGameDB.ts`, revision 349c3f0](https://github.com/falker47/HogwartsLegacy-SaveEditor/blob/349c3f0b75e4d158e5b7d7920bded999b518de36/HLSE-src/src/client/resources/saveGameDB.ts), HLSGE contributors / falker47; embedded package declares `UNLICENSED`: No licence published; reused with attribution per owner decision 2026-10-28; retrieved 2026-10-29 | Researched non-NULL item filtering; independently implemented a stricter PS5-observed NULL item/variation + integer-zero rule. No upstream code or dataset copied. Original rule/implementation GPL-3.0-or-later; [source note](SaveToolkit.Plugins.UnrealGvas/Hogwarts/InventorySlots.source.md), `Info.References` and inventory table descriptions retain attribution. |
 | GVAS header layout and probe validation | [uesave `Header::read` and `Root::read`, revision 1917a22](https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs), Truman Kilen / contributors; MIT; rechecked 2026-10-29 | Independently implemented shared C# header reader; no code copied. Header/string limits match this plugin's full parser. Actual PPSA01463/PPSA01493 header rejection and all 60 openable samples verified separately. |
 | Hogwarts 699 collectible IDs, type/region/index and guide links | [Legilimens 02525dde](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/tree/02525dde0fd9bc0be72982478680377dccb41246), Malin001 and contributors; [MIT](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/blob/02525dde0fd9bc0be72982478680377dccb41246/LICENSE); retrieved 2026-10-28 | Projected to F2 `hogwarts.legilimens` v1.1.0; labels combine type/region/index, table/column-qualified exact joins, no icons/video media in this dataset. License and [source sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/hogwarts.legilimens/collectibles.source.md) accompany data; manifest hash, `Info.References`, Sources panel and each F4 field carry attribution. MIT retained; no CC BY-SA data imported. |
