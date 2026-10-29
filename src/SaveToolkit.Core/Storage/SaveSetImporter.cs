@@ -25,6 +25,8 @@ public sealed class ImportException(string message) : Exception(message);
 public static partial class SaveSetImporter
 {
     private const string UnknownTitle = "UNKNOWN";
+    // SFO is optional display metadata. Oversized files remain exportable without parsing them in memory.
+    private const int MaxMetadataBytes = 1024 * 1024;
 
     public static DiskSaveSet Import(IEnumerable<ImportSource> sources, string storageRoot, ImportLimits? limits = null)
     {
@@ -175,6 +177,9 @@ public static partial class SaveSetImporter
 
         private (long Length, string Sha256) CopyToBlob(Stream content, string blobPath, long? expectedLength, uint? expectedCrc32)
         {
+            if (expectedLength > limits.MaxTotalBytes - _totalBytes)
+                throw new ImportException($"Upload exceeds {limits.MaxTotalBytes / (1024 * 1024)} MiB.");
+
             using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             var checksum = expectedCrc32.HasValue ? new ZipEntryChecksum() : null;
             using var output = new FileStream(blobPath, FileMode.CreateNew, FileAccess.Write);
@@ -233,7 +238,8 @@ public static partial class SaveSetImporter
             foreach (var group in groups)
             {
                 var sfoFile = group.FirstOrDefault(f => string.Equals(f.Path.PathInDirectory, "sce_sys/param.sfo", StringComparison.OrdinalIgnoreCase));
-                var sfo = sfoFile is null ? null : ParamSfo.TryParse(File.ReadAllBytes(sfoFile.BlobPath));
+                var sfo = sfoFile is null || sfoFile.Length > MaxMetadataBytes
+                    ? null : ParamSfo.TryParse(File.ReadAllBytes(sfoFile.BlobPath));
                 var title = group.Key.TitleId ?? NormalizeTitle(sfo?.TitleId) ?? UnknownTitle;
 
                 var directory = new DiskSaveDirectory(set, $"d{dirIndex++}", title, group.Key.Raw, group.Key.Generation) { ParamSfo = sfo };
