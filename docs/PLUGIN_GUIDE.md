@@ -113,6 +113,56 @@ readbacks and failures while enumerating `DerivedChanges`. Setters must accept t
 for rollback; `DerivedChanges` reports consequences and must not independently mutate state outside
 those bindings. Custom `ApplyEdits` and action implementations still own their atomicity.
 
+### Field metadata without rendering a page (SDK-02)
+
+Implement the optional `IFieldMetadataDocument` to publish canonical `FieldMetadata` for requested
+stable value IDs. Core requests at most 200 IDs per call; return only unique requested IDs and omit
+unknown ones. Resolve against the current model without building/expanding a view or querying a
+table page. A descriptor guarantees that `GetValue` works and that writable fields already have
+live setters and plugin validation. Registration changes bookkeeping only, never save values.
+
+For a `BoundSaveDocument`, explicitly add `IFieldMetadataDocument` to your document's interfaces
+and use the additive registration overload:
+
+```csharp
+RegisterField(new FieldMetadata("item/stable-key/quantity", "Stored quantity", new IntegerSpec(0, int.MaxValue)),
+    () => FieldValue.Of(item.Quantity), value => item.Quantity = value.AsInt32(), ValidateQuantity);
+RegisterField(new FieldMetadata("inventory/total", "Total quantity", IntegerSpec.Int32 with { ReadOnly = true })
+    { BindingKind = FieldBindingKind.Derived }, () => FieldValue.Of(items.Sum(item => item.Quantity)));
+```
+
+The inherited `ResolveFieldMetadata(ids)` returns these registrations. For large or structural
+models, override it to register only the requested current bindings before calling the base method.
+Structural changes and memento restores clear both bindings and published metadata; resolve them
+again from stable logical identity. Do not capture objects from a model replaced by undo or group
+publication. Group implementations opting in must forward resolution to their current/staged members
+and map identities themselves; the group interfaces are unchanged.
+
+`FieldBindingKind.Primary` is the default. A derived alias/consequence must use `Derived` and a
+`ReadOnly` spec, with no independent setter. Report primary and derived `ValueChange`s; setters
+recompute consequences atomically. Undo/redo re-resolves current metadata and replays writable
+primaries only. Read-only primary metadata is also permitted and is never replayed. This policy
+does not bypass dependency checks, custom validation, or format-integrity repair.
+
+Render a registered field later with `Field(id, label)`. Registered metadata takes precedence over
+view-learned metadata, and specs must agree in all properties, including nested options and hints;
+a conflict rejects indexing/preflight. Labels may differ across projections. Action parameter
+specs remain separate from document-field metadata. `FieldSpecMetadata.Snapshot` / `Agree` copy
+nested spec collections and compare their definitions while retaining executable `ReferenceSpec.Assess`
+policies; ordinary JSON round-tripping loses those callbacks.
+
+Core validates unloaded edits and all F6 planned consequences with these specs, rejects missing or
+duplicate planned IDs and inconsistent primary/derived classification, and checks the old values.
+Preview retention includes immutable metadata within the existing byte budget. Apply re-resolves
+and compares metadata and effects; stale metadata requires another preview. Plan generation must
+itself establish any bindings it needs before calculating changes (for example by calling your
+resolver for selected quantities); Core cannot discover IDs that a rejected plan never returns.
+
+Existing documents do not opt in merely by inheriting `BoundSaveDocument` or using the older
+`RegisterField(id, spec, get, set, validate)` overload. Their view discovery, planning and replay
+behavior is preserved. Canonical labels and paths are published for consumers, but targeted semantic
+review of unloaded IDs is separate work; this API alone does not promise complete review coverage.
+
 ## View vocabulary (src/SaveToolkit.Sdk/Views)
 
 | Node | Use for |
@@ -838,12 +888,11 @@ eligibility reason. F2's catalog-wide endpoints remain unchanged. The attributed
 and `tests/SaveToolkit.Core.Tests/Fakes/ItemsPlugin.cs` demonstrate the complete contract.
 
 The shipped F13 scope is read-only inspection, browse-only reference pickers, catalogue query
-filter/sort and float duration hints. Publishing field specs without rendering pages is a separate
-proposed capability; see
-[F13 field-spec publishing design](plans/F13-FIELD-SPEC-PUBLISHING.md). Unknown action-reported
-IDs already replay during undo, but that alone does not establish primary bindings, alias policy,
-complete semantic review or safe unloaded-page preflight. Retain plugin guards until that
-capability is implemented.
+filter/sort and float duration hints. SDK-02 now supplies optional field metadata and canonical
+primary/derived policy independently of views (see above and the historical
+[F13 field-spec publishing design](plans/F13-FIELD-SPEC-PUBLISHING.md)). Keep plugin guards until
+the plugin adopts live binding resolution and verifies unloaded edits and exact undo/redo.
+Complete targeted semantic review remains a separate integration concern.
 
 ## Reference packs
 

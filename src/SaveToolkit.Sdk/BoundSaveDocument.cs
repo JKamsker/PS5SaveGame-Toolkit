@@ -5,12 +5,13 @@ namespace SaveToolkit.Sdk;
 
 /// <summary>
 /// Convenience base for documents whose values map to getter/setter pairs on an in-memory model.
-/// Register storage with <see cref="RegisterField"/>, or register and render with Field while building views.
+/// Register storage with RegisterField, or register and render with Field while building views.
 /// Batches are applied atomically: on a validation failure or exception every applied edit is rolled back.
 /// </summary>
 public abstract class BoundSaveDocument : ISaveDocument
 {
     private readonly Dictionary<string, Binding> _bindings = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, FieldMetadata> _metadata = new(StringComparer.Ordinal);
 
     /// <inheritdoc />
     public abstract string Title { get; }
@@ -71,6 +72,40 @@ public abstract class BoundSaveDocument : ISaveDocument
         Action<FieldValue>? set = null,
         Func<FieldValue, string?>? validate = null) =>
         _bindings[valueId] = new Binding(spec, get, set, validate);
+
+    /// <summary>
+    /// Publishes canonical metadata together with live storage. Implement IFieldMetadataDocument
+    /// to opt in to host discovery. Derived fields must be read-only and have no setter.
+    /// </summary>
+    protected void RegisterField(FieldMetadata metadata, Func<FieldValue> get,
+        Action<FieldValue>? set = null, Func<FieldValue, string?>? validate = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(metadata.ValueId);
+        ArgumentException.ThrowIfNullOrEmpty(metadata.Label);
+        if (!Enum.IsDefined(metadata.BindingKind) || (!metadata.Spec.ReadOnly && set is null)
+            || (metadata.BindingKind == FieldBindingKind.Derived && (!metadata.Spec.ReadOnly || set is not null)))
+            throw new ArgumentException("Metadata requires a writable primary or a read-only binding.", nameof(metadata));
+        RegisterField(metadata.ValueId, metadata.Spec, get, set, validate);
+        _metadata[metadata.ValueId] = metadata with { Path = metadata.Path is { } path ? Array.AsReadOnly(path.ToArray()) : null };
+    }
+
+    /// <summary>
+    /// Resolves explicitly published metadata without rendering or reading values. This method alone
+    /// does not opt in: implement IFieldMetadataDocument. Override to register requested live bindings
+    /// on demand, including after structural changes or memento restores, before calling the base.
+    /// </summary>
+    public virtual IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        var fields = valueIds.Distinct(StringComparer.Ordinal).Where(_metadata.ContainsKey).Select(id => _metadata[id]).ToArray();
+        foreach (var field in fields)
+        {
+            var binding = Lookup(field.ValueId);
+            var spec = binding.Set is null ? binding.Spec with { ReadOnly = true } : binding.Spec;
+            if (!FieldSpecMetadata.Agree(spec, field.Spec))
+                throw new InvalidOperationException($"Published metadata no longer agrees with binding '{field.ValueId}'.");
+        }
+        return fields;
+    }
 
     /// <summary>
     /// Renders a registered binding using its current value and retained spec, without replacing it.
@@ -189,6 +224,7 @@ public abstract class BoundSaveDocument : ISaveDocument
         {
             // Loading a snapshot may replace model objects, so every binding may point at dead state.
             _bindings.Clear();
+            _metadata.Clear();
         }
 
         return new ActionOutcome { StructureChanged = true, Revert = before, Message = message };
@@ -225,6 +261,7 @@ public abstract class BoundSaveDocument : ISaveDocument
         finally
         {
             _bindings.Clear();
+            _metadata.Clear();
         }
 
         return current;

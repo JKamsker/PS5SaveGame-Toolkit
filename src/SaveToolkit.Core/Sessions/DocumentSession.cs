@@ -44,7 +44,7 @@ public sealed record DocumentState(bool CanUndo, bool CanRedo, bool IsDirty)
 public sealed partial class DocumentSession : IDisposable
 {
     private readonly Lock _gate = new();
-    private ViewIndex _index = new();
+    private ViewIndex _index;
     private readonly EditHistory _history;
     private readonly ReferenceFieldService _referenceFields;
     private readonly ReferenceContext _references;
@@ -57,6 +57,7 @@ public sealed partial class DocumentSession : IDisposable
         File = file;
         Plugin = plugin;
         Document = document;
+        _index = new ViewIndex(document);
         var limits = options ?? DocumentSessionOptions.Default;
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limits.MaxQueryActionRows);
         _maxQueryActionRows = limits.MaxQueryActionRows;
@@ -119,9 +120,10 @@ public sealed partial class DocumentSession : IDisposable
 
         var edits = new List<ValueEdit>(incoming.Count);
         var errors = new List<FieldError>();
+        if (ResolveEditMetadata(incoming.Select(edit => edit.ValueId)) is { } metadataError) return metadataError;
         foreach (var edit in incoming)
         {
-            if (_index.Spec(edit.ValueId) is not { } spec)
+            if (_index.ResolvedSpec(edit.ValueId) is not { } spec)
             {
                 errors.Add(new FieldError(edit.ValueId, "Unknown field."));
                 continue;
@@ -225,14 +227,15 @@ public sealed partial class DocumentSession : IDisposable
 
     private EditOutcome Revert(IReadOnlyList<ValueChange> batch, bool useOld)
     {
-        // Derived values are usually read-only; re-applying the primary edits recomputes them.
-        // Values the plugin reported but never showed (e.g. bulk actions over unexpanded lazy pages)
-        // are replayed too: they came from the plugin itself, so no spec check is needed.
-        var edits = (useOld ? batch.Reverse() : batch)
-            .Where(c => _index.Spec(c.ValueId) is not { ReadOnly: true })
-            .Select(c => new ValueEdit(c.ValueId, useOld ? c.OldValue : c.NewValue))
-            .ToList();
-        return CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);
+        try
+        {
+            var edits = FieldMetadataReplay.Edits(_index, batch, useOld);
+            return CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            return EditOutcome.Rejected(batch.FirstOrDefault()?.ValueId ?? string.Empty, $"Field metadata failed: {ex.Message}");
+        }
     }
 
     private static EditOutcome CallPlugin(Func<EditOutcome> call, string? valueId)
