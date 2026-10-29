@@ -61,6 +61,8 @@ public sealed partial class DocumentSession
         cancellationToken.ThrowIfCancellationRequested();
         return page with
         {
+            Rows = ((TableNode)_index.ResolveFieldReferences(Document,
+                new TableNode(page.Columns.Select(column => new TableColumn(column.Key, column.Label)).ToArray(), page.Rows), cancellationToken)).Rows,
             CollectionId = collection.Id,
             Columns = collection.Columns,
             TotalCount = collection.TotalCount,

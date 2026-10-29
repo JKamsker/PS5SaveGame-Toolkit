@@ -91,7 +91,7 @@ public sealed partial class DocumentSession : IDisposable
     {
         var view = Document.BuildView();
         _index.Add(view);
-        return view;
+        return _index.ResolveFieldReferences(Document, view);
     });
 
     public IReadOnlyList<ViewNode> Expand(string lazyId) => Locked(() =>
@@ -104,7 +104,7 @@ public sealed partial class DocumentSession : IDisposable
         var nodes = Document.ExpandNode(lazyId);
         _index.AddAll(nodes);
         _expanded.Add(lazyId);
-        return nodes;
+        return ((SectionNode)_index.ResolveFieldReferences(Document, new SectionNode(string.Empty, nodes))).Children;
     });
 
     /// <param name="incoming">Edits as sent by the client.</param>

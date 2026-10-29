@@ -45,7 +45,7 @@ internal static class WorkspaceEndpoints
 
         ws.MapPost("/files/{fileId}/open", (WorkspaceRef w, string fileId, [FromBody] OpenRequest? request) =>
             w.Value.Open(fileId, request?.PluginId).ToDto())
-            .WithApiErrors(Status400BadRequest, Status409Conflict, Status415UnsupportedMediaType, Status422UnprocessableEntity);
+            .WithApiErrors(Status400BadRequest, Status409Conflict, Status413PayloadTooLarge, Status415UnsupportedMediaType, Status422UnprocessableEntity);
 
         ws.MapDocumentGroups();
 
@@ -74,10 +74,10 @@ internal static class WorkspaceEndpoints
         doc.AddEndpointFilter<DocumentRevisionFilter>().WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict,
             Status412PreconditionFailed, Status422UnprocessableEntity);
         doc.MapActionReview();
-        doc.MapGet("", (DocumentRef d) => d.Value.ToDto(d.Workspace));
+        doc.MapGet("", (DocumentRef d) => d.Value.ToDto(d.Workspace)).WithApiErrors(Status413PayloadTooLarge);
         doc.MapDelete("", (DocumentRef d) => d.Workspace.CloseClean(d.Value.Id) ? Results.NoContent() : Results.NotFound())
             .Produces(StatusCodes.Status204NoContent);
-        doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id));
+        doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id)).WithApiErrors(Status413PayloadTooLarge);
         // Opaque IDs may contain slashes, which Kestrel preserves as %2F in route parameters.
         doc.MapGet("/collections", (HttpRequest request, DocumentRef document, [FromQuery] string collectionId) =>
             QueryCollection(request, document, collectionId)).Produces<QueryablePageDto>().WithApiErrors(Status413PayloadTooLarge);

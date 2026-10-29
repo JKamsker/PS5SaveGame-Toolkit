@@ -15,17 +15,27 @@ public sealed class ViewIndex
     public ViewIndex() : this(null) { }
     public ViewIndex(ISaveDocument? document) => _metadata = new FieldMetadataIndex(document);
     private readonly Dictionary<string, FieldSpec> _specs = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, FieldNode> _fields = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _registeredFields = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ActionNode> _actions = new(StringComparer.Ordinal);
     private readonly HashSet<string> _lazyIds = new(StringComparer.Ordinal);
     private readonly HashSet<string> _blobIds = new(StringComparer.Ordinal);
     private readonly HashSet<string> _assetIds = new(StringComparer.Ordinal);
     private readonly SelectionBindingIndex _selections = new();
+    private bool _hasFieldReferences;
 
     private ViewIndex(ViewIndex source, CancellationToken cancellationToken)
     {
         _metadata = source._metadata.Copy(cancellationToken);
+        _hasFieldReferences = source._hasFieldReferences;
         _selections = source._selections.Copy(cancellationToken);
         Copy(source._specs, _specs, cancellationToken);
+        Copy(source._fields, _fields, cancellationToken);
+        foreach (var id in source._registeredFields)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _registeredFields.Add(id);
+        }
         Copy(source._actions, _actions, cancellationToken);
         foreach (var (from, to) in new[] { (source._lazyIds, _lazyIds), (source._blobIds, _blobIds), (source._assetIds, _assetIds) })
         {
@@ -61,7 +71,22 @@ public sealed class ViewIndex
         return ResolvedSpec(valueId);
     }
 
-    internal FieldSpec? ResolvedSpec(string valueId) => ResolvedMetadata(valueId)?.Spec ?? _specs.GetValueOrDefault(valueId);
+    internal FieldSpec? ResolvedSpec(string valueId) => ResolvedMetadata(valueId)?.Spec
+        ?? (_registeredFields.Contains(valueId) ? null : _specs.GetValueOrDefault(valueId));
+
+    internal FieldNode? ShownField(string valueId) => _fields.GetValueOrDefault(valueId);
+    internal bool RequiresMetadata(string valueId) => _registeredFields.Contains(valueId);
+
+    /// <summary>
+    /// Resolves presentations after indexing a tree. Uses only its loaded canonical fields and targeted
+    /// metadata from the same document; never expands lazy sections or queries additional pages.
+    /// Missing targets remain unavailable FieldReferenceNodes. Does not register resolved projections.
+    /// </summary>
+    public ViewNode ResolveFieldReferences(ISaveDocument document, ViewNode node, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return _hasFieldReferences ? new FieldReferenceProjection(document, this, cancellationToken).Resolve(node) : node;
+    }
 
     public FieldMetadata? Metadata(string valueId)
     {
@@ -73,7 +98,11 @@ public sealed class ViewIndex
     internal FieldMetadata? ResolvedMetadata(string valueId)
     {
         var field = _metadata.Cached(valueId);
-        if (field is not null) RequireAgreement(valueId, field.Spec);
+        if (field is not null)
+        {
+            RequireAgreement(valueId, field.Spec);
+            _registeredFields.Add(valueId);
+        }
         return field;
     }
 
@@ -116,12 +145,15 @@ public sealed class ViewIndex
     public void Clear()
     {
         _specs.Clear();
+        _fields.Clear();
+        _registeredFields.Clear();
         _metadata.Clear();
         _actions.Clear();
         _lazyIds.Clear();
         _blobIds.Clear();
         _assetIds.Clear();
         _selections.Clear();
+        _hasFieldReferences = false;
     }
 
     /// <summary>Indexes a node tree. Throws <see cref="InvalidOperationException"/> on malformed views.</summary>
@@ -165,6 +197,12 @@ public sealed class ViewIndex
                     _specs[f.ValueId] = registered.Spec;
                 }
                 else _specs[f.ValueId] = f.Spec;
+                _fields[f.ValueId] = f;
+                break;
+            case FieldReferenceNode reference:
+                reference.Validate();
+                _hasFieldReferences = true;
+                // Presentation never publishes a binding or a spec, even when its target is missing.
                 break;
             case TableNode table:
                 var keys = table.Columns.Select(c => c.Key).ToHashSet(StringComparer.Ordinal);
