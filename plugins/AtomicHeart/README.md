@@ -315,6 +315,52 @@ reports **0 warnings / 0 errors**. Existing byte-identical no-op, write/reopen,
 history and conformance tests pass. Experimental maturity and warnings remain.
 All review changes are confined to this plugin; no sample bytes were committed.
 
+### Performance review (2026-10-29, #40)
+
+Record inspection retains short member segments and constructs full leaf IDs only
+when expanded. The same complete identity-length budget is still checked at Open.
+The immutable record explorer retains one last ordered query result and a copied
+filter snapshot; page nodes remain fresh. Combined class labels are reused.
+Inventory queries retain one current asset description per slot, refresh it after
+asset edits/undo, and match live numeric values using stack-formatted spans.
+Selected action plans resolve native row ordinals without scanning unselected slots.
+The inventory query still filters/sorts the complete live model on each request.
+
+Harness and baseline source snapshot: `D:/Temp/saveeditor/review-results/perf-atomicheart/`.
+Run `./run.ps1 -Baseline -Label before` and `./run.ps1 -Label after` there.
+Release/.NET 10.0.11, SDK 10.0.400, tiered compilation disabled, five warmups
+and 21 synchronous measurements per operation. Medians use Stopwatch and
+[`GC.GetAllocatedBytesForCurrentThread`](https://learn.microsoft.com/en-us/dotnet/api/system.gc.getallocatedbytesforcurrentthread?view=net-10.0);
+managed allocations exclude native memory and are not retained-heap sizes.
+Import and pack setup are excluded. Largest/sole unique snapshot: 126,214 bytes,
+1,751,391 decoded bytes, 14 chunks, 4,063 objects. Pages request 20 rows.
+
+| Operation | Before → after median ms | Before → after allocated bytes |
+| --- | --- | --- |
+| Open pinned + first root | 43.4325 → 46.9232 | 34,988,656 → 29,192,544 |
+| First root on prepared fresh document | 0.0192 → 0.0168 | 11,104 → 9,560 |
+| Inspector construction | 9.0620 → 3.3976 | 9,136,480 → 3,340,504 |
+| First class-sorted record page | 0.4824 → 2.3756 | 684,408 → 496,728 |
+| Subsequent record page / search / class sort | 0.1428 / 0.4238 / 0.4126 → 0.0056 / 0.0035 / 0.0056 | 213,960 / 13,072 / 684,264 → 17,648 / 11,088 / 17,872 |
+| First inventory search | 0.0591 → 0.0538 | 136,208 → 148,112 |
+| Subsequent inventory page / search / amount sort | 0.0718 / 0.0864 / 0.0712 → 0.0431 / 0.0479 / 0.0456 | 157,288 / 137,072 / 157,288 → 158,056 / 132,680 / 158,056 |
+| One selected retail quantity preview | 0.0179 → 0.0004 | 9,144 → 1,360 |
+| Authored 10,000-slot search / one-row preview | 4.3903 / 0.9822 → 1.5468 / 0.0005 | 5,021,184 / 674,368 → 8,528 / 912 |
+
+Tradeoffs: the first record query sorts and retains its complete result instead
+of partially sorting one page; subsequent matching pages reuse it. First inventory
+search allocates descriptions which remain bounded to the slot count. Rich inventory
+page rendering and whole-document previews have no meaningful allocation improvement.
+Open allocation falls about 16.6%; total Open latency varied with machine load,
+including unchanged codec/parser phases, so no total-Open speedup is claimed.
+These are warm-process diagnostics, not cold-start or console benchmarks.
+
+All 15 added sample-free cases pass; seven performance checks failed against the
+corresponding pre-fix code. Regression gates assert allocation bounds or catalogue
+lookup counts, never elapsed time. Full Release suite: **194 passed, zero failed
+or skipped**; API Release build: **zero warnings/errors**. Shared cursor/FString,
+robustness, byte-identical no-op, write/reopen, stale-plan and undo tests remain green.
+
 ## Sources and attribution
 
 Retrieved 2026-10-28. Sources were read, not executed as downloaded programs.
@@ -394,6 +440,16 @@ No SDK requests remain for F12/F13/F14. Original decoded record/hex inspection
 remains reachable; the inventory uses only F8, SaveDiff explicitly includes empty
 rows, and the production decoder hook covers native scalar evidence. No framework
 files were changed.
+
+Performance follow-up (#40), deferred outside this plugin: F11 Kraken decoding
+allocates padded input/output, exact-output copies and entropy scratch separately
+per independent stream. All 14 sample chunks allocate about 10.46 MB in the codec
+alone; the plugin additionally aggregates their decoded output. A caller-owned
+destination/workspace API could reduce copies/scratch churn while retaining exact
+consumption, padding, work budgets and corruption rejection. No codec/SDK files
+were edited. SQLite is not part of this format. Open decodes each chunk once;
+queries/plans do not decompress or parse again, and the existing serialization
+cache retains full first-changed-output validation and isolated output copies.
 
 
 ## Asset round results (2026-10-29)
