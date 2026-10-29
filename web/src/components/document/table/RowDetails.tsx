@@ -33,7 +33,7 @@ function cellHasDetails(cell: ViewNode): boolean {
 
 /** Whether a row has anything the compact cells cannot show in full. */
 export function rowHasDetails(row: TableRow): boolean {
-  return Object.values(row.cells).some(cellHasDetails);
+  return Boolean(row.isEmpty) || Object.values(row.cells).some(cellHasDetails);
 }
 
 /**

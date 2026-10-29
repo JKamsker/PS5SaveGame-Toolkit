@@ -44,6 +44,7 @@ public sealed partial class DocumentSession
             throw new ArgumentException("A collection filter names an unknown column.", nameof(query));
         }
 
+        query = query with { IncludeEmpty = query.IncludeEmpty ?? collection.EmptyRows?.HideByDefault != true };
         var page = queryable.Query(collectionId, query);
         if (page is null)
         {
@@ -105,6 +106,10 @@ public sealed partial class DocumentSession
             || page.TotalCount < 0
             || page.FilteredCount < 0
             || page.FilteredCount > page.TotalCount
+            || page.HiddenEmptyCount < 0
+            || page.HiddenEmptyCount > page.TotalCount - page.FilteredCount
+            || (query.IncludeEmpty == true || collection.EmptyRows is null) && page.HiddenEmptyCount != 0
+            || collection.EmptyRows is not null && query.IncludeEmpty == false && page.Rows.Any(row => row.IsEmpty)
             || page.Offset < 0)
         {
             throw new InvalidOperationException($"Collection '{collection.Id}' returned an invalid page.");

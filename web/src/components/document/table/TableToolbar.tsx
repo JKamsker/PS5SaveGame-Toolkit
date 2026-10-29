@@ -1,8 +1,10 @@
+import type { ReactNode } from "react";
 import type { TableNode } from "../../../api/protocol";
 import type { TableSelection } from "./selection";
 import { FILTER_THRESHOLD, type ColumnFacet, type FacetSelection } from "./useTableRows";
 
 interface TableToolbarProps {
+  children?: ReactNode;
   node: TableNode;
   /** Number of rows passing the filters. */
   shown: number;
@@ -17,7 +19,7 @@ interface TableToolbarProps {
 }
 
 /** Title, row/selection counts, free-text search and per-column category filters. */
-export function TableToolbar({ node, shown, selection, visibleSelected, query, onQuery, facetOptions, facets, onFacets }: TableToolbarProps) {
+export function TableToolbar({ node, shown, selection, visibleSelected, query, onQuery, facetOptions, facets, onFacets, children }: TableToolbarProps) {
   const total = node.rows.length;
   const filtersActive = Object.values(facets).some((v) => v !== "");
   return (
@@ -26,6 +28,7 @@ export function TableToolbar({ node, shown, selection, visibleSelected, query, o
       <span className="table__count" aria-live="polite">
         {shown === total ? `${total} rows` : `${shown} of ${total} rows`}
       </span>
+      {children}
       <span className="table__selected">
         {/* Always mounted so the first change is announced. */}
         <span aria-live="polite">

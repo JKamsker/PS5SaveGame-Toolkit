@@ -70,8 +70,9 @@ export interface FieldNode {
   warning?: string;
 }
 export interface TableColumn { key: string; label: string; description?: string; width?: "Narrow" | "Normal" | "Wide" }
-export interface TableRow { key: string; cells: Record<string, ViewNode> }
-export interface TableNode { type: "table"; columns: TableColumn[]; rows: TableRow[]; title?: string; description?: string }
+export interface EmptyRowPresentation { labelColumnKey: string; pluralLabel?: string; hideByDefault?: boolean }
+export interface TableRow { key: string; cells: Record<string, ViewNode>; isEmpty?: boolean }
+export interface TableNode { type: "table"; columns: TableColumn[]; rows: TableRow[]; title?: string; description?: string; emptyRows?: EmptyRowPresentation }
 export interface TextNode { type: "text"; text: string; tone?: Tone; monospace?: boolean }
 export interface StatsNode { type: "stats"; items: { label: string; value: string; hint?: string }[] }
 export interface ImageNode { type: "image"; assetId: string; alt: string }
@@ -95,6 +96,7 @@ export interface QueryableColumn {
   width?: "Narrow" | "Normal" | "Wide";
 }
 export interface QueryableTableNode {
+  emptyRows?: EmptyRowPresentation;
   type: "queryableTable";
   collectionId: string;
   title: string;
@@ -178,6 +180,7 @@ export interface EditResult {
 }
 
 export interface CollectionQuery {
+  includeEmpty?: boolean;
   q?: string;
   filters?: Record<string, string>;
   sort?: string;
@@ -188,6 +191,7 @@ export interface CollectionQuery {
 }
 
 export interface QueryablePage {
+  hiddenEmptyCount?: number;
   collectionId: string;
   columns: QueryableColumn[];
   rows: TableRow[];

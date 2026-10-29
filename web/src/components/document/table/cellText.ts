@@ -66,7 +66,7 @@ export function cellSearchText(node: ViewNode | undefined, valueOf: ValueOf): st
 
 /** Lower-cased search text of a whole row. */
 export function rowSearchText(row: TableRow, valueOf: ValueOf): string {
-  return Object.values(row.cells)
+  return (row.isEmpty ? "empty slot\n" : "") + Object.values(row.cells)
     .map((c) => cellSearchText(c, valueOf))
     .join("\n")
     .toLowerCase();
@@ -85,6 +85,7 @@ export function facetValue(node: ViewNode | undefined, valueOf: ValueOf): string
 
 /** Short name of a row for accessible labels: the first text cell, else the first non-empty cell, else the row key. */
 export function rowLabel(row: TableRow, columnKeys: readonly string[], valueOf: ValueOf): string {
+  if (row.isEmpty) return `Empty slot ${row.key}`;
   const cells = columnKeys.map((key) => row.cells[key]);
   const text = cells.find((c) => c?.type === "text" && c.text.trim());
   if (text?.type === "text") return text.text.trim();

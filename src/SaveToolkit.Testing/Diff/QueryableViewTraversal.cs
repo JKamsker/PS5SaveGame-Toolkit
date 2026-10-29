@@ -40,7 +40,7 @@ internal sealed class QueryableViewTraversal(ISaveDocument document, SemanticTre
             if (_bytes >= limits.MaxQueryBytes) return Cut(table, $"byte cap {limits.MaxQueryBytes}");
 
             var size = Math.Min(limits.QueryPageSize, limits.MaxQueryRows - _rows);
-            var query = new QueryableCollectionQuery { Offset = cursor is null ? offset : 0, Cursor = cursor, Limit = size };
+            var query = new QueryableCollectionQuery { Offset = cursor is null ? offset : 0, Cursor = cursor, Limit = size, IncludeEmpty = true };
             var page = queryable.Query(table.CollectionId, query);
             _pages++;
             if (page.CollectionId != table.CollectionId || page.Rows.Count > size || page.Limit != size || page.Offset < 0 ||

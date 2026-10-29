@@ -115,9 +115,11 @@ internal static class WorkspaceEndpoints
             return Results.BadRequest(new ErrorDto("Offset cannot be negative."));
         }
 
-        if (!TryBool(request, "descending", false, out var descending) || !TryLong(request, "revision", out var revision))
+        if (!TryBool(request, "descending", false, out var descending)
+            || !TryBool(request, "includeEmpty", false, out var includeEmpty)
+            || !TryLong(request, "revision", out var revision))
         {
-            return Results.BadRequest(new ErrorDto("Descending and revision must be valid values."));
+            return Results.BadRequest(new ErrorDto("Descending, includeEmpty and revision must be valid values."));
         }
 
         var filters = ParseFilters(request);
@@ -132,6 +134,7 @@ internal static class WorkspaceEndpoints
             Filters = filters,
             SortColumn = request.Query["sort"].FirstOrDefault(),
             Descending = descending,
+            IncludeEmpty = request.Query.ContainsKey("includeEmpty") ? includeEmpty : null,
             Offset = offset,
             Limit = limit,
             Cursor = request.Query["cursor"].FirstOrDefault(),

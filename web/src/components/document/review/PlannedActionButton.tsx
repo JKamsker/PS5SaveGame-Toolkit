@@ -21,7 +21,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   const queryScope = selection?.queryScope;
   const scope: ActionScope = queryScope ? { queryScope: {
     collectionId: queryScope.collectionId,
-    query: { text: queryScope.query.q, filters: queryScope.query.filters, sortColumn: queryScope.query.sort, descending: queryScope.query.descending },
+    query: { text: queryScope.query.q, filters: queryScope.query.filters, sortColumn: queryScope.query.sort, descending: queryScope.query.descending, includeEmpty: queryScope.query.includeEmpty },
     revision: queryScope.revision,
     excludedRowKeys: queryScope.excludedRowKeys,
   } } : selection ? { rowKeys: [...selection.selectedKeys] } : {};

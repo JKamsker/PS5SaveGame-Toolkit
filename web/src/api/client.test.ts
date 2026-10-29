@@ -14,6 +14,13 @@ it("passes lazy expansion cancellation to fetch and preserves opaque IDs", async
 });
 
 describe("collection requests", () => {
+  it.each([true, false, undefined])("transports includeEmpty=%s without losing explicit false", async includeEmpty => {
+    const fetch = vi.fn().mockResolvedValue(new Response("{}", { headers: { "content-type": "application/json" } }));
+    vi.stubGlobal("fetch", fetch);
+    await api.queryCollection("w", "d", "items", { includeEmpty });
+    const url = new URL(fetch.mock.calls[0]![0] as string, "http://localhost");
+    expect(url.searchParams.get("includeEmpty")).toBe(includeEmpty === undefined ? null : String(includeEmpty));
+  });
   it.each(["gvas/properties", "literal%2Fitems", "inventory/#? + items"])("preserves the opaque ID %s in the query string", async collectionId => {
     const fetch = vi.fn().mockResolvedValue(new Response("{}", { headers: { "content-type": "application/json" } }));
     vi.stubGlobal("fetch", fetch);

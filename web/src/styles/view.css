@@ -218,6 +218,8 @@ details[open] > .section__summary::before { transform: translateY(-4px) rotate(4
 }
 .table__head--control { display: flex; align-items: center; }
 .table__row--selected > .table__cell { background: var(--signal-soft); }
+.table__row--empty > .table__cell { opacity: 0.65; }
+.table__empty-toggle { color: var(--ink-faint); font-size: var(--text-xs); }
 .table__selected {
   display: inline-flex;
   align-items: center;

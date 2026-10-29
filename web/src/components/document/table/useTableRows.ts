@@ -64,14 +64,18 @@ export function filterRows(rows: readonly TableRow[], query: string, facets: Fac
 }
 
 /** Filtered rows plus available column facets for a table, following edits immediately. */
-export function useTableRows(node: TableNode, query: string, facets: FacetSelection) {
+export function useTableRows(node: TableNode, query: string, facets: FacetSelection, includeEmpty = true) {
   const valueOf = useLiveValues();
-  const facetOptions = useMemo(() => computeFacets(node, valueOf), [node, valueOf]);
+  const eligibleRows = useMemo(() => node.emptyRows && !includeEmpty ? node.rows.filter(row => !row.isEmpty) : node.rows, [node, includeEmpty]);
+  const facetOptions = useMemo(() => computeFacets({ ...node, rows: eligibleRows }, valueOf), [node, eligibleRows, valueOf]);
   // A facet or one of its values can vanish after edits; never filter by something the controls do not show.
   const activeFacets = useMemo(
     () => Object.fromEntries(Object.entries(facets).filter(([key, value]) => facetOptions.some((f) => f.key === key && f.values.includes(value)))),
     [facets, facetOptions],
   );
-  const rows = useMemo(() => filterRows(node.rows, query, activeFacets, valueOf), [node.rows, query, activeFacets, valueOf]);
-  return { rows, facetOptions, valueOf };
+  const rows = useMemo(() => filterRows(eligibleRows, query, activeFacets, valueOf), [eligibleRows, query, activeFacets, valueOf]);
+  const hiddenEmptyCount = useMemo(() => node.emptyRows && !includeEmpty
+    ? filterRows(node.rows.filter(row => row.isEmpty), query, activeFacets, valueOf).length : 0,
+  [node, includeEmpty, query, activeFacets, valueOf]);
+  return { rows, eligibleRows, hiddenEmptyCount, facetOptions, valueOf };
 }
