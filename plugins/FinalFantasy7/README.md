@@ -416,8 +416,10 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/path/to/main/artifacts'
 dotnet test --project plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.Tests
 ```
 
-Sample-dependent tests skip when their title archive is missing. Synthetic common-format and explorer
-tests run without samples. The conformance suite retains its six-files-per-title default; the dedicated
+Sample-dependent tests skip when their title archive is missing. Synthetic common-format, gameplay-framing
+and explorer tests run without samples. Artificial gameplay bodies are not evidence of real gameplay
+semantics; their independent record-group fixture covers all three layouts, corruption rejection,
+empty allocations and byte preservation. The conformance suite retains its six-files-per-title default; the dedicated
 format test walks and no-op serializes **all** matching sample files, including backup/generation files.
 Edit conformance nudges a writable field on selected Remake and retail Rebirth samples; dedicated
 tests verify in-place byte scope, round-trip reopening, undo-by-old-value and atomic range rejection.
