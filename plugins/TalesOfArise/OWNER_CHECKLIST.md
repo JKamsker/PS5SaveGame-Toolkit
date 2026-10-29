@@ -14,6 +14,11 @@ Do not record account identifiers, PSN names or credentials in shared notes.
 
 - [ ] Nonzero gald: buy one Apple Gel; record price, gald before/after, quantity
   before/after, and item menu name. Then consume one in a separate pair.
+- [ ] On a spare imported slot, stage a reduction to an existing recognised
+  consumable, preview `Restore imported consumable quantities`, verify its opening
+  target and skipped higher quantities, then apply, consume, save and reload.
+  Test buy/use/zero/reacquisition and the effective cap separately for each ID 1–13;
+  the current PS5 observation covers Apple Gel only. Track console acceptance in #31.
 - [ ] Lose HP in one fight without levelling; record all displayed HP/max HP and
   equipment. Heal once in a separate pair. Re-save and reload after each event.
 - [ ] Gain SP without spending; purchase exactly one skill in a separate pair,
