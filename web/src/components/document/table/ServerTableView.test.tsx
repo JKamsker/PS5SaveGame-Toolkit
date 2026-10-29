@@ -14,19 +14,57 @@ const columns = [{ key: "name", label: "Name" }];
 const page: QueryablePage = { collectionId: "items", columns, totalCount: 100, filteredCount: 100,
   offset: 0, limit: 50, revision: 1, rows: [{ key: "a", cells: { name: { type: "text", text: "Potion" } } }] };
 
-function setup(refresh = vi.fn(async () => {})) {
+function setup(refresh = vi.fn(async () => {}), tableColumns = columns) {
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 1 });
   const context: DocumentContextValue = { workspaceId: "w", documentId: "d", store, canEdit: true, structureVersion: 0,
     refresh, commit: vi.fn(async () => true), mutate: async call => call(), acceptResult: vi.fn(), runAction: vi.fn() };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   const view = (generation: number) => <QueryClientProvider client={client}><DocumentContext.Provider value={{ ...context, structureVersion: generation }}>
-    <ServerTableView node={{ type: "queryableTable", collectionId: "items", title: "Items", columns, totalCount: 100 }} />
+    <ServerTableView node={{ type: "queryableTable", collectionId: "items", title: "Items", columns: tableColumns, totalCount: 100 }} />
   </DocumentContext.Provider></QueryClientProvider>;
   const { rerender } = render(view(0));
   return { store, client, refresh, generation: (value: number) => rerender(view(value)) };
 }
 
 describe("server table request lifecycle", () => {
+  it("removes a cleared exact filter and restores rows while preserving other filters", async () => {
+    const query = vi.spyOn(api, "queryCollection").mockImplementation(async (_workspace, _document, _collection, query) => ({
+      ...page,
+      columns: [...columns, { key: "type", label: "JSON type" }],
+      filteredCount: query?.filters?.type === undefined ? 100 : query.filters.type === "number" ? 60 : 0,
+    }));
+    const { client } = setup(undefined, [...columns, { key: "type", label: "JSON type" }]);
+    await screen.findByText("100 of 100 rows");
+    fireEvent.change(screen.getByRole("textbox", { name: "Filter Name" }), { target: { value: "Potion" } });
+    await waitFor(() => expect(query).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ filters: { name: "Potion" } }), 1));
+    const filter = screen.getByRole("textbox", { name: "Filter JSON type" });
+    fireEvent.change(filter, { target: { value: "number" } });
+    await screen.findByText("60 of 100 rows");
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await waitFor(() => expect(query).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ offset: 50 }), 1));
+    fireEvent.change(filter, { target: { value: "" } });
+    await screen.findByText("100 of 100 rows");
+    expect(query).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ filters: { name: "Potion" }, offset: 0 }), 1);
+    fireEvent.change(screen.getByRole("textbox", { name: "Filter Name" }), { target: { value: "" } });
+    await waitFor(() => expect(query).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ filters: {} }), 1));
+    client.clear();
+  });
+
+  it("omits cleared search and sort values from the collection query", async () => {
+    const query = vi.spyOn(api, "queryCollection").mockResolvedValue(page);
+    const { client } = setup();
+    await screen.findByText("100 of 100 rows");
+    const search = screen.getByRole("searchbox");
+    const sort = screen.getByRole("combobox", { name: "Sort rows" });
+    fireEvent.change(search, { target: { value: "Potion" } });
+    fireEvent.change(sort, { target: { value: "name" } });
+    await waitFor(() => expect(query).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ q: "Potion", sort: "name" }), 1));
+    fireEvent.change(search, { target: { value: "" } });
+    fireEvent.change(sort, { target: { value: "" } });
+    await waitFor(() => expect(query).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ q: undefined, sort: undefined }), 1));
+    client.clear();
+  });
+
   it("recomputes column confidence for each page and preserves cell screen-reader labels", async () => {
     const unknown = field("a", { kind: "text", readOnly: true }, "Potion", { confidence: "Unknown" });
     const verified = field("b", { kind: "text", readOnly: true }, "Ether", { confidence: "Verified" });

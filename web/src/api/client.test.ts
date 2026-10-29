@@ -16,6 +16,15 @@ it("passes lazy expansion cancellation to fetch and preserves opaque IDs", async
 });
 
 describe("collection requests", () => {
+  it.each<Record<string, string>>([{ type: "" }, { type: "", name: "Potion", value: " " }])("omits empty filter values on the wire: %j", async filters => {
+    const fetch = vi.fn().mockResolvedValue(new Response("{}", { headers: { "content-type": "application/json" } }));
+    vi.stubGlobal("fetch", fetch);
+    await api.queryCollection("w", "d", "items", { q: "", sort: "", filters });
+    const params = new URL(fetch.mock.calls[0]![0] as string, "http://localhost").searchParams;
+    expect(params.has("q")).toBe(false);
+    expect(params.has("sort")).toBe(false);
+    expect(params.get("filters")).toBe("name" in filters ? JSON.stringify({ name: "Potion", value: " " }) : null);
+  });
   it.each([true, false, undefined])("transports includeEmpty=%s without losing explicit false", async includeEmpty => {
     const fetch = vi.fn().mockResolvedValue(new Response("{}", { headers: { "content-type": "application/json" } }));
     vi.stubGlobal("fetch", fetch);

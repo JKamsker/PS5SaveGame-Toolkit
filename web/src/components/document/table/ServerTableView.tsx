@@ -92,6 +92,12 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
     setOffset(0);
     selection.clear();
   };
+  const updateFilter = (key: string, value: string) => {
+    const next = { ...filters };
+    if (value === "") delete next[key];
+    else next[key] = value;
+    updateQuery({ filters: next });
+  };
 
   return (
     <TableSelectionContext.Provider value={selection}>
@@ -122,7 +128,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
             {columns.map((column) => (
               <label key={column.key} className="table__facet">
                 <span className="visually-hidden">Filter {column.label}</span>
-                <input className="input input--compact" title={`Filter ${column.label}`} placeholder={`Filter ${column.label}`} value={filters[column.key] ?? ""} onChange={(e) => updateQuery({ filters: { ...filters, [column.key]: e.target.value } })} />
+                <input className="input input--compact" title={`Filter ${column.label}`} placeholder={`Filter ${column.label}`} value={filters[column.key] ?? ""} onChange={(e) => updateFilter(column.key, e.target.value)} />
               </label>
             ))}
           </div>
