@@ -20,16 +20,16 @@ public sealed class YoteiCorruptionTests
     }
 
     [Theory]
-    [InlineData("inventory-name-length")]
-    [InlineData("inventory-name-byte")]
-    [InlineData("inventory-duplicate")]
-    [InlineData("third-inventory-anchor")]
-    [InlineData("secondary-name")]
-    [InlineData("gear-count")]
-    [InlineData("gear-name-length")]
-    [InlineData("statistics-count")]
-    [InlineData("truncated-content")]
-    public void MalformedKnownStructuresRejectAfterAnIndependentlyRepairedChecksum(string mutation)
+    [InlineData("inventory-name-length", "Invalid Yōtei record name length.")]
+    [InlineData("inventory-name-byte", "Invalid Yōtei record identifier.")]
+    [InlineData("inventory-duplicate", "Duplicate Yōtei record identifier.")]
+    [InlineData("third-inventory-anchor", "Yōtei inventory table is ambiguous.")]
+    [InlineData("secondary-name", "Unrecognised Yōtei inventory layout.")]
+    [InlineData("gear-count", "Yōtei gear registry is missing or ambiguous.")]
+    [InlineData("gear-name-length", "Invalid Yōtei record name length.")]
+    [InlineData("statistics-count", "Yōtei statistics table is missing or ambiguous.")]
+    [InlineData("truncated-content", "Yōtei inventory table is missing.")]
+    public void MalformedKnownStructuresRejectAfterAnIndependentlyRepairedChecksum(string mutation, string expected)
     {
         var bytes = Slot("suckerpunchUser4").ReadAllBytes();
         ReadOnlySpan<byte> inventoryAnchor = "\x30\0\0\0\x0b\0\0\0ArrowNormal"u8;
@@ -37,23 +37,29 @@ public sealed class YoteiCorruptionTests
         var second = first + inventoryAnchor.Length + bytes.AsSpan(first + inventoryAnchor.Length).IndexOf(inventoryAnchor);
         var gear = bytes.AsSpan().IndexOf("\x0d\x04\0\0\x0b\0\0\0HalfShog101"u8);
         var stats = bytes.AsSpan().IndexOf("\x21\0\0\0\x0b\0\0\0FishSpeared"u8);
+        var monName = InventoryRecords(bytes).Single(row => row.Name == "Mon").Data - "Mon".Length;
         switch (mutation)
         {
-            case "inventory-name-length": BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(first + 4), uint.MaxValue); break;
-            case "inventory-name-byte": bytes[first + 8] = 0xFF; break;
+            case "inventory-name-length": BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(monName - sizeof(uint)), uint.MaxValue); break;
+            case "inventory-name-byte": bytes[monName] = 0xFF; break;
             case "inventory-duplicate":
                 var record = InventoryRecords(bytes).Single(row => row.Name == "ArrowDisarm");
                 "ArrowNormal"u8.CopyTo(bytes.AsSpan(record.Data - "ArrowDisarm".Length)); break;
             case "third-inventory-anchor": inventoryAnchor.CopyTo(bytes.AsSpan(256)); break;
-            case "secondary-name": bytes[second + 8] = (byte)'X'; break;
+            case "secondary-name":
+                var secondaryMon = ReadTable(bytes, second, 48, 16).Single(row => row.Name == "Mon");
+                bytes[secondaryMon.Data - secondaryMon.Name.Length] = (byte)'X'; break;
             case "gear-count": bytes[gear] = 0; break;
-            case "gear-name-length": bytes[gear + 4] = 0; break;
+            case "gear-name-length":
+                var gearRow = ReadTable(bytes, gear, 1037, 2)[1];
+                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(gearRow.Data - gearRow.Name.Length - sizeof(uint)), 0); break;
             case "statistics-count": bytes[stats] = 34; break;
             case "truncated-content": BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(8), (uint)(first + 8)); break;
+            default: throw new ArgumentOutOfRangeException(nameof(mutation));
         }
         Repair(bytes);
         var error = Assert.Throws<SaveFormatException>(() => new SuckerPunchPlugin().Open(WithBytes(bytes)));
-        Assert.Contains("Yōtei", error.Message);
+        Assert.Equal(expected, error.Message);
     }
 
     [Fact]
