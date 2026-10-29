@@ -14,7 +14,7 @@ public sealed class RagnarokCollectionTests
         using var document = plugin.Open(file, RagnarokTestSupport.PinnedReferences(plugin));
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var root = RagnarokTestSupport.EagerNodes(document.BuildView()).OfType<QueryableTableNode>().ToArray();
-        Assert.Equal(7, root.Length);
+        Assert.Equal(8, root.Length);
         Assert.Equal(798, Assert.Single(queryable.Collections, c => c.Id == "directory").TotalCount);
 
         var page = queryable.Query("resources", new() { Text = "Hacksilver" });
