@@ -63,9 +63,13 @@
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-control);
+  background: var(--surface-sunk);
   font-size: var(--text-xs);
-  font-weight: 520;
+  font-weight: var(--weight-label);
   color: var(--ink-faint);
   white-space: nowrap;
 }
@@ -79,7 +83,7 @@
 .tag--verified { color: var(--verified); }
 .tag--inferred { color: var(--inferred); }
 .tag--unknown { color: var(--unknown); }
-.tag--modified { color: var(--modified); }
+.tag--modified { color: var(--inferred); }
 .tag--readonly { color: var(--ink-faint); }
 .tag--experimental { color: var(--inferred); }
 .tag--stable { color: var(--verified); }

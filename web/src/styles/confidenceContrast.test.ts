@@ -39,10 +39,15 @@ describe.each([["light", light], ["dark", dark]] as const)("%s confidence contra
     }
   });
 
-  it.each(["inferred", "unknown"])("keeps %s badge glyphs readable", confidence => {
+  it.each(["inferred", "unknown", "info", "danger"])("keeps %s badge glyphs readable", confidence => {
     const block = /\.cell-badge\s*\{([^}]+)\}/.exec(viewStyles)![1]!;
     const foreground = /\bcolor:\s*var\(--([\w-]+)\)/.exec(block)![1]!;
     expect(contrast(palette[foreground]!, palette[confidence]!)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("keeps the quiet Verified badge readable on its own surface", () => {
+    expect(viewStyles).toMatch(/\.cell-badge--verified\s*\{\s*color:\s*var\(--verified\);\s*background:\s*var\(--surface-sunk\)/);
+    expect(contrast(palette.verified!, palette["surface-sunk"]!)).toBeGreaterThanOrEqual(4.5);
   });
 
   it("keeps warning badge glyphs, warning text and notice text readable", () => {

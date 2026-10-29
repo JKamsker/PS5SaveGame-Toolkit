@@ -30,6 +30,7 @@
   --font-ui: "Schibsted Grotesk Variable", "Segoe UI", system-ui, sans-serif;
   --font-data: "JetBrains Mono Variable", ui-monospace, "Cascadia Mono", monospace;
   --text-xs: 0.75rem;
+  --text-badge: 0.6875rem;
   --text-sm: 0.84375rem;
   --text-base: 0.9375rem;
   --text-md: 1.125rem;
@@ -51,8 +52,8 @@
   --radius-panel: 10px;
 
   /* Keep data tracks stable as rows and pages change. Row height stays owned by virtualisation. */
-  --table-column-narrow: 112px;
-  --table-column-normal: 184px;
+  --table-column-narrow: 160px;
+  --table-column-normal: 208px;
   --table-column-wide: 280px;
   --table-filter-min: 144px;
   --control-height: 34px;
