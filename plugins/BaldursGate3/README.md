@@ -45,9 +45,11 @@ conservative limits, warnings, exclusions and owner checks.
 Round 2 adds software-proven identity and dependency joins. `MemberComponent` body
 references are joined through LSF `Creator.Entity` and `Creator.TemplateID`, then
 through duplicate-preserving `TemplateComponent` rows to the unique state entity
-that has the measured classes/stats/spell families. Health and spell-book epochs are
-selected only when their measured row is unique or their storage count gives one
-unambiguous winner. Current containers are reached from the party-member entity,
+that has the measured classes/stats/spell families. Spell-book epochs use a unique
+linked row or an unambiguous highest stored spell count. Health retains the first
+ownerlist-linked row when several epochs exist; this storage selection does not
+establish which epoch is authoritative in game. Current containers are reached from
+the party-member entity,
 traversed recursively with cycle and depth guards, and each path retains its source
 container, slot and item entity. The supplied sample proves 3 party joins and 638
 current inventory entries; only entries reached from the party roots receive a body
@@ -445,6 +447,23 @@ preservation of untouched compressed sections and entries, atomic rollback/undo,
 UTF-8/UUID/scalar vectors, malformed/truncated data, entity rejection, meaningful
 leader-name edits in conformance, thumbnails/blob ranges, and 20,000-entry/child
 paging. Synthetic tests run without samples.
+
+Maintainability review (#40), 2026-10-29: **370 passed, 0 failed, 0 skipped** in
+Release, up from the unchanged 350-test baseline; API Release build with
+`--warnaserror`: **0 warnings, 0 errors**. Twenty added characterization cases pin
+validation precedence, XML projection, exact uncompressed writer bytes, identifier
+ambiguity/byte limits, party callback order, native inventory order, numeric sort
+ties and independent synthetic documents. They pass against the corresponding
+original implementations and after extraction. All original cases remain present,
+including sample no-op copies, robustness diagnostics and edit/history coverage.
+Parsing, writing and view construction now have named stages; three identical
+identifier readers and duplicate live-document test setup are shared, and unused
+identity helpers are removed. A Roslyn syntax audit finds no production method
+over 50 physical lines (previously eight); every C# file stays below 300 lines.
+Emitted strings, identifiers, confidence labels, warnings and write behavior are
+unchanged. The health-epoch description above now reflects the existing first-row
+policy. Validation logs, TRX and the external syntax-audit harness are retained at
+`D:/Temp/saveeditor/review-results/maint-baldursgate3/`.
 
 Version 0.6.0 round 2: **203 passed, 0 failed, 0 skipped** with the real artifacts path,
 after rebasing onto main with F12/F13.
