@@ -8,7 +8,7 @@ import { TextCapacityHint } from "./TextCapacityHint";
 export function TextualControl(props: FieldControlProps) {
   const { id, spec, compact, labelledBy, describedBy } = props;
   const { draft, invalid: draftInvalid, change, commit, revert, step } = useTextualDraft(props);
-  const capacity = spec.kind === "text" ? spec.maxUtf8Bytes : undefined;
+  const capacity = spec.kind === "text" ? spec.maxUtf8Bytes ?? undefined : undefined;
   const capacityError = capacity === undefined ? undefined : textCapacityError(draft, capacity);
   const invalid = draftInvalid || Boolean(capacityError);
   const capacityId = capacity === undefined ? undefined : `${id}-capacity`;

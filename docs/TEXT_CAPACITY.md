@@ -36,10 +36,13 @@ The corresponding wire spec is additive:
 - The property survives polymorphic/nested specs, field metadata snapshots and
   agreement checks, field/action wire serialization, and generated OpenAPI/docs.
 
-For a proven NUL-terminated UTF-8 field with a storage capacity of `entryCapacity`,
-the plugin may publish `Math.Min(entryCapacity - 1, globalEncodedLimit)` after
-validating the native bounds. This hint establishes no ownership of system files,
-parser correctness, console compatibility, or automatic caption synchronization.
+For a proven NUL-terminated UTF-8 field with a storage capacity of `entryCapacity`
+and a **terminator-inclusive** global limit (such as the strict SFO helper's
+`MaxEncodedValueBytes`), publish `Math.Min(entryCapacity, inclusiveGlobalLimit) - 1`
+after validating that both native bounds allow the terminator. The generic
+`MaxUtf8Bytes` itself always excludes the terminator. This hint establishes no
+ownership of system files, parser correctness, console compatibility, or automatic
+caption synchronization.
 Native writes must retain unknown bytes and integrity rules. A caption writer
 that overwrites reserved bytes needs whole-byte history/mementos to restore them;
 old/new caption strings alone cannot reconstruct those bytes. A plugin's
@@ -51,7 +54,9 @@ a successful empty plan and disable Apply. Warnings/skipped rows remain visible.
 Cancel and native Escape close without applying and return focus to the trigger.
 A stale 409 apply keeps the dialog and parameter values, focuses the reason, and
 requires **Preview again**. It does not reuse the rejected token or create local
-history. Read-only documents can preview but cannot apply.
+history. The focused dialog alert owns apply failures, avoiding a duplicate
+background error toast; ordinary field edits retain their existing toast feedback.
+Read-only documents can preview but cannot apply.
 
 The initial delivery changes no plugin. Consumer adoption must publish a proven
 UTF-8 capacity and retain format-specific checks. SDK-10's metadata ownership and

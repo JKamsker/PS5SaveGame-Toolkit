@@ -1,6 +1,16 @@
 import { expect, it } from "vitest";
 import { parseDraft } from "./values";
 import { textCapacityHint, utf8ByteCount } from "./textCapacity";
+import type { FieldSpec } from "../api/protocol";
+
+it("accepts explicit-null wire capacity as legacy while preserving independent text policies", () => {
+  const wire: FieldSpec = { kind: "text", maxUtf8Bytes: null, maxLength: 4, multiline: false };
+  const decoded = JSON.parse(JSON.stringify(wire)) as FieldSpec;
+  expect(decoded).toEqual(wire);
+  expect(parseDraft(decoded, "🎮🎮")).toEqual({ ok: true, value: "🎮🎮" });
+  expect(parseDraft(decoded, "🎮🎮a").ok).toBe(false);
+  expect(parseDraft(decoded, "a\nb").ok).toBe(false);
+});
 
 it.each([["", 0], ["ASCII", 5], ["é", 2], ["e\u0301", 3], ["日本", 6], ["🎮", 4], ["\uFEFF", 3], ["\0", 1]] as const)("counts logical UTF-8 bytes and enforces the inclusive boundary (%s)", (text, bytes) => {
   expect(utf8ByteCount(text)).toBe(bytes);

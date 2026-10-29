@@ -3,7 +3,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { EditResult, FieldValue, SaveDocument, Workspace } from "../../api/protocol";
-import { DocumentStore, type DocumentContextValue, type FieldCommitOutcome, type FieldDiagnosticReceipt } from "../../state/documentStore";
+import { DocumentStore, type DocumentContextValue, type DocumentMutationOptions, type FieldCommitOutcome, type FieldDiagnosticReceipt } from "../../state/documentStore";
 import { sameValue } from "../../lib/values";
 import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 
@@ -46,13 +46,13 @@ function useDocumentResult(workspaceId: string, documentId: string, query: Docum
   }, [refetch, enqueue, lifetime]);
 
   const handleResult = useCallback(
-    async (result: EditResult) => {
+    async (result: EditResult, options?: DocumentMutationOptions) => {
       if (!lifetime.active || !currentStore.current) return;
       if (result.stale) {
         // Nothing changed on the server; the ids we sent belong to a replaced view.
         lifetime.generation++;
         await refetch();
-        if (lifetime.active) onToast("The document changed. Please try again with the current view.", true);
+        if (lifetime.active && options?.failureFeedback !== "dialog") onToast("The document changed. Please try again with the current view.", true);
         return;
       }
       const diagnostics = currentStore.current.applyWithDiagnostics(result);
@@ -80,7 +80,7 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
   const activity = useContext(WorkspaceActivityContext);
   const { lifetime, currentStore, enqueue } = session;
   const run = useCallback(
-    (call: () => Promise<EditResult>, onApplied?: (diagnostics: ReadonlyMap<string, FieldDiagnosticReceipt> | undefined) => void): Promise<EditResult> => {
+    (call: () => Promise<EditResult>, onApplied?: (diagnostics: ReadonlyMap<string, FieldDiagnosticReceipt> | undefined) => void, options?: DocumentMutationOptions): Promise<EditResult> => {
       const generation = lifetime.generation;
       const rejected = (message: string): EditResult => ({ ok: false, errors: [{ valueId: "", message }], changes: [], warnings: [],
         structureChanged: false, state: currentStore.current?.state ?? query.data!.state });
@@ -97,17 +97,17 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
           // Also retire snapshots that began while this write was in flight.
           await queryClient.cancelQueries({ queryKey: ["document", workspaceId, documentId] });
           if (!lifetime.active) return rejected("The document is no longer open.");
-          const diagnostics = await handleResult(result);
+          const diagnostics = await handleResult(result, options);
           // Pass this result's installations, never errors left over from another queued write.
           onApplied?.(diagnostics);
           const globalError = result.errors.find(error => error.valueId === "");
-          if (lifetime.active && !result.ok && !result.stale && globalError) onToast(globalError.message, true);
+          if (lifetime.active && !result.ok && !result.stale && globalError && options?.failureFeedback !== "dialog") onToast(globalError.message, true);
           return result;
         } catch (error) {
           // A failed/ambiguous write must not release already queued intents against an uncertain state.
           lifetime.generation++;
           const message = error instanceof ApiError ? error.message : "The server could not be reached.";
-          if (lifetime.active) onToast(message, true);
+          if (lifetime.active && options?.failureFeedback !== "dialog") onToast(message, true);
           // Action dialogs need this diagnostic inside the modal, where background toasts are inert.
           return { ...rejected(message), stale: error instanceof ApiError && error.status === 409 };
         }
@@ -147,7 +147,7 @@ function useDocumentContext(workspaceId: string, documentId: string, query: Docu
       structureVersion,
       refresh,
       acceptResult: async result => { await handleResult(result); },
-      mutate: run,
+      mutate: (call, options) => run(call, undefined, options),
       commitWithDiagnostics: (valueId, value) => pendingCommit(valueId, value).outcome,
       commit: (valueId, value) => pendingCommit(valueId, value).accepted,
       runAction: async (actionId: string, parameters: Record<string, FieldValue>) =>

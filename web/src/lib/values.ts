@@ -47,7 +47,7 @@ export function parseDraft(spec: FieldSpec, draft: string | boolean): Parsed {
       return parseFloatDraft(spec, String(draft));
     case "text": {
       const t = String(draft);
-      if (spec.maxUtf8Bytes !== undefined) {
+      if (spec.maxUtf8Bytes != null) {
         const error = textCapacityError(t, spec.maxUtf8Bytes);
         if (error) return fail(error);
       }

@@ -92,7 +92,7 @@ function createActionApply(state: PlannedState, selection: PlannedScope) {
     state.focusHeading();
     state.setError("");
     try {
-      const result = await doc.mutate(() => actionReview.apply(doc.workspaceId, doc.documentId, preview.planId!, preview.revision));
+      const result = await doc.mutate(() => actionReview.apply(doc.workspaceId, doc.documentId, preview.planId!, preview.revision), { failureFeedback: "dialog" });
       if (!isCurrent()) return;
       if (result.ok) state.closeDialog();
       else {

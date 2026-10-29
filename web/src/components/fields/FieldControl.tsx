@@ -1,11 +1,10 @@
 import type { FieldSpec, FieldValue } from "../../api/protocol";
-import { displayValue } from "../../lib/values";
 import { EnumControl } from "./EnumControl";
 import { NullableControl, UnionControl } from "./VariantControl";
 import { ReferenceControl } from "./reference/ReferenceControl";
 import { useValueCommit } from "./useValueCommit";
 import { TextualControl } from "./TextualControl";
-import { TextCapacityHint } from "./TextCapacityHint";
+import { ReadOnlyField } from "./ReadOnlyField";
 
 export interface FieldControlProps {
   id: string;
@@ -31,15 +30,9 @@ export interface FieldControlProps {
 
 /** Picks a control from the spec. Plugins never choose widgets; this mapping is the only place that does. */
 export function FieldControl(props: FieldControlProps) {
-  const { spec, value, disabled } = props;
+  const { spec, disabled } = props;
   if (spec.kind === "reference") return <ReferenceControl {...props} spec={spec} />;
-  if (spec.readOnly || disabled) {
-    const text = displayValue(spec, value);
-    const display = <span title={text} className={spec.kind === "integer" && spec.format === "Hex" ? "readonly-value mono" : "readonly-value"}>{text}</span>;
-    return spec.kind === "text" && spec.maxUtf8Bytes !== undefined ? <div className={`textual-control${props.compact ? " textual-control--compact" : ""}`}>
-      {display}<TextCapacityHint id={`${props.id}-capacity`} text={text} capacity={spec.maxUtf8Bytes} compact={props.compact} />
-    </div> : display;
-  }
+  if (spec.readOnly || disabled) return <ReadOnlyField {...props} />;
   switch (spec.kind) {
     case "nullable":
       return <NullableControl {...props} spec={spec} renderInner={(inner) => <FieldControl {...inner} />} />;

@@ -13,15 +13,27 @@ afterEach(() => { cleanup(); clearReviewClients(); vi.restoreAllMocks(); restore
 const preview: ActionPreview = { planId: "plan", revision: 1, scope: {}, plan: { errors: [], warnings: [], skippedRows: [],
   changes: [{ valueId: "caption", label: "Caption", oldValue: "old", newValue: "🎮", oldExists: true, newExists: true, derived: false }] } };
 
-function setup() {
+function setup(maxUtf8Bytes: number | null = 4) {
   const fixture = renderDocument(<ActionButton node={{ type: "action", actionId: "rename", label: "Rename", supportsPlanning: true,
-    parameters: [{ type: "field", valueId: "caption", label: "Caption", description: "Save manager caption", spec: { kind: "text", maxUtf8Bytes: 4 }, value: "old" }] }} />);
+    parameters: [{ type: "field", valueId: "caption", label: "Caption", description: "Save manager caption", spec: { kind: "text", maxUtf8Bytes }, value: "old" }] }} />);
   fireEvent.click(screen.getByRole("button", { name: "Rename" }));
   const input = screen.getByRole("textbox", { name: "Caption" });
   fireEvent.change(input, { target: { value: "🎮" } });
   fireEvent.blur(input);
   return fixture;
 }
+
+it("previews explicit-null wire capacity parameters without a byte counter or validation block", async () => {
+  const plan = vi.spyOn(actionReview, "plan").mockResolvedValue(preview);
+  setup(null);
+  const input = screen.getByRole("textbox", { name: "Caption" });
+  fireEvent.change(input, { target: { value: "🎮🎮" } });
+  fireEvent.blur(input);
+  expect(document.querySelector(".text-capacity")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Preview" }));
+  await screen.findByRole("button", { name: "Apply" });
+  expect(plan).toHaveBeenCalledExactlyOnceWith("w1", "d1", "rename", { caption: "🎮🎮" }, {}, 1);
+});
 
 it("shows a byte-aware action parameter and disables an empty preview without applying or changing history", async () => {
   const plan = vi.spyOn(actionReview, "plan").mockResolvedValue({ ...preview, plan: { ...preview.plan, changes: [] } });
