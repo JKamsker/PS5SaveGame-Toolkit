@@ -23,11 +23,16 @@ internal static class InventoryLabels
 
     internal static string Category(InventoryItem item, InventoryState state)
     {
-        var id = InventoryState.ShortId(state.Asset(item));
+        var asset = state.Asset(item);
+        return Category(item, asset, state.Catalog?.Find(InventoryState.ShortId(asset))?.Category);
+    }
+
+    internal static string Category(InventoryItem item, string asset, string? catalogCategory)
+    {
+        var id = InventoryState.ShortId(asset);
         if (id is "" or "None") return "empty";
-        var catalogCategory = state.Catalog?.Find(id)?.Category;
         if (catalogCategory is not null) return catalogCategory;
-        if (state.Asset(item).Contains("/Consumables/", StringComparison.Ordinal)) return "consumable (inferred)";
+        if (asset.Contains("/Consumables/", StringComparison.Ordinal)) return "consumable (inferred)";
         return item.Container[(item.Container.LastIndexOf('/') + 1)..] switch {
             "ResourcesList" => "resource (inferred)", "SpecialResourcesList" => "special resource (inferred)",
             "AmmoList" => "ammunition (inferred)", "AuxList" => "auxiliary (inferred)",

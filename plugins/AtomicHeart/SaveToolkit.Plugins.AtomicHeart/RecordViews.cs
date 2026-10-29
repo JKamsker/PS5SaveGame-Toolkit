@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.AtomicHeart;
 
 internal sealed class RecordViews
 {
-    private sealed record PropertyGroup(IReadOnlyList<TaggedProperty> Members);
+    private sealed record PropertyGroup(string Path, IReadOnlyList<TaggedProperty> Members, string[] Segments);
     private readonly RecordIndex index;
     private readonly Func<string, string, FieldSpec, Func<FieldValue>, FieldNode> bind;
     private readonly Func<TaggedProperty, FieldValue> current;
@@ -15,7 +15,6 @@ internal sealed class RecordViews
     private readonly List<PropertyGroup> groups = [];
     private readonly Dictionary<TaggedProperty, int> childGroups = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<string, int> objectGroups = new(StringComparer.Ordinal);
-    private readonly Dictionary<TaggedProperty, string> propertyPaths = new(ReferenceEqualityComparer.Instance);
     private int pathUnits;
 
     internal RecordViews(RecordIndex index, Func<string, string, FieldSpec, Func<FieldValue>, FieldNode> bind,
@@ -82,15 +81,15 @@ internal sealed class RecordViews
     private IReadOnlyList<ViewNode> Properties(int groupId, int start)
     {
         var group = groups[groupId];
-        var nodes = group.Members.Skip(start).Take(AtomicHeartDocument.PageSize).Select(property =>
+        var nodes = group.Members.Skip(start).Take(AtomicHeartDocument.PageSize).Select((property, offset) =>
         {
-            var id = propertyPaths[property];
             if (property.Children.Count != 0)
                 return (ViewNode)SectionNode.Lazy($"{property.Name} · {property.Detail} · {Span(property.Payload)}", $"inspect/group/{childGroups[property]}/0");
             if (property.Value is not { } value)
                 return new SectionNode($"{property.Name} · {property.Type} {property.Detail}", [Hex(property.Payload, "Opaque property payload")]);
             var reference = property.Name is "PrimaryAssetName" or "ItemDataAsset" && value.Kind == FieldValueKind.Text
                 ? catalog?.Find(InventoryState.ShortId(current(property).AsString())) : null;
+            var id = group.Path + "/" + group.Segments[start + offset];
             return bind(id, reference?.Name ?? property.Name, reference is null ? Spec(value) : new ReferenceSpec(InventoryViews.CatalogId)
                 { ReadOnly = true },
                 () => reference is null ? current(property) : FieldValue.Of(InventoryState.ShortId(current(property).AsString()))) with {
@@ -108,18 +107,23 @@ internal sealed class RecordViews
     private int AddGroup(string path, IReadOnlyList<TaggedProperty> members)
     {
         var id = groups.Count;
-        groups.Add(new(members));
-        var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach (var property in members)
+        var segments = new string[members.Count];
+        groups.Add(new(path, members, segments));
+        var occurrences = new Dictionary<(string Name, int ArrayIndex), int>();
+        for (var ordinal = 0; ordinal < members.Count; ordinal++)
         {
-            var propertyPath = $"{path}/{Uri.EscapeDataString(property.Name)}[{property.ArrayIndex}]";
-            var occurrence = occurrences.GetValueOrDefault(propertyPath);
-            occurrences[propertyPath] = occurrence + 1;
-            if (occurrence != 0) propertyPath += $"#{occurrence + 1}";
-            pathUnits = checked(pathUnits + propertyPath.Length);
+            var property = members[ordinal];
+            var identity = (property.Name, property.ArrayIndex);
+            var occurrence = occurrences.GetValueOrDefault(identity);
+            occurrences[identity] = occurrence + 1;
+            var segment = $"{Uri.EscapeDataString(property.Name)}[{property.ArrayIndex}]";
+            if (occurrence != 0) segment += $"#{occurrence + 1}";
+            segments[ordinal] = segment;
+            // Count every eventual full identity now, including unopened leaves. Deferring its
+            // allocation must not defer or weaken the aggregate identity budget at Open.
+            pathUnits = checked(pathUnits + path.Length + 1 + segment.Length);
             if (pathUnits > RecordIndex.MaxIndexPathUnits) throw new SaveFormatException("Property identity text exceeds the index budget.");
-            propertyPaths.Add(property, propertyPath);
-            if (property.Children.Count != 0) childGroups.Add(property, AddGroup(propertyPath, property.Children));
+            if (property.Children.Count != 0) childGroups.Add(property, AddGroup(path + "/" + segment, property.Children));
         }
         return id;
     }

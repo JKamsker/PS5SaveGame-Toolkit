@@ -9,6 +9,8 @@ namespace SaveToolkit.Plugins.AtomicHeart;
 internal sealed class InventoryCollection(InventoryState state, InventoryViews views)
 {
     internal const string Id = "atomic-heart.inventory";
+    private sealed record Description(string Asset, string Name, string Category);
+    private readonly Dictionary<int, Description> descriptions = [];
     private static readonly EmptyRowPresentation EmptyRows = new("asset");
     private static readonly IReadOnlyList<QueryableColumn> Columns = [
         new("container", "Container", new TextSpec()), new("icon", "Icon"), new("asset", "Item reference", new TextSpec()),
@@ -27,17 +29,13 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
     {
         if (query.Cursor is not null) throw new ArgumentException("Use offset paging for inventory slots.", nameof(query));
         IEnumerable<InventoryItem> entries = state.Items;
-        if (!string.IsNullOrWhiteSpace(query.Text)) entries = entries.Where(item =>
-            Text(item, "asset").Contains(query.Text, StringComparison.OrdinalIgnoreCase) ||
-            Text(item, "raw").Contains(query.Text, StringComparison.OrdinalIgnoreCase) ||
-            Text(item, "container").Contains(query.Text, StringComparison.OrdinalIgnoreCase) ||
-            Text(item, "category").Contains(query.Text, StringComparison.OrdinalIgnoreCase) ||
-            Text(item, "instance").Contains(query.Text, StringComparison.OrdinalIgnoreCase) ||
-            Text(item, "amount").Contains(query.Text, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(query.Text)) entries = entries.Where(item => MatchesText(item, query.Text));
         foreach (var (column, value) in query.Filters)
         {
             ValidateColumn(column);
-            entries = entries.Where(item => Text(item, column).Equals(value, StringComparison.OrdinalIgnoreCase));
+            entries = entries.Where(item => column is "amount" or "instance"
+                ? MatchesNumber(item, column, value, exact: true)
+                : Text(item, column).Equals(value, StringComparison.OrdinalIgnoreCase));
         }
         var matching = entries.ToArray();
         var includeEmpty = query.IncludeEmpty ?? !EmptyRows.HideByDefault;
@@ -58,11 +56,42 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
 
     private long Number(InventoryItem item, string column) => column == "instance" ? item.InstanceId : state.Current(item.Quantity).AsInt64();
     private string Text(InventoryItem item, string column) => column switch {
-        "asset" => state.Catalog?.Find(InventoryState.ShortId(state.Asset(item)))?.Name ?? InventoryLabels.Name(InventoryState.ShortId(state.Asset(item))),
-        "raw" => state.Asset(item), "container" => item.Container, "category" => InventoryLabels.Category(item, state),
-        "amount" or "instance" => Number(item, column).ToString(CultureInfo.InvariantCulture),
+        "asset" => Describe(item).Name,
+        "raw" => state.Asset(item), "container" => item.Container, "category" => Describe(item).Category,
         _ => throw new ArgumentException($"Unknown inventory column '{column}'.", nameof(column)),
     };
+
+    private Description Describe(InventoryItem item)
+    {
+        var asset = state.Asset(item);
+        var offset = item.Asset.Payload.Offset;
+        if (descriptions.TryGetValue(offset, out var description) && description.Asset == asset) return description;
+        var id = InventoryState.ShortId(asset);
+        var reference = state.Catalog?.Find(id);
+        description = new(asset, reference?.Name ?? InventoryLabels.Name(id), InventoryLabels.Category(item, asset, reference?.Category));
+        // One last description per native slot, so edits and undo refresh the label without
+        // growing a history of labels. Quantities and vacancy are always read from live state.
+        descriptions[offset] = description;
+        return description;
+    }
+
+    private bool MatchesText(InventoryItem item, string text)
+    {
+        var description = Describe(item);
+        return description.Name.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+            description.Asset.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+            item.Container.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+            description.Category.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+            MatchesNumber(item, "instance", text, exact: false) || MatchesNumber(item, "amount", text, exact: false);
+    }
+
+    private bool MatchesNumber(InventoryItem item, string column, string text, bool exact)
+    {
+        Span<char> buffer = stackalloc char[32];
+        if (!Number(item, column).TryFormat(buffer, out var written, provider: CultureInfo.InvariantCulture)) return false;
+        return exact ? buffer[..written].Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase)
+            : buffer[..written].Contains(text.AsSpan(), StringComparison.OrdinalIgnoreCase);
+    }
     private static void ValidateColumn(string column)
     {
         if (column is not ("asset" or "raw" or "container" or "category" or "amount" or "instance"))
