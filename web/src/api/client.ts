@@ -100,7 +100,8 @@ export const api = {
   queryCollection: (wsId: string, docId: string, collectionId: string, query: CollectionQuery = {}, revision?: number) => {
     const params = new URLSearchParams({ collectionId });
     if (query.q) params.set("q", query.q);
-    if (query.filters && Object.keys(query.filters).length > 0) params.set("filters", JSON.stringify(query.filters));
+    const filters = Object.fromEntries(Object.entries(query.filters ?? {}).filter(([, value]) => value !== ""));
+    if (Object.keys(filters).length > 0) params.set("filters", JSON.stringify(filters));
     if (query.sort) params.set("sort", query.sort);
     if (query.descending) params.set("descending", "true");
     if (query.includeEmpty !== undefined) params.set("includeEmpty", String(query.includeEmpty));

@@ -54,7 +54,7 @@ test("queryable search, column filters, sorting and paging cover unloaded rows",
 
 // #40: an empty exact-match filter is still sent as { type: "" }; GenericJson
 // matches it literally, hiding every row. Clearing the UI must remove the filter.
-test.fixme("clearing a JSON-type filter restores all rows (#40)", async ({ page }) => {
+test("clearing a JSON-type filter restores all rows (#40)", async ({ page }) => {
   await importSave(page, { [savePath]: fixture("queryable.json") });
   await openJson(page);
   await page.getByRole("tab", { name: "Search", exact: true }).click();
