@@ -12,6 +12,8 @@ internal sealed class FieldReferenceDocument : BoundSaveDocument, IFieldMetadata
     public bool ShowCanonical { get; init; } = true;
     public bool Editable { get; init; } = true;
     public bool PublishPresentation { get; set; } = true;
+    public bool LargeLegacyView { get; set; }
+    public bool ReferencesOnlyInPages { get; set; }
     public FieldPresentation? AnnotationOverride { get; set; }
     public int Expansions { get; private set; }
     public int Queries { get; private set; }
@@ -42,6 +44,7 @@ internal sealed class FieldReferenceDocument : BoundSaveDocument, IFieldMetadata
 
     public override ViewNode BuildView()
     {
+        if (LargeLegacyView) return new SectionNode(Title, LegacyNodes());
         Bind();
         var children = new List<ViewNode>
         {
@@ -56,6 +59,7 @@ internal sealed class FieldReferenceDocument : BoundSaveDocument, IFieldMetadata
         {
             Confidence = Confidence.Inferred, Warning = "Unverified gameplay meaning.", Description = "Canonical explanation",
         });
+        if (ReferencesOnlyInPages) children.RemoveAll(node => node is FieldReferenceNode);
         return new SectionNode(Title, children);
     }
 
@@ -63,8 +67,12 @@ internal sealed class FieldReferenceDocument : BoundSaveDocument, IFieldMetadata
     {
         if (lazyId != "more") throw new KeyNotFoundException();
         Expansions++;
+        if (LargeLegacyView) return LegacyNodes();
         return [new TabsNode([new("Projection tab", [Table()])])];
     }
+
+    private static ViewNode[] LegacyNodes() => Enumerable.Range(0, 100_001)
+        .Select(index => (ViewNode)SectionNode.Lazy("Item", "legacy/" + index)).ToArray();
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
     {

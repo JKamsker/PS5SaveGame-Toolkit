@@ -56,11 +56,14 @@ internal sealed class FieldReferenceProjection(ISaveDocument document, ViewIndex
         var pending = new Stack<(ViewNode Node, int Depth)>();
         pending.Push((root, 0));
         var count = 0;
+        var exceededBudget = false;
         while (pending.TryPop(out var entry))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (++count > MaxNodes || entry.Depth > MaxDepth)
-                throw new InvalidOperationException("Field-reference projection traversal exceeds its node or depth budget.");
+            // Ordinary legacy trees retain their existing size policy, even after a reference page.
+            // Only reference-bearing output opts into the projection traversal budget. Defer the
+            // failure until a reference is seen so its position cannot bypass the bound.
+            exceededBudget |= ++count > MaxNodes || entry.Depth > MaxDepth;
             if (entry.Node is FieldReferenceNode reference)
             {
                 reference.Validate();
@@ -68,6 +71,8 @@ internal sealed class FieldReferenceProjection(ISaveDocument document, ViewIndex
                 if (_targets.Count > MaxTargets)
                     throw new InvalidOperationException("Too many distinct field-reference targets.");
             }
+            if (exceededBudget && _targets.Count > 0)
+                throw new InvalidOperationException("Field-reference projection traversal exceeds its node or depth budget.");
             // Lazy children are ignored just as they are by ViewIndex. Action parameters are local inputs.
             foreach (var child in Children(entry.Node)) pending.Push((child, entry.Depth + 1));
         }

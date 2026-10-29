@@ -40,6 +40,9 @@ reference unavailable rather than constructing an editable field that could omit
 When a canonical `FieldNode` has already been loaded, its annotations can supply the fallback.
 Explicit presentation metadata is authoritative; the host rejects conflicts with learned canonical
 annotations rather than silently dropping a warning or changing confidence.
+Multiple learned `FieldNode` instances for one target must also agree on confidence, warning and
+description. A reference to contradictory learned annotations is rejected, including when metadata
+presentation is unspecified. Ordinary legacy views without references retain their existing behavior.
 
 Existing plugins and `FieldNode` callers keep their behavior. A partially metadata-aware document
 can also reference a loaded, view-only field. A previously registered target cannot fall back to a
@@ -65,10 +68,15 @@ bounded collection-page boundaries. Resolution batches distinct target IDs throu
 200-ID metadata lifecycle. It never expands hidden sections or fetches other collection pages.
 Reference trees have a 100,000-node, 128-level traversal budget and 10,000 distinct-target budget;
 ordinary views without references keep their existing behavior and node identity.
+This decision uses the current outgoing tree; loading a reference page does not impose the reference
+budget on an unrelated later ordinary root or expansion.
 The host measures the **normalized** UTF-8 JSON, including canonical specs, full values, warnings,
 descriptions and escaping, against a 2 MiB budget for reference-bearing views/expansions/pages.
 Oversized canonical targets or combined presentations fail with HTTP 413 before partial output;
 the existing collection envelope independently enforces its full 2 MiB cap. Values are never clipped.
+Initial views are captured before publishing a new session or group. A failed eager response disposes
+the candidate, retains any existing clean owner, and leaves group confirmation retryable; the API
+returns the validated snapshot without rebuilding it after ownership is published.
 Consumers must retain a bounded text/detail fallback for very long scalars rather than presenting
 hundreds of large editable strings merely because the provider's unresolved references are small.
 

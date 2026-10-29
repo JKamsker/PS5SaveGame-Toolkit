@@ -7,6 +7,36 @@ namespace SaveToolkit.Core.Tests;
 public sealed class FieldReferencePresentationTests
 {
     [Theory]
+    [InlineData(false, "warning")]
+    [InlineData(false, "confidence")]
+    [InlineData(false, "description")]
+    [InlineData(true, "warning")]
+    [InlineData(true, "confidence")]
+    [InlineData(true, "description")]
+    public void ContradictoryLoadedAnnotationsCannotOverwriteCanonicalEvidence(bool metadataAware, string annotation)
+    {
+        using var document = new FieldReferenceDocument { PublishPresentation = false };
+        var root = Assert.IsType<SectionNode>(document.BuildView());
+        var canonical = Assert.IsType<FieldNode>(root.Children[^1]);
+        var index = metadataAware ? new ViewIndex(document) : new ViewIndex();
+        index.Add(canonical);
+        index.Add(canonical with { Label = "Another caption" });
+        var conflicting = annotation switch
+        {
+            "warning" => canonical with { Warning = null },
+            "confidence" => canonical with { Confidence = Confidence.Verified },
+            _ => canonical with { Description = null },
+        };
+        Assert.Equal(canonical.Value, conflicting.Value);
+        Assert.Same(canonical.Spec, conflicting.Spec);
+        index.Add(conflicting);
+        Assert.Same(conflicting, index.ResolveFieldReferences(document, conflicting)); // Legacy non-reference rendering stays compatible.
+        Assert.Contains("annotations conflict", Assert.Throws<InvalidOperationException>(() =>
+            index.ResolveFieldReferences(document, new FieldReferenceNode("quantity"))).Message, StringComparison.Ordinal);
+        Assert.Equal(0, document.Writes);
+    }
+
+    [Theory]
     [InlineData(null)]
     [InlineData(Confidence.Unknown)]
     [InlineData(Confidence.Inferred)]

@@ -10,6 +10,21 @@ public sealed class FieldReferenceBudgetTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
+    public void ReferenceBearingOutputStillEnforcesTraversalBudgetRegardlessOfReferencePosition(bool referenceFirst)
+    {
+        using var document = new FieldReferenceDocument();
+        var children = Enumerable.Repeat<ViewNode>(new TextNode("ordinary"), 100_001).ToList();
+        children.Insert(referenceFirst ? 0 : children.Count, new FieldReferenceNode("quantity"));
+        var root = new SectionNode("Bounded references", children);
+        var index = new ViewIndex(document);
+        index.Add(root);
+        Assert.Contains("traversal", Assert.Throws<InvalidOperationException>(() => index.ResolveFieldReferences(document, root)).Message, StringComparison.Ordinal);
+        Assert.Empty(document.MetadataRequests);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
     public void NormalizedFullValuesAndCanonicalAnnotationsAreBudgetedInsteadOfTinyProviderReferences(bool oversizedWarning)
     {
         using var document = new FieldReferenceBudgetDocument(oversizedWarning ? "small value" : new string('"', 4000),

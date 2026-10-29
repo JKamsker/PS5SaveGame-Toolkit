@@ -7,6 +7,23 @@ namespace SaveToolkit.Core.Tests;
 public sealed class FieldReferenceSessionTests
 {
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void PriorReferencePageOrExpansionDoesNotBoundLaterOrdinaryRootOrExpansion(bool queryFirst)
+    {
+        using var fixture = new FieldReferenceSessionFixture(loaded: false);
+        fixture.Document.ReferencesOnlyInPages = true;
+        _ = fixture.Session.BuildView();
+        if (queryFirst) _ = fixture.Session.QueryCollection("items", new() { Limit = 1 });
+        else _ = fixture.Session.Expand("more");
+        fixture.Document.LargeLegacyView = true;
+        Assert.Equal(100_001, Assert.IsType<SectionNode>(fixture.Session.BuildView()).Children.Count);
+        Assert.Equal(100_001, fixture.Session.Expand("more").Count);
+        Assert.Empty(fixture.Session.Serialize());
+        Assert.False(fixture.Session.State.IsDirty);
+    }
+
+    [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public void ProjectionsShareCurrentValueSpecValidationAndHistoryWithoutOpeningCanonicalView(bool loaded)

@@ -44,7 +44,7 @@ internal static class WorkspaceEndpoints
                 : Results.NotFound()).Produces<byte[]>(contentType: "image/png");
 
         ws.MapPost("/files/{fileId}/open", (WorkspaceRef w, string fileId, [FromBody] OpenRequest? request) =>
-            w.Value.Open(fileId, request?.PluginId).ToDto())
+            w.Value.Open(fileId, request?.PluginId, out var view).ToDto(initialView: view))
             .WithApiErrors(Status400BadRequest, Status409Conflict, Status413PayloadTooLarge, Status415UnsupportedMediaType, Status422UnprocessableEntity);
 
         ws.MapDocumentGroups();
