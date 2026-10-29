@@ -89,8 +89,8 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
         if (_inventory is not null)
         {
             tabs.Add(new Tab("Inventory", [new TextNode(
-                "Experimental edits: only existing unlocked records can change. Ammo updates both count copies. " +
-                "Not validated on console. The game may clamp quantities to its capacity limits.") { Tone = Tone.Warning },
+                TsushimaWriteWarnings.Console + " Experimental edits: only existing unlocked records can change. " +
+                "Ammo updates both count copies. The game may clamp quantities to its capacity limits.") { Tone = Tone.Warning },
                 _views.Inventory(_inventory, QuantityField, MirrorField), TsushimaQuantityPlanning.View, TsushimaQuantityPlanning.InventoryView,
                 TsushimaReferenceViews.ResourceGuide]));
             if (_identifiers.Count > 0)

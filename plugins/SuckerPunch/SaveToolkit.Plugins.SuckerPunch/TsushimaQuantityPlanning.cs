@@ -13,7 +13,8 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
     public const string QuantityParameter = "quantity";
     private const uint OldestObservedVersion = 47;
     private const uint LatestObservedVersion = 49;
-    public const string CapacityWarning = "Experimental: not validated on console. Game carrying capacities and console persistence are unverified. " +
+    public const string CapacityWarning = TsushimaWriteWarnings.Console + " Experimental. " +
+        "The game may clamp quantities to its capacity limits. Game carrying capacities and console persistence are unverified. " +
         "This sets a target quantity, not a capacity refill. Hide retains its raw name because its friendly mapping is unproven.";
 
     public static ActionNode View => new(ActionId, "Set existing goods quantity")

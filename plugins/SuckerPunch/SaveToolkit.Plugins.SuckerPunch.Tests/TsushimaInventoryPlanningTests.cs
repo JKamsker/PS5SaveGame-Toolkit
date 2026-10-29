@@ -31,7 +31,7 @@ public sealed class TsushimaInventoryPlanningTests
             var scope = new ActionScope();
             var plan = planner.PlanAction(ActionId, Target(7), scope);
             Assert.Empty(plan.Errors);
-            Assert.Contains("not validated on console", Assert.Single(plan.Warnings));
+            Assert.Contains("Not validated on console", Assert.Single(plan.Warnings));
             Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
             var writable = inventory.Rows.Select(row => (FieldNode)row.Cells["quantity"])
                 .Where(field => !field.Spec.ReadOnly && field.Value.AsInt32() != 7).ToArray();
@@ -82,7 +82,7 @@ public sealed class TsushimaInventoryPlanningTests
         var action = view.Tabs.Single(tab => tab.Title == "Inventory").Children.OfType<ActionNode>()
             .Single(action => action.ActionId == ActionId);
         Assert.True(action.SupportsPlanning);
-        Assert.Contains("not validated on console", action.Description);
+        Assert.Contains("Not validated on console", action.Description);
         var parameters = new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("7") };
         Assert.False(session.InvokeAction(ActionId, parameters).Ok);
         var preview = session.PlanAction(ActionId, parameters, new ActionScope(["Supplies", "ArrowNormal"]));

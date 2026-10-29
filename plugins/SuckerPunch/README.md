@@ -121,8 +121,8 @@ Still disabled for structural safety:
 | F9 maps and graphs | Used | Techniques publish a validated read-only `GraphNode` with field targets and a text alternative; World publishes a validated `MapNode` with attributed whole-island art, row targets, Unknown statuses and unpositioned markers because alignment is unverified; the schematic/list fallback remains. Yōtei adds a 10-node Unknown technique graph and 16-location map/table; only Horizon View is placed on its local screenshot excerpt. |
 | F10 exact numbers and nullable/union specs | N/A | Supported edits are fixed-width uint32 quantities and an observed float32 timer; no save field carries an exact JSON number lexeme, nullable value or union that this plugin could preserve. |
 | F11 shared codecs | N/A | Tsushima/Yōtei samples are fixed-size plaintext containers; no Kraken, Oodle or SQLite codec is involved. |
-| F12 SaveDiff traversal/decoder hooks | Added | `ISaveDecoderProvider` registers SDK-only `suckerpunch.native-v1`; the F1 fixture uses the hook through `HookSaveDecoder`. Separate `PluginViewDecoder` tests traverse every F8 equipment row across small pages and verify incomplete-input limits. Yōtei hook now emits 48 quantities/eligibility, ammo copies, 33 statistics, 2,074 gear bytes and 192 secondary-registry words. |
-| F13 inspect actions/picker filtering/duration | Added | The float32 timer declares Duration/seconds. Inventory, equipment, techniques and all six guide catalogs use browse-only read-only references with shared category filters and declared sorting; guide tables use catalog category ordering. Inspection actions are N/A: existing actions change quantities and there is no message-only inspection operation to opt in. Yōtei references use browse-only pickers with catalogue category/search/sort; its play timer is unknown so no duration is guessed. |
+| F12 SaveDiff traversal/decoder hooks | Used | `ISaveDecoderProvider` registers SDK-only `suckerpunch.native-v1`; the F1 fixture uses the hook through `HookSaveDecoder`. Separate `PluginViewDecoder` tests traverse every F8 equipment row across small pages and verify incomplete-input limits. Yōtei hook now emits 48 quantities/eligibility, ammo copies, 33 statistics, 2,074 gear bytes and 192 secondary-registry words. |
+| F13 inspect actions/picker filtering/duration | Used | The float32 timer declares Duration/seconds. Inventory, equipment, techniques and all six guide catalogs use browse-only read-only references with shared category filters and declared sorting; guide tables use catalog category ordering. Inspection actions are N/A: existing actions change quantities and there is no message-only inspection operation to opt in. Yōtei references use browse-only pickers with catalogue category/search/sort; its play timer is unknown so no duration is guessed. |
 
 The merged F4/F6 parameter fix (`63580dc`) is N/A here: all planned actions accept only a
 bounded integer target quantity, with no `EnumSpec` ID fallback or reference replacement parameter.
@@ -415,9 +415,9 @@ save-specific denominator or completed count. No Yōtei entries are imported int
 
 ## Licence exclusions
 
-| Source / revision | Terms found | Status and alternative | Remaining requirement |
-| --- | --- | --- | --- |
-| [PowerPyx Tsushima guide](https://www.powerpyx.com/ghost-of-tsushima-wiki-strategy-guide/), historical check 2026-10-28 | No separate media licence recorded | Resolved: publisher-asset refusal superseded by owner decision 2026-10-29. Attributed wiki island art and game icons imported instead; PowerPyx remains an optional source link. | Marker alignment and native saved-state joins still need evidence; these are not licence refusals. |
+| Source / revision | Licence found | Disposition | Alternative | Unblock |
+| --- | --- | --- | --- | --- |
+| [PowerPyx Tsushima guide](https://www.powerpyx.com/ghost-of-tsushima-wiki-strategy-guide/), historical check 2026-10-28 | No separate media licence recorded | Resolved: publisher-asset refusal superseded by owner decision 2026-10-29. | Attributed wiki island art and game icons imported instead; PowerPyx remains an optional source link. | No remaining licence blocker. Marker alignment and native saved-state joins still need evidence; these are not licence refusals. |
 
 ### Remaining work and owner captures
 

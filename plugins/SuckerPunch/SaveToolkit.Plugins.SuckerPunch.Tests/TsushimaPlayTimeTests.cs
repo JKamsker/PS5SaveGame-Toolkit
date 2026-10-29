@@ -38,6 +38,7 @@ public sealed class TsushimaPlayTimeTests
             Assert.False(field.Spec.ReadOnly);
             Assert.Equal(Confidence.Inferred, field.Confidence);
             Assert.Contains("Not validated on console", field.Description);
+            Assert.StartsWith("Not validated on console. The game may reject or overwrite the edited save.", field.Warning);
             Assert.Contains("param.sfo SUBTITLE remain unchanged", field.Warning);
             var spec = Assert.IsType<FloatSpec>(field.Spec);
             Assert.Equal(FloatFormat.Duration, spec.Format);

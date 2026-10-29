@@ -9,7 +9,7 @@ internal sealed class TsushimaPlayTime(byte[] bytes, int offset, float originalS
     public const string ValueId = "progress/play-seconds";
     // Highest observed v48/v49 timer in the supplied corpus; this is an editor policy, not a game limit.
     private const float HighestObservedSeconds = 198_318.828125f;
-    public const string Warning = "Not validated on console. Based on v48/v49 timer/subtitle correlations. " +
+    public const string Warning = TsushimaWriteWarnings.Console + " Based on v48/v49 timer/subtitle correlations. " +
         "Only the timer and container checksum change; per-difficulty counters and param.sfo SUBTITLE remain unchanged and may disagree. " +
         "The game may normalize or reject the edited save. The upper bound is the observed range or the original value, not a game limit.";
 
