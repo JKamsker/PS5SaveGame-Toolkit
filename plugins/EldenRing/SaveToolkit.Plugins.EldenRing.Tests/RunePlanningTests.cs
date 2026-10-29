@@ -1,11 +1,9 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.EldenRing.Tests;
 
@@ -18,7 +16,7 @@ public sealed class RunePlanningTests
     [Fact]
     public void SamplePreviewApplyReviewUndoRedo_OnlyTouchTheExistingFourByteRuneField()
     {
-        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup);
+        var file = WriteTestSupport.Sample();
         var original = file.ReadAllBytes();
         var expected = original.ToArray();
         BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(0xA2FF + 0x64), 1148);
@@ -115,7 +113,7 @@ public sealed class RunePlanningTests
     [Fact]
     public void SessionRejectsStalePlansAndNoopDoesNotCreateUndoHistory()
     {
-        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup);
+        var file = WriteTestSupport.Sample();
         var plugin = new EldenRingPlugin();
         using var session = new DocumentSession("stale-runes", file, plugin, plugin.Open(file));
         _ = session.BuildView();

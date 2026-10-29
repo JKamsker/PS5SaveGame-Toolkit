@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
@@ -19,7 +18,7 @@ public sealed class SampleTests(ITestOutputHelper output)
     [Fact]
     public void JapaneseSample_HasKnownCharacterAndMatchingProfile()
     {
-        using var document = new EldenRingPlugin().Open(Primary());
+        using var document = new EldenRingPlugin().Open(WriteTestSupport.Sample());
         var view = Assert.IsType<TabsNode>(document.BuildView());
         var table = Assert.IsType<TableNode>(view.Tabs[0].Children[^1]);
         Assert.Equal(10, table.Rows.Count);
@@ -62,7 +61,7 @@ public sealed class SampleTests(ITestOutputHelper output)
     [Fact]
     public void RealRuneEdit_UndoAndRedo_PreserveEveryOtherByte()
     {
-        var file = Primary();
+        var file = WriteTestSupport.Sample();
         var original = file.ReadAllBytes();
         var expected = original.ToArray();
         BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(SampleRunesOffset), EditedRunes);
@@ -85,7 +84,7 @@ public sealed class SampleTests(ITestOutputHelper output)
     [Fact]
     public void SampleOpenAndViews_AreBoundedAndCompleteWithinTwoSeconds()
     {
-        var file = Primary();
+        var file = WriteTestSupport.Sample();
         var watch = Stopwatch.StartNew();
         using var document = new EldenRingPlugin().Open(file);
         var view = Assert.IsType<TabsNode>(document.BuildView());
@@ -99,6 +98,4 @@ public sealed class SampleTests(ITestOutputHelper output)
         Assert.InRange(watch.Elapsed.TotalSeconds, 0, 2);
     }
 
-    private static DiskSaveFile Primary() => SampleSaves.Load("PPSA03169").AllDiskFiles.First(file =>
-        file.FileName == "memory.dat" && !file.Directory.IsBackup && file.Directory.Generation == 0);
 }
