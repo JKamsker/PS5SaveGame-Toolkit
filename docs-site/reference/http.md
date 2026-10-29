@@ -14,5 +14,5 @@ Read the [HTTP behavior guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/b
 
 <noscript>The interactive operation and schema reference needs JavaScript. The generated OpenAPI JSON and HTTP behavior guide above remain available.</noscript>
 
-<redoc spec-url="openapi.json" disable-telemetry="true" layout="stacked" router="hash" schema-definitions-tag-name="Schemas" sort-required-props-first="true"></redoc>
-<script type="module" src="../assets/redoc/redoc.standalone.js"></script>
+<div id="http-reference" role="region" aria-label="HTTP operations and schemas">Loading the generated operation and schema reference…</div>
+<script type="module" src="../assets/http-reference.js"></script>

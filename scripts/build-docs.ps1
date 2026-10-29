@@ -20,7 +20,7 @@ New-Item -ItemType Directory -Force -Path $scratch | Out-Null
 # Never delete an earlier run; each build owns its own directory and host roots.
 $run = Join-Path $scratch ('build-' + [Guid]::NewGuid().ToString('N'))
 $stage = Join-Path $run 'source'
-$dependencies = Join-Path $scratch 'dependencies'
+$dependencies = Join-Path $run 'dependencies'
 $environmentNames = @('TEMP', 'TMP', 'TMPDIR', 'SAVETOOLKIT_TEST_TEMP', 'SAVETOOLKIT_ARTIFACTS',
     'NUGET_PACKAGES', 'DOTNET_CLI_HOME', 'npm_config_cache', 'DOTNET_NOLOGO', 'DOTNET_CLI_TELEMETRY_OPTOUT')
 $savedEnvironment = @{}
@@ -33,10 +33,10 @@ function Invoke-DocsCommand {
 }
 
 try {
-    New-Item -ItemType Directory -Force -Path $run, $stage, $dependencies, "$scratch/empty-samples" | Out-Null
+    New-Item -ItemType Directory -Force -Path $run, $stage, $dependencies, "$run/empty-samples" | Out-Null
     $env:TEMP = $env:TMP = $env:TMPDIR = $run
     $env:SAVETOOLKIT_TEST_TEMP = Join-Path $run 'tests'
-    $env:SAVETOOLKIT_ARTIFACTS = Join-Path $scratch 'empty-samples'
+    $env:SAVETOOLKIT_ARTIFACTS = Join-Path $run 'empty-samples'
     # The docs workflow configures setup-dotnet's cache to this same scratch location.
     $env:NUGET_PACKAGES = Join-Path $scratch 'nuget-packages'
     $env:DOTNET_CLI_HOME = Join-Path $scratch 'dotnet-home'

@@ -49,9 +49,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .docs-path:hover { border-color: var(--docs-accent); color: var(--docs-muted); }
 .docs-skip { position: fixed; left: 1rem; top: -6rem; z-index: 2000; padding: 0.65rem 1rem; background: var(--bs-body-bg); color: var(--docs-accent); border: 2px solid var(--docs-accent); border-radius: 0.3rem; }
 .docs-skip:focus { top: 0.5rem; }
-body:has(redoc) article { max-width: none; }
-redoc { display: block; min-height: 500px; margin-top: 2rem; }
-/* Redoc reads the same data-bs-theme mode as DocFX. Keep its typography local. */
+body:has(#http-reference) article { width: 100%; max-width: 100%; min-width: 0; }
+#http-reference { min-height: 500px; margin-top: 2rem; }
+/* Use the site-wide theme control, and keep Redoc typography local. */
+#http-reference [data-testid="color-mode-switcher"] { display: none; }
 :root {
   --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-family-monospaced: "Cascadia Code", Consolas, "Liberation Mono", monospace;

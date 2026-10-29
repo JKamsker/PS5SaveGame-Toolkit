@@ -37,7 +37,7 @@ class PipelineTests(unittest.TestCase):
         allowlist = json.loads((SITE / "public-files.json").read_text(encoding="utf-8"))
         self.assertEqual(len(allowlist), len(set(allowlist)))
         expected = {"docfx.json", "index.md", "toc.yml", "theme/public/main.css", "theme/public/main.js",
-                    "assets/toolkit.svg", "assets/redoc/logo-mini.svg", "assets/redoc/logo-mini-full.svg",
+                    "assets/toolkit.svg", "assets/http-reference.js", "assets/redoc/logo-mini.svg", "assets/redoc/logo-mini-full.svg",
                     "assets/redoc/NOTICE.txt"}
         for folder in ("getting-started", "guides", "tutorials", "reference", "contributing"):
             expected.update(path.relative_to(SITE).as_posix() for path in (SITE / folder).iterdir()
@@ -77,8 +77,10 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual("3.0.1", version)
         self.assertEqual(version, lock["packages"]["node_modules/redoc"]["version"])
         page = (SITE / "reference/http.md").read_text(encoding="utf-8")
-        self.assertIn('disable-telemetry="true"', page)
-        self.assertIn('src="../assets/redoc/redoc.standalone.js"', page)
+        initializer = (SITE / "assets/http-reference.js").read_text(encoding="utf-8")
+        self.assertIn('disableTelemetry: true', initializer)
+        self.assertIn("from './redoc/redoc.standalone.js'", initializer)
+        self.assertIn('src="../assets/http-reference.js"', page)
         self.assertNotRegex(page, r"(?:src|spec-url)=\"https?://")
 
     def test_schema_guard_ignores_only_server_origin_and_never_repins(self):

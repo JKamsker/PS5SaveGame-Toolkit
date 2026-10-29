@@ -86,13 +86,14 @@ def check(site):
         if path not in pages or symbol.rsplit(".", 1)[-1] not in path.read_text(encoding="utf-8"):
             errors.add(f"Missing rendered SDK symbol: {symbol}")
     required = ("index.html", "tutorials/first-plugin.html", "reference/http.html",
-                "reference/openapi.json", "assets/redoc/redoc.standalone.js",
+                "reference/openapi.json", "assets/redoc/redoc.standalone.js", "assets/http-reference.js",
                 "assets/redoc/LICENSE.txt", "index.json", "xrefmap.yml", ".nojekyll")
     for name in required:
         if not (site / name).is_file():
             errors.add(f"Missing required output: {name}")
     http = (site / "reference/http.html").read_text(encoding="utf-8")
-    if '<redoc ' not in http or 'disable-telemetry="true"' not in http:
+    initializer = (site / "assets/http-reference.js").read_text(encoding="utf-8")
+    if 'id="http-reference"' not in http or 'disableTelemetry: true' not in initializer:
         errors.add("HTTP reference must render locally with telemetry disabled.")
     schema = json.loads((site / "reference/openapi.json").read_text(encoding="utf-8"))
     if not schema["openapi"].startswith("3.") or not schema["paths"]:

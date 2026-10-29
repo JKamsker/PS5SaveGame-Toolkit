@@ -18,7 +18,7 @@ $site = (Get-Content -LiteralPath "$scratch/latest-site.txt" -Raw).Trim()
 python -m http.server 8080 --bind 127.0.0.1 --directory $site
 ```
 
-On the owner's Windows workstation, use the task-specific scratch convention in the repository's [disk and scratch guidance](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/RELEASING.md#disk-and-scratch). The script sets and restores temporary-storage variables, directs local downloads and build outputs to scratch, and preserves existing CI NuGet-cache configuration.
+On the owner's Windows workstation, use the task-specific scratch convention in the repository's [disk and scratch guidance](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/RELEASING.md#disk-and-scratch). The script sets and restores temporary-storage variables, directs downloads and build outputs to scratch, and uses the same NuGet scratch path as the workflow's cache.
 
 Open `http://127.0.0.1:8080`. Stop the preview with **Ctrl+C**. The server serves only static docs. Each build gets a new `build-<id>` directory; `latest-site.txt` points to the last **successful** output. Retained logs, restores and builds remain under scratch for inspection. Never recursively clean a sample directory or someone else's scratch.
 

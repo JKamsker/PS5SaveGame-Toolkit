@@ -1,17 +1,26 @@
 export default {
   start: () => {
-    // DocFX 2.81's theme toggle is an anchor without href or tabindex.
-    const themeToggle = document.querySelector('a[title="Change theme"]');
-    if (themeToggle && !themeToggle.hasAttribute('href')) {
-      themeToggle.setAttribute('role', 'button');
-      themeToggle.setAttribute('aria-label', 'Change theme');
-      themeToggle.tabIndex = 0;
-      themeToggle.addEventListener('keydown', (event) => {
+    // DocFX inserts its navbar asynchronously after start. Upgrade the theme
+    // anchor once it arrives; it otherwise has neither href nor keyboard focus.
+    const prepareThemeToggle = () => {
+      const toggle = document.querySelector('a[title="Change theme"]');
+      if (!toggle) return false;
+      toggle.setAttribute('role', 'button');
+      toggle.setAttribute('aria-label', 'Change theme');
+      toggle.tabIndex = 0;
+      toggle.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          themeToggle.click();
+          toggle.click();
         }
       });
+      return true;
+    };
+    if (!prepareThemeToggle()) {
+      const observer = new MutationObserver(() => {
+        if (prepareThemeToggle()) observer.disconnect();
+      });
+      observer.observe(document.querySelector('header') ?? document.body, { childList: true, subtree: true });
     }
     const content = document.querySelector('main, article');
     if (!content) return;
