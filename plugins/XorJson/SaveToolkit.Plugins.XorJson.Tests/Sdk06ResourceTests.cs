@@ -46,6 +46,7 @@ public sealed class Sdk06ResourceTests
         Assert.Equal('a', scalar.Original.AsString()[0]);
         Assert.Equal(sourceText.Length - prefix.Length - suffix.Length, scalar.Original.AsString().Length);
         Assert.Equal(scalar.SdkNode!.OriginalLexeme, scalar.SdkNode.CurrentLexeme);
+        Assert.Empty(tree.Lossless.CaptureSnapshot().Replacements);
         Assert.Equal(original, tree.Lossless.Serialize());
     }
 
