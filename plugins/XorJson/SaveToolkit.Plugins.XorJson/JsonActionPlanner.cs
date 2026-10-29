@@ -9,6 +9,10 @@ namespace SaveToolkit.Plugins.XorJson;
 /// <summary>Pure plans over token identities. Never registers bindings or mutates views while previewing.</summary>
 internal sealed class JsonActionPlanner(JsonEditModel model, IReferenceContext references, Func<bool> canEdit)
 {
+    private const string NonStackableSentinel = "-1";
+    private static readonly ExactNumberSpec NonStackableCount = JsonTokenTree.NumberSpec with
+    { Min = NonStackableSentinel, Max = NonStackableSentinel };
+
     public IEnumerable<ActionNode> Actions(bool character)
     {
         yield return Action(JsonActions.Bulk, "Set selected scalar values",
@@ -136,7 +140,8 @@ internal sealed class JsonActionPlanner(JsonEditModel model, IReferenceContext r
         if (slot is { Kind: FieldValueKind.Text } && slot.Value.AsString() is not ("None" or ""))
             return "Target-slot override (including possible merchant stock) is retained and skipped.";
         if (record is null || record.Category is "Cosmetic" or "QuestItem" or "Currency") return "Unknown or special-purpose item is skipped.";
-        if (id == JsonActions.Stacks && row.Member("StackCount")?.Scalar is { Kind: FieldValueKind.ExactNumber } count && count.AsExactNumber() == "-1")
+        if (id == JsonActions.Stacks && row.Member("StackCount")?.Scalar is { Kind: FieldValueKind.ExactNumber } count &&
+            ExactJsonNumber.Validate(count.AsExactNumber(), NonStackableCount) is null)
             return "Non-stackable sentinel is retained.";
         return id == JsonActions.Item && references.Catalog("xorjson-items")?.Find(replacement.AsString())?.Category != record.Category
             ? "Replacement category differs; use the individual raw editor after reviewing dependencies." : null;

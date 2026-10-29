@@ -167,6 +167,8 @@ a real PS5 inventory ID is safe. Character item replacement, quantities, power,
 rarity, effects, equip and creation remain Experimental and carry the owner
 warning. New F6 attribute, stack, item-ID and rarity plans only alter existing
 tokens, skip merchant/special rows and report unverified PC bounds/dependencies.
+Bulk stack actions also preserve every exact numeric spelling of the existing
+non-stackable `-1` sentinel, including fractional and exponent notation.
 The generic **Set selected scalar values** action uses F6
 `IActionPlanningDocument` preview/apply, including skipped incompatible rows and
 one atomic undo step; it does not synthesize game-aware presets.
