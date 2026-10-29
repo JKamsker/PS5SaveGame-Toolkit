@@ -46,7 +46,7 @@ public sealed class ScalarWriteTests
             var fields = EagerViewFields.Enumerate(session.BuildView()).Where(f => !f.Spec.ReadOnly).ToArray();
             Assert.Equal(9, fields.Length);
             var edits = fields.Select(f => new ValueEdit(f.ValueId, Next(f))).ToArray();
-            Assert.True(session.ApplyEdits(edits.Select(Incoming).ToArray()).Ok);
+            Assert.True(session.ApplyEdits(edits.Select(Incoming).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var patched = Assert.Single(document.Serialize()).Content.ToArray();
             Assert.NotEqual(file.ReadAllBytes(), patched);
             var roots = new DdlSections(Dat1Container.Parse(file.ReadAllBytes())).Roots;
@@ -82,7 +82,7 @@ public sealed class ScalarWriteTests
         _ = session.BuildView();
         _ = session.Expand("system/d436a987");
         _ = session.Expand("ddl/d436a987/CareerBolts");
-        var rejected = session.ApplyEdits([Incoming(new("player/CareerBolts", FieldValue.Of(1L)))]);
+        var rejected = session.ApplyEdits([Incoming(new("player/CareerBolts", FieldValue.Of(1L)))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(rejected.Ok);
         Assert.False(session.State.CanUndo);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
@@ -90,7 +90,7 @@ public sealed class ScalarWriteTests
         var result = session.ApplyEdits([
             Incoming(new("player/CareerBolts", FieldValue.Of(100L))),
             Incoming(new("player/SpentBolts", FieldValue.Of(50L))),
-        ]);
+        ], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         Assert.Contains(result.Changes, c => c.ValueId == "player/AvailableBolts" && c.NewValue.AsInt64() == 50);
         Assert.Contains(result.Changes, c => c.ValueId == "ddl/d436a987/CareerBolts/0" && c.NewValue.AsInt64() == 100);

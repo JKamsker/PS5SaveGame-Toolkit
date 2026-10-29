@@ -52,7 +52,7 @@ public sealed class WitcherEnabledWriteTests
             EnabledWriteFixture.Bind(session, before.Features);
             ValueEdit[] edits = [new(ranks[0].ValueId, FieldValue.Of(1)), new(ranks[^1].ValueId, FieldValue.Of(1)),
                 new("player/abilityPoints", FieldValue.Of(7)), new(item.DurabilityId, FieldValue.Of(50.0)), new(copies.ValueId, FieldValue.Of(0))];
-            var applied = session.ApplyEdits(edits.Select(e => EnabledWriteFixture.Incoming(e.ValueId, e.Value)).ToArray());
+            var applied = session.ApplyEdits(edits.Select(e => EnabledWriteFixture.Incoming(e.ValueId, e.Value)).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(applied.Ok);
             var output = Assert.Single(document.Serialize()).Content.ToArray();
             var after = EnabledWriteFixture.Read(output);
@@ -101,7 +101,7 @@ public sealed class WitcherEnabledWriteTests
             Assert.False(document.ApplyEdits([new(id, FieldValue.Of(-1))]).Succeeded);
             Assert.False(document.ApplyEdits([new(id, FieldValue.Of("invalid"))]).Succeeded);
             Assert.False(document.ApplyEdits([new(id, kind == "durability" ? FieldValue.Of(101.0) : FieldValue.Of(1.5))]).Succeeded);
-            var outcome = session.ApplyEdits([EnabledWriteFixture.Incoming(id, proposed)]);
+            var outcome = session.ApplyEdits([EnabledWriteFixture.Incoming(id, proposed)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(outcome.Ok, string.Join("; ", outcome.Errors.Select(e => e.Message)));
             var output = Assert.Single(document.Serialize()).Content.ToArray();
             using var reopened = plugin.Open(SaveToolkit.Testing.MemorySaveSet.SingleFile("Manual.sav", output, "PPSA04018"));

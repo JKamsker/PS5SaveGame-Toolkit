@@ -23,8 +23,8 @@ public sealed class HogwartsSessionTests
         foreach (var collection in session.QueryableCollections)
         {
             var query = new QueryableCollectionQuery { Limit = QueryableCollectionLimits.MaxPageSize };
-            var first = session.QueryCollection(collection.Id, query);
-            var second = session.QueryCollection(collection.Id, query);
+            var first = session.QueryCollection(collection.Id, query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+            var second = session.QueryCollection(collection.Id, query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(first.Rows.Select(row => row.Key), second.Rows.Select(row => row.Key));
             Assert.True(JsonSerializer.SerializeToUtf8Bytes(first).Length < 2 * 1024 * 1024);
             reference ??= first.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>()

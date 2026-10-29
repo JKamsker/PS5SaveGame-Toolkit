@@ -60,7 +60,7 @@ public sealed class SpatialViewTests
         var count = 0;
         for (var offset = 0; ; offset += 7)
         {
-            var page = session.QueryCollection("arsenal/graphs", new() { Offset = offset, Limit = 7 });
+            var page = session.QueryCollection("arsenal/graphs", new() { Offset = offset, Limit = 7 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             if (page.Rows.Count == 0) break;
             foreach (var row in page.Rows)
             {
@@ -113,7 +113,7 @@ public sealed class SpatialViewTests
         Assert.NotEmpty(inventory);
         foreach (var collection in inventory)
         {
-            var page = session.QueryCollection(collection.Id, new() { Limit = 3 });
+            var page = session.QueryCollection(collection.Id, new() { Limit = 3 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.InRange(page.Rows.Count, 1, 3);
             foreach (var row in page.Rows)
             {
@@ -127,7 +127,7 @@ public sealed class SpatialViewTests
         var config = Assert.IsType<FieldNode>(Assert.Single(session.QueryCollection("arsenal/weapons", new()
         {
             Text = "Burst Pistol", Filters = new Dictionary<string, string> { ["container"] = "62d731c8/0" },
-        }).Rows).Cells["config"]);
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows).Cells["config"]);
         Assert.Equal("rift-weapons", Assert.IsType<ReferenceSpec>(config.Spec).CatalogId);
         Assert.NotNull(context.Catalog("rift-weapons")!.Find(config.Value.AsString()));
     }

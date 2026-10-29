@@ -24,20 +24,20 @@ public sealed class ExportSampleTests
         _ = session.BuildView();
         if (pointTargets)
         {
-            var preview = session.PlanAction(PointTargetActionTests.ActionId, PointTargetActionTests.Targets(12, 9, 3), new());
+            var preview = session.PlanAction(PointTargetActionTests.ActionId, PointTargetActionTests.Targets(12, 9, 3), new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(preview.PlanId);
-            Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+            Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         }
         else
         {
-            _ = session.QueryCollection("inventory", new QueryableCollectionQuery { Limit = 200 });
-            Assert.True(session.ApplyEdits([new("inventory/49/quantity", JsonSerializer.SerializeToElement("601"))]).Ok);
+            _ = session.QueryCollection("inventory", new QueryableCollectionQuery { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+            Assert.True(session.ApplyEdits([new("inventory/49/quantity", JsonSerializer.SerializeToElement("601"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         }
-        var plan = WorkspaceExporter.Plan(workspace, new ExportOptions { Scope = ExportScope.Everything });
+        var plan = WorkspaceExporter.Plan(workspace, new ExportOptions { Scope = ExportScope.Everything }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, plan.Overrides.Count);
         Assert.All(plan.Overrides.Keys, path => Assert.EndsWith("/sav.dat", path));
         using var bytes = new MemoryStream();
-        WorkspaceExporter.WriteZip(plan, bytes);
+        WorkspaceExporter.WriteZip(plan, bytes, cancellationToken: TestContext.Current.CancellationToken);
         bytes.Position = 0;
         using var zip = new ZipArchive(bytes, ZipArchiveMode.Read);
         Assert.Equal(sample.AllDiskFiles.Count(), zip.Entries.Count);

@@ -42,11 +42,11 @@ public sealed class TsushimaTimerPreservationTests
             openOriginal: () => Open(WithBytes(original)));
         session.BuildView();
 
-        Assert.True(session.ApplyEdits([Incoming(123.25)]).Ok);
+        Assert.True(session.ApplyEdits([Incoming(123.25)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var changed = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.NotEqual(original, changed);
-        Assert.True(session.ApplyEdits([Incoming(0)]).Ok);
-        Assert.Empty(session.GetChanges().Changes);
+        Assert.True(session.ApplyEdits([Incoming(0)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.Empty(session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Undo().Ok);
         Assert.Equal(changed, Assert.Single(document.Serialize()).Content.ToArray());

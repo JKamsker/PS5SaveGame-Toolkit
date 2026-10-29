@@ -94,16 +94,16 @@ public sealed class FaithInventoryQueryTests
                 { ExcludedRowKeys = ["inventory/1100"] },
         })
         {
-            var preview = session.PlanAction(FaithQuantityPlanning.ActionId, parameters, new ActionScope { QueryScope = queryScope });
+            var preview = session.PlanAction(FaithQuantityPlanning.ActionId, parameters, new ActionScope { QueryScope = queryScope }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Empty(preview.Plan.Errors);
             Assert.Empty(preview.Plan.Changes);
             Assert.Empty(preview.Scope.RowKeys!);
-            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
             Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
             Assert.False(session.State.CanUndo);
         }
         var tooMany = session.PlanAction(FaithQuantityPlanning.ActionId, parameters, new ActionScope
-            { QueryScope = new(FaithInventoryView.CollectionId, new(), session.State.Revision) });
+            { QueryScope = new(FaithInventoryView.CollectionId, new(), session.State.Revision) }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Null(tooMany.PlanId);
         Assert.NotEmpty(tooMany.Plan.Errors);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
@@ -132,7 +132,7 @@ public sealed class FaithInventoryQueryTests
                 NewValue: FieldValue.Of((ulong)BinaryPrimitives.ReadUInt32LittleEndian(expected.AsSpan(4)))))
             .OrderBy(change => change.ValueId, StringComparer.Ordinal).ToArray();
         _ = session.BuildView();
-        _ = session.QueryCollection(FaithInventoryView.CollectionId, new QueryableCollectionQuery { Limit = 1 });
+        _ = session.QueryCollection(FaithInventoryView.CollectionId, new QueryableCollectionQuery { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var parameters = new Dictionary<string, JsonElement> { [FaithQuantityPlanning.QuantityParameter] = JsonSerializer.SerializeToElement(1) };
         var scope = new ActionScope
         {
@@ -140,7 +140,7 @@ public sealed class FaithInventoryQueryTests
                 { Filters = new Dictionary<string, string> { ["category"] = "unmapped" }, SortColumn = "slot", Descending = true }, session.State.Revision)
                 { ExcludedRowKeys = ["inventory/1100"] },
         };
-        var preview = session.PlanAction(FaithQuantityPlanning.ActionId, parameters, scope);
+        var preview = session.PlanAction(FaithQuantityPlanning.ActionId, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.NotNull(preview.PlanId);
         Assert.Empty(preview.Plan.SkippedRows);
@@ -149,7 +149,7 @@ public sealed class FaithInventoryQueryTests
             .OrderBy(change => change.ValueId, StringComparer.Ordinal));
         Assert.All(preview.Plan.Changes, change => Assert.Equal(change.ValueId == "integrity/crc32", change.Derived));
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
-        var applied = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var applied = session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(applied.Ok);
         Assert.Equal(expectedChanges, applied.Changes.Select(change => (change.ValueId, change.OldValue, change.NewValue))
             .OrderBy(change => change.ValueId, StringComparer.Ordinal));
@@ -167,7 +167,7 @@ public sealed class FaithInventoryQueryTests
         Assert.False(session.State.CanUndo);
         Assert.True(session.Redo().Ok);
         Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.True(session.PlanAction(FaithQuantityPlanning.ActionId, parameters, scope).Stale);
+        Assert.True(session.PlanAction(FaithQuantityPlanning.ActionId, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Stale);
     }
 
     [Fact]
@@ -180,15 +180,15 @@ public sealed class FaithInventoryQueryTests
         using var session = new DocumentSession("query-refresh", file, _plugin, document);
         _ = session.BuildView();
         var query = new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["slot"] = "1100" } };
-        var page = session.QueryCollection(FaithInventoryView.CollectionId, query);
+        var page = session.QueryCollection(FaithInventoryView.CollectionId, query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var result = session.ApplyEdits([new IncomingEdit("inventory/1100/item", JsonSerializer.SerializeToElement("5")),
-            new IncomingEdit("inventory/1100/quantity", JsonSerializer.SerializeToElement(0))]);
+            new IncomingEdit("inventory/1100/quantity", JsonSerializer.SerializeToElement(0))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
-        Assert.Equal("Potion", Assert.IsType<TextNode>(session.QueryCollection(FaithInventoryView.CollectionId, query).Rows[0].Cells["name"]).Text);
+        Assert.Equal("Potion", Assert.IsType<TextNode>(session.QueryCollection(FaithInventoryView.CollectionId, query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows[0].Cells["name"]).Text);
         Assert.True(session.Undo().Ok);
-        Assert.Equal("Unknown item 61100", Assert.IsType<TextNode>(session.QueryCollection(FaithInventoryView.CollectionId, query).Rows[0].Cells["name"]).Text);
+        Assert.Equal("Unknown item 61100", Assert.IsType<TextNode>(session.QueryCollection(FaithInventoryView.CollectionId, query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows[0].Cells["name"]).Text);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.Throws<StaleViewException>(() => session.QueryCollection(FaithInventoryView.CollectionId, query, page.Revision));
+        Assert.Throws<StaleViewException>(() => session.QueryCollection(FaithInventoryView.CollectionId, query, page.Revision, cancellationToken: TestContext.Current.CancellationToken));
         var queryable = (IQueryableDocument)document;
         Assert.Throws<KeyNotFoundException>(() => queryable.Query("secondary", query));
         foreach (var bad in new QueryableCollectionQuery[] { new() { Cursor = "foreign" }, new() { SortColumn = "missing" },

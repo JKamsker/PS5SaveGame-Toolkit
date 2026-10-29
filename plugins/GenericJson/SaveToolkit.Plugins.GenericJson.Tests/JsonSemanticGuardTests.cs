@@ -16,7 +16,7 @@ public sealed class JsonSemanticGuardTests
         using var fixture = new JsonSessionFixture(source, title: "PPSA02343", fileName: "ue4savegame.dpx.sav");
         var actions = JsonSemanticTestHelper.Actions(fixture);
         Assert.DoesNotContain(actions, a => a.ActionId.StartsWith("semantic/", StringComparison.Ordinal) && a.ActionId.EndsWith("/set", StringComparison.Ordinal));
-        var preview = fixture.Session.PlanAction("semantic/present-flags", JsonArrayEditingTests.Parameters(("enabled", FieldValue.Of(false))), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction("semantic/present-flags", JsonArrayEditingTests.Parameters(("enabled", FieldValue.Of(false))), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Empty(preview.Plan.Changes);
         Assert.Equal(2, preview.Plan.SkippedRows.Count);
@@ -32,7 +32,7 @@ public sealed class JsonSemanticGuardTests
         var source = "{\"version\":136,\"data\":[{\"group_name\":\"/x\",\"options\":[{\"name\":\"Choice\",\"type\":\"int_list\",\"value\":1,\"index\":0,\"values\":[" + choice + "]}]}]}";
         using var fixture = new JsonSessionFixture(source, title: "PPSA04027", fileName: "settings.json");
         _ = JsonSemanticTestHelper.Actions(fixture);
-        var preview = fixture.Session.PlanAction("semantic/defaults", JsonArrayEditingTests.Parameters(), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction("semantic/defaults", JsonArrayEditingTests.Parameters(), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Empty(preview.Plan.Changes);
         Assert.Single(preview.Plan.SkippedRows);

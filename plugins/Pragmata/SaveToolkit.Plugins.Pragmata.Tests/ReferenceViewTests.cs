@@ -128,7 +128,7 @@ public sealed class ReferenceViewTests
         var target = document.Layout.Items[0].Find(KnownHashes.ItemId)!;
         var reference = document.References.ItemField(target);
         var raw = RawFieldNavigation.Find((TabsNode)session.BuildView(), target, session.Expand);
-        var result = session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement("1"))]);
+        var result = session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement("1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         Assert.Equal("1", document.GetValue(reference.ValueId).AsString());
         Assert.Contains(result.Changes, change => change.ValueId == reference.ValueId);

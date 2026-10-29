@@ -35,7 +35,7 @@ public sealed class WitcherWriteSafetyTests
         _ = session.BuildView();
         if (previouslyEdited)
         {
-            Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming("inventory/1/quantity", FieldValue.Of(300))]).Ok);
+            Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming("inventory/1/quantity", FieldValue.Of(300))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         }
         var before = Assert.Single(document.Serialize()).Content.ToArray();
         var state = session.State;
@@ -44,7 +44,7 @@ public sealed class WitcherWriteSafetyTests
             EnabledWriteFixture.Incoming("player/level", FieldValue.Of(2)),
             EnabledWriteFixture.Incoming("inventory/1/quantity", FieldValue.Of(500)),
             EnabledWriteFixture.Incoming("inventory/1/quantity", FieldValue.Of(600)),
-        ]);
+        ], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.False(result.Ok);
         Assert.Contains(result.Errors, e => e.ValueId == "inventory/1/quantity");

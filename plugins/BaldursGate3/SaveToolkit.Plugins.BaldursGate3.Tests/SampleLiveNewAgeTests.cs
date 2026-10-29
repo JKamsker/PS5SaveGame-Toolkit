@@ -60,7 +60,7 @@ public sealed class SampleLiveNewAgeTests
         using var document = Assert.IsType<BaldursGate3Document>(plugin.Open(file));
         using var session = new DocumentSession("live-values", file, plugin, document);
         _ = session.BuildView();
-        var page = session.QueryCollection(source.Prefix + "/values", new QueryableCollectionQuery { Text = family, Limit = 128 });
+        var page = session.QueryCollection(source.Prefix + "/values", new QueryableCollectionQuery { Text = family, Limit = 128 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var field = Assert.IsType<FieldNode>(page.Rows.First(row => row.Key == source.Id(number)).Cells["value"]);
         Assert.False(field.Spec.ReadOnly);
         Assert.Equal(Confidence.Unknown, field.Confidence);
@@ -72,8 +72,8 @@ public sealed class SampleLiveNewAgeTests
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         var numbers = family == "Stats" ? source.Numbers.Where(n => n.Family == "Stats").Take(6).ToArray() : [number];
         Assert.True(session.ApplyEdits(numbers.Select(n => new IncomingEdit(source.Id(n),
-            JsonSerializer.SerializeToElement(n.Original - 1))).ToArray()).Ok);
-        var edited = Assert.Single(session.Serialize()).Content.ToArray();
+            JsonSerializer.SerializeToElement(n.Original - 1))).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var edited = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         var after = Source(edited);
         Assert.Equal(next, after.Numbers.Single(n => n.Key == number.Key).Original);
         Assert.All(numbers, n => Assert.Equal(n.Original - 1, after.Numbers.Single(changed => changed.Key == n.Key).Original));
@@ -81,7 +81,7 @@ public sealed class SampleLiveNewAgeTests
         Assert.True(session.Undo().Ok);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(edited, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(edited, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
     }
 
     [Fact]
@@ -96,23 +96,23 @@ public sealed class SampleLiveNewAgeTests
         using var session = new DocumentSession("live-slots", file, plugin, document);
         _ = session.BuildView();
         var index = source.Slots.ToList().IndexOf(slots[0]);
-        var rows = session.QueryCollection(source.Prefix + "/slots", new QueryableCollectionQuery { Offset = index, Limit = 2 }).Rows;
+        var rows = session.QueryCollection(source.Prefix + "/slots", new QueryableCollectionQuery { Offset = index, Limit = 2 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows;
         var quantity = source.Numbers.First(n => n.Family == "Stacks" && n.Original > n.Min);
-        _ = session.QueryCollection(source.Prefix + "/values", new QueryableCollectionQuery { Text = "Stacks", Limit = 128 });
-        Assert.True(session.ApplyEdits([new IncomingEdit(source.Id(quantity), JsonSerializer.SerializeToElement(quantity.Original - 1))]).Ok);
-        var scalarOnly = Assert.Single(session.Serialize()).Content.ToArray();
-        var preview = session.PlanAction(LsmfLiveActions.Swap, new Dictionary<string, JsonElement>(), new ActionScope(rows.Select(r => r.Key).ToArray()));
+        _ = session.QueryCollection(source.Prefix + "/values", new QueryableCollectionQuery { Text = "Stacks", Limit = 128 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyEdits([new IncomingEdit(source.Id(quantity), JsonSerializer.SerializeToElement(quantity.Original - 1))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var scalarOnly = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
+        var preview = session.PlanAction(LsmfLiveActions.Swap, new Dictionary<string, JsonElement>(), new ActionScope(rows.Select(r => r.Key).ToArray()), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.Equal(2, preview.Plan.Changes.Count);
         Assert.NotEmpty(preview.Plan.Warnings);
-        Assert.Equal(scalarOnly, Assert.Single(session.Serialize()).Content.ToArray());
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
-        var swapped = Assert.Single(session.Serialize()).Content.ToArray();
+        Assert.Equal(scalarOnly, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var swapped = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         OnlyIntendedBytes(scalarOnly, swapped, slots.SelectMany(s => Enumerable.Range(s.KeyOffset, 2)).ToHashSet());
         Assert.True(session.Undo().Ok);
-        Assert.Equal(scalarOnly, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(scalarOnly, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(swapped, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(swapped, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
         Assert.True(session.Undo().Ok);
         Assert.True(session.Undo().Ok);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
@@ -128,22 +128,22 @@ public sealed class SampleLiveNewAgeTests
         _ = session.BuildView();
         var source = Source(file.ReadAllBytes());
         _ = session.Expand(source.Prefix);
-        var page = session.QueryCollection(source.Prefix + "/values", new QueryableCollectionQuery { Text = "Stacks", Limit = 128 });
+        var page = session.QueryCollection(source.Prefix + "/values", new QueryableCollectionQuery { Text = "Stacks", Limit = 128 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var fields = page.Rows.Select(row => Assert.IsType<FieldNode>(row.Cells["value"])).Where(field => field.Value.AsInteger() > Assert.IsType<IntegerSpec>(field.Spec).Min).Take(2).ToArray();
         Assert.True(session.ApplyEdits(fields.Select(field => new IncomingEdit(field.ValueId,
-            JsonSerializer.SerializeToElement(field.Value.AsInt64() - 1))).ToArray()).Ok);
-        var lowered = Assert.Single(session.Serialize()).Content.ToArray();
+            JsonSerializer.SerializeToElement(field.Value.AsInt64() - 1))).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var lowered = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         var query = new ActionQueryScope(source.Prefix + "/values", new QueryableCollectionQuery { Text = "Stacks", Limit = 1 }, session.State.Revision)
         { ExcludedRowKeys = [fields[1].ValueId] };
-        var preview = session.PlanAction(LsmfLiveActions.Restore, new Dictionary<string, JsonElement>(), new ActionScope { QueryScope = query });
+        var preview = session.PlanAction(LsmfLiveActions.Restore, new Dictionary<string, JsonElement>(), new ActionScope { QueryScope = query }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.Equal(38, preview.Scope.RowKeys!.Count);
         Assert.Equal(fields[0].ValueId, Assert.Single(preview.Plan.Changes).ValueId);
         Assert.Equal(37, preview.Plan.SkippedRows.Count);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(fields[0].Value, document.GetValue(fields[0].ValueId));
         Assert.True(session.Undo().Ok);
-        Assert.Equal(lowered, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(lowered, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
         Assert.True(session.Redo().Ok);
         Assert.Equal(fields[0].Value, document.GetValue(fields[0].ValueId));
     }

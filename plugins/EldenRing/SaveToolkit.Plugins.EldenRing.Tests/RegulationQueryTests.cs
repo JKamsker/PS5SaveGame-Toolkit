@@ -50,9 +50,9 @@ public sealed class RegulationQueryTests
         using var document = plugin.Open(file);
         using var session = new DocumentSession("eldenring-regulation-query", file, plugin, document);
         _ = session.BuildView(); _ = session.Expand("characters/0");
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming("slots/0/runes", 1146)]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming("slots/0/runes", 1146)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         _ = session.Expand("regulation/metadata");
-        Assert.Single(session.QueryCollection(RegulationViews.CollectionId, new() { Text = "EquipParamGoods.param" }).Rows);
+        Assert.Single(session.QueryCollection(RegulationViews.CollectionId, new() { Text = "EquipParamGoods.param" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.True(session.Undo().Ok);
         WriteTestSupport.EqualBytes(original, document);
     }

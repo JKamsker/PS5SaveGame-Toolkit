@@ -69,15 +69,15 @@ public sealed class SampleTests(ITestOutputHelper output)
         using var session = new DocumentSession("eldenring-test", file, plugin, plugin.Open(file));
         _ = session.BuildView();
         _ = session.Expand("characters/0");
-        var applied = session.ApplyEdits([new IncomingEdit("slots/0/runes", JsonSerializer.SerializeToElement(EditedRunes))]);
+        var applied = session.ApplyEdits([new IncomingEdit("slots/0/runes", JsonSerializer.SerializeToElement(EditedRunes))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(applied.Ok);
         Assert.Equal(SampleRunes, Assert.Single(applied.Changes).OldValue.AsUInt32());
-        Assert.True(expected.AsSpan().SequenceEqual(Assert.Single(session.Serialize()).Content.Span));
+        Assert.True(expected.AsSpan().SequenceEqual(Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.Span));
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
-        Assert.Empty(session.Serialize());
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
         Assert.True(session.Redo().Ok);
-        Assert.True(expected.AsSpan().SequenceEqual(Assert.Single(session.Serialize()).Content.Span));
+        Assert.True(expected.AsSpan().SequenceEqual(Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.Span));
         Assert.True(original.AsSpan().SequenceEqual(file.ReadAllBytes()));
     }
 

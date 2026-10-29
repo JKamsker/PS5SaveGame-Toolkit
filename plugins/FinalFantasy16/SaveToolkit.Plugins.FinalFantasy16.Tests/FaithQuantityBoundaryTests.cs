@@ -76,11 +76,11 @@ public sealed class FaithQuantityBoundaryTests
 
         var incoming = new Dictionary<string, JsonElement>
             { [FaithQuantityPlanning.QuantityParameter] = JsonSerializer.SerializeToElement(target) };
-        var preview = session.PlanAction(FaithQuantityPlanning.ActionId, incoming, scope);
+        var preview = session.PlanAction(FaithQuantityPlanning.ActionId, incoming, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(plan.Changes, preview.Plan.Changes);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
-        var result = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var result = session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
         Assert.Equal(expectedChanges, result.Changes.Select(change => (change.ValueId, change.OldValue, change.NewValue)));
         Assert.Equal(plan.Warnings, result.Warnings);

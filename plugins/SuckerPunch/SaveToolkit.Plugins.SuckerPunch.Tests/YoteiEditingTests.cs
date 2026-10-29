@@ -88,7 +88,7 @@ public sealed class YoteiEditingTests
         foreach (var field in fields)
         {
             var value = field.Value.AsInteger() == 0 ? "1" : "0";
-            Assert.True(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(value))]).Ok);
+            Assert.True(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(value))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var edited = Assert.Single(doc.Serialize()).Content.ToArray();
             Assert.True(session.Undo().Ok);
             Assert.Equal(file.ReadAllBytes(), Assert.Single(doc.Serialize()).Content.ToArray());

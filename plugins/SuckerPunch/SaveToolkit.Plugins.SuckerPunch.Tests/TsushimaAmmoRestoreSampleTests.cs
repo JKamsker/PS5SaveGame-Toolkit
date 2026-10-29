@@ -70,19 +70,19 @@ public sealed class TsushimaAmmoRestoreSampleTests
         using var session = new DocumentSession("restore-ammo", file, plugin, document);
         _ = session.BuildView();
         var opening = document.GetValue(ArrowId);
-        Assert.False(session.InvokeAction(ActionId, NoInputs).Ok);
-        Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("1"))]).Ok);
-        Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("0"))]).Ok);
+        Assert.False(session.InvokeAction(ActionId, NoInputs, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("0"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var staged = Bytes(document);
-        var cancelled = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]));
+        var cancelled = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(cancelled.PlanId);
         Assert.Equal(staged, Bytes(document));
-        _ = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]));
-        Assert.True(session.ApplyActionPlan(cancelled.PlanId!, cancelled.Revision).Stale);
+        _ = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyActionPlan(cancelled.PlanId!, cancelled.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         Assert.Equal(staged, Bytes(document));
-        var preview = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]));
+        var preview = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(opening, Assert.Single(preview.Plan.Changes, change => !change.Derived).NewValue);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(opening, document.GetValue(ArrowId));
         Assert.Equal(file.ReadAllBytes(), Bytes(document));
         Assert.True(session.Undo().Ok);
@@ -91,12 +91,12 @@ public sealed class TsushimaAmmoRestoreSampleTests
         Assert.True(session.Redo().Ok);
         Assert.Equal(file.ReadAllBytes(), Bytes(document));
         Assert.True(session.Undo().Ok);
-        var stale = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]));
-        Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("2"))]).Ok);
+        var stale = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("2"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var current = Bytes(document);
-        Assert.True(session.ApplyActionPlan(stale.PlanId!, stale.Revision).Stale);
+        Assert.True(session.ApplyActionPlan(stale.PlanId!, stale.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         Assert.Equal(current, Bytes(document));
-        var fresh = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]));
+        var fresh = session.PlanAction(ActionId, NoInputs, new(["ArrowNormal"]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(opening, Assert.Single(fresh.Plan.Changes, change => !change.Derived).NewValue);
     }
 
@@ -112,11 +112,11 @@ public sealed class TsushimaAmmoRestoreSampleTests
             .Where(row => row.Cells["quantity"] is FieldNode { Spec.ReadOnly: false } field && field.Value.AsUInt32() > 0).ToArray();
         Assert.True(rows.Length >= 2);
         Assert.True(session.ApplyEdits(rows.Select(row => new IncomingEdit(((FieldNode)row.Cells["quantity"]).ValueId,
-            JsonSerializer.SerializeToElement("0"))).ToArray()).Ok);
+            JsonSerializer.SerializeToElement("0"))).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var staged = Bytes(document);
-        var preview = session.PlanAction(ActionId, NoInputs, new(rows.Select(row => row.Key).ToArray()));
+        var preview = session.PlanAction(ActionId, NoInputs, new(rows.Select(row => row.Key).ToArray()), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(rows.Length, preview.Plan.Changes.Count(change => !change.Derived));
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(file.ReadAllBytes(), Bytes(document));
         Assert.True(session.Undo().Ok);
         Assert.Equal(staged, Bytes(document));

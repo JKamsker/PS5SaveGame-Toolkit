@@ -54,8 +54,8 @@ public sealed class ItemPartQueryTests
         Assert.Equal(4, shell.TotalCount);
         Assert.Contains(session.QueryableCollections, collection => collection.Id == shell.CollectionId);
         Assert.Equal(shell, Assert.Single(session.Expand("item-parts/54/0")));
-        var page = session.QueryCollection(shell.CollectionId, new() { Limit = 2 });
-        var next = session.QueryCollection(shell.CollectionId, new() { Offset = 2, Limit = 2 });
+        var page = session.QueryCollection(shell.CollectionId, new() { Limit = 2 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        var next = session.QueryCollection(shell.CollectionId, new() { Offset = 2, Limit = 2 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(["item-parts/54/root", "item-parts/54/root/0", "item-parts/54/root/1", "item-parts/54/root/2"],
             page.Rows.Concat(next.Rows).Select(row => row.Key));
         Assert.Throws<KeyNotFoundException>(() => document.ExpandNode("inventory/0/100"));

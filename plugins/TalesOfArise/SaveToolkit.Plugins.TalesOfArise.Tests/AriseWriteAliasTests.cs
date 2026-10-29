@@ -29,11 +29,11 @@ public sealed class AriseWriteAliasTests
         _ = session.Expand($"section/{sectionIndex}");
         _ = session.Expand($"page/{sectionIndex}/0");
         var evidenceId = $"evidence/{section.Id:X8}/{relative:X6}";
-        _ = session.QueryCollection($"evidence/{section.Id:X8}", new() { Offset = relative / sizeof(uint), Limit = 1 });
+        _ = session.QueryCollection($"evidence/{section.Id:X8}", new() { Offset = relative / sizeof(uint), Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         string[] ids = [$"character/0/{scalar}", $"sheet/0/{scalar}", $"raw/{section.Offset + relative:X}", evidenceId];
         var original = document.GetValue(ids[0]);
 
-        var applied = session.ApplyEdits([new(ids[0], JsonSerializer.SerializeToElement(target.ToString()))]);
+        var applied = session.ApplyEdits([new(ids[0], JsonSerializer.SerializeToElement(target.ToString()))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(applied.Ok);
         AssertChanges(applied, ids, original, FieldValue.Of(target));
         AssertChanges(session.Undo(), ids, FieldValue.Of(target), original);
@@ -61,7 +61,7 @@ public sealed class AriseWriteAliasTests
         var parameters = new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("12") };
         var before = Assert.Single(document.Serialize()).Content.ToArray();
 
-        var preview = session.PlanAction(ActionId, parameters, new ActionScope([QuantityId]));
+        var preview = session.PlanAction(ActionId, parameters, new ActionScope([QuantityId]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         var derived = Assert.Single(preview.Plan.Changes, change => change.ValueId == rawId);
         Assert.True(derived.Derived);
@@ -69,7 +69,7 @@ public sealed class AriseWriteAliasTests
         Assert.Equal(newWord, derived.NewValue);
         Assert.Equal(before, Assert.Single(document.Serialize()).Content.ToArray());
 
-        var applied = session.ApplyActionPlan(preview.PlanId!, preview.Revision);
+        var applied = session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         AssertChanges(applied, [rawId], oldWord, newWord);
         Assert.Equal(preview.Plan.Changes.Select(change => new ValueChange(change.ValueId, change.OldValue, change.NewValue)), applied.Changes);
         Assert.Equal(12, document.GetValue(QuantityId).AsInt64());

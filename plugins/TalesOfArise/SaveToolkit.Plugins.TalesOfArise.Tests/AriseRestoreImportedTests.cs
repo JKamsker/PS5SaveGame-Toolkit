@@ -151,21 +151,21 @@ public sealed class AriseRestoreImportedTests
         var original = new AriseTestContainer().Encrypt();
         var storage = Path.Combine(TestScratch.ProcessFolder, $"restore-{Guid.NewGuid():N}");
         var set = SaveSetImporter.Import([new ImportSource($"{AriseTestContainer.TitleId}/sdimg_generated/{AriseTestContainer.FileName}",
-            () => new MemoryStream(original))], storage);
+            () => new MemoryStream(original))], storage, limits: null, cancellationToken: TestContext.Current.CancellationToken);
         var file = Assert.Single(set.AllDiskFiles);
         var plugin = new TalesOfArisePlugin();
         using var document = plugin.Open(file);
         using var session = new DocumentSession("arise-multi-restore", file, plugin, document);
         _ = session.BuildView();
         _ = session.Expand("inventory");
-        _ = session.QueryCollection("inventory", new());
+        _ = session.QueryCollection("inventory", new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var zero = JsonSerializer.SerializeToElement("0");
-        Assert.True(session.ApplyEdits([new(FirstRow, zero), new(SecondRow, zero)]).Ok);
+        Assert.True(session.ApplyEdits([new(FirstRow, zero), new(SecondRow, zero)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var reduced = Bytes(document);
-        var preview = session.PlanAction(ActionId, new Dictionary<string, JsonElement>(), new ActionScope([SecondRow, FirstRow]));
+        var preview = session.PlanAction(ActionId, new Dictionary<string, JsonElement>(), new ActionScope([SecondRow, FirstRow]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(new[] { FieldValue.Of(15L), FieldValue.Of(1L) }, preview.Plan.Changes.Select(change => change.NewValue));
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(original, Bytes(document));
         Assert.True(session.Undo().Ok);
         Assert.Equal(reduced, Bytes(document));

@@ -112,7 +112,7 @@ public sealed class SpatialReferenceTests
         Assert.All(page.Items, candidate => Assert.Equal(category, candidate.Category));
         Assert.Equal(page.Items.Select(candidate => candidate.Label).OrderDescending(StringComparer.OrdinalIgnoreCase), page.Items.Select(candidate => candidate.Label));
         Assert.Contains(ReferenceSortKey.Name, page.SortKeys);
-        Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(page.Items[0].RawId))]).Ok);
+        Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(page.Items[0].RawId))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
     }
@@ -128,11 +128,11 @@ public sealed class SpatialReferenceTests
         var action = ((TabsNode)session.BuildView()).Tabs.Single(tab => tab.Title == "Quests").Children.OfType<ActionNode>().Single();
         Assert.False(action.Mutates);
         Assert.False(action.SupportsPlanning);
-        Assert.True(session.ApplyEdits([new(EditingTests.Quantity(document).Path, JsonSerializer.SerializeToElement("17"))]).Ok);
+        Assert.True(session.ApplyEdits([new(EditingTests.Quantity(document).Path, JsonSerializer.SerializeToElement("17"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var before = document.Serialize().Single().Content.ToArray();
         var state = session.State;
         var mission = action.Parameters[0].Value.AsString();
-        var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement> { ["mission"] = JsonSerializer.SerializeToElement(mission) }, state.Revision);
+        var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement> { ["mission"] = JsonSerializer.SerializeToElement(mission) }, state.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
         Assert.Contains("Egg Targaryen", result.Message!, StringComparison.Ordinal);
         Assert.Empty(result.Changes);
@@ -142,7 +142,7 @@ public sealed class SpatialReferenceTests
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         Assert.True(session.Redo().Ok);
         Assert.Equal(before, document.Serialize().Single().Content.ToArray());
-        Assert.False(session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement> { ["mission"] = JsonSerializer.SerializeToElement("unknown") }).Ok);
+        Assert.False(session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement> { ["mission"] = JsonSerializer.SerializeToElement("unknown") }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
     }
 
     [Theory]

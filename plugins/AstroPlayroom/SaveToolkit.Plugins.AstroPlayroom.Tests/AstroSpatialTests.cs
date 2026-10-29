@@ -80,7 +80,7 @@ public sealed class AstroSpatialTests
         var id = row.Key + "/IsGot[0]/text[0]";
         foreach (var ancestor in new[] { "/PreInstall[0]", "/PreInstall[0]/Artifact[0]", row.Key, row.Key + "/IsGot[0]" })
             _ = session.Expand(ancestor);
-        Assert.True(session.ApplyEdits([new IncomingEdit(id, System.Text.Json.JsonSerializer.SerializeToElement(true))]).StructureChanged);
+        Assert.True(session.ApplyEdits([new IncomingEdit(id, System.Text.Json.JsonSerializer.SerializeToElement(true))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).StructureChanged);
         Check(MapMarkerStatus.Found);
         Assert.True(session.Undo().Ok);
         Check(MapMarkerStatus.Missing);

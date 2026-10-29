@@ -161,19 +161,19 @@ public sealed class ProgressionSampleTests
         _ = session.BuildView();
         var outcome = session.ApplyEdits([new("progression/attributes/Strength", JsonSerializer.SerializeToElement("15")),
             new("progression/points/Primary", JsonSerializer.SerializeToElement("12")),
-            new("progression/points/Espionage", JsonSerializer.SerializeToElement("9"))]);
+            new("progression/points/Espionage", JsonSerializer.SerializeToElement("9"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(outcome.Ok);
-        var bytes = Assert.Single(session.Serialize()).Content.ToArray();
+        var bytes = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         using var reopened = Open(bytes);
         _ = CyberpunkSampleTests.ExpandAll(reopened);
         Assert.Equal(FieldValue.Of(15L), reopened.GetValue("progression/attributes/Strength"));
         Assert.Equal(FieldValue.Of(12L), reopened.GetValue("progression/points/Primary"));
         Assert.Equal(FieldValue.Of(9L), reopened.GetValue("progression/points/Espionage"));
         Assert.True(session.Undo().Ok);
-        Assert.Empty(session.Serialize());
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(bytes, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
     }
 
     internal static ISaveFile[] Files()

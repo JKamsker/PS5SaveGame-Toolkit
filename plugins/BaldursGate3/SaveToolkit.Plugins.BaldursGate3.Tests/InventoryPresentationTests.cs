@@ -93,7 +93,7 @@ public sealed class InventoryPresentationTests
         var table = Assert.Single(session.Expand(source.Prefix).OfType<QueryableTableNode>(), node => node.CollectionId == source.Prefix + "/slots");
         Assert.Null(table.EmptyRows);
         Assert.Equal(2, table.TotalCount);
-        var page = session.QueryCollection(table.CollectionId, new() { IncludeEmpty = false });
+        var page = session.QueryCollection(table.CollectionId, new() { IncludeEmpty = false }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, page.FilteredCount);
         Assert.Equal(0, page.HiddenEmptyCount);
         Assert.All(page.Rows, row => Assert.False(row.IsEmpty));
@@ -102,10 +102,10 @@ public sealed class InventoryPresentationTests
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
 
         var scope = new ActionQueryScope(table.CollectionId, new() { IncludeEmpty = false, Limit = 1 }, session.State.Revision);
-        var preview = session.PlanAction(LsmfLiveActions.Swap, new Dictionary<string, System.Text.Json.JsonElement>(), new ActionScope { QueryScope = scope });
+        var preview = session.PlanAction(LsmfLiveActions.Swap, new Dictionary<string, System.Text.Json.JsonElement>(), new ActionScope { QueryScope = scope }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.Equal(page.Rows.Select(row => row.Key), preview.Scope.RowKeys);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         using var reopened = Assert.IsType<BaldursGate3Document>(plugin.Open(MemorySaveSet.SingleFile("Globals.lsf", edited)));
         var changed = reopened.Query(table.CollectionId, new());

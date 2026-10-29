@@ -23,15 +23,15 @@ public sealed class WitcherDurabilityPreservationTests
         using var document = plugin.Open(file);
         using var session = new DocumentSession("zero-durability", file, plugin, document);
         _ = session.BuildView();
-        _ = session.QueryCollection(InventoryViews.CollectionId, new QueryableCollectionQuery { Limit = 200 });
+        _ = session.QueryCollection(InventoryViews.CollectionId, new QueryableCollectionQuery { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         // Either sign represents the imported numeric value; direct callers can preserve both signs.
         var oppositeZero = FieldValue.Of(negative ? 0.0 : -0.0);
         Assert.True(document.ApplyEdits([new ValueEdit(item.DurabilityId, oppositeZero)]).Succeeded);
         Assert.Equal(input, Assert.Single(document.Serialize()).Content.ToArray());
 
-        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(item.DurabilityId, FieldValue.Of(25.0))]).Ok);
+        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(item.DurabilityId, FieldValue.Of(25.0))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var changed = Assert.Single(document.Serialize()).Content.ToArray();
-        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(item.DurabilityId, oppositeZero)]).Ok);
+        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(item.DurabilityId, oppositeZero)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(input, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Undo().Ok);
         Assert.Equal(changed, Assert.Single(document.Serialize()).Content.ToArray());

@@ -43,7 +43,7 @@ public sealed class SpatialSampleTests(ITestOutputHelper output)
                     Assert.Equal("section:" + Assert.IsType<SectionNode>(nodes[1]).Title, target.Path[2]);
                     Assert.True(field.Spec.ReadOnly);
                     Assert.Equal(field.Value, document.GetValue(target.Id));
-                    Assert.False(session.ApplyEdits([new(target.Id, JsonSerializer.SerializeToElement("changed"))]).Ok);
+                    Assert.False(session.ApplyEdits([new(target.Id, JsonSerializer.SerializeToElement("changed"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
                 }
             }
         }
@@ -53,7 +53,7 @@ public sealed class SpatialSampleTests(ITestOutputHelper output)
         Assert.Equal("travel/" + 0x0000002486F51E9CUL, Assert.Single(allMarkers, marker => marker.Status == MapMarkerStatus.Found).Id);
         Assert.DoesNotContain(allMarkers, marker => marker.Status == MapMarkerStatus.Missing);
         Assert.False(session.State.CanUndo);
-        Assert.Empty(session.Serialize()); // Viewing has not dirtied the host session.
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)); // Viewing has not dirtied the host session.
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         output.WriteLine($"Open + all spatial pages + preservation: {timer.Elapsed.TotalMilliseconds:F1} ms");
 

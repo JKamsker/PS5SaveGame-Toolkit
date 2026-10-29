@@ -34,7 +34,7 @@ public sealed class WitcherInspectionTests
                 var action = Assert.Single(actions, action => action.ActionId == id);
                 Assert.False(action.Mutates);
                 Assert.False(action.SupportsPlanning);
-                var result = session.InvokeAction(id, new Dictionary<string, JsonElement> { [parameter] = JsonSerializer.SerializeToElement(key) }, before.Revision);
+                var result = session.InvokeAction(id, new Dictionary<string, JsonElement> { [parameter] = JsonSerializer.SerializeToElement(key) }, before.Revision, cancellationToken: TestContext.Current.CancellationToken);
                 Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
                 Assert.Contains(label, result.Message!, StringComparison.Ordinal);
                 Assert.Contains(id.EndsWith("gwent", StringComparison.Ordinal) ? "MIT" : "CC-BY-SA-3.0", result.Message!, StringComparison.Ordinal);
@@ -45,9 +45,9 @@ public sealed class WitcherInspectionTests
             Assert.All(actions.Where(action => action.SupportsPlanning), action => Assert.True(action.Mutates));
             Assert.False(session.InvokeAction("reference/inspect/items", new Dictionary<string, JsonElement> {
                 ["record"] = JsonSerializer.SerializeToElement("unknown-item"),
-            }).Ok);
+            }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             Assert.Equal(before, session.State);
-            Assert.Empty(session.Serialize());
+            Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
         }
         finally { temporary.Delete(recursive: true); }
     }
@@ -63,7 +63,7 @@ public sealed class WitcherInspectionTests
         _ = session.BuildView();
         foreach (var array in new[] { "skills", "mutations" })
         {
-            var rows = session.QueryCollection(AbilityCollections.Prefix + array, new QueryableCollectionQuery { Limit = 200 }).Rows;
+            var rows = session.QueryCollection(AbilityCollections.Prefix + array, new QueryableCollectionQuery { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows;
             var field = Assert.IsType<FieldNode>(rows[0].Cells["id"]);
             var spec = Assert.IsType<ReferenceSpec>(field.Spec);
             Assert.Equal("abilities", spec.CatalogId);
@@ -81,7 +81,7 @@ public sealed class WitcherInspectionTests
             });
             Assert.Equal(references.Catalog("abilities")!.Search(query).Items.Select(record => record.Key), page.Items.Select(candidate => candidate.RawId));
             Assert.Null(session.FindReference(field.ValueId, "unmapped-native-ability").Label);
-            Assert.False(session.ApplyEdits([EnabledWriteFixture.Incoming(field.ValueId, FieldValue.Of(page.Items[0].RawId))]).Ok);
+            Assert.False(session.ApplyEdits([EnabledWriteFixture.Incoming(field.ValueId, FieldValue.Of(page.Items[0].RawId))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             Assert.Equal(before, session.State);
         }
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());

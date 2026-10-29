@@ -35,7 +35,7 @@ public sealed class CountAndProgressWriteTests
             var bit = int.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture);
             var target = field.Value.AsInt32() ^ 1;
             Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(2L))]).Succeeded);
-            Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(target))]).Ok);
+            Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(target))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var edited = Assert.Single(document.Serialize()).Content.ToArray();
             Assert.Equal((byte)(original[offset] ^ (1 << bit)), edited[offset]);
             ByteChangeAssertions.OnlyRangeChanged(original, edited, offset, 1);
@@ -74,7 +74,7 @@ public sealed class CountAndProgressWriteTests
             Assert.Contains("game may reject", field.Description);
             Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(-1L))]).Succeeded);
             Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(spec.Max + 1))]).Succeeded);
-            Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(target))]).Ok);
+            Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(target))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var edited = Assert.Single(document.Serialize()).Content.ToArray();
             var slot = int.Parse(row.Key.Split('/')[1]);
             var layout = GameplayLayout.For(schema);

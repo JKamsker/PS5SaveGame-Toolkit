@@ -25,14 +25,14 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         var view = Assert.IsType<TabsNode>(session.BuildView());
         output.WriteLine($"Open + initial view with pinned packs: {timer.Elapsed.TotalMilliseconds:F1} ms");
         Assert.All(view.Tabs.Single(tab => tab.Title == "Facts").Children, node => Assert.IsType<QueryableTableNode>(node));
-        var inventory = session.QueryCollection("inventory", new QueryableCollectionQuery { Limit = 200 });
+        var inventory = session.QueryCollection("inventory", new QueryableCollectionQuery { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(22, inventory.TotalCount);
         Assert.Equal(22, inventory.Rows.Count);
         Assert.All(inventory.Rows, row => Assert.Contains("MIT", Assert.IsType<FieldNode>(row.Cells["id"]).Description));
         var facts = new List<TableRow>();
         for (var offset = 0; offset < 2750; offset += 200)
         {
-            var page = session.QueryCollection("facts", new QueryableCollectionQuery { Offset = offset, Limit = 200 });
+            var page = session.QueryCollection("facts", new QueryableCollectionQuery { Offset = offset, Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(2750, page.TotalCount);
             facts.AddRange(page.Rows);
         }
@@ -49,9 +49,9 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         var named = facts.First(row => Assert.IsType<FieldNode>(row.Cells["name"]).Confidence == Confidence.Inferred);
         var name = Assert.IsType<FieldNode>(named.Cells["name"]);
         Assert.Contains("MIT", name.Description);
-        var found = session.QueryCollection("facts", new QueryableCollectionQuery { Text = name.Value.AsString() });
+        var found = session.QueryCollection("facts", new QueryableCollectionQuery { Text = name.Value.AsString() }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Contains(found.Rows, row => row.Key == named.Key);
-        Assert.False(session.ApplyEdits([new(Assert.IsType<FieldNode>(named.Cells["value"]).ValueId, JsonSerializer.SerializeToElement("-1"))]).Ok);
+        Assert.False(session.ApplyEdits([new(Assert.IsType<FieldNode>(named.Cells["value"]).ValueId, JsonSerializer.SerializeToElement("-1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         Assert.All(context.Datasets(), dataset => Assert.True(dataset.Used));
     }
@@ -64,11 +64,11 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         using var document = plugin.Open(file, context);
         using var session = new DocumentSession("inventory", (DiskSaveFile)file, plugin, document, references: context);
         _ = session.BuildView();
-        var before = session.QueryCollection("inventory", new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["id"] = "Ammo.HandgunAmmo" } });
+        var before = session.QueryCollection("inventory", new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["id"] = "Ammo.HandgunAmmo" } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var row = Assert.Single(before.Rows);
         var field = Assert.IsType<FieldNode>(row.Cells["quantity"]);
-        Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("789"))]).Ok);
-        var edited = session.QueryCollection("inventory", new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["quantity"] = "789" } });
+        Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("789"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var edited = session.QueryCollection("inventory", new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["quantity"] = "789" } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(row.Key, Assert.Single(edited.Rows).Key);
         var container = CsavContainer.Parse(file.ReadAllBytes());
         var item = InventoryReader.Read(container, CsavTree.Parse(container)).Single(item => item.NodeId.ToString() == row.Key);
@@ -76,7 +76,7 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(item.QuantityOffset!.Value), 789);
         Assert.Equal(expected, CsavContainer.Parse(Assert.Single(document.Serialize()).Content.ToArray()).Payload);
         Assert.True(session.Undo().Ok);
-        Assert.Empty(session.QueryCollection("inventory", new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["quantity"] = "789" } }).Rows);
+        Assert.Empty(session.QueryCollection("inventory", new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["quantity"] = "789" } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
 
@@ -89,14 +89,14 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         using var session = new DocumentSession("budgets", (DiskSaveFile)file, plugin, document, references: context);
         _ = session.BuildView();
         var query = new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["kind"] = "Point budget", ["group"] = "Primary" } };
-        var before = Assert.Single(session.QueryCollection("development", query).Rows);
+        var before = Assert.Single(session.QueryCollection("development", query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.Equal("0", ReadOnlyInspectionSampleTests.Cell(before, "unspent"));
-        Assert.True(session.ApplyEdits([new("progression/points/Primary", JsonSerializer.SerializeToElement("9"))]).Ok);
-        var after = Assert.Single(session.QueryCollection("development", query).Rows);
+        Assert.True(session.ApplyEdits([new("progression/points/Primary", JsonSerializer.SerializeToElement("9"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var after = Assert.Single(session.QueryCollection("development", query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.Equal(before.Key, after.Key);
         Assert.Equal("9", ReadOnlyInspectionSampleTests.Cell(after, "unspent"));
         Assert.True(session.Undo().Ok);
-        Assert.Equal("0", ReadOnlyInspectionSampleTests.Cell(Assert.Single(session.QueryCollection("development", query).Rows), "unspent"));
+        Assert.Equal("0", ReadOnlyInspectionSampleTests.Cell(Assert.Single(session.QueryCollection("development", query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows), "unspent"));
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
 
@@ -112,11 +112,11 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         var candidates = session.SearchReferences("record", new ReferenceQuery { Text = "HandgunAmmo" }, actionId: actionId);
         Assert.NotEmpty(candidates.Items);
         Assert.All(candidates.Items, candidate => Assert.Equal("MIT", candidate.Dataset!.Attribution.License));
-        Assert.True(session.ApplyEdits([new("inventory/39/quantity", JsonSerializer.SerializeToElement("777"))]).Ok);
+        Assert.True(session.ApplyEdits([new("inventory/39/quantity", JsonSerializer.SerializeToElement("777"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var stateBefore = session.State;
         var bytesBefore = Assert.Single(document.Serialize()).Content.ToArray();
         var inspection = session.InvokeAction(actionId, new Dictionary<string, JsonElement>
-            { ["record"] = JsonSerializer.SerializeToElement(CyberpunkReferences.ItemKey(InventoryReader.MoneyTweakId)) });
+            { ["record"] = JsonSerializer.SerializeToElement(CyberpunkReferences.ItemKey(InventoryReader.MoneyTweakId)) }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(inspection.Ok);
         Assert.Contains("Items.money", inspection.Message);
         Assert.Empty(inspection.Changes);
@@ -124,12 +124,12 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         Assert.Equal(bytesBefore, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(inspection.State.IsDirty);
         Assert.True(inspection.State.CanUndo);
-        Assert.False(session.InvokeAction(actionId, new Dictionary<string, JsonElement> { ["record"] = JsonSerializer.SerializeToElement("unknown") }).Ok);
+        Assert.False(session.InvokeAction(actionId, new Dictionary<string, JsonElement> { ["record"] = JsonSerializer.SerializeToElement("unknown") }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(session.Undo().Ok);
         var redoState = session.State;
         Assert.True(redoState.CanRedo);
         Assert.True(session.InvokeAction(actionId, new Dictionary<string, JsonElement>
-            { ["record"] = JsonSerializer.SerializeToElement(CyberpunkReferences.ItemKey(InventoryReader.MoneyTweakId)) }).Ok);
+            { ["record"] = JsonSerializer.SerializeToElement(CyberpunkReferences.ItemKey(InventoryReader.MoneyTweakId)) }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(redoState, session.State);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }

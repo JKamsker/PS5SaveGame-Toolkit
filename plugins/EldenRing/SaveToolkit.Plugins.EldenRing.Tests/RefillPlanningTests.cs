@@ -19,19 +19,19 @@ public sealed class RefillPlanningTests
         using var session = WriteTestSupport.Session(file, out var document);
         var fruit = WriteTestSupport.Quantity(session, "held", "0x400050F0");
         var stone = WriteTestSupport.Quantity(session, "held", "0x40002774");
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(fruit.ValueId, 10), WriteTestSupport.Incoming(stone.ValueId, 1)]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(fruit.ValueId, 10), WriteTestSupport.Incoming(stone.ValueId, 1)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var reduced = WriteTestSupport.Bytes(document);
         // Action is exposed in table cells, so ordinary UI row/whole-filtered selections reach F6.
-        var tableAction = Assert.IsType<ActionNode>(session.QueryCollection("slots/0/inventory/held", new() { Limit = 1 }).Rows[0].Cells["refill"]);
+        var tableAction = Assert.IsType<ActionNode>(session.QueryCollection("slots/0/inventory/held", new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows[0].Cells["refill"]);
         Assert.Equal(ActionId, tableAction.ActionId);
         Assert.True(tableAction.SupportsPlanning);
-        var preview = session.PlanAction(ActionId, NoParameters);
+        var preview = session.PlanAction(ActionId, NoParameters, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(2, preview.Plan.Changes.Count);
         Assert.Equal(63, preview.Plan.SkippedRows.Count);
         Assert.Contains(preview.Plan.Warnings, warning => warning.Contains("may reject", StringComparison.Ordinal));
         WriteTestSupport.EqualBytes(reduced, document);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         WriteTestSupport.EqualBytes(original, document);
         using var reopened = WriteTestSupport.Reopen(document);
         var quantities = (IQueryableDocument)reopened;
@@ -58,31 +58,31 @@ public sealed class RefillPlanningTests
     public void SampleFilteredScope_ResolvesUnloadedRowsAndHonorsExclusionsAndStaleness()
     {
         using var session = WriteTestSupport.Session(WriteTestSupport.Sample(), out var document);
-        var fruitPage = session.QueryCollection("slots/0/inventory/held", new() { Text = "0x400050F0" });
+        var fruitPage = session.QueryCollection("slots/0/inventory/held", new() { Text = "0x400050F0" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var fruitRow = Assert.Single(fruitPage.Rows);
         var fruit = Assert.IsType<FieldNode>(fruitRow.Cells["quantity"]);
         var stone = WriteTestSupport.Quantity(session, "held", "0x40002774");
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(fruit.ValueId, 10), WriteTestSupport.Incoming(stone.ValueId, 1)]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(fruit.ValueId, 10), WriteTestSupport.Incoming(stone.ValueId, 1)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var reduced = WriteTestSupport.Bytes(document);
-        var empty = session.PlanAction(ActionId, NoParameters, new([]));
+        var empty = session.PlanAction(ActionId, NoParameters, new([]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(empty.Plan.Changes);
         var scoped = new ActionScope { QueryScope = new("slots/0/inventory/held", new()
             { Filters = new Dictionary<string, string> { ["category"] = "goods" }, Limit = 1 }, session.State.Revision)
             { ExcludedRowKeys = [fruitRow.Key] } };
-        var preview = session.PlanAction(ActionId, NoParameters, scoped);
+        var preview = session.PlanAction(ActionId, NoParameters, scoped, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.DoesNotContain(fruitRow.Key, preview.Scope.RowKeys!);
         Assert.Equal(stone.ValueId, Assert.Single(preview.Plan.Changes).ValueId);
         Assert.NotEmpty(preview.Plan.SkippedRows);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(10U, WriteTestSupport.Quantity(session, "held", "0x400050F0").Value.AsUInt32());
         Assert.Equal(3U, WriteTestSupport.Quantity(session, "held", "0x40002774").Value.AsUInt32());
         Assert.True(session.Undo().Ok);
         WriteTestSupport.EqualBytes(reduced, document);
-        var stale = session.PlanAction(ActionId, NoParameters);
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(stone.ValueId, 2)]).Ok);
+        var stale = session.PlanAction(ActionId, NoParameters, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(stone.ValueId, 2)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var afterEdit = WriteTestSupport.Bytes(document);
-        Assert.True(session.ApplyActionPlan(stale.PlanId!, stale.Revision).Stale);
+        Assert.True(session.ApplyActionPlan(stale.PlanId!, stale.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         WriteTestSupport.EqualBytes(afterEdit, document);
     }
 

@@ -99,16 +99,16 @@ public sealed class TsushimaAmmoRestoreSelectionTests
         Assert.True(normalOpening.AsUInt32() > 0);
         Assert.True(document.GetValue(FireId).AsUInt32() > 0);
         Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("0")),
-            new IncomingEdit(FireId, JsonSerializer.SerializeToElement("0"))]).Ok);
+            new IncomingEdit(FireId, JsonSerializer.SerializeToElement("0"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var staged = Bytes(document);
         var action = Assert.Single(Inventory(document).Rows.Single(row => row.Key == NormalRow).Cells.Values
             .OfType<ActionNode>(), node => node.ActionId == ActionId);
-        var preview = session.PlanAction(action.ActionId, new Dictionary<string, JsonElement>(), new([NormalRow]));
+        var preview = session.PlanAction(action.ActionId, new Dictionary<string, JsonElement>(), new([NormalRow]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Empty(preview.Plan.Errors);
         Assert.Equal(ArrowId, Assert.Single(preview.Plan.Changes, change => !change.Derived).ValueId);
         Assert.Equal(staged, Bytes(document));
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(normalOpening, document.GetValue(ArrowId));
         Assert.Equal(normalOpening, document.GetValue(ArrowId + "-copy"));
         Assert.Equal(0U, document.GetValue(FireId).AsUInt32());

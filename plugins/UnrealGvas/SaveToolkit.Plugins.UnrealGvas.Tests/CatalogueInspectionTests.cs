@@ -32,7 +32,7 @@ public sealed class CatalogueInspectionTests
         var before = session.State;
         foreach (var action in actions)
         {
-            var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>(), before.Revision);
+            var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>(), before.Revision, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
             Assert.Contains("reference records", result.Message);
             Assert.Contains("Declared sorting: Key, Name, Category", result.Message);
@@ -47,12 +47,12 @@ public sealed class CatalogueInspectionTests
             var page = session.SearchReferences(field.ValueId, new() { Limit = 5, SortBy = ReferenceSortKey.Name });
             Assert.NotEmpty(page.Items);
             Assert.All(page.Items, candidate => Assert.NotNull(candidate.Dataset));
-            var rejected = session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(page.Items[0].RawId))]);
+            var rejected = session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(page.Items[0].RawId))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.False(rejected.Ok);
         }
         Assert.Equal(before, session.State);
         Assert.True(sample.ReadAllBytes().AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
-        Assert.Empty(session.Serialize());
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
     }
 
     [Theory]
@@ -83,7 +83,7 @@ public sealed class CatalogueInspectionTests
                 new ReferenceQuery { Category = category.ToUpperInvariant(), SortBy = sort, Descending = descending, Limit = 7 });
         var before = session.State;
         var action = Walk(session.BuildView()).OfType<ActionNode>().Single(node => node.ActionId.EndsWith(catalogue.Id, StringComparison.Ordinal));
-        var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>());
+        var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
         Assert.Equal(before, session.State);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
@@ -101,13 +101,13 @@ public sealed class CatalogueInspectionTests
         var action = Walk(session.BuildView()).OfType<ActionNode>().First(node => !node.Mutates);
         var field = session.Expand("search").SelectMany(Walk).OfType<FieldNode>().First(node =>
             node.Spec is FloatSpec { ReadOnly: false } && node.Label.StartsWith("HDRBrightness", StringComparison.Ordinal));
-        var edit = session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(field.Value.AsDouble() + 0.1))]);
+        var edit = session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(field.Value.AsDouble() + 0.1))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(edit.Ok);
         var before = session.State;
         Assert.True(before.CanUndo);
         Assert.True(before.IsDirty);
         var bytes = Assert.Single(document.Serialize()).Content.ToArray();
-        var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>(), before.Revision);
+        var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>(), before.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
         Assert.Equal(before, result.State);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());

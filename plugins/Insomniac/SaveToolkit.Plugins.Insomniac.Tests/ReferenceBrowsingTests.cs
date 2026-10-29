@@ -71,7 +71,7 @@ public sealed class ReferenceBrowsingTests
         Assert.Equal("Blackhole Storm", candidate.Label);
         Assert.Equal("CC-BY-SA-3.0", candidate.Dataset!.Attribution.License);
         Assert.Equal(candidate, session.FindReference(field.ValueId, candidate.RawId, before.Revision));
-        var result = session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(candidate.RawId))]);
+        var result = session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(candidate.RawId))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(result.Ok);
         Assert.Equal(before, session.State);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());

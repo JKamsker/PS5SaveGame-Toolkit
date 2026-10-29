@@ -18,10 +18,10 @@ public sealed class JsonCyberpunkWriteTests
     {
         using var fixture = Open();
         var action = JsonSemanticTestHelper.Actions(fixture).Single(a => a.Parameters.FirstOrDefault()?.Spec is EnumSpec);
-        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.Of("0"))), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.Of("0"))), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, preview.Plan.Changes.Count);
         Assert.Single(preview.Plan.Changes, c => c.Derived);
-        Assert.False(fixture.Session.InvokeAction(action.ActionId, JsonArrayEditingTests.Parameters()).Ok);
+        Assert.False(fixture.Session.InvokeAction(action.ActionId, JsonArrayEditingTests.Parameters(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         JsonSemanticTestHelper.ApplyAndVerify(fixture, action.ActionId, ("value", FieldValue.Of("0")));
     }
 
@@ -30,7 +30,7 @@ public sealed class JsonCyberpunkWriteTests
     {
         using var fixture = Open();
         _ = JsonSemanticTestHelper.Actions(fixture);
-        var preview = fixture.Session.PlanAction("semantic/defaults", JsonArrayEditingTests.Parameters(), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction("semantic/defaults", JsonArrayEditingTests.Parameters(), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(4, preview.Plan.Changes.Count);
         Assert.Single(preview.Plan.SkippedRows);
         JsonSemanticTestHelper.ApplyAndVerify(fixture, "semantic/defaults");
@@ -45,11 +45,11 @@ public sealed class JsonCyberpunkWriteTests
         JsonSemanticTestHelper.ApplyAndVerify(fixture, choice.ActionId.Replace("/set", "/default", StringComparison.Ordinal));
         var volume = actions.Single(a => a.Parameters.FirstOrDefault()?.Spec is ExactNumberSpec);
         var row = "value/" + volume.ActionId.Split('/')[1];
-        var preview = fixture.Session.PlanAction("semantic/defaults", JsonArrayEditingTests.Parameters(), new([row]), fixture.Session.State.Revision);
+        var preview = fixture.Session.PlanAction("semantic/defaults", JsonArrayEditingTests.Parameters(), new([row]), fixture.Session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Single(preview.Plan.Changes);
         Assert.Equal(row, preview.Plan.Changes[0].ValueId);
-        Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public sealed class JsonCyberpunkWriteTests
     {
         using var fixture = Open();
         var action = JsonSemanticTestHelper.Actions(fixture).Single(a => a.Parameters.FirstOrDefault()?.Spec is ExactNumberSpec);
-        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.ExactNumber(number))), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.ExactNumber(number))), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(preview.Plan.Errors);
         Assert.False(fixture.Session.State.CanUndo);
     }
@@ -89,7 +89,7 @@ public sealed class JsonCyberpunkWriteTests
         var dynamicChoice = JsonSemanticTestHelper.Actions(fixture).Single(a => a.ActionId.StartsWith("semantic/", StringComparison.Ordinal) && a.Parameters.Count == 2);
         JsonSemanticTestHelper.ApplyAndVerify(fixture, dynamicChoice.ActionId, ("value", FieldValue.Of("new")), ("index", FieldValue.Of(1L)));
         var invalid = fixture.Session.PlanAction(dynamicChoice.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.Of("long")), ("index", FieldValue.Of(3L))),
-            expectedRevision: fixture.Session.State.Revision);
+            expectedRevision: fixture.Session.State.Revision, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(invalid.Plan.Errors);
     }
 
@@ -98,10 +98,10 @@ public sealed class JsonCyberpunkWriteTests
     {
         using var fixture = Open();
         var action = JsonSemanticTestHelper.Actions(fixture).Single(a => a.Parameters.FirstOrDefault()?.Spec is ExactNumberSpec);
-        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.ExactNumber("55"))), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.ExactNumber("55"))), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         var bound = fixture.Fields().Single(f => f.Label == "max_value");
         Assert.True(fixture.Edit(bound.ValueId, JsonEditingTests.Number("1000")).Ok);
-        Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId!, preview.Revision).Stale);
+        Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(fixture.Document);
         Assert.NotEmpty(planner.PlanAction(action.ActionId, new Dictionary<string, FieldValue> { ["value"] = FieldValue.ExactNumber("55") }, new()).Errors);
     }

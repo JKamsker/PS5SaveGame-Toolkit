@@ -139,11 +139,11 @@ public sealed class AriseEmptySlotTests
         using var session = new DocumentSession("arise-f14-edit", file, _plugin, document);
         _ = session.BuildView();
         _ = session.Expand("inventory");
-        var page = session.QueryCollection("inventory", new() { Text = "Apple Gel" });
+        var page = session.QueryCollection("inventory", new() { Text = "Apple Gel" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var row = Assert.Single(page.Rows);
         Assert.Equal(AppleKey, row.Key);
         Assert.False(row.IsEmpty);
-        var result = session.ApplyEdits([new(AppleKey, JsonSerializer.SerializeToElement("12"))], page.Revision);
+        var result = session.ApplyEdits([new(AppleKey, JsonSerializer.SerializeToElement("12"))], page.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         var original = AriseFormat.Decode(file.ReadAllBytes());
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
@@ -181,7 +181,7 @@ public sealed class AriseEmptySlotTests
             },
         };
         var preview = session.PlanAction(AriseInventoryActions.SetQuantityAction,
-            new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("12") }, scope);
+            new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("12") }, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(count - 1, preview.Scope.RowKeys!.Count);
@@ -191,7 +191,7 @@ public sealed class AriseEmptySlotTests
         Assert.Equal(includeEmpty == true ? SlotCount - 25 : 0, preview.Scope.RowKeys.Count(emptyKeys.Contains));
         Assert.DoesNotContain(preview.Plan.Changes, change => emptyKeys.Contains(change.ValueId));
         Assert.Equal(includeEmpty == true ? SlotCount - 25 : 0, preview.Plan.SkippedRows.Count(row => emptyKeys.Contains(row.RowKey)));
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(session.Undo().Ok);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }

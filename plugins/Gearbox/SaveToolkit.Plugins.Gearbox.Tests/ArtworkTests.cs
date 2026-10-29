@@ -70,7 +70,7 @@ public sealed class ArtworkTests
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("artwork", file, plugin, document, references: references);
         _ = session.BuildView();
-        var row = Assert.Single(session.QueryCollection("catalogue", new() { Text = item, Limit = 200 }).Rows);
+        var row = Assert.Single(session.QueryCollection("catalogue", new() { Text = item, Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         var image = Assert.IsType<ImageNode>(row.Cells["icon"]);
         Assert.NotNull(session.GetAsset(image.AssetId));
         Assert.Contains(Rights, image.Alt);
@@ -80,7 +80,7 @@ public sealed class ArtworkTests
         var candidate = session.FindReference("balance", row.Key, actionId: "catalogue/inspect");
         Assert.Equal(image.AssetId, candidate.AssetId);
         Assert.Equal(Rights, candidate.AssetDataset!.Attribution.License);
-        var skillPage = session.QueryCollection(GearboxSkills.CatalogId, new() { Limit = 20 });
+        var skillPage = session.QueryCollection(GearboxSkills.CatalogId, new() { Limit = 20 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.All(skillPage.Rows, skill =>
         {
             var icon = Assert.IsType<ImageNode>(skill.Cells["icon"]);

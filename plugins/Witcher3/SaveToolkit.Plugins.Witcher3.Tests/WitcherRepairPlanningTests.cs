@@ -25,11 +25,11 @@ public sealed class WitcherRepairPlanningTests
             using var document = plugin.Open(file);
             using var session = new DocumentSession("repair-planning", file, plugin, document);
             _ = session.BuildView();
-            _ = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 });
+            _ = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(session.ApplyEdits(damaged.Select((i, index) => EnabledWriteFixture.Incoming(i.DurabilityId,
-                FieldValue.Of(20.0 + index))).ToArray()).Ok);
+                FieldValue.Of(20.0 + index))).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var damagedBytes = Assert.Single(document.Serialize()).Content.ToArray();
-            var preview = session.PlanAction(RepairPlanning.ActionId, new Dictionary<string, JsonElement>());
+            var preview = session.PlanAction(RepairPlanning.ActionId, new Dictionary<string, JsonElement>(), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(preview.PlanId);
             Assert.Empty(preview.Plan.Errors);
             Assert.True(preview.Plan.Changes.Count >= 2);
@@ -37,7 +37,7 @@ public sealed class WitcherRepairPlanningTests
             Assert.Contains(preview.Plan.Warnings, w => w.Contains("Not validated on console", StringComparison.Ordinal));
             Assert.All(preview.Plan.Changes, c => Assert.Equal(FieldValue.Of(100.0), c.NewValue));
             Assert.Equal(damagedBytes, Assert.Single(document.Serialize()).Content.ToArray());
-            var outcome = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+            var outcome = session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(outcome.Ok);
             Assert.Equal(preview.Plan.Changes.Count, outcome.Changes.Count);
             Assert.Equal(preview.Plan.Warnings, outcome.Warnings);
@@ -117,20 +117,20 @@ public sealed class WitcherRepairPlanningTests
         // Query only this item; Core must resolve the later full selection, including unloaded rows.
         _ = session.QueryCollection(InventoryViews.CollectionId, new() {
             Filters = new Dictionary<string, string> { ["raw"] = item.Name }, Limit = 1,
-        });
-        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(item.DurabilityId, FieldValue.Of(25.0))]).Ok);
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(item.DurabilityId, FieldValue.Of(25.0))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var scope = new ActionScope { QueryScope = new(InventoryViews.CollectionId, new() { Limit = 1 }, session.State.Revision) };
-        var preview = session.PlanAction(RepairPlanning.ActionId, new Dictionary<string, JsonElement>(), scope);
+        var preview = session.PlanAction(RepairPlanning.ActionId, new Dictionary<string, JsonElement>(), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(before.Player.Inventory.Items.Count, preview.Scope.RowKeys!.Count);
         Assert.Contains(preview.Plan.Changes, c => c.ValueId == item.DurabilityId);
-        Assert.False(session.InvokeAction(RepairPlanning.ActionId, new Dictionary<string, JsonElement>()).Ok);
-        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(item.DurabilityId, FieldValue.Of(26.0))]).Ok);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Stale);
+        Assert.False(session.InvokeAction(RepairPlanning.ActionId, new Dictionary<string, JsonElement>(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(item.DurabilityId, FieldValue.Of(26.0))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         var fresh = session.PlanAction(RepairPlanning.ActionId, new Dictionary<string, JsonElement>(), scope with {
             QueryScope = scope.QueryScope with { Revision = session.State.Revision },
-        });
-        Assert.True(session.ApplyActionPlan(fresh.PlanId!, fresh.Revision).Ok);
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyActionPlan(fresh.PlanId!, fresh.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(100, document.GetValue(item.DurabilityId).AsDouble());
     }
 

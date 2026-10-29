@@ -143,13 +143,13 @@ public sealed class HogwartsWriteSafetyTests
         using var session = new DocumentSession("hogwarts-write-safety", sample, plugin, document);
         _ = session.BuildView();
         byte[] original = Output(document);
-        var first = session.QueryCollection(Inventory, new() { Limit = 1 }).Rows
+        var first = session.QueryCollection(Inventory, new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows
             .SelectMany(row => row.Cells.Values).OfType<FieldNode>().Single(field => field.Spec is IntegerSpec);
-        Assert.True(session.ApplyEdits([Edit(first)]).Ok);
+        Assert.True(session.ApplyEdits([Edit(first)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         byte[] firstEdit = Output(document);
-        var other = session.QueryCollection("hogwarts/RawExclusiveImage/InventoryDynamic", new() { Limit = 1 }).Rows
+        var other = session.QueryCollection("hogwarts/RawExclusiveImage/InventoryDynamic", new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows
             .SelectMany(row => row.Cells.Values).OfType<FieldNode>().Single(field => field.Spec is IntegerSpec);
-        Assert.True(session.ApplyEdits([Edit(other)]).Ok);
+        Assert.True(session.ApplyEdits([Edit(other)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         byte[] bothEdits = Output(document);
 
         for (int repeat = 0; repeat < 2; repeat++)

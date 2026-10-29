@@ -125,11 +125,11 @@ public sealed class SpatialViewTests
         _ = session.BuildView();
         _ = session.Expand("characters/0");
         Assert.Equal("Warrior", session.FindReference("slots/0/class-reference", "1").Label);
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming("slots/0/runes", 1146)]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming("slots/0/runes", 1146)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = WriteTestSupport.Bytes(document);
-        var rows = session.QueryCollection("slots/0/progress", new() { Text = "Church of Elleh" });
+        var rows = session.QueryCollection("slots/0/progress", new() { Text = "Church of Elleh" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var raw = Assert.IsType<FieldNode>(Assert.Single(rows.Rows).Cells["raw"]);
-        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(raw.ValueId, !raw.Value.AsBool())]).Ok);
+        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(raw.ValueId, !raw.Value.AsBool())], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         foreach (var region in session.Expand("progress/0").OfType<SectionNode>()) _ = session.Expand(region.LazyId!);
         Assert.True(session.State.CanUndo);
         WriteTestSupport.EqualBytes(edited, document);

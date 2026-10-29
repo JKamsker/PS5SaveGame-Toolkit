@@ -39,16 +39,16 @@ public sealed class BoltPairSafetyTests
         if (planned)
         {
             var preview = session.PlanAction(RiftBoltPlanning.ActionId,
-                new Dictionary<string, JsonElement> { ["target"] = JsonSerializer.SerializeToElement(FieldValue.Of(1L)) });
+                new Dictionary<string, JsonElement> { ["target"] = JsonSerializer.SerializeToElement(FieldValue.Of(1L)) }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Empty(preview.Plan.Errors);
             Assert.Equal(bytes, Output(document));
             Assert.Contains(preview.Plan.Warnings, warning => warning.Contains("game may reject", StringComparison.Ordinal));
-            applied = session.ApplyActionPlan(preview.PlanId!, preview.Revision);
+            applied = session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         }
         else
         {
             applied = session.ApplyEdits([
-                Incoming(RiftScalarWrites.CareerId, spent), Incoming(RiftScalarWrites.SpentId, spent - 1L)]);
+                Incoming(RiftScalarWrites.CareerId, spent), Incoming(RiftScalarWrites.SpentId, spent - 1L)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         }
         Assert.True(applied.Ok);
         Assert.Equal(1, document.GetValue(RiftScalarWrites.BalanceId).AsInt64());
@@ -74,7 +74,7 @@ public sealed class BoltPairSafetyTests
         })
         {
             var rejected = session.ApplyEdits([
-                new("player/RPGEnabled", JsonSerializer.SerializeToElement(FieldValue.Of(!option.AsBool()))), .. invalid]);
+                new("player/RPGEnabled", JsonSerializer.SerializeToElement(FieldValue.Of(!option.AsBool()))), .. invalid], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.False(rejected.Ok);
             Assert.Empty(rejected.Changes);
             Assert.Equal(state, session.State);

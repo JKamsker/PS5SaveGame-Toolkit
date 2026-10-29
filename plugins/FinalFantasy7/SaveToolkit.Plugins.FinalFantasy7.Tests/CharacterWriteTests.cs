@@ -31,7 +31,7 @@ public sealed class CharacterWriteTests
             var old = document.GetValue(key + "/" + suffix).AsInt32();
             var target = suffix is "hp" or "mp" ? Math.Max(0, old - 1) : suffix == "level" ? 25 : 50_000;
             Assert.NotEqual(old, target);
-            Assert.True(session.ApplyEdits([new(key + "/" + suffix, JsonSerializer.SerializeToElement(target))]).Ok);
+            Assert.True(session.ApplyEdits([new(key + "/" + suffix, JsonSerializer.SerializeToElement(target))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var edited = Assert.Single(document.Serialize()).Content.ToArray();
             var allowed = suffix == "hp" ? Enumerable.Range(offset + 0x10, 4)
                 : suffix == "mp" ? Enumerable.Range(offset + 0x18, 4)
@@ -104,7 +104,7 @@ public sealed class CharacterWriteTests
             Assert.False(document.ApplyEdits([new("character/0/weapon", FieldValue.Of((long)invalid))]).Succeeded);
             Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         }
-        Assert.True(session.ApplyEdits([new("character/0/weapon", JsonSerializer.SerializeToElement(target))]).Ok);
+        Assert.True(session.ApplyEdits([new("character/0/weapon", JsonSerializer.SerializeToElement(target))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         ByteChangeAssertions.OnlyOffsetsChanged(original, edited, Enumerable.Range(0xCC, 4));
         using var reopened = plugin.Open(MemorySaveSet.SingleFile(file.FileName, edited, title));
@@ -130,7 +130,7 @@ public sealed class CharacterWriteTests
         using var session = new DocumentSession("original-pair", file, plugin, document, openOriginal: Open);
         _ = session.BuildView();
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.True(session.ApplyEdits([new("character/0/level", JsonSerializer.SerializeToElement(25))]).Ok);
+        Assert.True(session.ApplyEdits([new("character/0/level", JsonSerializer.SerializeToElement(25))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.True(session.Undo().Ok);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());

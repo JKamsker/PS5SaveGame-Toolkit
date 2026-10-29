@@ -75,7 +75,7 @@ public sealed class JsonArrayEditingTests
     {
         using var fixture = new JsonSessionFixture("[1,2,3]");
         _ = fixture.Fields();
-        var preview = fixture.Session.PlanAction($"array/0/{operation}", Parameters(("at", FieldValue.Of((long)index)), ("json", FieldValue.Of(json))), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction($"array/0/{operation}", Parameters(("at", FieldValue.Of((long)index)), ("json", FieldValue.Of(json))), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Null(preview.PlanId);
         Assert.NotEmpty(preview.Plan.Errors);
         Assert.Equal("[1,2,3]", Encoding.UTF8.GetString(fixture.Bytes));

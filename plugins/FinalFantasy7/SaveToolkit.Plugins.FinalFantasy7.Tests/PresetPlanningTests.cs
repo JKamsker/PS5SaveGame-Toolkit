@@ -31,15 +31,15 @@ public sealed class PresetPlanningTests
             QueryScope = new("inventory", new() { Filters = new Dictionary<string, string> { ["category"] = "Items" } }, session.State.Revision),
         };
         var parameters = new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement(99) };
-        var preview = session.PlanAction(InventoryPlanning.ActionId, parameters, scope);
+        var preview = session.PlanAction(InventoryPlanning.ActionId, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.NotEmpty(preview.Plan.Changes);
-        Assert.Equal(session.QueryCollection("inventory", new() { Filters = new Dictionary<string, string> { ["category"] = "Items" } }).FilteredCount,
+        Assert.Equal(session.QueryCollection("inventory", new() { Filters = new Dictionary<string, string> { ["category"] = "Items" } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).FilteredCount,
             preview.Plan.Changes.Count + preview.Plan.SkippedRows.Count);
         Assert.Contains(preview.Plan.Warnings, warning => warning.Contains("game may reject", StringComparison.Ordinal));
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.All(preview.Plan.Changes, change => Assert.True(change.NewValue.AsInt32() > change.OldValue.AsInt32()));
-        var result = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var result = session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         var layout = GameplayLayout.For(schema);
@@ -58,7 +58,7 @@ public sealed class PresetPlanningTests
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Redo().Ok);
         Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Stale);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
     }
 
     [Theory]
@@ -74,7 +74,7 @@ public sealed class PresetPlanningTests
         var document = plugin.Open(file, context);
         using var session = new DocumentSession("star-preset", file, plugin, document, references: context);
         _ = session.BuildView();
-        var row = session.QueryCollection("materia", new() { Limit = 200 }).Rows
+        var row = session.QueryCollection("materia", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows
             .First(row => row.Cells["level"] is FieldNode { Spec.ReadOnly: false, Value: var value } && value.AsInt32() > 1);
         var type = ((FieldNode)row.Cells["id"]).Value.AsString();
         Assert.True(session.FindReference("type", type, actionId: MateriaPlanning.StarActionId).Eligibility.Selectable);
@@ -84,12 +84,12 @@ public sealed class PresetPlanningTests
         }, new()
         {
             QueryScope = new("materia", new() { Filters = new Dictionary<string, string> { ["id"] = $"0x{uint.Parse(type, CultureInfo.InvariantCulture):X8}" } }, session.State.Revision),
-        });
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Contains(preview.Plan.Changes, change => change.ValueId.EndsWith("/level", StringComparison.Ordinal) && !change.Derived);
         Assert.Contains(preview.Plan.Changes, change => change.ValueId.EndsWith("/ap", StringComparison.Ordinal) && change.Derived);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         using var reopened = plugin.Open(MemorySaveSet.SingleFile(file.FileName, edited, title));
         foreach (var slot in preview.Plan.Changes.Select(change => change.ValueId.Split('/')[1]).Distinct(StringComparer.Ordinal))

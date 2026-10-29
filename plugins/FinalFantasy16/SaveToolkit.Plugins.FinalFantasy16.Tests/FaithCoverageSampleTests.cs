@@ -27,11 +27,11 @@ public sealed class FaithCoverageSampleTests
         using var document = _plugin.Open(file, references);
         using var session = new DocumentSession("sample-resource", file, _plugin, document, references: references);
         _ = session.BuildView();
-        Assert.False(session.InvokeAction(action, new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement(1) }).Ok);
-        var preview = session.PlanAction(action, new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement(1) });
+        Assert.False(session.InvokeAction(action, new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement(1) }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var preview = session.PlanAction(action, new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement(1) }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var output = Assert.Single(document.Serialize()).Content.ToArray();
         FaithWriteTests.AssertOnlyRanges(original, output, [(item.Offset + sizeof(int), sizeof(int))]);
         using var reopened = _plugin.Open(FaithSamples.WithBytes(file, output), references);
@@ -66,9 +66,9 @@ public sealed class FaithCoverageSampleTests
         Assert.Empty(plan.Errors);
         Assert.Equal(2, plan.Changes.Count(change => !change.Derived));
         Assert.Equal(reduced, Assert.Single(document.Serialize()).Content.ToArray());
-        var preview = session.PlanAction(Action, new Dictionary<string, JsonElement>(), scope);
+        var preview = session.PlanAction(Action, new Dictionary<string, JsonElement>(), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Undo().Ok);
         Assert.Equal(reduced, Assert.Single(document.Serialize()).Content.ToArray());
@@ -98,20 +98,20 @@ public sealed class FaithCoverageSampleTests
         var query = new ActionQueryScope(FaithInventoryView.CollectionId,
             new() { Filters = new Dictionary<string, string> { ["category"] = "material" } }, session.State.Revision)
             { ExcludedRowKeys = [$"inventory/{SecondSlot}"] };
-        var preview = session.PlanAction(Action, new Dictionary<string, JsonElement>(), new() { QueryScope = query });
+        var preview = session.PlanAction(Action, new Dictionary<string, JsonElement>(), new() { QueryScope = query }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal($"inventory/{FirstSlot}", Assert.Single(preview.Scope.RowKeys!));
         Assert.Equal($"inventory/{FirstSlot}/quantity", Assert.Single(preview.Plan.Changes, change => !change.Derived).ValueId);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(FirstSlot + 2, document.GetValue($"inventory/{FirstSlot}/quantity").AsInt32());
         Assert.Equal(1, document.GetValue($"inventory/{SecondSlot}/quantity").AsInt32());
         Assert.True(session.Undo().Ok);
         Assert.Equal(reduced, Assert.Single(document.Serialize()).Content.ToArray());
         query = query with { ExcludedRowKeys = [$"inventory/{FirstSlot}", $"inventory/{SecondSlot}"], Revision = session.State.Revision };
-        var empty = session.PlanAction(Action, new Dictionary<string, JsonElement>(), new() { QueryScope = query });
+        var empty = session.PlanAction(Action, new Dictionary<string, JsonElement>(), new() { QueryScope = query }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(empty.Plan.Changes);
         Assert.Empty(empty.Scope.RowKeys!);
-        Assert.True(session.ApplyActionPlan(empty.PlanId!, empty.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(empty.PlanId!, empty.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(reduced, Assert.Single(document.Serialize()).Content.ToArray());
     }
 }

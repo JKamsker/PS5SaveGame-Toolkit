@@ -16,20 +16,20 @@ public sealed class SemanticSampleTests
         var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA03169");
         using var session = new DocumentSession("eldenring-semantic", file, plugin, plugin.Open(file, references), references: references);
         _ = session.BuildView();
-        var page = session.QueryCollection("slots/0/inventory/held", new() { Text = "Rowa Fruit" });
+        var page = session.QueryCollection("slots/0/inventory/held", new() { Text = "Rowa Fruit" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var field = Assert.IsType<FieldNode>(Assert.Single(page.Rows).Cells["item"]);
         Assert.Equal("Rowa Fruit", session.FindReference(field.ValueId, field.Value.AsString(), page.Revision).Label);
         var candidates = session.SearchReferences("item", new() { Text = "Scimitar" }, actionId: "references/inspect");
         Assert.Equal(13, candidates.Items.Count);
         Assert.Contains(candidates.Items, item => item.RawId == "0x006CF2A0" && item.Label == "Scimitar");
         _ = session.Expand("characters/0");
-        Assert.True(session.ApplyEdits([new IncomingEdit("slots/0/runes", JsonSerializer.SerializeToElement(1148))]).Ok);
-        var lookup = session.InvokeAction("references/inspect", new Dictionary<string, JsonElement> { ["item"] = JsonSerializer.SerializeToElement("0x400050F0") });
+        Assert.True(session.ApplyEdits([new IncomingEdit("slots/0/runes", JsonSerializer.SerializeToElement(1148))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var lookup = session.InvokeAction("references/inspect", new Dictionary<string, JsonElement> { ["item"] = JsonSerializer.SerializeToElement("0x400050F0") }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(lookup.Ok);
         Assert.Empty(lookup.Changes);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
-        Assert.Empty(session.Serialize());
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
     }
 
     [Fact]

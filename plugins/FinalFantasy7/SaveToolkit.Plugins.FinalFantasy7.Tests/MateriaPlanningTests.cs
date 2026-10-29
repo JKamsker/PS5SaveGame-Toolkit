@@ -35,7 +35,7 @@ public sealed class MateriaPlanningTests
                 Filters = new Dictionary<string, string> { ["id"] = $"0x{type:X8}" }, Limit = 1,
             }, session.State.Revision),
         };
-        var preview = session.PlanAction(MateriaPlanning.ActionId, parameters, scope);
+        var preview = session.PlanAction(MateriaPlanning.ActionId, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.NotEmpty(preview.Plan.Changes);
         if (!schema.IsRemake)
@@ -45,8 +45,8 @@ public sealed class MateriaPlanningTests
         }
         Assert.False(session.State.CanUndo);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.False(session.InvokeAction(MateriaPlanning.ActionId, parameters).Ok);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.False(session.InvokeAction(MateriaPlanning.ActionId, parameters, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         var ranges = preview.Plan.Changes.Select(change =>
         {
@@ -123,12 +123,12 @@ public sealed class MateriaPlanningTests
         var document = plugin.Open(file, context);
         using var session = new DocumentSession("ff7", file, plugin, document, references: context);
         _ = session.BuildView();
-        _ = session.QueryCollection("materia", new() { Filters = new Dictionary<string, string> { ["slot"] = "0" } });
-        var preview = session.PlanAction(MateriaPlanning.ActionId, Parameters("10020", 301), new(["materia/0"]));
+        _ = session.QueryCollection("materia", new() { Filters = new Dictionary<string, string> { ["slot"] = "0" } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        var preview = session.PlanAction(MateriaPlanning.ActionId, Parameters("10020", 301), new(["materia/0"]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
-        Assert.True(session.ApplyEdits([new("materia/0/ap", JsonSerializer.SerializeToElement("302"))]).Ok);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Stale);
-        var changes = session.GetChanges();
+        Assert.True(session.ApplyEdits([new("materia/0/ap", JsonSerializer.SerializeToElement("302"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
+        var changes = session.GetChanges(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Contains(changes.Changes, change => change.ValueId == "materia/0/ap" && change.OriginalValue.AsUInt32() == 300);
         Assert.True(session.Undo().Ok);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());

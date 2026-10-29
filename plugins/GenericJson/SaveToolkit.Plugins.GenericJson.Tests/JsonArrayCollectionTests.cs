@@ -18,27 +18,27 @@ public sealed class JsonArrayCollectionTests(ITestOutputHelper output)
         _ = fixture.Session.BuildView();
         var query = Assert.IsAssignableFrom<IQueryableDocument>(fixture.Document);
         Assert.Equal(401, query.Collections.Single(c => c.Id == "json-array-0").TotalCount);
-        var page = fixture.Session.QueryCollection("json-array-0", new() { Offset = 198, Limit = 3 });
+        var page = fixture.Session.QueryCollection("json-array-0", new() { Offset = 198, Limit = 3 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(["value/199", "value/200", "value/201"], page.Rows.Select(r => r.Key));
         Assert.True(fixture.Edit("value/200", JsonEditingTests.Number("1.234567890123456789e-99")).Ok);
-        _ = fixture.Session.QueryCollection("json-array-0", new() { Offset = 399, Limit = 1 });
+        _ = fixture.Session.QueryCollection("json-array-0", new() { Offset = 399, Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(fixture.Edit("value/400", JsonEditingTests.Number("-0")).Ok);
         var scope = new ActionScope
         {
             QueryScope = new("json-array-0", new() { Filters = new Dictionary<string, string> { ["state"] = "modified" } }, fixture.Session.State.Revision)
                 { ExcludedRowKeys = ["value/400"] },
         };
-        var plan = fixture.Session.PlanAction("reset-imported", JsonArrayEditingTests.Parameters(), scope, fixture.Session.State.Revision);
+        var plan = fixture.Session.PlanAction("reset-imported", JsonArrayEditingTests.Parameters(), scope, fixture.Session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(plan.PlanId);
         Assert.Equal("value/200", Assert.Single(plan.Plan.Changes).ValueId);
         var beforeReset = fixture.Bytes;
-        Assert.True(fixture.Session.ApplyActionPlan(plan.PlanId, plan.Revision).Ok);
+        Assert.True(fixture.Session.ApplyActionPlan(plan.PlanId, plan.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(JsonEditingTests.Number("199"), fixture.Document.GetValue("value/200"));
         Assert.Equal(JsonEditingTests.Number("-0"), fixture.Document.GetValue("value/400"));
         Assert.True(fixture.Session.Undo().Ok);
         Assert.Equal(beforeReset, fixture.Bytes);
         Assert.True(fixture.Session.Redo().Ok);
-        Assert.Single(fixture.Session.QueryCollection("json-array-0", new() { Text = "399" }).Rows);
+        Assert.Single(fixture.Session.QueryCollection("json-array-0", new() { Text = "399" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
     }
 
     [Fact]

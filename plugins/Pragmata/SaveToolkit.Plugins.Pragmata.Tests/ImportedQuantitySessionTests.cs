@@ -27,7 +27,7 @@ public sealed class ImportedQuantitySessionTests
         var view = (TabsNode)session.BuildView();
         var quantities = ImportedQuantityTests.Quantities(document);
         var rawIds = quantities.Select(node => RawFieldNavigation.Find(view, node, session.Expand).ValueId).ToArray();
-        Assert.True(session.ApplyEdits(rawIds.Select(id => Edit(id, 1)).ToArray()).Ok);
+        Assert.True(session.ApplyEdits(rawIds.Select(id => Edit(id, 1)).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.All(quantities, quantity => Assert.True(document.HasPrimaryBinding(quantity)));
         var reduced = document.Serialize().Single().Content.ToArray();
         var excluded = QuantityActions.RowKey(document.Layout.Items[^1]);
@@ -37,8 +37,8 @@ public sealed class ImportedQuantitySessionTests
                 new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["quantity"] = "1" }, Limit = 7 },
                 session.State.Revision) { ExcludedRowKeys = [excluded] },
         };
-        Assert.False(session.InvokeAction(ImportedQuantityTests.ActionId, NoParameters).Ok);
-        var preview = session.PlanAction(ImportedQuantityTests.ActionId, NoParameters, scope);
+        Assert.False(session.InvokeAction(ImportedQuantityTests.ActionId, NoParameters, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var preview = session.PlanAction(ImportedQuantityTests.ActionId, NoParameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(count - 1, preview.Scope.RowKeys!.Count);
         Assert.DoesNotContain(excluded, preview.Scope.RowKeys);
@@ -48,25 +48,25 @@ public sealed class ImportedQuantitySessionTests
         Assert.True(session.Undo().Ok);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
         Assert.False(session.State.CanUndo);
-        Assert.False(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.False(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(session.Redo().Ok);
         preview = session.PlanAction(ImportedQuantityTests.ActionId, NoParameters,
-            scope with { QueryScope = scope.QueryScope! with { Revision = session.State.Revision } });
+            scope with { QueryScope = scope.QueryScope! with { Revision = session.State.Revision } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(1, document.Read(quantities[^1]).AsInt32());
         Assert.All(quantities.Take(count - 1), quantity => Assert.Equal(10, document.Read(quantity).AsInt32()));
-        var restored = session.Serialize().Single().Content.ToArray();
+        var restored = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
         var expected = new DsssContainer(original).Plaintext.ToArray();
         System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(expected.AsSpan(quantities[^1].Offset), 1);
         Assert.Equal(expected, new DsssContainer(restored).Plaintext);
         using var reopened = new PragmataDocument(fixture.File.RelativePath, restored);
         Assert.Equal(restored, reopened.Serialize().Single().Content.ToArray());
-        Assert.False(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.False(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(session.Undo().Ok);
-        Assert.Equal(reduced, session.Serialize().Single().Content.ToArray());
+        Assert.Equal(reduced, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(restored, session.Serialize().Single().Content.ToArray());
+        Assert.Equal(restored, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
     }
 
     [Fact]
@@ -78,18 +78,18 @@ public sealed class ImportedQuantitySessionTests
         using var session = new DocumentSession("restore-selected", fixture.File, new PragmataPlugin(), document);
         _ = session.BuildView();
         var quantities = ImportedQuantityTests.Quantities(document);
-        Assert.True(session.ApplyEdits(quantities.Select(node => Edit(node.Path, 1)).ToArray()).Ok);
+        Assert.True(session.ApplyEdits(quantities.Select(node => Edit(node.Path, 1)).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var scope = new ActionScope([QuantityActions.RowKey(document.Layout.Items[1])]);
-        var preview = session.PlanAction(ImportedQuantityTests.ActionId, NoParameters, scope);
+        var preview = session.PlanAction(ImportedQuantityTests.ActionId, NoParameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(20, Assert.Single(preview.Plan.Changes).NewValue.AsInt32());
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         int[] expected = [1, 20, 1];
         Assert.Equal(expected, quantities.Select(node => document.Read(node).AsInt32()));
         var before = document.Serialize().Single().Content.ToArray();
-        preview = session.PlanAction(ImportedQuantityTests.ActionId, NoParameters, new ActionScope([]));
+        preview = session.PlanAction(ImportedQuantityTests.ActionId, NoParameters, new ActionScope([]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Changes);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(before, document.Serialize().Single().Content.ToArray());
         Assert.True(session.Undo().Ok); // No-op application must not add a history entry.
         Assert.All(quantities, node => Assert.Equal(1, document.Read(node).AsInt32()));
@@ -116,12 +116,12 @@ public sealed class ImportedQuantitySessionTests
                 ExcludedRowKeys = excludeAll ? document.Layout.Items.Select(QuantityActions.RowKey).ToArray() : [],
             },
         };
-        var preview = session.PlanAction(ImportedQuantityTests.ActionId, NoParameters, scope);
+        var preview = session.PlanAction(ImportedQuantityTests.ActionId, NoParameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Empty(preview.Scope.RowKeys!);
         Assert.Empty(preview.Plan.Changes);
         Assert.Empty(preview.Plan.SkippedRows);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.False(session.State.CanUndo);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
     }

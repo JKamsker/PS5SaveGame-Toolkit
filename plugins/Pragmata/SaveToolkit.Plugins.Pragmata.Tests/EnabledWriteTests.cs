@@ -31,10 +31,10 @@ public sealed class EnabledWriteTests
                     new QueryableCollectionQuery { Limit = 3 }, session.State.Revision))).ToArray();
             Assert.Equal(Families.Length, fields.Select(field => field.ValueId).Distinct(StringComparer.Ordinal).Count());
             Assert.All(fields, AssertEnabled);
-            var outcome = session.ApplyEdits(fields.Select(field => new IncomingEdit(field.ValueId, Wire(Other(field)))).ToArray());
+            var outcome = session.ApplyEdits(fields.Select(field => new IncomingEdit(field.ValueId, Wire(Other(field)))).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(outcome.Ok);
             Assert.Contains(outcome.Warnings, warning => warning.Contains("game may reject", StringComparison.Ordinal));
-            var modified = session.Serialize().Single().Content.ToArray();
+            var modified = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
             var before = new DsssContainer(original).Plaintext;
             var after = new DsssContainer(modified).Plaintext;
             var targets = fields.Select(field => Find(document.Layout.Roots, field.ValueId["inspect/value/".Length..])).ToArray();
@@ -63,7 +63,7 @@ public sealed class EnabledWriteTests
             Assert.False(session.State.CanUndo);
             Assert.Equal(original, document.Serialize().Single().Content.ToArray());
             Assert.True(session.Redo().Ok);
-            Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
+            Assert.Equal(modified, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
         }
     }
 
@@ -103,8 +103,8 @@ public sealed class EnabledWriteTests
             var table = ((TabsNode)session.BuildView()).Tabs.Single(tab => tab.Title == "Inventory").Children.OfType<TableNode>().Single();
             var field = (FieldNode)table.Rows[0].Cells["name"];
             AssertEnabled(field);
-            Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("1"))]).Ok);
-            var modified = session.Serialize().Single().Content.ToArray();
+            Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+            var modified = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
             using var reopened = new PragmataDocument(file.RelativePath, modified);
             var itemId = document.Layout.Items[0].Find(KnownHashes.ItemId)!;
             Assert.Equal(1U, reopened.Read(reopened.Layout.Items[0].Find(KnownHashes.ItemId)!).AsUInt32());
@@ -114,12 +114,12 @@ public sealed class EnabledWriteTests
             Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(1L))]).Succeeded);
             var maximum = Assert.IsType<IntegerSpec>(document.Bounds.Spec(itemId)).Max;
             if (maximum < uint.MaxValue)
-                Assert.False(session.ApplyEdits([new(field.ValueId, Wire(FieldValue.Of(maximum + 1)))]).Ok);
+                Assert.False(session.ApplyEdits([new(field.ValueId, Wire(FieldValue.Of(maximum + 1)))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             Assert.Equal(modified, document.Serialize().Single().Content.ToArray());
             Assert.True(session.Undo().Ok);
             Assert.Equal(original, document.Serialize().Single().Content.ToArray());
             Assert.True(session.Redo().Ok);
-            Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
+            Assert.Equal(modified, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
         }
     }
 

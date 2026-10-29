@@ -60,22 +60,22 @@ public sealed class JsonSearchReviewTests
         var shown = Assert.IsType<FieldNode>(fixture.Session.Expand(lazy)[0]);
         Assert.True(fixture.Edit(shown.ValueId, JsonEditingTests.Number("0")).Ok);
         // Hidden fields were never expanded by the client; Core opens a separate original baseline.
-        var first = fixture.Session.GetChanges();
+        var first = fixture.Session.GetChanges(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(first.Complete);
         Assert.Equal("-0", Assert.Single(first.Changes).OriginalValue.AsUnion().Value.AsExactNumber());
         var hidden = fixture.Fields().Single(f => f.Label == "n");
         Assert.True(fixture.Edit(hidden.ValueId, JsonEditingTests.Text("1.0000")).Ok);
         _ = fixture.Session.BuildView();
-        var log = fixture.Session.GetChanges();
+        var log = fixture.Session.GetChanges(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(log.Complete);
         Assert.Equal(2, log.Changes.Count);
         var typeChange = Assert.Single(log.Changes, c => c.ValueId == hidden.ValueId);
         Assert.Equal("number", typeChange.OriginalValue.AsUnion().Type);
         Assert.Equal("string", typeChange.CurrentValue.AsUnion().Type);
-        Assert.True(fixture.Session.RevertChange(shown.ValueId, log.Revision).Ok);
-        Assert.Single(fixture.Session.GetChanges().Changes);
-        Assert.True(fixture.Session.RevertChange(hidden.ValueId, fixture.Session.State.Revision).Ok);
-        Assert.Empty(fixture.Session.GetChanges().Changes);
+        Assert.True(fixture.Session.RevertChange(shown.ValueId, log.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.Single(fixture.Session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
+        Assert.True(fixture.Session.RevertChange(hidden.ValueId, fixture.Session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.Empty(fixture.Session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
         Assert.Equal(Encoding.UTF8.GetBytes(source), fixture.Bytes);
     }
 }

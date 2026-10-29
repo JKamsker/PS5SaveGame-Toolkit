@@ -32,7 +32,7 @@ public sealed class JsonSessionValueTests
     {
         using var fixture = new JsonSessionFixture("[1]");
         var id = fixture.Fields()[0].ValueId;
-        Assert.False(fixture.Session.ApplyEdits([new(id, JsonSerializer.Deserialize<JsonElement>(json))], 0).Ok);
+        Assert.False(fixture.Session.ApplyEdits([new(id, JsonSerializer.Deserialize<JsonElement>(json))], 0, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal("[1]", Encoding.UTF8.GetString(fixture.Bytes));
         Assert.False(fixture.Session.State.CanUndo);
     }
@@ -43,7 +43,7 @@ public sealed class JsonSessionValueTests
         using var fixture = new JsonSessionFixture("[1]");
         var id = fixture.Fields()[0].ValueId;
         var wire = JsonSerializer.Deserialize<JsonElement>("{\"kind\":\"union\",\"type\":\"number\",\"value\":0.12345678901234567890123456789}");
-        Assert.True(fixture.Session.ApplyEdits([new(id, wire)], 0).Ok);
+        Assert.True(fixture.Session.ApplyEdits([new(id, wire)], 0, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal("[0.12345678901234567890123456789]", Encoding.UTF8.GetString(fixture.Bytes));
     }
 }

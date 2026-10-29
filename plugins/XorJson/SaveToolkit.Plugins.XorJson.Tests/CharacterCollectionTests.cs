@@ -24,29 +24,29 @@ public sealed class CharacterCollectionTests
         var tables = tabs.Tabs.SelectMany(tab => tab.Children).OfType<QueryableTableNode>().ToArray();
         Assert.Equal(7, tables.Length);
         Assert.All(tables, table => Assert.Contains("Experimental", table.Description!, StringComparison.OrdinalIgnoreCase));
-        var attributes = session.QueryCollection("character/attributes", new());
+        var attributes = session.QueryCollection("character/attributes", new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(9, attributes.TotalCount);
         var emeralds = Assert.Single(attributes.Rows, row => CellText(row.Cells["id"]) == "Emeralds");
         Assert.Equal("0", Assert.IsType<FieldNode>(emeralds.Cells["value"]).Value.AsExactNumber());
         AssertInventoryReferencesAndUndo(session);
-        var quests = session.QueryCollection("character/quests", new() { Filters = new Dictionary<string, string> { ["focused"] = "true" } });
+        var quests = session.QueryCollection("character/quests", new() { Filters = new Dictionary<string, string> { ["focused"] = "true" } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(49, quests.TotalCount);
         var focused = Assert.Single(quests.Rows);
         Assert.Equal("CA00", CellText(focused.Cells["id"]));
         Assert.Equal("Escape from Squid Coast", Assert.IsType<SectionNode>(focused.Cells["name"]).Title);
-        var tasks = session.QueryCollection("character/tasks", new() { Text = "Get back to camp" });
+        var tasks = session.QueryCollection("character/tasks", new() { Text = "Get back to camp" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Contains(tasks.Rows, row => CellText(row.Cells["id"]) == "CA00_E01");
         var fog = Assert.Single(session.QueryCollection("character/world", new()
         {
             Filters = new Dictionary<string, string> { ["group"] = "SavedFogOfWarExploration" },
-        }).Rows);
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.Equal("SW.Region.Camp", CellText(fog.Cells["id"]));
         Assert.Equal("256", CellText(fog.Cells["count"]));
-        Assert.Equal(32, session.QueryCollection("character/achievements", new()).TotalCount);
-        Assert.Equal(3, session.QueryCollection("character/collections", new()).TotalCount);
+        Assert.Equal(32, session.QueryCollection("character/achievements", new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).TotalCount);
+        Assert.Equal(3, session.QueryCollection("character/collections", new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).TotalCount);
         foreach (var collection in session.QueryableCollections)
         {
-            var page = session.QueryCollection(collection.Id, new() { Limit = 200 });
+            var page = session.QueryCollection(collection.Id, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(page.Rows.Count, page.Rows.Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());
             Assert.All(page.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>(), field => Assert.False(field.Spec.ReadOnly));
             _ = JsonSerializer.Serialize(page);

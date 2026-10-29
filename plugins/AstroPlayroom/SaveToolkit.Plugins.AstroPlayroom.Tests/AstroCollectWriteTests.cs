@@ -91,10 +91,10 @@ public sealed class AstroCollectWriteTests
             _ = session.BuildView();
             var original = file.ReadAllBytes();
             var preview = session.PlanAction(CollectAction, new Dictionary<string, System.Text.Json.JsonElement>(),
-                expectedRevision: session.State.Revision);
+                expectedRevision: session.State.Revision, scope: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(preview.PlanId);
             Assert.Empty(preview.Plan.Errors);
-            Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision).Ok);
+            Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var edited = AstroTestData.Output(document);
             Assert.StartsWith("50/50 owned", AstroCatalogueTestData.Group(document, "Artifacts").Badge, StringComparison.Ordinal);
             Assert.StartsWith("96/96 owned", AstroCatalogueTestData.Group(document, "Puzzle pieces").Badge, StringComparison.Ordinal);

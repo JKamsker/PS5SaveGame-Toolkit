@@ -64,10 +64,10 @@ public sealed class AstroGatchaTests
         var document = plugin.Open(file);
         using var session = new DocumentSession("astro-budget", Assert.IsType<DiskSaveFile>(file), plugin, document);
         _ = session.BuildView();
-        var preview = session.PlanAction(ActionId, new Dictionary<string, JsonElement> { ["attempts"] = JsonSerializer.SerializeToElement(1) });
+        var preview = session.PlanAction(ActionId, new Dictionary<string, JsonElement> { ["attempts"] = JsonSerializer.SerializeToElement(1) }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(FieldValue.Of(100L), Assert.Single(preview.Plan.Changes).NewValue);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = AstroTestData.Output(document);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);

@@ -144,7 +144,7 @@ public sealed class TitleWriteSafetyTests
         _ = session.BuildView();
         _ = session.Expand("search");
 
-        var applied = session.ApplyEdits([new IncomingEdit(count.ValueId, JsonSerializer.SerializeToElement(int.MaxValue))]);
+        var applied = session.ApplyEdits([new IncomingEdit(count.ValueId, JsonSerializer.SerializeToElement(int.MaxValue))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.True(applied.Ok, string.Join("; ", applied.Errors.Select(error => error.Message)));
         Assert.True(session.State.IsDirty);

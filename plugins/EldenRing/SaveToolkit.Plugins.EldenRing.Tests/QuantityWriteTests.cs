@@ -23,14 +23,14 @@ public sealed class QuantityWriteTests
         Assert.Equal(Confidence.Inferred, field.Confidence);
         Assert.Equal((Int128)ceiling, Assert.IsType<IntegerSpec>(field.Spec).Max);
         Assert.Contains("may reject", field.Warning);
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(field.ValueId, next)]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(field.ValueId, next)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var expected = original.ToArray();
         BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(entry.Offset + sizeof(uint)), next);
         WriteTestSupport.EqualBytes(expected, document);
         WriteTestSupport.OnlyRanges(original, expected, (entry.Offset + sizeof(uint), sizeof(uint)));
         Assert.Equal(next, WriteTestSupport.Quantity(session, "held", rawId).Value.AsUInt32());
         var filtered = session.QueryCollection("slots/0/inventory/held", new()
-            { Text = rawId, Filters = new Dictionary<string, string> { ["quantity"] = next.ToString(System.Globalization.CultureInfo.InvariantCulture) } });
+            { Text = rawId, Filters = new Dictionary<string, string> { ["quantity"] = next.ToString(System.Globalization.CultureInfo.InvariantCulture) } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Single(filtered.Rows); // Query/filter reads current bytes, not the opening snapshot.
         using var reopened = WriteTestSupport.Reopen(document);
         var reopenedField = Assert.IsType<FieldNode>(Assert.Single(((IQueryableDocument)reopened)

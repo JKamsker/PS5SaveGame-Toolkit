@@ -35,7 +35,7 @@ public sealed class JsonSearchNavigationTests
     {
         using var fixture = new JsonSessionFixture("{\"group\":{\"MasterVolume\":50,\"nested\":[1,2]},\"other\":0}");
         _ = fixture.Session.BuildView();
-        var page = fixture.Session.QueryCollection("json-tree", new() { Text = "value/1" });
+        var page = fixture.Session.QueryCollection("json-tree", new() { Text = "value/1" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var container = Assert.Single(page.Rows);
         var details = Assert.IsType<SectionNode>(container.Cells["value"]);
         var subtree = Assert.IsType<SectionNode>(Assert.Single(details.Children));
@@ -67,7 +67,7 @@ public sealed class JsonSearchNavigationTests
         var changed = query.Query("json-tree", new() { Filters = new Dictionary<string, string> { ["state"] = "modified" }, SortColumn = "within" });
         Assert.Equal(2, changed.Rows.Count);
         Assert.Contains(changed.Rows, row => row.Key == "value/0");
-        var review = fixture.Session.GetChanges();
+        var review = fixture.Session.GetChanges(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(review.Complete);
         Assert.Single(review.Changes);
         Assert.Single(query.Query("json-tree", new() { Filters = new Dictionary<string, string> { ["within"] = "value/1" } }).Rows);

@@ -34,7 +34,7 @@ public sealed class PickerHistoryTests
             using var entry = zip.CreateEntry("PPSA16064/sdimg_SAVE/synthetic.sav").Open();
             entry.Write(bytes);
         }
-        var workspace = store.Create("picker", [new ImportSource("fixture.zip", () => new MemoryStream(zipBytes.ToArray()))]);
+        var workspace = store.Create("picker", [new ImportSource("fixture.zip", () => new MemoryStream(zipBytes.ToArray()))], cancellationToken: TestContext.Current.CancellationToken);
         var file = workspace.Set.AllDiskFiles.Single();
         var references = packs.Pin(plugin, "PPSA16064");
         using var document = plugin.Open(file, references);
@@ -46,9 +46,9 @@ public sealed class PickerHistoryTests
         Assert.Contains(candidates.Items, candidate => candidate.RawId == "SW.Item.Bow");
         Assert.All(candidates.Items, candidate => Assert.Equal(GameAssetTests.OwnerDecision, candidate.Dataset!.Attribution.License));
         Assert.Equal(!unknownOriginal, session.FindReference(field.ValueId, originalId).Eligibility.Selectable);
-        Assert.False(session.ApplyEdits([Incoming(field.ValueId, "SW.Item.NotInCatalog")]).Ok);
+        Assert.False(session.ApplyEdits([Incoming(field.ValueId, "SW.Item.NotInCatalog")], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());
-        var edited = session.ApplyEdits([Incoming(field.ValueId, "SW.Item.Bow")]);
+        var edited = session.ApplyEdits([Incoming(field.ValueId, "SW.Item.Bow")], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(edited.Ok);
         Assert.True(edited.StructureChanged); // Refresh name/provenance and picker metadata.
         Assert.Contains("Bow", XorJsonTests.Fields(document).Single(field => field.Label == "TypeTag").Description!);

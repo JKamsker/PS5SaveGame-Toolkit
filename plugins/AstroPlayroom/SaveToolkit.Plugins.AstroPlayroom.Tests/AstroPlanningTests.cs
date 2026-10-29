@@ -86,16 +86,16 @@ public sealed class AstroPlanningTests
         using var session = new DocumentSession("astro-plan", Assert.IsType<DiskSaveFile>(file), plugin, document, references: context);
         _ = session.BuildView();
 
-        var direct = session.InvokeAction(CollectAllAction, new Dictionary<string, JsonElement>(), session.State.Revision);
+        var direct = session.InvokeAction(CollectAllAction, new Dictionary<string, JsonElement>(), session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(direct.Ok);
         Assert.Contains("requires a preview", Assert.Single(direct.Errors).Message, StringComparison.Ordinal);
 
         var preview = session.PlanAction(SetCoinsAction,
             new Dictionary<string, JsonElement> { ["amount"] = JsonSerializer.SerializeToElement(1749L) },
-            expectedRevision: session.State.Revision);
+            expectedRevision: session.State.Revision, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Single(preview.Plan.Changes);
-        var applied = session.ApplyActionPlan(preview.PlanId!, session.State.Revision);
+        var applied = session.ApplyActionPlan(preview.PlanId!, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(applied.Ok);
         Assert.Single(applied.Changes);
         Assert.True(session.Undo().Ok);

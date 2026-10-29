@@ -35,7 +35,7 @@ public sealed class QuantityBoundaryTests
         var raw = RawFieldNavigation.Find((TabsNode)session.BuildView(), quantities[1], session.Expand);
         var scope = new ActionScope(document.Layout.Items.Take(3).Select(item => $"inventory/record-at-{item.Offset:x}").ToArray());
         var parameters = Parameters(target);
-        var preview = session.PlanAction(PragmataViews.QuantityAction, parameters, scope);
+        var preview = session.PlanAction(PragmataViews.QuantityAction, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.NotNull(preview.PlanId);
         var skipped = Assert.Single(preview.Plan.SkippedRows);
@@ -52,7 +52,7 @@ public sealed class QuantityBoundaryTests
             .OrderBy(change => change.ValueId, StringComparer.Ordinal));
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
         Assert.False(session.State.CanUndo);
-        var applied = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var applied = session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(applied.Ok);
         Assert.Equal(expected.Select(change => (change.Id, change.Old, change.New)), applied.Changes.Select(change =>
             (change.ValueId, change.OldValue.AsInt32(), change.NewValue.AsInt32())).OrderBy(change => change.ValueId, StringComparer.Ordinal));
@@ -60,7 +60,7 @@ public sealed class QuantityBoundaryTests
         var expectedPlaintext = plaintext.ToArray();
         foreach (var index in new[] { 1, 2 })
             BinaryPrimitives.WriteInt32LittleEndian(expectedPlaintext.AsSpan(quantities[index].Offset), target);
-        var modified = session.Serialize().Single().Content.ToArray();
+        var modified = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
         Assert.Equal(expectedPlaintext, new DsssContainer(modified).Plaintext);
         Assert.Equal(container.Rebuild(expectedPlaintext), modified);
         Assert.Equal(target, document.GetValue(raw.ValueId).AsInt32());

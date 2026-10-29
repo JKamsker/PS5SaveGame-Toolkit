@@ -123,7 +123,7 @@ public sealed class VisualReferenceTests
             var field = Assert.IsType<FieldNode>(row.Cells["name"]);
             Assert.True(Assert.IsType<ReferenceSpec>(field.Spec).ReadOnly);
             Assert.Equal(field.Value, document.GetValue(field.ValueId));
-            Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(field.Value.AsString()))]).Ok);
+            Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(field.Value.AsString()))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var detail = Assert.IsType<SectionNode>(row.Cells["details"]);
             Assert.Contains(detail.Children.OfType<TextNode>(), text => text.Text.Contains("CC-BY-SA-3.0", StringComparison.Ordinal));
             Assert.Contains(detail.Children.OfType<TextNode>(), text => text.Text.Contains("Capcom", StringComparison.Ordinal));

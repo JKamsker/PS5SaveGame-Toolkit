@@ -38,13 +38,13 @@ public sealed class JsonWriteWarningTests
             || action.ActionId.StartsWith("object/", StringComparison.Ordinal)).ToArray();
         Assert.NotEmpty(actions);
         Assert.All(actions, action => Assert.StartsWith(RawWarning, action.Description, StringComparison.Ordinal));
-        var preview = fixture.Session.PlanAction(actionId, JsonArrayEditingTests.Parameters(("at", FieldValue.Of(0L))), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction(actionId, JsonArrayEditingTests.Parameters(("at", FieldValue.Of(0L))), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         var warning = Assert.Single(preview.Plan.Warnings);
         Assert.StartsWith(RawWarning, warning, StringComparison.Ordinal);
         Assert.Contains("Membership, names and order may have game-specific dependencies", warning, StringComparison.Ordinal);
         Assert.Contains("Templates describe JSON types, not a validated game schema.", warning, StringComparison.Ordinal);
-        var outcome = fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var outcome = fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(outcome.Ok);
         Assert.Contains(warning, outcome.Warnings);
     }
@@ -58,10 +58,10 @@ public sealed class JsonWriteWarningTests
         var action = JsonSemanticTestHelper.Actions(fixture).Single(action => action.ActionId == "reset-imported");
         Assert.StartsWith(RawWarning, action.Description, StringComparison.Ordinal);
         Assert.Contains("not game defaults", action.Description, StringComparison.Ordinal);
-        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(), expectedRevision: fixture.Session.State.Revision);
+        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(), expectedRevision: fixture.Session.State.Revision, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Contains(RawWarning, preview.Plan.Warnings);
-        var outcome = fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var outcome = fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(outcome.Ok);
         Assert.Contains(RawWarning, outcome.Warnings);
         Assert.Equal("1"u8.ToArray(), fixture.Bytes);

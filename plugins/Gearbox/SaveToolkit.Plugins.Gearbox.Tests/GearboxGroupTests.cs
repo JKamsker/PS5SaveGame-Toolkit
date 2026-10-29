@@ -119,7 +119,7 @@ public sealed class GearboxGroupTests
         var single = workspace.Open(profile.Id, "gearbox");
         _ = single.BuildView();
         Assert.Throws<InvalidOperationException>(() => workspace.OpenGroup(offer.Token));
-        Assert.True(single.ApplyEdits([new("keys/2420693941", JsonSerializer.SerializeToElement("1"))]).Ok);
+        Assert.True(single.ApplyEdits([new("keys/2420693941", JsonSerializer.SerializeToElement("1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Throws<InvalidOperationException>(() => workspace.OpenGroup(offer.Token, single.Id));
         Assert.True(single.Undo().Ok);
         var group = workspace.OpenGroup(offer.Token, single.Id);
@@ -128,19 +128,19 @@ public sealed class GearboxGroupTests
         Assert.True(session.CanEdit);
         Assert.Throws<InvalidOperationException>(() => workspace.Open(profile.Id, "gearbox"));
         Assert.Throws<InvalidOperationException>(() => workspace.OpenGroup(Assert.Single(workspace.ProposeGroups(character.Id, "gearbox")).Token));
-        var page = session.QueryCollection("character/inventory_items", new() { Limit = 1 });
+        var page = session.QueryCollection("character/inventory_items", new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Single(page.Rows);
         var detail = Assert.IsType<SectionNode>(page.Rows[0].Cells["detail"]);
         Assert.NotEmpty(session.Expand(detail.LazyId!));
-        Assert.False(session.ApplyEdits([new("character/character/xp", JsonSerializer.SerializeToElement("-1"))]).Ok);
+        Assert.False(session.ApplyEdits([new("character/character/xp", JsonSerializer.SerializeToElement("-1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
         Assert.Equal(0, session.State.Revision);
-        Assert.All(session.Serialize(), output => Assert.Equal(((ISaveSet)set).FindFile(output.RelativePath)!.ReadAllBytes(), output.Content.ToArray()));
-        var plan = WorkspaceExporter.Plan(workspace, new() { Scope = ExportScope.Everything });
+        Assert.All(session.Serialize(cancellationToken: TestContext.Current.CancellationToken), output => Assert.Equal(((ISaveSet)set).FindFile(output.RelativePath)!.ReadAllBytes(), output.Content.ToArray()));
+        var plan = WorkspaceExporter.Plan(workspace, new() { Scope = ExportScope.Everything }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(plan.Overrides);
         using var zip = new MemoryStream();
-        WorkspaceExporter.WriteZip(plan, zip);
+        WorkspaceExporter.WriteZip(plan, zip, cancellationToken: TestContext.Current.CancellationToken);
         zip.Position = 0;
         using var archive = new ZipArchive(zip);
         foreach (var member in group.Members)

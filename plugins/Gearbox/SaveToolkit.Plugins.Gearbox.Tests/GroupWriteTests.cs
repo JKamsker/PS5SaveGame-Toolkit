@@ -28,17 +28,17 @@ public sealed class GroupWriteTests
         var session = opened.Session;
         _ = session.BuildView();
         Assert.True(session.ApplyEdits([new("character/currency/618814354", JsonSerializer.SerializeToElement("100")),
-            new("profile/keys/2420693941", JsonSerializer.SerializeToElement("1"))]).Ok);
-        Assert.Equal(2, session.Serialize().Count);
+            new("profile/keys/2420693941", JsonSerializer.SerializeToElement("1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.Equal(2, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Count);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
-        var page = session.QueryCollection("character/inventory_items", new() { Limit = 200 });
-        var originalBankCount = session.QueryCollection("profile/bank_inventory_list", new() { Limit = 1 }).TotalCount;
+        var page = session.QueryCollection("character/inventory_items", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        var originalBankCount = session.QueryCollection("profile/bank_inventory_list", new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).TotalCount;
         ActionPreview? preview = null;
         foreach (var row in page.Rows)
         {
-            var candidate = session.PlanAction("transfer/deposit", new Dictionary<string, JsonElement>(), new([row.Key]));
+            var candidate = session.PlanAction("transfer/deposit", new Dictionary<string, JsonElement>(), new([row.Key]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             if (candidate.Plan.Errors.Count == 0) { preview = candidate; break; }
         }
         Assert.NotNull(preview);
@@ -46,8 +46,8 @@ public sealed class GroupWriteTests
         Assert.Contains(preview.Plan.Changes, c => c.ValueId.StartsWith("profile/", StringComparison.Ordinal));
         Assert.NotEmpty(preview.Plan.Warnings);
         Assert.False(session.State.IsDirty);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
-        var changed = session.Serialize().ToDictionary(o => o.RelativePath, o => o.Content.ToArray());
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var changed = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).ToDictionary(o => o.RelativePath, o => o.Content.ToArray());
         Assert.Equal(2, changed.Count);
         foreach (var output in changed)
         {
@@ -60,21 +60,21 @@ public sealed class GroupWriteTests
                 GearboxContainer.Parse(output.Value, title, source.FileName == "profile").Decode(),
                 source.FileName == "profile" ? "bank_inventory_list" : "inventory_items", "equipped_inventory_list");
         }
-        var export = WorkspaceExporter.Plan(workspace, new() { Scope = ExportScope.Everything });
+        var export = WorkspaceExporter.Plan(workspace, new() { Scope = ExportScope.Everything }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, export.Overrides.Count);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
         Assert.True(session.Redo().Ok);
-        Assert.All(session.Serialize(), output => Assert.Equal(changed[output.RelativePath], output.Content.ToArray()));
-        var bank = session.QueryCollection("profile/bank_inventory_list", new() { Limit = 200 });
+        Assert.All(session.Serialize(cancellationToken: TestContext.Current.CancellationToken), output => Assert.Equal(changed[output.RelativePath], output.Content.ToArray()));
+        var bank = session.QueryCollection("profile/bank_inventory_list", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var last = bank.Rows.OrderBy(row => int.Parse(((TextNode)row.Cells["index"]).Text, System.Globalization.CultureInfo.InvariantCulture)).Last();
-        var withdrawal = session.PlanAction("transfer/withdraw", new Dictionary<string, JsonElement>(), new([last.Key]));
+        var withdrawal = session.PlanAction("transfer/withdraw", new Dictionary<string, JsonElement>(), new([last.Key]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(withdrawal.Plan.Errors);
-        Assert.True(session.ApplyActionPlan(withdrawal.PlanId!, withdrawal.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(withdrawal.PlanId!, withdrawal.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(session.Undo().Ok);
-        Assert.All(session.Serialize(), output => Assert.Equal(changed[output.RelativePath], output.Content.ToArray()));
-        Assert.NotEmpty(session.PlanAction("transfer/deposit", new Dictionary<string, JsonElement>(), new([last.Key])).Plan.Errors);
+        Assert.All(session.Serialize(cancellationToken: TestContext.Current.CancellationToken), output => Assert.Equal(changed[output.RelativePath], output.Content.ToArray()));
+        Assert.NotEmpty(session.PlanAction("transfer/deposit", new Dictionary<string, JsonElement>(), new([last.Key]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Plan.Errors);
 
         // The full snapshot, including inserted duplicate identities, must load into a fresh instance.
         var input = GearboxGroupTests.Input(set, Assert.Single(plugin.ProposeGroups(file)));

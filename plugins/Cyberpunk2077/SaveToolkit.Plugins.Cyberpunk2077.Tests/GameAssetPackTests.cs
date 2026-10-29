@@ -122,7 +122,7 @@ public sealed class GameAssetPackTests
         using var document = plugin.Open(file, context);
         using var session = new DocumentSession("assets", (DiskSaveFile)file, plugin, document, references: context);
         _ = session.BuildView();
-        var inventory = session.QueryCollection("inventory", new QueryableCollectionQuery { Text = "MaxDoc" });
+        var inventory = session.QueryCollection("inventory", new QueryableCollectionQuery { Text = "MaxDoc" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var row = Assert.Single(inventory.Rows);
         var image = Assert.IsType<ImageNode>(row.Cells["icon"]);
         Assert.NotNull(document.GetAsset(image.AssetId));
@@ -132,7 +132,7 @@ public sealed class GameAssetPackTests
         var identity = Assert.IsType<SectionNode>(row.Cells["details"]).Children.OfType<FieldNode>().First();
         var candidates = session.SearchReferences(identity.ValueId, new ReferenceQuery { Text = "MaxDoc" });
         Assert.Equal(image.AssetId, Assert.Single(candidates.Items, candidate => candidate.RawId == identity.Value.AsString()).AssetId);
-        var cyberware = session.QueryCollection("cyberware", new QueryableCollectionQuery { Text = "Second Heart" });
+        var cyberware = session.QueryCollection("cyberware", new QueryableCollectionQuery { Text = "Second Heart" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(cyberware.Rows);
         Assert.All(cyberware.Rows, item => Assert.IsType<ImageNode>(item.Cells["icon"]));
         Assert.All(cyberware.Rows, item => Assert.Single(Assert.IsType<SectionNode>(item.Cells["name"]).Children.OfType<ImageNode>()));
