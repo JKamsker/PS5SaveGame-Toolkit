@@ -35,16 +35,19 @@ public sealed class RegulationCorruptionTests
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void IndependentStoredBlockVectorRequiresAValidAdlerChecksum(bool corruptChecksum)
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void IndependentStoredBlockVectorRequiresEveryAdlerChecksumByte(int checksumByte)
     {
         var header = RegulationTests.Dcx("x"u8.ToArray()).AsSpan(0, RegulationDecoder.DcxHeaderSize).ToArray();
         byte[] compressed = [0x78, 0x01, 0x01, 0x01, 0x00, 0xFE, 0xFF, 0x78, 0x00, 0x79, 0x00, 0x79];
-        if (corruptChecksum) compressed[^1] ^= 1;
+        if (checksumByte >= 0) compressed[compressed.Length - sizeof(uint) + checksumByte] ^= 1;
         BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(0x20), (uint)compressed.Length);
         byte[] dcx = [.. header, .. compressed];
-        if (corruptChecksum)
+        if (checksumByte >= 0)
             Assert.Throws<SaveFormatException>(() => RegulationDecoder.Inflate(dcx));
         else
             Assert.Equal("x"u8.ToArray(), RegulationDecoder.Inflate(dcx));

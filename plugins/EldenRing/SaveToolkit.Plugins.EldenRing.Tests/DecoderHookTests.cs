@@ -34,7 +34,13 @@ public sealed class DecoderHookTests
         }
         Assert.Throws<InvalidDataException>(() => decoder.Decode(file, new() { MaxFileBytes = file.Length - 1 }));
         var original = file.ReadAllBytes();
-        hook.Decode(file, new RejectingSink()); // Must stop immediately when the host refuses output.
+        // Reject at different points, including inventory values and the storage counts.
+        foreach (var accepted in new[] { 0, 1, 2, 4, 5, 7 })
+        {
+            var sink = new RejectingSink(accepted);
+            hook.Decode(file, sink);
+            Assert.Equal(accepted + 1, sink.Calls); // Must attempt output, then stop at the first refusal.
+        }
         Assert.True(original.AsSpan().SequenceEqual(file.ReadAllBytes()));
     }
 
@@ -60,17 +66,17 @@ public sealed class DecoderHookTests
         Assert.NotEmpty(bounded.Warnings);
     }
 
-    private sealed class RejectingSink : ISaveDecodeSink
+    private sealed class RejectingSink(int acceptedValues) : ISaveDecodeSink
     {
-        public int MaxValues => 0;
+        public int MaxValues => acceptedValues;
         public int MaxValueLength => 256;
         public int MaxDepth => 64;
         public long MaxFileBytes => long.MaxValue;
-        private int _calls;
+        public int Calls { get; private set; }
         public bool Add(string path, string kind, string value, string? label = null)
         {
-            Assert.Equal(1, ++_calls);
-            return false;
+            Calls++;
+            return Calls <= acceptedValues;
         }
         public void Warn(string message) => Assert.Fail(message);
         public void MarkTruncated(string reason) => Assert.Fail(reason);

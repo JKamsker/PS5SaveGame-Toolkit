@@ -78,6 +78,27 @@ public sealed class EditingTests
     }
 
     [Fact]
+    public void DuplicateValueIds_RejectTheWholeMultiSlotBatchWithoutPartialChanges()
+    {
+        var fixture = new SyntheticSave([0, 9]);
+        using var document = fixture.Open();
+        _ = document.ExpandNode("characters/0");
+        _ = document.ExpandNode("characters/9");
+        var outcome = document.ApplyEdits(
+        [
+            new("slots/0/runes", FieldValue.Of(101L)),
+            new("slots/9/runes", FieldValue.Of(102L)),
+            new("slots/0/runes", FieldValue.Of(103L)),
+        ]);
+        Assert.False(outcome.Succeeded);
+        Assert.Equal([new FieldError("document", "Duplicate field edits are not supported.")], outcome.Errors);
+        Assert.Empty(outcome.Changes);
+        Assert.Equal(SyntheticSave.InitialRunes, document.GetValue("slots/0/runes").AsUInt32());
+        Assert.Equal(SyntheticSave.InitialRunes, document.GetValue("slots/9/runes").AsUInt32());
+        WriteTestSupport.EqualBytes(fixture.Bytes, document);
+    }
+
+    [Fact]
     public void RuneField_RejectsWrongValueKindAndRemainsUndoable()
     {
         var fixture = new SyntheticSave([0]);
@@ -102,7 +123,12 @@ public sealed class EditingTests
         Assert.Equal((Int128)gameCap, Assert.IsType<IntegerSpec>(runes.Spec).Max);
         Assert.False(document.ApplyEdits([new ValueEdit(runes.ValueId, FieldValue.Of((long)gameCap + 1))]).Succeeded);
         Assert.True(document.ApplyEdits([new ValueEdit(runes.ValueId, FieldValue.Of((long)gameCap))]).Succeeded);
-        _ = document.Serialize();
+        var expected = fixture.Bytes.ToArray();
+        BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(fixture.Players[0] + SyntheticSave.Runes), gameCap);
+        WriteTestSupport.EqualBytes(expected, document);
+        using var reopened = WriteTestSupport.Reopen(document);
+        _ = reopened.ExpandNode("characters/0");
+        Assert.Equal(gameCap, reopened.GetValue(runes.ValueId).AsUInt32());
     }
 
     [Fact]
