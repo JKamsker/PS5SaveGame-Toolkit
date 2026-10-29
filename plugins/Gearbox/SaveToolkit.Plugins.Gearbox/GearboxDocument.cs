@@ -26,11 +26,16 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     private GearboxSkills Skills => _skills ??= new(this, _lazy, references);
     private GearboxMissions? _missions;
     internal GearboxMissions Missions => _missions ??= new(this, _lazy);
-    public IReadOnlyList<QueryableCollection> Collections => [.. Items.Collections, World.Collection, .. Skills.Collections, Missions.Collection];
+    private GearboxTables Tables => new(this, _lazy);
+    private GearboxAccountViews Account => new(this, _lazy);
+    public IReadOnlyList<QueryableCollection> Collections =>
+        [.. Items.Collections, World.Collection, .. Skills.Collections, Missions.Collection, .. Tables.Collections, .. Account.Collections];
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
         collectionId == GearboxWorldCatalog.CatalogId ? World.Query(query) :
         collectionId is GearboxSkills.CatalogId or GearboxSkills.AllocationsId ? Skills.Query(collectionId, query) :
-        collectionId == GearboxMissions.CollectionId ? Missions.Query(query) : Items.Query(collectionId, query);
+        collectionId == GearboxMissions.CollectionId ? Missions.Query(query) :
+        collectionId is "slots" or "sdus" or "ammo" ? Tables.Query(collectionId, query) :
+        collectionId.StartsWith("account/", StringComparison.Ordinal) ? Account.Query(collectionId, query) : Items.Query(collectionId, query);
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
         Items.Inspect(actionId, parameters) ?? base.InvokeAction(actionId, parameters);
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
