@@ -15,6 +15,7 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
     private const int PageSize = 64;
     private const int WeaponCount = 128;
     private const int MateriaCount = 1000;
+    private const int ColumnCount = 8;
 
     public CollectionQuery Collection(string kind)
     {
@@ -26,12 +27,7 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
         {
             EmptyRows = EmptySlots.Presentation,
             Description = "Read-only instance/detail joins; type IDs use browse-only attributed catalogues; equipment legality remains unverified. " + EmbeddedCatalogs.Attribution,
-        }, () => Rows(kind, 0, count, bindType: false)
-            .Select(row =>
-            {
-                var values = row.Cells.ToDictionary(pair => pair.Key, pair => ((TextNode)pair.Value).Text, StringComparer.Ordinal);
-                return new CollectionEntry(row.Key, values) { IsEmpty = row.IsEmpty };
-            }));
+        }, () => Entries(kind, 0, count));
     }
 
     // Compatibility endpoint for existing sessions; new views use the complete F8 collection.
@@ -48,7 +44,7 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
         return new TableNode(
             [new("slot", "Slot"), new("instance", "Instance"), new("type", "Type"), new("name", "Name"),
              new("quantity", materia ? "Quantity" : "Count"), new("detail", "Detail type"), new("owner", materia ? "Equipped by" : "Referenced by"),
-             new("source", "Source")], Rows(kind, page * PageSize, PageSize, bindType: true))
+             new("source", "Source")], Rows(kind, page * PageSize, PageSize))
         {
             Title = materia ? "Owned materia relationships" : "Owned weapon relationships",
             EmptyRows = EmptySlots.Presentation,
@@ -56,7 +52,20 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
         };
     }
 
-    private IReadOnlyList<TableRow> Rows(string kind, int start, int length, bool bindType)
+    private IReadOnlyList<TableRow> Rows(string kind, int start, int length) =>
+        Entries(kind, start, length).Select((entry, index) =>
+        {
+            var cells = entry.Values.ToDictionary(pair => pair.Key, pair => (ViewNode)new TextNode(pair.Value), StringComparer.Ordinal);
+            cells["instance"] = new TextNode(entry.Values["instance"]) { Monospace = true };
+            cells["detail"] = new TextNode(entry.Values["detail"]) { Monospace = true };
+            var offset = (kind == "materia" ? MateriaInventoryOffset : WeaponInventoryOffset) + (start + index) * 0x20;
+            cells["type"] = bind(new ScalarField(entry.Key + "/type", "Type ID", offset + 4,
+                new ReferenceSpec(kind == "materia" ? "ff7r-materia" : "ff7r-weapons") { ReadOnly = true }, Confidence.Inferred,
+                Warning: "Read-only raw type ID; browse the attributed catalogue for known names. " + EmbeddedCatalogs.Attribution));
+            return new TableRow(entry.Key, cells) { IsEmpty = entry.IsEmpty };
+        }).ToArray();
+
+    private IEnumerable<CollectionEntry> Entries(string kind, int start, int length)
     {
         var materia = kind == "materia";
         var count = materia ? MateriaCount : WeaponCount;
@@ -67,7 +76,7 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
             .GroupBy(U32).ToDictionary(group => group.Key, group => group.ToArray());
         var characterSource = string.Join("; ", Enumerable.Range(0, Ff7Schema.CharacterCount)
             .Select(references.CharacterSource).Distinct(StringComparer.Ordinal));
-        var rows = new List<TableRow>();
+        var sources = new Dictionary<uint, string>();
         for (var slot = start; slot < Math.Min(count, start + length); slot++)
         {
             var offset = (materia ? MateriaInventoryOffset : WeaponInventoryOffset) + slot * 0x20;
@@ -85,25 +94,21 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
                     : "Unassigned / unresolved";
             var name = empty ? EmptySlots.Label : materia ? references.Materia(type) : references.Weapon(type);
             var key = $"owned/{kind}/{instance:X8}/{slot}";
-            var cells = new Dictionary<string, ViewNode>(StringComparer.Ordinal)
+            if (!sources.TryGetValue(type, out var source))
             {
-                ["slot"] = new TextNode(slot.ToString()),
-                ["instance"] = new TextNode($"0x{instance:X8}") { Monospace = true },
-                ["type"] = bindType ? bind(new ScalarField($"owned/{kind}/{instance:X8}/{slot}/type", "Type ID", offset + 4,
-                    new ReferenceSpec(materia ? "ff7r-materia" : "ff7r-weapons") { ReadOnly = true }, Confidence.Inferred,
-                    Warning: "Read-only raw type ID; browse the attributed catalogue for known names. " + EmbeddedCatalogs.Attribution)) :
-                    new TextNode($"0x{type:X8}") { Monospace = true },
-                ["name"] = new TextNode(name),
-                ["quantity"] = new TextNode(U32(offset + 8).ToString()),
-                ["detail"] = new TextNode(detail is { } value ? $"0x{value:X8}" : offsets is { Length: > 1 } ? "ambiguous" : "unresolved") { Monospace = true },
-                ["owner"] = new TextNode(owner),
-                ["source"] = new TextNode(references.Source(materia ? "ff7r-materia" : "ff7r-weapons", type) +
-                    " Character labels: " + characterSource),
+                source = references.Source(materia ? "ff7r-materia" : "ff7r-weapons", type) + " Character labels: " + characterSource;
+                sources.Add(type, source);
+            }
+            var values = new Dictionary<string, string>(ColumnCount, StringComparer.Ordinal)
+            {
+                ["slot"] = slot.ToString(), ["instance"] = $"0x{instance:X8}", ["type"] = $"0x{type:X8}",
+                ["name"] = name, ["quantity"] = U32(offset + 8).ToString(),
+                ["detail"] = detail is { } value ? $"0x{value:X8}" : offsets is { Length: > 1 } ? "ambiguous" : "unresolved",
+                ["owner"] = owner, ["source"] = source,
             };
-            rows.Add(new TableRow(key, cells) { IsEmpty = empty });
+            yield return new(key, values) { IsEmpty = empty };
         }
 
-        return rows;
     }
 
     private Dictionary<uint, List<string>> CharacterWeaponRefs()

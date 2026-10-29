@@ -49,6 +49,24 @@ public sealed class CollectionAllocationTests
         Assert.Equal("inventory/0", Assert.Single(collections.Query("inventory", query).Rows).Key);
     }
 
+    [Theory]
+    [InlineData("catalog-items", null, 500_000)]
+    [InlineData("catalog-items", "name", 500_000)]
+    [InlineData("owned-materia", null, 1_300_000)]
+    [InlineData("owned-materia", "name", 1_300_000)]
+    public void ReferenceAndRelationshipQueriesAvoidRebuildingRichOffPageRows(string id, string? sort, long budget)
+    {
+        using var document = new FinalFantasy7Plugin().Open(Input());
+        var collections = (IQueryableDocument)document;
+        var query = new QueryableCollectionQuery { SortColumn = sort, Limit = 50, IncludeEmpty = true };
+        _ = collections.Query(id, query);
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var page = collections.Query(id, query);
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.Equal(50, page.Rows.Count);
+        Assert.InRange(allocated, 1, budget);
+    }
+
     private static SaveToolkit.Sdk.Saves.ISaveFile Input()
     {
         const string title = "PPSA08664";

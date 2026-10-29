@@ -20,10 +20,12 @@ internal sealed class DocumentCollections
         {
             var records = references.Records(catalogId);
             var id = $"catalog-{catalogId[5..]}";
+            // Reference records are pinned for this document; defer the immutable projection until queried.
+            var entries = new Lazy<CollectionEntry[]>(() => records.Select(record => CatalogEntry(id, record)).ToArray());
             Add(new CollectionQuery(new(id, $"{catalogId[5..]} reference catalog", CatalogColumns(), records.Count)
             {
                 Description = "Descriptions summarize source metadata; effect text and legality are unknown unless explicitly supplied. " + EmbeddedCatalogs.Attribution,
-            }, () => records.Select(record => CatalogEntry(id, record))));
+            }, () => entries.Value));
         }
 
         var cards = references.Records("ff7r-items").Where(record => record.Category == "Queen's Blood Cards").ToArray();
@@ -73,14 +75,17 @@ internal sealed class DocumentCollections
         return new(key, values, () =>
         {
             var cells = values.ToDictionary(pair => pair.Key, pair => (ViewNode)new TextNode(pair.Value), StringComparer.Ordinal);
-            cells["details"] = Details(record);
+            cells["details"] = Details(record, values["source"]);
             return new(key, cells);
         });
     }
 
-    internal static ViewNode Details(SaveToolkit.Sdk.References.ReferenceRecord? record) => record is null
-        ? new TextNode("Unknown type; raw identity is preserved.")
-        : new SectionNode(record.Name, [new TextNode(record.Description ?? "No effect description supplied."),
-            new TextNode(record.AttributionText), .. (record.AssetId is { } asset ? new ViewNode[] { new ImageNode(asset, record.Name) } : [])])
-        { Collapsed = true, Description = record.AttributionText };
+    internal static ViewNode Details(SaveToolkit.Sdk.References.ReferenceRecord? record, string? source = null)
+    {
+        if (record is null) return new TextNode("Unknown type; raw identity is preserved.");
+        source ??= record.AttributionText;
+        return new SectionNode(record.Name, [new TextNode(record.Description ?? "No effect description supplied."),
+            new TextNode(source), .. (record.AssetId is { } asset ? new ViewNode[] { new ImageNode(asset, record.Name) } : [])])
+        { Collapsed = true, Description = source };
+    }
 }
