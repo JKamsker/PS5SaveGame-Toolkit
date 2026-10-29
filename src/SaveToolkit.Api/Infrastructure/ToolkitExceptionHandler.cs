@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Core.Export;
+using SaveToolkit.Core.Editing;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
@@ -33,6 +34,7 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
 
         var (status, message) = exception switch
         {
+            FieldReferenceResponseLimitException e => (StatusCodes.Status413PayloadTooLarge, e.Message),
             KeyNotFoundException e => (StatusCodes.Status404NotFound, e.Message),
             SaveFormatException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ImportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
