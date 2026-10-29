@@ -119,7 +119,9 @@ public sealed class WorkspaceStore : IDisposable
         var cutoff = DateTimeOffset.UtcNow - _options.IdleTimeout;
         string[] ids;
         lock (_lifetimeGate) ids = [.. _workspaces.Keys];
-        return ids.Count(id => Remove(id, cutoff));
+        var removed = 0;
+        SessionCleanup.RunAll(ids, id => { if (Remove(id, cutoff)) removed++; });
+        return removed;
     }
 
     public void Dispose()

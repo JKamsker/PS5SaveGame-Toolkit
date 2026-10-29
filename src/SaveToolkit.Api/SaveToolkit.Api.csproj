@@ -3,6 +3,7 @@
     <RootNamespace>SaveToolkit.Api</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="SaveToolkit.Core.Tests" />
     <InternalsVisibleTo Include="SaveToolkit.Api.Performance.Tests" />
     <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />
     <ProjectReference Include="..\SaveToolkit.Codecs\SaveToolkit.Codecs.csproj" />
