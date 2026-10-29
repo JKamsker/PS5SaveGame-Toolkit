@@ -7,16 +7,16 @@ and the open issues (only #31 and #40 at this check). Agents can analyse capture
 follow-ups; they cannot supply your console observations, choose repository policy or grant upstream rights.
 Implemented writes stay enabled with warnings and Experimental maturity. Captures do not by themselves
 implement the missing structural/dependency writers. Current plugin READMEs supersede older handoffs,
-including the older central checklist's Yōtei read-only and BG3 work-in-progress descriptions.
+including older Yōtei read-only and BG3 work-in-progress descriptions.
 
 Work down the sections; within a game session, start with currency/settings or one existing stack,
 then the remaining scalar families, and finally dependency-sensitive or structural trials. Each
 semicolon-separated experiment below means a **separate restored copy or single-event capture**,
 not several changes in one trial. Collect the matching section 2 pairs during the same play session.
 
-For **every console checkbox**: keep an untouched recovery dump and all companions/backups; test an
-unchanged toolkit export first and capture a no-action native save/reload/save control. For each small
-edit, load → inspect the intended effect and unrelated state → perform the relevant ordinary gameplay
+For **every console checkbox**: use a disposable spare slot; keep an untouched recovery dump and all
+companions/backups. Test an unchanged toolkit export first and capture a no-action native save/reload/save
+control. For each small edit, load → inspect the intended effect and unrelated state → perform ordinary gameplay
 action → native-save → exit/reload → re-export and diff. Take a second clean reload where the source
 requires it. For supported planned actions, review direct/derived changes, skips and warnings; check
 one-step undo/redo, export/re-import, selected/document/all-matching scopes and an exclusion **only where
@@ -36,6 +36,67 @@ one successful edit does not verify every field, cap or build. See
 [reporting](USER_GUIDE.md#report-a-problem) and [confidence meanings](USER_GUIDE.md#confidence-labels-and-warnings).
 
 ## 1. Console validation queue
+
+### Edit-coverage workflows, in shortlist order
+
+Follow [EDIT_COVERAGE's value/risk ranking](EDIT_COVERAGE.md#ranked-top-15-additions), ranks 1–15,
+before the broader family checks below. Each checkbox uses the shared backup/control/evidence cycle
+above and the step-by-step trial in [the title checklist](OWNER_CHECKLIST.md#title-checklists).
+Restore-imported targets are this workspace's opening values: stage a reduction after import, then
+preview restoration in that same workspace. Re-importing an edited export establishes a new baseline.
+Review actual scope/targets before Apply; cancel unexpected rows and report the problem on #31.
+
+- [ ] **Rank 1 — FF7 current HP/MP recovery** (`character/recover-current-vitals`). Select character
+  rows, preview stored-max recovery, apply/export; check damage/heal/MP use, battle and persistence.
+  Repeat Remake main, INTERmission, Rebirth retail/demo separately.
+- [ ] **Rank 2 — Gearbox gear matching** (`items/match-level`). Select owned gear, preview this
+  character's level clipped to title policy, apply/export; compare cards, legality and equip/use in BL3/TTWL.
+- [ ] **Rank 3 — Gearbox ammo restoration** (`ammo/restore-imported`). Preview opening targets after
+  staged reductions in Progression's document control, apply/export; capture firing/reload/native refill,
+  reserve displays and SDU capacity/clamping separately for both titles.
+- [ ] **Rank 4 — FF16 named Gil/AP/Renown balances** (`set-gil`, `set-ap`, `set-renown`). Preview/apply/
+  export each resource independently; capture exact gain/spend, caps and adult/child/stage context.
+  Check AP rank/refund and Renown claim separation; repeat supported demo trials independently.
+- [ ] **Rank 5 — Tales consumable restoration** (`inventory/restore-imported`). Select existing IDs
+  1–13, preview opening targets within 0–15, apply/export; capture buy/use/zero/reacquisition and consume
+  after restoration. The documented UI selection/exclusion defect requires checking every preview target;
+  cancel broadened scope and report/retest after the fix.
+- [ ] **Rank 6 — Atomic Heart Amount restoration** (`inventory/restore-imported-amounts`). Select
+  populated rows, preview/apply/export staged reductions; capture resource/ammo/heal use and native refill,
+  stored-Kraken acceptance, output growth/slot capacity and inner-integrity/normalization results.
+- [ ] **Rank 7 — Tsushima ammo restoration** (`inventory/restore-imported-ammo`). Use selected-row
+  control, preview both copies/checksum, apply/export; capture fire/pickup/reload across ammo kinds,
+  capacity/clamping and native persistence. Verify unselected/excluded rows stay unchanged.
+- [ ] **Rank 8 — FF7 level batches** (`character/set-level`). Select characters, preview levels and
+  derived XP, apply/export; verify exact paired undo and battle/abilities/growth/rewards. Capture one
+  native level-up separately for Remake main, INTERmission, Rebirth retail/demo.
+- [ ] **Rank 9 — Cyberpunk point budgets** (`progression/set-point-targets`). Preview explicit
+  document-level attribute/perk/relic targets, apply/export; capture earn/spend per type, menus and
+  actual spending, independent budgets, opaque integrity and native persistence.
+- [ ] **Rank 10 — Gearbox marks** (`items/mark`). Select items, preview raw old/new flags, apply/export;
+  capture ordinary/favourite/junk transitions and sale protection separately in BL3/TTWL. Check skipped
+  conflicting/unsupported records, preserved unknown bits/serials and native persistence.
+- [ ] **Rank 11 — Witcher ordinary Gwent counts** (`gwent/set-ordinary-copies`). Select saved ordinary
+  rows, preview a bounded target, apply/export; capture copy gain/removal and collection/deck/match,
+  quest/reward/achievement behavior, including deck invalidation after decreases.
+- [ ] **Rank 12 — FF16 ordinary stack restoration** (`restore-imported-main-stacks`). Select lower
+  positive eligible main stacks, preview skips/CRC, apply/export; capture consumable/material use/sell,
+  bank authority, pouch/crafting dependencies and native persistence, retail/demo independently.
+- [ ] **Rank 13 — ASTRO ownership restoration** (`collectibles/restore-imported`). Select existing
+  IsGot rows cleared after opening, preview/apply/export; capture pickup and independent reversal,
+  museum/puzzle/notification/cinematic/reward effects and forward play, with two clean reloads.
+- [ ] **Rank 14 — Pragmata quantity restoration** (`inventory/restore-imported-quantities`). Identify
+  a stack, select bound rows or bounded resolved query results, preview opening targets/raw IDs/skips,
+  apply/export; check use, equipped/unlock/dependency effects, siblings and RSA rejection/acceptance.
+- [ ] **Rank 15 — FF7 stored play time** (`game/playtime`). Commit Overview's bounded seconds field,
+  review Changes against original, undo/redo/export; no action Preview/Apply is provided. Capture timed
+  no-action/display pairs and native resave normalization per variant; other counters are not synchronized.
+
+Report every rank's expected/actual effect, private archive hashes, preview/history/scope results and
+native save/reload/re-export diff on [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+Passing local tests/merging implementation does not establish console acceptance or Stable maturity.
+
+### Other enabled-write checks
 
 - [ ] **GenericJson — settings/profile session.** Cyberpunk v136: test bool/number/text, recorded
   choice+index, dynamic text+index, single/default and selected/all-default actions; compare native
@@ -175,6 +236,23 @@ one successful edit does not verify every field, cap or build. See
 These are the mapping/limit/dependency captures to collect alongside section 1, then broader coverage.
 Keep each action separate, including the reverse action. Follow the linked full lists for exact fields
 and lower-priority variants; these summaries do not convert reference names into Verified gameplay facts.
+
+- [ ] **Yōtei — deferred checksum-coverage evidence (outside the 15 ranks).** On a backed-up spare
+  slot, capture manual/auto/memory roles and an unchanged load/save control with all gameplay/memory/SFO
+  files. Supply naturally nonzero trailing data or a disposable console checksum/load/resave experiment
+  distinguishing declared-end from whole-file coverage; record acceptance/rejection and native
+  resave/reload/re-export diffs on #31. Eleven zero-tail samples, synthetic tails and same-candidate
+  reparsing cannot settle the game's coverage. Restore-imported remains deferred; existing quantity
+  writers retain warnings. [Exact capture 7](../plugins/SuckerPunch/YOTEI_FORMAT.md#exact-owner-captures-for-31),
+  [#40 deferral](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489232331).
+- [ ] **Tales CP — authority/refill/growth evidence before writes.** On backed-up spare copies, capture
+  labelled no-action resaves, one CP spend, one rest/refill and one level-up in separate pairs; keep
+  Orange Gel and Astral Flower/other bonus changes separate. Record menu current/max CP, active party,
+  levels, HP and consumables alongside read-only `party/current-cp` / `party/max-cp`, then native-save/
+  reload/re-export and compare with the control. Report authority/maximum changes and private archive
+  hashes/diffs on #31; equal sample values and backup twins prove no growth rule. CP writes/restoration
+  remain unavailable. [CP evidence and capture request](../plugins/TalesOfArise/README.md#party-cp-field-discovery-40-2026-10-29),
+  [#40 handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489330493).
 
 - [ ] **GenericJson:** Cyberpunk static enum, scalar and native reset, dynamic language/HDR choices,
   then a second settings version; show value/index authority, actual steps and companion coupling.

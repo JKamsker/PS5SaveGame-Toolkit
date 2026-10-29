@@ -6,10 +6,10 @@ READMEs and code on `main` for documentation consolidation (#37), 2026-10-28.
 
 **Supported writes are enabled with warnings, and all plugins remain Experimental.** These checks
 validate effects and persistence; they are not another permission gate for implemented writes.
-Edits are not console-validated and the game may reject, normalize or overwrite them. Yōtei has no
-identified gameplay writer; BL4 is research-only. Other unimplemented structural/dependency writers
-still need engineering after their semantics are established. BG3's completion round is in progress.
-Only the owner can promote a tested feature to Stable.
+Edits are not console-validated and the game may reject, normalize or overwrite them. Yōtei's existing
+quantity writes retain checksum-coverage warnings; BL4 is research-only. Other unimplemented structural
+and dependency writers still need engineering after their semantics are established. BG3's completion
+round is in progress. Only the owner can promote a tested feature to Stable.
 
 ## Capture protocol (F1)
 
@@ -60,6 +60,24 @@ define archive naming, metadata, decoder discovery and fixture manifests. For ev
 Within each title: **control → enabled-write validation → further mapping/compatibility captures**.
 Use the shared console cycle above for every write checkbox. The linked plugin files retain exact
 field IDs, bounds and the full gap audit. Research-only entries request captures, not toolkit edits.
+
+The **Rank** checks below cover the [15 edit-coverage workflows](EDIT_COVERAGE.md#implementation-status).
+For every check, keep the recovery export/companions and use a spare slot; capture a matching no-action
+save/reload/save control before editing. Record title/build/region/DLC/locale/mode/slot, toolkit version,
+action/field ID, selected and excluded raw row IDs, opening/current/target values, preview changes/skips/
+warnings, undo/redo and export/re-import results. After the stated gameplay observation, native-save,
+exit/reload, re-export and diff all affected files against the control. Record screenshots, private
+archive names/SHA-256 hashes and the diff report path, including rejection, clamping, regeneration and
+unrelated effects; report the redacted result on [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31)
+and the linked plugin issue. These requirements apply to each rank independently.
+
+For restore-imported checks, open a save with eligible values, then stage a small reduction **in that
+same workspace** before previewing restoration. Opening values are immutable for that workspace;
+re-importing an edited export creates a new baseline and cannot recover pre-import losses. For table
+actions select explicit rows first, then separately test supported document/all-matching scopes with
+an excluded unloaded row and empty/fully excluded scopes. Review the dialog's actual scope: a filter
+alone is not a selection. Cancel an unexpected scope or target list, record it on #31, and retest after
+the fix. Field edits and document-only actions use the specific review steps below instead.
 
 ### PPSA18463 — Baldur's Gate 3
 
@@ -116,6 +134,14 @@ integrity and pickup dependencies remain.
 - [ ] Validate coin and play-count edits independently, plus supported Progress/World/ownership/cinematic
       flags one at a time. Identify the native PlayCount event and actual coin cap; storage bounds are not
       game limits.
+- [ ] **Rank 13 — restore ownership (`collectibles/restore-imported`).** On a backed-up spare slot,
+      capture a no-action control, one pickup and an independent ownership-reversal trial. Open a save
+      with an existing true IsGot, stage it false, select that collectible in All saved collectibles,
+      open Record details → Restore imported ownership (review before apply) → Preview; check raw
+      group/key, false→true and skips, then Apply → undo/redo → export/re-import. Above-opening grants
+      must stay unchanged. Check museum/puzzles, notifications, cinematics, rewards and forward play;
+      native-save/re-export and reload twice. Record linked-state changes and unknown-integrity/rejection
+      results with the shared evidence on #31; this action does not revoke grants or reverse a world.
 - [ ] Test artifact, puzzle and prop grants independently, then selected/full/all-matching collect-existing
       batches. Inspect museum/prizes, cinematics, notifications, rewards, UdsWorkaround and primary/backup
       diffs after a second clean reload.
@@ -161,6 +187,14 @@ SHA-1 repair does not establish inner integrity or stored-Kraken acceptance.
       validate original compressed chunks.
 - [ ] Validate one small populated Amount edit and zero separately; check use/spend, travel, output growth,
       PS5 slot capacity and normalization after restart/reload.
+- [ ] **Rank 6 — restore populated Amounts (`inventory/restore-imported-amounts`).** On a backed-up
+      spare slot, capture a no-action control and separate resource/ammo/healing-item use and native-refill
+      pairs. Expand populated inventory slots, stage small Amount reductions, select those rows →
+      Restore imported quantities (preview) → Preview opening targets, signed/container ceilings, skips
+      and SHA-1/framing warnings → Apply → undo/redo → export/re-import. Equal/higher and empty/unsupported slots must stay
+      unchanged. Load, use/spend and travel; check actual counts, output growth/slot capacity and unrelated
+      state, then restart/reload/re-export. Record stored-Kraken rejection/normalization and unresolved
+      inner integrity with the shared evidence on #31; repaired SHA-1 alone does not establish acceptance.
 - [ ] Test one same-category weapon replacement and one ammo replacement using full paths already present in
       the save. Inspect old/new asset IDs, ItemId, modules, ownership, equipment, capacity and use.
 - [ ] Test selected/full eligible and filtered-all-matching Amount batches with an exclusion; verify
@@ -196,6 +230,14 @@ equipment/perk/story dependency writers remain incomplete.
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
+- [ ] **Rank 9 — unspent point targets (`progression/set-point-targets`).** On a backed-up spare slot,
+      capture a no-action control and separate earn/spend pairs for attribute, perk and relic points.
+      Select the gameplay document → Player development → Set unspent point targets (document scope;
+      nonempty row/query selections are unsupported) → enter small explicit targets → Preview all three
+      independent balances/skips/warnings → Apply → undo/redo → export/re-import. Check menus and actual
+      spending, unrelated spent allocations/attributes and native save/reload/re-export. Record each
+      opening/target/displayed budget and opaque-integrity/rejection effects with the shared evidence
+      on #31; this performs no refund, perk purchase or entitlement grant.
 - [ ] Validate money, supported stacks, each attribute and each point balance independently. For
       target/refill batches check ammo/components/consumables, 2.x charge/replenishment behavior, protected
       rows and quantities already above the opening value.
@@ -294,6 +336,21 @@ and reviewed main-stack targets. No allocator/growth/dependency repair is claime
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
+- [ ] **Rank 4 — named balances (`set-gil`, `set-ap`, `set-renown`).** On separate backed-up spare
+      copies, capture a no-action control and exact gain/spend pairs for each resource. Select the
+      document → Overview → Set Gil / AP / Renown balance, one control per trial → enter a small target
+      for its unique existing main-bank row → Preview old/new balance, skips, dependency warnings and
+      repaired CRC → Apply → undo/redo → export/re-import. These are single-resource controls, not a
+      selected inventory batch. Load, use/spend, native-save/reload/re-export; record adult/child/stage,
+      cap/reset, AP ranks/refunds and Renown reward-claim state with the shared evidence on #31.
+- [ ] **Rank 12 — restore ordinary main stacks (`restore-imported-main-stacks`).** On a backed-up
+      spare slot, capture a no-action control and separate consumable/material use/sell pairs. In
+      Inventory, stage positive reductions on named eligible potions/tonics or common materials → select
+      main rows → Restore imported ordinary main-bank stacks → Preview opening targets, skips and CRC
+      → Apply → undo/redo → export/re-import. Verify zero, currency, unique/key/progression/upgrade,
+      unmapped, ambiguous and secondary rows skip, and above-opening amounts stay unchanged. Load and
+      use/sell; check active-bank authority, pouch/crafting dependencies and native save/reload/re-export.
+      Record both banks, counts, context and side effects with the shared evidence on #31.
 - [ ] Validate main/secondary quantities and nonzero-ID replacement separately; inspect both banks,
       duplicate-ID handling, zero-ID quantity behavior, acquire/use/sell and active adult/child/stage roles.
       Test equipment in each of the three banks, one slot at a time.
@@ -336,6 +393,9 @@ extended-player semantics.
 - [ ] Repeat the retail enabled-write cycle only for fields actually exposed by the demo: inventory/gear,
       ranks/flags, supported player/party context, time and quantity action. Constant observed bounds can
       leave a field with no alternative value.
+- [ ] Repeat **ranks 4 and 12** from the retail checklist independently on backed-up demo spare slots,
+      with demo no-action controls. Use only exposed, eligible resource/main-stack rows; record missing
+      controls or skipped rows rather than borrowing retail meanings. Report demo observations on #31.
 - [ ] Test selected/full/filtered quantity scopes, exclusions, empty results and one-step history
       independently. Verify demo stage/bank/AP and downstream effects; keep the 48-ability reference names
       separate from saved-index claims.
@@ -353,10 +413,34 @@ samples show writable gil, occupied quantities and ordinary materia AP, but no P
 [Plugin checklist](../plugins/FinalFantasy7/README.md) · [issue #16](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/16)
 
 **Current scope:** Enabled: Remake/INTERmission mapped HP/MP/XP/level, gil/counts, ordinary materia
-AP/stars, progress bits and two reviewed presets.
+AP/stars, progress bits, restock/star presets, recovery/level batches and stored first-record time.
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
+- [ ] **Rank 1 — current HP/MP recovery (`character/recover-current-vitals`).** For Remake main and
+      INTERmission separately, use a backed-up spare slot, capture a no-action control and separate
+      damage/heal/MP-use pairs identifying each active character. Characters → select intended rows →
+      Recover selected characters' current HP/MP **inside the table** → Preview deficient current values
+      against stored maxima, unselected rows and skips → Apply → undo/redo → export/re-import. The
+      controls above the table use document scope. Check current/max HP/MP in menus and battle, MP spend,
+      unrelated XP/equipment/status and native save/reload/re-export; over-max current values must not
+      decrease. Record character identity, displayed effects and unknown-integrity results on #31.
+- [ ] **Rank 8 — character levels (`character/set-level`).** On backed-up spare copies for Remake main
+      and INTERmission, capture a no-action control and one native level-up with current/max HP/MP,
+      XP/level, abilities and rewards. Characters → select intended rows → Set selected character levels
+      **inside the table** → choose a small supported 1–50 target → Preview each level/derived-XP pair
+      and invalid/guest skips → Apply → undo/redo → export/re-import. Check exact original XP/level
+      restoration on undo, including unchanged target XP. Load, battle, check abilities/growth/rewards,
+      native-save/reload/re-export; maxima/rewards are not recalculated by this action. Record selected
+      versus unselected characters and all observed normalization with the shared evidence on #31.
+- [ ] **Rank 15 — stored play time (`game/playtime`).** For each role, capture timed no-action pairs
+      and displayed time on a backed-up spare slot. Select the document → Overview → Play time → reduce
+      whole seconds within zero through opening time and press Enter or leave the field → review
+      Changes against original → undo/redo → export/re-import. This scalar has no row selection or Preview/Apply dialog;
+      review its committed change before export. In the original workspace also test restoration up to
+      opening time. Check displayed time and native save/reload/re-export normalization; older records
+      and other menu/play counters are outside this setter. Record elapsed control time, opening/target/
+      displayed seconds and any counter disagreement with the shared evidence on #31.
 - [ ] Validate every scalar family separately for main game and INTERmission: battle/MP use, coupled
       XP/level, gil and mapped non-equipment counts. Ordinary AP/stars need below/at/above threshold and
       increase/decrease checks on equipped/unequipped copies.
@@ -381,12 +465,16 @@ Build notes: Rebirth retail has its own linked-record schema and 23 MiB gameplay
 interchangeable with Remake or the demo. [Plugin checklist](../plugins/FinalFantasy7/README.md) · [issue #16](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/16)
 
 **Current scope:** Enabled: retail Rebirth mapped scalars, ordinary AP/stars, qualified owned-weapon
-references, counts/progress bits and restock/star presets.
+references, counts/progress bits, restock/star presets, recovery/level batches and stored first-record time.
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
 - [ ] Repeat HP/MP/gil/count and coupled XP/level validation on a retail slot. Test ordinary AP/star
       thresholds and both presets, including scope exclusions and equipped abilities.
+- [ ] Repeat **ranks 1, 8 and 15** from the Remake checklist on backed-up Rebirth retail spare slots,
+      with independent damage/heal/MP-use, native level-up and timed no-action captures per active
+      character. Use the retail 1–70 level curve; check battle/abilities/growth/rewards and stored-time
+      normalization after native save/reload/re-export. Report retail evidence separately on #31.
 - [ ] Test one qualified existing owned weapon reference; inspect displaced gear, sockets/capacity,
       proficiency, folios, ownership and battle effects.
 - [ ] Validate progress bits independently with actors/rewards/counters, chapter reset and reversal. Capture
@@ -413,6 +501,10 @@ schema identities.
 - [ ] Independently validate exposed demo gil/counts, HP/MP/XP/level, ordinary materia AP/stars, qualified
       weapon references, mapped progress bits and both presets where eligible records exist. Check battle,
       abilities, sockets, rewards and chapter reset/reversal; never infer absent retail systems.
+- [ ] Repeat **ranks 1, 8 and 15** independently on backed-up Rebirth demo spare slots, using its own
+      no-action/damage/heal/MP-use/level-up/timed captures and supported 1–70 targets. Record locked or
+      guest-unqualified skips, demo active-character identity and Inferred time meaning; check battle,
+      abilities and native resave/normalization. Report unavailable events explicitly on #31.
 - [ ] Test selected/document/query presets only where exposed, with skipped/protected rows, exclusions and
       one-step undo. Keep summon tier/progression evidence separate.
 - [ ] Capture one XP level-up.
@@ -430,6 +522,27 @@ and explicit F7 character/profile transactions.
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
+- [ ] **Rank 2 — match gear level (`items/match-level`).** On a backed-up spare slot with matching
+      character/profile/backups, capture a no-action control and owned item cards/character level.
+      Select backpack rows → Serial and parts → Match selected gear to character level → Preview this
+      character's XP-derived target clipped to BL3's 72 policy, old/new levels, unsupported skips and CRC
+      → Apply → undo/redo → export/re-import. Use no unrelated staged XP changes. Load, compare cards,
+      equip/use and native-save/reload/re-export; record legality/rejection/removal and unrelated parts/
+      rarity/stats with the shared evidence on #31. Clipping does not prove legal gear or synthesized stats.
+- [ ] **Rank 3 — restore ammo (`ammo/restore-imported`).** On a backed-up spare slot, capture a
+      no-action control and separate firing/reload/native-refill pairs with loaded/reserve displays and
+      SDU capacity. In Progression, stage small supported pool reductions → Restore imported ammo amounts
+      (document scope; no table selection required) → Preview every pool's opening target and skips →
+      Apply → undo/redo → export/re-import. Equal/higher pools stay unchanged; no missing pool or SDU is
+      created. Load, fire/reload, check reserves/capacity/clamping and native save/reload/re-export.
+      Record each pool, displayed values and normalization with the shared evidence on #31.
+- [ ] **Rank 10 — item marks (`items/mark`).** On backed-up spare copies, capture a no-action control
+      and separate ordinary/favourite/junk mark/unmark pairs. Select existing backpack/bank rows → Serial
+      and parts → Mark selected items → choose one mark → Preview raw old/new flags and conflicting/
+      unsupported skips → Apply → undo/redo → export/re-import. BL3 byte-only bank/lost-loot rows skip.
+      Load, check UI marks and sale-protection behavior, then native-save/reload/re-export. Record item
+      cards, unknown-bit/serial preservation, unselected items and unexpected effects with the shared
+      evidence on #31; the action itself does not sell/remove items.
 - [ ] Validate name/level/XP/points, money/eridium/keys/ammo, SDUs, Mayhem and supported item
       level/reroll/marks independently. Test selected/full-query level actions and inspect capacities,
       loot/modifiers and rewards; editor policies are not measured PS5 limits.
@@ -470,6 +583,11 @@ fields and Chaos settings, all with inferred limits.
 - [ ] Repeat the BL3 applicable scalar/item/part/import/duplicate/remove and selected/full-query action
       checks using TTWL schemas. Add rerolls, item Chaos tier, current Chaos and unlocked ceiling; inspect
       trials/rewards/loot/caps independently.
+- [ ] Repeat **ranks 2, 3 and 10** independently on backed-up TTWL spare slots with matching profile/
+      backups and TTWL no-action controls. Match gear using this character's level clipped to 40; test
+      supported bank mark metadata rather than assuming BL3 bank behavior. Record cards/equip/use,
+      firing/reload/refill, capacity/clamping and ordinary/favourite/junk sale protection through native
+      save/reload/re-export. Report separate TTWL evidence on #31; a profile supplies no character level.
 - [ ] Test F7 bank/lost-loot transfers and combined scalar batches with matching character/profile/backups.
       Verify native persisted counts, unknown item metadata, equipment/order and whole-group undo, including
       duplicates/full containers.
@@ -627,6 +745,15 @@ Progress, Quests and World. RSA trailer is preserved but unverified/unregenerate
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
+- [ ] **Rank 14 — restore quantities (`inventory/restore-imported-quantities`).** On a backed-up
+      spare slot, capture a no-action control and identify/use one stack without assuming a friendly
+      name. Expand its inventory quantity controls, stage a small nonnegative reduction with raw ID
+      unchanged → select rows (or bounded all-matching F8 results with an exclusion) → Quantity actions →
+      Restore imported quantities → Preview opening targets, raw IDs, skips and RSA/dependency warnings
+      → Apply → undo/redo → export/re-import. Negative/changed-ID rows skip; duplicate/ambiguous/unbound targets must not
+      apply. Load/use and inspect equipped/unlock effects and all siblings, then native-save/reload/
+      re-export. Record raw IDs, stack identity, hash/encryption checks and RSA rejection or persistence
+      with the shared evidence on #31; this grants no named resource, mission state or capacity.
 - [ ] Validate one small quantity through preview/apply/undo/redo/export/re-import and one existing ID
       replacement. Inspect equipment/ownership/dependencies and every sibling file; known hash repair does
       not prove RSA acceptance.
@@ -663,6 +790,14 @@ the v48/v49 float timer.
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
+- [ ] **Rank 7 — restore ammo (`inventory/restore-imported-ammo`).** On a backed-up spare slot,
+      capture a no-action control and separate fire/pickup/reload pairs across ammo kinds. In Inventory,
+      stage small eligible ammo reductions → select ammo rows → Restore selected ammo counts inside the
+      table → Preview opening counts, both copies, checksum and skips within version/flag/0–32767 gates
+      → Apply → undo/redo → export/re-import. Cancel if unselected rows appear; equal/higher values
+      must stay unchanged. Load, fire/pick up/reload and check displayed counts, carry capacity/clamping
+      and unrelated state through native save/reload/re-export. Record both count copies, kinds and
+      side effects with the shared evidence on #31; the action grants no capacity.
 - [ ] Validate a small resource and ammo edit separately, then a selected/full/filter-excluded multi-target
       action. Inspect carry caps, paired ammo counts, use/buy and clamping; 32767 is an editor bound, not a
       capacity.
@@ -683,17 +818,24 @@ the v48/v49 float timer.
 
 ### PPSA26344 — Ghost of Yōtei
 
-Build notes: Yōtei is opaque and read-only; supplied files include non-empty and all-zero patterns
-but no authoritative gameplay record or checksum. [Plugin checklist](../plugins/SuckerPunch/README.md) · [issue #22](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/22)
+Build notes: eleven nonempty samples have zeroed tails; exact game checksum coverage remains unknown.
+[Plugin checklist](../plugins/SuckerPunch/README.md) · [issue #22](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/22)
 
-**Current scope:** Read-only: no authoritative gameplay quantity offset or safe writer is identified.
-Unknown checksum alone is not the blocker.
+**Current scope:** Enabled: 14 eligible existing quantity types and a target preview, Experimental/Inferred
+with checksum/game-rejection warnings. Restore-imported quantities remain deferred; gear/world state is read-only.
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
 - [ ] Capture one nonzero Mon/resource/ammo single-action pair.
 - [ ] Capture manual-save, autosave and memory role controls.
-- [ ] Capture natural nonzero trailing bytes or an owner-controlled integrity/load/resave experiment.
+- [ ] **Deferred checksum-coverage capture (outside the 15 ranks).** On a backed-up disposable slot,
+      capture identical gameplay in manual/auto/memory roles plus a no-action load/save control, keeping
+      all gameplay/memory/SFO files. Supply naturally nonzero trailing data or an owner-controlled
+      checksum/load/resave trial per [capture 7](../plugins/SuckerPunch/YOTEI_FORMAT.md#exact-owner-captures-for-31).
+      Record load acceptance/rejection, native resave/reload/re-export and tail/checksum diff evidence
+      on #31, referencing the [deferral](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489232331).
+      Zero tails fit both declared-end and whole-file hypotheses; synthetic tails and same-candidate
+      reparsing do not settle game coverage. There is no restore action to preview/apply in this trial.
 
 ### PPSA02745 — Tales of Arise
 
@@ -701,10 +843,26 @@ Build notes: base-game slots are the supported evidence source; fields remain Ex
 Record active artifact effects, DLC and build. [Plugin checklist](../plugins/TalesOfArise/OWNER_CHECKLIST.md) · [issue #23](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/23)
 
 **Current scope:** Enabled: gald, existing active-character level/HP/SP, recognized existing consumables and
-the F6 quantity action.
+the F6 quantity/restore actions. Party current/max CP are read-only, Inferred; no CP writes or restoration.
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
+- [ ] **Rank 5 — restore consumables (`inventory/restore-imported`).** On a backed-up spare slot,
+      capture a no-action control and separate buy/use/zero/reacquire pairs for each eligible ID 1–13.
+      Expand Inventory, stage a small reduction with opening/current quantities both 0–15 → select rows
+      → Restore imported consumable quantities → Preview every target, skip, alias and warning → Apply
+      only the reviewed scope → undo/redo → export/re-import. The documented UI selection/exclusion defect can preview
+      document scope: cancel unexpected targets and report/retest after the fix. Load, consume, check
+      zero/reacquisition and inferred caps/artifact/DLC effects, native-save/reload/re-export. Record
+      IDs/counts, preserved higher quantities and unrelated state with the shared evidence on #31.
+- [ ] **CP authority/growth captures (before CP writes).** On backed-up spare copies, capture labelled
+      no-action resaves, one CP spend, one rest/refill and one level-up as independent before/after pairs;
+      keep Orange Gel refill and Astral Flower/other bonus changes separate. In Party, record read-only
+      `party/current-cp` / `party/max-cp` alongside photographed menu current/max CP, active party, levels,
+      HP and consumables before/after, then native-save/reload/re-export and diff against the control.
+      There is no CP edit or Preview/Apply step. Report authority, refill and maximum-growth observations
+      with the shared evidence on #31 and the [CP handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489330493);
+      equal sample values and backup twins cannot establish semantics or a growth formula.
 - [ ] Validate gald buy/use, then level/HP/SP separately for each relevant active character; inspect normal
       progression, effective stats and untouched preview/dependent caches.
 - [ ] Validate recognized consumable IDs 1–13 at quantities 0–15, including zero followed by normal
@@ -811,6 +969,14 @@ ranks/Gwent copies, reviewed repair and imported food/water refill.
 
 - [ ] No-action control and unchanged toolkit-export/recovery cycle for this title/build, with all
       companions and backups.
+- [ ] **Rank 11 — ordinary Gwent copies (`gwent/set-ordinary-copies`).** On backed-up spare copies,
+      capture a no-action control and independent ordinary-copy gain/removal pairs. In the Gwent table,
+      select saved ordinary card rows → Set ordinary Gwent counts (review) → enter a small shared target
+      → Preview old/new copies within each opening bound, leader/unmapped/missing-pack skips and warnings
+      → Apply → undo/redo → export/re-import. Separately test document scope and supported filtered
+      all-matching/excluded rows. Load, check collection, decks and a match plus quest/reward/achievement
+      behavior, then native-save/reload/re-export. Record card indices/counts, deck invalidation on
+      decreases and unrelated state with the shared evidence on #31; no new cards/decks/rewards are created.
 - [ ] Validate original level/XP/free points/Crowns/stack fields separately; then one damaged sword
       durability and two-item repair. Inspect combat, unrelated inventory, Crowns/repair rewards and area
       transitions.
