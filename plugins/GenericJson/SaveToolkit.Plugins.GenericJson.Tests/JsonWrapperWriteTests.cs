@@ -38,7 +38,7 @@ public sealed class JsonWrapperWriteTests
     {
         using var fixture = Open();
         var action = JsonSemanticTestHelper.SetFor(fixture, label);
-        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.ExactNumber(number))), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.ExactNumber(number))), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(preview.Plan.Errors);
         Assert.False(fixture.Session.State.CanUndo);
     }

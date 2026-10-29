@@ -29,7 +29,7 @@ public sealed class AriseInspectionTests
 
         if (!readOnly)
         {
-            Assert.True(session.ApplyEdits([new("party/gald", JsonSerializer.SerializeToElement("123"))]).Ok);
+            Assert.True(session.ApplyEdits([new("party/gald", JsonSerializer.SerializeToElement("123"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         }
 
         InspectAndCheck();
@@ -80,7 +80,7 @@ public sealed class AriseInspectionTests
         _ = session.BuildView();
         foreach (var catalogId in new[] { "items", "artes", "skills" })
         {
-            var row = Assert.Single(session.QueryCollection(catalogId, new() { Limit = 1 }).Rows);
+            var row = Assert.Single(session.QueryCollection(catalogId, new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
             var identity = Assert.IsType<FieldNode>(row.Cells["id"]);
             var spec = Assert.IsType<ReferenceSpec>(identity.Spec);
             Assert.True(spec.ReadOnly);
@@ -98,11 +98,11 @@ public sealed class AriseInspectionTests
             Assert.All(page.Items, item => Assert.Equal(category, item.Category));
             Assert.Equal(catalog.Search(new() { Category = category, SortBy = ReferenceSortKey.Name, Descending = true, Limit = 3 })
                 .Items.Select(record => record.Key), page.Items.Select(item => item.RawId));
-            Assert.False(session.ApplyEdits([new(identity.ValueId, JsonSerializer.SerializeToElement(page.Items[0].RawId))]).Ok);
+            Assert.False(session.ApplyEdits([new(identity.ValueId, JsonSerializer.SerializeToElement(page.Items[0].RawId))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         }
 
         _ = session.Expand("inventory");
-        var inventory = session.QueryCollection("inventory", new());
+        var inventory = session.QueryCollection("inventory", new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var unknown = inventory.Rows.Select(row => Assert.IsType<FieldNode>(row.Cells["id"]))
             .First(field => references.Catalog("items")!.Find(field.Value.AsString()) is null);
         Assert.True(Assert.IsType<ReferenceSpec>(unknown.Spec).ReadOnly);
@@ -126,7 +126,7 @@ public sealed class AriseInspectionTests
         using var session = new DocumentSession("arise-fixed-inspect", file, plugin, document, references: references);
         _ = session.BuildView();
         if (collectionId == "inventory") _ = session.Expand("inventory");
-        var rows = session.QueryCollection(collectionId, new()).Rows;
+        var rows = session.QueryCollection(collectionId, new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows;
         var expectedActions = collectionId == "inventory" ? 1 : 2;
         var actions = rows.Select(row => row.Cells["inspect"]).OfType<ActionNode>().Take(expectedActions).ToArray();
         Assert.Equal(expectedActions, actions.Length);
@@ -135,7 +135,7 @@ public sealed class AriseInspectionTests
         var bytes = Assert.Single(document.Serialize()).Content.ToArray();
         foreach (var action in actions)
         {
-            var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>(), before.Revision);
+            var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>(), before.Revision, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(result.Ok, string.Join(';', result.Errors.Select(error => error.Message)));
             var record = catalog.Find(Assert.Single(action.Parameters).Value.AsString())!;
             Assert.Contains(record.Name, result.Message);
@@ -146,7 +146,7 @@ public sealed class AriseInspectionTests
         var rejected = session.InvokeAction(actions[0].ActionId, new Dictionary<string, JsonElement>
         {
             ["record"] = JsonSerializer.SerializeToElement(other.Key),
-        });
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(rejected.Ok);
         Assert.Equal(before, session.State);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());

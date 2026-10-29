@@ -77,19 +77,19 @@ public sealed class SerialWriteTests
         using var document = (GearboxDocument)plugin.Open(file);
         using var session = new DocumentSession("serial-write", file, plugin, document);
         _ = session.BuildView();
-        var page = session.QueryCollection("inventory_items", new() { Limit = 200 });
+        var page = session.QueryCollection("inventory_items", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         foreach (var row in page.Rows.Take(3))
         {
-            _ = session.QueryCollection("inventory_items", new() { Limit = 200 });
+            _ = session.QueryCollection("inventory_items", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             var detail = (SectionNode)row.Cells["detail"];
             var fields = session.Expand(detail.LazyId!).OfType<FieldNode>().Where(f => !f.Spec.ReadOnly).ToArray();
             foreach (var field in fields)
             {
                 var next = field.Value.AsInt64() == 1 ? 2 : 1;
                 var original = document.Serialize().Single().Content.ToArray();
-                _ = session.QueryCollection("inventory_items", new() { Limit = 200 });
+                _ = session.QueryCollection("inventory_items", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
                 _ = session.Expand(detail.LazyId!);
-                var result = session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(next.ToString(System.Globalization.CultureInfo.InvariantCulture)))]);
+                var result = session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(next.ToString(System.Globalization.CultureInfo.InvariantCulture)))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
                 Assert.True(result.Ok, field.ValueId + ": " + string.Join("; ", result.Errors.Select(e => e.Message)));
                 var edited = document.Serialize().Single().Content.ToArray();
                 if (field.ValueId.EndsWith("/mark", StringComparison.Ordinal))

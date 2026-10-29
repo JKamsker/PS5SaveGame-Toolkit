@@ -4183,6 +4183,16 @@
             },
             "description": "OK"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -4405,6 +4415,16 @@
             },
             "description": "OK"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -4465,6 +4485,16 @@
               }
             },
             "description": "OK"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -4547,6 +4577,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -4588,6 +4628,16 @@
               }
             },
             "description": "Not Found"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -4635,6 +4685,16 @@
               }
             },
             "description": "Not Found"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -4693,6 +4753,16 @@
               }
             },
             "description": "Not Found"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -4793,6 +4863,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -4890,6 +4970,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -4993,6 +5083,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -5147,6 +5247,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -5299,6 +5409,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -5453,6 +5573,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -5566,6 +5696,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -5707,6 +5847,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -5811,6 +5961,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -5964,6 +6124,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -6159,6 +6329,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -6353,6 +6533,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -6458,6 +6648,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -6612,6 +6812,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -6727,6 +6937,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -6886,6 +7106,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -8022,6 +8252,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -8122,6 +8362,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -8221,6 +8471,16 @@
             },
             "description": "Unprocessable Entity"
           },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
+          },
           "500": {
             "content": {
               "application/json": {
@@ -8318,6 +8578,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {
@@ -8431,6 +8701,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Client Closed Request"
           },
           "500": {
             "content": {

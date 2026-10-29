@@ -32,7 +32,7 @@ public sealed class PointTargetActionTests
                 Assert.Equal(field.Value, parameter.Value);
                 Assert.Equal(Confidence.Inferred, parameter.Confidence);
             }
-            var preview = session.PlanAction(ActionId, Targets(12, 9, 3), new());
+            var preview = session.PlanAction(ActionId, Targets(12, 9, 3), new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(preview.PlanId);
             Assert.Empty(preview.Plan.Errors);
             Assert.Equal(3, preview.Plan.Changes.Count);
@@ -49,8 +49,8 @@ public sealed class PointTargetActionTests
                 Assert.Contains("Unspent", change.Label);
             }
             // Cancel closes the review without applying its token; a replacement preview also stays pure.
-            Assert.NotNull(session.PlanAction(ActionId, Targets(7, 0, 0), new()).PlanId);
-            Assert.False(session.InvokeAction(ActionId, Targets(12, 9, 3)).Ok);
+            Assert.NotNull(session.PlanAction(ActionId, Targets(7, 0, 0), new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).PlanId);
+            Assert.False(session.InvokeAction(ActionId, Targets(12, 9, 3), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             Assert.Empty(document.InvokeAction(ActionId, TargetValues()).Changes);
             Assert.False(session.State.CanUndo);
             Assert.False(session.State.IsDirty);
@@ -68,10 +68,10 @@ public sealed class PointTargetActionTests
             using var document = plugin.Open(file);
             using var session = new DocumentSession("point-apply", (DiskSaveFile)file, plugin, document);
             _ = session.BuildView();
-            var preview = session.PlanAction(ActionId, Targets(12, 9, 3), new());
+            var preview = session.PlanAction(ActionId, Targets(12, 9, 3), new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(preview.PlanId);
-            Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
-            var bytes = Assert.Single(session.Serialize()).Content.ToArray();
+            Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+            var bytes = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
             PointTargetFixtures.AssertOnlyUnspentChanges(original, CsavContainer.Parse(bytes), TargetValues());
             using var reopened = ProgressionSampleTests.Open(bytes);
             _ = reopened.BuildView();
@@ -82,7 +82,7 @@ public sealed class PointTargetActionTests
             Assert.False(session.State.IsDirty);
             Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
             Assert.True(session.Redo().Ok);
-            Assert.Equal(bytes, Assert.Single(session.Serialize()).Content.ToArray());
+            Assert.Equal(bytes, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
         }
     }
 

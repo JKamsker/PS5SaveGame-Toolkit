@@ -7,7 +7,7 @@ namespace SaveToolkit.Core.Sessions;
 internal static class SemanticSnapshotComparison
 {
     public static IReadOnlyList<SemanticChange> Compare(IReadOnlyDictionary<string, SemanticField> original, bool originalComplete,
-        IReadOnlyDictionary<string, SemanticField> current, bool currentComplete, ISaveDocument document)
+        IReadOnlyDictionary<string, SemanticField> current, bool currentComplete, ISaveDocument document, CancellationToken cancellationToken)
     {
         var changes = new List<SemanticChange>();
         // Preserve the union's original-first ordering, including removals followed by additions.
@@ -19,6 +19,7 @@ internal static class SemanticSnapshotComparison
 
         void Add(string id, SemanticField? before, SemanticField? after)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if ((before is null && !originalComplete) || (after is null && !currentComplete)
                 || (before is not null && after is not null && before.Value == after.Value)) return;
 

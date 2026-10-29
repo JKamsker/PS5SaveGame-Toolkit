@@ -34,7 +34,7 @@ public sealed class WitcherEmptySlotTests
                 Assert.Equal("name", table.EmptyRows.LabelColumnKey);
                 var emptyCount = array.Name switch { "skills" => 6, "skillSlots" => 16, "mutagenSlots" => 4, _ => 0 };
                 Assert.Equal(emptyCount, array.Entries.Count(e => e.IsEmpty));
-                var hidden = session.QueryCollection(id, new() { Limit = 200 });
+                var hidden = session.QueryCollection(id, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
                 Assert.Equal(array.Entries.Count, hidden.TotalCount);
                 Assert.Equal(array.Entries.Count - emptyCount, hidden.FilteredCount);
                 Assert.Equal(emptyCount, hidden.HiddenEmptyCount);
@@ -42,7 +42,7 @@ public sealed class WitcherEmptySlotTests
                 var direct = ((IQueryableDocument)document).Query(id, new() { Limit = 200 });
                 Assert.Equal(hidden.Rows.Select(r => r.Key), direct.Rows.Select(r => r.Key));
                 Assert.Equal(hidden.HiddenEmptyCount, direct.HiddenEmptyCount);
-                var shown = session.QueryCollection(id, new() { Limit = 200, IncludeEmpty = true });
+                var shown = session.QueryCollection(id, new() { Limit = 200, IncludeEmpty = true }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
                 Assert.Equal(array.Entries.Count, shown.FilteredCount);
                 Assert.Equal(0, shown.HiddenEmptyCount);
                 Assert.Equal(array.Entries.Select(e => e.Id).Order(), shown.Rows.Select(r => r.Key).Order());
@@ -52,7 +52,7 @@ public sealed class WitcherEmptySlotTests
             }
 
             Assert.Single(nodes.OfType<QueryableTableNode>(), t => t.CollectionId == GwentCollection.CollectionId);
-            var inventory = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 });
+            var inventory = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(before.Player.Inventory!.Items.Count, inventory.Rows.Count);
             Assert.All(inventory.Rows, row => Assert.False(row.IsEmpty));
             Assert.Equal(0, inventory.HiddenEmptyCount);
@@ -73,7 +73,7 @@ public sealed class WitcherEmptySlotTests
         _ = session.BuildView();
         var scope = new ActionScope { QueryScope = new(AbilityCollections.Prefix + "skills",
             new() { IncludeEmpty = includeEmpty, Limit = 1 }, session.State.Revision) { ExcludedRowKeys = ["S_Sword_1"] } };
-        var preview = session.PlanAction(RepairPlanning.ActionId, new Dictionary<string, JsonElement>(), scope);
+        var preview = session.PlanAction(RepairPlanning.ActionId, new Dictionary<string, JsonElement>(), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(count, preview.Scope.RowKeys!.Count);
         Assert.Equal(includeEmpty == true, preview.Scope.QueryScope!.Query.IncludeEmpty);
         Assert.DoesNotContain("S_Sword_1", preview.Scope.RowKeys);
@@ -146,11 +146,11 @@ public sealed class WitcherEmptySlotTests
         _ = session.BuildView();
         var row = Assert.Single(session.QueryCollection(AbilityCollections.Prefix + "skills", new() {
             Filters = new Dictionary<string, string> { ["id"] = rank.Entry.Id },
-        }).Rows);
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.False(row.IsEmpty);
         var field = Assert.IsType<FieldNode>(row.Cells["rank"]);
         Assert.Equal(rank.ValueId, field.ValueId);
-        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(field.ValueId, FieldValue.Of(1))]).Ok);
+        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(field.ValueId, FieldValue.Of(1))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         EnabledWriteFixture.SkillPreservation(input, edited, rank);
         Assert.Equal(1, EnabledWriteFixture.Read(edited).Features.SkillEdits!.Find(rank.Entry.Id)!.Value);

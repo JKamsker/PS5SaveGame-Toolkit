@@ -35,7 +35,7 @@ public sealed class PartySummaryWritingTests
             var spec = Assert.IsType<IntegerSpec>(field.Spec);
             foreach (var invalid in new[] { spec.Min - 1, spec.Max + 1 })
             {
-                Assert.False(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(invalid.ToString()))]).Ok);
+                Assert.False(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(invalid.ToString()))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
                 Assert.False(document.ApplyEdits([new ValueEdit(field.ValueId, FieldValue.Of(invalid))]).Succeeded);
             }
         }
@@ -43,8 +43,8 @@ public sealed class PartySummaryWritingTests
         var next = fields.ToDictionary(field => field.ValueId,
             field => property == "Level" ? field.Value.AsInt64() + 1 : field.Value.AsInt64() == 0 ? 1L : field.Value.AsInt64() - 1);
         Assert.True(session.ApplyEdits(fields.Select(field =>
-            new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(next[field.ValueId]))).ToArray()).Ok);
-        var edited = Assert.Single(session.Serialize()).Content.ToArray();
+            new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(next[field.ValueId]))).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var edited = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         AssertOnlySummaryChanged(original, edited, fields.Select(field => field.ValueId).ToArray());
         using var reopened = plugin.Open(MemorySaveSet.SingleFile("edited.lsv", edited, "PPSA18463"));
         _ = reopened.BuildView();
@@ -53,7 +53,7 @@ public sealed class PartySummaryWritingTests
         Assert.False(session.State.CanUndo); // the whole multi-row edit is one history step
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(edited, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(edited, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
         Assert.True(session.Undo().Ok);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
     }

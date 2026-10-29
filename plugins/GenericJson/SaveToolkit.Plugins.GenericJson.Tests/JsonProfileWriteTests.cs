@@ -54,7 +54,7 @@ public sealed class JsonProfileWriteTests
         using var missing = new JsonSessionFixture("{\"Profile\":{\"LastSaveChapter\":\"a\"},\"CloudSettings\":{},\"LocalSettings\":{}}",
             title: "PPSA02343", fileName: "ue4savegame.dpx.sav");
         _ = JsonSemanticTestHelper.Actions(missing);
-        var preview = missing.Session.PlanAction("semantic/progress", JsonArrayEditingTests.Parameters(), expectedRevision: 0);
+        var preview = missing.Session.PlanAction("semantic/progress", JsonArrayEditingTests.Parameters(), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(preview.Plan.Errors);
         Assert.False(missing.Session.State.CanUndo);
     }
@@ -67,7 +67,7 @@ public sealed class JsonProfileWriteTests
         using var fixture = Open();
         var action = JsonSemanticTestHelper.SetFor(fixture, "MinigameCounter.A_CodyWins");
         var before = fixture.Bytes;
-        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.Of(number))), expectedRevision: 0);
+        var preview = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.Of(number))), expectedRevision: 0, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(preview.Plan.Errors);
         Assert.Equal(before, fixture.Bytes);
         Assert.False(fixture.Session.State.CanUndo);
@@ -79,14 +79,14 @@ public sealed class JsonProfileWriteTests
         using var fixture = Open();
         _ = JsonSemanticTestHelper.Actions(fixture);
         var scope = new ActionScope { QueryScope = new("json-tree", new QueryableCollectionQuery { Text = "A_" }, 0) };
-        var preview = fixture.Session.PlanAction("semantic/present-flags", JsonArrayEditingTests.Parameters(("enabled", FieldValue.Of(false))), scope, 0);
+        var preview = fixture.Session.PlanAction("semantic/present-flags", JsonArrayEditingTests.Parameters(("enabled", FieldValue.Of(false))), scope, 0, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Single(preview.Plan.Changes);
         Assert.Single(preview.Plan.SkippedRows);
-        Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(fixture.Session.Undo().Ok);
         Assert.Equal(Encoding.UTF8.GetBytes(Source), fixture.Bytes);
-        var empty = fixture.Session.PlanAction("semantic/present-flags", JsonArrayEditingTests.Parameters(("enabled", FieldValue.Of(false))), new([]), fixture.Session.State.Revision);
+        var empty = fixture.Session.PlanAction("semantic/present-flags", JsonArrayEditingTests.Parameters(("enabled", FieldValue.Of(false))), new([]), fixture.Session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(empty.PlanId);
         Assert.Empty(empty.Plan.Changes);
     }

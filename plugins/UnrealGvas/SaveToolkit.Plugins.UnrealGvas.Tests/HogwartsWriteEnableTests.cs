@@ -47,12 +47,12 @@ public sealed class HogwartsWriteEnableTests
         using var session = new DocumentSession("hogwarts-write", sample, plugin, plugin.Open(sample, references), references: references);
         _ = session.BuildView();
         var collection = session.QueryableCollections.Single(item => item.Id == "hogwarts/RawDatabaseImage/InventoryDynamic");
-        var page = session.QueryCollection(collection.Id, new QueryableCollectionQuery { Limit = 200 });
+        var page = session.QueryCollection(collection.Id, new QueryableCollectionQuery { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var field = page.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>().First(item => item.Spec is IntegerSpec { ReadOnly: false });
         long next = checked((long)field.Value.AsInteger() + 1);
         var json = JsonDocument.Parse(next.ToString(System.Globalization.CultureInfo.InvariantCulture)).RootElement.Clone();
 
-        var applied = session.ApplyEdits([new IncomingEdit(field.ValueId, json)]);
+        var applied = session.ApplyEdits([new IncomingEdit(field.ValueId, json)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.True(applied.Ok, string.Join("; ", applied.Errors.Select(error => error.Message)));
         Assert.True(session.Undo().Ok);

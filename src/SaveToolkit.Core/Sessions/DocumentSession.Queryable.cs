@@ -13,7 +13,11 @@ public sealed partial class DocumentSession
     /// Runs one bounded collection query and registers the returned row bindings. A revision supplied by
     /// the browser must still be current; this prevents a page from an old structure being edited.
     /// </summary>
-    public QueryableCollectionPage QueryCollection(string collectionId, QueryableCollectionQuery query, long? expectedRevision = null) => Locked(() =>
+    public QueryableCollectionPage QueryCollection(string collectionId, QueryableCollectionQuery query, long? expectedRevision = null) =>
+        QueryCollection(collectionId, query, expectedRevision, CancellationToken.None);
+
+    public QueryableCollectionPage QueryCollection(string collectionId, QueryableCollectionQuery query, long? expectedRevision,
+        CancellationToken cancellationToken) => Locked(() => RunPreflight(_ =>
     {
         if (Document is not IQueryableDocument queryable)
         {
@@ -45,13 +49,16 @@ public sealed partial class DocumentSession
         }
 
         query = query with { IncludeEmpty = query.IncludeEmpty ?? collection.EmptyRows?.HideByDefault != true };
+        cancellationToken.ThrowIfCancellationRequested();
         var page = queryable.Query(collectionId, query);
+        cancellationToken.ThrowIfCancellationRequested();
         if (page is null)
         {
             throw new InvalidOperationException($"Collection '{collection.Id}' returned no page.");
         }
         ValidatePage(collection, page, query);
-        _index.AddAll(page.Rows.SelectMany(r => r.Cells.Values));
+        _index.AddAll(page.Rows.SelectMany(r => r.Cells.Values), cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
         return page with
         {
             CollectionId = collection.Id,
@@ -59,7 +66,7 @@ public sealed partial class DocumentSession
             TotalCount = collection.TotalCount,
             Revision = _revision,
         };
-    });
+    }, cancellationToken), cancellationToken);
 
     private static void ValidateQuery(string collectionId, QueryableCollectionQuery query)
     {

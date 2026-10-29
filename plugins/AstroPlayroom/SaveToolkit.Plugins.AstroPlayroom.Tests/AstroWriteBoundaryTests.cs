@@ -29,7 +29,7 @@ public sealed class AstroWriteBoundaryTests
         // The final coin spelling frees exactly the nine bytes needed by PlayCount.
         // Keep both changes to the same field in history, including its intermediate value.
         var result = session.ApplyEdits([
-            Edit(coins.ValueId, int.MaxValue), Edit(coins.ValueId, 1), Edit(count.ValueId, int.MaxValue)]);
+            Edit(coins.ValueId, int.MaxValue), Edit(coins.ValueId, 1), Edit(count.ValueId, int.MaxValue)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         Assert.Equal(3, result.Changes.Count);
         Assert.Equal(FieldValue.Of((long)int.MaxValue), result.Changes[1].OldValue);
@@ -46,7 +46,7 @@ public sealed class AstroWriteBoundaryTests
         }
 
         var revision = session.State.Revision;
-        var rejected = session.ApplyEdits([Edit(coins.ValueId, 12)], revision);
+        var rejected = session.ApplyEdits([Edit(coins.ValueId, 12)], revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(rejected.Ok);
         Assert.Empty(rejected.Changes);
         Assert.Equal(revision, session.State.Revision);

@@ -23,7 +23,7 @@ public sealed class NameWriteTests
         Assert.False(field.Spec.ReadOnly);
         Assert.Equal(Confidence.Inferred, field.Confidence);
         Assert.Contains("may reject", field.Warning);
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(field.ValueId, name)]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(field.ValueId, name)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = WriteTestSupport.Bytes(document);
         var expected = original.ToArray();
         var encoded = Encoding.Unicode.GetBytes(name);
@@ -89,9 +89,9 @@ public sealed class NameWriteTests
         using var session = WriteTestSupport.Session(disk.File, out var document);
         const string nameId = "slots/0/name";
         WriteTestSupport.EqualBytes(fixture.Bytes, document);
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(nameId, "Renamed")]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(nameId, "Renamed")], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var renamed = WriteTestSupport.Bytes(document);
-        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(nameId, "Other\tName")]).Ok);
+        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(nameId, "Other\tName")], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         WriteTestSupport.EqualBytes(renamed, document);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);

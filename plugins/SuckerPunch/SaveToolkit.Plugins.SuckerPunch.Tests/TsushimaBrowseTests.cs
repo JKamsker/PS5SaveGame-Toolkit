@@ -62,7 +62,7 @@ public sealed class TsushimaBrowseTests
         Assert.Equal(candidate.RawId, session.FindReference(field.ValueId, candidate.RawId, state.Revision).RawId);
         var searched = session.SearchReferences(field.ValueId, query with { Text = candidate.RawId }, state.Revision);
         Assert.Equal(candidate.RawId, Assert.Single(searched.Items).RawId);
-        Assert.False(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(candidate.RawId))]).Ok);
+        Assert.False(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(candidate.RawId))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(field.Value, document.GetValue(field.ValueId));
         Assert.Equal(state, session.State);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());

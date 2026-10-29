@@ -84,24 +84,24 @@ public sealed class TsushimaInventoryPlanningTests
         Assert.True(action.SupportsPlanning);
         Assert.Contains("Not validated on console", action.Description);
         var parameters = new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("7") };
-        Assert.False(session.InvokeAction(ActionId, parameters).Ok);
-        var preview = session.PlanAction(ActionId, parameters, new ActionScope(["Supplies", "ArrowNormal"]));
+        Assert.False(session.InvokeAction(ActionId, parameters, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var preview = session.PlanAction(ActionId, parameters, new ActionScope(["Supplies", "ArrowNormal"]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Contains(preview.Plan.Changes, change => change.ValueId == "inventory/ArrowNormal/quantity-copy" && change.Derived);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
-        Assert.Equal(4, session.GetChanges().Changes.Count);
+        Assert.Equal(4, session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes.Count);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
-        Assert.Empty(session.GetChanges().Changes);
+        Assert.Empty(session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Redo().Ok);
         Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Stale);
-        var stale = session.PlanAction(ActionId, parameters);
-        Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("8"))]).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
+        var stale = session.PlanAction(ActionId, parameters, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("8"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var beforeRejected = Assert.Single(document.Serialize()).Content.ToArray();
-        Assert.True(session.ApplyActionPlan(stale.PlanId!, stale.Revision).Stale);
+        Assert.True(session.ApplyActionPlan(stale.PlanId!, stale.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         Assert.Equal(beforeRejected, Assert.Single(document.Serialize()).Content.ToArray());
     }
 

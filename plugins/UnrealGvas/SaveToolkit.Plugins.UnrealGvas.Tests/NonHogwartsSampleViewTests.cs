@@ -27,7 +27,7 @@ public sealed class NonHogwartsSampleViewTests
         Assert.True(session.QueryableCollections.Count > 1);
         foreach (var collection in session.QueryableCollections)
         {
-            var first = session.QueryCollection(collection.Id, new() { Limit = 200 });
+            var first = session.QueryCollection(collection.Id, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(collection.TotalCount, first.TotalCount);
             Assert.True(JsonSerializer.SerializeToUtf8Bytes(first).Length < 2 * 1024 * 1024);
             Assert.Equal(first.Rows.Count, first.Rows.Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());

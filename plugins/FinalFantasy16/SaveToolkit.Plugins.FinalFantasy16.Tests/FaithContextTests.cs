@@ -143,7 +143,7 @@ public sealed class FaithContextTests
             new Dictionary<string, JsonElement>
             {
                 [FaithCatalog.LookupParameter] = JsonSerializer.SerializeToElement("100029"),
-            });
+            }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
         Assert.Contains("Defender", result.Message);
         Assert.Equal(revision, result.State.Revision);

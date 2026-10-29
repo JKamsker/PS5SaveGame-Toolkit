@@ -25,7 +25,7 @@ public sealed class FactWriteTests
         foreach (var node in tree.Nodes.Where(node => node.Name == "FactsTable"))
         {
             var query = new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["table"] = node.Id.ToString(CultureInfo.InvariantCulture) }, Limit = 200 };
-            var pageBefore = session.QueryCollection("facts", query);
+            var pageBefore = session.QueryCollection("facts", query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             if (FactsReader.Read(before.Payload.AsSpan(node.Offset, node.Size)).Count == 0)
             {
                 Assert.Empty(pageBefore.Rows);
@@ -38,8 +38,8 @@ public sealed class FactWriteTests
             Assert.Contains("Not validated on console", field.Description);
             Assert.Contains("quest stages", field.Warning, StringComparison.OrdinalIgnoreCase);
             var next = field.Value.AsUInt32() == 0 ? 1U : 0U;
-            Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(next.ToString(CultureInfo.InvariantCulture)))]).Ok);
-            var bytes = Assert.Single(session.Serialize()).Content.ToArray();
+            Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(next.ToString(CultureInfo.InvariantCulture)))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+            var bytes = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
             var after = CsavContainer.Parse(bytes);
             var countOffset = sizeof(int);
             var count = BinaryData.PackedInt(before.Payload.AsSpan(node.Offset, node.Size), ref countOffset);
@@ -54,14 +54,14 @@ public sealed class FactWriteTests
             using var reopened = ProgressionSampleTests.Open(bytes);
             var page = Assert.IsType<CyberpunkDocument>(reopened).Query("facts", query);
             Assert.Equal(next, Assert.IsType<FieldNode>(page.Rows.Single(candidate => candidate.Key == row.Key).Cells["value"]).Value.AsUInt32());
-            var catalog = session.QueryCollection("fact-catalog", query);
+            var catalog = session.QueryCollection("fact-catalog", query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             var catalogRow = catalog.Rows.Single(candidate => candidate.Key == $"fact-catalog/saved/{node.Id}/{index}");
             Assert.Equal(next.ToString(CultureInfo.InvariantCulture), Assert.IsType<SectionNode>(catalogRow.Cells["value"]).Title);
-            Assert.Equal(next, Assert.IsType<FieldNode>(session.QueryCollection("facts", query).Rows.Single(candidate => candidate.Key == row.Key).Cells["value"]).Value.AsUInt32());
+            Assert.Equal(next, Assert.IsType<FieldNode>(session.QueryCollection("facts", query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows.Single(candidate => candidate.Key == row.Key).Cells["value"]).Value.AsUInt32());
             Assert.True(session.Undo().Ok);
             Assert.Equal(before.Original, Assert.Single(document.Serialize()).Content.ToArray());
             Assert.True(session.Redo().Ok);
-            Assert.Equal(bytes, Assert.Single(session.Serialize()).Content.ToArray());
+            Assert.Equal(bytes, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
             Assert.True(session.Undo().Ok);
         }
     }

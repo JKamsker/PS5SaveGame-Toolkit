@@ -26,7 +26,7 @@ public sealed class CommunityBrowsingTests
         using var document = plugin.Open(file, context);
         using var session = new DocumentSession("eldenring-community-items", file, plugin, document, references: context);
         _ = session.BuildView();
-        var row = Assert.Single(session.QueryCollection("slots/0/inventory/held", new() { Text = "Scadutree Fragment" }).Rows);
+        var row = Assert.Single(session.QueryCollection("slots/0/inventory/held", new() { Text = "Scadutree Fragment" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         var field = Assert.IsType<FieldNode>(row.Cells["item"]);
         Assert.Equal("Scadutree Fragment", field.Label);
         Assert.Equal("0x401EAB90", field.Value.AsString());
@@ -36,8 +36,8 @@ public sealed class CommunityBrowsingTests
         Assert.Equal("Scadutree Fragment", session.FindReference(field.ValueId, field.Value.AsString()).Label);
         Assert.Contains(session.SearchReferences(field.ValueId, new() { Text = "Scadutree Fragment", Category = "goods" }).Items,
             candidate => candidate.RawId == "0x401EAB90");
-        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(field.ValueId, "0x400050F0")]).Ok);
-        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(row.Key + "/quantity", 9)]).Ok);
+        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(field.ValueId, "0x400050F0")], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(row.Key + "/quantity", 9)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
         WriteTestSupport.EqualBytes(fixture.Save.Bytes, document);
@@ -104,10 +104,10 @@ public sealed class CommunityBrowsingTests
         foreach (var (eventId, set) in new[] { (76100, true), (76101, true), (76102, false) })
         {
             var row = Assert.Single(session.QueryCollection("slots/0/community-progress",
-                new() { Filters = new Dictionary<string, string> { ["event"] = eventId.ToString(System.Globalization.CultureInfo.InvariantCulture) } }).Rows);
+                new() { Filters = new Dictionary<string, string> { ["event"] = eventId.ToString(System.Globalization.CultureInfo.InvariantCulture) } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
             var raw = Assert.IsType<FieldNode>(row.Cells["raw"]);
             Assert.Equal(set, raw.Value.AsBool());
-            Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(raw.ValueId, !set)]).Ok);
+            Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(raw.ValueId, !set)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         }
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
@@ -124,27 +124,27 @@ public sealed class CommunityBrowsingTests
         using var document = plugin.Open(file, context);
         using var session = new DocumentSession("eldenring-community-catalogs", file, plugin, document, references: context);
         _ = session.BuildView(); _ = session.Expand("characters/0");
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming("slots/0/runes", 1146)]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming("slots/0/runes", 1146)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = WriteTestSupport.Bytes(document);
         Assert.Throws<KeyNotFoundException>(() => document.ExpandNode("catalog/param-rows"));
         _ = session.Expand("catalog/community-items");
         var keys = new HashSet<string>(StringComparer.Ordinal);
         for (var offset = 0; offset < 3221; offset += 200)
         {
-            var page = session.QueryCollection("catalog/community-items", new() { Offset = offset, Limit = 200, SortColumn = "id" });
+            var page = session.QueryCollection("catalog/community-items", new() { Offset = offset, Limit = 200, SortColumn = "id" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(3221, page.TotalCount);
             Assert.InRange(page.Rows.Count, 1, 200);
             Assert.All(page.Rows, row => Assert.True(keys.Add(row.Key)));
         }
         Assert.Equal(3221, keys.Count);
         var flags = session.QueryCollection("catalog/community-flags", new()
-            { Filters = new Dictionary<string, string> { ["category"] = "event-flag" }, Limit = 1 });
+            { Filters = new Dictionary<string, string> { ["category"] = "event-flag" }, Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(1748, flags.FilteredCount);
         var rows = session.QueryCollection("catalog/community-items", new()
-            { Filters = new Dictionary<string, string> { ["category"] = "goods" }, Text = "Scadutree Fragment" });
+            { Filters = new Dictionary<string, string> { ["category"] = "goods" }, Text = "Scadutree Fragment" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal("Scadutree Fragment", Assert.IsType<TextNode>(Assert.Single(rows.Rows).Cells["name"]).Text);
         _ = session.Expand("regulation/metadata");
-        var table = Assert.Single(session.QueryCollection(RegulationViews.CollectionId, new() { Text = "EquipParamGoods.param" }).Rows);
+        var table = Assert.Single(session.QueryCollection(RegulationViews.CollectionId, new() { Text = "EquipParamGoods.param" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         var schema = Assert.IsType<TextNode>(table.Cells["schema"]).Text;
         Assert.Contains("117 fields; source data version 3, save 3", schema);
         Assert.Contains("does not prove PS5 compatibility", schema);

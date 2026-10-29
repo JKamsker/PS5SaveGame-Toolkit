@@ -15,7 +15,7 @@ public sealed class JsonObjectEditingTests
         Apply(fixture, "rename", 0, ("name", FieldValue.Of("renamed")));
         Assert.Equal("\uFEFF{ \"renamed\" \t:\r\n 1.2300e+00, \"b\":\"\\u0041\" }\n", Encoding.UTF8.GetString(fixture.Bytes));
         Assert.Equal(originalIds, fixture.Fields().Select(f => f.ValueId));
-        var review = fixture.Session.GetChanges();
+        var review = fixture.Session.GetChanges(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(review.Complete);
         var nameChange = Assert.Single(review.Changes);
         Assert.Equal("structure/0", nameChange.ValueId);
@@ -23,7 +23,7 @@ public sealed class JsonObjectEditingTests
         Assert.False(nameChange.CanRevert);
         Apply(fixture, "rename", 0, ("name", FieldValue.Of("a\"")));
         Assert.Equal(Encoding.UTF8.GetBytes(source), fixture.Bytes);
-        Assert.Empty(fixture.Session.GetChanges().Changes);
+        Assert.Empty(fixture.Session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
         Assert.True(fixture.Session.Undo().Ok);
         Assert.Contains("renamed", Encoding.UTF8.GetString(fixture.Bytes), StringComparison.Ordinal);
         Assert.True(fixture.Session.Undo().Ok);
@@ -92,7 +92,7 @@ public sealed class JsonObjectEditingTests
         using var fixture = new JsonSessionFixture("{\"a\":1,\"b\":2}");
         _ = fixture.Fields();
         var preview = fixture.Session.PlanAction($"object/0/{operation}", JsonArrayEditingTests.Parameters(
-            ("at", FieldValue.Of((long)at)), ("name", FieldValue.Of(name)), ("json", FieldValue.Of(json))));
+            ("at", FieldValue.Of((long)at)), ("name", FieldValue.Of(name)), ("json", FieldValue.Of(json))), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Null(preview.PlanId);
         Assert.NotEmpty(preview.Plan.Errors);
         Assert.False(fixture.Session.State.CanUndo);
@@ -106,7 +106,7 @@ public sealed class JsonObjectEditingTests
         _ = fixture.Fields();
         Apply(fixture, "remove", 0);
         var stale = fixture.Session.PlanAction("object/1/insert", JsonArrayEditingTests.Parameters(
-            ("at", FieldValue.Of(0L)), ("name", FieldValue.Of("x")), ("json", FieldValue.Of("null"))));
+            ("at", FieldValue.Of(0L)), ("name", FieldValue.Of("x")), ("json", FieldValue.Of("null"))), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(stale.Plan.Errors);
         Apply(fixture, "insert", 0, ("name", FieldValue.Of("first")), ("json", FieldValue.Of("null")));
         var abandoned = Assert.Single(fixture.Fields()).ValueId;

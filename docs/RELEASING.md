@@ -75,8 +75,19 @@ The job IDs below are the workflow keys, rather than matrix-expanded display nam
 
 The inherited conformance `MutationFuzz` fact runs in ordinary backend test projects and the
 [nightly mutation sweep](#nightly-mutation-fuzz). It skips when neither private samples nor
-synthetic seeds are available. See the
+synthetic seeds are available; all current plugins provide synthetic seeds. See the
 [mutation harness contract](PLUGIN_GUIDE.md#deterministic-mutation-fuzzing-40).
+The [cross-plugin detection matrix](PLUGIN_GUIDE.md#tests) runs its synthetic routing checks
+in normal Core tests; its external-sample check skips when no matching archives are available.
+
+## Framework mutation testing
+
+The local tool manifest pins `dotnet-stryker`, used by `tests/Invoke-Mutations.ps1` for opt-in
+Core/SDK sweeps. [The mutation-testing guide](../tests/README.md) owns runner commands, MTP
+compatibility, exclusions and dated results. This tooling mutates production code to measure
+test effectiveness; the [mutation fuzz harness](PLUGIN_GUIDE.md#deterministic-mutation-fuzzing-40)
+mutates save inputs. Stryker is not a CI gate. Run ordinary builds/tests after a sweep to restore
+uninstrumented assemblies, and do not run the two concurrently.
 
 ## Script parameters
 
@@ -213,8 +224,8 @@ FF7 uses small common files because `CoverageFixture` is sample-backed; its auth
 fixtures require 9-23 MiB each and remain in focused tests. Pragmata's synthetic integrity proves
 parser acceptance only, not authentic signing or console acceptance. See each plugin README's
 fuzz/testing notes for provenance and limitations. Local runs additionally use selected real samples.
-The workflow's introductory summary still mentions its original two built-in formats; its actual
-per-plugin result table is authoritative. Updating workflow text is outside this test-only scope.
+The workflow's introductory summary still mentions its original two built-in formats; use its actual
+per-plugin result table for coverage. The seed inventory above describes the current conformance hooks.
 
 The sample-free Windows verification at seed `20261029` completed **135,000 mutations** across
 the 27 seeds then authored (the second Ragnarök seed came later): **21,527 opens**, **113,473 rejections**, zero unexpected or quarantined failures.
@@ -301,12 +312,18 @@ sort/paging, bulk preview/cancel/apply, keyboard-only application interaction, a
 F6 actions cover selected-row and filtered-query scopes (including unloaded pages), empty table
 selection versus document scope, cancel without writes, and exact apply/undo/redo values and exports.
 Export assertions compare every path and decompressed payload byte; ZIP metadata is not compared.
-No private samples or `SAVETOOLKIT_ARTIFACTS` are needed. Failures upload the Playwright HTML report
-with traces and screenshots.
+The synthetic suite needs no private samples. The optional
+[reference-batch.e2e.ts](../web/e2e/reference-batch.e2e.ts) regression requires
+`SAVETOOLKIT_ARTIFACTS/PPSA08664_saves_dec.zip` and skips when that external Rebirth archive
+is unavailable, including in hosted CI. It reads the archive in place and uploads one selected
+entry from memory. Failures upload the Playwright HTML report with traces and screenshots.
 
 Unknown-layout export path preservation is covered by an active regression in
 [import.e2e.ts](../web/e2e/import.e2e.ts), and clearing a JSON-type column filter by one in
-[table.e2e.ts](../web/e2e/table.e2e.ts). No browser case is currently skipped.
+[table.e2e.ts](../web/e2e/table.e2e.ts). Selection binding, native mixed-state checkboxes,
+clear-selection focus, map fallback focus and semantic-review navigation/revert have browser
+regressions. Component tests cover the extracted action/export dialogs, table controllers,
+reference controls and review panel, including accessible names, live announcements and contrast.
 
 Build the Release API and UI before running locally (Node.js 24):
 

@@ -36,11 +36,11 @@ public sealed class JsonReferenceMapTests
         Assert.Single(fixture.Session.SearchReferences(browse.ValueId, new() { Text = "Performance" }).Items);
         Assert.False(fixture.Edit(browse.ValueId, FieldValue.Of("Performance")).Ok);
         var invalid = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.Of("Unknown"))),
-            expectedRevision: fixture.Session.State.Revision);
+            expectedRevision: fixture.Session.State.Revision, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(invalid.Plan.Errors);
         JsonSemanticTestHelper.ApplyAndVerify(fixture, action.ActionId, ("value", FieldValue.Of("Performance")));
         Assert.Equal("Quality", fixture.Document.GetValue(browse.ValueId).AsString());
-        var review = fixture.Session.GetChanges();
+        var review = fixture.Session.GetChanges(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(review.Complete);
         Assert.Equal(2, review.Changes.Count);
         Assert.DoesNotContain(review.Changes, c => c.ValueId.StartsWith("catalogue/", StringComparison.Ordinal));

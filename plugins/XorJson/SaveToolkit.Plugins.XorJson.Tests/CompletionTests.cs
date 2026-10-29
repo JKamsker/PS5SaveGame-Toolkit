@@ -81,7 +81,7 @@ public sealed class CompletionTests
             var bytes = Encoding.UTF8.GetBytes(CharacterJson());
             entry.Write(bytes);
         }
-        var workspace = store.Create("completion", [new ImportSource("completion.zip", () => new MemoryStream(zipBytes.ToArray()))]);
+        var workspace = store.Create("completion", [new ImportSource("completion.zip", () => new MemoryStream(zipBytes.ToArray()))], cancellationToken: TestContext.Current.CancellationToken);
         var file = workspace.Set.AllDiskFiles.Single();
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("completion", file, plugin, document, references: references);
@@ -94,13 +94,13 @@ public sealed class CompletionTests
         var preview = session.PlanAction("character/set-stacks", new Dictionary<string, JsonElement>
         {
             ["value"] = JsonSerializer.SerializeToElement(2),
-        }, scope);
+        }, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(preview.PlanId is not null, string.Join("; ", preview.Plan.Errors.Select(error => error.Message)));
         var change = Assert.Single(preview.Plan.Changes);
         Assert.Equal(FieldValue.ExactNumber("1"), change.OldValue);
         Assert.Equal(FieldValue.ExactNumber("2"), change.NewValue);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray()); // Preview is pure.
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(change.NewValue, document.GetValue(change.ValueId));
         var expected = Encoding.UTF8.GetBytes(CharacterJson(swordStack: 2));
         Assert.Equal(expected, document.Serialize().Single().Content.ToArray());

@@ -34,7 +34,7 @@ public sealed class ProgressionWriteTests
                 var maximum = checked((long)spec.Max);
                 var next = old == maximum ? old - 1 : maximum;
                 var original = document.Serialize().Single().Content.ToArray();
-                var changed = session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(next.ToString(System.Globalization.CultureInfo.InvariantCulture)))]);
+                var changed = session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(next.ToString(System.Globalization.CultureInfo.InvariantCulture)))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
                 Assert.True(changed.Ok, string.Join("; ", changed.Errors.Select(e => e.Message)));
                 var edited = document.Serialize().Single().Content.ToArray();
                 using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, edited));
@@ -51,8 +51,8 @@ public sealed class ProgressionWriteTests
                 Assert.True(session.Redo().Ok);
                 Assert.Equal(edited, document.Serialize().Single().Content.ToArray());
                 Assert.True(session.Undo().Ok);
-                Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("-1"))]).Ok);
-                Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement((maximum + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)))]).Ok);
+                Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("-1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+                Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement((maximum + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
                 tested.Add(list);
             }
         }

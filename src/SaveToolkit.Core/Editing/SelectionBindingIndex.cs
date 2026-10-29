@@ -9,6 +9,23 @@ internal sealed class SelectionBindingIndex
     private readonly Dictionary<string, HashSet<ViewNode>> _tables = new(StringComparer.Ordinal);
     private readonly HashSet<ActionNode> _actions = new(ReferenceEqualityComparer.Instance);
 
+    internal SelectionBindingIndex Copy(CancellationToken cancellationToken)
+    {
+        var copy = new SelectionBindingIndex();
+        foreach (var tables in _tables.Values)
+            foreach (var table in tables)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                copy.Add(table);
+            }
+        foreach (var action in _actions)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            copy.Add(action);
+        }
+        return copy;
+    }
+
     public void Add(ViewNode node)
     {
         var id = node switch

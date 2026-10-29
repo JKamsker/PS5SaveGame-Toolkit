@@ -34,7 +34,7 @@ public sealed class AstroQueryTests
         Assert.DoesNotContain(candidates.Items, candidate => candidate.RawId == MemoryWorld + "/WEATHER" && candidate.Eligibility.Selectable);
         foreach (var id in new[] { MemoryWorld + "/WEATHER", "World/Unknown" })
         {
-            var preview = session.PlanAction(WorldAction, new Dictionary<string, JsonElement> { ["world"] = JsonSerializer.SerializeToElement(id) });
+            var preview = session.PlanAction(WorldAction, new Dictionary<string, JsonElement> { ["world"] = JsonSerializer.SerializeToElement(id) }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Null(preview.PlanId);
             Assert.NotEmpty(preview.Plan.Errors);
         }
@@ -100,22 +100,22 @@ public sealed class AstroQueryTests
         using var session = new DocumentSession("astro-query", Assert.IsType<DiskSaveFile>(file), plugin, document, references: context);
         _ = session.BuildView();
         var query = new QueryableCollectionQuery { Text = "Puzzle/", Filters = new Dictionary<string, string> { ["world"] = "Memory Meadow" }, Limit = 1 };
-        var first = Assert.Single(session.QueryCollection(CollectionId, query).Rows);
+        var first = Assert.Single(session.QueryCollection(CollectionId, query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         var parameters = action == WorldAction
             ? new Dictionary<string, JsonElement> { ["world"] = JsonSerializer.SerializeToElement(MemoryWorld) } : [];
         var scope = new ActionScope { QueryScope = new(CollectionId, query, session.State.Revision) { ExcludedRowKeys = [first.Key] } };
-        var preview = session.PlanAction(action, parameters, scope, session.State.Revision);
+        var preview = session.PlanAction(action, parameters, scope, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Empty(preview.Plan.Errors);
         Assert.Equal(15, preview.Scope.RowKeys!.Count);
         Assert.Equal(15, preview.Plan.Changes.Count);
         Assert.DoesNotContain(preview.Plan.Changes, change => change.ValueId.StartsWith(first.Key + "/", StringComparison.Ordinal));
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = AstroTestData.Output(document);
         using var reopened = plugin.Open(AstroTestData.File(edited), context);
         Assert.All(preview.Plan.Changes, change => Assert.Equal(change.NewValue, reopened.GetValue(change.ValueId)));
         Assert.Equal(FieldValue.Of(false), document.GetValue(first.Key + "/IsGot[0]/text[0]"));
-        var refreshed = session.QueryCollection(CollectionId, query with { Limit = 200 });
+        var refreshed = session.QueryCollection(CollectionId, query with { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(15, refreshed.Rows.Count(row => Assert.IsType<TextNode>(row.Cells["status"]).Text == "Owned"));
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);

@@ -29,26 +29,26 @@ public sealed class GroupSelectionTests
         var session = workspace.OpenGroup(Assert.Single(workspace.ProposeGroups(file.Id, "gearbox")).Token).Session;
         _ = session.BuildView();
         if (action == "items/match-level")
-            Assert.True(session.ApplyEdits([new("character/character/level", JsonSerializer.SerializeToElement("17"))]).Ok);
+            Assert.True(session.ApplyEdits([new("character/character/level", JsonSerializer.SerializeToElement("17"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         _ = session.BuildView();
-        _ = session.QueryCollection("character/inventory_items", new() { Limit = 200 });
+        _ = session.QueryCollection("character/inventory_items", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         _ = session.Expand("character/detail/" + item.Id);
         var parameters = new Dictionary<string, JsonElement>();
         if (action == "items/mark") parameters["mark"] = JsonSerializer.SerializeToElement(mark);
-        var before = session.Serialize().ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
+        var before = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
         foreach (var row in new[] { "character/ammo/" + item.Id, "character/bank_inventory_list/" + item.Id,
             "profile/inventory_items/" + item.Id, "character/inventory_items/extra/" + item.Id, "character/ammo/0" })
         {
-            var preview = session.PlanAction("character/" + action, parameters, new([row]));
-            Assert.All(session.Serialize(), output => Assert.Equal(before[output.RelativePath], output.Content.ToArray()));
+            var preview = session.PlanAction("character/" + action, parameters, new([row]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+            Assert.All(session.Serialize(cancellationToken: TestContext.Current.CancellationToken), output => Assert.Equal(before[output.RelativePath], output.Content.ToArray()));
             Assert.NotEmpty(preview.Plan.Errors);
             Assert.Null(preview.PlanId);
         }
 
-        var valid = session.PlanAction("character/" + action, parameters, new(["character/inventory_items/" + item.Id]));
+        var valid = session.PlanAction("character/" + action, parameters, new(["character/inventory_items/" + item.Id]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(valid.Plan.Errors);
         Assert.NotEmpty(valid.Plan.Changes);
         Assert.NotNull(valid.PlanId);
-        Assert.All(session.Serialize(), output => Assert.Equal(before[output.RelativePath], output.Content.ToArray()));
+        Assert.All(session.Serialize(cancellationToken: TestContext.Current.CancellationToken), output => Assert.Equal(before[output.RelativePath], output.Content.ToArray()));
     }
 }

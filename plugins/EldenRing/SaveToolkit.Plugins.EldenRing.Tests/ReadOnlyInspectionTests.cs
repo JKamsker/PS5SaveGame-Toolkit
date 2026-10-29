@@ -28,7 +28,7 @@ public sealed class ReadOnlyInspectionTests
         Assert.False(action.SupportsPlanning);
         Assert.Equal(!readOnly, session.CanEdit);
         _ = session.Expand("characters/0");
-        var inventory = session.QueryCollection("slots/0/inventory/held", new() { Text = "Rowa Fruit" });
+        var inventory = session.QueryCollection("slots/0/inventory/held", new() { Text = "Rowa Fruit" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var item = Assert.IsType<FieldNode>(Assert.Single(inventory.Rows).Cells["item"]);
         Assert.True(item.Spec.ReadOnly);
         foreach (var sort in Enum.GetValues<ReferenceSortKey>())
@@ -40,12 +40,12 @@ public sealed class ReadOnlyInspectionTests
             Assert.Equal(expected.Items.Select(record => record.Key), candidates.Items.Select(candidate => candidate.RawId));
             Assert.All(candidates.Items, candidate => Assert.Equal("goods", candidate.Category));
         }
-        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(item.ValueId, "0x40002774")]).Ok);
-        if (!readOnly) Assert.True(session.ApplyEdits([WriteTestSupport.Incoming("slots/0/runes", 1146)]).Ok);
+        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(item.ValueId, "0x40002774")], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        if (!readOnly) Assert.True(session.ApplyEdits([WriteTestSupport.Incoming("slots/0/runes", 1146)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var before = WriteTestSupport.Bytes(document);
         var state = session.State;
         var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>
-            { ["item"] = JsonSerializer.SerializeToElement("0x400050F0") });
+            { ["item"] = JsonSerializer.SerializeToElement("0x400050F0") }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok, string.Join("; ", result.Errors));
         Assert.Contains("Rowa Fruit", result.Message);
         Assert.Contains("MIT", result.Message);
@@ -53,7 +53,7 @@ public sealed class ReadOnlyInspectionTests
         Assert.False(result.StructureChanged);
         Assert.Equal(state, session.State);
         var invalid = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>
-            { ["item"] = JsonSerializer.SerializeToElement("0x4000FFFF") });
+            { ["item"] = JsonSerializer.SerializeToElement("0x4000FFFF") }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(invalid.Ok);
         Assert.Equal(state, session.State);
         WriteTestSupport.EqualBytes(before, document);

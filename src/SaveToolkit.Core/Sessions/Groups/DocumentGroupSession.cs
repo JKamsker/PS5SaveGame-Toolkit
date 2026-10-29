@@ -38,7 +38,7 @@ public sealed class DocumentGroupSession
                 throw new InvalidOperationException("A group input changed while it was being captured. Reimport the dump.");
         var input = Input(new OverlaySaveSet(set, frozen));
         IGroupedSaveDocument Open() => _groupPlugin.OpenGroup(input, references);
-        var staged = new StagedGroupDocument(Open, Verify, CheckFingerprints, limits.MaxSnapshotBytes);
+        var staged = new StagedGroupDocument(Open, Verify, token => CheckFingerprints(token), limits.MaxSnapshotBytes);
         Session = new DocumentSession(id, set.FindById(members[0].FileId)!, plugin, staged,
             options: limits, openOriginal: Open, references: references);
     }
@@ -50,12 +50,16 @@ public sealed class DocumentGroupSession
 
     public bool Owns(string relativePath) => Members.Any(m => string.Equals(m.RelativePath, relativePath, StringComparison.OrdinalIgnoreCase));
 
-    public void CheckFingerprints()
+    public void CheckFingerprints() => CheckFingerprints(CancellationToken.None);
+
+    public void CheckFingerprints(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         foreach (var member in Members)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             using var stream = _set.FindById(member.FileId)!.OpenRead();
-            var actual = Convert.ToHexStringLower(SHA256.HashData(stream));
+            var actual = OperationCancellation.HashSha256(stream, cancellationToken);
             if (!string.Equals(actual, member.Sha256, StringComparison.Ordinal))
                 throw new InvalidOperationException($"Group input '{member.RelativePath}' changed since selection. Close and reimport the dump.");
         }
@@ -71,18 +75,26 @@ public sealed class DocumentGroupSession
     }
 
     internal void VerifyOutputs(IReadOnlyDictionary<string, ReadOnlyMemory<byte>> outputs, ISaveSet? finalSet = null)
+        => VerifyOutputs(outputs, finalSet, CancellationToken.None);
+
+    internal void VerifyOutputs(IReadOnlyDictionary<string, ReadOnlyMemory<byte>> outputs, ISaveSet? finalSet, CancellationToken cancellationToken)
     {
-        CheckFingerprints();
+        CheckFingerprints(cancellationToken);
         if (outputs.Count != Members.Count || outputs.Keys.Any(path => !Owns(path)))
             throw new SaveFormatException("A document group must serialize every owned member exactly once and cannot write unowned files.");
-        var overlay = new OverlaySaveSet(finalSet ?? _set, outputs);
+        var overlay = new OverlaySaveSet(finalSet ?? _set, outputs, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
         var errors = _groupPlugin.ValidateGroup(Input(overlay), _references);
+        cancellationToken.ThrowIfCancellationRequested();
         if (errors.Count > 0) throw new SaveFormatException(string.Join("; ", errors.Select(e => e.Message)));
         foreach (var member in Members)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var file = ((ISaveSet)overlay).FindFile(member.RelativePath)!;
             using var reopened = _plugin.Open(file, _references);
+            cancellationToken.ThrowIfCancellationRequested();
             _ = reopened.BuildView();
+            cancellationToken.ThrowIfCancellationRequested();
         }
     }
 

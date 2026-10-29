@@ -117,11 +117,11 @@ public sealed class TsushimaPlayTimeTests
         _ = session.BuildView();
         var original = file.ReadAllBytes();
         Assert.True(session.ApplyEdits([new IncomingEdit(TimerId, JsonSerializer.SerializeToElement(123.25)),
-            new IncomingEdit(SuppliesId, JsonSerializer.SerializeToElement("86"))]).Ok);
+            new IncomingEdit(SuppliesId, JsonSerializer.SerializeToElement("86"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
-        Assert.Empty(session.GetChanges().Changes);
+        Assert.Empty(session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Redo().Ok);
         Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());

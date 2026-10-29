@@ -92,17 +92,17 @@ public sealed class AriseWritePlanningTests
         using var session = new DocumentSession("arise-write", file, _plugin, document);
         _ = session.BuildView();
         _ = session.Expand("inventory");
-        _ = session.QueryCollection("inventory", new());
+        _ = session.QueryCollection("inventory", new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
 
-        var preview = session.PlanAction(ActionId, ParametersAsJson(15), new ActionScope([RowKey]));
+        var preview = session.PlanAction(ActionId, ParametersAsJson(15), new ActionScope([RowKey]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Single(preview.Plan.Changes);
-        var applied = session.ApplyActionPlan(preview.PlanId!, preview.Revision);
+        var applied = session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(applied.Ok);
         Assert.True(session.State.CanUndo);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.Equal(15, document.GetValue(RowKey).AsInt64());
-        var changes = session.GetChanges().Changes;
+        var changes = session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes;
         Assert.Contains(changes, change => change.ValueId == RowKey && change.CurrentValue.AsInt64() == 15);
         // Core's semantic baseline does not traverse F8 rows; query-only changes use undo.
         Assert.False(changes.Single(change => change.ValueId == RowKey).CanRevert);
@@ -127,12 +127,12 @@ public sealed class AriseWritePlanningTests
         {
             QueryScope = new ActionQueryScope("inventory", new QueryableCollectionQuery { Text = "Apple Gel" }, session.State.Revision),
         };
-        var preview = session.PlanAction(ActionId, ParametersAsJson(12), scope);
+        var preview = session.PlanAction(ActionId, ParametersAsJson(12), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Contains("inventory/24/quantity", preview.Scope.RowKeys!);
         Assert.Single(preview.Plan.Changes);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
-        Assert.Equal(12, session.GetChanges().Changes.Single(change => change.ValueId == RowKey).CurrentValue.AsInt64());
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.Equal(12, session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes.Single(change => change.ValueId == RowKey).CurrentValue.AsInt64());
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
     }

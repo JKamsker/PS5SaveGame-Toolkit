@@ -12,6 +12,17 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
     public bool Enabled => document is IFieldMetadataDocument;
     public IEnumerable<string> Ids => _fields.Keys;
     public void Clear() => _fields.Clear();
+    internal FieldMetadataIndex Copy(CancellationToken cancellationToken)
+    {
+        var copy = new FieldMetadataIndex(document);
+        copy._fields.EnsureCapacity(_fields.Count);
+        foreach (var entry in _fields)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            copy._fields.Add(entry.Key, entry.Value);
+        }
+        return copy;
+    }
     public FieldMetadata? Cached(string id) => _fields.GetValueOrDefault(id);
 
     public FieldMetadata? Resolve(string id)
@@ -20,17 +31,19 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
         return _fields.GetValueOrDefault(id);
     }
 
-    public void ResolveAll(IEnumerable<string> ids)
+    public void ResolveAll(IEnumerable<string> ids, CancellationToken cancellationToken = default)
     {
         if (document is not IFieldMetadataDocument source) return;
         foreach (var batch in ids.Distinct(StringComparer.Ordinal).Chunk(BatchSize))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var requested = batch.ToHashSet(StringComparer.Ordinal);
             var resolved = source.ResolveFieldMetadata(Array.AsReadOnly(batch));
             if (resolved.Count > batch.Length) throw new InvalidOperationException("Too many field descriptors returned.");
             var next = new Dictionary<string, FieldMetadata>(StringComparer.Ordinal);
             foreach (var field in resolved)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (string.IsNullOrEmpty(field.ValueId) || !requested.Contains(field.ValueId)
                     || string.IsNullOrEmpty(field.Label) || field.Spec is null
                     || !Enum.IsDefined(field.BindingKind)
@@ -39,6 +52,8 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
                     throw new InvalidOperationException("Invalid or duplicate field metadata.");
                 _ = document.GetValue(field.ValueId); // A descriptor promises a live binding.
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             foreach (var id in batch.Where(id => !next.ContainsKey(id))) _fields.Remove(id);
             foreach (var (id, field) in next)

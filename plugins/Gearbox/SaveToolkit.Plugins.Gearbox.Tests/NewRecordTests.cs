@@ -31,9 +31,9 @@ public sealed class NewRecordTests
         _ = session.BuildView();
         var count = document.Inventory.Entries.Count(entry => entry.List == GearboxInventory.Bank);
         var preview = session.PlanAction("items/import", new Dictionary<string, JsonElement>
-            { ["code"] = JsonSerializer.SerializeToElement("BL3(" + Convert.ToBase64String(serial) + ")") });
+            { ["code"] = JsonSerializer.SerializeToElement("BL3(" + Convert.ToBase64String(serial) + ")") }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = document.Serialize().Single().Content.ToArray();
         using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, edited));
         Assert.Equal(count + 1, reopened.Inventory.Entries.Count(entry => entry.List == GearboxInventory.Bank));

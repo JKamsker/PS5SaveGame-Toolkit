@@ -24,7 +24,7 @@ public sealed class StarTransitionTests
         using var session = new DocumentSession("same-stars", file, plugin, document);
         _ = session.BuildView();
 
-        var row = session.QueryCollection("materia", new() { Limit = 128 }).Rows.First(row =>
+        var row = session.QueryCollection("materia", new() { Limit = 128 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows.First(row =>
         {
             if (row.Cells["quantity"] is not FieldNode { Spec.ReadOnly: false } apField ||
                 row.Cells["level"] is not FieldNode levelField)
@@ -41,7 +41,7 @@ public sealed class StarTransitionTests
         var level = ((FieldNode)row.Cells["level"]).Value.AsInt32();
 
         var result = session.ApplyEdits([new(((FieldNode)row.Cells["level"]).ValueId,
-            JsonSerializer.SerializeToElement(level))]);
+            JsonSerializer.SerializeToElement(level))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
@@ -59,7 +59,7 @@ public sealed class StarTransitionTests
         var document = plugin.Open(file);
         using var session = new DocumentSession("stars", file, plugin, document);
         _ = session.BuildView();
-        var rows = session.QueryCollection("materia", new() { Limit = 128 }).Rows;
+        var rows = session.QueryCollection("materia", new() { Limit = 128 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows;
         var row = rows.First(row => row.Cells["quantity"] is FieldNode { Spec.ReadOnly: false });
         var apField = (FieldNode)row.Cells["quantity"];
         var levelField = (FieldNode)row.Cells["level"];
@@ -73,7 +73,7 @@ public sealed class StarTransitionTests
         var points = curve.SelectMany(value => new[] { value == 0 ? 0 : value - 1, value, value + 1 }).Distinct();
         foreach (var ap in points)
         {
-            Assert.True(session.ApplyEdits([new(apField.ValueId, JsonSerializer.SerializeToElement(ap))]).Ok);
+            Assert.True(session.ApplyEdits([new(apField.ValueId, JsonSerializer.SerializeToElement(ap))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var edited = Assert.Single(document.Serialize()).Content.ToArray();
             var diff = ByteDiffer.Compare(original, edited, options: new() { MergeGap = 0 });
             Assert.All(diff.Ranges, range => Assert.True(
@@ -90,7 +90,7 @@ public sealed class StarTransitionTests
         }
         for (var level = 1; level <= curve.Length; level++)
         {
-            Assert.True(session.ApplyEdits([new(levelField.ValueId, JsonSerializer.SerializeToElement(level))]).Ok);
+            Assert.True(session.ApplyEdits([new(levelField.ValueId, JsonSerializer.SerializeToElement(level))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var edited = Assert.Single(document.Serialize()).Content.ToArray();
             var diff = ByteDiffer.Compare(original, edited, options: new() { MergeGap = 0 });
             Assert.All(diff.Ranges, range => Assert.True(

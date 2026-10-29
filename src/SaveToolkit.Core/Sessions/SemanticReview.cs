@@ -15,22 +15,26 @@ internal sealed record SemanticField(string ValueId, string Label, string[] Path
 /// </summary>
 internal sealed class SemanticReview
 {
-    private const int MaxVisitedNodes = 100_000;
-    private const int MaxDepth = 128;
-    private const int FieldOverheadBytes = 256;
-    private Snapshot? _original;
+    private SemanticSnapshot? _original;
     private readonly HashSet<string> _reported = new(StringComparer.Ordinal);
     private bool _structureChanged;
     private bool _unreviewedReportedChanges;
-    private readonly DocumentSessionOptions _limits;
+    private readonly SemanticSnapshotCapture _capture;
     private readonly long _maxBytes;
+
+    // Preflight can populate the baseline, but cancellation must leave it uncached.
+    public Action CancellationRollback()
+    {
+        var original = _original;
+        return () => _original = original;
+    }
 
     public SemanticReview(DocumentSessionOptions limits)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryRows);
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryPages);
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryBytes);
-        _limits = limits;
+        _capture = new SemanticSnapshotCapture(limits);
         _maxBytes = limits.MaxOriginalBytes;
     }
 
@@ -51,7 +55,7 @@ internal sealed class SemanticReview
             }
 
             var field = new SemanticField(change.ValueId, change.ValueId, [], change.OldValue, ReadOnly: true);
-            var cost = Estimate(field);
+            var cost = SemanticSnapshot.Estimate(field);
             if (cost > _maxBytes - original.Bytes)
             {
                 original.Complete = false;
@@ -66,43 +70,68 @@ internal sealed class SemanticReview
         _structureChanged |= structural;
     }
 
-    public void EnsureOriginal(Func<ISaveDocument> openOriginal)
+    public void EnsureOriginal(Func<ISaveDocument> openOriginal) => EnsureOriginal(openOriginal, CancellationToken.None);
+
+    public void EnsureOriginal(Func<ISaveDocument> openOriginal, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (_original is not null) return;
         try
         {
             // Expanding a lazy view can register aliases and influence legacy actions. Never
             // perform the baseline walk on the live document, even before its first mutation.
             using var original = openOriginal();
-            _original = Capture(original, static _ => { }, static _ => { });
+            _original = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
         }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
+        catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
         {
-            _original = new Snapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), complete: false, bytes: 0);
+            _original = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), complete: false, bytes: 0);
+        }
+    }
+
+    public SemanticChangeLog Query(Func<ISaveDocument> openOriginal, ISaveDocument document,
+        Action<FieldNode> index, Action<string> expandedLazy, long revision, CancellationToken cancellationToken)
+    {
+        var previous = _original;
+        try
+        {
+            EnsureOriginal(openOriginal, cancellationToken);
+            return Query(document, index, expandedLazy, revision, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            _original = previous;
+            throw;
         }
     }
 
     public SemanticChangeLog Query(ISaveDocument document, Action<FieldNode> index, Action<string> expandedLazy, long revision)
+        => Query(document, index, expandedLazy, revision, CancellationToken.None);
+
+    private SemanticChangeLog Query(ISaveDocument document, Action<FieldNode> index, Action<string> expandedLazy,
+        long revision, CancellationToken cancellationToken)
     {
         var original = _original ?? throw new InvalidOperationException("Capture the original before querying changes.");
-        var current = Capture(document, index, expandedLazy);
+        var current = _capture.Capture(document, index, expandedLazy, cancellationToken);
         foreach (var id in _reported.Where(id => !current.Fields.ContainsKey(id)))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             try
             {
                 var field = original.Fields[id] with { Value = document.GetValue(id) };
-                var cost = Estimate(field);
+                var cost = SemanticSnapshot.Estimate(field);
                 if (cost > _maxBytes - current.Bytes) { current.Complete = false; continue; }
                 current.Bytes += cost;
                 current.Fields.Add(id, field);
             }
-            catch (Exception ex) when (ex is not OutOfMemoryException)
+            catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
             {
                 current.Complete = false;
             }
         }
         var changes = SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
-            current.Fields, current.Complete, document);
+            current.Fields, current.Complete, document, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
 
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges;
         IReadOnlyList<string> warnings = complete ? [] : ["Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed."];
@@ -122,148 +151,5 @@ internal sealed class SemanticReview
         return false;
     }
 
-    private Snapshot Capture(ISaveDocument document, Action<FieldNode> index, Action<string> expandedLazy)
-    {
-        var fields = new Dictionary<string, SemanticField>(StringComparer.Ordinal);
-        var expanded = new HashSet<string>(StringComparer.Ordinal);
-        var activeLazy = new HashSet<string>(StringComparer.Ordinal);
-        long bytes = 0;
-        var visited = 0;
-        var complete = true;
-        var queryTraversal = new SemanticQueryableTraversal(document, _limits);
-        var queryCut = false;
-        var queryTables = new List<(QueryableTableNode Table, string[] Path, int Depth)>();
 
-        void Children(IEnumerable<ViewNode> children, string[] parent, int depth,
-            SemanticCollectionTarget? target, string? rowLabel)
-        {
-            foreach (var child in children)
-            {
-                if (visited >= MaxVisitedNodes || bytes >= _maxBytes)
-                {
-                    complete = false;
-                    queryCut |= target is not null;
-                    break;
-                }
-
-                Visit(child, parent, depth + 1, target, rowLabel);
-            }
-        }
-
-        void Visit(ViewNode node, string[] path, int depth, SemanticCollectionTarget? target = null, string? rowLabel = null)
-        {
-            if (++visited > MaxVisitedNodes || depth > MaxDepth || bytes >= _maxBytes)
-            {
-                complete = false;
-                queryCut |= target is not null;
-                return;
-            }
-
-            switch (node)
-            {
-                case FieldNode f:
-                    if (fields.ContainsKey(f.ValueId)) break;
-                    var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target);
-                    var cost = Estimate(field);
-                    if (cost > _maxBytes - bytes)
-                    {
-                        complete = false;
-                        queryCut |= target is not null;
-                        break;
-                    }
-
-                    bytes += cost;
-                    fields[f.ValueId] = field;
-                    index(f);
-                    break;
-                case SectionNode s:
-                    var sectionPath = path.Append("section:" + (s.LazyId ?? s.Title)).ToArray();
-                    if (s.LazyId is { } lazy)
-                    {
-                        if (expanded.Add(lazy))
-                        {
-                            activeLazy.Add(lazy);
-                            try
-                            {
-                                var children = document.ExpandNode(lazy);
-                                expandedLazy(lazy);
-                                Children(children, sectionPath, depth, target, rowLabel);
-                            }
-                            finally { activeLazy.Remove(lazy); }
-                        }
-                        // F8 search projections can link the canonical lazy subtree already
-                        // reviewed above. Reuse it, but never hide a recursive expansion cycle.
-                        else if (target is null || activeLazy.Contains(lazy)) complete = false;
-                    }
-                    else Children(s.Children, sectionPath, depth, target, rowLabel);
-                    break;
-                case TabsNode tabs:
-                    foreach (var tab in tabs.Tabs)
-                    {
-                        if (++visited > MaxVisitedNodes) { complete = false; queryCut |= target is not null; break; }
-                        Children(tab.Children, path.Append("tab:" + tab.Title).ToArray(), depth, target, rowLabel);
-                    }
-                    break;
-                case TableNode table:
-                    foreach (var row in table.Rows)
-                    {
-                        if (++visited > MaxVisitedNodes || bytes >= _maxBytes) { complete = false; queryCut |= target is not null; break; }
-                        Children(row.Cells.Values, path.Append("row:" + row.Key).ToArray(), depth, target, rowLabel);
-                    }
-
-                    break;
-                case QueryableTableNode table:
-                    queryTables.Add((table, path, depth));
-                    break;
-            }
-        }
-
-        try
-        {
-            Visit(document.BuildView(), [], 0);
-            // Preserve legacy eager/lazy field precedence and ordering, even when an F8 alias
-            // appears first in the view. F8 cells can themselves expose further collections.
-            for (var i = 0; i < queryTables.Count; i++)
-            {
-                var (table, path, depth) = queryTables[i];
-                if (queryCut || bytes >= _maxBytes || visited >= MaxVisitedNodes)
-                {
-                    queryTraversal.MarkTruncated(table, "view memory or traversal cap");
-                    break;
-                }
-
-                queryTraversal.Visit(table, (row, rowTarget, label) =>
-                {
-                    // Navigation and path belong to the row, not to each individual cell.
-                    var rowPath = path.Append("row:" + rowTarget.RowKey).ToArray();
-                    foreach (var cell in row.Cells.Values)
-                    {
-                        Visit(cell, rowPath, depth + 1, rowTarget, label);
-                        if (queryCut) return false;
-                    }
-
-                    return true;
-                });
-            }
-        }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
-        {
-            complete = false;
-        }
-
-        return new Snapshot(fields, complete && queryTraversal.Warnings.Count == 0, bytes)
-        { QueryWarnings = queryTraversal.Warnings };
-    }
-
-    private static long Estimate(SemanticField field) => FieldOverheadBytes
-        + 2L * (field.ValueId.Length + field.Label.Length + field.Value.ToString().Length + field.Path.Sum(p => p.Length)
-            + (field.Target is { } target ? target.CollectionId.Length + target.RowKey.Length + (target.Query.Cursor?.Length ?? 0) : 0));
-
-    private sealed class Snapshot(Dictionary<string, SemanticField> fields, bool complete, long bytes)
-    {
-        public Dictionary<string, SemanticField> Fields { get; } = fields;
-        public bool Complete { get; set; } = complete;
-        public long Bytes { get; set; } = bytes;
-        public IReadOnlyList<string> QueryWarnings { get; init; } = [];
-    }
 }

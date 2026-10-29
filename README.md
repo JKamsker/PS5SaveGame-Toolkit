@@ -119,9 +119,9 @@ Documentation checks use Python 3.10+ with no extra packages:
 `python -B docs/tests/test_documentation.py`. They check local links/anchors, commands and selected
 source-backed claims against `HEAD`; add `--code-ref main` to audit against local `main`.
 
-For opt-in synthetic timing/allocation baselines, see [performance benchmarks](docs/PERFORMANCE.md).
-`./scripts/bench.ps1` runs a quick Release job and retains a Markdown summary in scratch.
-Benchmarks do not run through the test runner, `dotnet test`, or CI Validate.
+See [Developer tooling at a glance](CONTRIBUTING.md#developer-tooling-at-a-glance) for
+benchmarks, mutation testing, contract baselines and release preparation tools.
+The [performance guide](docs/PERFORMANCE.md) owns benchmark commands and measurement limits.
 
 To start a plugin, follow the [contributor walkthrough](docs/PLUGIN_GUIDE.md#scaffold).
 The scaffold includes a working read-only synthetic view using `InMemoryCollection` and
@@ -141,6 +141,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, plugin rules and review
 - **Core**: import, generations and backup pairing, plugin probing, edit validation against the
   plugin's own specs, undo/redo, export with verification.
 - **Api**: thin HTTP layer. **Web**: renders the view protocol.
+  See the [frontend component map](CONTRIBUTING.md#frontend-component-map) for contributor entry points.
 - **Codecs**: bounded managed Kraken decoding/stored writes and native SQLite image operations
   entirely in memory. See [the codec contracts](src/SaveToolkit.Codecs/README.md).
 - **Plugins** (`plugins/`): one per game or engine format. See [docs/PLUGIN_GUIDE.md](docs/PLUGIN_GUIDE.md).

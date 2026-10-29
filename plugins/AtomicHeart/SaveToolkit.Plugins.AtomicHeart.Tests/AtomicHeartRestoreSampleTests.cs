@@ -26,16 +26,16 @@ public sealed class AtomicHeartRestoreSampleTests
         var reduced = WriteTestData.Output(document);
         using var session = new DocumentSession("atomic-restore-unloaded", file, WriteTestData.Plugin, document, references: references);
         _ = session.BuildView();
-        var loaded = Assert.Single(session.QueryCollection(InventoryCollection.Id, new() { Limit = 1 }).Rows);
+        var loaded = Assert.Single(session.QueryCollection(InventoryCollection.Id, new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         var scope = new ActionScope { QueryScope = new(InventoryCollection.Id, new(), session.State.Revision) {
             ExcludedRowKeys = [loaded.Key],
         } };
-        var preview = session.PlanAction(AtomicHeartRestoreTests.RestoreId, NoParameters, scope, session.State.Revision);
+        var preview = session.PlanAction(AtomicHeartRestoreTests.RestoreId, NoParameters, scope, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(fields.Length - 1, preview.Plan.Changes.Count);
         Assert.True(preview.Plan.Changes.Count > 1);
         Assert.DoesNotContain(preview.Plan.Changes, change => change.ValueId == loaded.Key + "/amount");
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var restored = WriteTestData.Output(document);
         _ = WriteTestData.IndependentDecode(file.ReadAllBytes(), restored);
         using (var reopened = WriteTestData.Open(restored))
@@ -66,10 +66,10 @@ public sealed class AtomicHeartRestoreSampleTests
         using var document = WriteTestData.Plugin.Open(file, references);
         using var session = new DocumentSession("atomic-restore-" + mode, file, WriteTestData.Plugin, document, references: references);
         _ = session.BuildView();
-        _ = session.QueryCollection(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = QueryableCollectionLimits.MaxPageSize });
+        _ = session.QueryCollection(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = QueryableCollectionLimits.MaxPageSize }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(original, WriteTestData.Output(document));
         Assert.True(session.ApplyEdits(eligible.Select(item => new IncomingEdit(item.Key + "/amount",
-            JsonSerializer.SerializeToElement(0))).ToArray(), session.State.Revision).Ok);
+            JsonSerializer.SerializeToElement(0))).ToArray(), session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var reduced = WriteTestData.Output(document);
         var reducedPlain = WriteTestData.IndependentDecode(original, reduced);
         var beforePreview = session.State;
@@ -83,7 +83,7 @@ public sealed class AtomicHeartRestoreSampleTests
             _ => new(),
         };
         var expected = mode == "selected" ? selected : mode == "query" ? eligible.Where(item => item.Key != excluded).ToArray() : eligible;
-        var preview = session.PlanAction(AtomicHeartRestoreTests.RestoreId, NoParameters, scope, session.State.Revision);
+        var preview = session.PlanAction(AtomicHeartRestoreTests.RestoreId, NoParameters, scope, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(expected.Select(item => item.Key + "/amount"), preview.Plan.Changes.Select(change => change.ValueId));
@@ -96,9 +96,9 @@ public sealed class AtomicHeartRestoreSampleTests
         Assert.Equal(beforePreview, session.State);
         Assert.Equal(reduced, WriteTestData.Output(document));
         var cancelledToken = preview.PlanId!;
-        preview = session.PlanAction(AtomicHeartRestoreTests.RestoreId, NoParameters, scope, session.State.Revision);
+        preview = session.PlanAction(AtomicHeartRestoreTests.RestoreId, NoParameters, scope, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEqual(cancelledToken, preview.PlanId);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var restored = WriteTestData.Output(document);
         var restoredPlain = WriteTestData.IndependentDecode(original, restored);
         var diff = ByteDiffer.Compare(reducedPlain, restoredPlain, options: new() { MergeGap = 0 });
@@ -118,7 +118,7 @@ public sealed class AtomicHeartRestoreSampleTests
         Assert.True(session.State.CanUndo); // Reductions and restore are separate history steps.
         Assert.True(session.Redo().Ok);
         Assert.Equal(restored, WriteTestData.Output(document));
-        Assert.False(session.ApplyActionPlan(preview.PlanId!, session.State.Revision).Ok);
+        Assert.False(session.ApplyActionPlan(preview.PlanId!, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(session.Undo().Ok);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);

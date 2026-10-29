@@ -21,14 +21,14 @@ public sealed class InventoryWriteTests
         var original = document.Serialize().Single().Content.ToArray();
         var scope = new ActionScope { QueryScope = new("inventory_items", new() { Text = "", Limit = 1 }, session.State.Revision) };
         var parameters = new Dictionary<string, JsonElement> { ["level"] = JsonSerializer.SerializeToElement("17") };
-        var preview = session.PlanAction("items/level", parameters, scope);
+        var preview = session.PlanAction("items/level", parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.NotEmpty(preview.Plan.Changes);
         Assert.NotEmpty(preview.Plan.Warnings);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = document.Serialize().Single().Content.ToArray();
-        Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, edited));
         Assert.All(reopened.Inventory.Entries, entry => Assert.Equal(17, new SerialReader(title == "PPSA01493").Read(entry.Serial).Level));
         SerialWriteTests.AssertUnrelated(GearboxContainer.Parse(original, title, false).Decode(), reopened.Root, "inventory_items");
@@ -36,7 +36,7 @@ public sealed class InventoryWriteTests
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
         Assert.True(session.Redo().Ok);
         Assert.Equal(edited, document.Serialize().Single().Content.ToArray());
-        Assert.False(session.PlanAction("items/level", new Dictionary<string, JsonElement> { ["level"] = JsonSerializer.SerializeToElement("999") }).Plan.Errors.Count == 0);
+        Assert.False(session.PlanAction("items/level", new Dictionary<string, JsonElement> { ["level"] = JsonSerializer.SerializeToElement("999") }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Plan.Errors.Count == 0);
         var entry = document.Inventory.Entries.First();
         document.Inventory.SetSerial(entry.Id, [1, 2, 3]);
         var skipped = document.PlanAction("items/level", new Dictionary<string, FieldValue> { ["level"] = FieldValue.Of(18) }, new());
@@ -57,9 +57,9 @@ public sealed class InventoryWriteTests
         var entries = document.Inventory.Entries.ToArray();
         var supported = entries.First(e => new SerialReader(title == "PPSA01493").Read(e.Serial).Complete);
         var remove = entries.Last(e => e.Id != supported.Id);
-        var preview = session.PlanAction("items/remove", new Dictionary<string, JsonElement>(), new([remove.Id]));
+        var preview = session.PlanAction("items/remove", new Dictionary<string, JsonElement>(), new([remove.Id]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(entries.Where(e => e.Id != remove.Id).Select(e => e.Id), document.Inventory.Entries.Select(e => e.Id));
         var removed = document.Serialize().Single().Content.ToArray();
         using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, removed));
@@ -70,10 +70,10 @@ public sealed class InventoryWriteTests
         {
             var parameters = action == "items/import" ? new Dictionary<string, JsonElement> { ["code"] = JsonSerializer.SerializeToElement("BL3(" + Convert.ToBase64String(supported.Serial) + ")") } : new();
             var scope = action == "items/import" ? new ActionScope() : new([supported.Id]);
-            var create = session.PlanAction(action, parameters, scope);
+            var create = session.PlanAction(action, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Empty(create.Plan.Errors);
             Assert.Equal(removed, document.Serialize().Single().Content.ToArray());
-            Assert.True(session.ApplyActionPlan(create.PlanId!, create.Revision).Ok);
+            Assert.True(session.ApplyActionPlan(create.PlanId!, create.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var created = document.Serialize().Single().Content.ToArray();
             var newId = document.Inventory.Entries.Last().Id;
             Assert.DoesNotContain(newId, entries.Select(e => e.Id));
@@ -91,9 +91,9 @@ public sealed class InventoryWriteTests
         Assert.True(session.Undo().Ok);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
         Assert.Equal(entries.Select(e => e.Id), document.Inventory.Entries.Select(e => e.Id));
-        Assert.NotEmpty(session.PlanAction("items/remove", new Dictionary<string, JsonElement>()).Plan.Errors);
-        Assert.NotEmpty(session.PlanAction("items/remove", new Dictionary<string, JsonElement>(), new(["foreign"])).Plan.Errors);
-        Assert.NotEmpty(session.PlanAction("items/import", new Dictionary<string, JsonElement> { ["code"] = JsonSerializer.SerializeToElement("BL3(bad)") }).Plan.Errors);
+        Assert.NotEmpty(session.PlanAction("items/remove", new Dictionary<string, JsonElement>(), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Plan.Errors);
+        Assert.NotEmpty(session.PlanAction("items/remove", new Dictionary<string, JsonElement>(), new(["foreign"]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Plan.Errors);
+        Assert.NotEmpty(session.PlanAction("items/import", new Dictionary<string, JsonElement> { ["code"] = JsonSerializer.SerializeToElement("BL3(bad)") }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Plan.Errors);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
     }
 

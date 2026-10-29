@@ -56,21 +56,21 @@ public sealed class AriseRestoreSelectionTests
         var original = new AriseTestContainer().Encrypt();
         var storage = Path.Combine(TestScratch.ProcessFolder, $"restore-selection-{Guid.NewGuid():N}");
         var set = SaveSetImporter.Import([new ImportSource($"{AriseTestContainer.TitleId}/sdimg_generated/{AriseTestContainer.FileName}",
-            () => new MemoryStream(original))], storage);
+            () => new MemoryStream(original))], storage, limits: null, cancellationToken: TestContext.Current.CancellationToken);
         var file = Assert.Single(set.AllDiskFiles);
         var plugin = new TalesOfArisePlugin();
         using var document = plugin.Open(file);
         using var session = new DocumentSession("arise-restore-selection", file, plugin, document);
         var root = Assert.IsType<TabsNode>(session.BuildView());
         var table = Assert.IsType<QueryableTableNode>(Assert.Single(session.Expand("inventory")));
-        var page = session.QueryCollection(table.CollectionId, new() { Limit = 1 });
+        var page = session.QueryCollection(table.CollectionId, new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var action = mode == "document"
             ? Assert.Single(root.Tabs.Single(tab => tab.Title == "Inventory").Children.OfType<ActionNode>(), node => node.ActionId == ActionId)
             : Assert.Single(Assert.Single(page.Rows).Cells.Values.OfType<ActionNode>(), node => node.ActionId == ActionId);
         // The first page contains one stack; query scope must resolve the full collection before exclusions.
-        _ = session.QueryCollection(table.CollectionId, new() { Text = "Peach Gel" });
+        _ = session.QueryCollection(table.CollectionId, new() { Text = "Peach Gel" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var zero = JsonSerializer.SerializeToElement("0");
-        Assert.True(session.ApplyEdits([new(FirstRow, zero), new(SecondRow, zero)]).Ok);
+        Assert.True(session.ApplyEdits([new(FirstRow, zero), new(SecondRow, zero)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var reduced = Bytes(document);
         var scope = mode switch
         {
@@ -87,7 +87,7 @@ public sealed class AriseRestoreSelectionTests
                 },
             },
         };
-        var preview = session.PlanAction(action.ActionId, NoParameters, scope);
+        var preview = session.PlanAction(action.ActionId, NoParameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Empty(preview.Plan.Errors);
         Assert.Equal(reduced, Bytes(document));
@@ -102,7 +102,7 @@ public sealed class AriseRestoreSelectionTests
             Assert.Equal(scope.QueryScope.ExcludedRowKeys, preview.Scope.QueryScope!.ExcludedRowKeys);
             if (expectedChanges.Count == 0) Assert.Empty(preview.Scope.RowKeys);
         }
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(firstQuantity, document.GetValue(FirstRow).AsInt64());
         Assert.Equal(secondQuantity, document.GetValue(SecondRow).AsInt64());
         var restored = Bytes(document);

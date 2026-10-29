@@ -99,12 +99,12 @@ public sealed class WitcherAssetTests
             using var document = plugin.Open(file, context);
             using var session = new DocumentSession("asset-round", file, plugin, document, references: context);
             _ = session.BuildView();
-            var inventory = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 });
+            var inventory = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             var bread = Assert.Single(inventory.Rows, row => Assert.IsType<TextNode>(row.Cells["raw"]).Text == "Bread");
             Assert.IsType<ImageNode>(bread.Cells["image"]);
-            var abilities = session.QueryCollection(AbilityCollections.Prefix + "skills", new() { Limit = 200 });
+            var abilities = session.QueryCollection(AbilityCollections.Prefix + "skills", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(95, abilities.Rows.Count(row => row.Cells["image"] is ImageNode));
-            var cards = session.QueryCollection(GwentCollection.CollectionId, new() { Limit = 200 });
+            var cards = session.QueryCollection(GwentCollection.CollectionId, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.All(cards.Rows, row => Assert.IsType<ImageNode>(row.Cells["image"]));
             Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
             Assert.Contains(context.Datasets(), d => d.Used && d.Dataset.Id == "icons");

@@ -51,18 +51,18 @@ public sealed class WitcherGwentCollectionTests
         var page = session.QueryCollection(GwentCollection.CollectionId, new() {
             Text = references.Catalog("gwent")!.Find("108")!.Name,
             Filters = new Dictionary<string, string> { ["index"] = "108" },
-        });
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var row = Assert.Single(page.Rows);
         var card = before.Features.Cards!.Single(c => GwentCollection.Key(c) == row.Key);
         var field = Assert.IsType<FieldNode>(row.Cells["copies"]);
-        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(field.ValueId, FieldValue.Of(0))]).Ok);
+        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming(field.ValueId, FieldValue.Of(0))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
         var expectedPayload = before.Container.Payload.ToArray();
         BinaryPrimitives.WriteInt32LittleEndian(expectedPayload.AsSpan(card.CopiesOffset), 0);
         Assert.Equal(expectedPayload, WitcherContainer.Parse(edited).Payload);
         var zero = Assert.Single(session.QueryCollection(GwentCollection.CollectionId, new() {
             Filters = new Dictionary<string, string> { ["index"] = row.Key }, IncludeEmpty = false,
-        }).Rows);
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.Equal(row.Key, zero.Key);
         Assert.False(zero.IsEmpty);
         Assert.Equal(0, Assert.IsType<FieldNode>(zero.Cells["copies"]).Value.AsInt32());

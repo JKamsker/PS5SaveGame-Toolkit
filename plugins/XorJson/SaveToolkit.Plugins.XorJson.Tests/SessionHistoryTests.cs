@@ -23,7 +23,7 @@ public sealed class SessionHistoryTests
             using var entry = zip.CreateEntry("PPSA99998/sdimg_SAVE/synthetic.sav").Open();
             entry.Write(original);
         }
-        var workspace = store.Create("xorjson", [new ImportSource("fixture.zip", () => new MemoryStream(zipBytes.ToArray()))]);
+        var workspace = store.Create("xorjson", [new ImportSource("fixture.zip", () => new MemoryStream(zipBytes.ToArray()))], cancellationToken: TestContext.Current.CancellationToken);
         var file = workspace.Set.AllDiskFiles.Single();
         var plugin = new XorJsonPlugin();
         using var document = plugin.Open(file);
@@ -31,17 +31,17 @@ public sealed class SessionHistoryTests
         var nodes = ViewTraversal.Nodes(session);
         var first = nodes.OfType<FieldNode>().Single(f => f.Label == "text" && f.Value.AsString() == "A");
         var survivor = nodes.OfType<FieldNode>().Single(f => f.Label == "n" && f.Value.AsExactNumber() == "1.00E+02");
-        Assert.True(session.ApplyEdits([Incoming(first.ValueId, FieldValue.Of("edited"))]).Ok);
+        Assert.True(session.ApplyEdits([Incoming(first.ValueId, FieldValue.Of("edited"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var row = nodes.OfType<SectionNode>().First(n => n.Title == "[0]" && n.LazyId is not null);
         var actionId = "json/remove/" + row.LazyId!.Split('/')[1];
         var beforeRevision = session.State.Revision;
-        var remove = session.InvokeAction(actionId, new Dictionary<string, JsonElement>());
+        var remove = session.InvokeAction(actionId, new Dictionary<string, JsonElement>(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(remove.Ok);
         Assert.True(remove.StructureChanged);
         Assert.True(remove.State.CanUndo);
-        Assert.True(session.ApplyEdits([Incoming(first.ValueId, FieldValue.Of("retired"))]).Stale);
-        Assert.True(session.ApplyEdits([Incoming(survivor.ValueId, FieldValue.ExactNumber("2"))], expectedRevision: beforeRevision).Stale);
-        Assert.True(session.ApplyEdits([Incoming(survivor.ValueId, FieldValue.ExactNumber("2.000E+02"))]).Ok);
+        Assert.True(session.ApplyEdits([Incoming(first.ValueId, FieldValue.Of("retired"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Stale);
+        Assert.True(session.ApplyEdits([Incoming(survivor.ValueId, FieldValue.ExactNumber("2"))], expectedRevision: beforeRevision, cancellationToken: TestContext.Current.CancellationToken).Stale);
+        Assert.True(session.ApplyEdits([Incoming(survivor.ValueId, FieldValue.ExactNumber("2.000E+02"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = document.Serialize()[0].Content.ToArray();
         Assert.True(session.Undo().Ok);
         Assert.True(session.Undo().Ok);

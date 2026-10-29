@@ -138,17 +138,17 @@ public sealed class RoundTwoCorpusTests
         _ = session.BuildView();
         foreach (var collection in session.QueryableCollections)
         {
-            var page = session.QueryCollection(collection.Id, new() { Limit = 19 });
+            var page = session.QueryCollection(collection.Id, new() { Limit = 19 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(0, page.Revision);
             Assert.InRange(page.Rows.Count, 0, 19);
         }
         var burst = Assert.Single(session.QueryCollection("arsenal/weapons", new()
         {
             Text = "Burst Pistol", Filters = new Dictionary<string, string> { ["container"] = "62d731c8/0" },
-        }).Rows);
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.Equal(203847, Assert.IsType<FieldNode>(burst.Cells["xp"]).Value.AsInt64());
         Assert.Equal(190, Assert.IsType<FieldNode>(burst.Cells["ammo"]).Value.AsDouble());
-        var bears = Assert.Single(session.QueryCollection("collectibles/awards", new() { Text = "All_CraigBears" }).Rows);
+        var bears = Assert.Single(session.QueryCollection("collectibles/awards", new() { Text = "All_CraigBears" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.Equal(1, Assert.IsType<FieldNode>(bears.Cells["value"]).Value.AsInt64());
         Assert.False(Assert.IsType<FieldNode>(bears.Cells["prize"]).Value.AsBool());
         Assert.True(document.CanEdit);

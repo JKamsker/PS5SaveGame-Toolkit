@@ -25,12 +25,25 @@ public sealed class DiskSaveSet : ISaveSet
     public DiskSaveDirectory? FindDirectory(string directoryId) => _directories.FirstOrDefault(d => d.Id == directoryId);
 
     /// <summary>The console backup twin (<c>sdimg_sce_bu_*</c>) of a primary directory, or the reverse.</summary>
-    public DiskSaveDirectory? Twin(ISaveDirectory directory) => _directories.FirstOrDefault(d =>
-        d != directory
-        && d.IsBackup != directory.IsBackup
-        && d.Generation == directory.Generation
-        && string.Equals(d.TitleId, directory.TitleId, StringComparison.OrdinalIgnoreCase)
-        && string.Equals(d.Name, directory.Name, StringComparison.Ordinal));
+    public DiskSaveDirectory? Twin(ISaveDirectory directory) => Twin(directory, CancellationToken.None);
+
+    internal DiskSaveDirectory? Twin(ISaveDirectory directory, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        // A loose SAVE folder is independent of the console's sdimg_SAVE, even with identical bytes.
+        if (!DiskSaveDirectory.IsConsoleSave(directory.RawName)) return null;
+        foreach (var candidate in _directories)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (candidate != directory
+                && DiskSaveDirectory.IsConsoleSave(candidate.RawName)
+                && candidate.IsBackup != directory.IsBackup
+                && candidate.Generation == directory.Generation
+                && string.Equals(candidate.TitleId, directory.TitleId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(candidate.Name, directory.Name, StringComparison.Ordinal)) return candidate;
+        }
+        return null;
+    }
 
     internal void Add(DiskSaveDirectory directory)
     {
@@ -45,6 +58,8 @@ public sealed class DiskSaveSet : ISaveSet
 
 public sealed class DiskSaveDirectory : ISaveDirectory
 {
+    private const string PrimaryPrefix = "sdimg_";
+
     internal DiskSaveDirectory(DiskSaveSet set, string id, string titleId, string rawName, int generation)
     {
         SaveSet = set;
@@ -73,17 +88,18 @@ public sealed class DiskSaveDirectory : ISaveDirectory
     /// <summary>Path prefix shared by all files of this directory inside the set.</summary>
     public string RelativeRoot => (Generation > 0 ? $"gen{Generation}/" : string.Empty) + $"{TitleId}/{RawName}";
 
+    internal static bool IsConsoleSave(string rawName) => rawName.StartsWith(PrimaryPrefix, StringComparison.OrdinalIgnoreCase);
+
     internal static (string Name, bool IsBackup) SplitRawName(string rawName)
     {
         const string backup = "sdimg_sce_bu_";
-        const string primary = "sdimg_";
         if (rawName.StartsWith(backup, StringComparison.OrdinalIgnoreCase))
         {
             return (rawName[backup.Length..], true);
         }
 
-        return rawName.StartsWith(primary, StringComparison.OrdinalIgnoreCase)
-            ? (rawName[primary.Length..], false)
+        return IsConsoleSave(rawName)
+            ? (rawName[PrimaryPrefix.Length..], false)
             : (rawName, false);
     }
 }

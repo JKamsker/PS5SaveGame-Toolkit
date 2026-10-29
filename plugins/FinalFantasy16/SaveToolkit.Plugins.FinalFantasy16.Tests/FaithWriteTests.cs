@@ -37,7 +37,7 @@ public sealed class FaithWriteTests
             // Edits rebuild the view and retire queried pages; emulate the client reloading this row.
             if (field.ValueId.StartsWith("inventory/", StringComparison.Ordinal))
                 _ = session.QueryCollection(FaithInventoryView.CollectionId, new QueryableCollectionQuery
-                    { Filters = new Dictionary<string, string> { ["slot"] = field.ValueId.Split('/')[1] } });
+                    { Filters = new Dictionary<string, string> { ["slot"] = field.ValueId.Split('/')[1] } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Contains("Not validated on console", field.Description);
             Assert.Contains("Not validated on console", field.Warning);
             Assert.NotEqual(Confidence.Verified, field.Confidence);
@@ -51,9 +51,9 @@ public sealed class FaithWriteTests
             }
             var invalid = field.Spec is ReferenceSpec ? FieldValue.Of("2147483648") : FieldValue.Of((long)int.MaxValue + 1);
             Assert.False(document.ApplyEdits([new ValueEdit(field.ValueId, invalid)]).Succeeded);
-            Assert.False(session.ApplyEdits([Incoming(field.ValueId, invalid)]).Ok);
+            Assert.False(session.ApplyEdits([Incoming(field.ValueId, invalid)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
-            var accepted = session.ApplyEdits([Incoming(field.ValueId, next.Value)]);
+            var accepted = session.ApplyEdits([Incoming(field.ValueId, next.Value)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(accepted.Ok, $"{field.ValueId}: {string.Join(';', accepted.Errors.Select(error => error.Message))}");
             Assert.Contains(accepted.Warnings, warning => warning.Contains("Not validated on console", StringComparison.Ordinal));
             var output = Assert.Single(document.Serialize()).Content.ToArray();

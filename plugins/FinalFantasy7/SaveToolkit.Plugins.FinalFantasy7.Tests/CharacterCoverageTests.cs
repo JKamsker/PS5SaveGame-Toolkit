@@ -32,9 +32,9 @@ public sealed class CharacterCoverageTests
         Assert.Contains(preview.Plan.Warnings, warning => warning.StartsWith(WriteWarnings.Experimental, StringComparison.Ordinal));
         // Cancel is dismissing a pure preview: a replacement empty selection invalidates the abandoned token.
         var canceled = preview;
-        var empty = fixture.Session.PlanAction(CoverageFixture.RecoveryAction, new Dictionary<string, System.Text.Json.JsonElement>(), new([]));
+        var empty = fixture.Session.PlanAction(CoverageFixture.RecoveryAction, new Dictionary<string, System.Text.Json.JsonElement>(), new([]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(empty.Plan.Changes);
-        Assert.True(fixture.Session.ApplyActionPlan(canceled.PlanId!, canceled.Revision).Stale);
+        Assert.True(fixture.Session.ApplyActionPlan(canceled.PlanId!, canceled.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         Assert.Equal(fixture.Original, fixture.Bytes());
         preview = fixture.Preview(CoverageFixture.RecoveryAction, character);
         var offset = CharacterLayout.Offset(fixture.Schema, character);
@@ -145,7 +145,7 @@ public sealed class CharacterCoverageTests
             ? new Dictionary<string, System.Text.Json.JsonElement> { ["level"] = System.Text.Json.JsonSerializer.SerializeToElement(70) }
             : new Dictionary<string, System.Text.Json.JsonElement>();
         var scope = new ActionScope(["character/0", "character/1"]);
-        var preview = fixture.Session.PlanAction(action, parameters, scope);
+        var preview = fixture.Session.PlanAction(action, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(4, preview.Plan.Changes.Count);
         var offsets = Enumerable.Range(0, 2).SelectMany(character =>
         {

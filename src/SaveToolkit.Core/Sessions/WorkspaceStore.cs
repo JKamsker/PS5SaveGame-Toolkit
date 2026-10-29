@@ -47,28 +47,33 @@ public sealed class WorkspaceStore : IDisposable
     }
 
     public Workspace Create(string name, IEnumerable<ImportSource> sources)
+        => Create(name, sources, CancellationToken.None);
+
+    /// <summary>Imports privately; cancellation is observed immediately before the workspace is registered.</summary>
+    public Workspace Create(string name, IEnumerable<ImportSource> sources, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         lock (_lifetimeGate) ObjectDisposedException.ThrowIf(_disposed, this);
         var id = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(8));
         var root = Path.Combine(_options.DataRoot, id);
+        Workspace? workspace = null;
         try
         {
-            var set = SaveSetImporter.Import(sources, root, _options.Limits);
-            var workspace = new Workspace(id, name, set, Catalog, Packs);
+            var set = SaveSetImporter.Import(sources, root, _options.Limits, cancellationToken);
+            workspace = new Workspace(id, name, set, Catalog, Packs);
             lock (_lifetimeGate)
             {
-                if (_disposed)
-                {
-                    workspace.Dispose();
-                    throw new ObjectDisposedException(nameof(WorkspaceStore));
-                }
+                ObjectDisposedException.ThrowIf(_disposed, this);
+                cancellationToken.ThrowIfCancellationRequested();
+                // Point of no return: register the complete workspace without further cancellation checks.
                 _workspaces[id] = new Registration(workspace);
             }
             return workspace;
         }
         catch
         {
-            TryDelete(root);
+            try { workspace?.Dispose(); }
+            finally { TryDelete(root); }
             throw;
         }
     }

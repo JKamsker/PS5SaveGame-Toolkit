@@ -71,9 +71,10 @@ warnings and wide error margins; they are useful coarse baselines, not precise m
 Other methods use BenchmarkDotNet's normal invocation calibration. Setup also verifies probe/import
 counts, page size, the single semantic change, exact undo bytes and the edited ZIP payload/count.
 
-Default production review budgets remain enabled. Large F8 review is intentionally incomplete
-because of the 10,000-row traversal budget; the staged early scalar is still reported. Its result
-must not be interpreted as a complete scan of 20,000 rows. Medium and Small fit the row budget.
+Default production [semantic-review budgets](PLUGIN_GUIDE.md#pagedqueryable-collections) remain enabled.
+Large F8 review is intentionally incomplete because of the row traversal budget; the staged early
+scalar is still reported. Its result must not be interpreted as a complete scan of 20,000 rows.
+Medium and Small fit the row budget.
 These workloads exercise raw format paths; they do not represent title-specific adapters or
 gameplay validation. Synthetic repeated data is highly compressible, so import/export figures
 are not estimates for real save collections.
@@ -94,6 +95,19 @@ changes without allocation changes need repeated Full runs before attributing a 
 This baseline has no pass/fail thresholds and does not gate CI. Investigate unexpected scaling
 and report reproducible performance findings on tracking issue #40; do not change production code
 merely to improve these numbers.
+
+## F8 semantic-review measurements
+
+The separate [semantic-review performance report](../tests/SaveToolkit.Api.Performance.Tests/SEMANTIC_REVIEW.md)
+owns the dated real-save measurements, diagnostic projections, allocation reductions and reproduction
+commands. `SemanticReviewMeasurements` runs in the normal API performance test project; its real-save
+cases skip without the external samples. These synchronous session measurements exclude HTTP/JSON
+transport and use a different boundary from the opt-in benchmarks above.
+
+Read `complete` and warnings with every result. The [review traversal contract](PLUGIN_GUIDE.md#pagedqueryable-collections)
+defines the limits; an empty partial log does not prove an unchanged save. Full plugin views can
+exhaust budgets before any F8 page is visited. The report labels its reduced F8 projections explicitly;
+they are diagnostic fixtures, and their allocation savings do not establish a universal timing speedup.
 
 ## First local baseline
 

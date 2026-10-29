@@ -51,18 +51,18 @@ public sealed class AtomicHeartInventoryQueryTests
         var document = WriteTestData.Plugin.Open(file, references);
         using var session = new DocumentSession("inventory-query", file, WriteTestData.Plugin, document, references: references);
         _ = session.BuildView();
-        var first = session.QueryCollection(InventoryCollection.Id, new() { Limit = 1 });
+        var first = session.QueryCollection(InventoryCollection.Id, new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var excluded = Assert.Single(first.Rows).Key;
         var scope = new ActionScope { QueryScope = new(InventoryCollection.Id, new() { IncludeEmpty = includeEmpty }, session.State.Revision) { ExcludedRowKeys = [excluded] } };
         var parameters = new Dictionary<string, JsonElement> { ["amount"] = JsonSerializer.SerializeToElement(0) };
-        var preview = session.PlanAction(InventoryPlanning.ActionId, parameters, scope, session.State.Revision);
+        var preview = session.PlanAction(InventoryPlanning.ActionId, parameters, scope, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(includeEmpty is true ? 89 : 10, preview.Scope.RowKeys!.Count);
         Assert.Equal(includeEmpty ?? false, preview.Scope.QueryScope!.Query.IncludeEmpty);
         Assert.Equal(includeEmpty is true ? 79 : 0, preview.Plan.SkippedRows.Count);
         Assert.NotEmpty(preview.Plan.Changes);
         Assert.DoesNotContain(preview.Plan.Changes, c => c.ValueId.StartsWith(excluded + "/", StringComparison.Ordinal));
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var output = WriteTestData.Output(document);
         _ = WriteTestData.IndependentDecode(file.ReadAllBytes(), output);
         using (var reopened = WriteTestData.Open(output))
@@ -73,7 +73,7 @@ public sealed class AtomicHeartInventoryQueryTests
         Assert.True(session.Redo().Ok);
         Assert.Equal(output, WriteTestData.Output(document));
         var emptyScope = scope with { QueryScope = scope.QueryScope! with { Query = new() { Text = "no-such-asset" }, Revision = session.State.Revision } };
-        var none = session.PlanAction(InventoryPlanning.ActionId, parameters, emptyScope, session.State.Revision);
+        var none = session.PlanAction(InventoryPlanning.ActionId, parameters, emptyScope, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(none.Scope.RowKeys!);
         Assert.Empty(none.Plan.Changes);
         var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);

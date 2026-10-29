@@ -69,7 +69,7 @@ public sealed class SerialPartTests
         using var session = new DocumentSession("part-picker", file, plugin, document, references: references);
         _ = session.BuildView();
         var entry = document.Inventory.Entries.First(e => document.Inventory.Info(e.Id) is { Complete: true, Parts.Count: > 0 });
-        _ = session.QueryCollection(entry.List, new() { Limit = 200 });
+        _ = session.QueryCollection(entry.List, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var detail = session.Expand("detail/" + entry.Id);
         var field = Assert.IsType<TableNode>(detail.Last()).Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>()
             .First(f => f.Spec is ReferenceSpec && Alternative(SerialDatabase.For(title == "PPSA01493"), SerialParts.Slot(document.Inventory.Info(entry.Id),
@@ -86,13 +86,13 @@ public sealed class SerialPartTests
             c => Assert.False(c.Eligibility.Selectable));
         var forged = SerialDatabase.For(title == "PPSA01493").Find(ItemCatalogs.Indices, "ManufacturerData:1")! with { Category = slot.Category };
         Assert.False(Assert.IsType<ReferenceSpec>(field.Spec).Assess!(forged).Selectable);
-        Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("missing:99"))]).Ok);
-        Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("ManufacturerData:1"))]).Ok);
+        Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("missing:99"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.False(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("ManufacturerData:1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         Assert.False(document.ApplyEdits([new("currency/618814354", FieldValue.Of(123)), new(field.ValueId, FieldValue.Of("ManufacturerData:1"))]).Succeeded);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         var before = document.Root.Clone();
-        Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(candidate))]).Ok);
+        Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(candidate))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var output = document.Serialize().Single().Content;
         using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, output));
         Assert.Equal(candidate, SerialParts.Slot(reopened.Inventory.Info(entry.Id), slotIndex).Key);

@@ -22,7 +22,7 @@ public sealed class TsushimaSpatialViewTests
 
         var metadata = Assert.Single(session.QueryableCollections);
         var page = session.QueryCollection(metadata.Id,
-            new QueryableCollectionQuery { Text = "Armor", Limit = 12 });
+            new QueryableCollectionQuery { Text = "Armor", Limit = 12 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(metadata.Id, page.CollectionId);
         Assert.InRange(page.Rows.Count, 1, 12);

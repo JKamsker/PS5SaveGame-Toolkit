@@ -48,8 +48,8 @@ public sealed class ProgressionWriteTests
             ["progression/StreetCred/level"] = 2, ["progression/StreetCred/xp"] = 30, ["progression/StreetCred/threshold"] = 150,
             ["progression/points/Primary"] = 4, ["progression/attributes/Strength"] = 5,
         };
-        Assert.True(session.ApplyEdits(values.Select(pair => new IncomingEdit(pair.Key, JsonSerializer.SerializeToElement(pair.Value.ToString()))).ToArray()).Ok);
-        var bytes = Assert.Single(session.Serialize()).Content.ToArray();
+        Assert.True(session.ApplyEdits(values.Select(pair => new IncomingEdit(pair.Key, JsonSerializer.SerializeToElement(pair.Value.ToString()))).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var bytes = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         using var reopened = ProgressionSampleTests.Open(bytes);
         _ = CyberpunkSampleTests.ExpandAll(reopened);
         foreach (var (id, value) in values) Assert.Equal(FieldValue.Of(value), reopened.GetValue(id));
@@ -61,7 +61,7 @@ public sealed class ProgressionWriteTests
         Assert.False(session.State.CanUndo);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(bytes, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
     }
 
     [Theory]
@@ -117,8 +117,8 @@ public sealed class ProgressionWriteTests
             Assert.Equal(Confidence.Inferred, field.Confidence);
             Assert.Contains("Not validated on console", field.Description);
             Assert.Contains("game may reject", field.Warning);
-            Assert.True(session.ApplyEdits([new(id, JsonSerializer.SerializeToElement(target.ToString()))]).Ok);
-            var bytes = Assert.Single(session.Serialize()).Content.ToArray();
+            Assert.True(session.ApplyEdits([new(id, JsonSerializer.SerializeToElement(target.ToString()))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+            var bytes = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
             var after = CsavContainer.Parse(bytes);
             var afterTree = CsavTree.Parse(after);
             var expectedOutside = before.Payload.ToArray();
@@ -162,7 +162,7 @@ public sealed class ProgressionWriteTests
             Assert.True(session.Undo().Ok);
             Assert.Equal(before.Original, Assert.Single(document.Serialize()).Content.ToArray());
             Assert.True(session.Redo().Ok);
-            Assert.Equal(bytes, Assert.Single(session.Serialize()).Content.ToArray());
+            Assert.Equal(bytes, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
             Assert.True(session.Undo().Ok);
             Assert.Equal(0, ByteDiffer.Compare(before.Original, Assert.Single(document.Serialize()).Content.ToArray()).ChangedBytes);
         }

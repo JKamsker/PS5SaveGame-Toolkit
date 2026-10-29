@@ -156,7 +156,7 @@ public sealed class EmptySlotTests
         var queryable = (IQueryableDocument)document;
         foreach (var collection in queryable.Collections.Where(collection => collection.EmptyRows is not null))
         {
-            var shown = session.QueryCollection(collection.Id, new() { IncludeEmpty = true, Offset = (int)collection.TotalCount - 1 });
+            var shown = session.QueryCollection(collection.Id, new() { IncludeEmpty = true, Offset = (int)collection.TotalCount - 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Single(shown.Rows);
             Assert.Equal(collection.TotalCount, shown.FilteredCount);
             Assert.Equal(0, shown.HiddenEmptyCount);
@@ -168,7 +168,7 @@ public sealed class EmptySlotTests
         {
             var scope = new ActionScope { QueryScope = new("inventory", new() { IncludeEmpty = includeEmpty }, session.State.Revision)
                 { ExcludedRowKeys = [excluded] } };
-            var preview = session.PlanAction(InventoryPlanning.ActionId, parameters, scope);
+            var preview = session.PlanAction(InventoryPlanning.ActionId, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(preview.PlanId);
             Assert.Empty(preview.Plan.Errors);
             var keys = preview.Plan.Changes.Select(change => change.ValueId[..change.ValueId.LastIndexOf('/')])
@@ -181,7 +181,7 @@ public sealed class EmptySlotTests
         var emptyOnly = session.PlanAction(InventoryPlanning.ActionId, parameters, new()
         {
             QueryScope = new("inventory", new() { Text = "Empty slot" }, session.State.Revision),
-        });
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(emptyOnly.Plan.Errors);
         Assert.Empty(emptyOnly.Plan.Changes);
         Assert.Empty(emptyOnly.Plan.SkippedRows);

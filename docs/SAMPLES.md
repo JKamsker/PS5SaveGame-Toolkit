@@ -7,6 +7,10 @@ bytes/extracted data into the checkout. Layout inside each zip:
 same paths several times (snapshots appended); the importer exposes them as generations 0, 1, ...
 `sce_sys/param.sfo` is sometimes a regenerated placeholder (MAINTITLE = title id).
 
+Console twins pair only `sdimg_<dir>` with `sdimg_sce_bu_<dir>` for the same title and generation.
+A loose `<dir>` folder remains independent, including when it shares the console save's logical
+name and bytes; its edits do not automatically replace the console backup.
+
 Identities were confirmed by the reconnaissance pass; per-title evidence, format notes and a ranked
 roadmap live in [docs/formats/](formats/README.md). Entries marked `?` are still unconfirmed.
 This table inventories sample titles, including unsupported ones; it is not the support list.

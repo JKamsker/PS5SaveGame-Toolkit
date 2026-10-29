@@ -21,6 +21,35 @@ public sealed class ViewIndex
     private readonly HashSet<string> _assetIds = new(StringComparer.Ordinal);
     private readonly SelectionBindingIndex _selections = new();
 
+    private ViewIndex(ViewIndex source, CancellationToken cancellationToken)
+    {
+        _metadata = source._metadata.Copy(cancellationToken);
+        _selections = source._selections.Copy(cancellationToken);
+        Copy(source._specs, _specs, cancellationToken);
+        Copy(source._actions, _actions, cancellationToken);
+        foreach (var (from, to) in new[] { (source._lazyIds, _lazyIds), (source._blobIds, _blobIds), (source._assetIds, _assetIds) })
+        {
+            to.EnsureCapacity(from.Count);
+            foreach (var id in from)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                to.Add(id);
+            }
+        }
+    }
+
+    internal ViewIndex Copy(CancellationToken cancellationToken) => new(this, cancellationToken);
+
+    private static void Copy<T>(Dictionary<string, T> source, Dictionary<string, T> destination, CancellationToken cancellationToken)
+    {
+        destination.EnsureCapacity(source.Count);
+        foreach (var entry in source)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            destination.Add(entry.Key, entry.Value);
+        }
+    }
+
     /// <summary>Advisory selection-binding diagnostics for the currently indexed view, including loaded expansions/pages.</summary>
     public IReadOnlyList<string> SelectionDiagnostics => _selections.Diagnostics();
 
@@ -51,11 +80,18 @@ public sealed class ViewIndex
     public bool HasFieldMetadata => _metadata.Enabled;
 
     public void ResolveMetadata(IEnumerable<string> valueIds)
+        => ResolveMetadata(valueIds, CancellationToken.None);
+
+    internal void ResolveMetadata(IEnumerable<string> valueIds, CancellationToken cancellationToken)
     {
         if (!_metadata.Enabled) return;
         var ids = valueIds.Distinct(StringComparer.Ordinal).ToArray();
-        _metadata.ResolveAll(ids);
-        foreach (var id in ids) _ = ResolvedMetadata(id);
+        _metadata.ResolveAll(ids, cancellationToken);
+        foreach (var id in ids)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _ = ResolvedMetadata(id);
+        }
     }
 
     private void RequireAgreement(string id, FieldSpec spec)
@@ -90,7 +126,11 @@ public sealed class ViewIndex
 
     /// <summary>Indexes a node tree. Throws <see cref="InvalidOperationException"/> on malformed views.</summary>
     public void Add(ViewNode node)
+        => Add(node, CancellationToken.None);
+
+    internal void Add(ViewNode node, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         _selections.Add(node);
         switch (node)
         {
@@ -101,14 +141,14 @@ public sealed class ViewIndex
                 }
                 else
                 {
-                    AddAll(s.Children);
+                    AddAll(s.Children, cancellationToken);
                 }
 
                 break;
             case TabsNode t:
                 foreach (var tab in t.Tabs)
                 {
-                    AddAll(tab.Children);
+                    AddAll(tab.Children, cancellationToken);
                 }
 
                 break;
@@ -137,7 +177,7 @@ public sealed class ViewIndex
                             throw new InvalidOperationException($"Table row '{row.Key}' has a cell for unknown column '{key}'.");
                         }
 
-                        Add(cell);
+                        Add(cell, cancellationToken);
                     }
                 }
 
@@ -164,10 +204,13 @@ public sealed class ViewIndex
     }
 
     public void AddAll(IEnumerable<ViewNode> nodes)
+        => AddAll(nodes, CancellationToken.None);
+
+    internal void AddAll(IEnumerable<ViewNode> nodes, CancellationToken cancellationToken)
     {
         foreach (var n in nodes)
         {
-            Add(n);
+            Add(n, cancellationToken);
         }
     }
 }

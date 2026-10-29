@@ -29,8 +29,8 @@ public sealed class EmptySlotSampleTests
             Assert.Equal(new EmptyRowPresentation("item"), shell.EmptyRows);
             Assert.Equal(metadata.EmptyRows, shell.EmptyRows);
 
-            var visible = session.QueryCollection(shell.CollectionId, new() { Limit = 200 });
-            var shown = session.QueryCollection(shell.CollectionId, new() { IncludeEmpty = true, Limit = 200 });
+            var visible = session.QueryCollection(shell.CollectionId, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+            var shown = session.QueryCollection(shell.CollectionId, new() { IncludeEmpty = true, Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(slots.Count, shown.TotalCount);
             Assert.Equal(slots.Select(slot => slot.Key).Order(), shown.Rows.Select(row => row.Key));
             Assert.Equal(slots.Count(slot => slot.IsEmpty), visible.HiddenEmptyCount);
@@ -49,7 +49,7 @@ public sealed class EmptySlotSampleTests
             Assert.All(shown.Rows.Where(row => row.IsEmpty), row =>
                 Assert.Equal("Empty slot", ReadOnlyInspectionSampleTests.Cell(row, "item")));
             Assert.Equal(7, shown.Rows.Count(row => ReadOnlyInspectionSampleTests.Cell(row, "identity").Length > 0));
-            var emptyMatch = session.QueryCollection(shell.CollectionId, new() { Text = "Empty slot", Limit = 200 });
+            var emptyMatch = session.QueryCollection(shell.CollectionId, new() { Text = "Empty slot", Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Empty(emptyMatch.Rows);
             Assert.Equal(visible.HiddenEmptyCount, emptyMatch.HiddenEmptyCount);
             Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
@@ -69,19 +69,19 @@ public sealed class EmptySlotSampleTests
         using var session = new DocumentSession("equipment-selection", (DiskSaveFile)file, plugin, document);
         _ = session.BuildView();
         var query = new QueryableCollectionQuery { IncludeEmpty = includeEmpty, Limit = 200 };
-        var rows = session.QueryCollection(EquipmentInspection.CollectionId, query).Rows;
+        var rows = session.QueryCollection(EquipmentInspection.CollectionId, query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows;
         var excluded = rows[0].Key;
         var scope = new ActionScope { QueryScope = new(EquipmentInspection.CollectionId, query, session.State.Revision)
             { ExcludedRowKeys = [excluded] } };
         var preview = session.PlanAction(StackEditor.SetTarget,
-            new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("700") }, scope);
+            new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("700") }, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(includeEmpty == true, preview.Scope.QueryScope!.Query.IncludeEmpty);
         Assert.NotNull(preview.Scope.RowKeys);
         Assert.Equal(rows.Select(row => row.Key).Where(key => key != excluded), preview.Scope.RowKeys);
         Assert.DoesNotContain(excluded, preview.Scope.RowKeys);
         if (includeEmpty != true)
         {
-            var empties = session.QueryCollection(EquipmentInspection.CollectionId, query with { IncludeEmpty = true }).Rows.Where(row => row.IsEmpty);
+            var empties = session.QueryCollection(EquipmentInspection.CollectionId, query with { IncludeEmpty = true }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows.Where(row => row.IsEmpty);
             Assert.NotEmpty(empties);
             Assert.All(empties, row => Assert.DoesNotContain(row.Key, preview.Scope.RowKeys));
         }

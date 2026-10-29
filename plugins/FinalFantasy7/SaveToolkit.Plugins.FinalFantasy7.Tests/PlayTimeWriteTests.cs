@@ -29,11 +29,11 @@ public sealed class PlayTimeWriteTests
         Assert.False(fixture.Document.ApplyEdits([new("game/playtime", FieldValue.Of((long)original + 1))]).Succeeded);
         Assert.False(fixture.Document.ApplyEdits([new("game/playtime", FieldValue.Of(-1L))]).Succeeded);
         Assert.Equal(fixture.Original, fixture.Bytes());
-        Assert.True(fixture.Session.ApplyEdits([new("game/playtime", JsonSerializer.SerializeToElement(0))]).Ok);
+        Assert.True(fixture.Session.ApplyEdits([new("game/playtime", JsonSerializer.SerializeToElement(0))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = fixture.Bytes();
         ByteChangeAssertions.OnlyOffsetsChanged(fixture.Original, edited, Enumerable.Range(GameplayLayout.For(fixture.Schema).PlayTimeOffset, sizeof(uint)));
         _ = fixture.Session.BuildView();
-        Assert.True(fixture.Session.ApplyEdits([new("game/playtime", JsonSerializer.SerializeToElement(original))]).Ok);
+        Assert.True(fixture.Session.ApplyEdits([new("game/playtime", JsonSerializer.SerializeToElement(original))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(fixture.Original, fixture.Bytes());
         Assert.True(fixture.Session.Undo().Ok);
         Assert.Equal(edited, fixture.Bytes());

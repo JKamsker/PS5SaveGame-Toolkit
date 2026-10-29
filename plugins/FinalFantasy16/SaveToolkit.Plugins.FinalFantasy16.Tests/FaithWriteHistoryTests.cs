@@ -28,14 +28,14 @@ public sealed class FaithWriteHistoryTests
         using var session = new DocumentSession("identity-quantity-history", fixture.File, _plugin, document);
         _ = session.BuildView();
 
-        AssertAccepted(session.ApplyEdits([FaithWriteTests.Incoming(QuantityId, FieldValue.Of(FirstQuantity))]));
+        AssertAccepted(session.ApplyEdits([FaithWriteTests.Incoming(QuantityId, FieldValue.Of(FirstQuantity))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken));
         var first = Assert.Single(document.Serialize()).Content.ToArray();
         AssertAlias(document, originalId, FirstQuantity);
 
         AssertAccepted(session.ApplyEdits([
             FaithWriteTests.Incoming(IdentityId, FieldValue.Of(FaithCatalog.Key(replacementId))),
             FaithWriteTests.Incoming(QuantityId, FieldValue.Of(SecondQuantity)),
-        ]));
+        ], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken));
         var second = Assert.Single(document.Serialize()).Content.ToArray();
         var itemOffset = FaithContainer.HeaderSize + FaithBlock.HeaderSize + SecondRecordOffset;
         FaithWriteTests.AssertOnlyRanges(original, second, [(itemOffset, 2 * sizeof(int))]);
@@ -73,7 +73,7 @@ public sealed class FaithWriteHistoryTests
         using var document = _plugin.Open(fixture.File);
         using var session = new DocumentSession("rejected-identity-history", fixture.File, _plugin, document);
         _ = session.BuildView();
-        AssertAccepted(session.ApplyEdits([FaithWriteTests.Incoming(QuantityId, FieldValue.Of(FirstQuantity))]));
+        AssertAccepted(session.ApplyEdits([FaithWriteTests.Incoming(QuantityId, FieldValue.Of(FirstQuantity))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken));
         var accepted = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.True(session.Undo().Ok);
         var state = session.State;
@@ -81,7 +81,7 @@ public sealed class FaithWriteHistoryTests
         var rejected = session.ApplyEdits([
             FaithWriteTests.Incoming(QuantityId, FieldValue.Of(SecondQuantity)),
             FaithWriteTests.Incoming(IdentityId, FieldValue.Of("1")),
-        ]);
+        ], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(rejected.Ok);
         Assert.Contains(rejected.Errors, error => error.Message.Contains("duplicate", StringComparison.Ordinal));
         Assert.Empty(rejected.Changes);

@@ -104,8 +104,8 @@ public sealed class AstroRestoreSampleTests
             }
         }
         Assert.True(session.ApplyEdits(owned.Select(field => new IncomingEdit(field.ValueId,
-            JsonSerializer.SerializeToElement(false))).ToArray()).Ok);
-        var reduced = Assert.Single(session.Serialize()).Content.ToArray();
+            JsonSerializer.SerializeToElement(false))).ToArray(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var reduced = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         var excluded = owned[0].ValueId[..^Flag.Length];
         var scope = new ActionScope
         {
@@ -113,31 +113,31 @@ public sealed class AstroRestoreSampleTests
             { ExcludedRowKeys = [excluded] }
         };
         var parameters = new Dictionary<string, JsonElement>();
-        var cancelled = session.PlanAction(ActionId, parameters, scope, session.State.Revision);
+        var cancelled = session.PlanAction(ActionId, parameters, scope, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(cancelled.Plan.Errors);
         Assert.Equal(12, cancelled.Plan.Changes.Count);
         Assert.Equal(163, cancelled.Scope.RowKeys!.Count);
-        Assert.Equal(reduced, Assert.Single(session.Serialize()).Content.ToArray());
-        var preview = session.PlanAction(ActionId, parameters, scope, session.State.Revision);
+        Assert.Equal(reduced, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
+        var preview = session.PlanAction(ActionId, parameters, scope, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
-        Assert.False(session.InvokeAction(ActionId, parameters).Ok);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
-        var restored = Assert.Single(session.Serialize()).Content.ToArray();
+        Assert.False(session.InvokeAction(ActionId, parameters, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var restored = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         using (var reopened = AstroTestData.Open(restored))
         {
             Assert.All(owned, field => Assert.Equal(FieldValue.Of(field.ValueId != excluded + Flag), reopened.GetValue(field.ValueId)));
         }
         Assert.True(session.Undo().Ok);
-        Assert.Equal(reduced, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(reduced, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(restored, Assert.Single(session.Serialize()).Content.ToArray());
-        Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.Equal(restored, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
+        Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
 
-        var export = WorkspaceExporter.Plan(workspace, new ExportOptions { Scope = ExportScope.ChangedFiles });
+        var export = WorkspaceExporter.Plan(workspace, new ExportOptions { Scope = ExportScope.ChangedFiles }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(new[] { primary.RelativePath, backup.RelativePath }.Order(StringComparer.Ordinal),
             export.Overrides.Keys.Order(StringComparer.Ordinal));
         using var zipBytes = new MemoryStream();
-        WorkspaceExporter.WriteZip(export, zipBytes);
+        WorkspaceExporter.WriteZip(export, zipBytes, cancellationToken: TestContext.Current.CancellationToken);
         zipBytes.Position = 0;
         using var archive = new ZipArchive(zipBytes, ZipArchiveMode.Read);
         Assert.Equal(2, archive.Entries.Count);
@@ -157,7 +157,7 @@ public sealed class AstroRestoreSampleTests
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
-        Assert.Empty(WorkspaceExporter.Plan(workspace, new ExportOptions { Scope = ExportScope.ChangedFiles }).Overrides);
+        Assert.Empty(WorkspaceExporter.Plan(workspace, new ExportOptions { Scope = ExportScope.ChangedFiles }, cancellationToken: TestContext.Current.CancellationToken).Overrides);
     }
 
     private static IEnumerable<FieldNode> Ownership(IEnumerable<FieldNode> fields) => fields.Where(field =>

@@ -18,7 +18,7 @@ public sealed class NullableFactTests
         using var session = new DocumentSession("nullable-facts", (DiskSaveFile)file, plugin, document, references: context);
         _ = session.BuildView();
         var absentRow = Assert.Single(session.QueryCollection("fact-catalog", new QueryableCollectionQuery
-            { Filters = new Dictionary<string, string> { ["presence"] = "Catalog only / absent from save" }, Limit = 1 }).Rows);
+            { Filters = new Dictionary<string, string> { ["presence"] = "Catalog only / absent from save" }, Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         var absent = Value(absentRow);
         Assert.True(absent.Value.IsNull);
         Assert.IsType<IntegerSpec>(Assert.IsType<NullableSpec>(absent.Spec).Inner);
@@ -26,19 +26,19 @@ public sealed class NullableFactTests
         Assert.Contains("no saved value", absent.Description);
         Assert.Equal("null", JsonSerializer.Serialize(absent.Value));
         var zeroRow = Assert.Single(session.QueryCollection("fact-catalog", new QueryableCollectionQuery
-            { Filters = new Dictionary<string, string> { ["value"] = "0" }, Limit = 1 }).Rows);
+            { Filters = new Dictionary<string, string> { ["value"] = "0" }, Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         var zero = Value(zeroRow);
         Assert.Equal(FieldValue.Of(0L), zero.Value);
         Assert.Equal("\"0\"", JsonSerializer.Serialize(zero.Value));
-        Assert.False(session.ApplyEdits([new(zero.ValueId, JsonSerializer.SerializeToElement("1"))]).Ok);
-        Assert.False(session.ApplyEdits([new(absent.ValueId, JsonSerializer.SerializeToElement("1"))]).Ok);
+        Assert.False(session.ApplyEdits([new(zero.ValueId, JsonSerializer.SerializeToElement("1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.False(session.ApplyEdits([new(absent.ValueId, JsonSerializer.SerializeToElement("1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
 
         var parts = zeroRow.Key.Split('/');
         var originalId = $"facts/{parts[2]}/{parts[3]}";
         var raw = Assert.Single(session.QueryCollection("facts", new QueryableCollectionQuery { Filters = new Dictionary<string, string>
-            { ["table"] = parts[2], ["hash"] = ReadOnlyInspectionSampleTests.Cell(zeroRow, "hash") }, Limit = 200 }).Rows);
+            { ["table"] = parts[2], ["hash"] = ReadOnlyInspectionSampleTests.Cell(zeroRow, "hash") }, Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.Equal(originalId, raw.Key);
-        Assert.True(session.ApplyEdits([new(originalId, JsonSerializer.SerializeToElement("1"))]).Ok);
+        Assert.True(session.ApplyEdits([new(originalId, JsonSerializer.SerializeToElement("1"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(FieldValue.Of(1L), document.GetValue(zero.ValueId));
         Assert.True(session.Undo().Ok);
         Assert.Equal(FieldValue.Of(0L), document.GetValue(zero.ValueId));

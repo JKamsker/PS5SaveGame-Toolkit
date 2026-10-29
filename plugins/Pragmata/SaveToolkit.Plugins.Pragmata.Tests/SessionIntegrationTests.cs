@@ -18,15 +18,15 @@ public sealed class SessionIntegrationTests
         _ = session.BuildView();
         var playtime = document.Layout.Header!.Find(KnownHashes.Playtime)!;
         var old = document.Read(playtime).AsUInt64();
-        var result = session.ApplyEdits([new IncomingEdit(playtime.Path, JsonSerializer.SerializeToElement((old + 1).ToString(CultureInfo.InvariantCulture)))]);
+        var result = session.ApplyEdits([new IncomingEdit(playtime.Path, JsonSerializer.SerializeToElement((old + 1).ToString(CultureInfo.InvariantCulture)))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         Assert.Equal(2, result.Changes.Count);
-        var modified = session.Serialize().Single().Content.ToArray();
+        var modified = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
+        Assert.Equal(modified, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
     }
 
     [Fact]
@@ -37,17 +37,17 @@ public sealed class SessionIntegrationTests
         using var session = new DocumentSession("inventory", file, new PragmataPlugin(), document);
         _ = session.BuildView();
         var preview = session.PlanAction(Views.PragmataViews.QuantityAction,
-            new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") });
+            new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.NotNull(preview.PlanId);
-        var result = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var result = session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         Assert.True(session.State.CanUndo);
-        var modified = session.Serialize().Single().Content.ToArray();
+        var modified = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
         Assert.True(session.Undo().Ok);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
+        Assert.Equal(modified, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
     }
 
     [Fact]
@@ -67,13 +67,13 @@ public sealed class SessionIntegrationTests
             nodes = session.Expand(section.LazyId!);
         }
         var raw = nodes.OfType<FieldNode>().Single(f => f.ValueId == target.Path);
-        var result = session.ApplyEdits([new IncomingEdit(raw.ValueId, JsonSerializer.SerializeToElement("9999"))]);
+        var result = session.ApplyEdits([new IncomingEdit(raw.ValueId, JsonSerializer.SerializeToElement("9999"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         Assert.Single(result.Changes);
-        var modified = session.Serialize().Single().Content.ToArray();
+        var modified = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
         Assert.True(session.Undo().Ok);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
+        Assert.Equal(modified, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
     }
 }

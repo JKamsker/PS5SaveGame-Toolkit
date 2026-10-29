@@ -360,8 +360,9 @@ REE Save Editor provides format research, not a complete friendly editor [S24].
 Integrity: Mandarin fixed-size encryption path retained; CityHash64 and Murmur3
 repaired and output decrypted/reparsed. RSA trailer remains unverified and unchanged;
 game rejection warning remains essential. A quantity-restore workflow can retain I
-storage evidence without inventing a currency label or legal cap. It must respect
-the existing unloaded-binding guard, not assume SDK-02 is fully delivered.
+storage evidence without inventing a currency label or legal cap. Pragmata now adopts
+the delivered [SDK-02 metadata contract](PLUGIN_GUIDE.md#field-metadata-without-rendering-a-page-sdk-02)
+to resolve unloaded quantity bindings while retaining its existing binding guard.
 
 ### SuckerPunch — Ghost of Tsushima; Ghost of Yōtei
 
@@ -552,9 +553,9 @@ Yōtei technique/health/world state still needs field discovery. These high-valu
 remain research rather than promised writers. Obtain the B/C evidence in their rows,
 then reassess; a PC offset or generic JSON structure does not establish game semantics.
 
-F5/F6/F7/F8 are already available. [SDK_REQUESTS.md](SDK_REQUESTS.md) identifies
-remaining metadata/review/preset conveniences, but none can establish the missing
-game facts. In particular, storage registration does not publish all field specs,
+F5/F6/F7/F8 are already available. [SDK_REQUESTS.md](SDK_REQUESTS.md) distinguishes
+delivered capabilities from remaining requests; none can establish the missing
+game facts. In particular, storage-only registration does not opt into SDK-02 metadata,
 document groups do not establish a coupled-file invariant, and a catalog name or
 map point does not prove saved ownership/completion. Shortlisted work can keep
 existing guards without waiting for new framework contracts.
@@ -595,13 +596,18 @@ completed for Gearbox, Witcher3, Cyberpunk2077 and AstroPlayroom, reporting 1,24
 passing tests and **one low defect** affecting ranks 2 and 10: grouped Gearbox item
 actions accept malformed foreign-collection row keys instead of rejecting them.
 The review reproduced marking/level changes through Core with such an explicit
-scope; normal UI selections and resolved queries are unaffected. No fix is merged
-at this check. No additional defect was reported for the other examined paths.
+scope; normal UI selections and resolved queries were unaffected. No additional
+defect was reported for the other examined paths.
 The Gearbox fix is merged with its SDK-04 adoption in [2ba4097](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/2ba4097) (implementation
 [5442668](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/5442668)). A [follow-up review](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489521049) of Pragmata and the Tales CP
 field found no reportable defects. Every coverage-review finding is now fixed on `main`. The [FF7 fix handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489366524)
 reports 444 plugin and six React checks passing. An implementation
 merge is not a claim that review or console validation is complete.
+
+The framework now supports [explicit action/table selection bindings](PLUGIN_GUIDE.md#selection-table-binding-and-advisory-conformance-40)
+and an advisory selection-scope fixture. These let actions outside a table consume its selection;
+plugin authors must still test each action's target and exclusion policy. They do not widen the
+write permissions or establish gameplay evidence for any ranked addition.
 
 | Rank | Plugin | Action/field ID | Merge commit | Tests | Known issues | Remaining #31 owner validation |
 | ---: | --- | --- | --- | --- | --- | --- |

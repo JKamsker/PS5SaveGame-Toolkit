@@ -35,11 +35,11 @@ public sealed class FaithQuantityPlanningTests
         Assert.Contains(plan.Changes, change => change.ValueId == "integrity/crc32" && change.Derived);
         Assert.Contains(plan.Warnings, warning => warning.Contains("Not validated on console", StringComparison.Ordinal));
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.False(session.InvokeAction(FaithQuantityPlanning.ActionId, Incoming(1)).Ok);
-        var preview = session.PlanAction(FaithQuantityPlanning.ActionId, Incoming(1), scope);
+        Assert.False(session.InvokeAction(FaithQuantityPlanning.ActionId, Incoming(1), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var preview = session.PlanAction(FaithQuantityPlanning.ActionId, Incoming(1), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(plan.Changes, preview.Plan.Changes);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var output = Assert.Single(document.Serialize()).Content.ToArray();
         FaithWriteTests.AssertOnlyRanges(bytes, output, inventory.Items.Take(2).Select(item => (item.Offset + sizeof(int), sizeof(int))).ToArray());
         using var reopened = _plugin.Open(FaithSamples.WithBytes(file, output), references);
@@ -52,7 +52,7 @@ public sealed class FaithQuantityPlanningTests
         Assert.False(session.State.CanUndo);
         Assert.True(session.Redo().Ok);
         Assert.Equal(output, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Stale);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
     }
 
     [Fact]
