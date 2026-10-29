@@ -1,7 +1,7 @@
 import { useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError, isStaleError } from "../../../api/client";
-import type { CollectionQuery, QueryableTableNode, TableColumn, TableRow } from "../../../api/protocol";
+import type { CollectionQuery, QueryablePage, QueryableTableNode, TableColumn, TableRow } from "../../../api/protocol";
 import { useDocument } from "../../../state/documentStore";
 import { useDocumentContentVersion } from "../../../state/useDocumentContentVersion";
 import { RowDetails, rowHasDetails } from "./RowDetails";
@@ -54,7 +54,13 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
     void refresh().catch(() => {});
   }, [stale, result.isSuccess, refresh]);
 
-  const page = result.isError || text !== deferredText ? undefined : result.data;
+  // Keep one loaded page through read failures, including a same-revision view refresh.
+  // Different queries or content revisions must still hide the old interactive rows.
+  const pageKey = JSON.stringify([node.collectionId, query, revision, version]);
+  const loaded = useRef<{ key: string; generation: number; page: QueryablePage } | undefined>(undefined);
+  if (result.data) loaded.current = { key: pageKey, generation: structureVersion, page: result.data };
+  const page = text !== deferredText ? undefined : result.data ?? (loaded.current?.key === pageKey ? loaded.current.page : undefined);
+  const retired = stale || loaded.current?.generation !== structureVersion;
   const columns = useMemo<TableColumn[]>(
     () => (page?.columns ?? node.columns).map((column) => ({ key: column.key, label: column.label, description: column.description, width: column.width })),
     [node.columns, page?.columns],
@@ -70,7 +76,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
   });
   const selection = useQueryableSelection(rows, node.collectionId, query, page?.revision ?? revision, page?.filteredCount ?? 0);
   const { clear } = selection;
-  useEffect(() => { clear(); }, [revision, node.collectionId, structureVersion, clear]);
+  useEffect(() => { clear(); }, [revision, node.collectionId, clear]);
   const visibleSelected = rows.reduce((count, row) => count + (selection.isSelected(row.key) ? 1 : 0), 0);
   const canNext = page ? Boolean(page.nextCursor) || page.offset + rows.length < page.filteredCount : false;
   const canPrevious = offset > 0;
@@ -131,7 +137,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
             else void result.refetch();
           }}>{stale ? "Refresh document" : "Retry rows"}</button>
         </div>}
-        <div className="table__scroller">
+        <div className="table__scroller" inert={retired}>
           <div className="table__grid" role="table" aria-label={node.title} aria-busy={result.isFetching} aria-rowcount={(page?.filteredCount ?? node.totalCount) + detailCount + 1} style={{ gridTemplateColumns: `36px ${hasDetails ? "36px " : ""}repeat(${columns.length}, minmax(160px, 1fr))` }}>
             <Header columns={columns} rows={rows} hasDetails={hasDetails} selected={visibleSelected} selection={selection} />
             {indexedRows.map(({ row, rowIndex }) => <ServerRow key={row.key} row={row} emptyRows={node.emptyRows} columns={columns} showDetailsColumn={hasDetails}

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, isStaleError } from "../../api/client";
-import type { SectionNode } from "../../api/protocol";
+import { retryRead } from "../../api/http";
+import type { SectionNode, ViewNode } from "../../api/protocol";
 import { RequestQueue } from "../../lib/RequestQueue";
 import { useDocument } from "../../state/documentStore";
 import { LazyDescendants, MAX_CONCURRENT_LAZY_REQUESTS, useAutomaticLazyExpansion } from "./LazyExpansion";
@@ -51,8 +52,11 @@ function LazyChildren({ lazyId }: { lazyId: string }) {
     queryKey: ["nodes", workspaceId, documentId, lazyId, structureVersion],
     queryFn: ({ signal }) => requests.run(() => api.expand(workspaceId, documentId, lazyId, signal), signal),
     staleTime: Infinity,
-    retry: (count, error) => !isStaleError(error) && count < 3,
+    retry: retryRead,
   });
+  const loaded = useRef<{ nodes: ViewNode[]; generation: number } | undefined>(undefined);
+  if (query.data) loaded.current = { nodes: query.data, generation: structureVersion };
+  const children = query.data ?? loaded.current?.nodes;
   const stale = query.isError && isStaleError(query.error);
   const recoveryAttempted = useRef(false);
   useEffect(() => {
@@ -62,11 +66,17 @@ function LazyChildren({ lazyId }: { lazyId: string }) {
     recoveryAttempted.current = true;
     void refresh().catch(() => {});
   }, [stale, query.isSuccess, refresh]);
-  if (stale) return <div>
-    <p role="alert" className="notice notice--Danger">This section is out of date. Refresh the document to load its current contents.</p>
-    <button type="button" className="btn btn--small" onClick={() => void refresh().catch(() => {})}>Refresh document</button>
-  </div>;
-  if (query.isPending) return <p role="status" className="section__loading">Loading…</p>;
-  if (query.isError) return <p role="alert" className="notice notice--Danger">{query.error.message}</p>;
-  return <LazyDescendants><ViewList nodes={query.data} /></LazyDescendants>;
+  return <>
+    {query.isFetching && <p role="status" className="section__loading">Loading…</p>}
+    {stale ? <div>
+      <p role="alert" className="notice notice--Danger">This section is out of date. Refresh the document to load its current contents.</p>
+      <button type="button" className="btn btn--small" onClick={() => void refresh().catch(() => {})}>Refresh document</button>
+    </div> : query.isError && <div>
+      <p role="alert" className="notice notice--Danger">{query.error.message}</p>
+      <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void query.refetch()}>Retry section</button>
+    </div>}
+    {children && <div inert={stale || loaded.current?.generation !== structureVersion}>
+      <LazyDescendants><ViewList nodes={children} /></LazyDescendants>
+    </div>}
+  </>;
 }

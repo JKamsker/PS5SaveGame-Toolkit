@@ -52,7 +52,8 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
         closeDialog();
         setErrors({});
       } else {
-        setErrors(Object.fromEntries(result.errors.map((e) => [e.valueId, e.message])));
+        setErrors(result.stale ? { [node.actionId]: "The document changed. Review the parameters and try again." }
+          : Object.fromEntries(result.errors.map((e) => [e.valueId, e.message])));
         requestFocus("error");
       }
     } finally {
@@ -114,7 +115,7 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
                 </div>
               ))}
               <p role="status">{busy ? "Working…" : ""}</p>
-              {errors[node.actionId] && <p role="alert" tabIndex={-1} className="notice notice--Danger">{errors[node.actionId]}</p>}
+              {(errors[node.actionId] || errors[""]) && <p role="alert" tabIndex={-1} className="notice notice--Danger">{errors[node.actionId] || errors[""]}</p>}
             </div>
             <div className="dialog__footer">
               <button type="button" className="btn btn--quiet" onClick={closeDialog}>

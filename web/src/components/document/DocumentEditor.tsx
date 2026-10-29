@@ -60,14 +60,18 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
         await queryClient.cancelQueries({ queryKey: ["document", workspaceId, documentId] });
         const result = await call();
         await handleResult(result);
-        if (!result.ok && !result.stale && result.errors.some((e) => e.valueId === "")) onToast(result.errors[0]?.message ?? "Rejected", true);
+        const globalError = result.errors.find(error => error.valueId === "");
+        if (!result.ok && !result.stale && globalError) onToast(globalError.message, true);
         return result;
       } catch (error) {
-        onToast(error instanceof ApiError ? error.message : "The server could not be reached.", true);
-        return null;
+        const message = error instanceof ApiError ? error.message : "The server could not be reached.";
+        onToast(message, true);
+        // Action dialogs need this diagnostic inside the modal, where background toasts are inert.
+        return store ? { ok: false, errors: [{ valueId: "", message }], changes: [], warnings: [],
+          structureChanged: false, state: store.state } : null;
       }
     },
-    [handleResult, onToast, queryClient, workspaceId, documentId],
+    [handleResult, onToast, queryClient, workspaceId, documentId, store],
   );
 
   const context = useMemo<DocumentContextValue | null>(() => {
@@ -101,7 +105,8 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
     return (
       <div className="empty">
         <h2 ref={focusHeading} tabIndex={-1}>This file could not be opened</h2>
-        <p>{query.error?.message ?? "Unknown error."}</p>
+        <p role="alert">{query.error?.message ?? "Unknown error."}</p>
+        <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refresh()}>Retry document</button>
       </div>
     );
   }

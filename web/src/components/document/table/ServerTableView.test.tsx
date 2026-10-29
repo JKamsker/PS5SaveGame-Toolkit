@@ -25,6 +25,33 @@ function setup(refresh = vi.fn(async () => {})) {
 }
 
 describe("server table request lifecycle", () => {
+  it.each([false, true])("preserves row drafts and selection when a read fails (new generation=%s)", async newGeneration => {
+    const editable: QueryablePage = { ...page, rows: [{ key: "a", cells: { name: {
+      type: "field", valueId: "quantity", label: "Quantity", value: "2", spec: { kind: "integer", min: "0", max: "99" },
+    } } }] };
+    vi.spyOn(api, "queryCollection").mockResolvedValue(editable);
+    const { client, generation } = setup();
+    const input = await screen.findByRole<HTMLInputElement>("textbox", { name: /Quantity/ });
+    const selected = screen.getByRole<HTMLInputElement>("checkbox", { name: "Select 2" });
+    fireEvent.click(selected);
+    fireEvent.change(input, { target: { value: "9" } });
+    vi.mocked(api.queryCollection).mockRejectedValueOnce(new ApiError("Rows unavailable", 400));
+    if (newGeneration) generation(1);
+    else await act(async () => { await client.refetchQueries({ queryKey: ["collection"] }); });
+    expect(await screen.findByRole("alert")).toHaveProperty("textContent", "Rows unavailable");
+    expect(input.isConnected).toBe(true);
+    expect(input.value).toBe("9");
+    expect(selected.checked).toBe(true);
+    if (newGeneration) expect(input.closest("[inert]")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Retry rows" }));
+    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+    expect(screen.getByRole("textbox", { name: /Quantity/ })).toBe(input);
+    expect(input.value).toBe("9");
+    expect(selected.checked).toBe(true);
+    expect(input.closest("[inert]")).toBeNull();
+    client.clear();
+  });
+
   it("keeps the current page and selection through validation-only notifications", async () => {
     vi.spyOn(api, "queryCollection").mockResolvedValue(page);
     const { store, client } = setup();

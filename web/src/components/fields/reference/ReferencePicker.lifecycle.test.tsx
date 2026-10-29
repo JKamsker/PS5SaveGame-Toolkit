@@ -1,6 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { api } from "../../../api/client";
+import { api, ApiError } from "../../../api/client";
 import type { ReferenceCandidate, ReferenceCandidatePage } from "../../../api/protocol";
 import { DocumentContext, DocumentStore } from "../../../state/documentStore";
 import { ReferencePicker } from "./ReferencePicker";
@@ -24,18 +24,55 @@ afterEach(() => {
 function setup() {
   const onCommit = vi.fn(async () => true);
   const onClose = vi.fn();
+  const refresh = vi.fn(async () => {});
   const rendered = render(<DocumentContext.Provider value={{ workspaceId: "w", documentId: "d", canEdit: true,
     store: new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 7 }), structureVersion: 0,
-    refresh: vi.fn(), commit: vi.fn(), acceptResult: vi.fn(), runAction: vi.fn() }}>
+    refresh, commit: vi.fn(), acceptResult: vi.fn(), runAction: vi.fn() }}>
     <ReferencePicker id="item-picker" spec={{ kind: "reference", catalogId: "items" }} valueId="item" value="9999"
       onCommit={onCommit} onClose={onClose} />
   </DocumentContext.Provider>);
-  return { ...rendered, onCommit, onClose };
+  return { ...rendered, onCommit, onClose, refresh };
 }
 
 async function advanceSearch(milliseconds = 180) {
   await act(async () => { await vi.advanceTimersByTimeAsync(milliseconds); });
 }
+
+it("retries candidate reads without losing raw-ID or search drafts", async () => {
+  vi.mocked(api.referenceCandidates).mockRejectedValueOnce(new ApiError("Candidates unavailable", 503));
+  const { onClose } = setup();
+  fireEvent.change(screen.getByRole("combobox", { name: "Search" }), { target: { value: "pot" } });
+  fireEvent.change(screen.getByLabelText("Raw ID"), { target: { value: "7777" } });
+  await advanceSearch();
+  expect(screen.getByRole("alert").textContent).toBe("Candidates unavailable");
+  expect(screen.getByRole("status").textContent).toBe("Candidates unavailable");
+  fireEvent.click(screen.getByRole("button", { name: "Retry candidates" }));
+  await advanceSearch();
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.getByRole("option", { name: /Potion/ })).toBeTruthy();
+  expect(screen.getByLabelText("Raw ID")).toHaveProperty("value", "7777");
+  expect(api.referenceCandidates).toHaveBeenLastCalledWith("w", "d", expect.objectContaining({ q: "pot" }));
+  expect(onClose).not.toHaveBeenCalled();
+});
+
+it.each(["candidates", "lookup"])("keeps drafts open after a stale %s response and explicitly refreshes choices", async kind => {
+  const stale = new ApiError("This view is out of date", 409, { code: "stale" });
+  if (kind === "candidates") vi.mocked(api.referenceCandidates).mockRejectedValueOnce(stale);
+  else vi.spyOn(api, "referenceCandidate").mockRejectedValueOnce(stale);
+  const { onClose, onCommit, refresh } = setup();
+  fireEvent.change(screen.getByLabelText("Raw ID"), { target: { value: "7777" } });
+  await advanceSearch();
+  if (kind === "lookup") await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Preview raw ID" })); });
+  expect(onClose).not.toHaveBeenCalled();
+  expect(screen.getByLabelText("Raw ID")).toHaveProperty("value", "7777");
+  expect(screen.getByRole("button", { name: "Use selected item" })).toHaveProperty("disabled", true);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Refresh choices" })); });
+  await advanceSearch();
+  expect(refresh).toHaveBeenCalledOnce();
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.getByLabelText("Raw ID")).toHaveProperty("value", "7777");
+  expect(onCommit).not.toHaveBeenCalled();
+});
 
 it("coalesces typing into one request after the full debounce and cancels timers on unmount", async () => {
   const { unmount, onCommit } = setup();
