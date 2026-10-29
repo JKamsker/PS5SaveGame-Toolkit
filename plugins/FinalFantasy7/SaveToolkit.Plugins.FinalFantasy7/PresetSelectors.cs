@@ -65,6 +65,13 @@ internal sealed class PresetSelectors(Ff7Schema schema, GameplayFields gameplay,
         return Result(preset.Targets.Select((target, index) => ResolveTarget(target, choices?.GetValueOrDefault(index), ownedEntries)).ToArray());
     }
 
+    public PresetTargetResolution ResolveTarget(PresetTarget target, string? choice = null)
+    {
+        var entries = target.Domain is PresetIdentityDomain.MateriaInstance or PresetIdentityDomain.MateriaType
+            ? owned.Entries(target.TypeId ?? target.Id) : [];
+        return ResolveTarget(target, choice, entries);
+    }
+
     public static bool IsMateria(string actionId) => actionId is MateriaPlanning.ActionId or MateriaPlanning.StarActionId;
 
     private PresetTargetResolution ResolveTarget(PresetTarget target, string? choice, IReadOnlyList<PresetCandidate> ownedEntries)
@@ -76,6 +83,12 @@ internal sealed class PresetSelectors(Ff7Schema schema, GameplayFields gameplay,
                 .Select(slot => new PresetCandidate($"inventory/{slot}", slot, target.Id, null, PresetDetailStatus.Unique,
                     references.Source("ff7r-items", target.Id))).ToArray(),
             PresetIdentityDomain.MateriaInstance => ownedEntries.Where(entry => entry.InstanceId == target.Id && entry.TypeId == target.TypeId).ToArray(),
+            PresetIdentityDomain.MateriaType => schema.IsRemake
+                ? Enumerable.Range(0, GameplayFields.MateriaCount)
+                    .Where(slot => !gameplay.IsEmpty(true, slot) && gameplay.TypeId(true, slot) == target.Id)
+                    .Select(slot => new PresetCandidate($"materia/{slot}", slot, target.Id, null,
+                        PresetDetailStatus.Unique, references.Source("ff7r-materia", target.Id))).ToArray()
+                : ownedEntries.Where(entry => entry.TypeId == target.Id).ToArray(),
             PresetIdentityDomain.CharacterIndex => [new($"character/{target.Id}", (int)target.Id, 0, null,
                 PresetDetailStatus.Unique, references.CharacterSource((int)target.Id))],
             _ => throw new ArgumentException("Foreign semantic identity domain."),

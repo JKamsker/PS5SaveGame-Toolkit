@@ -40,6 +40,9 @@ internal sealed class SemanticPresets(DocumentPlanning planning, PresetSelectors
         return selectors.Resolve(preset, choices);
     }
 
+    public PresetTargetResolution ResolveTarget(PresetTarget target, string? choice = null) =>
+        selectors.ResolveTarget(target, choice);
+
     public PresetPreview Preview(Ff7ActionPreset preset, IReadOnlyDictionary<int, string>? choices = null)
     {
         var resolution = Resolve(preset, choices);

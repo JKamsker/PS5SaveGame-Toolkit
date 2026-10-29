@@ -8,7 +8,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.FinalFantasy7;
 
-internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
+internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument, IPresetDocument
 {
     private const int RecordsPerSection = 32;
     private const int MaximumBlobPage = 64 * 1024;
@@ -27,6 +27,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
     private readonly ReferenceData _references;
     private readonly DocumentCollections? _collections;
     private readonly DocumentPlanning _planning;
+    private readonly FinalFantasy7PresetDocument _presetDocument;
     private readonly RegionalMaps? _maps;
     private readonly FolioGraphs? _folios;
     private readonly SocketGraphs? _sockets;
@@ -50,6 +51,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         _characters = new(bytes, schema, _references, Bind, _progression);
         _planning = new(schema, _gameplay, _references, _characters);
         Presets = new(_planning, new(schema, _gameplay, _references, new(bytes, schema, _references)), common, titleId, schema.Variant);
+        _presetDocument = new(Presets, _planning, _references, schema, titleId, common, _references.ContentIdentity, Bind, ApplyEdits);
         _ownedRelations = !common && !schema.IsRemake ? new(bytes, _references, Bind) : null;
         if (!common)
         {
@@ -85,6 +87,17 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
     public override string Title { get; }
     public override bool CanEdit => !_common;
     internal SemanticPresets Presets { get; }
+
+    public PresetCapability PresetCapability => _presetDocument.PresetCapability;
+    public PresetAction CapturePreset(PresetCaptureRequest request) => _presetDocument.CapturePreset(request);
+    public SaveToolkit.Sdk.PresetResolution ResolvePresetInstances(IReadOnlyList<PresetInstanceReference> instances) =>
+        _presetDocument.ResolvePresetInstances(instances);
+    public SaveToolkit.Sdk.PresetResolution ResolvePresetInstances(IReadOnlyList<PresetInstanceReference> instances,
+        IReadOnlyDictionary<string, string> choices) => _presetDocument.ResolvePresetInstances(instances, choices);
+    public ActionPlan PlanPreset(IReadOnlyList<PresetAction> actions, SaveToolkit.Sdk.PresetResolution resolution) =>
+        _presetDocument.PlanPreset(actions, resolution);
+    public EditOutcome ApplyPreset(IReadOnlyList<PresetAction> actions, SaveToolkit.Sdk.PresetResolution resolution, ActionPlan plan) =>
+        _presetDocument.ApplyPreset(actions, resolution, plan);
 
     public override ViewNode BuildView() => new TabsNode(
     [
