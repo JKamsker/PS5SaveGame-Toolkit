@@ -11,7 +11,7 @@ internal static class AstroPlanning
 
     public static IReadOnlyList<ActionNode> Views(long? coins) => [
         .. (coins is { } value ? new[] { CoinAction(value), AstroGatchaPlanning.View() } : Array.Empty<ActionNode>()),
-        CollectionAction()
+        CollectionAction(), AstroRestorePlanning.View()
     ];
 
     private static ActionNode CoinAction(long coins) =>
@@ -50,6 +50,7 @@ internal static class AstroPlanning
             CollectAllAction => parameters.Count == 0 ? PlanCollectAll(scope, schema, current)
                 : new ActionPlan { Errors = [new FieldError(actionId, "Collect existing records takes no parameters.")] },
             AstroWorldPlanning.ActionId => AstroWorldPlanning.Plan(parameters, scope, schema, locations, current),
+            AstroRestorePlanning.ActionId => AstroRestorePlanning.Plan(parameters, scope, schema, current),
             _ => new ActionPlan { Errors = [new FieldError(actionId, "Unknown ASTRO planning action.")] }
         };
     }

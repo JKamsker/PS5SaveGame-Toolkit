@@ -203,7 +203,7 @@ packs are cached once and repeated asset requests return the same AssetContent i
 | F3 rich cells | Used | Read-only name/confidence fields, provenance/details and selected-row planned action; F3/F8 thumbnail cells for 50 artifacts and 96 puzzles (one shared puzzle illustration). Unresolved props retain a text fallback. |
 | F4 reference picker | Used | F6's planned candidate-world parameter uses `ReferenceSpec("astro_worlds")` with eligibility restricted to worlds that have existing mapped records. Read-only catalogue inspection parameters use the browse-only picker with attribution. |
 | F5 structural undo | N/A | Writer patches existing primitive spans only. Record creation/removal/reorder lacks a known game grammar/dependency repair; no structural writer exists. Existing batches use ordinary grouped value history. |
-| F6 planned actions / #27 | Used | Coins/collect-all plus candidate-world ownership and bounded gatcha-budget top-up presets. Core resolves all-matching F8 scopes and exclusions; preview/apply/one-step undo/redo are tested. `AstroPlanning.Apply` uses shared `ActionPlans.Revalidate` to compare reviewed and fresh plans before applying scalar edits. |
+| F6 planned actions / #27 | Used | Coins/collect-all, restore-imported ownership, candidate-world ownership and bounded gatcha-budget top-up presets. Core resolves all-matching F8 scopes and exclusions; preview/apply/one-step undo/redo are tested. `AstroPlanning.Apply` uses shared `ActionPlans.Revalidate` to compare reviewed and fresh plans before applying scalar edits. |
 | F7 document groups | N/A | One gameplay allocation; no distinct coupled file/invariant identified. Identical backups are handled by same-generation framework export mirroring, not an independently editable partner document. |
 | F8 queryable tables | Used | Combined 164-record sample collection and per-type collections use shared `InMemoryCollection<QueryRecord>` in `AstroCollectionQuery`: whole-model search/exact filters/deterministic sort/paging, native occurrence-qualified row keys and page-only rich-cell rendering. Projections are cached per document with live ownership reads; individual groups switch to F8 above 100 records. |
 | F9 maps / graphs | Used | Lazy world-selection artwork with Inferred stage anchors, original level schematic plus no-coordinate collectible maps and accessible marker lists; markers navigate to existing fields, rows or the collect-existing action when a large unknown record has no field. No prerequisite graph: no skill/perk tree or proven prerequisite edge exists in this format. |
@@ -265,6 +265,7 @@ Serialization reparses the output and checks all primitive values; this does not
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
+| `collectibles/restore-imported`: restore staged reductions of existing `Artifact/*/IsGot`, `Puzzle/*/IsGot`, `Prop/*/IsGot` to immutable opening values; preserve staged grants above baseline | Inferred | Same existing boolean spans and writer as collect-existing. All four sample records verify exact original-byte restoration after reductions; selected rows, duplicate occurrences, query exclusions, cancellation, reimport baseline and one-step undo/redo are tested. | Unknown game integrity; output reparsed, unrelated primitives and opaque suffix preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): independent pickup/reversal; museum/puzzles, rewards, notifications, cinematics, forward gameplay, resave and second reload. |
 | `collectibles/collect-all`: set missing existing `Artifact/*/IsGot`, `Puzzle/*/IsGot`, `Prop/*/IsGot` to true, document-wide, selected rows or all matching query rows | Inferred | Existing boolean spans; mixed-event samples show 3/9/1 ownership transitions. Tests apply 164 flags in generation 0 and 151 in generation 1, reopen, verify exact untouched bytes with F1, and undo/redo the whole batch. Query exclusions are tested. | Unknown game integrity; output reparsed, all other primitives and opaque suffix preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): independent artifact/puzzle/prop grants and full/selected/query batches; museum, notifications, cinematic/reward behavior, resave and second reload. |
 | `collectibles/collect-world`, existing mapped ownership only | Inferred | Same existing-span writer; schema-qualified world/stage joins. Tests grant only the 25 Memory Meadow records and preserve every unrelated byte; query/explicit exclusions and grouped undo/redo covered. | Same unknown game integrity; no derived dependency repair. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): verify candidate-world membership and selected/query preset effects, museum/puzzles, rewards/cinematics/notifications, gameplay/resave/second reload. |
 | `common/top-up-gatcha`, existing coin span only | Inferred | Gage/PowerPyx reports 100 coins per attempt; independent bounded arithmetic for 0–17 attempts. All four samples verify exact unrelated-byte preservation/reopen; Core one-step undo/redo and invalid/overflow-sized request rejection pass. | Same unknown integrity; only NumCoin changes, higher balances preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spare-slot top-up, actual per-attempt cost, spend/resave/reload, cap/clamping and unrelated flags. |
@@ -279,6 +280,33 @@ Hidden selected rows remain included; an empty selection changes nothing. Plans 
 group/key and old/new `IsGot`, skip already-owned or missing/ambiguous/nonboolean ownership fields,
 and reject unknown/duplicate selection keys, unexpected parameters and unresolved/foreign query scopes.
 The action also works without a coin field or reference pack; it never relies on candidate aliases.
+
+### Restore imported ownership (#40, edit-coverage item 13)
+
+**Restore imported ownership (review before apply)** is available alongside collect-existing,
+in each row's Record details and below All saved collectibles. It supports document, selected-row
+and Core-resolved all-matching query scopes with exclusions. An empty selection changes nothing.
+The preview names every proposed raw group/key and old/new value, with a reason for every skip.
+Cancel discards the preview without applying; apply uses the shared `ActionPlans.Revalidate` path,
+the existing atomic scalar writer and one undo/redo step.
+
+The baseline is each parsed field's immutable `Initial` value from this document's opening
+allocation, independent of previous edits, previews and history replay. Only a current `false`
+whose opening value was `true` is restored. A staged `true` above an opening `false` is retained,
+as required by the brief's above-baseline preservation rule. This does **not** revoke staged grants
+or recover ownership lost before import. Reimporting edited bytes establishes a new baseline.
+Already-equal flags and missing, ambiguous, attribute-only, nested or nonboolean ownership fields are
+skipped. No records are inserted and no cinematic, notification, reward, Progress/World, UDS,
+coin or play-count state is changed. This is not a complete-world reversal.
+
+Evidence reuses the existing-span analysis and mixed-event ownership transitions documented in
+[EVIDENCE.md](EVIDENCE.md) and the snapshot section below; no new gameplay mapping or external
+dataset is introduced. Writes remain **Experimental / Inferred**, with the common warning opening,
+unknown checksum/signature warning and linked-state warnings in both preview and outcome. No
+checksum/signature repair can be claimed for this unidentified integrity scheme. Owner validation
+still requires one pickup and independent ownership reversal, checking museum/puzzle state,
+notifications, rewards/cinematics and forward gameplay, then resave/export and a second reload
+on a spare save ([#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31)).
 
 Only missing `IsGot` becomes true. There are **no derived writes**: cinematic, notification,
 Progress/World, UDS, coins and play-count values remain unchanged. The preview/outcome warns that
@@ -345,6 +373,17 @@ false; `hula_hoop` has no cinematic field at all. Automatically setting all cine
 contradict this evidence. No control-pair churn masks or unsupported gameplay causes are invented.
 
 ## Validation
+
+Edit-coverage item 13 (2026-10-29): **270 passed / 0 failed / 0 skipped**, including seven new
+restore cases, with external samples; Release API build with warnings as errors: **0 warnings /
+0 errors**. New coverage includes exact original allocation restoration across both generations
+and both backup twins, duplicate-occurrence selection, preserved above-baseline grants, unknown
+structure skips, invalid/stale/tampered-plan rejection, pure cancellation, reimport baseline,
+all-matching query exclusions, one-step undo/redo and primary/backup ZIP export with reopen.
+No checksum/signature algorithm is known; these checks do not establish console acceptance.
+Scratch/results use `D:/Temp/saveeditor/test-scratch/feat-coverage-astroplayroom`; set the temp and
+sample variables as above and pass `--results-directory` on direct `dotnet test` runs to keep
+the MTP fuzz attachment on D: as well.
 
 Documentation accuracy pass (#40, 2026-10-29), checked against main `d81942e`:
 **262 passed / 0 failed / 0 skipped** in the sample-backed Release plugin suite, including
