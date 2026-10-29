@@ -427,10 +427,12 @@ be superseded; for example the Ragnarök attribution was
 
 ## 4. External follow-ups
 
-**Live `gh issue view --comments` check: 2026-10-29.** All 17 upstream licence requests below are
-**OPEN and unanswered by upstream**; the TGA request has only the owner's +1. Each asks for MIT or
-GPL-3.0 terms (TGA's original request is general; the owner suggested those terms). Follow responses
-and record any actual licence grant/revision in the [request register](LICENCE_EXCLUSIONS.md#upstream-licence-requests).
+**Earlier `gh issue view --comments` check: 2026-10-29.** All 17 upstream licence requests below
+were open and unanswered by upstream; the TGA request had only the owner's +1. A later check on
+2026-10-29 verified GOWTool's MIT grant and completed closure; the other 16 states retain the
+earlier check. Each asks for MIT or GPL-3.0 terms (TGA's original request is general; the owner
+suggested those terms). Follow responses and record actual licence grants/revisions in the
+[request register](LICENCE_EXCLUSIONS.md#upstream-licence-requests).
 These pending requests are not new blockers on reuse already permitted by the owner's policies.
 
 - [ ] Follow [Cyberpunk-Modding-Docs #83](https://github.com/CDPR-Modding-Documentation/Cyberpunk-Modding-Docs/issues/83) — OPEN, no reply.
@@ -442,7 +444,8 @@ These pending requests are not new blockers on reuse already permitted by the ow
 - [ ] Follow [Serofix bg3-save-editor #1](https://github.com/Serofix-code/bg3-save-editor/issues/1) — OPEN, no reply.
 - [ ] Follow [Tales_of_Cheat_Tables #120](https://github.com/Sora3100/Tales_of_Cheat_Tables/issues/120) — OPEN, no reply.
 - [ ] Follow [witcher-3-enemy-scaling-and-other-changes #2](https://github.com/aschleg/witcher-3-enemy-scaling-and-other-changes/issues/2) — OPEN, no reply.
-- [ ] Follow [GOWTool #14](https://github.com/kainotoa/GOWTool/issues/14) — OPEN, no reply.
+- [x] Follow [GOWTool #14](https://github.com/kainotoa/GOWTool/issues/14) — closed as completed,
+  owner replied “Done” on 2026-10-29; [MIT grant and pinned code/licence verified](LICENCE_EXCLUSIONS.md#gowtool-mit-verification--2026-10-29).
 - [ ] Follow [ree-save-editor #52](https://github.com/kvasszn/ree-save-editor/issues/52) — OPEN, no reply.
 - [ ] Follow [Paramdex #10](https://github.com/soulsmods/Paramdex/issues/10) — OPEN, no reply.
 - [ ] Follow [ER-Save-Lib #6](https://github.com/ClayAmore/ER-Save-Lib/issues/6) — OPEN, no reply.
