@@ -18,6 +18,13 @@ public sealed class SpatialProgressionTests
         var store = new ReferencePackStore([plugin]);
         Assert.Empty(store.LoadErrors);
         var references = store.Pin(plugin, title);
+        var crosswalk = references.Catalog(ItemCatalogs.SkillCrosswalk)!.Search(new() { Limit = 200 });
+        Assert.NotEmpty(crosswalk.Items);
+        Assert.All(crosswalk.Items, entry =>
+        {
+            Assert.Contains("class/tree only", entry.Description);
+            Assert.Contains("exact skill names remain unknown", entry.Dataset.Attribution.Modifications);
+        });
         var catalog = references.Catalog(GearboxSkills.CatalogId)!;
         Assert.Equal(count, catalog.Count);
         var record = catalog.Find(key)!;
@@ -28,6 +35,9 @@ public sealed class SpatialProgressionTests
         Assert.Equal("5", record.Attributes["maxPoints"]);
         var file = GearboxTestData.PrimaryCharacter(title);
         using var document = (GearboxDocument)plugin.Open(file, references);
+        var tabs = Assert.IsType<TabsNode>(document.BuildView());
+        Assert.Contains(tabs.Tabs.Single(tab => tab.Title == "Skills").Children.OfType<TextNode>(),
+            text => text.Text.Contains("exact skill names remain unknown", StringComparison.Ordinal));
         var page = document.Query(GearboxSkills.CatalogId, new() { Text = name, Limit = 1 });
         var field = Assert.IsType<FieldNode>(Assert.Single(page.Rows).Cells["name"]);
         Assert.Contains("Rights reserved by Gearbox Software / 2K", field.Description);

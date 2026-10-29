@@ -14,7 +14,7 @@ internal sealed class GearboxSkills(GearboxDocument document, GearboxLazyViews l
     internal const string CatalogId = "skills";
     internal const string AllocationsId = "skill-allocations";
     private const int GraphPageSize = 100;
-    private const string ReferenceNotice = "Calculator names are joined to stored subobjects only when a pinned community tree prefix identifies the class/tree and the remaining fields are unambiguous. " +
+    private const string ReferenceNotice = "Stored subobjects are joined to class/tree only when a pinned community tree prefix matches; exact skill names remain unknown. " +
         "Diagram edges describe cumulative tree-point gates, never a requirement to buy every earlier skill. No availability or ownership is inferred.";
     private static readonly QueryableColumn[] ReferenceColumns = [new("name", "Skill"), new("branch", "Class / tree"),
         new("tier", "Calculator tier", IntegerSpec.Int32), new("max", "Calculator ranks", IntegerSpec.Int32), new("description", "Description"),

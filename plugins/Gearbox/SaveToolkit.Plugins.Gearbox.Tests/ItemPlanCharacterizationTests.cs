@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.Gearbox.Tests;
 
 public sealed class ItemPlanCharacterizationTests
 {
-    private const string StructuralWarning = "Removal unequips matching slots and rebases surviving equipment indices. Import assigns seen/pickup metadata; duplicates clone all existing metadata. Account cloud mirrors are not reconciled.";
+    private const string StructuralWarning = "Removal unequips matching slots and rebases surviving equipment indices. Import assigns seen/pickup metadata; duplicates retain existing metadata except for a new backpack pickup order. Account cloud mirrors are not reconciled.";
     private static readonly string[] LevelIds = ["item-0/level", "item-2/level"];
     private static readonly string[] PresenceIds = ["item-0/presence", "item-2/presence"];
     private static readonly string[] RemovalIds = [.. PresenceIds, "slots/1/index", "slots/2/index", "slots/3/index", "slots/4/index"];

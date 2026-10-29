@@ -14,6 +14,7 @@ characterizations, not timing assertions, browser measurements, retained-heap si
 or console performance promises. Other processes, tiered JIT, GC and scheduling can
 substantially change elapsed times; allocation differences are the stronger evidence.
 
+The table is a historical 2026-10-29 comparison, not a fresh measurement of current HEAD.
 Before: production code at `b5d6f4d`; after: `4d03e05` and `6ec24b5`, using the
 same benchmark source and machine. Raw TRX results are retained under
 `D:/Temp/saveeditor/benchmarks/review-perf-gearbox/` (not committed); build outputs
@@ -102,8 +103,15 @@ then asserts one read, byte-identical outputs, corrupt-member rejection and inva
 role rejection before reading payloads. Existing group tests exercise lost-loot
 insertion before inventory indexing and whole-group undo/redo.
 
-Final validation: **197 passed / 0 failed / 0 skipped**, compared with the baseline
+Final validation for that performance round: **197 passed / 0 failed / 0 skipped**, compared with the baseline
 **179 / 0 / 0**. The first regression run was **8 failed / 6 passed / 0 skipped**;
 the additional two concurrent-initialization cases were added after the fallback fix.
 The API build completed with **0 warnings / 0 errors**. All 11 changed repository
 files are within `plugins/Gearbox/`; handwritten C# remains below 300 lines.
+
+The later test-quality review (`1094dcc`, 2026-10-29) added current-thread allocation budgets to
+each `PerformanceMeasurements` phase and to first/repeated asset loads. Elapsed times remain
+diagnostic only. The current every-sample open test enforces a warmed 32 MiB allocation budget;
+the 5,000-item bank checks use 12 MiB for view/page creation and 256 KiB for a cached page.
+Those assertions do not turn the historical elapsed-time or allocation figures above into current
+measurements. See the README's dated documentation audit for the subsequent full-suite result.

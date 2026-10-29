@@ -8,16 +8,16 @@ been removed. Edited files have not been loaded on a console.
 
 | Area | Support | Evidence / limits |
 | --- | --- | --- |
-| Character | Editable name; class asset paths; Wonderlands primary/secondary branches | Schema names and sample strings; class display names are not guessed |
+| Character | Editable name; read-only class asset paths and Wonderlands primary/secondary branches | Schema names and sample strings; attributed class joins are Inferred, unmatched paths Unknown |
 | Level / XP | Editable; BL3 levels 1–72, Wonderlands 1–40; existing recorded-level stat updated | Upstream exact XP tables; all sample XP/stat values agree |
-| Skills | Editable unspent points/tree grade; F8 stored allocations and 425 named reference skills; F9 allocation/calculator graphs | Stored paths get bounded class/tree joins from pinned community prefixes; exact skill names still require an unambiguous match |
+| Skills | Editable unspent points/tree grade; F8 stored allocations and 425 named reference skills; F9 allocation/calculator graphs | Stored paths get bounded class/tree joins from pinned community prefixes; exact saved-skill names remain Unknown |
 | Currency | Money, eridium / moon orbs | Documented hashes `618814354` / `3679636065` match all character samples |
 | Keys | Golden / skeleton keys; create absent category only on a nonzero edit | Published path/hash algorithm; `2420693941`; all supplied profiles omit this record |
 | Ammo | Editable finite resource-pool amounts | Schema floats and full resource paths; game capacity may clamp them |
 | SDUs | Edit existing known purchased tiers | Pinned upstream tier bounds; conservative capacity policy rejects overflowing reductions |
 | World | Edit existing Mayhem/Chaos levels and Chaos unlocked ceiling; F8 missions and F9 external-map checklist | BL3 0–11, TTWL 0–100 editor bounds; unlock challenges/rewards remain unchanged; no coordinates/art imported |
 | Inventory | Named, queryable backpack/bank/lost loot; lazy serial/part details, original codes, level, CRC/layout status, raw flags/pickup/equipment indices | Attributed family labels plus 499 community localized balance labels and factual part descriptions; generated effects/legal combinations remain unknown |
-| Reference browser | F2 title-scoped packs, F4 inspection and constrained existing-part replacement, F8 catalogues | Offline, versioned, attributed zlib/MIT data; raw fallback; inspection makes no save changes |
+| Reference browser | F2 title-scoped packs, F4 inspection and constrained existing-part replacement, F8 catalogues | Offline, versioned zlib/MIT resources, community facts and publisher assets with separate attribution; raw fallback; inspection makes no save changes |
 | Profile | Planned bank/lost-loot operations; existing Guardian/Myth edits inside F7 | Unknown mirror precedence and budgets are explicitly warned, never inferred |
 | Coordinated group | Explicit character + profile selection from one title/imported generation/backup status; bank, progression and account mirrors in one writable transaction | F7 ownership/fingerprint/conflict handling; separate PS5 save directories supported; generation numbers alone do not establish gameplay compatibility |
 | Account / character mirrors | Separate BL3 legacy/character/profile Guardian ranks, old/new XP, tokens, raw rewards/perks/enabled flags; TTWL Hero stats, Myth XP/indexed points and last-tree index when present | Independently checked selected wire tags; absent records stay absent; raw assets stay raw; Myth index labels inferred from upstream, no calculated rank or automatic reconciliation; existing raw edits only in F7 |
@@ -45,7 +45,7 @@ numeric level/index sorting and paging (at most 200 rows). F3 rows show a confid
 name, raw part-family key and lazy details. Details include original `BL3(...)` codes (both games use
 this wrapper), balance/inventory/manufacturer paths, raw parts, flags, pickup order, reroll count and
 Wonderlands' raw Chaos tier when the entire known layout parses. No exact rarity, combat statistics,
-localized full names or legal part combinations are inferred. Optional local skill icons and curated
+generated full item names or legal part combinations are inferred. Optional local skill icons and curated
 whole-item reference thumbnails are bundled; these never render the saved part configuration.
 
 F4's **Inspect catalogue entry** and **Inspect serial index / part** actions browse F2 catalogues with
@@ -79,8 +79,9 @@ the pinned key set, applying attributed host labels when available; additional o
 not enumerated. Every displayed label carries its record attribution, including raw fallback handling.
 
 Game patch, DLC/hotfix state and completeness are **unknown**; internal serial database versions are
-not PS5 build numbers. Every dataset has attribution and a hash in `pack.json`, plus a source sidecar
-with pinned source revision, original compressed-file SHA-256 and conversion notes. No licence is
+not PS5 build numbers. Every dataset has attribution and file hashes in `pack.json`, plus a source
+sidecar with source revisions/retrieval dates and conversion notes. The serial-resource sidecars
+also pin the original compressed-file SHA-256 values. No licence is
 published for the pinned bl3data/wldata game exports; the historical NC assertion had no exact
 terms/source pin, and no verified NC/no-redistribution restriction is established for those sources.
 Object/path conventions were cross-checked, but export payloads are not redistributed; pinned zlib
@@ -120,7 +121,7 @@ No map backgrounds were added. Stored mission states have no verified positions 
 transform; the existing bounded checklist/text alternative and external guide remain usable.
 This is missing coordinate evidence, not a remaining publisher-art refusal.
 
-Quick first-load measurement (`AssetLoadMeasurements`, Debug/.NET 10, fresh process; largest sample,
+Historical asset-round measurement, 2026-10-29 (`AssetLoadMeasurements`, Debug/.NET 10, fresh process; largest sample,
 store creation + pin + open + root view + first 20 rows of every collection, archive import excluded):
 
 | Title / largest sample bytes | Before ms / allocated bytes | After ms / allocated bytes | Warm reopen before → after |
@@ -128,8 +129,11 @@ store creation + pin + open + root view + first 20 rows of every collection, arc
 | BL3 / 1,567,384 | 560.034 / 314,788,192 | 461.654 / 324,371,664 | 36.800 → 34.293 ms; 24,491,360 → 25,345,656 bytes |
 | TTWL / 538,381 | 425.275 / 276,077,264 | 386.406 / 284,866,688 | 23.315 → 65.356 ms; 9,848,472 → 10,415,880 bytes |
 
-These single stopwatch observations include JIT/GC and are not timing assertions. The warm measurement
-reuses the same pack store; tests also prove repeated pins serve the same cached image buffers.
+These single stopwatch observations include JIT/GC and are not timing assertions. The historical
+allocation counter was process-wide and could include other test activity; these figures are not
+isolated per-load allocation evidence. The current test uses current-thread allocation with explicit
+first/repeated-load budgets. The warm measurement reuses the same pack store; tests also prove
+repeated pins serve the same cached image buffers.
 
 The later [performance review (#40)](PERFORMANCE.md) measures separate pack, fallback, open/view,
 lazy-detail, serial codec and F7 phases on the largest samples in Release. Per-catalog lazy fallback
@@ -186,13 +190,14 @@ respec remain unavailable: a reliable subobject→skill crosswalk and dependent 
 have not been established. Existing unspent-points/tree-grade edits remain enabled.
 
 The `skills` datasets contain **315 BL3** and **110 Wonderlands** skills from pinned MIT community
-community calculators: names, plain-text descriptions, calculator tiers and rank caps. BL3 covers
+calculators: names, plain-text descriptions, calculator tiers and rank caps. BL3 covers
 the trees actually present upstream, including its partial DLC coverage; missing fourth trees
 stay unknown. Class feats and executable combat-effect formulas were not imported. Skill icons and
 literal card-effect lines were added in the asset round with separate publisher-rights attribution.
 Reference IDs are calculator slugs, never save IDs. The additional crosswalk records map known tree
-prefixes to class/tree and mark the join `Inferred`; unresolved paths remain raw and every reference
-graph state is Unknown.
+prefixes to class/tree and mark the join `Inferred`; unresolved paths remain raw. The current
+allocation view always reports `Unknown skill (tree only)`: it does not resolve exact skill names,
+even when a tier/rank-cap combination looks unique. Every reference graph state is Unknown.
 Gate→skill edges mean a calculator's cumulative earlier-tier point requirement, **not** that every
 preceding skill must be bought. These are upstream build facts, not verified PS5/hotfix rules.
 Targets open attributed read-only controls; the text alternative contains the same facts.
@@ -235,14 +240,21 @@ counts against the intended model; transfer/import regressions assert persisted 
 | F3 rich cells | Used | Expanded in the asset round (2026-10-29): attributed local skill/item images, explicitly whole-item part reference thumbnails, confidence-labelled fields and lazy details; raw/text fallback when unavailable |
 | F4 reference pickers | Used | Added in the completion round: existing serial-part replacement with category/width eligibility and independent writer checks; browse-only asset/class/mission/skill references and attributed inspection actions |
 | F5 structural history | Used | Import/duplicate/remove and bank moves retain full wire bytes, duplicate identities and counters in snapshots |
-| F6 planning / #27 | Used | Selected/full-filter item levels, import/duplicate/remove and F7 transfers preview changes/skips/warnings; host resolves query scopes |
+| F6 planning / #27 | Used | Item levels accept document scope (all member inventory containers), explicit rows or host-resolved F8 query rows. Duplicate/remove and F7 transfers require explicit or host-resolved rows; import uses document scope into backpack/bank. Plans preview changes/skips/warnings |
 | F7 groups | Used | Extended in the completion round: explicit character/profile transactions; graph/map links and query selections are namespaced to their owning member |
-| F8 collections | Used | Expanded in the completion round: backpack/bank/lost loot/balance/world catalogues plus named skills, stored allocations and missions; 200-row query cap and full-set search/filter/sort |
+| F8 collections | Used | Backpack/bank/lost loot/balance/world catalogues, named skills, stored allocations and missions; equipment, SDUs, ammo, Guardian and Myth lists use F8 above 100 rows (F14). Full-set search/filter/sort with a 200-row query cap; duplicate item identities remain distinct |
 | F9 graph/map | Used | Added in the completion round: stored allocation graphs, calculator gate graphs, external-only mission checklist; bounded lazy pages, text alternatives and control links |
-| F10 numbers / nullable / union | Used | Int128-backed integer specs retain protobuf integer precision; float32 resource pools use FloatSpec.Single. Nullable/union: N/A because protobuf absence is not an explicit null or type union and is preserved, never fabricated |
+| F10 exact / nullable / union | N/A | Exposed scalars are typed protobuf integers/float32, with no decimal lexemes, explicit null or scalar type union. Existing Int128-backed IntegerSpec / integer-string transport and FloatSpec.Single suffice; ExactNumberSpec, NullableSpec and UnionSpec are not used. Absent records are preserved except for the documented write-created records |
 | F11 shared codecs | N/A | GVAS feedback-obfuscated protobuf and item bitstreams use neither Kraken/Oodle nor SQLite; no local implementation of those codecs exists |
 | F12 decoder providers / F8 traversal | Used | Added in the completion round: SDK-only `ISaveDecoderProvider` registers `gearbox-evidence`; fixtures use the production hook, independently cross-checked on every sample generation. Host traversal covers F8 views with its shared budgets |
 | F13 inspection / browse / sort | Used | Added in the completion round: both catalogue actions set `Mutates = false`; read-only reference fields support attributed browse-only pickers, category filters and name/key sorting. Float duration N/A: stored play time is integral seconds, resource floats are ammunition amounts |
+
+Shared SDK helpers are **Used**: `GvasReader` uses `BoundedBinaryCursor` / `FStringCodec`,
+`SerialEnvelope` uses incremental `Crc32Ieee` with Gearbox-specific coverage/folding, and
+`GearboxImages` uses `ReferenceViews.Icon` with separate record/image provenance and a text fallback.
+`BoundSaveDocument` supplies bindings and structural history; the plugin retains its cloned-tree
+scalar transaction and custom collection queries. `InMemoryCollection<T>` is not adopted: these
+queries retain item decode caches, lazy bindings, stored-order and equipment-vacancy semantics.
 
 ## Completion gap audit
 
@@ -261,8 +273,9 @@ counts against the intended model; transfer/import regressions assert persisted 
 
 ## File roles and layout
 
-`profile` is the profile; positive numeric filenames such as `1` are character slots. Probe requires
-the supported title ID, file role and `GVAS` magic. Open validates branch/class/version as well.
+`profile` is the profile; one-to-three ASCII-digit filenames with no leading zero (such as `1`)
+are character slots. Probe requires the supported title ID, file role and `GVAS` magic.
+Open validates branch/class/version as well.
 Ordinary single-file documents return only their opened file. Explicit F7 groups return both selected
 members exactly once. Console backups are separate selections, never silently rewritten.
 
@@ -302,14 +315,22 @@ an SDU edit. Ammo capacity, bank-category counters and cloud mirrors are not gue
 
 ## Enabled writes and their evidence
 
-Owner decision on 2026-10-28: **enable writes, keep warnings**. The following **22 write paths/families**
-are Experimental. Every new writable field is Inferred and warns that it has not been validated on
-console. Unknown integrity is a rejection risk: the game may reject/clamp/remove edited content.
+Owner decision on 2026-10-28: **enable writes, keep warnings**. All enabled writes below are
+Experimental. Legacy name/progression/currency/ammo fields retain `Verified` schema meanings;
+serial/SDU/difficulty/account fields are `Inferred`. Neither label establishes console acceptance.
+The overview and write controls describe their limits. Unknown integrity is a rejection risk:
+the game may reject/clamp/remove edited content.
 All outputs are reparsed; known item CRCs are repaired. No additional wrapper integrity algorithm is
 known. Controlled game captures and console acceptance are tracked separately in [#31][owner-validation].
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
+| Character name | Verified | Schema/string samples; stored limit 1–128 or fallback 32 UTF-16 units; invalid names rejected | Strict UTF-8 encode and complete output reparse | Display, load/resave/reload [#31][owner-validation] |
+| Character level / XP | Verified | Exact upstream XP thresholds, every-snapshot edit/reopen and history tests | XP, existing level stats and supported ability-point/tree-grade consequences change atomically; milestones unchanged | Level, skill points, unlock dependencies [#31][owner-validation] |
+| Unspent skill points / tree grade | Verified | Existing ability message and named schema scalars | Nonnegative Int32 policy; spent allocations and budgets unchanged | Point budget, unlock behavior [#31][owner-validation] |
+| Recorded level statistic | Verified | Existing named stat, sample agreement with XP-derived level | Direct nonnegative Int32 edit; this stat alone does not change XP/level | Display and resave consistency [#31][owner-validation] |
+| Money / eridium / moon orbs / golden or skeleton keys | Verified | Published category hashes and sample/edit/reopen tests; absent key category creation tested synthetically | Create absent category only for nonzero edits; existing out-of-policy values read-only; complete output reparse | Clamping, balances and profile keys [#31][owner-validation] |
+| Ammo | Verified | Schema float32 resource pools; signed-zero no-op and warning tests | Only finite values 0–100,000 editable; pool paths/SDUs unchanged; complete output reparse | Capacity clamping and refill behavior [#31][owner-validation] |
 | 1. Item level | Inferred | Pinned datalib header; all 161 primary serial occurrences; exact-bit/F1 tests | Original seed/tail retained; folded CRC repaired | Card level, load/resave/reload [#31][owner-validation] |
 | 2. Reroll count | Inferred | Complete known v4/v5 layout; 8-bit counter | CRC repaired; other bits retained | Reroll cost/enchantment unchanged [#31][owner-validation] |
 | 3. TTWL item Chaos tier | Inferred | Pinned v5 layout, tiers 0–4 | CRC repaired; other bits retained | Card/tier/stats after reload [#31][owner-validation] |
@@ -318,13 +339,13 @@ known. Controlled game captures and console acceptance are tracked separately in
 | 6. Existing Mayhem/Chaos level | Inferred | Separate schemas, sample playthrough records | Output reparsed; modifiers/rewards unchanged | Difficulty/modifiers/loot [#31][owner-validation] |
 | 7. TTWL Chaos unlocked ceiling | Inferred | Known mayhem_unlocked_level scalar; 0–100 policy | Output reparsed; trial milestones unchanged | Trial menu, rewards, relock behavior [#31][owner-validation] |
 | 8. Bulk item levels | Inferred | F6 full-query/selected-row tests; unsupported rows skipped | Same serial CRC repair; one F5 undo | Selected/full batches and skipped gear [#31][owner-validation] |
-| 9. Duplicate selected items | Inferred | Existing complete-layout templates, full message clone | All unknown item fields retained; F5 identity/counter snapshots | Duplicates, capacity, order [#31][owner-validation] |
+| 9. Duplicate selected items | Inferred | Existing complete-layout templates, full message clone | Unknown fields retained; backpack append assigns a new pickup order; F5 identity/counter snapshots | Duplicates, capacity, order [#31][owner-validation] |
 | 10. Import serial | Inferred | Bounded wrong-game/version/CRC/layout checks; original code retained | CRC validated, new protobuf record reparsed | Imported legitimate card and DLC [#31][owner-validation] |
 | 11. Remove selected items | Inferred | Known list/equipment schema; derived index preview | F5 restores exact original bytes/IDs | First/middle/last and equipped removal [#31][owner-validation] |
 | 12. Backpack → bank | Inferred | Role-specific bytes/message schemas; sample F7 transactions | F6 inside F7, both outputs validated; metadata-loss rejection | Matched pair, duplicates, full bank [#31][owner-validation] |
 | 13. Bank → backpack | Inferred | Same schema evidence; seen/pickup metadata policy | F6/F7/F5; original serial unchanged | Counts, order, UI marks, full backpack [#31][owner-validation] |
 | 14. Lost-loot claim | Inferred | Known byte-only profile list and character item schema | F6/F7/F5; source/destination atomic | Claim menu, uniqueness, cloud precedence [#31][owner-validation] |
-| 15. Character + profile field batch | Inferred | F7 host staging/ownership and complete snapshots | One history/export group for both roles | Combined independent edits and clean reload [#31][owner-validation] |
+| 15. Character + profile field batch | Member field's label | F7 host staging/ownership and complete snapshots | One history/export group for both roles | Combined independent edits and clean reload [#31][owner-validation] |
 | 16. Existing Guardian rank/XP/tokens/enabled scalars | Inferred | Independent gameplay-only wire probes; schemas | F7 only, no missing records or inferred mirror direction | Profile plus every character, budgets [#31][owner-validation] |
 | 17. Existing Guardian reward/perk tokens/enabled | Inferred | Known rank_rewards/rank_perks messages | Unknown fields retained; F7 only | Perk effects and token budget [#31][owner-validation] |
 | 18. Existing Hero stats | Inferred | TTWL uint32 schema, upstream labels; max(observed,30) policy | F7 only; backstory/budget untouched | Raw/base/bonus stats, respec [#31][owner-validation] |
@@ -393,10 +414,12 @@ These cases must not change output bytes without an undo entry. Derived changes 
 exact XP, skills/statistics and removal of newly added key records. Serialize parses its own complete
 output wrapper, decodes/validates the protobuf and compares it with the intended wire message.
 
-Bounds: 32 MiB input, 1,024 custom versions, 16 KiB header strings, 40 known-message nesting levels,
-250,000 fields. Tables/raw pages have ≤100 records and large areas are lazy. Opening every sample is
-tested below two seconds. Runtime I/O is limited to embedded resources; there is no filesystem/network
-I/O or shared mutable document state.
+Bounds: 32 MiB input, 1,024 custom versions, 16 KiB header strings (8,192 UTF-16 code units),
+40 combined message/group nesting levels and 250,000 wire records/packed elements. Raw/difficulty
+pages, stored skill graphs and mission checklists use 100-record lazy pages; small stored-list tables
+use at most 100 eager rows, while F8 queries return at most 200 rows. Every-sample opening has a warmed
+32 MiB allocation budget, not an elapsed-time deadline. Runtime I/O is limited to embedded resources;
+there is no filesystem/network I/O or shared mutable document state.
 
 ## Sample evidence
 
@@ -419,6 +442,16 @@ Samples/decoded payloads were inspected only in external scratch storage and are
 
 ## Validation
 
+Documentation audit, 2026-10-29, against implementation at `6169d14`: the full Release Gearbox
+suite passed **330 tests, 0 failed, 0 skipped** with the prescribed external sample archives.
+The full multi-plugin F1 CLI passed **2 fixtures, 0 failed, 0 skipped**, without isolated discovery.
+`python docs/tests/test_documentation.py` passed **14 checks**; the Release API build with
+`--warnaserror` passed with **0 warnings, 0 errors**. This audit also corrects factually wrong
+display/provenance strings about exact skill joins and duplicate pickup metadata, updates their
+existing test expectations and record-file hashes, and retains behavior, IDs and confidence labels.
+There are no pinned Gearbox view fingerprints to update.
+The review totals and measurements below are dated historical runs, not the current test count.
+
 SDK helper migration ([#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40)), 2026-10-29:
 `GvasReader` delegates bounds and strict string decoding to `BoundedBinaryCursor` / `FStringCodec`
 with the existing 16,384-byte / 8,192-UTF-16-code-unit cap. Its thin adapter retains the exact Gearbox
@@ -438,15 +471,21 @@ were kept under `D:/Temp/saveeditor/test-scratch/refactor-sdk-helpers-gearbox`.
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
-dotnet test --project plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests
-dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/Gearbox/fixtures.json --artifacts $env:SAVETOOLKIT_ARTIFACTS
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:TEMP='D:/Temp/saveeditor/test-scratch/docs/accuracy-gearbox'
+$env:TMP=$env:TEMP
+$env:SAVETOOLKIT_TEST_TEMP=$env:TEMP
+New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
+dotnet test --project plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests -c Release
+dotnet run --project tools/SaveToolkit.SaveDiff -c Release -- verify plugins/Gearbox/fixtures.json --artifacts $env:SAVETOOLKIT_ARTIFACTS
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release --warnaserror
+python docs/tests/test_documentation.py
 ```
 
 Asset-round validation, 2026-10-29: **156 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
-0 failed, 0 skipped** with Gearbox-only plugin discovery; API build **0 warnings, 0 errors**. The full
-multi-plugin SaveDiff command currently fails before decoding because another plugin registers the
-duplicate hook ID `ffxvi`. For the Gearbox check, the built CLI/dependencies and Gearbox assembly
+0 failed, 0 skipped** with Gearbox-only plugin discovery; API build **0 warnings, 0 errors**. At that
+time the full multi-plugin SaveDiff command failed before decoding because another plugin registered
+the duplicate hook ID `ffxvi`; the current FinalFantasy16 hook is `ffxvi-evidence`.
+For that historical Gearbox check, the built CLI/dependencies and Gearbox assembly
 were copied to an external temporary folder with other plugin assemblies omitted; no repository
 files were changed for this isolation. The environment variable was exported in the
 same shell command as each sample-backed test run. Sample-dependent tests still skip when absent.
@@ -530,8 +569,9 @@ Completion tests add independently checked single-part bit/CRC changes, category
 host picker edits and history, attributed skill graphs/maps with reachable F7 targets, 1,200-row
 skill/mission queries and 5,000-item banks for both games, using both real and sample-free synthetic
 fixtures. Bank tests assert warmed allocation budgets for a fresh view/page (12 MiB) and a repeated
-page (256 KiB); every-sample open/no-op tests use a 32 MiB allocation budget instead of elapsed-time
-deadlines. Observed maxima are about 7 MB, 115 KB and 20 MB respectively. Part-write tests independently
+page (256 KiB); every-sample opening uses a 32 MiB allocation budget instead of an elapsed-time
+deadline, followed by a separate byte-identical no-op assertion. Test-quality-review observations
+(2026-10-29) were about 7 MiB, 115 KiB and 20 MiB respectively. Part-write tests independently
 assert the selected index bits; synthetic regular/generic slots cover signed seed boundaries, exact
 payload/CRC output, no-ops, inversion and rejected slot/category/index/CRC inputs. A no-op writer
 mutation passes the former corpus oracle but fails the synthetic success cases. New-record tests assert actual persisted import/transfer
@@ -542,7 +582,7 @@ F13 tests verify inspection annotations, browse-only filtering/sorting and rejec
 [`fixtures.json`](fixtures.json) pins archive SHA-256 and observed generation-0/1 XP/money facts.
 These are uncontrolled existing generations, **not** proven before/after game actions or chronology.
 No speculative churn masks are applied. `GearboxGameplayDecoder` exposes the F12 production hook
-`gearbox-evidence` without a Testing dependency, selecting only gameplay scalars and serial content identities; duplicate
+`gearbox-evidence` without a Testing dependency, selecting character XP/money and serial content identities; duplicate
 serials retain multiplicity. A changed serial appears removed/added because durable cross-capture
 item identity is unknown. Tests run the same manifests through the independent test decoder, production hook and
 the CLI's `PluginViewDecoder`. No sample bytes, decoded payloads or account identifiers are committed.
@@ -576,8 +616,9 @@ licence refusal.
 
 ## Sources and attribution
 
-Research date: 2026-10-29. Downloaded source was read as untrusted text, never executed. Implementation
-code is independently written; reference resources contain schema/numeric facts. Notices are retained
+Research date: 2026-10-29. Downloaded source was read as untrusted text, never executed. Independent
+implementations and altered C# adaptations are identified below; reference resources contain schema,
+numeric and display data with separate artwork/text attribution. Notices are retained
 under [Notices](Notices/). Serial envelope/layout code is explicitly marked as an altered C# adaptation
 of the pinned zlib `datalib.py` implementations. No downloaded implementation was executed.
 
@@ -604,7 +645,7 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 | TTWL `part-labels` | [TTWLSaveEditor mapping](https://github.com/somefunguy/TTWLSaveEditor/tree/c6d701ec4a5ae1c115017de54d39df4813c035c1/BL3Tools/GameData/Items/Mappings) | somefunguy / contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | 4,327 raw path-to-token labels; not presented as localized game text |
 | TTWL `skill-crosswalk` | [TTWLSaveEditor mapping](https://github.com/somefunguy/TTWLSaveEditor/tree/c6d701ec4a5ae1c115017de54d39df4813c035c1/BL3Tools/GameData/Items/Mappings) | somefunguy / contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | Seven class tree-prefix joins; exact skill names are never inferred by order |
 | BL3/TTWL export provenance | [`bl3data`](https://github.com/apocalyptech/bl3data/tree/b0bfc16865d82d01bed7104bb357561c702c2561), [`wldata`](https://github.com/apocalyptech/wldata/tree/7d1d53ff86f227b4574fd8b1a294590b42b5f7aa) | apocalyptech / community contributors | No licence published for the game exports; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | Object/path conventions were cross-checked; no proprietary export payloads, artwork or icons are redistributed |
-| External community map links | [BL3](https://mapgenie.io/borderlands-3), [Wonderlands](https://mapgenie.io/tiny-tinas-wonderlands) | Map Genie | Reuse unverified; **link only** | 2026-10-28 | No art, coordinates, map content or descriptions imported; current host blocks automated access |
+| External community map links | [BL3](https://mapgenie.io/borderlands-3), [Wonderlands](https://mapgenie.io/tiny-tinas-wonderlands) | Map Genie | Reuse unverified; **link only** | 2026-10-28 | No art, coordinates, map content or descriptions imported; automated access was blocked during that research |
 | Equipment vacancy (`-1`) | BL3 `bl3save.py` at [d459b28][bl3-root]; TTWL `ttwlsave.py` at [1fde90d][ttwl-root] (direct links in F14 section) | CJ Kucera / apocalyptech | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-29 | Existing format fact cross-checked against supplied PS5 snapshots; original F14 presentation implementation, no copied code |
 | SDU tiers, item flags and new-record metadata policy | [BL3 constants][bl3-constants], [TTWL constants][ttwl-constants], BL3 `bl3save.py`, TTWL `datalib.py` in the pinned repositories | CJ Kucera / Abram Hindle | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Altered C# definitions/flag handling; capacity formulas are original conservative editor policies |
 | Serial envelope / layout adapter | [BL3][bl3-serial], [TTWL][ttwl-serial] | CJ Kucera / Abram Hindle; upstream credits Baysix | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Altered bounded C# adaptation with exact-bit writes and original-seed CRC repair |
@@ -651,9 +692,9 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 
 ## SDK requests
 
-**GEARBOX-R4 / F7: delivered by #29; writable adoption complete in this write-enable round.** The merged final comment,
-SDK and plugin guide were checked against all five original requirements below. No host-contract gap
-was found; the original audit is reported on #29. Supported bank writes now use F6 inside F7.
+**GEARBOX-R4 / F7: resolved by [#29](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/29);
+writable adoption implemented.** Supported bank writes use F6 inside F7. The delivered contract
+addresses the original requirements:
 
 1. Explicitly select a supported title, character path and matching profile path from the **same imported
    generation**; report unsupported/missing/ambiguous partners before opening an owning transaction.
@@ -671,10 +712,12 @@ F7 supplies explicit proposals and immutable inputs (1/3), exclusive ownership/f
 conflict checks (2), candidate staging with full snapshots/rebinding and shared revisions (3/4), and
 all-member role-specific validation/atomic export with explicit backup ownership (5). Its framework
 tests and this plugin's sample-backed tests cover writable adoption, transfer history/export and
-fresh-snapshot restoration. F1–F11 are available; planned coordinated actions use
-F6 planning and F7 staging with F5 structural snapshots.
-No outstanding framework contract request or alternative output API is needed. F12/F13 are adopted
-after rebasing this worktree onto the merged framework contracts; no plugin-local substitute is used.
+fresh-snapshot restoration. Planned coordinated actions use F6 planning and F7 staging with F5
+structural snapshots. F12's `ISaveDecoderProvider` / `gearbox-evidence` and F13 inspection/browse
+contracts are also adopted. Shared binary/string/CRC and reference-icon helpers are implemented
+as listed under Framework feature adoption; these are resolved integrations, not SDK requests.
+No outstanding framework contract request or alternative output API is needed. Remaining capture,
+console-validation and gameplay-model gaps are listed above and tracked in [#31][owner-validation].
 
 ## Owner capture and validation checklist
 
