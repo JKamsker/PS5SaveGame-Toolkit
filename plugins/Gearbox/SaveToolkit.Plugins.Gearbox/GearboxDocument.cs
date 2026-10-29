@@ -106,25 +106,6 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         return field with { Confidence = Confidence.Inferred, Description = SerialWrites.Warning, Warning = SerialWrites.Warning };
     }
 
-    internal FieldNode DerivedProjection(string id, string canonicalId, string label, FieldSpec canonicalSpec,
-        Func<FieldValue> get, string description)
-    {
-        var spec = canonicalSpec with { ReadOnly = true };
-        var field = Field(id, label, spec, get);
-        RegisterField(new FieldMetadata(id, label, spec)
-        {
-            BindingKind = FieldBindingKind.Derived,
-            CanonicalValueId = canonicalId,
-            Presentation = new FieldPresentation
-            {
-                Confidence = Confidence.Inferred,
-                Description = description,
-                Warning = SerialWrites.Warning,
-            },
-        }, get);
-        return field with { Confidence = Confidence.Inferred, Description = description, Warning = SerialWrites.Warning };
-    }
-
     internal FieldNode RawFlags(string id, Func<ProtoMessage> parent) =>
         ActionObservation(id, "Item flags", IntegerSpec.UInt32,
             () => FieldValue.Of(parent().Integer("flags")),
