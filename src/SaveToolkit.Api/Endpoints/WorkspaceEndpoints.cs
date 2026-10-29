@@ -134,7 +134,7 @@ internal static class WorkspaceEndpoints
         {
             Text = request.Query["q"].FirstOrDefault() ?? request.Query["text"].FirstOrDefault(),
             Filters = filters,
-            SortColumn = request.Query["sort"].FirstOrDefault(),
+            SortColumn = request.Query["sort"].FirstOrDefault() is { Length: > 0 } sort ? sort : null,
             Descending = descending,
             IncludeEmpty = request.Query.ContainsKey("includeEmpty") ? includeEmpty : null,
             Offset = offset,
@@ -149,6 +149,10 @@ internal static class WorkspaceEndpoints
         {
             return Results.BadRequest(new ErrorDto("Collection query exceeds the protocol limits."));
         }
+
+        // Apply clearing after all overrides and bounds checks, preserving nonempty/whitespace values.
+        foreach (var key in filters.Where(filter => filter.Value.Length == 0).Select(filter => filter.Key).ToArray())
+            filters.Remove(key);
 
         QueryableCollectionPage page;
         try

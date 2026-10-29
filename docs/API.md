@@ -205,9 +205,9 @@ parameters and responses are identical to the route alias below.
 | `offset` | Integer 0, minimum 0, up to Int32 maximum. |
 | `limit` | Integer 50, inclusive 1–200; invalid values rejected, not clamped. |
 | `q` (alias `text`) | Optional substring, maximum 256 UTF-16 code units; `q` takes precedence. |
-| `filters` | Optional JSON object of string values; null values rejected. |
-| `filter.<column>` | Optional per-column string; overrides the same JSON filter, last value wins. |
-| `sort` | Optional published column key. |
+| `filters` | Optional JSON object of string values; null values rejected; empty-string values mean no filter. |
+| `filter.<column>` | Optional per-column string; overrides the same JSON filter, last value wins; an empty string clears it. |
+| `sort` | Optional published column key; an empty string uses default ordering. |
 | `descending` | Boolean false. |
 | `includeEmpty` | Optional boolean; omission uses collection policy. |
 | `cursor` | Optional opaque cursor, length 1–4096; cannot combine with nonzero offset. |
@@ -215,6 +215,8 @@ parameters and responses are identical to the route alias below.
 
 At most 32 filters, nonempty keys up to 128 units, values up to 256 units. Invalid
 syntax, bounds, sort/filter columns, or cursor: 400. Missing collection: 404.
+Empty-string filters are removed after per-column overrides and bounds checks,
+before querying the document. Whitespace-only values remain literal filters.
 Returns `{collectionId,columns,rows,totalCount,filteredCount,offset,limit,
 nextCursor?,revision,hiddenEmptyCount}`. Rows have stable keys and ViewNode cells.
 Pages over 2 MiB serialized JSON: 413, with no partial page emitted.
