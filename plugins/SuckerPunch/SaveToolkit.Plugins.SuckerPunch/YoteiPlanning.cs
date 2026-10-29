@@ -12,7 +12,9 @@ internal sealed class YoteiPlanning(byte[] bytes, YoteiState? state, IReadOnlyDi
     public static ActionNode View => new(ActionId, "Set existing Yōtei quantities")
     {
         SupportsPlanning = true,
-        Description = "Preview a target quantity for existing supported records. Each record uses its own observed bound; " +
+        SelectionTableId = YoteiViews.InventorySelectionId,
+        Description = "Preview a target quantity for selected existing supported records, including selections hidden by filters. " +
+            "With nothing selected, cover all supported records in the inventory. Each record uses its own observed bound; " +
             "locked, unmapped, inconsistent and out-of-bound targets are skipped. Ammo copies and checksum are included. " + YoteiFormat.Warning,
         Parameters = [new FieldNode(Parameter, "Target quantity", new IntegerSpec(0, MaximumTarget), FieldValue.Of(0L))],
     };

@@ -44,6 +44,7 @@ internal sealed class TsushimaReferenceViews(
             new("quantity", "Quantity"), new("copy", "Ammo count copy"), new("mapping", "Name mapping"),
             new("restore", "Selected ammo restoration")], rows)
         {
+            SelectionId = TsushimaIds.InventorySelection,
             Title = "Existing inventory",
             Description = "48 length-prefixed records. Name confidence is separate from quantity confidence and write safety. " +
                 "Capacity and mode-specific eligibility remain unproven; 32767 is an editor bound, not a carrying capacity.",

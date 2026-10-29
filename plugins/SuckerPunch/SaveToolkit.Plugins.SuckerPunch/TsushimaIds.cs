@@ -14,4 +14,5 @@ internal static class TsushimaIds
     public const string WorldGuide = "suckerpunch_world_guide";
     public const string GuidePrefix = "guide/";
     public const string ChecksumValue = "container/word2";
+    public const string InventorySelection = "tsushima/inventory";
 }

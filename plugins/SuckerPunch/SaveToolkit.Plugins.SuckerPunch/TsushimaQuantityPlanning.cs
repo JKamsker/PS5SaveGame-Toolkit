@@ -31,7 +31,9 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
     public static ActionNode View => new(ActionId, "Set existing goods quantity")
     {
         SupportsPlanning = true,
-        Description = "Preview one target quantity for existing Supplies, Flowers and raw Hide records. " +
+        SelectionTableId = TsushimaIds.InventorySelection,
+        Description = "Preview one target quantity for selected existing Supplies, Flowers and raw Hide records, " +
+            "including selections hidden by filters. With nothing selected, cover all existing goods in the inventory. " +
             "Locked or oversized records are skipped. Other inventory IDs are excluded. " + CapacityWarning,
         Parameters = [new FieldNode(QuantityParameter, "Target quantity", new IntegerSpec(0, InventoryRecord.MaximumQuantity), FieldValue.Of(0L))],
     };
@@ -40,7 +42,8 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
     {
         ActionId = InventoryActionId,
         Label = "Set existing resource/ammo quantities",
-        Description = "Preview one target quantity for existing supported resources and ammo. Both ammo count words change together. " +
+        Description = "Preview one target quantity for selected existing supported resources and ammo, including selections hidden by filters. " +
+            "With nothing selected, cover all supported records in the inventory. Both ammo count words change together. " +
             "Locked, oversized, unmapped and inconsistent records are skipped. " + CapacityWarning,
     };
 

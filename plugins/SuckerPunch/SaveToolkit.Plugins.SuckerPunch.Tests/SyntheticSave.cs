@@ -18,7 +18,7 @@ internal sealed class SyntheticSave
     internal const string YoteiStatisticsLast = "CrTriggerMarkedPerkEffects";
     internal const string YoteiGearLast = "SwordSwingFxOnryo";
 
-    internal SyntheticSave(bool yotei, int prefixLength = 96)
+    internal SyntheticSave(bool yotei, int prefixLength = 96, IReadOnlyList<string>? inventoryNames = null)
     {
         IsYotei = yotei;
         Bytes = new byte[yotei ? 616_448 : 555_008];
@@ -38,7 +38,7 @@ internal sealed class SyntheticSave
             WriteName(writer, "LegendsInvestment");
         }
 
-        string[] names = ["ArrowNormal", yotei ? "Mon" : "Supplies", "Flowers", "ArrowFire", "TestItem",
+        string[] names = inventoryNames?.ToArray() ?? ["ArrowNormal", yotei ? "Mon" : "Supplies", "Flowers", "ArrowFire", "TestItem",
             .. Enumerable.Range(5, 42).Select(index => $"UnknownSlot{index:D2}"),
             yotei ? "SurvivalCurrency" : "NGPFlowers"];
         InventoryStart = (int)stream.Position;
