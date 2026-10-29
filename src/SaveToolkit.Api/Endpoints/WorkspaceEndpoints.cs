@@ -20,7 +20,8 @@ internal static class WorkspaceEndpoints
 
     public static void MapToolkitApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("/api").AddEndpointFilter<ApiContractFilter>().WithApiErrors(Status500InternalServerError);
+        var api = app.MapGroup("/api").AddEndpointFilter<ApiContractFilter>()
+            .WithApiErrors(Status499ClientClosedRequest, Status500InternalServerError);
 
         api.MapGet("/plugins", (WorkspaceStore store) =>
             store.Catalog.Plugins.OrderBy(p => p.Info.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ToDto()));
