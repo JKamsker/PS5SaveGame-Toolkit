@@ -553,6 +553,39 @@ bounded shell immediately. Core registers bindings only for rows returned by a p
 page sends that page's `revision`; after a structural edit, old pages receive the same stale 409 used by
 ordinary views and must be refetched.
 
+Original/current semantic review also traverses exposed F8 tables, after eager/lazy
+fields so an existing canonical presentation keeps its label and path. The original
+is opened separately; current pages register ordinary live field bindings for
+individual Revert. Return the same stable field IDs and specs as ordinary queries.
+Queryable search projections can reuse an already reviewed canonical lazy subtree;
+recursive expansion cycles still report incomplete coverage.
+The review requests unfiltered native ordering with `IncludeEmpty = true`, pages
+by offset or cursor, and stops at the declared total even if a trailing cursor is
+present. Do not hide saved rows or change totals while paging. Lazy collections
+must become available when their containing section expands.
+
+Budgets are global across collections **within each snapshot**: 10,000 rows,
+100 pages (at most 200 rows each), 16 MiB of serialized UTF-8 pages including
+read-only content, plus the shared field/navigation memory, node and depth caps.
+Hosts can set `DocumentSessionOptions.MaxReviewQueryRows`, `MaxReviewQueryPages`
+and `MaxReviewQueryBytes`. A budget cut or invalid/failed page returns
+`complete:false` with explicit truncated warnings; unvisited fields never establish
+additions/removals. There is no collection-dirtiness contract, so discovery queries
+all exposed collections within these limits and emits only changed fields.
+
+F8 changes use `collection title / stable row key / field label`, retain enclosing
+section/tab paths plus `row:<key>`, and add a current-page navigation
+`target:{collectionId,rowKey,query}`. A client must load that exact query (including
+empty rows) at the review revision, then locate the row/value ID. This is separate
+from `ViewTarget`, which only navigates already loaded controls. The web review UI
+must consume these targets and visibly present incomplete/truncated coverage;
+backend delivery alone does not provide that UI. Existing eager/lazy JSON is
+unchanged. Undo/redo remains available when a field is read-only, structurally
+added/removed, or outside proven coverage; do not remove plugin safety guards for
+unpublished field metadata (SDK-02).
+Distinct value IDs remain distinct review entries, even if their transitions are
+equal; Core does not guess primary/raw alias relationships from values or ID prefixes.
+
 The web selection context exposes `queryScope` when the user chooses “select all filtered rows”. It is a
 serialisable object containing `collectionId`, the normalized query (`q`, `filters`, `sort`,
 `descending`, `includeEmpty`, with `offset` reset), the F5 `revision`, `totalCount`, and `excludedRowKeys`. Bulk action

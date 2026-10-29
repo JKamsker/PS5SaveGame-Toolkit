@@ -306,13 +306,35 @@ Transport/header rejection happens before invoking the domain operation.
 
 No parameters. Returns `{changes,complete,warnings,revision}`. Each change has
 `valueId,label,path,originalValue,currentValue,originalExists,currentExists,
-canRevert`. `complete:false` means bounded traversal/baseline coverage is partial;
-do not infer missing changes. Baseline survives normal history eviction.
-The current semantic walker traverses eager views and lazy sections, but does not page F8
-collections; unloaded collection fields can be absent from this report. This limitation is
-tracked as [SDK-01](SDK_REQUESTS.md#prioritized-inventory); use plugin-specific tests or SaveDiff
-for broader evidence, and undo for changes the panel cannot individually revert.
-`complete:true` describes the current walk; it does not certify that every F8 field was reviewed.
+canRevert`, plus optional `target` for fields reached through current F8 queryable
+rows. Eager/lazy changes retain their existing JSON shape. `target` contains
+`{collectionId,rowKey,query}`: the exact unfiltered page query (including
+`includeEmpty:true`, `limit`, and either `offset` or `cursor`). Open the enclosing
+sections/tabs from `path`, query the opaque `collectionId` through the query-string
+collection endpoint with the log's `revision`, then locate `rowKey` and `valueId`
+in that page. Translate query `text`/`sortColumn` to endpoint `q`/`sort` if present;
+encode all identities and cursors. Navigation never edits the save. A removed
+field has no current target; refresh the review after any mutation or stale page.
+
+F8 labels include the collection title, stable row key and field label. Review
+scans the original and current documents separately in deterministic native order,
+including empty slots. Global limits **per snapshot**, across all collections:
+10,000 query rows, 100 pages of at most 200 rows, and 16 MiB of complete serialized
+UTF-8 pages (including read-only cells). Retained field/navigation data also uses
+the existing 16 MiB original/current memory cap; the shared view walk remains
+bounded to 100,000 nodes and depth 128. Hosts can configure query budgets with
+`DocumentSessionOptions.MaxReviewQueryRows`, `MaxReviewQueryPages`, and
+`MaxReviewQueryBytes`. No collection-dirtiness capability exists, so exposed
+collections are scanned to discover changes; only changed fields are returned.
+
+`complete:false` means bounded traversal/baseline coverage is partial; do not
+infer missing changes or field additions/removals from unvisited data. F8 budget
+cuts and invalid/failed paging add explicit **truncated** warnings identifying the
+collection/reason. Display these warnings even when `changes` is empty; never show
+“no changes” or “complete review” for partial coverage. Baseline survives normal
+history eviction. Existing `canRevert` governs individual revert, including F8
+fields; derived/read-only fields and structural additions/removals cannot revert
+individually.
 
 ### `POST /api/workspaces/{workspaceId}/documents/{documentId}/changes/revert`
 
