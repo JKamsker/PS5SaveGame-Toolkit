@@ -1,5 +1,4 @@
 using System.Text.Json;
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
@@ -12,9 +11,7 @@ public sealed class AriseReferenceTests
     [Fact]
     public void EmbeddedCatalogsArePinnedAndAttributed()
     {
-        var store = new ReferencePackStore([new TalesOfArisePlugin()]);
-        Assert.Empty(store.LoadErrors);
-        var context = store.Pin(new TalesOfArisePlugin(), "PPSA02745");
+        var context = AriseTestReferences.CreateContext();
         var items = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("items"));
         var equipment = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("equipment"));
         Assert.Equal(271, items.Count);
@@ -29,7 +26,7 @@ public sealed class AriseReferenceTests
     [Fact]
     public void CatalogQueriesSupportTextCategoryAndCharacterFilters()
     {
-        var context = new ReferencePackStore([new TalesOfArisePlugin()]).Pin(new TalesOfArisePlugin(), "PPSA02745");
+        var context = AriseTestReferences.CreateContext();
         using var document = new TalesOfArisePlugin().Open(AriseSampleTests.GameplayFiles().First(f => f.FileName == "SaveData_002.sav"), context);
         var query = Assert.IsAssignableFrom<IQueryableDocument>(document);
         Assert.Equal(271, query.Collections.Single(c => c.Id == "items").TotalCount);
@@ -55,7 +52,7 @@ public sealed class AriseReferenceTests
     [Fact]
     public void ReferenceInspectionIsReadOnlyAndUnknownIdsStayCustom()
     {
-        var context = new ReferencePackStore([new TalesOfArisePlugin()]).Pin(new TalesOfArisePlugin(), "PPSA02745");
+        var context = AriseTestReferences.CreateContext();
         using var document = new TalesOfArisePlugin().Open(AriseSampleTests.GameplayFiles().First(), context);
         var result = document.InvokeAction("references/inspect/items", new Dictionary<string, FieldValue>
         {

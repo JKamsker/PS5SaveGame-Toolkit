@@ -29,6 +29,60 @@ internal sealed class AriseInventoryActions(AriseDocument document)
             throw new KeyNotFoundException($"Unknown Tales of Arise planned action '{actionId}'.");
         }
 
+        var errors = ValidateRequest(actionId, parameters, scope);
+        if (errors.Count > 0)
+        {
+            return new ActionPlan { Errors = errors, Warnings = [Warning] };
+        }
+
+        return PlanSelection(actionId, parameters[QuantityParameter], scope);
+    }
+
+    private ActionPlan PlanSelection(string actionId, FieldValue target, ActionScope scope)
+    {
+        var rows = document.ReadInventoryRows();
+        var byKey = rows.ToDictionary(RowKey, StringComparer.Ordinal);
+        var keys = scope.RowKeys ?? rows.Where(row => !row.IsEmpty).Select(RowKey).ToArray();
+        if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Count || keys.Any(key => !byKey.ContainsKey(key)))
+        {
+            return new ActionPlan
+            {
+                Errors = [new(actionId, "Selection contains duplicate or unknown inventory row keys.")],
+                Warnings = [Warning],
+            };
+        }
+
+        var changes = new List<PlannedChange>();
+        var skipped = new List<SkippedActionRow>();
+        foreach (var key in keys)
+        {
+            var row = byKey[key];
+            var reason = SkipReason(row, target);
+            if (reason is not null)
+            {
+                skipped.Add(new(key, reason));
+                continue;
+            }
+
+            var oldValue = FieldValue.Of((long)row.Quantity);
+            changes.Add(new PlannedChange(key, $"{row.Name} · quantity (raw ID 0x{row.Id:X4})", oldValue, target));
+        }
+
+        changes.AddRange(document.PlanReadOnlyAliases(changes.ToDictionary(change => byKey[change.ValueId].Offset,
+            change => checked((byte)change.NewValue.AsUInt32()))));
+        var selectionDescription = scope.RowKeys is null
+            ? $"Document scope selected {keys.Count} existing inventory rows."
+            : $"Explicit selection contains {keys.Count} existing inventory rows.";
+        return new ActionPlan
+        {
+            Changes = changes,
+            SkippedRows = skipped,
+            Warnings = [Warning, selectionDescription + " No IDs, flags, order or records are added or removed."],
+        };
+    }
+
+    private List<FieldError> ValidateRequest(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
+    {
         var errors = new List<FieldError>();
         if (scope.QueryScope is { } queryScope && queryScope.CollectionId != AriseInventoryQuery.CollectionId)
         {
@@ -51,68 +105,29 @@ internal sealed class AriseInventoryActions(AriseDocument document)
             errors.Add(new(QuantityParameter, $"Quantity must be a whole number from 0 to {AriseDocument.ConsumableStackLimit}."));
         }
 
-        if (errors.Count > 0)
+        return errors;
+    }
+
+    private static string? SkipReason(AriseInventoryRow row, FieldValue target)
+    {
+        if (row.IsEmpty)
         {
-            return new ActionPlan { Errors = errors, Warnings = [Warning] };
+            return "Empty slot; no item is inserted or changed.";
         }
 
-        var target = parameters[QuantityParameter];
-        var rows = document.ReadInventoryRows();
-        var byKey = rows.ToDictionary(RowKey, StringComparer.Ordinal);
-        var keys = scope.RowKeys ?? rows.Where(row => !row.IsEmpty).Select(RowKey).ToArray();
-        if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Count || keys.Any(key => !byKey.ContainsKey(key)))
+        if (row.Name is null)
         {
-            return new ActionPlan
-            {
-                Errors = [new(actionId, "Selection contains duplicate or unknown inventory row keys.")],
-                Warnings = [Warning],
-            };
+            return "Numeric ID is not one of the recognised consumable mappings; preserved.";
         }
 
-        var changes = new List<PlannedChange>();
-        var skipped = new List<SkippedActionRow>();
-        foreach (var key in keys)
+        if (row.Quantity > AriseDocument.ConsumableStackLimit)
         {
-            var row = byKey[key];
-            if (row.IsEmpty)
-            {
-                skipped.Add(new(key, "Empty slot; no item is inserted or changed."));
-                continue;
-            }
-
-            if (row.Name is null)
-            {
-                skipped.Add(new(key, "Numeric ID is not one of the recognised consumable mappings; preserved."));
-                continue;
-            }
-
-            if (row.Quantity > AriseDocument.ConsumableStackLimit)
-            {
-                skipped.Add(new(key, $"Existing quantity {row.Quantity} exceeds the inferred {AriseDocument.ConsumableStackLimit} bound; preserved."));
-                continue;
-            }
-
-            var oldValue = FieldValue.Of((long)row.Quantity);
-            if (oldValue == target)
-            {
-                skipped.Add(new(key, "Existing quantity already equals the requested value."));
-                continue;
-            }
-
-            changes.Add(new PlannedChange(key, $"{row.Name} · quantity (raw ID 0x{row.Id:X4})", oldValue, target));
+            return $"Existing quantity {row.Quantity} exceeds the inferred {AriseDocument.ConsumableStackLimit} bound; preserved.";
         }
 
-        changes.AddRange(document.PlanReadOnlyAliases(changes.ToDictionary(change => byKey[change.ValueId].Offset,
-            change => checked((byte)change.NewValue.AsUInt32()))));
-        var selectionDescription = scope.RowKeys is null
-            ? $"Document scope selected {keys.Count} existing inventory rows."
-            : $"Explicit selection contains {keys.Count} existing inventory rows.";
-        return new ActionPlan
-        {
-            Changes = changes,
-            SkippedRows = skipped,
-            Warnings = [Warning, selectionDescription + " No IDs, flags, order or records are added or removed."],
-        };
+        return FieldValue.Of((long)row.Quantity) == target
+            ? "Existing quantity already equals the requested value."
+            : null;
     }
 
     public EditOutcome Apply(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
@@ -19,7 +18,7 @@ public sealed class AriseInspectionTests
     {
         var plugin = new TalesOfArisePlugin();
         var file = Assert.IsType<DiskSaveFile>(AriseSampleTests.GameplayFiles().First());
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02745");
+        var references = AriseTestReferences.CreateContext(plugin);
         using var original = plugin.Open(file, references);
         using var document = readOnly ? new ReadOnlyDocument(original) : original;
         using var session = new DocumentSession("arise-inspect", file, plugin, document, references: references);
@@ -75,7 +74,7 @@ public sealed class AriseInspectionTests
     {
         var plugin = new TalesOfArisePlugin();
         var file = Assert.IsType<DiskSaveFile>(AriseSampleTests.GameplayFiles().First());
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02745");
+        var references = AriseTestReferences.CreateContext(plugin);
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("arise-browse", file, plugin, document, references: references);
         _ = session.BuildView();
@@ -122,7 +121,7 @@ public sealed class AriseInspectionTests
     {
         var plugin = new TalesOfArisePlugin();
         var file = Assert.IsType<DiskSaveFile>(AriseSampleTests.GameplayFiles().First(file => file.FileName == "SaveData_002.sav"));
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02745");
+        var references = AriseTestReferences.CreateContext(plugin);
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("arise-fixed-inspect", file, plugin, document, references: references);
         _ = session.BuildView();

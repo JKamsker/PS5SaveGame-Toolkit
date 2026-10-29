@@ -1,5 +1,4 @@
 using System.Text.Json;
-using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
@@ -15,7 +14,7 @@ public sealed class AriseReadOnlyViewTests
     public void CatalogPagingFilteringAndSortingCoverRowsAfterTheFirstTwoHundred()
     {
         var plugin = new TalesOfArisePlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02745");
+        var context = AriseTestReferences.CreateContext(plugin);
         using var document = plugin.Open(AriseSampleTests.GameplayFiles().First(), context);
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var catalog = context.Catalog("equipment")!;
@@ -51,7 +50,7 @@ public sealed class AriseReadOnlyViewTests
     public void AllSampleViewsAndQueryPagesAreReadOnlyAndPreserveEveryByte()
     {
         var plugin = new TalesOfArisePlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02745");
+        var context = AriseTestReferences.CreateContext(plugin);
         foreach (var file in AriseSampleTests.GameplayFiles())
         {
             using var document = plugin.Open(file, context);
@@ -109,7 +108,7 @@ public sealed class AriseReadOnlyViewTests
     {
         var plugin = new TalesOfArisePlugin();
         var file = Assert.IsType<DiskSaveFile>(AriseSampleTests.GameplayFiles().First());
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02745");
+        var references = AriseTestReferences.CreateContext(plugin);
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("arise-r2", file, plugin, document, references: references);
         _ = session.BuildView();

@@ -73,16 +73,11 @@ internal static class AriseFormat
         {
             Block(next, HeaderSize);
             var plain = Plain();
-            var version = U32(plain, next);
-            if (U32(plain, next + 4) != schema.Id || U32(plain, next + 8) != schema.Size || version != schema.Version)
-            {
-                throw new SaveFormatException($"Unsupported Tales of Arise section {schema.Name} layout.");
-            }
-
+            ValidateSectionHeader(plain, next, schema);
             var dataOffset = next + HeaderSize;
             var following = Pointer(plain, next + 12);
             Block(dataOffset, schema.Size);
-            sections.Add(new AriseSection(schema.Name, schema.Id, version, dataOffset, schema.Size));
+            sections.Add(new AriseSection(schema.Name, schema.Id, schema.Version, dataOffset, schema.Size));
             next = following;
         }
 
@@ -105,6 +100,15 @@ internal static class AriseFormat
 
             occupied.Add((offset, offset + length));
             cipher.Transform(source.Span.Slice(offset, length), destination.AsSpan(offset, length), encrypt);
+        }
+    }
+
+    private static void ValidateSectionHeader(ReadOnlySpan<byte> plain, int offset, SectionSchema schema)
+    {
+        var version = U32(plain, offset);
+        if (U32(plain, offset + 4) != schema.Id || U32(plain, offset + 8) != schema.Size || version != schema.Version)
+        {
+            throw new SaveFormatException($"Unsupported Tales of Arise section {schema.Name} layout.");
         }
     }
 

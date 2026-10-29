@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text.Json;
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
@@ -12,10 +11,29 @@ public sealed class AriseAssetTests
     private const string ResourcePrefix = "refpacks/talesofarise.catalog/";
     private static readonly string[] CatalogIds = ["items", "equipment", "artes", "skills", "skill-nodes", "progress"];
 
+    [Theory]
+    [InlineData("skills", 64)]
+    [InlineData("equipment", 675)]
+    public void CatalogEnumeration_PreservesSourceOrderAndEveryPageBoundary(string catalogId, int count)
+    {
+        var catalog = AriseTestReferences.CreateContext().Catalog(catalogId)!;
+        var records = AriseTestReferences.AllRecords(catalog).ToArray();
+        Assert.Equal(count, records.Length);
+        Assert.Equal(count, records.Select(record => record.Key).Distinct(StringComparer.Ordinal).Count());
+        var boundaries = new[] { 0, count - 1, ReferenceQuery.MaxLimit - 1, ReferenceQuery.MaxLimit }
+            .Where(index => index < count);
+        foreach (var index in boundaries)
+        {
+            Assert.Equal(Assert.Single(catalog.Search(new() { Offset = index, Limit = 1 }).Items), records[index]);
+        }
+
+        Assert.Equal(records.Select(record => record.Key), AriseTestReferences.AllRecords(catalog).Select(record => record.Key));
+    }
+
     [Fact]
     public void EmbeddedArtworkMatchesReviewedHashesTypesDimensionsAndBudget()
     {
-        var context = Context();
+        var context = AriseTestReferences.CreateContext();
         using var ledger = Resource("asset-sources.json");
         long total = 0;
         var fingerprints = new HashSet<string>(StringComparer.Ordinal);
@@ -50,14 +68,14 @@ public sealed class AriseAssetTests
     [Fact]
     public void EveryCatalogIconResolvesAndOfficialDescriptionsRetainSeparateProvenance()
     {
-        var context = Context();
+        var context = AriseTestReferences.CreateContext();
         var plugin = new TalesOfArisePlugin();
         var icons = 0;
         var descriptions = 0;
         foreach (var catalogId in CatalogIds)
         {
             var catalog = context.Catalog(catalogId)!;
-            foreach (var record in All(catalog))
+            foreach (var record in AriseTestReferences.AllRecords(catalog))
             {
                 if (record.AssetId is { } asset)
                 {
@@ -90,7 +108,7 @@ public sealed class AriseAssetTests
 
         Assert.Equal(1660, icons);
         Assert.Equal(25, descriptions);
-        Assert.All(All(context.Catalog("skills")!), record => Assert.NotNull(record.AssetId));
+        Assert.All(AriseTestReferences.AllRecords(context.Catalog("skills")!), record => Assert.NotNull(record.AssetId));
         Assert.All(Enumerable.Range(1, 13), id => Assert.NotNull(context.Catalog("items")!.Find(id.ToString())!.AssetId));
         Assert.Contains("A fast-hitting two-hit slice attack.", context.Catalog("artes")!.Find("martial-artes:alphen:swallow-blade")!.Description);
     }
@@ -99,7 +117,7 @@ public sealed class AriseAssetTests
     public void SampleInventoryRendersIconsWithoutChangingBytesAndAssetsAreCached()
     {
         var plugin = new TalesOfArisePlugin();
-        var context = Context();
+        var context = AriseTestReferences.CreateContext();
         var file = AriseSampleTests.GameplayFiles().First(file => file.FileName == "SaveData_002.sav");
         using var document = plugin.Open(file, context);
         _ = document.BuildView();
@@ -116,7 +134,7 @@ public sealed class AriseAssetTests
     [Fact]
     public void ArtworkIsOptionalAndSchematicFallbackRetainsEveryMarker()
     {
-        var context = Context();
+        var context = AriseTestReferences.CreateContext();
         var withArt = new AriseSpatialViews(new AriseReferences(context)).Maps.OfType<MapNode>().Single();
         var withoutArt = new AriseSpatialViews(new AriseReferences(new NoArtworkContext(context))).Maps.OfType<MapNode>().Single();
         SpatialViewValidation.Validate(withArt);
@@ -133,29 +151,10 @@ public sealed class AriseAssetTests
         Assert.Null(AriseAssets.Background(IReferenceContext.Empty));
     }
 
-    private static IReferenceContext Context()
-    {
-        var plugin = new TalesOfArisePlugin();
-        var store = new ReferencePackStore([plugin]);
-        Assert.Empty(store.LoadErrors);
-        return store.Pin(plugin, "PPSA02745");
-    }
-
     private static JsonDocument Resource(string path)
     {
         using var stream = typeof(TalesOfArisePlugin).Assembly.GetManifestResourceStream(ResourcePrefix + path)!;
         return JsonDocument.Parse(stream);
-    }
-
-    private static IEnumerable<ReferenceRecord> All(IReferenceCatalog catalog)
-    {
-        for (var offset = 0; offset < catalog.Count; offset += ReferenceQuery.MaxLimit)
-        {
-            foreach (var record in catalog.Search(new() { Offset = offset, Limit = ReferenceQuery.MaxLimit }).Items)
-            {
-                yield return record;
-            }
-        }
     }
 
     private sealed class NoArtworkContext(IReferenceContext inner) : IReferenceContext

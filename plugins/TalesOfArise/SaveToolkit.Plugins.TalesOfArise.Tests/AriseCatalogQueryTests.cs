@@ -1,4 +1,3 @@
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.TalesOfArise.Tests;
@@ -78,7 +77,7 @@ public sealed class AriseCatalogQueryTests
     private static RecordingCatalog Catalog(string id, bool declareSorts = true)
     {
         var plugin = new TalesOfArisePlugin();
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02745");
+        var references = AriseTestReferences.CreateContext(plugin);
         return new RecordingCatalog(references.Catalog(id)!, declareSorts);
     }
 

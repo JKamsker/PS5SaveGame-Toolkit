@@ -8,7 +8,7 @@ public sealed class AriseSpatialViewTests
     [Fact]
     public void SkillAndArteGraphsAreBoundedAttributedAndActionLinked()
     {
-        var context = new SaveToolkit.Core.References.ReferencePackStore([new TalesOfArisePlugin()]).Pin(new TalesOfArisePlugin(), "PPSA02745");
+        var context = AriseTestReferences.CreateContext();
         using var document = new TalesOfArisePlugin().Open(AriseSampleTests.GameplayFiles().First(), context);
         var tabs = Assert.IsType<TabsNode>(document.BuildView());
         var graphNodes = Walk(tabs).OfType<GraphNode>().ToArray();
@@ -27,7 +27,7 @@ public sealed class AriseSpatialViewTests
     [Fact]
     public void ProgressMapUsesOriginalSchematicCoordinatesAndExternalLinks()
     {
-        var context = new SaveToolkit.Core.References.ReferencePackStore([new TalesOfArisePlugin()]).Pin(new TalesOfArisePlugin(), "PPSA02745");
+        var context = AriseTestReferences.CreateContext();
         using var document = new TalesOfArisePlugin().Open(AriseSampleTests.GameplayFiles().First(), context);
         var maps = Walk(document.BuildView()).OfType<MapNode>().ToArray();
         var map = Assert.Single(maps);
@@ -55,7 +55,7 @@ public sealed class AriseSpatialViewTests
     [Fact]
     public void InventoryF8RowsSupportSearchAndStableEditableQuantityBindings()
     {
-        var context = new SaveToolkit.Core.References.ReferencePackStore([new TalesOfArisePlugin()]).Pin(new TalesOfArisePlugin(), "PPSA02745");
+        var context = AriseTestReferences.CreateContext();
         using var document = new TalesOfArisePlugin().Open(AriseSampleTests.GameplayFiles().First(file => file.FileName == "SaveData_002.sav"), context);
         var query = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var page = query.Query("inventory", new QueryableCollectionQuery { Text = "Apple Gel" });
