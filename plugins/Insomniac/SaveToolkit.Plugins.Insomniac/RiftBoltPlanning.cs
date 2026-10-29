@@ -9,18 +9,19 @@ internal sealed class RiftBoltPlanning(RiftScalarWrites writes)
 {
     internal const string ActionId = "bolts/set-target";
     internal const string TargetParameter = "target";
-    private const string Policy = "Calculated balance is CareerBolts minus SpentBolts, not a HUD-calibrated wallet. " +
+    private const string Policy = "The diagnostic is CareerBolts minus SpentBolts and differs from the stored inventory count. " +
+        "This action does not change the inventory wallet candidate. " +
         "Only CareerBolts changes; spending history stays unchanged. Bounds retain serialized capacity and the observed corpus ceiling, not a proven game cap.";
 
     internal ActionNode? Build()
     {
         if (!writes.HasBalance) return null;
-        return new(ActionId, "Set calculated bolt balance")
+        return new(ActionId, "Set bolt counter difference")
         {
             SupportsPlanning = true,
             Description = Policy + " " + RiftScalarWrites.Warning,
             // The parameter spec is stable while spending changes; the plan enforces the remaining headroom.
-            Parameters = [new(TargetParameter, "Target calculated balance", new IntegerSpec(0, CareerMaximum),
+            Parameters = [new(TargetParameter, "Target counter difference", new IntegerSpec(0, CareerMaximum),
                 FieldValue.Of(Int128.Clamp(writes.Balance.AsInteger(), 0, MaximumTarget)))
             {
                 Confidence = Confidence.Inferred,
@@ -60,7 +61,7 @@ internal sealed class RiftBoltPlanning(RiftScalarWrites writes)
             Changes =
             [
                 new(RiftScalarWrites.CareerId, "Career bolts", career.Value, next),
-                new(RiftScalarWrites.BalanceId, "Calculated available bolts", writes.Balance, target) { Derived = true },
+                new(RiftScalarWrites.BalanceId, "Bolt counter difference", writes.Balance, target) { Derived = true },
             ],
             Warnings = [RiftScalarWrites.Warning, Policy],
         };

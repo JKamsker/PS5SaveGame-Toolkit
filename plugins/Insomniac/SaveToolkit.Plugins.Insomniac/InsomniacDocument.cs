@@ -22,6 +22,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
     private readonly RiftReadOnlyViews _readOnly;
     private readonly RiftWorldView _world;
     private readonly InventoryView _inventory;
+    private readonly RiftCurrencyView _currency;
     private readonly RiftCollections _collections = new();
     private readonly RiftArsenalView _arsenal;
     private readonly RiftArmourView _armour;
@@ -47,6 +48,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
         _readOnly = new RiftReadOnlyViews(_sections, references.Catalog("rift-weapons"), schema, BindScalar);
         _world = new RiftWorldView(_sections, BindReadOnly);
         var blocks = InventoryReader.Read(container);
+        _currency = new RiftCurrencyView(blocks, supportedTitle);
         _inventory = new InventoryView(blocks,
             references.Catalog("rift-item-types"), BindReadOnly, _lazy, _collections);
         _inventory.RegisterCollections();
@@ -72,6 +74,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
         _lazy.Clear();
         var tabs = new List<Tab>();
         if (_player.HasCampaign) AddCampaignTabs(tabs);
+        if (_currency.HasInventory) tabs.Add(new Tab("Currencies", _currency.Build(BindReadOnly)));
         if (_sections.Roots.ContainsKey(DdlSections.PreferencesTag))
             tabs.Add(new Tab("Preferences", _readOnly.Preferences()));
         tabs.Add(BuildSystemsTab());

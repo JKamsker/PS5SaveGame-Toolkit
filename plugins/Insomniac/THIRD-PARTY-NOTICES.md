@@ -1,5 +1,12 @@
 # Third-party notices
 
+Currency field discovery (#40), accessed 2026-10-29: two factual config path/hash
+entries from **Tkachov / Overstrike MT/v1.4.1**, selected from the release's
+`hashes.txt`. **No licence published; reused with attribution per owner decision
+2026-10-28** for that dataset (the source-code repository is GPL-3.0). Original
+read-only presentation and independent PS5 corroboration; no upstream implementation
+or full dictionary incorporated. Retain the [source, hashes and modification notice](SaveToolkit.Plugins.Insomniac/Resources/CurrencyFields.source.md).
+
 The embedded `ReferencePacks/insomniac.rift.en/schema.json`, `item-types.json` and `world.json`
 derive from Neptuwunium / Rivet's CC0-1.0 schema at
 `a631c96ed6455f9873a646825d37883f99defa6e`. Its file-specific notice reads:

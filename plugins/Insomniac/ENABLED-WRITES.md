@@ -13,6 +13,10 @@ The F6 `bolts/set-target` action now previews and changes the same CareerBolts
 atom to achieve an inferred career-minus-spent target. It preserves SpentBolts,
 reuses conservative width/corpus bounds and adds no storage writer. It requires
 preview/apply, rejects row/query scope and reports the integrity warning.
+Field discovery (#40, 2026-10-29) shows that this **counter difference differs from
+the stored inventory wallet candidate**. The action is now labeled “Set bolt counter
+difference”; `currency/bolts` and `currency/raritanium` remain read-only. This action
+does not change their counts. See [CURRENCY-RESEARCH.md](CURRENCY-RESEARCH.md).
 
 ## Gameplay
 
