@@ -46,6 +46,10 @@ public sealed class BaldursGate3Plugin : IGamePlugin
             "https://bg3.wiki/wiki/Experience",
             "https://github.com/Wahkah/BG3SE",
             "https://github.com/Serofix-code/bg3-save-editor",
+            "https://github.com/Norbyte/lslib/issues/127",
+            "https://github.com/Norbyte/bg3se/tree/60fb4caf99c08de604abac26e07af13a2e0a028d",
+            "https://bg3.wiki/wiki/Abilities",
+            "https://www.reddit.com/r/BaldursGate3/comments/16ax5k8/",
         ],
     };
 

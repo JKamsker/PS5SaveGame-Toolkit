@@ -6,9 +6,6 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 internal sealed record LsmfInventoryEntry(int ContainerRow, int ContainerEntityRow, int ItemEntityRow,
     int Slot, int? OwnerBodyEntityRow, string Path, bool IsAmbiguous);
 
-internal sealed record LsmfGoldCandidate(int ItemEntityRow, int? ContainerRow, int? OwnerBodyEntityRow,
-    string Stats, bool IsAmbiguous);
-
 /// <summary>
 /// Builds current container edges from explicit serialized maps. MemberData is not
 /// used as a location signal because it is historical bookkeeping and may retain
@@ -22,10 +19,10 @@ internal sealed class LsmfInventoryGraph
     private readonly LsmfAccess _access;
     private readonly IReadOnlyDictionary<int, int> _containerByEntity;
     private readonly IReadOnlyDictionary<int, int?> _ownedByEntity;
-    private readonly IReadOnlyDictionary<string, int[]> _itemRowsByStats;
     private readonly bool _hasGoldTemplates;
 
-    internal LsmfInventoryGraph(LsmfAccess access, LsmfIdentityGraph identity, LarianResource? resource)
+    internal LsmfInventoryGraph(LsmfAccess access, LsmfIdentityGraph identity, LarianResource? resource,
+        IReadOnlyList<LsmfStack>? stacks = null)
     {
         _access = access;
         var containers = access.Rows("game.inventory.v1.ContainerComponent", ContainerBytes);
@@ -36,9 +33,8 @@ internal sealed class LsmfInventoryGraph
         _ownedByEntity = ReadOwners();
         var entries = LsmfInventory.Slots(access);
         Entries = BuildEntries(containers, entries, identity);
-        _itemRowsByStats = ReadItems(resource);
         _hasGoldTemplates = HasGoldTemplates(resource);
-        Gold = BuildGold();
+        Gold = LsmfGoldDiscovery.Read(access, resource, Entries, stacks ?? LsmfInventory.Stacks(access));
         Diagnostics = BuildDiagnostics();
     }
 
@@ -138,64 +134,16 @@ internal sealed class LsmfInventoryGraph
         return owners;
     }
 
-    private IReadOnlyDictionary<string, int[]> ReadItems(LarianResource? resource)
-    {
-        if (resource is null) return new Dictionary<string, int[]>(StringComparer.Ordinal);
-        var entities = _access.Model.Entities();
-        var creatorTemplates = resource.Nodes.Where(node => node.Name == "Creator" && node.Parent >= 0 &&
-                resource.Nodes[node.Parent].Name == "Creators")
-            .Select(node => (Entity: ResourceIdentifiers.Read(resource, node, "Entity", LarianAttributeType.UUID),
-                Template: ResourceIdentifiers.Read(resource, node, "TemplateID", LarianAttributeType.UUID) ??
-                    ResourceIdentifiers.Read(resource, node, "TemplateID", LarianAttributeType.FixedString)))
-            .Where(pair => pair.Entity is not null && pair.Template is not null)
-            .ToDictionary(pair => pair.Entity!, pair => pair.Template!, StringComparer.Ordinal);
-        var entityByTemplate = creatorTemplates.GroupBy(pair => pair.Value, StringComparer.Ordinal)
-            .Where(group => group.Count() == 1)
-            .ToDictionary(group => group.Key, group => group.Single().Key, StringComparer.Ordinal);
-        var items = resource.Nodes.Where(node => node.Name == "Item")
-            .Select(node => (Template: ResourceIdentifiers.Read(resource, node, "CurrentTemplate", LarianAttributeType.UUID),
-                Stats: ResourceIdentifiers.Read(resource, node, "Stats", LarianAttributeType.FixedString)))
-            .Where(item => item.Template is not null && item.Stats is not null && entityByTemplate.ContainsKey(item.Template!))
-            .ToArray();
-        var wantedGuids = items.Select(item => entityByTemplate[item.Template!]).ToHashSet(StringComparer.Ordinal);
-        var byGuid = entities.Where(entity => wantedGuids.Contains(entity.Guid))
-            .GroupBy(entity => entity.Guid, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.Select(entity => entity.Row).ToArray(), StringComparer.Ordinal);
-        return items
-            .SelectMany(item => byGuid.GetValueOrDefault(entityByTemplate[item.Template!], [])
-                .Select(row => (Stats: item.Stats!, Row: row)))
-            .GroupBy(item => item.Stats, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.Select(item => item.Row).Distinct().ToArray(), StringComparer.Ordinal);
-    }
-
-    private IReadOnlyList<LsmfGoldCandidate> BuildGold()
-    {
-        var goldRows = _itemRowsByStats.Where(pair => IsGoldStats(pair.Key))
-            .SelectMany(pair => pair.Value.Select(row => (Stats: pair.Key, Row: row)));
-        return goldRows.Select(item =>
-        {
-            var matches = Entries.Where(entry => entry.ItemEntityRow == item.Row).ToArray();
-            var owner = matches.Select(entry => entry.OwnerBodyEntityRow).Distinct().ToArray();
-            return new LsmfGoldCandidate(item.Row, matches.Length == 1 ? matches[0].ContainerRow : null,
-                owner.Length == 1 ? owner[0] : null, item.Stats,
-                matches.Length != 1 || owner.Length != 1 || matches.Any(entry => entry.IsAmbiguous));
-        }).ToArray();
-    }
-
     private IReadOnlyList<string> BuildDiagnostics()
     {
         var diagnostics = new List<string>();
         if (Entries.Any(entry => entry.IsAmbiguous)) diagnostics.Add("Some current item rows occur in multiple containers; ownership is left ambiguous.");
-        if (Gold.Any(candidate => candidate.IsAmbiguous)) diagnostics.Add("Gold candidates include world/trader or multiply referenced rows; no player total is computed.");
-        if (Gold.Count == 0 && (_hasGoldTemplates || _itemRowsByStats.Keys.Any(IsGoldStats)))
+        if (Gold.Count > 0) diagnostics.Add("Gold storage candidates include unowned rows and missing stack contributions; no authoritative player total or distribution is computed.");
+        if (Gold.Count == 0 && _hasGoldTemplates)
             diagnostics.Add("Gold template occurrences have no unique LSF item-instance-to-Entity bridge; player ownership and distribution remain unavailable.");
         if (Entries.Count == 0 && _containerByEntity.Count > 0) diagnostics.Add("Container maps were present but no bounded current slot could be resolved.");
         return diagnostics;
     }
-
-    private static bool IsGoldStats(string stats) => stats.Equals("OBJ_GoldCoin", StringComparison.OrdinalIgnoreCase) ||
-        stats.Equals("OBJ_GoldPile", StringComparison.OrdinalIgnoreCase) ||
-        stats.Equals("OBJ_Goldpile", StringComparison.OrdinalIgnoreCase);
 
     private static bool HasGoldTemplates(LarianResource? resource)
     {
@@ -204,6 +152,6 @@ internal sealed class LsmfInventoryGraph
             .Select(index => resource.Attributes[index])
             .Where(attribute => attribute.Name == "Stats")
             .Select(attribute => AttributeDecoder.Read(attribute).ToString())
-            .Any(IsGoldStats));
+            .Any(LsmfGoldDiscovery.IsGold));
     }
 }

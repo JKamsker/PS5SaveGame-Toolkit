@@ -40,8 +40,9 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
             {
                 collections.Add(new(InventoryId, "Current recursive inventory", [new("container", "Container row"),
                     new("item", "Item entity"), new("slot", "Slot"), new("owner", "Owner body"), new("path", "Path")], inventory.Entries.Count));
-                collections.Add(new(GoldId, "Gold candidates (ownership required)", [new("item", "Item entity"),
-                    new("stats", "Stats"), new("container", "Container row"), new("owner", "Owner body"), new("confidence", "Confidence")], inventory.Gold.Count));
+                collections.Add(new(GoldId, "Imported gold storage candidates (all owners)", [new("item", "Entity occurrences"),
+                    new("quantity", "Imported contribution sum"), new("container", "Container row"),
+                    new("owner", "Owner body"), new("confidence", "Confidence")], inventory.Gold.Count));
             }
             return collections;
         }
@@ -227,19 +228,30 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
             ["path"] = new TextNode(entry.Path),
         }));
 
-    private QueryRow GoldRow(LsmfGoldCandidate gold) => new(source.Prefix + $"/gold/{gold.ItemEntityRow}/{gold.Stats}",
-        () => $"{gold.Stats} {gold.ItemEntityRow}", column => column switch
+    private QueryRow GoldRow(LsmfGoldCandidate gold) => new(source.Prefix + $"/gold/{gold.Guid}",
+        () => $"{gold.Guid} {string.Join(' ', gold.EntityRows)}", column => column switch
         {
-            "item" => Number(gold.ItemEntityRow), "stats" => gold.Stats,
+            "item" => string.Join(", ", gold.EntityRows),
+            "quantity" => gold.Stack is { } stack ? Number(stack.Original) : "unknown",
             "container" => gold.ContainerRow is { } container ? Number(container) : "unknown",
             "owner" => gold.OwnerBodyEntityRow is { } owner ? Number(owner) : "unknown",
             "confidence" => gold.IsAmbiguous ? "Unknown" : "Inferred",
             _ => "",
-        }, () => new TableRow(source.Prefix + $"/gold/{gold.ItemEntityRow}/{gold.Stats}", new Dictionary<string, ViewNode>
+        }, () => new TableRow(source.Prefix + $"/gold/{gold.Guid}", new Dictionary<string, ViewNode>
         {
-            ["item"] = new TextNode(Number(gold.ItemEntityRow)), ["stats"] = new TextNode(gold.Stats),
+            ["item"] = new TextNode(string.Join(", ", gold.EntityRows)),
+            ["quantity"] = gold.Stack is { } stack ? inspect(source.Prefix + $"/gold/{gold.Guid}/imported-quantity",
+                "Imported gold contribution sum (not a party balance)", FieldValue.Of(stack.Original)) with
+                {
+                    Confidence = gold.IsAmbiguous ? Confidence.Unknown : Confidence.Inferred,
+                    Description = "Original imported snapshot. Creator Entity → consistently gold Item template → repeated EntityId GUID occurrences → " +
+                        "unique StackEntry contributions and current container candidate. No individual LSF Item occurrence or authoritative party owner is inferred. " +
+                        "Source: independently measured PS5 bytes; DanFinchUK FORMAT.md, no licence published; reused with attribution per owner decision 2026-10-28, " +
+                        "accessed 2026-10-29: https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md",
+                    Warning = "Read-only research value; raw storage edits do not refresh this imported snapshot. " + LsmfLiveSource.Warning,
+                } : new TextNode("Unknown: no unique explicit stack contribution; one is not assumed."),
             ["container"] = new TextNode(gold.ContainerRow is { } container ? Number(container) : "Unknown") { Tone = Tone.Warning },
             ["owner"] = new TextNode(gold.OwnerBodyEntityRow is { } owner ? Number(owner) : "Unknown") { Tone = Tone.Warning },
-            ["confidence"] = new TextNode(gold.IsAmbiguous ? "Unknown: world/trader or duplicate ownership" : "Inferred: explicit current container path") { Tone = Tone.Warning },
+            ["confidence"] = new TextNode(gold.IsAmbiguous ? "Unknown: missing or duplicate storage join" : "Inferred storage; party balance unknown") { Tone = Tone.Warning },
         }));
 }
