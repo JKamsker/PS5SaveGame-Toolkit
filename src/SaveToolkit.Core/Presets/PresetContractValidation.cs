@@ -49,7 +49,6 @@ public static class PresetContractValidation
             return "Selected capture must provide an explicit row-key list.";
         if (capability is null)
             return request.ScopeKind == PresetScopeKinds.Document
-                || request.ScopeKind == PresetScopeKinds.Selected && request.SelectedRowKeys is { Count: 0 }
                 ? null
                 : "The document has no semantic preset capability for this scope.";
         if (ValidateCapability(capability) is { } capabilityError) return capabilityError;
@@ -118,6 +117,7 @@ public static class PresetContractValidation
         {
             if (item is null || ValidateReference(item.Requested) is not null)
                 return "Preset resolution contains an invalid requested target.";
+            if (!Enum.IsDefined(item.Status)) return "Preset resolution contains an unknown status.";
             var candidates = item.Candidates ?? [];
             if (candidates.Count > MaxResolutionCandidates)
                 return "Preset resolution exceeds the bounded candidate limit.";
@@ -133,6 +133,66 @@ public static class PresetContractValidation
             return serialized.Length > MaxResolutionBytes ? "Preset resolution exceeds the bounded serialized limit." : null;
         }
         catch (JsonException) { return "Preset resolution is not serializable."; }
+    }
+
+    /// <summary>Validates a resolution against the exact requested target set and transient choices.</summary>
+    public static string? ValidateResolution(PresetResolution? resolution,
+        IReadOnlyList<PresetInstanceReference> requested,
+        IReadOnlyDictionary<string, string>? choices,
+        bool requireChosenResolution,
+        out byte[]? serialized)
+    {
+        var structuralError = ValidateResolution(resolution, out serialized);
+        if (structuralError is not null) return structuralError;
+        if (requested.Count > MaxSemanticInstances) return "Preset resolution exceeds the bounded instance limit.";
+        var expected = requested.Select(Key).ToArray();
+        if (expected.Any(key => key is null) || expected.Distinct(StringComparer.Ordinal).Count() != expected.Length
+            || requested.Select(reference => reference.StableId).Distinct(StringComparer.Ordinal).Count() != requested.Count)
+            return "Preset requested targets must be valid and distinct.";
+        if (resolution!.Instances.Count != expected.Length)
+            return "Preset resolution must contain exactly one result for every requested target.";
+
+        var results = new Dictionary<string, PresetInstanceResolution>(StringComparer.Ordinal);
+        foreach (var item in resolution.Instances)
+        {
+            var key = Key(item.Requested);
+            if (key is null || !expected.Contains(key, StringComparer.Ordinal) || !results.TryAdd(key, item))
+                return "Preset resolution contains a missing, extra or duplicate requested target.";
+            var candidates = item.Candidates ?? [];
+            if (item.Status is PresetInstanceResolutionStatus.Missing or PresetInstanceResolutionStatus.Unsupported
+                && candidates.Count != 0)
+                return "Missing and unsupported targets cannot include candidates.";
+            if (item.Status == PresetInstanceResolutionStatus.Ambiguous && candidates.Count == 0)
+                return "Ambiguous targets must include selectable candidates.";
+            if (item.Status == PresetInstanceResolutionStatus.Resolved && candidates.Count > 1)
+                return "Resolved targets may include at most one candidate.";
+            if (item.Status == PresetInstanceResolutionStatus.Resolved && candidates.Count > 0 && (choices is null || choices.Count == 0))
+                return "Resolved targets cannot include an unchosen candidate.";
+        }
+        if (results.Count != expected.Length) return "Preset resolution omitted a requested target.";
+
+        foreach (var choice in choices ?? new Dictionary<string, string>(StringComparer.Ordinal))
+        {
+            var matches = results.Values.Where(item => item.Requested.StableId == choice.Key || Key(item.Requested) == choice.Key).ToArray();
+            var result = matches.Length == 1 ? matches[0] : null;
+            if (result is null
+                || result.Status != PresetInstanceResolutionStatus.Ambiguous && !(requireChosenResolution && result.Status == PresetInstanceResolutionStatus.Resolved)
+                || !(result.Candidates ?? []).Any(candidate => candidate.StableId == choice.Value || Key(candidate) == choice.Value))
+                return "Preset choices must select a candidate from a current ambiguous resolution.";
+        }
+        if (requireChosenResolution)
+        {
+            foreach (var choice in choices ?? new Dictionary<string, string>(StringComparer.Ordinal))
+            {
+                var matches = results.Values.Where(item => item.Requested.StableId == choice.Key || Key(item.Requested) == choice.Key).ToArray();
+                var result = matches.Length == 1 ? matches[0] : null;
+                if (result is null || result.Status != PresetInstanceResolutionStatus.Resolved
+                    || result.Candidates is not { Count: 1 } candidates
+                    || (candidates[0].StableId != choice.Value && Key(candidates[0]) != choice.Value))
+                    return "The selected preset candidate was not resolved by the adapter.";
+            }
+        }
+        return null;
     }
 
     public static string? ValidateInstanceReferences(IReadOnlyList<PresetInstanceReference>? instances) => ValidateInstances(instances);
@@ -192,6 +252,9 @@ public static class PresetContractValidation
         || reference.Path is { Length: > MaxMetadataLength } || reference.Build is { Length: > MaxMetadataLength }
         || reference.Provenance is { Length: > MaxMetadataLength }
         ? "invalid reference" : null;
+
+    private static string? Key(PresetInstanceReference? reference) =>
+        ValidateReference(reference) is null ? $"{reference!.Kind}\0{reference.StableId}" : null;
 
     private static bool IsScope(string scope) => scope is PresetScopeKinds.Document or PresetScopeKinds.AllEligible
         or PresetScopeKinds.AllCopies or PresetScopeKinds.Selected;

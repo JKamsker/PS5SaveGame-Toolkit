@@ -90,3 +90,18 @@ Accessibility guidance follows the [WAI-ARIA status message guidance](https://ww
 and [focus appearance guidance](https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance). The
 current panel uses native controls, visible focus, labelled status/error regions, and a narrow-screen
 stacked layout.
+
+Resolution is an exact host contract: each requested semantic reference must occur exactly once in
+the adapter result, with no injected or dropped targets. Missing and unsupported results have no
+candidates; ambiguous results must list candidates; a resolved result cannot carry an unchosen
+candidate. Choice keys and candidate ids are checked against the same revision-bound ambiguous
+result before a second resolution, and the chosen result must contain the selected candidate.
+Candidate ids and choices are transient preview data and are never written to a preset. A malformed
+or incomplete result receives a typed preview error and cannot create an apply token.
+
+Preset JSON routes use finite pre-binding envelope budgets so chunked and declared oversized bodies
+receive a typed 413 before JSON materialization: create 512 KiB, capture 256 KiB, preview 256 KiB,
+and apply 64 KiB. Workspace/pack upload limits remain independent. Generic compatibility rows
+consult the current indexed planning and mutating action policy, so unknown, inspection-only, or
+non-plannable actions are visibly unsupported before Preview is enabled. Host rename remains
+available when the opened document is read-only because it changes only the external preset library.

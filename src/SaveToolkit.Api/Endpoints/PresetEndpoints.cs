@@ -13,11 +13,12 @@ internal static class PresetEndpoints
     public static void MapPresetApi(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("/api").AddEndpointFilter<ApiContractFilter>()
-            .WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict, Status422UnprocessableEntity, Status503ServiceUnavailable);
+            .WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict, Status422UnprocessableEntity, Status413PayloadTooLarge, Status503ServiceUnavailable);
         api.MapGet("/presets", (PresetStore store) => store.List().Select(p => p.ToDto()));
         api.MapPost("/presets/reload", (PresetStore store) => store.Reload().Select(p => p.ToDto()));
         api.MapPost("/presets", (CreatePresetRequest request, PresetStore store) =>
-            Results.Ok(store.Create(request.Name, request.Compatibility, request.Actions).ToDto()));
+            Results.Ok(store.Create(request.Name, request.Compatibility, request.Actions).ToDto()))
+            .WithMetadata(new PresetRequestBodyLimitMetadata(PresetRequestBodyLimits.CreateBytes));
         api.MapPatch("/presets/{presetId}", (string presetId, RenamePresetRequest request, PresetStore store) =>
             Results.Ok(store.Rename(presetId, request.Name).ToDto()));
         api.MapDelete("/presets/{presetId}", (string presetId, PresetStore store) =>
@@ -26,14 +27,17 @@ internal static class PresetEndpoints
         var docs = api.MapGroup("/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}")
             .AddEndpointFilter<DocumentRevisionFilter>()
             .WithApiErrors(Status412PreconditionFailed);
-        docs.MapPost("/preview", Preview);
-        docs.MapPost("/apply", Apply);
+        docs.MapPost("/preview", Preview)
+            .WithMetadata(new PresetRequestBodyLimitMetadata(PresetRequestBodyLimits.PreviewBytes));
+        docs.MapPost("/apply", Apply)
+            .WithMetadata(new PresetRequestBodyLimitMetadata(PresetRequestBodyLimits.ApplyBytes));
         var capture = api.MapGroup("/workspaces/{workspaceId}/documents/{documentId}/presets")
             .AddEndpointFilter<DocumentRevisionFilter>()
             .WithApiErrors(Status412PreconditionFailed);
         capture.MapGet("", (DocumentRef document, PresetStore store) =>
             store.List().Select(p => p.ToDocumentDto(document.Value)));
-        capture.MapPost("/capture", Capture);
+        capture.MapPost("/capture", Capture)
+            .WithMetadata(new PresetRequestBodyLimitMetadata(PresetRequestBodyLimits.CaptureBytes));
     }
 
     private static IResult Capture(DocumentRef document, CapturePresetRequest request, PresetStore store)
@@ -98,6 +102,8 @@ internal static class PresetEndpoints
         var action = preset.Actions[0];
         if (action.ScopeKind != "document" || action.Instances is { Count: > 0 })
             return Results.UnprocessableEntity(new ErrorDto("This preset needs explicit owned-instance resolution from the plugin."));
+        if (document.Value.GenericPresetActionError(action.ActionId) is { } actionError)
+            return Results.UnprocessableEntity(new ErrorDto(actionError, "actionUnsupported"));
         var fingerprint = PresetStore.PayloadFingerprint(preset);
         var preview = document.Value.PlanAction(action.ActionId, action.Parameters, new ActionScope(), request.Revision, preset.Id, fingerprint, cancellationToken);
         var dto = new PresetPreviewDto(preset.ToDto(), preview);
@@ -117,6 +123,8 @@ internal static class PresetEndpoints
             return SessionEditResponse.Create(document.Value.ApplyPresetPlan(request.PlanId, request.Revision, preset.Id, fingerprint, cancellationToken));
         if (preset.Actions.Count != 1)
             return Results.UnprocessableEntity(new ErrorDto("This document has no multi-action preset adapter yet."));
+        if (document.Value.GenericPresetActionError(preset.Actions[0].ActionId) is { } actionError)
+            return Results.UnprocessableEntity(new ErrorDto(actionError, "actionUnsupported"));
         var result = document.Value.ApplyActionPlan(request.PlanId, request.Revision, preset.Id, fingerprint, cancellationToken);
         return SessionEditResponse.Create(result);
     }

@@ -45,7 +45,7 @@ public sealed class PresetDocumentTests
         using var fixture = new MutationSessionFixture(document);
         _ = fixture.Session.BuildView();
         var preview = fixture.Session.PlanPreset(Preset("value"));
-        Assert.NotNull(preview.PlanId);
+        Assert.True(preview.PlanId is not null, string.Join(" | ", preview.Plan.Errors.Select(error => error.Message)));
         Assert.Equal(0, document.Value);
         Assert.True(fixture.Session.ApplyPresetPlan(preview.PlanId!, preview.Revision).Ok);
         Assert.Equal(9, document.Value);
@@ -62,7 +62,7 @@ public sealed class PresetDocumentTests
         using var fixture = new MutationSessionFixture(document);
         _ = fixture.Session.BuildView();
         var preview = fixture.Session.PlanPreset(Preset("value"), choices: new Dictionary<string, string> { ["id"] = "candidate" });
-        Assert.NotNull(preview.PlanId);
+        Assert.True(preview.PlanId is not null, string.Join(" | ", preview.Plan.Errors.Select(error => error.Message)));
         Assert.Equal(PresetInstanceResolutionStatus.Resolved, preview.Resolution.Instances.Single().Status);
     }
 
@@ -95,6 +95,21 @@ public sealed class PresetDocumentTests
 
         Assert.Null(preview.PlanId);
         Assert.Contains("planning failed", preview.Plan.Errors.Single().Message, StringComparison.OrdinalIgnoreCase);
+        Assert.False(fixture.Session.State.CanUndo);
+    }
+
+    [Theory]
+    [InlineData(ResolutionShape.Omitted)]
+    [InlineData(ResolutionShape.Injected)]
+    [InlineData(ResolutionShape.Duplicate)]
+    [InlineData(ResolutionShape.ForgedResolved)]
+    public void MalformedResolutionCannotCreateAPlan(ResolutionShape shape)
+    {
+        var document = new PresetFixtureDocument { Shape = shape };
+        using var fixture = new MutationSessionFixture(document);
+        var preview = fixture.Session.PlanPreset(Preset("malformed"));
+        Assert.Null(preview.PlanId);
+        Assert.NotEmpty(preview.Plan.Errors);
         Assert.False(fixture.Session.State.CanUndo);
     }
 
@@ -138,11 +153,14 @@ public sealed class PresetDocumentTests
         new PresetCompatibility("test", "1", ["PPSA99999"]),
         [new PresetAction("set", new Dictionary<string, JsonElement>(), [new("owned", "id")])], DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
 
+    public enum ResolutionShape { Normal, Omitted, Injected, Duplicate, ForgedResolved }
+
     private sealed class PresetFixtureDocument : BoundSaveDocument, IPresetDocument
     {
         public int Value { get; private set; }
         public int ResolveCalls { get; private set; }
         public bool ThrowOnResolve { get; init; }
+        public ResolutionShape Shape { get; init; }
         public PresetInstanceResolutionStatus Resolution { get; init; } = PresetInstanceResolutionStatus.Resolved;
         public string? GameBuild { get; init; } = "r19";
         public override string Title => "Preset fixture";
@@ -160,7 +178,16 @@ public sealed class PresetDocumentTests
         {
             ResolveCalls++;
             if (ThrowOnResolve) throw new InvalidOperationException("synthetic resolver failure");
-            return new(instances.Select(instance => new PresetInstanceResolution(instance, Resolution)).ToArray());
+            var results = instances.Select(instance => new PresetInstanceResolution(instance, Resolution,
+                Resolution == PresetInstanceResolutionStatus.Ambiguous ? [new("owned", "candidate")] : [])).ToList();
+            return Shape switch
+            {
+                ResolutionShape.Omitted => new(results.Skip(1).ToArray()),
+                ResolutionShape.Injected => new([.. results, new(new("owned", "extra"), PresetInstanceResolutionStatus.Resolved)]),
+                ResolutionShape.Duplicate => new([.. results, results[0]]),
+                ResolutionShape.ForgedResolved => new([new(results[0].Requested, PresetInstanceResolutionStatus.Resolved, [new("owned", "forged")])]),
+                _ => new(results),
+            };
         }
         public ActionPlan PlanPreset(IReadOnlyList<PresetAction> actions, PresetResolution resolution) =>
             new() { Changes = [new PlannedChange("value", "Value", FieldValue.Of((long)Value), FieldValue.Of(9L))] };

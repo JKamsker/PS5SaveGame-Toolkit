@@ -5344,6 +5344,16 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -5410,6 +5420,16 @@
               }
             },
             "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "422": {
             "content": {
@@ -5482,6 +5502,16 @@
               }
             },
             "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "422": {
             "content": {
@@ -5941,6 +5971,16 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -6017,6 +6057,16 @@
               }
             },
             "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "422": {
             "content": {
@@ -8881,6 +8931,16 @@
             },
             "description": "Precondition Failed"
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -8985,6 +9045,16 @@
               }
             },
             "description": "Precondition Failed"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "422": {
             "content": {
@@ -9227,6 +9297,16 @@
             },
             "description": "Precondition Failed"
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -9339,6 +9419,16 @@
               }
             },
             "description": "Precondition Failed"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "422": {
             "content": {

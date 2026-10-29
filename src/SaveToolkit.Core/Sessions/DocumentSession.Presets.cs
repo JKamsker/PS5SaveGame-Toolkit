@@ -65,9 +65,17 @@ public sealed partial class DocumentSession
         {
             cancellationToken.ThrowIfCancellationRequested();
             var instances = preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
-            resolution = planner.ResolvePresetInstances(instances, selected);
-            if (PresetContractValidation.ValidateResolution(resolution, out var resolutionBytes) is { } resolutionError)
+            resolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
+            if (PresetContractValidation.ValidateResolution(resolution, instances, null, false, out var resolutionBytes) is { } resolutionError)
                 return Error(preset, emptyResolution, resolutionError);
+            if (selected.Count > 0)
+            {
+                if (PresetContractValidation.ValidateResolution(resolution, instances, selected, false, out _) is { } resolutionChoiceError)
+                    return Error(preset, resolution, resolutionChoiceError);
+                resolution = planner.ResolvePresetInstances(instances, selected);
+                if (PresetContractValidation.ValidateResolution(resolution, instances, selected, true, out resolutionBytes) is { } chosenError)
+                    return Error(preset, resolution, chosenError);
+            }
             if (!resolution.Succeeded)
                 return new(null, _revision, preset, resolution, new ActionPlan { Errors = ResolutionErrors(resolution) });
             var plan = planner.PlanPreset(preset.Actions, resolution);
@@ -104,9 +112,18 @@ public sealed partial class DocumentSession
             if (PresetContractValidation.ValidateActions(capability, pending.Preset.Actions, _referenceFields) is { } actionError)
                 return Rejected("preset", actionError);
             cancellationToken.ThrowIfCancellationRequested();
-            var resolution = planner.ResolvePresetInstances(pending.Preset.Actions.SelectMany(action => action.Instances ?? []).ToArray(), pending.Choices);
-            if (PresetContractValidation.ValidateResolution(resolution, out var freshResolutionBytes) is { } resolutionError)
+            var instances = pending.Preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
+            var resolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
+            if (PresetContractValidation.ValidateResolution(resolution, instances, null, false, out var freshResolutionBytes) is { } resolutionError)
                 return Rejected("preset", resolutionError) with { Stale = true };
+            if (pending.Choices.Count > 0)
+            {
+                if (PresetContractValidation.ValidateResolution(resolution, instances, pending.Choices, false, out _) is { } choiceError)
+                    return Rejected("preset", choiceError) with { Stale = true };
+                resolution = planner.ResolvePresetInstances(instances, pending.Choices);
+                if (PresetContractValidation.ValidateResolution(resolution, instances, pending.Choices, true, out freshResolutionBytes) is { } chosenError)
+                    return Rejected("preset", chosenError) with { Stale = true };
+            }
             if (!resolution.Succeeded) return new SessionEditResult { Errors = ResolutionErrors(resolution), State = StateUnlocked() };
             var fresh = planner.PlanPreset(pending.Preset.Actions, resolution);
             if (fresh.Errors.Count > 0 || !pending.PlanBytes.AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(fresh))
