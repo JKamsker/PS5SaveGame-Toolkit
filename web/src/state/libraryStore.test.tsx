@@ -1,10 +1,11 @@
+import type * as LibraryModule from "../lib/library";
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { groupIntoGames, type LibraryGame, type ScannedFile } from "../lib/library";
 import { library, useLibrary } from "./libraryStore";
 
 vi.mock("../lib/library", async importOriginal => ({
-  ...await importOriginal<typeof import("../lib/library")>(), groupIntoGames: vi.fn(),
+  ...await importOriginal<typeof LibraryModule>(), groupIntoGames: vi.fn(),
 }));
 
 const game: LibraryGame = { key: "fixture", titleId: "PPSA99999", fallbackName: "Fixture", kind: "zip",

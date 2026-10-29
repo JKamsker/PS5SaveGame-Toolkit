@@ -93,7 +93,7 @@ function GameTile({ game, title, icon }: { game: LibraryGame; title: TitleInfo |
       const ws = await api.upload(game.sources, name, progress => { if (isCurrent()) setProgress(progress); });
       if (!isCurrent()) return;
       library.rememberImport(game.key, ws.id);
-      navigate(`/w/${ws.id}`);
+      void navigate(`/w/${ws.id}`);
     } catch (e) {
       if (!isCurrent()) return;
       setError(e instanceof ApiError ? e.message : "The import failed.");

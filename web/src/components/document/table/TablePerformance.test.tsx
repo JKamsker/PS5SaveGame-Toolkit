@@ -29,6 +29,7 @@ it("does no table work for edits to fields outside a 10,000-row table", () => {
   reads.mockClear();
   const started = performance.now();
   for (let i = 0; i < 30; i++) act(() => change("other-field", i % 2 === 0));
+  // eslint-disable-next-line no-console -- PERF_REPORT explicitly enables these performance measurements.
   if (process.env.PERF_REPORT) console.info(JSON.stringify({ unrelatedEdits: 30, fieldReads: reads.mock.calls.length,
     elapsedMs: performance.now() - started }));
   expect(reads.mock.calls.length).toBe(0);

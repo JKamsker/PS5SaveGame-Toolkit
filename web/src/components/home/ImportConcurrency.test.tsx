@@ -1,3 +1,4 @@
+import type * as CollectFilesModule from "./collectFiles";
 import { defaultScheduler, notifyManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { Link, MemoryRouter, Route, Routes, useLocation } from "react-router";
@@ -9,7 +10,7 @@ import { deferred } from "../../test/deferred";
 import { HomePage } from "./HomePage";
 import { walkEntries, type UploadFile } from "./collectFiles";
 
-vi.mock("./collectFiles", async original => ({ ...await original<typeof import("./collectFiles")>(), walkEntries: vi.fn() }));
+vi.mock("./collectFiles", async original => ({ ...await original<typeof CollectFilesModule>(), walkEntries: vi.fn() }));
 
 const clients: QueryClient[] = [];
 beforeEach(() => { notifyManager.setScheduler(queueMicrotask); });

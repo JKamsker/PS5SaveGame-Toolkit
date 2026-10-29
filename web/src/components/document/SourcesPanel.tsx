@@ -66,7 +66,7 @@ export function SourcesPanel({ workspaceId, documentId, pluginReferences, refres
           {query.data && <SourcesList datasets={query.data.datasets} pluginReferences={pluginReferences} />}
           <label className="btn btn--small btn--quiet sources__import">
             Import reference pack…
-            <input type="file" accept=".zip,application/zip" className="visually-hidden" disabled={busy} onChange={importPack} />
+            <input type="file" accept=".zip,application/zip" className="visually-hidden" disabled={busy} onChange={event => void importPack(event)} />
           </label>
         </div>
       )}

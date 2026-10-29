@@ -57,6 +57,7 @@ export function HexView({ node }: { node: HexNode }) {
         <p role="alert">Could not load bytes: {failed[0]!.error?.message}</p>
         <button type="button" className="btn btn--small" onClick={() => { for (const page of failed) void page.refetch(); }}>Retry bytes</button>
       </div>}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- The scrollable dump needs keyboard focus for native scrolling. */}
       <div className="hex__scroller" ref={scroller} tabIndex={0} role="region" aria-label={`${node.title ?? "Bytes"} hex dump`}>
         <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
           {items.map((item) => {

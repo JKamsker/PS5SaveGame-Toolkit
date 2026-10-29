@@ -6,6 +6,7 @@ import type { SaveFileInfo } from "../../api/protocol";
 export function useOpenDocument(workspaceId: string, beginSelection: () => () => boolean,
   select: (documentId: string) => void, notify: (message: string, error?: boolean) => void) {
   const client = useQueryClient();
+  // Replaced workspaces must not inherit another workspace's per-file request queues.
   const lanes = useMemo(() => new Map<string, Promise<void>>(), [workspaceId]);
   const pending = useRef<{ key: string; isCurrent: () => boolean } | null>(null);
 

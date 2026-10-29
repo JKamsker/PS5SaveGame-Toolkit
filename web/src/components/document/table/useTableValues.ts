@@ -22,5 +22,6 @@ export function useTableValues(rows: readonly TableRow[]): ValueOf {
     };
   }, [store, rows]);
   const version = useSyncExternalStore(subscription.subscribe, subscription.getSnapshot);
+  // A new content version must invalidate memoized row consumers even though the store object is stable.
   return useCallback((node: FieldNode) => store.value(node.valueId, node.value), [store, version]);
 }

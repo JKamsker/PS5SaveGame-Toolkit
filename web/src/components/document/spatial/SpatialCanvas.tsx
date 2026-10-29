@@ -18,6 +18,7 @@ export function SpatialCanvas({ label, width, height, children }: { label: strin
       <button type="button" className="btn btn--small" onClick={() => { setZoom(1); viewport.current?.scrollTo?.(0, 0); }}>Reset view</button>
       <span>Drag empty space, scroll, or focus the diagram and use arrow keys to pan.</span>
     </div>
+    {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex -- The named diagram region supports both arrow-key panning and pointer dragging. */}
     <div className="spatial-viewport" ref={viewport} tabIndex={0} role="region" aria-label={`${label} diagram`}
       onKeyDown={e => {
         if (e.target !== e.currentTarget) return;

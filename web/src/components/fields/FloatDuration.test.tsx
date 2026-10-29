@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, expect, it, vi } from "vitest";
 import { DocumentContext, DocumentStore } from "../../state/documentStore";
 import { describeDuration, displayValue } from "../../lib/values";
-import type { FloatSpec } from "../../api/protocol";
+import type { EditResult, FloatSpec } from "../../api/protocol";
 import { FieldRow } from "./FieldRow";
 
 afterEach(cleanup);
@@ -24,7 +24,7 @@ it.each([true, false])("renders duration hints and preserves raw numbers when ed
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false });
   const commit = vi.fn(async () => true);
   const context = { workspaceId: "w", documentId: "d", canEdit, store, structureVersion: 0,
-    commit, mutate: async (call: () => Promise<import("../../api/protocol").EditResult>) => call(), acceptResult: async () => {}, runAction: vi.fn(), refresh: async () => {} };
+    commit, mutate: async (call: () => Promise<EditResult>) => call(), acceptResult: async () => {}, runAction: vi.fn(), refresh: async () => {} };
   render(<DocumentContext.Provider value={context}><FieldRow node={{ type: "field", valueId: "timer", label: "Timer", spec, value: 61250 }} /></DocumentContext.Provider>);
   expect(screen.getAllByText("1 min 1.25 s").length).toBeGreaterThan(0);
   if (canEdit) {

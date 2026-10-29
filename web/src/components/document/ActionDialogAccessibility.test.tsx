@@ -31,7 +31,7 @@ function setup(supportsPlanning: boolean) {
   const node: ActionNode = { type: "action", actionId: "refill", label: "Refill", parameters: [parameter], supportsPlanning };
   render(<DocumentContext.Provider value={{ workspaceId: "w", documentId: "d", canEdit: true,
     store: new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 1 }), structureVersion: 0,
-    refresh: vi.fn(), mutate: async (call: () => Promise<import("../../api/protocol").EditResult>) => call(), acceptResult: vi.fn(), commit: vi.fn(), runAction }}><ActionButton node={node} /></DocumentContext.Provider>);
+    refresh: vi.fn(), mutate: async (call: () => Promise<EditResult>) => call(), acceptResult: vi.fn(), commit: vi.fn(), runAction }}><ActionButton node={node} /></DocumentContext.Provider>);
   const trigger = screen.getByRole("button", { name: "Refill" });
   trigger.focus();
   fireEvent.click(trigger);
@@ -97,7 +97,7 @@ it("restores the opener after a native close while a plan is pending", async () 
 it.each([true, false])("preserves focus elsewhere when a non-modal action completes (ok: %s)", async ok => {
   let finish!: (value: EditResult) => void;
   render(<DocumentContext.Provider value={{ workspaceId: "w", documentId: "d", canEdit: true,
-    store: new DocumentStore(result.state), structureVersion: 0, refresh: vi.fn(), mutate: async (call: () => Promise<import("../../api/protocol").EditResult>) => call(), acceptResult: vi.fn(), commit: vi.fn(),
+    store: new DocumentStore(result.state), structureVersion: 0, refresh: vi.fn(), mutate: async (call: () => Promise<EditResult>) => call(), acceptResult: vi.fn(), commit: vi.fn(),
     runAction: () => new Promise(resolve => { finish = resolve; }) }}>
     <ActionButton node={{ type: "action", actionId: "inspect", label: "Inspect", mutates: false }} />
     <button type="button">Other control</button>

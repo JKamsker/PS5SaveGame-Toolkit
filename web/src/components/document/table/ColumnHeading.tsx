@@ -15,6 +15,7 @@ export function ColumnHeading({ column, numeric, confidence }: { column: TableCo
     <div className={`table__head${numeric ? " table__head--number" : ""}`} role="columnheader" title={column.description ? `${column.label}: ${column.description}` : column.label}>
       <span className="table__head-label">{column.label}</span>
       {column.description && <span className="visually-hidden">: {column.description}</span>}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/no-noninteractive-tabindex -- Focus exposes the descriptive tooltip; Escape dismisses it without adding a button action. */}
       {confidence && <span className={`table__confidence${dismissed ? " table__confidence--dismissed" : ""}`} tabIndex={0} aria-describedby={tooltipId}
         onMouseEnter={() => setDismissed(false)} onFocus={() => setDismissed(false)}
         onKeyDown={event => { if (event.key === "Escape") setDismissed(true); }}>

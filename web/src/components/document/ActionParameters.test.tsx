@@ -1,3 +1,4 @@
+import type { EditResult } from "../../api/protocol";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { actionReview } from "../../api/actionReview";
@@ -16,7 +17,7 @@ function setup(planned: boolean) {
   const plan = vi.spyOn(actionReview, "plan").mockResolvedValue({ revision: 1, scope: {},
     plan: { changes: [], skippedRows: [], errors: [], warnings: [] } });
   const context = { workspaceId: "w", documentId: "d", canEdit: true, store, structureVersion: 0,
-    commit: vi.fn(async () => true), mutate: async (call: () => Promise<import("../../api/protocol").EditResult>) => call(), acceptResult: async () => {}, runAction, refresh: async () => {} };
+    commit: vi.fn(async () => true), mutate: async (call: () => Promise<EditResult>) => call(), acceptResult: async () => {}, runAction, refresh: async () => {} };
   render(<DocumentContext.Provider value={context}><ActionButton node={{ type: "action", actionId: "run", label: "Run",
     supportsPlanning: planned, parameters: [{ type: "field", valueId: "index", label: "Entry index",
       spec: { kind: "integer", min: "0", max: "3" }, value: "0" }] }} /></DocumentContext.Provider>);

@@ -34,7 +34,7 @@ it("submits packing once before React commits busy state", async () => {
 
 it("waits for pending workspace edits before reading the export plan", async () => {
   const pending = deferred<void>();
-  const activity = new WorkspaceActivity(); activity.track(pending.promise);
+  const activity = new WorkspaceActivity(); void activity.track(pending.promise);
   await mount(activity);
   expect(api.exportPlan).not.toHaveBeenCalled();
   expect(screen.getByRole("button", { name: "Download zip" })).toHaveProperty("disabled", true);
@@ -45,7 +45,7 @@ it("waits for pending workspace edits before reading the export plan", async () 
 it("waits for pending edits before packing and retires a cancelled waiter", async () => {
   const activity = new WorkspaceActivity();
   const { show, click } = await mount(activity);
-  const pending = deferred<void>(); activity.track(pending.promise);
+  const pending = deferred<void>(); void activity.track(pending.promise);
   const pack = vi.spyOn(api, "exportZip").mockResolvedValue({ blob: new Blob(), name: "save.zip" });
   fireEvent.click(screen.getByRole("button", { name: "Download zip" }));
   expect(pack).not.toHaveBeenCalled();

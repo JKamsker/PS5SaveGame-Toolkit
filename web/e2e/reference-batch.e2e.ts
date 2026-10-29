@@ -59,6 +59,7 @@ test("Rebirth coalesces reference labels across four pages and action parameters
   await page.getByRole("tab", { name: "Materia", exact: true }).click();
   await expect(page.getByRole("table", { name: "Materia", exact: true })).toHaveAttribute("aria-busy", "false");
   await finishPhase();
+  // eslint-disable-next-line no-console -- The optional sample regression reports measured lookup counts for baseline comparisons.
   console.log(JSON.stringify({ referenceLookupCounts: counts }));
   expect(referenceFailures).toEqual([]);
   // The baseline switch is for measuring the unchanged client before implementation.

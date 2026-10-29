@@ -20,6 +20,7 @@ export function WorkspacePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const beginSelection = useLatestRequest(`${workspaceId}:${location.key}`);
+  // Pending mutation/export coordination belongs to one workspace, independent of document selection.
   const activity = useMemo(() => new WorkspaceActivity(), [workspaceId]);
   const exportDialog = useRef<HTMLDialogElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
@@ -38,7 +39,7 @@ export function WorkspacePage() {
     const selectionIsCurrent = beginSelection();
     try {
       await api.deleteWorkspace(workspaceId);
-      if (isCurrent() && selectionIsCurrent()) navigate("/");
+      if (isCurrent() && selectionIsCurrent()) void navigate("/");
     } catch (error) {
       if (isCurrent() && selectionIsCurrent()) notify(error instanceof ApiError ? error.message : "Could not close the dump.", true);
     }

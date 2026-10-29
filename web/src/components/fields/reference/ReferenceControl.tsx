@@ -52,8 +52,9 @@ export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpe
 
   const close = () => setOpen(false);
   return <>
-    <button ref={trigger} id={id} type="button" className={`input reference-trigger${compact ? " input--compact" : ""}`}
-      aria-labelledby={labelledBy} aria-describedby={describedBy} aria-invalid={props.invalid || undefined} aria-haspopup="dialog" disabled={!valueId} onClick={() => setOpen(true)}
+    {/* eslint-disable-next-line jsx-a11y/role-supports-aria-props -- This field's picker trigger retains the shared validation state and error description. */}
+    <button ref={trigger} id={id} type="button" aria-invalid={props.invalid || undefined} className={`input reference-trigger${compact ? " input--compact" : ""}`}
+      aria-labelledby={labelledBy} aria-describedby={describedBy} aria-haspopup="dialog" disabled={!valueId} onClick={() => setOpen(true)}
       title={`${current?.label ?? "Unknown ID"} (${rawId})`}>
       {current?.label ? `${current.label} (${rawId})` : rawId || "Choose an item…"}
     </button>

@@ -1,3 +1,4 @@
+import type { GroupMember } from "./groups";
 // Mirror of src/SaveToolkit.Sdk (views/values) and src/SaveToolkit.Api/Contracts.
 // Keep in sync with the C# records; JSON is camelCase, enums are strings, nulls are omitted.
 import type { GraphNode, MapNode } from "./spatial";
@@ -142,7 +143,7 @@ export interface SaveDirectory {
 
 interface TitleGroup { titleId: string; gameName?: string; directories: SaveDirectory[] }
 
-export interface DocumentSummary { id: string; fileId: string; filePath: string; title: string; pluginId: string; isDirty: boolean; groupMembers?: import("./groups").GroupMember[] }
+export interface DocumentSummary { id: string; fileId: string; filePath: string; title: string; pluginId: string; isDirty: boolean; groupMembers?: GroupMember[] }
 
 export interface Workspace { id: string; name: string; createdAt: string; titles: TitleGroup[]; documents: DocumentSummary[] }
 
@@ -152,7 +153,7 @@ export interface WorkspaceSummary { id: string; name: string; createdAt: string;
 export interface DocumentState { canUndo: boolean; canRedo: boolean; isDirty: boolean; revision?: number }
 
 export interface SaveDocument {
-  groupMembers?: import("./groups").GroupMember[];
+  groupMembers?: GroupMember[];
   id: string;
   fileId: string;
   filePath: string;

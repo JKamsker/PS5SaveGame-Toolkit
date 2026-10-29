@@ -172,6 +172,7 @@ export function ReferencePicker({ valueId, actionId, value, current, browseOnly 
       <div className="reference-picker__content">
         <div>
           <div id={`${id}-list`} role="listbox" aria-label="Candidates" aria-busy={loading} className="reference-options">
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus -- Combobox focus and aria-activedescendant provide all option keyboard navigation. */}
             {items.map((candidate, index) => <div key={candidate.rawId} id={`${id}-option-${index}`} role="option"
               aria-selected={active === index} aria-disabled={browseOnly ? undefined : !candidate.eligibility.selectable}
               className={`reference-option${active === index ? " reference-option--active" : ""}`}
