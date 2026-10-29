@@ -1,21 +1,23 @@
 using System.Text.Json;
+using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Core.Editing;
 
 /// <summary>Targeted, bounded discovery against the current document, never a rendered page.</summary>
-internal sealed class FieldMetadataIndex(ISaveDocument? document)
+internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetadataBytes = null)
 {
     internal const int BatchSize = 200;
     private readonly Dictionary<string, FieldMetadata> _fields = new(StringComparer.Ordinal);
+    private readonly long? _maxMetadataBytes = maxMetadataBytes;
     public bool Enabled => document is IFieldMetadataDocument
         && (document is not SaveToolkit.Core.Sessions.Groups.StagedGroupDocument staged || staged.MetadataEnabled);
     public IEnumerable<string> Ids => _fields.Keys;
     public void Clear() => _fields.Clear();
     internal FieldMetadataIndex Copy(CancellationToken cancellationToken)
     {
-        var copy = new FieldMetadataIndex(document);
+        var copy = new FieldMetadataIndex(document, _maxMetadataBytes);
         copy._fields.EnsureCapacity(_fields.Count);
         foreach (var entry in _fields)
         {
@@ -56,7 +58,6 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
         CancellationToken cancellationToken)
     {
         if (document is not IFieldMetadataDocument source) return;
-        const int MaxClosureIds = 4096;
         var pending = new Queue<string>(ids.Distinct(StringComparer.Ordinal));
         var scheduled = pending.ToHashSet(StringComparer.Ordinal);
         var fetched = new HashSet<string>(StringComparer.Ordinal);
@@ -88,7 +89,12 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
             foreach (var (id, field) in next)
             {
                 if (!cache.TryGetValue(id, out var previous) || !Agree(previous, field))
+                {
+                    if (_maxMetadataBytes is { } remaining
+                        && !SemanticMetadataBudget.TryEstimate(field, remaining, out _))
+                        throw new InvalidOperationException("Field metadata exceeds the bounded review budget.");
                     cache[id] = Snapshot(field);
+                }
                 touched.Add(id);
                 fetched.Add(id);
             }
@@ -99,7 +105,7 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
                 if (canonicalId != field.ValueId && !fetched.Contains(canonicalId)
                     && scheduled.Add(canonicalId))
                 {
-                    if (scheduled.Count > MaxClosureIds)
+                    if (scheduled.Count > FieldMetadataLimits.MaxClosureIds)
                         throw new InvalidOperationException("Canonical metadata closure exceeded its bounded limit.");
                     pending.Enqueue(canonicalId);
                 }

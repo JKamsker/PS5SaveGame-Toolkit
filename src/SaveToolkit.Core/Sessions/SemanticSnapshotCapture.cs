@@ -54,9 +54,8 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
                 case FieldNode f:
                     if (fields.ContainsKey(f.ValueId)) break;
                     var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target,
-                        Spec: FieldSpecMetadata.Snapshot(f.Spec));
-                    var cost = SemanticSnapshot.Estimate(field);
-                    if (cost > limits.MaxOriginalBytes - bytes)
+                        Spec: f.Spec);
+                    if (!SemanticSnapshot.TryEstimate(field, limits.MaxOriginalBytes - bytes, out var cost))
                     {
                         complete = false;
                         queryCut |= target is not null;
@@ -64,6 +63,7 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
                     }
 
                     index(f);
+                    field = field with { Spec = FieldSpecMetadata.Snapshot(f.Spec) };
                     bytes += cost;
                     fields[f.ValueId] = field;
                     break;
@@ -155,7 +155,6 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
 
 internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields, bool complete, long bytes)
 {
-    private const int FieldOverheadBytes = 256;
     public Dictionary<string, SemanticField> Fields { get; } = fields;
     public bool Complete { get; set; } = complete;
     public long Bytes { get; set; } = bytes;
@@ -192,8 +191,10 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
         }
     }
 
-    internal static long Estimate(SemanticField field) => FieldOverheadBytes
-        + 2L * (field.ValueId.Length + field.Label.Length + field.Value.ToString().Length + field.Path.Sum(p => p.Length)
-            + (field.Target is { } target ? target.CollectionId.Length + target.RowKey.Length + (target.Query.Cursor?.Length ?? 0) : 0));
+    internal static long Estimate(SemanticField field) =>
+        TryEstimate(field, long.MaxValue, out var bytes) ? bytes : long.MaxValue;
+
+    internal static bool TryEstimate(SemanticField field, long limit, out long bytes) =>
+        SemanticMetadataBudget.TryEstimate(field, limit, out bytes);
 
 }

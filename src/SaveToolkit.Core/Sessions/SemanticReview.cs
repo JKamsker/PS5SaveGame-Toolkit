@@ -8,7 +8,8 @@ namespace SaveToolkit.Core.Sessions;
 
 internal sealed record SemanticField(string ValueId, string Label, string[] Path, FieldValue Value, bool ReadOnly,
     SemanticCollectionTarget? Target = null, string? CanonicalValueId = null,
-    FieldBindingKind BindingKind = FieldBindingKind.Primary, FieldSpec? Spec = null);
+    FieldBindingKind BindingKind = FieldBindingKind.Primary, FieldSpec? Spec = null,
+    FieldPresentation? Presentation = null);
 internal sealed record SemanticReviewState(SemanticSnapshot? Original,
     IReadOnlyList<string> TargetedIds, IReadOnlyList<string> CaptureDiagnostics);
 
@@ -29,6 +30,8 @@ internal sealed class SemanticReview
     private bool? _originalMetadataAvailable;
     private bool _originalMetadataAttempted;
     private readonly Dictionary<string, string> _captureFailures = new(StringComparer.Ordinal);
+    private int _captureOmittedCount;
+    private string? _captureOmissionReason;
     private readonly SemanticSnapshotCapture _capture;
     private readonly SemanticTargetedCapture _targetedCapture;
     private readonly long _maxBytes;
@@ -42,6 +45,8 @@ internal sealed class SemanticReview
         var metadataAvailable = _originalMetadataAvailable;
         var metadataAttempted = _originalMetadataAttempted;
         var diagnostics = _captureFailures.ToArray();
+        var omittedCount = _captureOmittedCount;
+        var omissionReason = _captureOmissionReason;
         return () =>
         {
             _original = original?.Clone();
@@ -52,6 +57,8 @@ internal sealed class SemanticReview
             _originalMetadataAttempted = metadataAttempted;
             _captureFailures.Clear();
             foreach (var (id, diagnostic) in diagnostics) _captureFailures[id] = diagnostic;
+            _captureOmittedCount = omittedCount;
+            _captureOmissionReason = omissionReason;
         };
     }
     public SemanticReview(DocumentSessionOptions limits)
@@ -64,7 +71,7 @@ internal sealed class SemanticReview
         _maxBytes = limits.MaxOriginalBytes;
     }
     internal SemanticReviewState CaptureState() => new(
-        _original?.Clone(), _targeted.ToArray(), _captureFailures.Values.ToArray());
+        _original?.Clone(), _targeted.ToArray(), CaptureDiagnostics());
     public void Observe(IReadOnlyList<ValueChange> changes, bool structural, Func<string, bool> indexed)
     {
         if (_original is not { } original) return;
@@ -124,14 +131,19 @@ internal sealed class SemanticReview
     {
         ArgumentNullException.ThrowIfNull(openOriginal);
         ArgumentNullException.ThrowIfNull(valueIds);
-        var ids = valueIds.Where(id => !string.IsNullOrEmpty(id)).Distinct(StringComparer.Ordinal).ToArray();
+        var ids = CollectTargetIds(valueIds, out var omittedCount);
+        if (omittedCount > 0)
+            RecordOmissions(omittedCount, "The bounded targeted metadata aggregate limit was reached.");
         if (ids.Length == 0)
         {
             EnsureOriginal(openOriginal, cancellationToken);
             return;
         }
-        if (_original is { } known && ids.All(id => known.Fields.TryGetValue(id, out var field) && SemanticOriginalMetadata.HasMetadata(field))
-            && known.Fields.Values.All(SemanticOriginalMetadata.HasMetadata)) return;
+        if (_original is { } known && _originalMetadataAvailable == false
+            && ids.All(known.Fields.ContainsKey)) return;
+        if (_original is { } metadataKnown && _originalMetadataAvailable != false
+            && ids.All(id => metadataKnown.Fields.TryGetValue(id, out var field) && SemanticOriginalMetadata.HasMetadata(field))
+            && metadataKnown.Fields.Values.All(SemanticOriginalMetadata.HasMetadata)) return;
         // Verification callbacks can re-enter a live session while the independent original is
         // opening. Do not recursively open originals; the outer capture owns the baseline.
         if (_capturingOriginal) return;
@@ -150,8 +162,8 @@ internal sealed class SemanticReview
                     // any legacy view/lazy/query walk so unrelated view failures cannot erase it.
                     snapshot = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal),
                         complete: true, bytes: 0);
-                    if (CaptureTargeted(original, snapshot, ids, revokeOnFailure: false, cancellationToken))
-                        _targeted.UnionWith(ids);
+                    var outcome = CaptureTargeted(original, snapshot, ids, revokeOnFailure: false, cancellationToken);
+                    _targeted.UnionWith(outcome.CapturedIds);
                     var walked = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
                     if (walked.Complete)
                         snapshot.Merge(walked, _maxBytes);
@@ -169,6 +181,11 @@ internal sealed class SemanticReview
                 else
                 {
                     snapshot = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
+                    // The runtime type proves this document cannot provide targeted metadata.
+                    // Remember that capability result so re-entrant edits reuse the captured
+                    // baseline instead of reopening the original during verification.
+                    _originalMetadataAvailable = false;
+                    _originalMetadataAttempted = true;
                 }
                 _original = snapshot;
             }
@@ -186,20 +203,22 @@ internal sealed class SemanticReview
             {
             using var original = openOriginal();
             if (original is not IFieldMetadataDocument)
+            {
+                _originalMetadataAvailable = false;
+                _originalMetadataAttempted = true;
                 return;
+            }
             _originalMetadataAvailable = true;
             _originalMetadataAttempted = true;
-            if (CaptureTargeted(original, existing, ids, revokeOnFailure: false, cancellationToken))
-            {
-                _targeted.UnionWith(ids);
-                foreach (var id in ids) _captureFailures.Remove(id);
-            }
+            var outcome = CaptureTargeted(original, existing, ids, revokeOnFailure: false, cancellationToken);
+            _targeted.UnionWith(outcome.CapturedIds);
+            foreach (var id in outcome.CapturedIds) _captureFailures.Remove(id);
             SemanticTargetedAuthority.ApplyCanonicalMetadata(original, existing, _maxBytes, cancellationToken);
             }
             catch (OperationCanceledException) { throw; }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                foreach (var id in ids) _captureFailures[id] = $"Targeted metadata capture failed for '{id}': {ex.Message}";
+                foreach (var id in ids) RecordFailure(id, $"Targeted metadata capture failed for '{id}': {ex.Message}");
             }
         }
         finally
@@ -237,7 +256,7 @@ internal sealed class SemanticReview
     {
         var original = _original ?? throw new InvalidOperationException("Capture the original before querying changes.");
         var current = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), true, 0);
-        var targetedCaptured = CaptureTargeted(document, current, _targeted, revokeOnFailure: true, cancellationToken);
+        var targetedCaptured = CaptureTargeted(document, current, _targeted.ToArray(), revokeOnFailure: true, cancellationToken);
         var walked = _capture.Capture(document, index, expandedLazy, cancellationToken);
         if (_targetedOnly)
         {
@@ -250,11 +269,7 @@ internal sealed class SemanticReview
             current.Merge(walked, _maxBytes);
             SemanticTargetedAuthority.ApplyCanonicalMetadata(document, current, _maxBytes, cancellationToken);
         }
-        if (!targetedCaptured)
-        {
-            foreach (var id in _targeted) current.Fields.Remove(id);
-            current.Complete = false;
-        }
+        foreach (var id in targetedCaptured.IncompleteIds) current.Fields.Remove(id);
         SemanticTargetedAuthority.Validate(original, current);
         foreach (var id in _reported.Where(id => !current.Fields.ContainsKey(id)))
         {
@@ -277,10 +292,10 @@ internal sealed class SemanticReview
         cancellationToken.ThrowIfCancellationRequested();
 
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges
-            && _captureFailures.Count == 0;
+            && _captureFailures.Count == 0 && _captureOmittedCount == 0;
         IReadOnlyList<string> warnings = complete ? [] : ["Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed."];
         return new SemanticChangeLog(changes, complete,
-            [.. warnings, .. _captureFailures.Values, .. original.QueryWarnings.Concat(current.QueryWarnings).Distinct(StringComparer.Ordinal)], revision);
+            [.. warnings, .. CaptureDiagnostics(), .. original.QueryWarnings.Concat(current.QueryWarnings).Distinct(StringComparer.Ordinal)], revision);
     }
 
     public bool TryOriginal(string id, out FieldValue value)
@@ -295,9 +310,53 @@ internal sealed class SemanticReview
         return false;
     }
 
-    private bool CaptureTargeted(ISaveDocument document, SemanticSnapshot snapshot, IEnumerable<string> valueIds,
-        bool revokeOnFailure, CancellationToken cancellationToken) => SemanticTargetedReview.Capture(
+    private TargetedCaptureOutcome CaptureTargeted(ISaveDocument document, SemanticSnapshot snapshot,
+        IReadOnlyList<string> valueIds, bool revokeOnFailure, CancellationToken cancellationToken) => SemanticTargetedReview.Capture(
             _targetedCapture, document, snapshot, valueIds, revokeOnFailure,
-            (id, diagnostic) => _captureFailures[id] = diagnostic, cancellationToken);
+            RecordFailure, cancellationToken);
+
+    private string[] CollectTargetIds(IEnumerable<string> valueIds, out int omittedCount)
+    {
+        var available = Math.Max(0, FieldMetadataLimits.MaxClosureIds - _targeted.Count);
+        var ids = new List<string>(Math.Min(available, 64));
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        omittedCount = 0;
+        foreach (var id in valueIds)
+        {
+            if (string.IsNullOrEmpty(id) || _targeted.Contains(id) || seen.Contains(id)) continue;
+            if (ids.Count < available)
+            {
+                seen.Add(id);
+                ids.Add(id);
+            }
+            else if (omittedCount < int.MaxValue)
+            {
+                omittedCount++;
+            }
+        }
+        return ids.ToArray();
+    }
+
+    private void RecordFailure(string id, string diagnostic)
+    {
+        if (_captureFailures.Count < FieldMetadataLimits.MaxClosureIds || _captureFailures.ContainsKey(id))
+            _captureFailures[id] = diagnostic;
+        else
+            RecordOmissions(1, "Per-ID targeted metadata diagnostics exceeded the bounded aggregate limit.");
+    }
+
+    private void RecordOmissions(int count, string reason)
+    {
+        _captureOmittedCount = count > int.MaxValue - _captureOmittedCount
+            ? int.MaxValue : _captureOmittedCount + count;
+        _captureOmissionReason ??= reason;
+    }
+
+    private IReadOnlyList<string> CaptureDiagnostics()
+    {
+        if (_captureOmittedCount == 0) return _captureFailures.Values.ToArray();
+        var aggregate = $"{_captureOmissionReason ?? "Targeted metadata coverage was bounded."} Omitted entries: {_captureOmittedCount}.";
+        return [.. _captureFailures.Values, aggregate];
+    }
 
 }
