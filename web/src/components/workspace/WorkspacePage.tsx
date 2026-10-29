@@ -20,7 +20,7 @@ export function WorkspacePage() {
   const [closing, setClosing] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const workspace = useQuery({ queryKey: ["workspace", workspaceId], queryFn: () => api.workspace(workspaceId), retry: false });
-  const focusHeading = useEntryFocus(`${workspaceId}:${documentId ?? "picker"}:${workspace.isError}`);
+  const focusHeading = useEntryFocus(`${workspaceId}:${documentId ?? "picker"}:${Boolean(workspace.data)}`);
 
   const notify = useCallback((text: string, isError = false) => setToast({ text, isError, at: Date.now() }), []);
 
@@ -61,11 +61,12 @@ export function WorkspacePage() {
     else exportDialog.current?.close();
   }, [exportOpen]);
 
-  if (workspace.isError) {
+  if (workspace.isError && !workspace.data) {
     return (
       <div className="empty">
-        <h2 ref={focusHeading} tabIndex={-1}>This workspace is gone</h2>
-        <p>{workspace.error.message}</p>
+        <h2 ref={focusHeading} tabIndex={-1}>{workspace.error instanceof ApiError && workspace.error.status === 404 ? "This workspace is gone" : "Could not load this workspace"}</h2>
+        <p role="alert">{workspace.error.message}</p>
+        <button type="button" className="btn btn--small" disabled={workspace.isFetching} onClick={() => void workspace.refetch()}>Retry workspace</button>
         <p>
           <Link to="/">Import a save dump</Link>
         </p>
@@ -105,6 +106,10 @@ export function WorkspacePage() {
       </header>
       <SlotRail workspace={ws} activeFileId={activeDoc?.fileId} onOpen={(f) => void open(f)} />
       <main className="main">
+        {workspace.isError && <div>
+          <p role="alert" className="notice notice--Danger">Could not refresh the workspace: {workspace.error.message}</p>
+          <button type="button" className="btn btn--small" disabled={workspace.isFetching} onClick={() => void workspace.refetch()}>Retry workspace</button>
+        </div>}
         {activeDoc ? (
           <DocumentEditor
             key={activeDoc.id}
