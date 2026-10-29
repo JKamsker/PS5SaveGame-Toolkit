@@ -198,6 +198,8 @@ The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. C
 the committed synthetic fixtures through the bundled UI. The suite covers import errors and recovery,
 raw read-only inspection, editing/review/undo, document isolation and redo, full-collection search/filter/
 sort/paging, bulk preview/cancel/apply, keyboard-only application interaction, and repeated exports.
+F6 actions cover selected-row and filtered-query scopes (including unloaded pages), empty table
+selection versus document scope, cancel without writes, and exact apply/undo/redo values and exports.
 Export assertions compare every path and decompressed payload byte; ZIP metadata is not compared.
 No private samples or `SAVETOOLKIT_ARTIFACTS` are needed. Failures upload the Playwright HTML report
 with traces and screenshots.
