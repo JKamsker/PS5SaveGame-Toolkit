@@ -31,15 +31,17 @@ internal sealed class InspectionPackageFixture
 
     public static byte[] Array(params byte[][] entries) => [.. BitConverter.GetBytes(entries.Length), .. entries.SelectMany(entry => entry)];
 
-    public ScriptableReader Reader(byte[] root) => new(Package(root));
-    private byte[] Package(byte[] root)
+    public ScriptableReader Reader(byte[] root) => Reader(("FixtureRoot", root));
+    public ScriptableReader Reader(params (string Type, byte[] Data)[] chunks) => new(Package(chunks));
+    private byte[] Package((string Type, byte[] Data)[] chunks)
     {
+        var types = chunks.Select(chunk => Name(chunk.Type)).ToArray();
         var nameData = _names.Count * 4;
         var descriptor = nameData + _names.Sum(name => name.Length + 1);
-        var chunkData = descriptor + 8;
+        var chunkData = descriptor + chunks.Length * 8;
         using var output = new MemoryStream();
         using var writer = new BinaryWriter(output, Encoding.ASCII, true);
-        writer.Write(new byte[] { 4, 0, 6, 0 }); writer.Write(1);
+        writer.Write(new byte[] { 4, 0, 6, 0 }); writer.Write(chunks.Length);
         writer.Write(0); writer.Write(nameData); writer.Write(descriptor); writer.Write(chunkData);
         writer.Write(0); // Scriptable root ID count.
         var offset = nameData;
@@ -49,7 +51,13 @@ internal sealed class InspectionPackageFixture
             offset += name.Length + 1;
         }
         foreach (var name in _names) { writer.Write(Encoding.ASCII.GetBytes(name)); writer.Write((byte)0); }
-        writer.Write(0); writer.Write(chunkData); writer.Write(root);
+        offset = chunkData;
+        for (var i = 0; i < chunks.Length; i++)
+        {
+            writer.Write((int)types[i]); writer.Write(offset);
+            offset += chunks[i].Data.Length;
+        }
+        foreach (var chunk in chunks) writer.Write(chunk.Data);
         return output.ToArray();
     }
 }

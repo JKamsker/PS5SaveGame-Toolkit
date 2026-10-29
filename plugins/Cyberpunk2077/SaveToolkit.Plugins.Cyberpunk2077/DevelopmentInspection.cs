@@ -43,7 +43,9 @@ internal sealed class DevelopmentInspection
                 return row.Values.GetValueOrDefault(column, "");
             }, cell: (row, column) => column == "name" && row.Values.TryGetValue("displayName", out var name)
                 ? new SectionNode(name, [new TextNode(row.Values["name"]), new TextNode(row.Values["description"]),
-                    new TextNode(row.Attribution)]) { Description = row.Attribution } : null);
+                    new TextNode(row.Attribution)]) { Description = row.Attribution } : null,
+            // Reuse the pinned, attributed label rendered above; raw identifier filters and sorts stay unchanged.
+            extraSearch: row => row.Values.GetValueOrDefault("displayName", ""));
     }
     public string? Warning { get; }
     public InspectionTable Table { get; }
