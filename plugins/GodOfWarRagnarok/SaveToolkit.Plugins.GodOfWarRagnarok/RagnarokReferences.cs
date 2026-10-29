@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
@@ -7,6 +8,7 @@ namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 internal sealed class RagnarokReferences
 {
     public const string CatalogId = "gow-ragnarok-resources";
+    public const string AssetCatalogId = "gow-ragnarok-assets";
     public const string ContainerSources =
         "Hero: Continue? contributors, GPL-3.0, https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py ; " +
         "Blacksmith chest: SaveWizard-Resources contributors, GPL-3.0, https://github.com/sterben-Dev10/SaveWizard-Resources/blob/4c32596efde54af7bec390b298265f09c929d94d/SaveWizard-Codes/GOW%20Ragnarok%20%5BSaveWizard%5D.txt .";
@@ -17,16 +19,20 @@ internal sealed class RagnarokReferences
     private readonly IReferenceCatalog? _catalog;
     private readonly IReferenceCatalog? _collectibles;
     private readonly IReferenceCatalog? _evidence;
+    private readonly IReferenceCatalog? _assets;
+    private readonly IReferenceContext _context;
     public RagnarokSkillReferences Skills { get; }
     public RagnarokCommunityTables Community { get; }
 
     public RagnarokReferences(IReferenceContext context)
     {
+        _context = context;
         Skills = new(context);
         Community = new(context);
         _catalog = context.Catalog(CatalogId, Build);
         _collectibles = context.Catalog("gow-ragnarok-collectibles", Build);
         _evidence = context.Catalog("gow-ragnarok-community-ids", Build);
+        _assets = context.Catalog(AssetCatalogId, Build);
     }
 
     public ReferenceRecord? Find(ulong id)
@@ -54,6 +60,12 @@ internal sealed class RagnarokReferences
 
     public string Attribution(ulong id) => Find(id)?.AttributionText ??
         "No sourced name mapping is available; the raw ID is preserved.";
+
+    public ReferenceRecord? AssetRecord(string id) => _assets?.Find(id);
+
+    public AssetContent? GetAsset(string assetId) => _context.GetAsset(assetId);
+
+    public ReferenceDatasetInfo? AssetProvenance(string assetId) => _context.AssetProvenance(assetId);
 
     public string? Catalog(ulong id) => Find(id)?.Dataset.Id is { } catalog &&
         catalog is CatalogId or "gow-ragnarok-collectibles" or "gow-ragnarok-community-ids" or

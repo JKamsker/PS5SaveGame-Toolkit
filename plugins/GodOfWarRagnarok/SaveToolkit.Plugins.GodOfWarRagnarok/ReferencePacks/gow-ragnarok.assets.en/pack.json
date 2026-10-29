@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "id": "gow-ragnarok.assets.en",
+  "version": "1.0.0",
+  "title": "God of War Ragnarök gear, rune and map assets (English)",
+  "description": "Small attributed visual catalogue for common gear, rune and resource presentation. Save joins remain Unknown unless separately evidenced.",
+  "plugins": [
+    "gow-ragnarok"
+  ],
+  "titleIds": [
+    "PPSA08329",
+    "PPSA08330",
+    "PPSA08331",
+    "PPSA08332",
+    "PPSA08333",
+    "PPSA08334",
+    "PPSA25043",
+    "PPSA25044"
+  ],
+  "gameBuilds": [
+    "PS5 revision 0x00513040"
+  ],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "gow-ragnarok-assets",
+      "kind": "records",
+      "title": "Gear, rune and map visual references",
+      "files": [
+        {
+          "path": "records.json",
+          "sha256": "af0e18abb630fa5f26e9f4aab4a1f07b913f61f5ad1fba3bb1d58ef0c8fda265"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://godofwar.fandom.com/wiki/Leviathan_Axe",
+        "author": "God of War Wiki contributors; Santa Monica Studio; MapGenie contributors",
+        "license": "Rights reserved by Santa Monica Studio; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://www.fandom.com/licensing",
+        "retrieved": "2026-10-29",
+        "modifications": "Selected six catalogue records with short factual descriptions; no saved-state mapping asserted."
+      }
+    },
+    {
+      "id": "gow-ragnarok-visual-assets",
+      "kind": "assets",
+      "title": "Gear, rune and realm map images",
+      "files": [
+        {
+          "path": "assets/armor-berserker.webp",
+          "sha256": "28cd79b230677d435e77a5b19e5191d9dc1908a94ef58480172cc332ac6edae1"
+        },
+        {
+          "path": "assets/blades.webp",
+          "sha256": "5c88ae9c9ba621fd7c52969121130a2f40ea0df10a1399c74c7d1662a465830d"
+        },
+        {
+          "path": "assets/leviathan.webp",
+          "sha256": "a0b04e202ddb4702d5c5357ea8a5df87102d560c25f1c6a85cd501d0b1224da0"
+        },
+        {
+          "path": "assets/midgard.webp",
+          "sha256": "c4a34f25ca41fd2819cd6aea148d1a3dc47bf90c241fecb5bf9167f919991305"
+        },
+        {
+          "path": "assets/rune-volition.webp",
+          "sha256": "f7d4a308bd6e008456264838465d0d977978306b6ffbff9afc073d36ebb77846"
+        },
+        {
+          "path": "assets/skill-elemental-siphon.webp",
+          "sha256": "fdacb804d4b8518b970b22d4e1a66b9e256d8472aa7ebee90084ee93fa733c74"
+        },
+        {
+          "path": "assets/skill-frost-awaken.webp",
+          "sha256": "00b105fad7cb628c567620aa4cff4760cbd1cfe06749ef6fb7339509d54e9bf2"
+        },
+        {
+          "path": "assets/skill-frozen-breach.webp",
+          "sha256": "4f718f1d7ed9405dfd961c497adacf45f0fdda949ca8f2c113116ee723be2862"
+        },
+        {
+          "path": "assets/skill-spear-call.webp",
+          "sha256": "b499f7cf44a3e6443f5dbaf3d206d482b0ea9f33fbfa589d8de997ac13857212"
+        },
+        {
+          "path": "assets/skill-whirling-storm.webp",
+          "sha256": "9db483474f5324ca484ee30033e9af76be2f8728a2bd1afa6399c194c675d91c"
+        },
+        {
+          "path": "assets/spear.webp",
+          "sha256": "d753a33434c5f76de4c45fc22a2b9f9365dbcf462a17a3c784440fd940797c5f"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://mapgenie.io/god-of-war-ragnarok/maps/midgard",
+        "author": "God of War Wiki contributors; MapGenie contributors; Santa Monica Studio",
+        "license": "Rights reserved by MapGenie; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://www.fandom.com/licensing",
+        "retrieved": "2026-10-29",
+        "modifications": "Downscaled gear/rune images to 96 px or less and stitched four MapGenie z9 tiles into a 512x512 WebP background."
+      }
+    }
+  ]
+}

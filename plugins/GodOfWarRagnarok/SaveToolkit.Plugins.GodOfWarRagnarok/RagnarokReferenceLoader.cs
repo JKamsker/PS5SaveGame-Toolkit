@@ -13,6 +13,11 @@ internal static class RagnarokReferenceLoader
         using var manifest = Read(packId, "pack.json");
         foreach (var entry in manifest.RootElement.GetProperty("datasets").EnumerateArray())
         {
+            if (entry.GetProperty("kind").GetString() != "records")
+            {
+                continue;
+            }
+
             var attribution = entry.GetProperty("attribution");
             var dataset = new ReferenceDatasetInfo(packId, Text(entry, "id"), ReferenceDatasetKind.Records,
                 new ReferenceAttribution(Text(attribution, "sourceUrl"), Text(attribution, "author"), Text(attribution, "license"),
