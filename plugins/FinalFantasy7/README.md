@@ -46,6 +46,17 @@ targets, skipped rows/reasons, dependent changes, attribution and integrity warn
 select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as one history entry.
 99 is the upstream editor policy, not a proven game cap. These presets need the same #31 console checks.
 
+The Inventory restock button binds to the `inventory` table selection; both Materia AP/star
+buttons bind to `materia` through SDK-41 `SelectionTableId`. Explicit selections include rows on
+unloaded pages. Select-all-matching retains the exact server query, empty-slot visibility and
+exclusions. With no selection these sibling buttons use document scope (all eligible stacks, or
+all eligible owned copies of the chosen materia type). Explicit empty scopes, zero matches and
+fully excluded queries change nothing. Unmounting the table resets its selection and disables
+the bound control until the table is mounted again. Character controls retain their existing scopes.
+`BulkSelectionDeclarationTests`, `BulkSelectionPlanningTests` and `BulkSelectionConformanceTests`
+add synthetic regression coverage; these new tests have not yet been executed in this implementation
+worker. Browser request wiring and sample-backed validation are assigned to independent validation.
+
 ### Edit-coverage actions and stored time (#40)
 
 The **Characters** tab provides **Recover selected characters' current HP/MP** and
@@ -96,7 +107,7 @@ The full Release API build passed with **0 warnings and 0 errors**.
 | F3 rich table cells | Used | Inventory/catalog row-detail sections retain attributed official descriptions and imported `ImageNode` icons. Bound numeric cells carry confidence/warnings. Tested detail nodes, imported image identity and `GetAsset` routing. |
 | F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Inventory/materia type IDs publish browse-only `ReferenceSpec`s. Main Owned items F8 tables display type IDs as text; only retained legacy owned-page endpoints bind browse-only weapon/materia type fields. Writable weapon references remain **instance IDs**, while catalog keys are **type IDs**; substituting that catalog would select the wrong domain. |
 | F5 reversible structure | N/A | No safe allocation/removal/reorder writer exists: free-slot initialization, serial uniqueness, acquisition order and all inventory/detail/owner dependencies remain unknown. Current writers patch fixed-size existing values. Owner acquisition/discard/capacity pairs are required before a structural transaction can be implemented. |
-| F6 planning / #27 scopes | Used | Existing AP/star/restock presets plus current-HP/MP recovery and character-level targets with derived XP; pure previews, warnings, skipped rows, full-content revalidation through shared `ActionPlans`, and one undo group. Inventory/materia support Core-resolved F8 query scopes; seven-row character actions use explicit eager-table keys or document scope. `MateriaPlanningTests`, `PresetPlanningTests`, `CharacterCoverageTests`. |
+| F6 planning / #27 scopes | Used | Existing AP/star/restock presets plus current-HP/MP recovery and character-level targets with derived XP; pure previews, warnings, skipped rows, full-content revalidation through shared `ActionPlans`, and one undo group. Inventory/materia sibling controls bind to their corresponding F8 tables through SDK-41 and support explicit/document/Core-resolved query scopes; seven-row character actions retain their explicit eager-table or document scopes. `MateriaPlanningTests`, `PresetPlanningTests`, `CharacterCoverageTests`, `BulkSelectionDeclarationTests`, `BulkSelectionPlanningTests`, tab-scoped opt-in `BulkSelectionConformanceTests`. |
 | F7 document groups | N/A | No implemented operation changes more than the primary gameplay file; common and prior-state RESD dependencies are unmapped. Grouping them would claim a coupling that has not been established. Existing backup mirroring remains framework-owned. |
 | F8 queryable tables | Used | Complete inventories, materia, catalogs, cards, progress, owned relationships, linked-header index (including common files), named enemy records (161 Remake / 230 Rebirth) and the 388-row research collection. `GameplayCollection` and `CollectionQuery` use SDK `InMemoryCollection<T>` with `ToTableNode`; whole-model search/filter/sort precedes page-only rendering. Legacy raw-word/lazy endpoints remain bounded. |
 | F9 graphs / maps | Used | Six attributed Rebirth regional backgrounds with local field targets and distinct bit domains; unverified coordinates remain list-only; seven read-only folio candidate graphs (238 bits) and seven Rebirth equipment-reference graphs. Accessible text alternatives, bounded/lazy groups, JSON/SDK validation and Core edit/undo refresh tests. No fabricated prerequisite edges, socket links, capacity, coordinates or weapon-upgrade grid. |

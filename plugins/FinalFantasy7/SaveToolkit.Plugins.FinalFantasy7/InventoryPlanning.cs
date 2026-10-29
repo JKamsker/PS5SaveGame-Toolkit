@@ -17,6 +17,7 @@ internal sealed class InventoryPlanning(Ff7Schema schema, GameplayFields gamepla
     public ActionNode View() => new(ActionId, "Restock existing consumables")
     {
         SupportsPlanning = true,
+        SelectionTableId = "inventory",
         Description = "Preview existing positive ordinary consumable stacks below the target. Currency, keys, tokens, materials, cards, gear, unknown and zero/sentinel rows are skipped. " +
             "Target 99 is upstream editor policy, not a proven PS5 cap. " + WriteWarnings.Experimental + " " + EmbeddedCatalogs.Attribution,
         Parameters = [new("quantity", "Target count", IntegerSpec.UInt32 with { Min = 1, Max = MaximumTarget }, FieldValue.Of((long)MaximumTarget))],
