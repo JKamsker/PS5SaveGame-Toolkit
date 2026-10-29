@@ -27,7 +27,7 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
             ImportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ExportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ReferencePackException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
-            InvalidDataException e => (StatusCodes.Status422UnprocessableEntity, $"Invalid archive: {e.Message}"),
+            InvalidDataException e => (StatusCodes.Status422UnprocessableEntity, $"Invalid data: {e.Message}"),
             InvalidOperationException e => (StatusCodes.Status409Conflict, e.Message),
             BadHttpRequestException e => (e.StatusCode, e.Message),
             _ => (StatusCodes.Status500InternalServerError, "Unexpected server error. See the server log for details."),

@@ -170,7 +170,7 @@ internal static class WorkspaceEndpoints
             try
             {
                 var parsed = JsonSerializer.Deserialize<Dictionary<string, string>>(json, ToolkitJson.Options);
-                if (parsed is null) return null;
+                if (parsed is null || parsed.Values.Any(value => value is null)) return null;
                 foreach (var (key, value) in parsed) filters[key] = value;
             }
             catch (JsonException)

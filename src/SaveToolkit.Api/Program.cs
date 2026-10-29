@@ -17,6 +17,8 @@ builder.Services.Configure<FormOptions>(o =>
     o.ValueCountLimit = 100_000;
 });
 builder.Services.ConfigureHttpJsonOptions(o => ToolkitJson.Configure(o.SerializerOptions));
+// Route binding must reach our error handler in Production as well as Development.
+builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true);
 
 var dataRoot = builder.Configuration["Toolkit:DataRoot"] is { Length: > 0 } configured
     ? configured
