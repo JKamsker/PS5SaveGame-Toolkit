@@ -24,8 +24,8 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
             .Select(n => JsonSearch.Metadata(n.Children.Count, JsonSearch.ArrayPrefix + n.Index))];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
-        collectionId == JsonSearch.CollectionId ? _search.Query(_tree.Nodes[0], query, ScalarField, NodeView)
-            : JsonSearch.Array(_tree, collectionId) is { } array ? _search.Query(array, query, ScalarField, NodeView, collectionId)
+        collectionId == JsonSearch.CollectionId ? _search.Query(_tree, _tree.Nodes[0], query, ScalarField, NodeView)
+            : JsonSearch.Array(_tree, collectionId) is { } array ? _search.Query(_tree, array, query, ScalarField, NodeView, collectionId)
             : throw new KeyNotFoundException("Unknown or retired JSON collection.");
 
     public override ViewNode BuildView()

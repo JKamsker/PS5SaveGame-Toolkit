@@ -65,8 +65,19 @@ public sealed class JsonPerformanceTests
         using var document = Open(Source());
         var query = (IQueryableDocument)document;
         var request = new QueryableCollectionQuery { Text = "missing-value" };
-        Assert.Empty(query.Query("json-array-0", request).Rows);
+        Assert.InRange(Allocated(() => Assert.Empty(query.Query("json-array-0", request).Rows)), 0, PageBudget);
         Assert.InRange(Allocated(() => query.Query("json-array-0", request)), 0, PageBudget);
+    }
+
+    [Fact]
+    public void SortingNarrowedMatchesAllocatesForMatchesAndPageOnly()
+    {
+        using var document = Open(Source());
+        var query = (IQueryableDocument)document;
+        var request = new QueryableCollectionQuery { Text = "499", SortColumn = "path", Descending = true, Limit = 20 };
+        _ = query.Query("json-array-0", request);
+        Assert.InRange(Allocated(() => query.Query("json-array-0", request)), 0, PageBudget);
+        Assert.Throws<ArgumentException>(() => query.Query("json-array-0", new() { SortColumn = "path" }));
     }
 
     [Fact]

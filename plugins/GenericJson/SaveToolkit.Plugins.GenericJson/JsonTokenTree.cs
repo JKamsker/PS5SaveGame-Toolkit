@@ -154,6 +154,8 @@ internal sealed class JsonTokenTree
             node.Parent = parent;
             // All membership, order and name mutations pass through Reindex, including snapshot restore.
             node.StructureReview = null;
+            node.EscapedPathLabel = null;
+            node.FriendlyLabel = null;
             Nodes.Add(node);
             ById.Add(node.Index, node);
             var occurrences = node.Kind == JsonTokenType.StartObject ? new Dictionary<string, int>(StringComparer.Ordinal) : null;
