@@ -27,6 +27,15 @@ internal static class LarianCompression
 
     internal static byte[] Decode(ReadOnlySpan<byte> source, int expectedSize, byte flags, bool framed = false)
     {
+        try { return DecodeCore(source, expectedSize, flags, framed); }
+        catch (Exception exception) when (exception is IOException or InvalidDataException or ZstdSharp.ZstdException or ArgumentException)
+        {
+            throw new SaveFormatException($"Invalid BG3 compressed data: {exception.Message}", exception);
+        }
+    }
+
+    private static byte[] DecodeCore(ReadOnlySpan<byte> source, int expectedSize, byte flags, bool framed)
+    {
         BinaryData.Size((ulong)expectedSize);
         var method = Method(flags);
         if (method == LarianCompressionMethod.None)
@@ -35,25 +44,19 @@ internal static class LarianCompression
             return source.ToArray();
         }
 
-        var output = new byte[expectedSize];
+        BinaryData.Require(!source.IsEmpty, "BG3 compressed member is empty or truncated.");
+
         if (method == LarianCompressionMethod.Lz4 && !framed)
         {
+            Lz4BlockValidation.Validate(source, expectedSize);
+            if (expectedSize == 0) return []; // K4os requires a nonempty destination, even for the valid zero-literal token.
+            var output = new byte[expectedSize];
             var length = LZ4Codec.Decode(source, output);
             BinaryData.Require(length == expectedSize, "Invalid LZ4 block or decompressed size mismatch.");
             return output;
         }
 
-        using var input = new MemoryStream(source.ToArray(), false);
-        using Stream decoder = method switch
-        {
-            LarianCompressionMethod.Zlib => new ZLibStream(input, CompressionMode.Decompress),
-            LarianCompressionMethod.Lz4 => LZ4Stream.Decode(input),
-            LarianCompressionMethod.Zstd => new ZstdSharp.DecompressionStream(input),
-            _ => throw new SaveFormatException("Unsupported BG3 compression."),
-        };
-        decoder.ReadExactly(output);
-        BinaryData.Require(decoder.ReadByte() == -1, "BG3 decompressed data exceeds its declared size.");
-        return output;
+        return CompressedStreamValidation.Decode(source, expectedSize, method);
     }
 
     internal static bool IsLz4Frame(ReadOnlySpan<byte> source) =>

@@ -25,6 +25,15 @@ Warm first-view allocation fell from 233.6 MB to 138.2 MB; twenty ten-row live p
 fell from 51.0 MB to 0.9 MB. Mandatory digest/resource validation and Experimental
 write warnings remain intact.
 
+The [malformed-input review](ROBUSTNESS.md) records four medium and one low
+correctness findings fixed after that performance review: allocation preflight for
+compressed data and LSF/LSX tables, unfinished zlib rejection, and missing compressed
+members. Regression coverage includes exhaustive synthetic truncation prefixes and
+in-memory sample mutations. Final validation: **306 passed, 0 failed, 0 skipped**;
+API Release build with zero warnings/errors. Stream codecs validate with bounded
+scratch before allocating their declared output; validated package payload reuse
+and Experimental write warnings are retained.
+
 Version 0.6.0 adds bounded live NewAge storage decoding and editing: explicit stack
 member quantities, current/temporary HP candidates and effective ability-cache
 candidates. F5/F6 plan a two-key container reorder and imported-quantity restoration;
@@ -515,6 +524,9 @@ No message-only inspection action or proven float duration exists to opt in.
 | Existing LSPK/LSF/LSX and UUID format ports | [Norbyte/LSLib](https://github.com/Norbyte/lslib/tree/6f5f6987d10d8485876b8368431c948e4dea4f83) | MIT; [licence notice](THIRD-PARTY-NOTICES.md) | Managed preservation-first implementations; format files listed below. |
 | Managed LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
 | Managed zstd codec | [ZstdSharp](https://github.com/oleg-st/ZstdSharp), Oleg Stepanischev and contributors | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
+| Raw LZ4 preflight format facts | [LZ4 Block Format](https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md), Yann Collet; document revision 2026-10-26 | Documentation GPL-2.0-or-later per [repository licence](https://github.com/lz4/lz4/blob/dev/LICENSE); reviewed 2026-10-29 | Original allocation-free length/reference/end-condition validator from documented format facts; no upstream decoder implementation or documentation text copied. K4os still performs decoding. |
+| Local zlib truncation handling | [.NET 10 DeflateStream](https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.IO.Compression/src/System/IO/Compression/DeflateZLib/DeflateStream.cs), .NET Foundation; [RFC 1950](https://www.rfc-editor.org/rfc/rfc1950), Deutsch and Gailly | Runtime MIT; RFC documentation permission notice; reviewed 2026-10-29 | Behavior research only. An original local input adapter rejects exhaustion while zlib still needs bytes; the library validates its checksum, and trailing residue remains accepted. No runtime implementation or RFC text copied. |
+| zstd stream/window bounds | [ZstdSharp DecompressionStream](https://github.com/oleg-st/ZstdSharp/blob/master/src/ZstdSharp/DecompressionStream.cs); [Zstandard format 0.4.5](https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md), Meta Platforms and contributors | ZstdSharp MIT; Zstandard documentation permission notice; reviewed 2026-10-29 | Existing codec APIs bound decoder windows to 256 MiB and validate complete output before retained output allocation. Format facts inform synthetic empty/corrupt frame vectors; no decoder implementation copied. |
 
 ## Licence exclusions
 

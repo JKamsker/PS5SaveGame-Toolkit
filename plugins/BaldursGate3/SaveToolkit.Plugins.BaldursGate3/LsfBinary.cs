@@ -50,9 +50,23 @@ internal sealed class LsfBinary
         BinaryData.Require(total <= BinaryData.MaxBufferSize, "LSOF expanded sections exceed 256 MiB.");
         var shift = version >= 6 ? 0 : 1;
         var recordSize = metadata == 1 ? LsfLayout.AdjacencyRecordSize : LsfLayout.CompactRecordSize;
+        ValidateTableSize(sizes[LsfLayout.NodesPair - shift].Expanded, recordSize);
+        ValidateTableSize(sizes[LsfLayout.AttributesPair - shift].Expanded, recordSize);
+        if (version >= 6) ValidateTableSize(sizes[LsfLayout.KeysPair].Expanded, LsfLayout.KeyRecordSize);
+        int[] order = version >= 6 ? [0, 2, 3, 4, 1] : [0, 1, 2, 3];
+        var end = headerSize;
+        foreach (var index in order)
+        {
+            var (expanded, stored) = sizes[index];
+            BinaryData.Require(method != LarianCompressionMethod.None || stored == 0 || stored == expanded,
+                "Uncompressed LSOF section has an inconsistent stored size.");
+            var length = stored == 0 || method == LarianCompressionMethod.None ? expanded : stored;
+            BinaryData.Slice(bytes, end, length);
+            end += length;
+        }
+
         (budget ?? new ResourceBudget()).Reserve(total, sizes[LsfLayout.NodesPair - shift].Expanded / recordSize,
             sizes[LsfLayout.AttributesPair - shift].Expanded / recordSize);
-        int[] order = version >= 6 ? [0, 2, 3, 4, 1] : [0, 1, 2, 3];
         var sections = new Section[pairs];
         var position = headerSize;
         foreach (var index in order)
@@ -70,6 +84,10 @@ internal sealed class LsfBinary
 
         return new LsfBinary(bytes, headerSize, position, flags, order, sections);
     }
+
+    private static void ValidateTableSize(int size, int recordSize) =>
+        BinaryData.Require(size % recordSize == 0 && size / recordSize <= BinaryData.MaxRecords,
+            "Invalid LSOF table size or excessive record count (one million limit).");
 
     internal byte[] Rebuild(IReadOnlyDictionary<int, byte[]> replacements)
     {
