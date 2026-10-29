@@ -179,12 +179,46 @@ counts or player inventory totals. Each candidate name carries per-cell source,
 licence and raw-ID provenance. Duplicate templates remain separate, unknown IDs
 stay raw. If an Item node carries an explicit owner or quantity attribute, it is shown
 as an unverified candidate; absent attributes remain `Unknown / unknown`. The same
-collection is exposed through the SDK's bounded F8 query contract with stable row keys.
+collection uses one F8 table with stable row keys, occurrence provenance and complete-model
+search, exact column filters and sorting. The duplicate numbered saved-item page browser
+has been removed; raw resource inspection remains available separately.
 Unambiguous, positive integer quantity candidates use the canonical raw-resource
 binding with conservative observed bounds; the current value refreshes after edits
 and can be sorted in the queryable table. The original owner/quantity text is
 explicitly labelled as the original snapshot. None of the supplied 761 occurrences
 has such a quantity control; their live amounts are not guessed from templates.
+
+### F14 inventory presentation audit
+
+The saved-item list previously offered both an F8 table and lazy numbered eager pages;
+it now offers only the F8 table, retaining every occurrence and its original field/row IDs.
+The live container-entry and recursive-inventory lists already use single F8 tables per
+source, with container/owner filters and native entry/path identities. These decoded maps
+contain existing item references, not fixed-capacity vacant rows: the supplied PS5 save has
+638 entries in 239 nonempty containers. The other 315 of its 554 container records have
+empty map ranges, not 315 empty item slots. See [NEWAGE.md](NEWAGE.md) and the
+[upstream container research](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md#inventory-containers--decoded-ownership-web),
+rechecked 2026-10-29; PS5 pointer/range details are independently sample-verified.
+
+No decoded inventory row has a confirmed vacancy sentinel, so no `IsEmpty` or `EmptyRows`
+metadata is invented. Missing/unknown templates, quantity zero and map keys `0`/`65535`
+remain visible; `HiddenEmptyCount` is zero with default, shown or hidden-empty queries.
+F6 query selection therefore retains every matching existing entry. Nonzero hidden counts
+and exclusion of vacant entries are inapplicable until a supported profile proves such rows.
+Catalogs, active-party summaries, story markers, package entries, LSMF component/entity/state
+inspection and spell-book details represent records rather than inventory vacancies; bounded
+raw-inspection pages remain intentional. No numbered inventory-page sections remain.
+
+`InventoryPresentationTests` covers multi-page search/filter/sort, provenance, unknown and
+zero-quantity preservation, sparse map keys, F6 query-scoped native identities, intended
+key bytes, reopen and exact undo. Existing sample and conformance tests cover all 761
+saved-item occurrences, 638 live entries, canonical quantity edits and byte-identical no-op
+serialization.
+
+F14 validation: all 220 plugin tests passed with the supplied artifacts, zero skipped;
+the API build completed with zero warnings and zero errors. Test scratch used
+`D:/Temp/saveeditor/test-scratch/BaldursGate3`; automatic approval review blocked
+its deletion, so the scratch folder remains for cleanup.
 
 ## Enabled writes and their evidence
 
@@ -454,6 +488,7 @@ No message-only inspection action or proven float duration exists to opt in.
 | F11 shared codecs | N/A | No Kraken or SQLite payload exists in this supported Larian path. LZ4/zstd/zlib use the existing attributed managed codecs. |
 | F12 | Added this round | Generic `bg3` decoder traverses live F8 rows with host budgets; one-row-page changed-quantity and truncation tests. No private decoder needs a separate hook. |
 | F13 | Added this round | Browse-only read-only reference fields; host category filtering and declared Key/Name/Category sorting. Inspection actions N/A: both actions mutate storage. Float duration N/A: no proven mutable float timer semantics. |
+| F14 | Added this round | One saved-item F8 table replaces duplicate numbered eager pages; provenance and full-list filters retained. Live containers already use F8. Vacancy hiding N/A: decoded sparse maps contain existing item references only; no confirmed empty row sentinel. See the inventory presentation audit and regressions above. |
 
 ## Sources and attribution
 

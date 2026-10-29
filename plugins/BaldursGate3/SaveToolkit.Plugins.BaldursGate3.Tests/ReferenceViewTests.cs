@@ -109,7 +109,9 @@ public sealed class ReferenceViewTests
         var (_, _, context) = References();
         var inspection = Items(context);
         Assert.Empty(inspection.Build().OfType<TableNode>()); // no eager item rows
-        var rows = Assert.Single(inspection.Expand("saved-items/0/3").OfType<TableNode>()).Rows;
+        Assert.Empty(inspection.Build().OfType<SectionNode>());
+        Assert.Single(inspection.Build().OfType<QueryableTableNode>());
+        var rows = inspection.Query(new QueryableCollectionQuery { SortColumn = "template", Descending = true }).Rows;
         Assert.Equal(3, rows.Select(row => row.Key).Distinct().Count());
         foreach (var row in rows.Take(2))
         {
@@ -125,10 +127,10 @@ public sealed class ReferenceViewTests
         }
 
         Assert.Equal(Confidence.Unknown, Assert.IsType<FieldNode>(rows[2].Cells["name"]).Confidence);
-        Assert.Throws<KeyNotFoundException>(() => inspection.Expand("saved-items/0/4"));
+        Assert.All(rows, row => Assert.False(row.IsEmpty)); // Missing identity is not proof of vacancy.
         Assert.IsType<TextNode>(rows[2].Cells["icon"]);
-        Assert.Throws<KeyNotFoundException>(() => inspection.Expand("saved-items/-1/1"));
-        var raw = Assert.Single(Items(IReferenceContext.Empty).Expand("saved-items/0/1").OfType<TableNode>()).Rows[0];
+        var raw = Assert.Single(Items(IReferenceContext.Empty).Query(new QueryableCollectionQuery { Limit = 1,
+            Filters = new Dictionary<string, string> { ["template"] = "d47006e9-8a51-453d-b200-9e0d42e9bbab" } }).Rows);
         Assert.IsType<TextNode>(raw.Cells["icon"]);
         Assert.Equal("d47006e9-8a51-453d-b200-9e0d42e9bbab", Assert.IsType<FieldNode>(raw.Cells["name"]).Value.AsString());
     }
