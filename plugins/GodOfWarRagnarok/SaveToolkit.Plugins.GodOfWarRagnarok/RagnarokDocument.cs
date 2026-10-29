@@ -49,7 +49,7 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
         overview.Add(Number(RagnarokFormat.SaveCounterOffset, "Save counter (inferred)", Confidence.Inferred));
         return new TabsNode([
             new("Overview", overview),
-            new("Resources & XP", [RagnarokWrites.RestoreAction(), CollectionViews.View("resources"), CollectionViews.View("xp")]),
+            new("Resources & XP", [RagnarokWrites.RestoreAction("resources"), CollectionViews.View("resources"), CollectionViews.View("xp")]),
             new("Gear", [CollectionViews.View(RagnarokGearView.CollectionId), CollectionViews.View("nested-ids"), CollectionViews.View("index-words")]),
             new("Skills", RagnarokSpatialViews.SkillRoots()),
             new("Realm map", [RagnarokSpatialViews.RealmMap(references), SectionNode.Lazy("Realm reference details", "realm-details")]),
