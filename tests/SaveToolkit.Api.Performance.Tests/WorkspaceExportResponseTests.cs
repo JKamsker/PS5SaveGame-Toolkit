@@ -41,7 +41,10 @@ public sealed class WorkspaceExportResponseTests
         Assert.Equal(files.Length, zip.Entries.Count);
         foreach (var file in files)
         {
-            using var entry = zip.GetEntry(file.RelativePath)!.Open();
+            // Loose imports retain their uploaded names; RelativePath contains an internal grouping prefix.
+            var exported = zip.GetEntry(file.FileName);
+            Assert.NotNull(exported);
+            using var entry = exported.Open();
             using var content = new MemoryStream();
             await entry.CopyToAsync(content, ApiPerformanceHost.Ct);
             Assert.Equal(file == changed ? new byte[] { 3, 4, 5 } : original, content.ToArray());
