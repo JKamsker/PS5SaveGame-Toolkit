@@ -6,6 +6,7 @@ import type { Plugin } from "../../api/protocol";
 import { library } from "../../state/libraryStore";
 import { fromInput, walkEntries, type UploadFile } from "./collectFiles";
 import { GameLibrary } from "./GameLibrary";
+import { AppVersion } from "../ui/AppVersion";
 
 const maturityText = { ReadOnly: "view only", Experimental: "editing, untested on console", Stable: "editing, tested in-game" } as const;
 
@@ -124,6 +125,7 @@ export function HomePage() {
         </div>
         <GameList plugins={plugins.data} />
       </div>
+      <AppVersion />
     </div>
   );
 }

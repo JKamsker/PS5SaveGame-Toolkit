@@ -1,5 +1,7 @@
 # PS5 Save Game Toolkit
 
+[![CI](https://github.com/JKamsker/PS5SaveGame-Toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/JKamsker/PS5SaveGame-Toolkit/actions/workflows/ci.yml)
+
 A local, web-based editor for **decrypted** PS5 save games. Drop a save dump (zip or folder),
 the toolkit detects the game, and a game plugin describes the data as an abstract view that the
 browser renders: stats, typed fields, tables, actions. Edits are validated, undoable, verified by
@@ -58,6 +60,17 @@ not imply support for every game build or region.
 | [XorJson](plugins/XorJson/README.md) — obfuscated JSON / Minecraft Dungeons II offline schema | Experimental | Exact settings/character tree, inventory, attributes, quests/world and reference graph | Scalar/structural JSON, reviewed existing-value batches and F7 character/global group edits; unsupported character versions/online modes stay read-only |
 
 ## Run
+
+### Download a release
+
+Download the bundle for your OS from [GitHub Releases](https://github.com/JKamsker/PS5SaveGame-Toolkit/releases)
+(repository access is required while this project is private). Verify its SHA-256 checksum, extract
+the whole archive into a writable folder, and run `start.cmd` on Windows or `./start.sh` on macOS/Linux.
+Open http://127.0.0.1:5180. No .NET or Node.js installation is needed. The home-page footer shows the running
+version; `/api/version` exposes it as JSON. See [release instructions](docs/RELEASING.md) for packaging,
+checksums, platform prerequisites, version tags and rollback.
+
+### Run from source
 
 Install the .NET 10 SDK selected by [global.json](global.json), Node.js and npm.
 From the repository root:

@@ -47,6 +47,7 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapToolkitApi();
 app.MapReferenceApi();
+app.MapVersionApi();
 app.MapFallbackToFile("index.html");
 
 app.Run();

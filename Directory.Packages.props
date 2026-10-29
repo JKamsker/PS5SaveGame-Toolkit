@@ -3,6 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="MinVer" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.14" />
     <PackageVersion Include="SQLitePCLRaw.core" Version="2.1.13" />
     <PackageVersion Include="Google.Protobuf" Version="3.36.2" />
