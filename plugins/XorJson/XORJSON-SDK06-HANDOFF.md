@@ -37,18 +37,39 @@ so a fresh group candidate cannot alias the original document or node state.
   then restore mixed structural history while asserting the original group's
   encoded bytes remain unchanged.
 
+## R2 response matrix
+
+- **P1 scalar preallocation:** `JsonScalarEncoding` counts the exact UTF-8
+  bytes emitted by the default `System.Text.Json` encoder, including control
+  short escapes, HTML-sensitive escapes, quoted names, Unicode and surrogate
+  pairs, before any changed scalar is encoded or converted to a retained
+  lexeme. `JsonTokenWriter` checks the complete final scalar map with checked
+  deltas, then retains the R1 shrink-before-growth ordering, scoped rollback
+  and final parse validation. A near-limit three-million-character multibyte
+  rejection test proves values, bytes and SDK history remain unchanged while
+  allocation stays bounded.
+- **P1 memento source ownership:** snapshot cloning now uses a reference-keyed
+  source-owner map. Each distinct immutable source buffer is copied exactly
+  once per memento; tokens that shared a source still share the clone, while
+  genuinely distinct structural fragments remain distinct. Retained-size
+  accounting sums unique buffers plus node metadata, current text and copied
+  replacement strings. Repeated 20,000-node capture/restore tests verify the
+  bounded allocation, source sharing and restored SDK scalar path.
+
 ## Dependency and branch
 
 - SDK dependency PR: [#51](https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/51)
 - Reviewed dependency head: `72490fe8756627013c73c0b80fa874b563a0e652`
+- Dependency merged to `main`: `1322ddfa8ca5c46af15d14fd4ad0c5c1b16adaac`
 - Dependency merge in this branch: `49a6b80b` (ordinary merge; no cherry-pick or
   copied SDK source)
 - Assigned branch: `t3/xorjson-sdk06-adoption`
 - Branch base before dependency merge: `e76e51035fec308a56e5c26b5d97a9c08089f881`
 - Consumer head before R1 fixes: `8d7c4c17691b1de27e37922bfda3d7cb67177645`
 - Consumer follow-up head: `ab568661cc1a2945ad209c1091e98aa5fcfb41e9` (`fix(xorjson): close SDK06 scalar and snapshot gaps`)
-- Consumer PR base: `t3/sdk06-lossless-json` / reviewed SDK head above; parent may
-  retarget the PR to `main` after #51 lands.
+- R2 implementation head: `3e6c25e718fc143bce2ee4bf71693eccf01465b4` (`fix(xorjson): preflight scalar budgets and share memento sources`)
+- Consumer PR base remains `t3/sdk06-lossless-json` / reviewed SDK head above;
+  parent may retarget PR61 to `main` without rewriting this branch.
 
 The consumer diff authored by this branch is confined to `plugins/XorJson/`.
 The framework files visible in the checkout come only from the explicit ordinary
@@ -66,18 +87,25 @@ encoded outputs for both transforms. New synthetic tests verify two parsed
 documents do not share scalar history, exact max-byte growth-before-shrink
 batches in both edit orders with BOM/trivia and multibyte source text, and
 fresh two-document and group candidate isolation through failed writes, undo /
-redo, and mixed structural restore. A changed first document retains
+redo, and mixed structural restore. R2 tests additionally cover exact default
+escaping lengths, bounded over-limit multibyte preflight, repeated large-tree
+mementos, shared-source identity, genuine structural fragment ownership and
+post-restore SDK scalar serialization. A changed first document retains
 the oversized number, duplicate members and source bytes of the second document.
 
 Validation from the sample-free run:
 
 `dotnet run --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests/SaveToolkit.Plugins.XorJson.Tests.csproj --no-build -- -noLogo -noColor`
 
-passed **301 tests**, with **19 sample-dependent skips** and **0 failures**.
+passed **304 tests**, with **19 sample-dependent skips** and **0 failures** in
+the sample-free Debug run. The Release build is warning-free; its focused R2
+resource tests pass. The existing Release `EncodingPerformanceTests` baseline
+currently reports 7.34 MiB opening allocation against its 4.32 MiB bound and
+is unchanged by this adapter follow-up.
 The plugin project also builds with zero warnings. Missing `PPSA16064` samples
 were skipped by the existing test harness; no private sample bytes were copied.
-PR CI metadata: checks are pending on the dependency-base PR; parent owns CI
-watch and will revalidate after SDK PR #51 lands on `main`.
+PR CI metadata: SDK PR #51 is merged into `main` at `1322ddfa8ca5c46af15d14fd4ad0c5c1b16adaac`;
+parent owns the one initial CI snapshot and fresh R3/CI revalidation.
 
 ## Remaining limits
 
