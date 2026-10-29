@@ -21,7 +21,7 @@
         "generation": "1",
         "sha256": "9aa21199f980b3882428972f7e204cbffee52d1f338ccde21d6828db8b157cb5"
       },
-      "decoder": "ffxvi",
+      "decoder": "ffxvi-evidence",
       "files": ["sdimg_FAITHDATAAUTO/game-save-data00"],
       "expected": [
         { "file": "game-save-data00", "path": "player/level", "before": "42", "after": "10" },
