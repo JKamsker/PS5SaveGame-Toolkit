@@ -22,9 +22,10 @@ internal static class ProtoArrayEdits
             while (!reader.IsAtEnd)
             {
                 var start = checked((int)reader.Position);
-                _ = reader.ReadInt32();
+                var current = reader.ReadInt32();
                 var end = checked((int)reader.Position);
                 if (position++ != index) continue;
+                if (current == value) return; // Retain the original varint and enclosing length.
                 using var output = new MemoryStream();
                 output.Write(bytes.AsSpan(0, start));
                 using (var writer = new CodedOutputStream(output, leaveOpen: true)) writer.WriteInt32(value);

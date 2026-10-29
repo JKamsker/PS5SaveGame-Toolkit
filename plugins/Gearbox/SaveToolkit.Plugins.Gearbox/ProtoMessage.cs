@@ -113,7 +113,13 @@ internal sealed class ProtoMessage(GearboxSchema schema, string type, List<Proto
 
     public void SetInteger(string name, long value) => Set(name, unchecked((ulong)value));
     public void SetText(string name, string value) => Set(name, value);
-    public void SetFloat(string name, float value) => Set(name, BitConverter.SingleToUInt32Bits(value));
+    public void SetFloat(string name, float value)
+    {
+        // FieldValue considers both zero signs equal. Preserve imported bits on a semantic no-op
+        // so bytes cannot change without a reported value change and undo snapshot.
+        if (Last(name) is not null && Float(name).Equals(value)) return;
+        Set(name, BitConverter.SingleToUInt32Bits(value));
+    }
     public void Add(ProtoField field) => fields.Add(field);
     public void Remove(ProtoField field)
     {

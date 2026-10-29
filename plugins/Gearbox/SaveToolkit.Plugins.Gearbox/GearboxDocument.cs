@@ -172,9 +172,12 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             var result = base.ApplyEdits(ordered);
             if (!result.Succeeded) return result;
             var changes = _readers.Select(p => new ValueChange(p.Key, before[p.Key], p.Value())).Where(c => c.OldValue != c.NewValue).ToArray();
+            // A net-zero batch has no history entry. Discard incidental wire normalization and
+            // policy-state changes along with its clone, retaining the exact imported state.
+            if (changes.Length == 0) return result with { Changes = changes };
             // Scalar edits retain their bindings: direct SDK callers may edit again before rebuilding.
-            if (changes.Length > 0) _items = null;
-            var outcome = result with { Changes = changes, StructureChanged = changes.Length > 0, Revert = changes.Length > 0 ? snapshot : null };
+            _items = null;
+            var outcome = result with { Changes = changes, StructureChanged = true, Revert = snapshot };
             committed = true;
             return outcome;
         }
