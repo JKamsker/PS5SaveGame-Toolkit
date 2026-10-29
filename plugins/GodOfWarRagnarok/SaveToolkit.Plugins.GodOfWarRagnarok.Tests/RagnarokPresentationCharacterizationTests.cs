@@ -12,10 +12,13 @@ public sealed class RagnarokPresentationCharacterizationTests
 {
     [Theory]
     // Complete protocol fingerprints with invariant formatting; gameplay attribution corrected in #40 docs accuracy.
-    [InlineData("legacy", "BD8583A6FF856D5524AEE811D67C19A5AD5F5478F88D3DAD9D4335B495B31F46")]
-    [InlineData("nested", "D695E36067E75727590C9532CFDB63756FC1F80FAD9B386D30F5CC37D6A82717")]
-    [InlineData("preferences", "3156507C9278A56220BE0198021362CE9C2B922B319919E98A219AE1B5DB0960")]
-    public void ViewsCollectionsAndInspectionRetainTheirCompleteProtocol(string kind, string expected)
+    [InlineData("legacy", true, "BD8583A6FF856D5524AEE811D67C19A5AD5F5478F88D3DAD9D4335B495B31F46")]
+    [InlineData("nested", true, "D695E36067E75727590C9532CFDB63756FC1F80FAD9B386D30F5CC37D6A82717")]
+    [InlineData("preferences", true, "3156507C9278A56220BE0198021362CE9C2B922B319919E98A219AE1B5DB0960")]
+    [InlineData("legacy", false, "52EFE51C79AC31AE8FAC0954BA89D4CE401911D138D2AEF20CB7269240F5FB0D")]
+    [InlineData("nested", false, "F6C2EC4CB717D4E2D6040A85BF1C7EDE0F32C2EE5236CE75A9D465D4551478CB")]
+    [InlineData("preferences", false, "3156507C9278A56220BE0198021362CE9C2B922B319919E98A219AE1B5DB0960")]
+    public void ViewsCollectionsAndInspectionRetainTheirCompleteProtocol(string kind, bool hosted, string expected)
     {
         var previous = CultureInfo.CurrentCulture;
         try
@@ -25,7 +28,8 @@ public sealed class RagnarokPresentationCharacterizationTests
             var context = RagnarokTestSupport.PinnedReferences(plugin);
             var bytes = Bytes(kind);
             var name = kind == "preferences" ? "userpreferences" : "GOWRSAVE0";
-            using var document = (RagnarokDocument)plugin.Open(MemorySaveSet.SingleFile(name, bytes, "PPSA08330"), context);
+            var file = MemorySaveSet.SingleFile(name, bytes, "PPSA08330");
+            using var document = (RagnarokDocument)(hosted ? plugin.Open(file, context) : plugin.Open(file));
             var protocol = Capture(document, kind);
             Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
             var actual = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(protocol)));
