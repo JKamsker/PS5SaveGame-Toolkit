@@ -10,6 +10,26 @@ namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 public sealed class UnrealGvasAssetTests
 {
     private const int AssetBudget = 4_000_000;
+    private const string HogwartsNotice = "Rights reserved by Warner Bros./Portkey Games; used with attribution per owner decision 2026-10-29";
+    private const string SackboyNotice = "Rights reserved by SIE; used with attribution per owner decision 2026-10-29";
+
+    [Theory]
+    [InlineData("hogwarts.legilimens", "unrealgvas_hogwarts_gear", HogwartsNotice, "Warner Bros. Games / Portkey Games")]
+    [InlineData("hogwarts.legilimens", "unrealgvas_hogwarts_visuals", HogwartsNotice, "Warner Bros. Games / Portkey Games")]
+    [InlineData("unrealgvas.ps5", "unrealgvas_sackboy_costumes", SackboyNotice, "Sony Interactive Entertainment / Sumo Digital")]
+    [InlineData("unrealgvas.ps5", "unrealgvas_sackboy_costume_art", SackboyNotice, "Sony Interactive Entertainment / Sumo Digital")]
+    public void PublisherNoticesNameHoldersWithinLicenseLimit(string packId, string datasetId, string notice, string fullHolder)
+    {
+        using var manifest = ReadManifest(new UnrealGvasPlugin(), packId);
+        var dataset = Assert.Single(manifest.RootElement.GetProperty("datasets").EnumerateArray(),
+            dataset => dataset.GetProperty("id").GetString() == datasetId);
+        var attribution = dataset.GetProperty("attribution");
+        var license = attribution.GetProperty("license").GetString()!;
+
+        Assert.Equal(notice, license);
+        Assert.InRange(license.Length, 1, 100);
+        Assert.Contains(fullHolder, attribution.GetProperty("author").GetString(), StringComparison.Ordinal);
+    }
 
     [Fact]
     public void EmbeddedVisualAssetsResolveWithPinnedHashesAndAttribution()
