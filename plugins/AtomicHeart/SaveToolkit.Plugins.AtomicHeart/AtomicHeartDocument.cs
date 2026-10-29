@@ -43,7 +43,7 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
     }
 
     public override string Title => "Atomic Heart slot";
-    public override bool CanEdit => state.Items.Any(state.CanSetAmount);
+    public override bool CanEdit => state.Items.Any(item => state.CanSetAmount(item) || state.CanReplace(item));
     public IReadOnlyList<QueryableCollection> Collections => [collection.Info, inventoryCollection.Info];
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId == InventoryCollection.Id
         ? inventoryCollection.Query(query) : collection.Query(collectionId, query);

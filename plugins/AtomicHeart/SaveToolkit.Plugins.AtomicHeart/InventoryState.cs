@@ -31,10 +31,15 @@ internal sealed class InventoryState
         foreach (var record in index.Objects.Where(r => r.Kind == RecordKinds.Component &&
             (r.ClassPath.EndsWith(InventoryClasses.Player, StringComparison.Ordinal) ||
              r.ClassPath.EndsWith(InventoryClasses.Storage, StringComparison.Ordinal))))
-        foreach (var property in record.Properties)
+        foreach (var group in record.Properties.GroupBy(p => p.Name, StringComparer.Ordinal))
         {
-            var entries = property.Children.FirstOrDefault(p => p.Name is "Slots" or "Elements");
-            if (entries is null) continue;
+            // Repeated container tags or collection tags have no proven authoritative occurrence.
+            // Keep all of them in the raw inspector rather than choosing or merging write targets.
+            if (group.Count() != 1) continue;
+            var property = group.Single();
+            var collections = property.Children.Where(p => p.Name is "Slots" or "Elements").Take(2).ToArray();
+            if (collections.Length != 1) continue;
+            var entries = collections[0];
             var container = record.Id + "/" + property.Name;
             foreach (var element in entries.Children)
             {

@@ -59,6 +59,10 @@ unloaded rows on the server and honor explicit exclusions and empty-slot visibil
 selection or a query with no matches changes nothing.
 Each apply is one undo group. Empty slots, raw metadata, record-explorer fields,
 native data and instance IDs remain read-only.
+Repeated same-name inventory containers or multiple `Slots`/`Elements` collections
+within a container have no proven authoritative occurrence. They remain available
+in the raw inspector and original hex, but are excluded from inventory write targets
+and F6 rather than choosing an occurrence or merging their bounds.
 
 `Serialize()` patches explicit payloads and enclosing byte counts, reuses unchanged
 compressed chunks, emits changed chunks through `SaveToolkit.Codecs.EncodeStored`,
