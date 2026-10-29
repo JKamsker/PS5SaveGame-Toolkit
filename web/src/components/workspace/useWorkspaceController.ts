@@ -49,5 +49,5 @@ export function useWorkspaceController() {
   }, [exportOpen]);
 
   return { workspace, documentId, activity, beginSelection, exportDialog, exportOpen, setExportOpen,
-    closing, toast, setToast, focusHeading, notify, open, close };
+    closing, toast, setToast, focusHeading, notify, open, close, clearSelection: () => setSearch({}), select };
 }

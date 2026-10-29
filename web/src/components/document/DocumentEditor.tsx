@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { SaveFileInfo } from "../../api/protocol";
 import { DocumentContext } from "../../state/documentStore";
 import { SourcesPanel } from "./SourcesPanel";
@@ -15,6 +16,8 @@ interface DocumentEditorProps {
   file: SaveFileInfo | undefined;
   onSwitchPlugin: (pluginId: string) => void;
   onToast: (message: string, isError?: boolean) => void;
+  onClosed?: () => void;
+  onOpenGroup?: (documentId: string) => void;
 }
 
 export function DocumentEditor(props: DocumentEditorProps) {
@@ -38,21 +41,22 @@ export function DocumentEditor(props: DocumentEditorProps) {
   return <OpenDocument {...props} session={session} focusHeading={focusHeading} />;
 }
 
-function OpenDocument({ session, focusHeading, workspaceId, documentId, file, onSwitchPlugin, onToast }:
+function OpenDocument({ session, focusHeading, workspaceId, documentId, file, onSwitchPlugin, onToast, onClosed, onOpenGroup }:
   DocumentEditorProps & { session: ReturnType<typeof useDocumentSession>; focusHeading: ReturnType<typeof useEntryFocus> }) {
   const { query, context, refresh, structureVersion } = session;
+  const [closing, setClosing] = useState(false);
   if (!context || !query.data) return null;
   const doc = query.data;
   return (
     <DocumentContext.Provider value={context}>
       <ReviewNavigationProvider>
-        <article className="editor">
+        <article className="editor" inert={closing}>
           <DocumentHeader document={doc} file={file} focusHeading={focusHeading} onSwitchPlugin={onSwitchPlugin} />
           {query.isError && <div className="read-error">
             <p role="alert" className="notice notice--Danger">Could not refresh the document: {query.error.message}</p>
             <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refresh()}>Refresh document</button>
           </div>}
-          {(doc.plugin.supportsGroups || doc.groupMembers) && <DocumentGroupControls document={doc} />}
+          <DocumentGroupControls document={doc} onClosed={onClosed} onOpenGroup={onOpenGroup} onClosingChange={setClosing} />
           <SourcesPanel
             workspaceId={workspaceId}
             documentId={documentId}

@@ -1,6 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MemoryRouter, useLocation } from "react-router";
+import { MemoryRouter, useLocation, useSearchParams } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { groupApi, type GroupOffer } from "../../api/groups";
 import { api, ApiError } from "../../api/client";
@@ -25,6 +25,10 @@ const document: SaveDocument = {
 const offer: GroupOffer = { token: "selected", pluginId: "groups", title: "Character + profile", members, errors: [] };
 
 function Location() { return <output aria-label="Location">{useLocation().search}</output>; }
+function Controls({ document }: { document: SaveDocument }) {
+  const [, setSearch] = useSearchParams();
+  return <DocumentGroupControls document={document} onClosed={() => setSearch({})} onOpenGroup={id => setSearch({ doc: id })} />;
+}
 
 function setup(doc = document, dirty = false, beginSelection: (() => () => boolean) | null = null) {
   const store = new DocumentStore({ ...doc.state, isDirty: dirty });
@@ -35,7 +39,7 @@ function setup(doc = document, dirty = false, beginSelection: (() => () => boole
   };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const view = render(<MemoryRouter initialEntries={["/?doc=single"]}><QueryClientProvider client={client}>
-    <WorkspaceSelectionContext.Provider value={beginSelection}><DocumentContext.Provider value={context}><DocumentGroupControls document={doc} /><Location /></DocumentContext.Provider></WorkspaceSelectionContext.Provider>
+    <WorkspaceSelectionContext.Provider value={beginSelection}><DocumentContext.Provider value={context}><Controls document={doc} /><Location /></DocumentContext.Provider></WorkspaceSelectionContext.Provider>
   </QueryClientProvider></MemoryRouter>);
   return { ...view, client, store };
 }
@@ -150,7 +154,9 @@ describe("document groups", () => {
 
   it("shows all owned members, explicit backup policy and closes a clean group", async () => {
     const close = vi.spyOn(api, "closeDocument").mockResolvedValue();
-    setup({ ...document, id: "group", groupMembers: members });
+    const { client } = setup({ ...document, id: "group", groupMembers: members });
+    client.setQueryData(["nodes", "w1", "group", "fixture"], { old: true });
+    client.setQueryData(["nodes", "w1", "unrelated", "fixture"], { keep: true });
     expect(screen.getByText(members[0]!.relativePath)).toBeTruthy();
     expect(screen.getByText(members[1]!.relativePath)).toBeTruthy();
     expect(screen.getByText(/Only explicitly selected backups/)).toBeTruthy();
@@ -158,5 +164,8 @@ describe("document groups", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close group" }));
     await waitFor(() => expect(close).toHaveBeenCalledWith("w1", "group"));
     await waitFor(() => expect(screen.getByLabelText("Location").textContent).toBe(""));
+    expect(client.getQueryData(["nodes", "w1", "group", "fixture"])).toBeUndefined();
+    expect(client.getQueryData(["nodes", "w1", "unrelated", "fixture"])).toEqual({ keep: true });
+    client.clear();
   });
 });

@@ -17,7 +17,7 @@ export function HistoryButtons({ store, onUndo, onRedo }: { store: DocumentStore
   const redo = () => execute(onRedo);
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (document.querySelector("dialog[open]")) return;
+      if (document.querySelector("dialog[open]") || controls.current?.closest("[inert]")) return;
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
       if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z") return;

@@ -68,6 +68,8 @@ function WorkspaceMain({ controller, workspace: ws }: { controller: Controller; 
           file={activeFile}
           onSwitchPlugin={(pluginId) => { if (activeFile && !closing) void open(activeFile, pluginId); }}
           onToast={notify}
+          onClosed={controller.clearSelection}
+          onOpenGroup={controller.select}
         /></Suspense>
       ) : (
         <div className="empty">
