@@ -16,10 +16,12 @@ internal sealed class EldenRingEvidenceDecoder : ISaveDecoderHook
         if (file.Length > sink.MaxFileBytes) throw new InvalidDataException("Evidence decoder file budget exceeded.");
         var bytes = file.ReadAllBytes();
         var save = EldenRingParser.Parse(bytes);
+        // Output budgets must not turn malformed input into apparently valid partial evidence.
+        var characters = save.Slots.Where(slot => slot.Active && slot.Version == EldenRingLayout.WritableSlotVersion)
+            .Select(slot => (Slot: slot, Semantic: SemanticReader.Read(bytes, slot))).ToArray();
         if (!sink.Add("profile/version", "integer", Number(save.ProfileVersion))) return;
-        foreach (var slot in save.Slots.Where(slot => slot.Active && slot.Version == EldenRingLayout.WritableSlotVersion))
+        foreach (var (slot, semantic) in characters)
         {
-            var semantic = SemanticReader.Read(bytes, slot);
             var player = slot.PlayerOffset!.Value;
             if (!sink.Add($"slots/{slot.Index}/held-runes", "integer",
                 Number(EldenRingParser.ReadUInt32(bytes, player + EldenRingLayout.RunesOffset)))) return;
