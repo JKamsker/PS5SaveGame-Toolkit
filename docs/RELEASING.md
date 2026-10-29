@@ -84,7 +84,10 @@ are additional). All commands below run from the repository root in PowerShell 7
 The backend runner builds a temporary solution containing the API and selected tests once, then
 reuses the prebuilt outputs (`--no-build`). Test projects run in bounded batches of two by default; use
 `-MaxParallel 1` for serial execution or choose a value from 1 to 32 for the available CPU/RAM.
-Each worker is a separate process with its own sample/temp scratch folder. Existing xUnit
+Each worker is a separate process with its own sample/temp scratch folder. Parallel workers divide
+the available CPU threads between their xUnit collections (at least one thread each), avoiding
+CPU oversubscription while retaining every test and the existing fuzz timeouts. Serial execution
+retains xUnit's default thread count. Existing xUnit
 non-parallel allocation collections remain unchanged. Complete project logs and failure summaries
 always follow sorted project-path order. With `-ResultsDirectory`, `project-timings.json` records
 build, total and per-project wall times alongside the unchanged per-project TRX/coverage paths.

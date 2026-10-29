@@ -46,7 +46,7 @@ $runs = [Collections.Generic.List[object]]::new()
 # Start-Job uses separate processes: thread jobs would race on process-wide environment variables.
 # The same worker runs inline at degree 1, keeping the serial path cheap and easy to diagnose.
 $runProject = {
-    param($ProjectPath, $Configuration, $ResultsDirectory, $Coverage, $RunTemp, $Root)
+    param($ProjectPath, $Configuration, $ResultsDirectory, $Coverage, $RunTemp, $Root, $MaxThreads)
     $ErrorActionPreference = 'Stop'
     $savedTemp, $savedTmp, $savedTmpDir = $env:TEMP, $env:TMP, $env:TMPDIR
     $savedScratch = $env:SAVETOOLKIT_TEST_TEMP
@@ -62,6 +62,7 @@ $runProject = {
         # emits UTF-8. Decode native output consistently before buffering/replaying the log.
         [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
         $testArgs = @('test', '--project', $ProjectPath, '--configuration', $Configuration, '--no-build')
+        if ($MaxThreads) { $testArgs += @('--max-threads', $MaxThreads) }
         if ($ResultsDirectory) {
             $testArgs += @('--results-directory', (Join-Path $ResultsDirectory $projectName),
                 '--report-xunit-trx', '--report-xunit-trx-filename', 'results.trx')
@@ -111,6 +112,9 @@ try {
     }
     $failed = @()
     $timings = [Collections.Generic.List[object]]::new()
+    # xUnit otherwise gives every process one collection thread per CPU. Share that budget
+    # across workers so parallel projects do not starve isolated fuzz cases of CPU time.
+    $maxThreads = if ($MaxParallel -gt 1) { [Math]::Max(1, [int][Math]::Floor([Environment]::ProcessorCount / $MaxParallel)) } else { 0 }
     for ($offset = 0; $offset -lt $projects.Count; $offset += $MaxParallel) {
         $batch = @()
         foreach ($p in $projects[$offset..([Math]::Min($offset + $MaxParallel, $projects.Count) - 1)]) {
@@ -120,7 +124,7 @@ try {
             $run = [pscustomobject]@{ Project = $p; Temp = $runTemp; Job = $null; Result = $null }
             $runs.Add($run)
             $batch += $run
-            $arguments = @($p.FullName, $Configuration, $ResultsDirectory, [bool]$Coverage, $runTemp, $root)
+            $arguments = @($p.FullName, $Configuration, $ResultsDirectory, [bool]$Coverage, $runTemp, $root, $maxThreads)
             if ($MaxParallel -eq 1) { $run.Result = & $runProject @arguments }
             else { $run.Job = Start-Job -ScriptBlock $runProject -ArgumentList $arguments }
         }

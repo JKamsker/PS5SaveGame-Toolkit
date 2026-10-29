@@ -37,6 +37,7 @@ foreach ($failure in @('none', 'build', 'test')) {
             Assert-True (!(Test-Path -LiteralPath $call.Temp)) 'Child scratch must be removed after success/failure.'
             if ($call.Arguments[0] -eq 'test') {
                 Assert-True ($call.Arguments -contains '--no-build') 'Tests must reuse the shared build, without building API dependencies again.'
+                Assert-True ($call.Arguments -notcontains '--max-threads') 'Serial execution must preserve the existing xUnit scheduling.'
                 Assert-True ($call.Scratch -eq $call.Temp) 'Sample helpers must share the project-specific scratch directory.'
             }
         }
@@ -131,6 +132,8 @@ exit 0
         $overlap = @($workers | Where-Object { $_.Start -le $worker.Start -and $_.End -gt $worker.Start }).Count
         Assert-True ($overlap -le 2) 'The configured parallelism bound must be respected.'
         Assert-True (!(Test-Path -LiteralPath $worker.Temp)) 'Workers must clean scratch even after a test fails.'
+        $expectedThreads = [Math]::Max(1, [int][Math]::Floor([Environment]::ProcessorCount / 2))
+        Assert-True ([int]$worker.Arguments[[array]::IndexOf($worker.Arguments, '--max-threads') + 1] -eq $expectedThreads) 'Parallel workers must share the CPU thread budget.'
         Assert-True (Test-Path -LiteralPath (Join-Path $results "$($worker.Project)/coverage.cobertura.xml")) 'Parallel coverage must retain isolated reports.'
     }
     $lines = @($output | Where-Object { $_ -like 'OUTPUT *' })
