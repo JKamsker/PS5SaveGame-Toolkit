@@ -23,7 +23,7 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
   Even no-op serialization runs the actual cipher and is byte-identical on all six files.
 - Preserves the entire outer region `0..0x32057`, including screenshot/header bytes.
   Unknown fields, record flags, IDs, padding and unvisited bytes remain unchanged in plaintext.
-- Ships the `talesofarise.catalog` F2 pack for `PPSA02745` (English, **v2.0.0**):
+- Ships the `talesofarise.catalog` F2 pack for `PPSA02745` (English, **v3.0.0**):
   **2,157 records from 62 pinned Aselia revisions**, with CC BY-SA 3.0 share-alike,
   per-record source links and attributed facts/descriptions. Coverage is every named
   row in the listed sources; symbolic keys do not claim PS5 identity or DLC support.
@@ -45,7 +45,7 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
   reported/rewarded, effect toggles or completion percentages. The only bulk action is
   the bounded existing-row quantity action, which uses F6 planning and grouped undo.
 - F9 adds six bounded skill-panel graphs and six arte-prerequisite graphs. It also adds
-  an original schematic progress map with attributed external links for 128 guide rows
+  a Dahna artwork background behind the original schematic progress map with attributed external links for 128 guide rows
   plus owl, camp and map domains. Coordinates are plugin-authored grouping positions,
   never claimed in-game coordinates; every saved state remains Unknown.
 - Inventory is also exposed through an F8 queryable collection. Core can resolve a
@@ -68,18 +68,63 @@ only returns its own file, without silently changing the console backup twin.
 | Feature | Status | Concrete adoption or reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | `AriseDiff` aligns decrypted sections by schema ID and relative offsets; twin and slot tests prove the alignment. The shared `PluginViewDecoder` can traverse the plugin without plugin I/O; private sample bytes stay outside git. |
-| F2 reference packs | Used | The embedded `talesofarise.catalog` v2 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. |
-| F3 rich table cells | Used | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. No image cells are included because no icon licence is cleared. |
+| F2 reference packs | Used | The embedded `talesofarise.catalog` v3 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. |
+| F3 rich table cells | Used | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. Local F2 icons appear in catalog and inventory image cells, with shared category symbols labelled explicitly. |
 | F4 reference pickers | Used | Inventory ID fields and all catalog identity columns use read-only `ReferenceSpec` browse-only pickers, preserve unknown numeric IDs and allow custom fallback. Standalone inspection parameters select an existing reference without changing saved IDs. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: allocation, inverse records and acquisition invariants are unproven, so fixed-slot scalar writes remain the only structural-safe scope. |
 | F6 planned actions | Used | `inventory/set-quantity` previews changes, skips unsupported rows, revalidates at apply and records one undo group. Core-resolved F8 query scopes are accepted and tested. |
 | F7 document groups | N/A | `SystemSaveData.sav` is opaque and the console backup twin has no proven independent ownership contract; this plugin intentionally edits one selected gameplay file only. |
 | F8 queryable collections | Used | Catalogs page and sort all 2,157 records; the inventory collection supplies stable fixed-slot rows for search and query-scoped planning. |
-| F9 maps and graphs | Used | Skill-panel and arte prerequisite DAGs plus an external-link-first schematic map use bounded `GraphNode`/`MapNode` views, text alternatives, stable targets and spatial validation. |
+| F9 maps and graphs | Used | Skill-panel and arte prerequisite DAGs plus an attributed Dahna background behind the schematic map use bounded `GraphNode`/`MapNode` views, text alternatives, stable targets and spatial validation. |
 | F10 exact numbers / nullable unions | N/A | The supported PS5 schema is fixed-width integers and bytes; it contains no JSON numeric lexemes or nullable/union fields requiring F10. |
 | F11 shared codecs | N/A | Tales of Arise uses its measured AES/XOR/SHA1 format; it has no Kraken or SQLite payload, so `SaveToolkit.Codecs` does not apply. |
 | F12 SaveDiff F8 traversal and decoder hooks | Added | `TalesOfArisePlugin` registers `AriseDiff` through `ISaveDecoderProvider` as `tales-of-arise.sections-v1`; section-relative uint32 evidence has stable schema identities, explicit bounds and no Testing dependency. The shared view decoder also traverses rich F8 evidence with explicit test budgets. |
 | F13 inspect/picker/filter and float-duration improvements | Added | Every reference inspection declares `Mutates = false`; read-only item/arte/skill identities retain browse-only `ReferenceSpec` pickers. Standard category filtering and declared Key/Name/Category sorting delegate to F2; rich facts/character/title filters retain plugin policy. Float durations are N/A: the supported counters are integers and retain integer duration formatting. |
+
+## Publisher assets (2026-10-29)
+
+The v3 F2 pack adds **110 unique icons**, **25 official-description records**
+(16 distinct localized arte transcriptions: 18 playable arte rows and seven matching
+skill nodes), and **one Dahna world-map background**. Icon coverage is 271 items,
+675 equipment, 64 skills, 59 artes, 463 skill nodes and 128 progress guides: **1,660
+records** in total. Item/equipment/progress artwork uses the game's shared category
+symbols; the 59 arte matches cover named Alphen/Rinwell guide rows. Unmatched artes
+keep their text fallback. This adds reference content without changing save identities,
+Unknown states, existing writer bounds or Experimental warnings.
+
+**New embedded image bytes: 185,302** (90,698 icons + 94,604 map), below the 4 MB
+budget. Icons are at most 64×64, using lossless WebP or smaller PNG-8. The map is
+1200×675 WebP. The background is decorative: markers retain original schematic
+positions, scaled by (12, 6.75) to match display bounds; they are **not geographic
+locations**. Alignment remains unconfirmed and no progress state is inferred. The
+same schematic and text list remain usable when the optional background is absent.
+
+The exact download/output hashes, dimensions, record mappings and description
+response hashes are in the minified [asset ledger](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/asset-sources.json).
+[Asset attribution and all source URLs](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/assets.source.md)
+cover publisher **Bandai Namco Entertainment Inc.**, Aselia Wiki contributors,
+Gamer Guides and the Tales terminology dictionary (atwiki). Media licence field:
+**Rights reserved by Bandai Namco Entertainment; used with attribution per owner decision 2026-10-29**.
+Aselia adapted text/transcriptions retain **CC BY-SA 3.0**; official wording is
+identified as a wiki transcription, not an independently verified game dump.
+Attribution also appears in `Info.References`, catalog inspection/details, image alt
+text, the map's provenance and the framework Sources panel. These media permissions
+resolve this plugin's former publisher-art exclusion; save-state joins still need evidence.
+
+Quick stopwatch, Release build, largest supplied slot `SaveData_002.sav` (760,856 bytes),
+with sample import excluded: cold pack load + pin + open + initial view changed from
+**113.76 ms / 22,432,928 allocated bytes** to **177.71 ms / 30,514,600 bytes**.
+A second document using the same pinned pack changed from **12.23 ms / 6,179,920 bytes**
+to **13.28 ms / 6,210,128 bytes**. These are indicative single-process measurements,
+including first-use JIT in the cold case, not a throughput benchmark. Framework pack
+loading remains once per store; documents reuse the same immutable image buffers.
+The plugin performs no runtime downloads or image decoding. Processing occurred under
+`%TEMP%` with `python -I`, Pillow 12.2.0, header validation and pinned SHA-256 checks.
+
+Asset-round validation: **89 plugin tests passed, 0 failed, 0 skipped** with the external
+sample directory configured; **3 Python parser tests passed**. API build: **0 warnings,
+0 errors**. Regenerating the overlay leaves every pack byte unchanged; an independent
+JSON comparison preserved every original fact and identity across all 2,157 records.
 
 ## Enabled writes and their evidence
 
@@ -335,6 +380,7 @@ and UI descriptions/provenance. Dataset attribution appears in the Sources panel
 
 | Dataset | Coverage | Pinned source / attribution |
 | --- | --- | --- |
+| Publisher media overlay | 110 icons, 25 description records, one decorative Dahna background; rights reserved, owner decision 2026-10-29 | [Complete asset sidecar and source ledger](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/assets.source.md); Aselia text retains CC BY-SA 3.0 |
 | `items` (271) | All named consumables, materials, accessory materials, valuables, fishing items and artifacts | [Consumables r382800](https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800); all six lists in the [source ledger](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/data.source.md) |
 | `equipment` (675) | Six weapon/armor types, accessories, costumes, styles and attachments | [Swords r363915](https://aselia.fandom.com/wiki/ToA_-_Weapons_(Swords)?oldid=363915); every category/character revision in the source ledger |
 | `artes` (309) | Six playable and thirteen allied/enemy/cameo character pages; character-specific Boost Strikes | [Alphen artes r378115](https://aselia.fandom.com/wiki/ToA_-_Alphen:_Artes?oldid=378115); all 19 pages and Boost Strike cross-check in the source ledger |
@@ -346,7 +392,7 @@ and UI descriptions/provenance. Dataset attribution appears in the Sources panel
 | `Characters.csv` and playable status-index attributes | Six short names plus unmapped placeholders and six inferred status-index joins; no recruitment claim | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Characters.source.md), including the no-licence Sora3100 ordering reused with attribution per owner decision 2026-10-28 |
 | `Consumables.csv` | 13 legacy inferred numeric mappings; no newly established IDs | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Consumables.source.md), including the no-licence PS4 patch crosswalk reused with attribution per owner decision 2026-10-28 |
 | `Sections.csv` | Published section labels plus independently measured schema facts; GPL-3.0 format research, no code port | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Sections.source.md) |
-| F9 schematic coordinates and external map links | Original plugin-authored grouping positions; no game art or coordinates copied | [Repository licence](https://github.com/JKamsker/PS5SaveGame-Toolkit), [Tales of Arise guide index](https://aselia.fandom.com/wiki/Tales_of_Arise), [Owls](https://aselia.fandom.com/wiki/ToA_-_Owls), [Camps](https://aselia.fandom.com/wiki/ToA_-_Camps); map art remains external-only and Aselia text remains CC BY-SA 3.0 |
+| F9 schematic coordinates and external map links | Original plugin-authored grouping positions over separately attributed Dahna art; no geographic alignment claimed | [Repository licence](https://github.com/JKamsker/PS5SaveGame-Toolkit), [Tales of Arise guide index](https://aselia.fandom.com/wiki/Tales_of_Arise), [Owls](https://aselia.fandom.com/wiki/ToA_-_Owls), [Camps](https://aselia.fandom.com/wiki/ToA_-_Camps); background artwork is attributed separately below and Aselia text remains CC BY-SA 3.0 |
 
 The [data sidecar](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/data.source.md)
 lists all **62 immutable revision URLs**, author/licence/date/modifications and coverage
@@ -354,8 +400,8 @@ limits. `source-revisions.json` pins rendered response and wikitext SHA-256s; th
 manifest pins all record files. [Maintenance scripts](ReferenceData/README.md) reproduce
 the extraction from hash-checked downloads held outside the repository. The pack also
 pins the two reused no-licence community crosswalks in per-record attributes and the
-sidecar. Copyrighted icon bundles, game assets, proprietary tools, patch instructions
-and downloaded implementations remain excluded.
+sidecar. The v3 publisher-media overlay is separately attributed below. Proprietary tools, patch
+instructions and downloaded implementations remain excluded.
 Wiki references include DLC/expansion facts; the supported save schema remains base-game
 PPSA02745 only. No complete licensed owl/quest identity table or save join was established.
 
@@ -368,10 +414,10 @@ PPSA02745 only. No complete licensed owl/quest identity table or save join was e
 - **Still excluded: GPL-2.0-only or incompatible code.** GPL format research remains
   a factual reference; the converter and Cheat Engine implementations were
   reimplemented independently, not copied.
-- **Still excluded: proprietary game assets and no-redistribution material.** Icons,
-  screenshots, extracted game text/assets, commercial save-editor tables, patch
-  instructions and guide prose with no redistribution permission stay link-only or
-  research-only.
+- **Resolved: publisher assets imported (owner decision 2026-10-29).** The v3
+  icon, official-description and decorative Dahna-background overlay is attributed in
+  `assets.source.md`; publisher rights remain reserved. Commercial save-editor
+  tables, patch instructions and downloaded implementations remain research-only.
 
 ## SDK requests
 

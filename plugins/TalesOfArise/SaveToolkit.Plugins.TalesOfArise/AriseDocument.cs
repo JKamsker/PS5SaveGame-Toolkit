@@ -141,6 +141,8 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
 
     public override IReadOnlyList<FileOutput> Serialize() => [new FileOutput(path, AriseFormat.Encode(save))];
 
+    public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
+
     internal void EnsureInventoryBindings() => _ = Inventory();
     internal bool InventoryBindingsReady => _inventoryBindingsReady;
 
@@ -217,7 +219,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
         var rows = new List<TableRow>();
         rows.AddRange(ReadInventoryRows().Select(BuildInventoryRow));
 
-        return new TableNode([new("id", "ID"), new("name", "Item"), new("quantity", "Quantity"), new("flags", "Raw flags"), new("inspect", "Inspect")], rows)
+        return new TableNode([new("icon", "Icon"), new("id", "ID"), new("name", "Item"), new("quantity", "Quantity"), new("flags", "Raw flags"), new("inspect", "Inspect")], rows)
         {
             Title = "Existing inventory records",
             Description = "Only the recognised fixed-slot consumable quantity fields are writable. Unknown IDs and equipment remain preserved.",
@@ -250,10 +252,11 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             with { Confidence = Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
         var cells = new Dictionary<string, ViewNode>
         {
+            ["icon"] = AriseAssets.Icon(reference),
             ["id"] = idField,
             ["name"] = Field($"inventory/{row.Index}/name", "Item", new TextSpec(),
                 () => FieldValue.Of(name ?? "Unknown item / equipment"))
-                with { Description = name is null ? "Unknown numeric identity; no name join is assumed." : attribution, Confidence = name is null ? Confidence.Unknown : Confidence.Inferred },
+                with { Description = name is null ? "Unknown numeric identity; no name join is assumed." : reference is null ? attribution : AriseAssets.Details(reference), Confidence = name is null ? Confidence.Unknown : Confidence.Inferred },
             ["quantity"] = quantity,
             ["flags"] = new TextNode($"0x{save.Payload[offset + ItemFlagsOffset]:X2}"),
             ["inspect"] = reference is null

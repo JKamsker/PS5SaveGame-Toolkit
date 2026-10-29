@@ -1,12 +1,16 @@
 # Tales of Arise reference pack: sources and share-alike
 
-`talesofarise.catalog` **2.0.0**, English, title `PPSA02745`, retrieved **2026-10-28**.
+`talesofarise.catalog` **3.0.0**, English, title `PPSA02745`. The original fact
+extraction was retrieved **2026-10-28**; the publisher-media overlay was retrieved
+**2026-10-29** and is separately documented in [assets.source.md](assets.source.md).
 All eight derived JSON datasets are by **Aselia Wiki contributors**, available under
 **[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)**. Attribution and
 share-alike apply to the derived data, including adapted descriptions; they do not
 change the licence of independently authored plugin code. Source licensing:
-[Fandom licensing](https://www.fandom.com/licensing). No artwork, icon bytes,
-upstream program code, private saves or private game dumps are included.
+[Fandom licensing](https://www.fandom.com/licensing). The v3 artwork and official
+wording carry separately attributed publisher rights under the owner's 2026-10-29
+decision; this does not relicense publisher media as CC BY-SA. No upstream program
+code, private saves or private game dumps are included.
 
 | Dataset | Records | Coverage / transformation |
 | --- | ---: | --- |
@@ -29,8 +33,9 @@ and source facts/descriptions adapted to record JSON. Continuation rows are reta
 as source notes rather than invented distinct records. Duplicate English names with
 different source rows retain separate symbolic variant identities. Source errors and
 question marks are preserved; published stats, costs and requirements are references,
-not claims validated on PS5. No proprietary patches, Cheat Engine scripts or extracted
-game assets were copied. The 13 legacy consumable numeric identities and six playable
+not claims validated on PS5. The original fact extraction copied no proprietary
+patches, Cheat Engine scripts or game assets; the v3 media overlay has its own ledger.
+The 13 legacy consumable numeric identities and six playable
 status-index joins are now imported as **Inferred** F2 attributes from the separately
 pinned community sources in `Resources/UnlicensedSources.source.md`.
 Their licence field is: **No licence published; reused with attribution per owner
