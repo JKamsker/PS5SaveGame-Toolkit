@@ -82,4 +82,3 @@ public sealed class CaptionEligibilityTests
         Assert.NotEmpty(CaptionTestData.Plan(document, "new").Errors);
     }
 }
-

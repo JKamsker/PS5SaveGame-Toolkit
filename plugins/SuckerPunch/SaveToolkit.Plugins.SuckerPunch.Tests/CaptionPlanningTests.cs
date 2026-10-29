@@ -133,4 +133,3 @@ public sealed class CaptionPlanningTests
 
     internal static ActionNode Action(ISaveDocument document) => Assert.Single(((TabsNode)document.BuildView()).Tabs[0].Children.OfType<ActionNode>());
 }
-
