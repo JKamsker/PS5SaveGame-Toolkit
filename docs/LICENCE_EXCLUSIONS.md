@@ -203,18 +203,15 @@ in the XorJson README. Git history retains the earlier register.
 | SuckerPunch | [Original Yōtei corpus observations, #22](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/22); 2026-10-29 | SIE / Sucker Punch game identifiers; owner decision 2026-10-29; original Toolkit evidence descriptions | Imported | Resolved: imported (2026-10-29 decision): 48 raw Yōtei item-ID evidence records. [Sidecar](../plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch/ReferencePacks/suckerpunch.yotei/items.source.md); no sample bytes embedded; original bounded observations. [README evidence](../plugins/SuckerPunch/README.md). | See disposition and README evidence. | Only two lexical friendly-name mappings inferred; no invented broad item identities or console verification. |
 | SuckerPunch | [PowerPyx Yōtei hot springs](https://www.powerpyx.com/ghost-of-yotei-all-hot-spring-locations/), 2025-10-01; [Horizon View screenshot](https://www.powerpyx.com/wp-content/uploads/ghost-of-yotei-hot-spring-1.jpg), hash/crops pinned, 2026-10-29 | PowerPyx / Sony Interactive Entertainment / Sucker Punch rights retained; owner decision 2026-10-29 | Imported | Resolved: imported (2026-10-29 decision): 16 hot-spring names/regions, three symbols and one local map excerpt. [Sidecar](../plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch/ReferencePacks/suckerpunch.yotei/world.source.md); [Sidecar](../plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch/ReferencePacks/suckerpunch.yotei/assets.source.md); image bytes 89,702. [README evidence](../plugins/SuckerPunch/README.md). | See disposition and README evidence. | One Horizon View screenshot-pixel pin only; all other markers unpositioned. No saved discovery/completion/coordinate transform. |
 
-## README inconsistencies (not edited)
+## README consistency
 
-- [AstroPlayroom](../plugins/AstroPlayroom/README.md#licence-exclusions) and
-  [GodOfWarRagnarok](../plugins/GodOfWarRagnarok/README.md#licence-exclusions) still use four
-  columns, with no separately recorded alternative. Their final cell is retained as Unblock;
-  the Alternative cell says `Not separately recorded in README.`.
-- [Gearbox](../plugins/Gearbox/README.md) still calls `bl3data`/`wldata` exports NC in the
-  introductory reference-pack prose (line 83), while its pinned attribution table records no
-  published export licence and no payload import. The register follows the specific pinned table;
-  the generic prose does not establish an NC refusal or identify exact restrictive terms.
-- AstroPlayroom and Cyberpunk2077 retain plugin-only handoff prose saying that the central register
-  still needs their resolved statuses. Those handoff notes are historical after this synchronization.
+[AstroPlayroom](../plugins/AstroPlayroom/README.md#licence-exclusions) and
+[GodOfWarRagnarok](../plugins/GodOfWarRagnarok/README.md#licence-exclusions) use the common five
+columns. Their original final cells remain Unblock; Alternative retains
+`Not separately recorded in README.` rather than inventing an alternative.
+[Gearbox](../plugins/Gearbox/README.md#sources-and-attribution) records no published licence for
+the pinned `bl3data`/`wldata` exports and no payload import; the historical NC assertion remains
+unverified. Obsolete plugin handoff notes about synchronizing resolved statuses have been removed.
 
 ## Maintaining the register
 

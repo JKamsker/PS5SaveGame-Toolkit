@@ -80,9 +80,11 @@ not enumerated. Every displayed label carries its record attribution, including 
 
 Game patch, DLC/hotfix state and completeness are **unknown**; internal serial database versions are
 not PS5 build numbers. Every dataset has attribution and a hash in `pack.json`, plus a source sidecar
-with pinned source revision, original compressed-file SHA-256 and conversion notes. NC bl3data/wldata
-exports are used only for factual/text display records under the owner decision dated 2026-10-28:
-**No licence published; reused with attribution per owner decision 2026-10-28**. Publisher icons and
+with pinned source revision, original compressed-file SHA-256 and conversion notes. No licence is
+published for the pinned bl3data/wldata game exports; the historical NC assertion had no exact
+terms/source pin, and no verified NC/no-redistribution restriction is established for those sources.
+Object/path conventions were cross-checked, but export payloads are not redistributed; pinned zlib
+editor resources and separately attributed community labels supply the shipped data. Publisher icons and
 transcribed card text are now imported separately under the owner decision dated 2026-10-29, with
 the exact notice **Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29**.
 This does not relicense publisher material as MIT/zlib/GPL; community notices remain retained.
@@ -253,7 +255,7 @@ counts against the intended model; transfer/import regressions assert persisted 
 | R14 redistribution | Applied owner policies dated 2026-10-28/29; attributed MIT/zlib/community facts plus publisher icons and card text embedded. Map backgrounds still need coordinate evidence; no remaining licence refusal for this imported material |
 | R18–R19, R22 BL4 | Owner-blocked (#31): unknown PS5 codec and file role; research-only feasibility evidence retained, no writes |
 | R20 mission/collectible repair | Owner-blocked (#31): named observation/checklist shipped; safe reward/branch recipes require isolated game captures |
-| R21 world maps + requested skill trees | F9 delivered without unlicensed art/coordinates or invented prerequisites; actual location transforms remain unknown |
+| R21 world maps + requested skill trees | F9 delivered without imported map art/coordinates or invented prerequisites; actual location transforms remain unknown |
 | Host-stored reusable loadouts, combat simulation, platform conversion, new slots, premium entitlements | Won't do in this plugin round: no safe format/dependency or host persistence contract; runtime plugin I/O is prohibited |
 | Preservation, malformed input, history, attribution and boundedness acceptance | Sample-backed regressions, independent CRC/bit checks, 1,200-row progression tests, real F1 CLI fixtures and clean API build; console acceptance stays owner-only |
 
@@ -549,7 +551,7 @@ the CLI's `PluginViewDecoder`. No sample bytes, decoded payloads or account iden
 - Mission repair, arbitrary part-count/balance construction, slot compatibility and platform conversion are not implemented.
 - Other regions/builds need samples. PPSA01494 is a separate BL4 format and never claimed.
 - Inventory/reference/evidence work and bounded F9 observation are delivered. Complete cosmetic,
-  exact skill-subobject/mission/challenge crosswalks, generated item effects and licensed icons remain open. Enabled writes remain Experimental;
+  exact skill-subobject/mission/challenge crosswalks, generated item effects and exact individual-part imagery remain open. Enabled writes remain Experimental;
   full gameplay dependency/budget models and console validation remain open.
 - BL4 codec/file-role research and the exact owner checklist are in [BL4 feasibility](BL4-feasibility.md).
 
@@ -566,10 +568,6 @@ licence refusal.
 | [Lootlemon](https://www.lootlemon.com), [terms](https://www.lootlemon.com/terms); retrieved 2026-10-29, exact page/image URLs and hashes in [BL3](SaveToolkit.Plugins.Gearbox/ReferencePacks/gearbox.bl3/assets.source.json) / [TTWL](SaveToolkit.Plugins.Gearbox/ReferencePacks/gearbox.ttwl/assets.source.json) sidecars | Publisher imagery and official card text: Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29. Community guide prose is outside the recorded import | Resolved: imported (owner decision 2026-10-29) | 23 curated thumbnails/flavor lines in local attributed asset datasets; no community guide prose copied | None for the recorded publisher imports; other material requires its own provenance/terms record |
 | Map Genie [BL3](https://mapgenie.io/borderlands-3) / [Wonderlands](https://mapgenie.io/tiny-tinas-wonderlands), checked 2026-10-28; missing-coordinate status recorded in the 2026-10-29 asset sidecars above | Reuse terms unverified; no licence determination recorded | No current licence refusal; matching coordinate evidence missing | External guide and bounded mission checklist retained; no art, coordinates or descriptions copied and no invented alignment | Verified mission coordinates and a background transform; record applicable source terms/provenance before any import |
 | Individual part artwork: no specific image source/revision identified; scoped searches summarized in this README and the BL3/TTWL asset sidecars above | No specific material/licence identified; calculator MIT notices do not license publisher artwork | Matching data not found in searched sources; no licence refusal established | Calculator repositories contain skill icons; inspected editor repositories contain UI glyphs, not exact individual-part images. Matching unique-item serial records reuse clearly labelled whole-item reference thumbnails | Exact individual-part imagery with a reliable join, source/revision and applicable rights attribution |
-
-The central `docs/LICENCE_EXCLUSIONS.md` Gearbox publisher-art rows describe the pre-round state;
-their resolved status is reported on #17 for the coordinating agent. This worker edits only this
-plugin folder, so it does not change the shared register.
 
 ## Sources and attribution
 
