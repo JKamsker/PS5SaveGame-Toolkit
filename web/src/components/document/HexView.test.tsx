@@ -14,7 +14,7 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 function setup() {
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 0 });
   const context: DocumentContextValue = { workspaceId: "w", documentId: "d", canEdit: true, store, structureVersion: 0,
-    refresh: vi.fn(), commit: vi.fn(), acceptResult: vi.fn(), runAction: vi.fn() };
+    refresh: vi.fn(), commit: vi.fn(), mutate: async call => call(), acceptResult: vi.fn(), runAction: vi.fn() };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   const view = (node: HexNode) => <QueryClientProvider client={client}><DocumentContext.Provider value={context}>
     <HexView node={node} />

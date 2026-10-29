@@ -35,7 +35,7 @@ function renderDocument(children: ReactNode, canEdit = true) {
   const store = new DocumentStore({ canUndo: true, canRedo: false, isDirty: true, revision: 1 });
   const context: DocumentContextValue = { workspaceId: "w1", documentId: "d1", canEdit, store, structureVersion: 0,
     refresh: vi.fn(async () => {}), commit: vi.fn(async () => true), runAction: vi.fn(async () => result),
-    acceptResult: vi.fn(async outcome => { store.apply(outcome); }),
+    mutate: async call => { const outcome = await call(); await context.acceptResult(outcome); return outcome; }, acceptResult: vi.fn(async outcome => { store.apply(outcome); }),
   };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   clients.push(client);

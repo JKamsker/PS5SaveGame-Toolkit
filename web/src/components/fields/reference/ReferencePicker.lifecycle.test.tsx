@@ -27,7 +27,7 @@ function setup() {
   const refresh = vi.fn(async () => {});
   const rendered = render(<DocumentContext.Provider value={{ workspaceId: "w", documentId: "d", canEdit: true,
     store: new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 7 }), structureVersion: 0,
-    refresh, commit: vi.fn(), acceptResult: vi.fn(), runAction: vi.fn() }}>
+    refresh, commit: vi.fn(), mutate: async (call: () => Promise<import("../../../api/protocol").EditResult>) => call(), acceptResult: vi.fn(), runAction: vi.fn() }}>
     <ReferencePicker id="item-picker" spec={{ kind: "reference", catalogId: "items" }} valueId="item" value="9999"
       onCommit={onCommit} onClose={onClose} />
   </DocumentContext.Provider>);

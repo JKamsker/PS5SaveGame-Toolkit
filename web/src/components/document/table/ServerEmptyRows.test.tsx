@@ -30,7 +30,7 @@ function setup() {
     plan: { changes: [], skippedRows: [], warnings: [], errors: [] } });
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 1 });
   const context: DocumentContextValue = { workspaceId: "w", documentId: "d", store, canEdit: true, structureVersion: 0,
-    refresh: vi.fn(async () => {}), commit: vi.fn(async () => true), acceptResult: vi.fn(), runAction: vi.fn() };
+    refresh: vi.fn(async () => {}), commit: vi.fn(async () => true), mutate: async call => call(), acceptResult: vi.fn(), runAction: vi.fn() };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   render(<QueryClientProvider client={client}><DocumentContext.Provider value={context}>
     <ServerTableView node={{ type: "queryableTable", collectionId: "items", title: "Items", columns, totalCount: 150,

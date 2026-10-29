@@ -4,6 +4,7 @@ import { displayValue, parseDraft, sameValue, toDraft } from "../../lib/values";
 import { EnumControl } from "./EnumControl";
 import { NullableControl, UnionControl } from "./VariantControl";
 import { ReferenceControl } from "./reference/ReferenceControl";
+import { useAsyncTask } from "../ui/useAsyncTask";
 
 export interface FieldControlProps {
   id: string;
@@ -50,6 +51,7 @@ export function FieldControl(props: FieldControlProps) {
 
 function BoolControl({ id, value, onCommit, labelledBy, describedBy, invalid }: FieldControlProps) {
   const checked = value === true;
+  const { busy, run } = useAsyncTask(id);
   return (
     <button
       id={id}
@@ -60,19 +62,21 @@ function BoolControl({ id, value, onCommit, labelledBy, describedBy, invalid }: 
       aria-describedby={describedBy}
       aria-invalid={invalid || undefined}
       className="switch"
-      onClick={() => void onCommit(!checked)}
+      disabled={busy}
+      onClick={() => void run(async () => { await onCommit(!checked); })}
     />
   );
 }
 
 function FlagsControl({ id, spec, value, onCommit, labelledBy, describedBy, invalid }: FieldControlProps & { spec: Extract<FieldSpec, { kind: "flags" }> }) {
   const bits = value === null ? 0n : BigInt(String(value));
-  const toggle = (bit: number) => void onCommit((bits ^ (1n << BigInt(bit))).toString());
+  const { busy, run } = useAsyncTask(id);
+  const toggle = (bit: number) => void run(async () => { await onCommit((bits ^ (1n << BigInt(bit))).toString()); });
   return (
     <div className="flags" id={id} role="group" aria-labelledby={labelledBy} aria-describedby={describedBy} aria-invalid={invalid || undefined}>
       {spec.bits.map((b) => (
         <label key={b.bit} title={b.description}>
-          <input type="checkbox" checked={(bits & (1n << BigInt(b.bit))) !== 0n} onChange={() => toggle(b.bit)} />
+          <input type="checkbox" disabled={busy} checked={(bits & (1n << BigInt(b.bit))) !== 0n} onChange={() => toggle(b.bit)} />
           {b.label}
         </label>
       ))}

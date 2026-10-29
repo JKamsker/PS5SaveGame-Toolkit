@@ -5,6 +5,7 @@ import { PlannedActionButton } from "./review/PlannedActionButton";
 import { FieldControl } from "../fields/FieldControl";
 import { useViewJump } from "./review/navigation";
 import { useActionDialog } from "../ui/useActionDialog";
+import { useAsyncTask } from "../ui/useAsyncTask";
 
 interface ActionButtonProps {
   node: ActionNode;
@@ -37,17 +38,16 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
     setValues(Object.fromEntries(parameters.map((p) => [p.valueId, p.value])));
     setErrors({});
   }
-  const [busy, setBusy] = useState(false);
+  const { busy, run: submit } = useAsyncTask(node);
   const { dialog, heading, trigger, openDialog, closeDialog, onClose, focusHeading, requestFocus } = useActionDialog(busy);
   const invalid = parameters.some(parameter => Boolean(errors[parameter.valueId]));
   const needsDialog = parameters.length > 0 || Boolean(node.confirm);
 
-  const run = async () => {
-    if (busy || invalid) return;
+  const run = () => submit(async isCurrent => {
+    if (invalid) return;
     focusHeading();
-    setBusy(true);
-    try {
       const result = await runAction(node.actionId, values);
+      if (!isCurrent()) return;
       if (result.ok) {
         closeDialog();
         setErrors({});
@@ -56,10 +56,7 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
           : Object.fromEntries(result.errors.map((e) => [e.valueId, e.message])));
         requestFocus("error");
       }
-    } finally {
-      setBusy(false);
-    }
-  };
+  });
 
   return (
     <div className={compact ? "action action--compact" : "action"}>

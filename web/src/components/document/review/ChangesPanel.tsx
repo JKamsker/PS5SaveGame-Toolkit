@@ -5,6 +5,7 @@ import { useDocument } from "../../../state/documentStore";
 import { useDocumentContentVersion } from "../../../state/useDocumentContentVersion";
 import { useReviewNavigation } from "./navigation";
 import { ReviewPager, useReviewPage } from "./paging";
+import { useAsyncTask } from "../../ui/useAsyncTask";
 import "./review.css";
 
 export function ChangesPanel() {
@@ -13,7 +14,7 @@ export function ChangesPanel() {
   const { jump } = useReviewNavigation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [busy, setBusy] = useState(false);
+  const { busy, run: submit } = useAsyncTask(doc.store);
   const [error, setError] = useState("");
   const query = useQuery({ queryKey: ["changes", doc.workspaceId, doc.documentId, revision, version, doc.structureVersion],
     queryFn: () => actionReview.changes(doc.workspaceId, doc.documentId), enabled: open });
@@ -21,21 +22,19 @@ export function ChangesPanel() {
 
   const page = useReviewPage(changes);
 
-  const revert = async (valueId: string) => {
+  const revert = (valueId: string) => submit(async isCurrent => {
     if (!query.data) return;
-    setBusy(true);
     setError("");
     try {
-      const result = await actionReview.revert(doc.workspaceId, doc.documentId, valueId, query.data.revision);
-      await doc.acceptResult(result);
+      const result = await doc.mutate(() => actionReview.revert(doc.workspaceId, doc.documentId, valueId, query.data.revision));
+      if (!isCurrent()) return;
       if (!result.ok) setError(result.errors.map(e => e.message).join(" "));
       await query.refetch();
     } catch (failure) {
+      if (!isCurrent()) return;
       setError(failure instanceof Error ? failure.message : "Could not revert this change.");
-    } finally {
-      setBusy(false);
     }
-  };
+  });
 
   return <details className="section changes-panel" open={open} onToggle={event => setOpen(event.currentTarget.open)}>
     <summary className="section__summary"><span className="section__title">Changes against original</span></summary>

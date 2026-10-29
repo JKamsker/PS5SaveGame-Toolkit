@@ -28,7 +28,7 @@ function setup(doc = document, dirty = false) {
   const store = new DocumentStore({ ...doc.state, isDirty: dirty });
   const context: DocumentContextValue = {
     workspaceId: "w1", documentId: doc.id, canEdit: true, store, structureVersion: 0,
-    refresh: vi.fn(async () => {}), commit: vi.fn(async () => true), acceptResult: vi.fn(async () => {}),
+    refresh: vi.fn(async () => {}), commit: vi.fn(async () => true), mutate: async call => call(), acceptResult: vi.fn(async () => {}),
     runAction: vi.fn(async () => ({ ok: true, errors: [], warnings: [], changes: [], structureChanged: false, state: store.state })),
   };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });

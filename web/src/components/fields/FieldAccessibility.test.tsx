@@ -26,7 +26,7 @@ function renderFields(content: React.ReactNode) {
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 1 });
   const commit = vi.fn(async () => true);
   const context = { workspaceId: "w", documentId: "d", canEdit: true, store, structureVersion: 0,
-    commit, acceptResult: async () => {}, runAction: vi.fn(), refresh: async () => {} };
+    commit, mutate: async (call: () => Promise<import("../../api/protocol").EditResult>) => call(), acceptResult: async () => {}, runAction: vi.fn(), refresh: async () => {} };
   return { ...render(<DocumentContext.Provider value={context}>{content}</DocumentContext.Provider>), store, commit };
 }
 

@@ -53,6 +53,7 @@ export function renderTable(node: TableNode, options: { canEdit?: boolean } = {}
     store,
     structureVersion: 0,
     commit,
+    mutate: async call => { const result = await call(); await context.acceptResult(result); return result; },
     acceptResult: async (result) => { store.apply(result); },
     runAction: vi.fn(async () => ({ ok: true, errors: [], changes: [], warnings: [], structureChanged: false, state: store.state })),
     refresh: vi.fn(async () => {}),

@@ -134,6 +134,8 @@ export interface DocumentContextValue {
   refresh: () => Promise<void>;
   commit: (valueId: string, value: FieldValue) => Promise<boolean>;
   acceptResult: (result: EditResult) => Promise<void>;
+  /** Serialize a mutation with other writes/history and accept its result before the next starts. */
+  mutate: (call: () => Promise<EditResult>) => Promise<EditResult>;
   runAction: (actionId: string, parameters: Record<string, FieldValue>) => Promise<EditResult>;
 }
 

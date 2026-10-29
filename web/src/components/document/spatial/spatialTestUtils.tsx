@@ -38,7 +38,8 @@ export function renderSpatial(children: ReactNode) {
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 0 });
   const context: DocumentContextValue = { workspaceId: "w1", documentId: "d1", canEdit: true, store,
     structureVersion: 0, refresh: vi.fn(async () => {}), commit: vi.fn(async () => true),
-    runAction: vi.fn(async () => ({ ok: true, errors: [], changes: [], warnings: [], structureChanged: false, state: store.state })), acceptResult: vi.fn(async () => {}),
+    runAction: vi.fn(async () => ({ ok: true, errors: [], changes: [], warnings: [], structureChanged: false, state: store.state })), mutate: async call => { const result = await call(); await context.acceptResult(result); return result; },
+    acceptResult: vi.fn(async () => {}),
   };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return { context, ...render(<QueryClientProvider client={client}><DocumentContext.Provider value={context}>
