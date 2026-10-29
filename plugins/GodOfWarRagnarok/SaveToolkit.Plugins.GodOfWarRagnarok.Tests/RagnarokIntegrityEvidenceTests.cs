@@ -18,7 +18,7 @@ public sealed class RagnarokIntegrityEvidenceTests
     [InlineData(true)]
     public void ConstructedCrcLeadDoesNotAuthenticateOpaqueBytesOrPromoteWrites(bool mutateOpaqueBytes)
     {
-        var bytes = RagnarokFormatTests.SyntheticGameplay();
+        var bytes = RagnarokTestSupport.LegacyGameplay();
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(CandidateOffset), FixtureHeaderCrc);
         if (mutateOpaqueBytes) bytes[OpaqueMutationOffset] ^= 1;
         var index = RagnarokRecordIndex.Parse(bytes, false);
@@ -32,7 +32,7 @@ public sealed class RagnarokIntegrityEvidenceTests
         var plugin = new GodOfWarRagnarokPlugin();
         Assert.Equal(PluginMaturity.Experimental, plugin.Info.Maturity);
         using var document = plugin.Open(MemorySaveSet.SingleFile("GOWRSAVE0", bytes, "PPSA08330"));
-        Assert.Contains(RagnarokFormatTests.Flatten(document.BuildView()).OfType<TextNode>(), node =>
+        Assert.Contains(RagnarokTestSupport.EagerNodes(document.BuildView()).OfType<TextNode>(), node =>
             node.Tone == Tone.Warning && node.Text.Contains(RagnarokWrites.IntegrityWarning, StringComparison.Ordinal));
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
         var table = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("wallet/0")));

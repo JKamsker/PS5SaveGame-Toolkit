@@ -10,8 +10,7 @@ public sealed class RagnarokReferenceTests
     public void EmbeddedPackIsVersionedAttributedAndHasUnknownLimits()
     {
         var plugin = new GodOfWarRagnarokPlugin();
-        var store = new ReferencePackStore([plugin]);
-        var context = store.Pin(plugin, "PPSA08330");
+        var context = RagnarokTestSupport.PinnedReferences(plugin);
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog(RagnarokReferences.CatalogId));
 
         Assert.Equal(31, catalog.Count);
@@ -29,7 +28,7 @@ public sealed class RagnarokReferenceTests
     public void PinnedCatalogNamesReachTheReadOnlyDocument()
     {
         var plugin = new GodOfWarRagnarokPlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330");
+        var context = RagnarokTestSupport.PinnedReferences(plugin);
         var bytes = new byte[696];
         Write(bytes, 8, 31);
         Write(bytes, 12, 0x00513040);
@@ -42,7 +41,7 @@ public sealed class RagnarokReferenceTests
     public void CommunityExpansionIsPinnedLicensedAndKeepsUnmappedNamesUnknown()
     {
         var plugin = new GodOfWarRagnarokPlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330");
+        var context = RagnarokTestSupport.PinnedReferences(plugin);
         var candidates = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("gow-ragnarok-community-ids"));
         Assert.Equal(36, candidates.Count);
         Assert.Equal("GPL-3.0", candidates.Dataset.Attribution.License);

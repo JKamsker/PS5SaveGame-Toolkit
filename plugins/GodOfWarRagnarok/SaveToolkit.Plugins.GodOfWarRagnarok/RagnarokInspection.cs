@@ -21,9 +21,7 @@ internal static class RagnarokInspection
         if (parameters.Count != 0 || !int.TryParse(actionId.AsSpan(Prefix.Length), NumberStyles.AllowHexSpecifier,
                 CultureInfo.InvariantCulture, out var offset))
             throw new ArgumentException("Resource inspection takes a decoded row offset and no parameters.");
-        var wallets = index.Nested.Wallets.Count > 0 ? index.Nested.Wallets :
-            [new RagnarokWallet(RagnarokFormat.HeroWalletId, index.WalletOffset, index.WalletCount, 0, 0)];
-        var wallet = wallets.FirstOrDefault(wallet => offset >= wallet.ResourcesOffset &&
+        var wallet = index.GetResourceWallets().FirstOrDefault(wallet => offset >= wallet.ResourcesOffset &&
             offset < wallet.IdsOffset && (offset - wallet.ResourcesOffset) % RagnarokFormat.WalletRowSize == 0);
         if (index.Preferences || wallet is null) throw new KeyNotFoundException("Resource inspection requires a counted wallet row.");
         var id = document.ReadId(offset);

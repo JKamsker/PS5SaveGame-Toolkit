@@ -16,7 +16,7 @@ internal static class RagnarokPerformanceFixture
     public static byte[] Bytes()
     {
         var bytes = new byte[RowsOffset + RowCount * 16 + sizeof(uint)];
-        RagnarokFormatTests.SyntheticGameplay().AsSpan(0, RowsOffset).CopyTo(bytes);
+        RagnarokTestSupport.LegacyGameplay().AsSpan(0, RowsOffset).CopyTo(bytes);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(0x508), RowCount);
         for (var row = 0; row < RowCount; row++)
         {

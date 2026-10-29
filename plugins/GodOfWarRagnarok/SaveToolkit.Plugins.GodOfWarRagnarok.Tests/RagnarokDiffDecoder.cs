@@ -43,7 +43,16 @@ internal sealed class RagnarokDiffDecoder : ISaveDecoder
             builder.Add($"integrity/{probe.Algorithm}/{probe.Coverage}/digest", "unkeyed hypothesis", probe.Digest);
             builder.Add($"integrity/{probe.Algorithm}/{probe.Coverage}/matches", "count", probe.MatchingOffsets.Count.ToString());
         }
-        foreach (var wallet in index.Nested.Wallets)
+
+        AddWallets(builder, bytes, index.Nested.Wallets);
+        AddFlags(builder, bytes, index.Nested.FlagGroups);
+        AddGrammar(builder, index.Evidence);
+        return builder.Build();
+    }
+
+    private static void AddWallets(SemanticTreeBuilder builder, ReadOnlySpan<byte> bytes, IReadOnlyList<RagnarokWallet> wallets)
+    {
+        foreach (var wallet in wallets)
         {
             var root = $"wallets/{wallet.Id:X16}";
             builder.Add($"{root}/counts", "counts", $"{wallet.ResourceCount}/{wallet.IdCount}/{wallet.IndexCount}");
@@ -71,24 +80,30 @@ internal sealed class RagnarokDiffDecoder : ISaveDecoder
                 builder.Add($"{root}/index-like/{row}", "unknown word", RagnarokFormat.UInt32(bytes, wallet.IndicesOffset + row * sizeof(uint)).ToString());
             }
         }
+    }
 
-        foreach (var group in index.Nested.FlagGroups)
+    private static void AddFlags(SemanticTreeBuilder builder, ReadOnlySpan<byte> bytes, IReadOnlyList<RagnarokFlagGroup> groups)
+    {
+        foreach (var group in groups)
         {
             for (var row = 0; row < group.Count; row++)
             {
                 var offset = group.RowsOffset + row * RagnarokFlagGroup.RowSize;
                 var id = RagnarokFormat.UInt64(bytes, offset);
-                builder.Add($"flags/{group.Id:X16}/{id:X16}/{row}", "unknown flags", Convert.ToHexString(bytes.AsSpan(offset + sizeof(ulong), sizeof(uint))));
+                builder.Add($"flags/{group.Id:X16}/{id:X16}/{row}", "unknown flags", Convert.ToHexString(bytes.Slice(offset + sizeof(ulong), sizeof(uint))));
             }
         }
+    }
 
-        foreach (var span in index.Evidence.Spans)
+    private static void AddGrammar(SemanticTreeBuilder builder, RagnarokGrammarEvidence evidence)
+    {
+        foreach (var span in evidence.Spans)
         {
             // A kind can now occur in several containers. Offset paths are diagnostic, not semantic identity.
             builder.Add($"grammar/spans/{span.Kind}/{span.Offset:X}", "span", $"0x{span.Offset:X}+{span.Length} ({span.Count})", span.Confidence);
         }
 
-        foreach (var candidate in index.Evidence.LengthCandidates)
+        foreach (var candidate in evidence.LengthCandidates)
         {
             if (!builder.Add($"grammar/length-candidate/{candidate.Offset:X}", "integer", candidate.Length.ToString(), candidate.Basis))
             {
@@ -96,7 +111,7 @@ internal sealed class RagnarokDiffDecoder : ISaveDecoder
             }
         }
 
-        foreach (var hash in index.Evidence.HashCandidates)
+        foreach (var hash in evidence.HashCandidates)
         {
             if (!builder.Add($"hash/{hash.Role}[id={hash.Value:X16}]", "hash", $"0x{hash.Value:X16}", hash.Role))
             {
@@ -104,11 +119,9 @@ internal sealed class RagnarokDiffDecoder : ISaveDecoder
             }
         }
 
-        foreach (var compression in index.Evidence.CompressionCandidates)
+        foreach (var compression in evidence.CompressionCandidates)
         {
             builder.Add($"compression/{compression.Offset:X}", "candidate", compression.Signature, compression.Note);
         }
-
-        return builder.Build();
     }
 }

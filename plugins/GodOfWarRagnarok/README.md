@@ -23,7 +23,7 @@ measurements and deterministic paging, lookup and planning regression budgets.
 | F6 action planning | **Used**: import-bounded restore supports selected/document/query scopes, skipped rows, preview revalidation and grouped undo/redo. |
 | F7 document groups | **N/A**: no proven coupled gameplay/preferences write contract; editing both would guess dependencies. |
 | F8 queryable tables | **Used**: seven server-backed collections page resources, IDs, words, flags and directory records. |
-| F9 graphs/maps | **Added this round**: three attributed weapon skill DAGs and a nine-realm map with a compact Midgard background, external guide links, text alternatives and stable targets. |
+| F9 graphs/maps | **Used**: three attributed weapon skill DAGs and a nine-realm map with a compact Midgard background, external guide links, text alternatives and stable targets. |
 | F10 exact/nullable/union values | **N/A**: the proven grammar contains bounded integer words and UTF-8 text only. |
 | F11 shared codecs | **N/A**: no Kraken/SQLite payload was detected; opaque bytes are preserved. |
 | F12 SaveDiff F8 traversal | **Used**: the production decoder hook is independently bounded by host sink limits. |
@@ -226,13 +226,15 @@ unsupported cursors and columns are rejected. Collection cells are bound only fo
 shown individually. Preferences use 256-byte pages. Hex reads are capped at 64 KiB.
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/GodOfWarRagnarok/SaveToolkit.Plugins.GodOfWarRagnarok.Tests
-dotnet test --project tests/SaveToolkit.Core.Tests
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$env:SAVETOOLKIT_TEST_TEMP='D:/Temp/saveeditor/test-scratch'
+./scripts/test.ps1 -Filter GodOfWarRagnarok -Configuration Release -ResultsDirectory D:/Temp/saveeditor/review-results/godofwarragnarok
 ```
 
 **Unlicensed-source round: 86 plugin tests passed, 0 failed, 0 skipped; API build: 0 warnings/errors.**
-The artifact environment variable is exported in the same test command. Coverage includes all 156
+The script builds the API with warnings as errors, isolates TEMP/TMP on the configured scratch drive,
+and runs the complete plugin suite with TRX output. The count above records the earlier import round;
+see PERFORMANCE.md for the subsequent 218-test baseline. Coverage includes all 156
 records and byte-identical serialization, all 76 primary nested grammars and serialize/reopen byte
 identity, nested length/count/identity corruption, F8 global search/filter/numeric sort/bindings,
 attributed pack validation/direct-call fallback, F1 generation comparison, published digest vectors,
@@ -246,7 +248,13 @@ non-hero-container fixture tests that writer/history path without claiming conso
 synthetic wallet-marker collision proves Serialize rejects output that cannot be re-parsed.
 No console test is claimed.
 
-The new tests verify all 2,647 imported records through the real F2 loader, pinned/direct name and
+The 2026-10-29 maintainability review passes **240 plugin tests, 0 failed, 0 skipped** in Release.
+Its 22 added characterizations pin complete parsed indexes, grammar evidence, presentation and
+semantic-decoder output, diagnostic precedence, fixture byte ownership and reference-context isolation.
+All original tests remain, including the 156-record byte-identical no-op corpus, legacy/nested framing
+robustness and the unchanged allocation bounds. CRC and digest results remain finite evidence only.
+
+The import-round tests verify all 2,647 imported records through the real F2 loader, pinned/direct name and
 catalog agreement, ID byte order, full-corpus resource/group joins and negative gear/quest joins,
 read-only/Unknown cross-game F4 behavior and attributed F12 labels. Hash-checked regeneration is
 byte-identical for all five new pack JSON files. All plugin C# files remain below 300 lines.
@@ -313,7 +321,7 @@ completion formula or legal maximum is displayed. Missing records remain raw IDs
 | Hero / blacksmith-chest research labels | Continue? revision above and [SaveWizard-Resources contributors, 4c32596e](https://github.com/sterben-Dev10/SaveWizard-Resources/blob/4c32596efde54af7bec390b298265f09c929d94d/SaveWizard-Codes/GOW%20Ragnarok%20%5BSaveWizard%5D.txt) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); factual labels only, both inferred; source displayed in container table description. |
 | Nested framing and generic XP candidate | Toolkit contributors, [issue #19](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/19) | Project GPL-3.0-or-later; original byte observations, no third-party implementation copied. |
 | Weapon skill references and thumbnails | [Skill pack sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.skills.en/skills.source.md) and pinned wiki pages above | CC BY-SA 3.0/share-alike for factual text; five downscaled visual thumbnails use the owner-decision rights-reserved attribution; presentation keys are not save hashes. |
-| Gear, rune and map visual catalogue | [Asset pack sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.assets.en/assets.source.md), PlayStation combat guide, God of War Wiki and MapGenie | Rights reserved by the named holders; used with attribution per owner decision 2026-10-29. Six records; no saved ownership or coordinate join. |
+| Gear, rune, map and skill visual catalogue | [Asset pack sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.assets.en/assets.source.md), PlayStation combat guide, God of War Wiki and MapGenie | Rights reserved by the named holders; used with attribution per owner decision 2026-10-29. Eleven records: six gear/rune/map references and five skill thumbnails; no saved ownership or coordinate join. |
 | 961 runtime identities | [mooofin / community spreadsheet contributors, 7b173021](https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/item%23.zip) | No licence published; reused with attribution per owner decision 2026-10-28. Factual names/categories/notes; numeric u64 converted to literal LE keys; one identical duplicate merged. [Sidecar and hashes](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.runtime.en/tables.source.md). |
 | Four skill-tree group IDs | [mooofin, 7b173021](https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT) | No licence published; reused with attribution per owner decision 2026-10-28. Extracted factual GetSkillTree arguments; no Lua/assembler port. Group roles inferred; individual saved skill IDs/bits unknown. |
 | 1,682 2018 crosswalk candidates | [ProtoBuffers / xcier / God of War IDs spreadsheet contributors, 9342d5f3](https://github.com/xcier/GoW-2018-PS4-editor/blob/9342d5f3967ef74bac1161581dc4eab8bb41760d/app/resources/database/gow2018_items.json) | No licence published; reused with attribution per owner decision 2026-10-28. IDs/names/categories/internal filenames only; explicit cross-game Unknown labels; safe-edit flags/offsets omitted. [Sidecar and hash](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.2018.en/tables.source.md). |

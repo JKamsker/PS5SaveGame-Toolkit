@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
@@ -16,7 +15,7 @@ public sealed class RagnarokCommunityTableTests
     [Fact]
     public void PacksContainPinnedAttributedFactsAndNoImportedSafetyClaims()
     {
-        var context = Context();
+        var context = RagnarokTestSupport.PinnedReferences();
         foreach (var (id, count) in new[] { (RagnarokCommunityTables.RuntimeCatalog, 961),
                      (RagnarokCommunityTables.TreeCatalog, 4), (RagnarokCommunityTables.OlderCatalog, 1682) })
         {
@@ -40,7 +39,7 @@ public sealed class RagnarokCommunityTableTests
     [Fact]
     public void DirectAndPinnedCallersResolveTheSameNamesAndPreserveRawUnknowns()
     {
-        var context = Context();
+        var context = RagnarokTestSupport.PinnedReferences();
         var direct = new RagnarokReferences(IReferenceContext.Empty);
         var pinned = new RagnarokReferences(context);
         var catalog = context.Catalog(RagnarokCommunityTables.RuntimeCatalog, "PS5 revision 0x00513040")!;
@@ -70,7 +69,7 @@ public sealed class RagnarokCommunityTableTests
     [Fact]
     public void EveryPrimaryGenerationConfirmsResourceAndGroupJoinsWithoutInventingGearOrQuestJoins()
     {
-        var references = new RagnarokReferences(Context());
+        var references = new RagnarokReferences(RagnarokTestSupport.PinnedReferences());
         var runtimeIds = new HashSet<ulong>();
         var olderIds = new HashSet<ulong>();
         var files = SampleSaves.Load("PPSA08330").AllDiskFiles.Where(file =>
@@ -121,7 +120,7 @@ public sealed class RagnarokCommunityTableTests
         var offset = index.Nested.Wallets[0].IdsOffset;
         const ulong olderArmorId = 0x225DDF8664908400;
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset), olderArmorId);
-        using var document = new GodOfWarRagnarokPlugin().Open(MemorySaveSet.SingleFile(file.FileName, bytes, "PPSA08330"), Context());
+        using var document = new GodOfWarRagnarokPlugin().Open(MemorySaveSet.SingleFile(file.FileName, bytes, "PPSA08330"), RagnarokTestSupport.PinnedReferences());
         var page = Assert.IsAssignableFrom<IQueryableDocument>(document).Query("nested-ids", new() { Text = "2018 candidate: Reaver Belt Lv3" });
         var field = Assert.IsType<FieldNode>(Assert.Single(page.Rows).Cells["id"]);
         Assert.True(field.Spec.ReadOnly);
@@ -136,7 +135,7 @@ public sealed class RagnarokCommunityTableTests
     {
         var file = SampleSaves.Load("PPSA08330").AllDiskFiles.First(file => file.FileName == "GOWRSAVE0");
         var plugin = new GodOfWarRagnarokPlugin();
-        using var document = plugin.Open(file, Context());
+        using var document = plugin.Open(file, RagnarokTestSupport.PinnedReferences());
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var steel = Assert.Single(queryable.Query("resources", new() { Text = "Dwarven Steel" }).Rows);
         var identity = Assert.IsType<FieldNode>(steel.Cells["id"]);
@@ -161,13 +160,5 @@ public sealed class RagnarokCommunityTableTests
         var key = RagnarokReferences.Key(id);
         Assert.Null(references.Community.Runtime(key));
         Assert.Null(references.Community.Older(key));
-    }
-
-    private static IReferenceContext Context()
-    {
-        var plugin = new GodOfWarRagnarokPlugin();
-        var store = new ReferencePackStore([plugin]);
-        Assert.Empty(store.LoadErrors);
-        return store.Pin(plugin, "PPSA08330");
     }
 }

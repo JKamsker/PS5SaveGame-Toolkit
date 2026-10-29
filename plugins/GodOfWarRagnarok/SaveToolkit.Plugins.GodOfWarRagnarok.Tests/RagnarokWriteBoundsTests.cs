@@ -15,7 +15,7 @@ public sealed class RagnarokWriteBoundsTests
         const int originalWalletOffset = 0x500;
         const int metadataWalletOffset = 0x178;
         const int directoryCount = 10;
-        var bytes = RagnarokFormatTests.SyntheticGameplay();
+        var bytes = RagnarokTestSupport.LegacyGameplay();
         var wallet = bytes.AsSpan(originalWalletOffset,
             RagnarokFormat.WalletHeaderSize + RagnarokFormat.WalletRowSize).ToArray();
         bytes.AsSpan(originalWalletOffset, wallet.Length).Clear();
@@ -41,7 +41,7 @@ public sealed class RagnarokWriteBoundsTests
     public void LegacyWalletRowsCannotConsumeTheTrailingSentinel()
     {
         const int originalWalletOffset = 0x500;
-        var bytes = RagnarokFormatTests.SyntheticGameplay();
+        var bytes = RagnarokTestSupport.LegacyGameplay();
         var wallet = bytes.AsSpan(originalWalletOffset,
             RagnarokFormat.WalletHeaderSize + RagnarokFormat.WalletRowSize).ToArray();
         bytes.AsSpan(originalWalletOffset, wallet.Length).Clear();
@@ -66,7 +66,7 @@ public sealed class RagnarokWriteBoundsTests
     public void LegacyWalletAtEitherExactBoundaryRemainsEditableAndLossless(bool beforeSentinel)
     {
         const int originalWalletOffset = 0x500;
-        var bytes = RagnarokFormatTests.SyntheticGameplay();
+        var bytes = RagnarokTestSupport.LegacyGameplay();
         var index = RagnarokRecordIndex.Parse(bytes, false);
         var wallet = bytes.AsSpan(originalWalletOffset,
             RagnarokFormat.WalletHeaderSize + RagnarokFormat.WalletRowSize).ToArray();

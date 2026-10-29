@@ -26,7 +26,7 @@ public sealed class RagnarokPlanningTests
         var root = session.BuildView();
         FieldNode field;
         if (kind == "time")
-            field = Assert.Single(RagnarokFormatTests.Flatten(root).OfType<FieldNode>(), node => node.ValueId == "metadata/play-seconds");
+            field = Assert.Single(RagnarokTestSupport.EagerNodes(root).OfType<FieldNode>(), node => node.ValueId == "metadata/play-seconds");
         else
         {
             var query = kind switch

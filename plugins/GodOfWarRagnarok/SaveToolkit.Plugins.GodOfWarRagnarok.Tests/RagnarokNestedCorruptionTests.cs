@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 
@@ -27,7 +26,7 @@ public sealed class RagnarokNestedCorruptionTests
         Assert.Equal(_fixture.FlagsEnd, index.Nested.FlagsEnd);
         Assert.Equal(2, index.Nested.FlagGroups.Count);
         Assert.All(index.Nested.FlagGroups, group => Assert.Equal(1, group.Count));
-        using var document = new GodOfWarRagnarokPlugin().Open(File(bytes));
+        using var document = new GodOfWarRagnarokPlugin().Open(RagnarokTestSupport.GameplayFile(bytes));
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
@@ -41,7 +40,7 @@ public sealed class RagnarokNestedCorruptionTests
             var truncated = new byte[length + sizeof(uint)];
             bytes.AsSpan(0, length).CopyTo(truncated);
             Write(truncated, length, uint.MaxValue);
-            var file = File(truncated);
+            var file = RagnarokTestSupport.GameplayFile(truncated);
             _ = new GodOfWarRagnarokPlugin().Probe(file);
             Assert.Throws<SaveFormatException>(() => new GodOfWarRagnarokPlugin().Open(file));
         }
@@ -177,7 +176,7 @@ public sealed class RagnarokNestedCorruptionTests
         var bytes = fixture.Create();
         var index = RagnarokRecordIndex.Parse(bytes, false);
         Assert.Equal(count, wallets ? index.Nested.Wallets.Count : index.Nested.FlagGroups.Count);
-        using var document = new GodOfWarRagnarokPlugin().Open(File(bytes));
+        using var document = new GodOfWarRagnarokPlugin().Open(RagnarokTestSupport.GameplayFile(bytes));
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
@@ -192,12 +191,9 @@ public sealed class RagnarokNestedCorruptionTests
 
     private static void AssertRejected(byte[] bytes, string message)
     {
-        var error = Assert.Throws<SaveFormatException>(() => new GodOfWarRagnarokPlugin().Open(File(bytes)));
+        var error = Assert.Throws<SaveFormatException>(() => new GodOfWarRagnarokPlugin().Open(RagnarokTestSupport.GameplayFile(bytes)));
         Assert.Contains(message, error.Message);
     }
-
-    private static SaveToolkit.Sdk.Saves.ISaveFile File(byte[] bytes) =>
-        MemorySaveSet.SingleFile("GOWRSAVE0", bytes, "PPSA08330");
 
     private static void Write(byte[] bytes, int offset, uint value) =>
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);

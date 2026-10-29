@@ -18,7 +18,7 @@ public sealed class RagnarokSpatialTests
     {
         var file = SampleSaves.Load("PPSA08330").AllDiskFiles.First(f => f.FileName == "GOWRSAVE0");
         var plugin = new GodOfWarRagnarokPlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330");
+        var context = RagnarokTestSupport.PinnedReferences(plugin);
         using var document = plugin.Open(file, context);
         var root = Assert.IsType<TabsNode>(document.BuildView());
         Assert.Contains(root.Tabs, tab => tab.Title == "Skills");
@@ -52,7 +52,7 @@ public sealed class RagnarokSpatialTests
     public void SkillPackPreservesProvenanceAndExplicitUnknownRequirementsWithEquivalentFallback()
     {
         var plugin = new GodOfWarRagnarokPlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330");
+        var context = RagnarokTestSupport.PinnedReferences(plugin);
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog(RagnarokSkillReferences.CatalogId));
         Assert.Equal(81, catalog.Count);
         Assert.Equal("1.0.0", catalog.Pack.Version);
@@ -86,7 +86,7 @@ public sealed class RagnarokSpatialTests
     {
         var file = SampleSaves.Load("PPSA08330").AllDiskFiles.First(f => f.FileName == "GOWRSAVE0");
         using var document = new GodOfWarRagnarokPlugin().Open(file);
-        var map = Assert.Single(RagnarokFormatTests.Flatten(document.BuildView()).OfType<MapNode>());
+        var map = Assert.Single(RagnarokTestSupport.EagerNodes(document.BuildView()).OfType<MapNode>());
         SpatialViewValidation.Validate(map);
         Assert.Equal(9, map.Markers.Count);
         Assert.Null(map.Background);
@@ -116,7 +116,7 @@ public sealed class RagnarokSpatialTests
     {
         var file = SampleSaves.Load("PPSA08330").AllDiskFiles.First(f => f.FileName == "GOWRSAVE0");
         var plugin = new GodOfWarRagnarokPlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330");
+        var context = RagnarokTestSupport.PinnedReferences(plugin);
         using var document = plugin.Open(file, context);
         _ = document.BuildView();
         var page = Assert.IsAssignableFrom<IQueryableDocument>(document).Query("resources", new() { Text = "Hacksilver" });

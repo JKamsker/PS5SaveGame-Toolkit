@@ -96,7 +96,7 @@ public sealed class RagnarokSyntheticWriteTests
 
     private static byte[] Fixture(int offset, uint imported)
     {
-        var bytes = RagnarokFormatTests.SyntheticGameplay();
+        var bytes = RagnarokTestSupport.LegacyGameplay();
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(TimeOffset), 10);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), imported);
         return bytes;

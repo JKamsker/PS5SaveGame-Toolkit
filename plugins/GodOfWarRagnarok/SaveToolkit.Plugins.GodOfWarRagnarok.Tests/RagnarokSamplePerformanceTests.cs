@@ -1,4 +1,3 @@
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Testing;
 
@@ -11,7 +10,7 @@ public sealed class RagnarokSamplePerformanceTests
     {
         var file = LargestSample();
         var plugin = new GodOfWarRagnarokPlugin();
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330");
+        var references = RagnarokTestSupport.PinnedReferences(plugin);
         using (var warmup = plugin.Open(file, references)) _ = warmup.BuildView();
         var before = GC.GetAllocatedBytesForCurrentThread();
         using var document = plugin.Open(file, references);
@@ -30,7 +29,7 @@ public sealed class RagnarokSamplePerformanceTests
     public void LargestSamplePagesStayWithinAllocationBudgets(string kind, int budget)
     {
         var plugin = new GodOfWarRagnarokPlugin();
-        using var document = (RagnarokDocument)plugin.Open(LargestSample(), new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330"));
+        using var document = (RagnarokDocument)plugin.Open(LargestSample(), RagnarokTestSupport.PinnedReferences(plugin));
         _ = document.BuildView();
         var collection = kind == "directory" ? "directory" : "resources";
         var query = kind switch

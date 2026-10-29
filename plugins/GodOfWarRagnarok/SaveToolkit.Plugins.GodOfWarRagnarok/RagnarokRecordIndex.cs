@@ -22,6 +22,10 @@ internal sealed class RagnarokRecordIndex
     public RagnarokGrammarEvidence Evidence { get; private set; } = new([], [], [], []);
     public RagnarokNestedRecords Nested { get; private init; } = RagnarokNestedRecords.Empty;
 
+    // Legacy consumers expose hero resources without claiming any nested container framing.
+    public IReadOnlyList<RagnarokWallet> GetResourceWallets() => Nested.Wallets.Count > 0 ? Nested.Wallets :
+        [new RagnarokWallet(RagnarokFormat.HeroWalletId, WalletOffset, WalletCount, 0, 0)];
+
     public static RagnarokRecordIndex Parse(ReadOnlySpan<byte> bytes, bool preferences)
     {
         if (!RagnarokFormat.MatchesHeader(bytes, bytes.Length, preferences))
@@ -40,6 +44,31 @@ internal sealed class RagnarokRecordIndex
             return preferenceIndex;
         }
 
+        ValidateGameplayHeader(bytes);
+        // The observed EOF sentinel is a separate record, never part of a counted array.
+        var payload = bytes[..^sizeof(uint)];
+        var (count, flagsOffset, secondaryOffset, secondaryCount) = ReadDirectory(payload);
+        var secondaryEnd = secondaryOffset + secondaryCount * sizeof(ulong);
+        var (wallet, walletCount) = ReadHeroWallet(bytes, payload, secondaryEnd);
+        var index = new RagnarokRecordIndex
+        {
+            Description = RagnarokFormat.Description(bytes),
+            DirectoryCount = count,
+            FlagsOffset = flagsOffset,
+            SecondaryCount = secondaryCount,
+            SecondaryOffset = secondaryOffset,
+            WalletOffset = wallet,
+            WalletCount = walletCount,
+            Nested = RagnarokNestedRecords.Parse(payload, wallet),
+            Regions = DescribeRegions(count, flagsOffset, secondaryOffset, secondaryCount, wallet, walletCount),
+            Occurrences = FindResourceOccurrences(bytes),
+        };
+        index.Evidence = RagnarokGrammar.Analyze(bytes, index);
+        return index;
+    }
+
+    private static void ValidateGameplayHeader(ReadOnlySpan<byte> bytes)
+    {
         if (bytes.Length < RagnarokFormat.DirectoryItemsOffset ||
             RagnarokFormat.UInt32(bytes, RagnarokFormat.MetadataKindOffset) != RagnarokFormat.MetadataKind ||
             RagnarokFormat.UInt32(bytes, RagnarokFormat.MetadataRevisionOffset) != RagnarokFormat.Revision ||
@@ -48,9 +77,10 @@ internal sealed class RagnarokRecordIndex
         {
             throw new SaveFormatException("Invalid Ragnarök metadata, directory marker or observed trailing sentinel.");
         }
+    }
 
-        // The observed EOF sentinel is a separate record, never part of a counted array.
-        var payload = bytes[..^sizeof(uint)];
+    private static (int Count, int FlagsOffset, int SecondaryOffset, int SecondaryCount) ReadDirectory(ReadOnlySpan<byte> payload)
+    {
         var count = RagnarokFormat.CheckedCount(payload, RagnarokFormat.DirectoryCountOffset, sizeof(ulong));
         var flagsOffset = RagnarokFormat.DirectoryItemsOffset + count * sizeof(ulong);
         RagnarokFormat.RequireRange(payload, flagsOffset, (uint)count, sizeof(uint));
@@ -58,7 +88,7 @@ internal sealed class RagnarokRecordIndex
         ulong previous = 0;
         for (var row = 0; row < count; row++)
         {
-            var id = RagnarokFormat.UInt64(bytes, RagnarokFormat.DirectoryItemsOffset + row * sizeof(ulong));
+            var id = RagnarokFormat.UInt64(payload, RagnarokFormat.DirectoryItemsOffset + row * sizeof(ulong));
             if (row > 0 && id <= previous)
             {
                 throw new SaveFormatException("Ragnarök directory IDs are not strictly increasing.");
@@ -73,12 +103,17 @@ internal sealed class RagnarokRecordIndex
         var secondaryOffset = secondaryCountOffset + sizeof(uint);
         for (var row = 0; row < secondaryCount; row++)
         {
-            if (!ids.Contains(RagnarokFormat.UInt64(bytes, secondaryOffset + row * sizeof(ulong))))
+            if (!ids.Contains(RagnarokFormat.UInt64(payload, secondaryOffset + row * sizeof(ulong))))
             {
                 throw new SaveFormatException("A secondary Ragnarök ID is missing from the directory.");
             }
         }
 
+        return (count, flagsOffset, secondaryOffset, secondaryCount);
+    }
+
+    private static (int Offset, int Count) ReadHeroWallet(ReadOnlySpan<byte> bytes, ReadOnlySpan<byte> payload, int secondaryEnd)
+    {
         Span<byte> walletPattern = stackalloc byte[sizeof(ulong)];
         BinaryPrimitives.WriteUInt64LittleEndian(walletPattern, RagnarokFormat.HeroWalletId);
         var wallet = bytes.IndexOf(walletPattern);
@@ -88,7 +123,6 @@ internal sealed class RagnarokRecordIndex
             throw new SaveFormatException("Expected exactly one bounded Ragnarök hero-wallet record.");
         }
 
-        var secondaryEnd = secondaryOffset + secondaryCount * sizeof(ulong);
         if (wallet - sizeof(uint) < secondaryEnd)
         {
             throw new SaveFormatException("Ragnarök wallet length prefix overlaps metadata or directory arrays.");
@@ -96,31 +130,20 @@ internal sealed class RagnarokRecordIndex
 
         var walletCount = RagnarokFormat.UInt32(bytes, wallet + sizeof(ulong));
         RagnarokFormat.RequireRange(payload, wallet + RagnarokFormat.WalletHeaderSize, walletCount, RagnarokFormat.WalletRowSize);
-        var index = new RagnarokRecordIndex
-        {
-            Description = RagnarokFormat.Description(bytes),
-            DirectoryCount = count,
-            FlagsOffset = flagsOffset,
-            SecondaryCount = secondaryCount,
-            SecondaryOffset = secondaryOffset,
-            WalletOffset = wallet,
-            WalletCount = (int)walletCount,
-            Nested = RagnarokNestedRecords.Parse(payload, wallet),
-            Regions =
-            [
-                new("Outer header", 0, RagnarokFormat.HeaderSize, 1, "Observed constants; integrity unknown"),
-                new("Metadata", RagnarokFormat.MetadataOffset, RagnarokFormat.MetadataSize, 1, "Location and inferred time/counter"),
-                new("Sorted ID array", RagnarokFormat.DirectoryItemsOffset, count * sizeof(ulong), count, "Unknown ID semantics"),
-                new("Paired words", flagsOffset, count * sizeof(uint), count, "Inferred correspondence to sorted IDs"),
-                new("Secondary ID array", secondaryOffset, secondaryCount * sizeof(ulong), secondaryCount, "IDs also present in sorted array"),
-                new("Hero wallet rows", wallet + RagnarokFormat.WalletHeaderSize, (int)walletCount * RagnarokFormat.WalletRowSize,
-                    (int)walletCount, "PC layout matches PS5; container role inferred"),
-            ],
-            Occurrences = FindResourceOccurrences(bytes),
-        };
-        index.Evidence = RagnarokGrammar.Analyze(bytes, index);
-        return index;
+        return (wallet, (int)walletCount);
     }
+
+    private static IReadOnlyList<RecordRegion> DescribeRegions(int count, int flagsOffset, int secondaryOffset,
+        int secondaryCount, int wallet, int walletCount) =>
+    [
+        new("Outer header", 0, RagnarokFormat.HeaderSize, 1, "Observed constants; integrity unknown"),
+        new("Metadata", RagnarokFormat.MetadataOffset, RagnarokFormat.MetadataSize, 1, "Location and inferred time/counter"),
+        new("Sorted ID array", RagnarokFormat.DirectoryItemsOffset, count * sizeof(ulong), count, "Unknown ID semantics"),
+        new("Paired words", flagsOffset, count * sizeof(uint), count, "Inferred correspondence to sorted IDs"),
+        new("Secondary ID array", secondaryOffset, secondaryCount * sizeof(ulong), secondaryCount, "IDs also present in sorted array"),
+        new("Hero wallet rows", wallet + RagnarokFormat.WalletHeaderSize, walletCount * RagnarokFormat.WalletRowSize,
+            walletCount, "PC layout matches PS5; container role inferred"),
+    ];
 
     private static IReadOnlyList<ResourceOccurrence> FindResourceOccurrences(ReadOnlySpan<byte> bytes)
     {

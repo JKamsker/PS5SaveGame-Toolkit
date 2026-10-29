@@ -30,11 +30,11 @@ public sealed class RagnarokSampleTests(ITestOutputHelper output)
             Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
             Assert.Equal(file.FileName != "userpreferences", document.CanEdit);
             var root = document.BuildView();
-            Assert.All(RagnarokFormatTests.Flatten(root).OfType<FieldNode>(), f =>
+            Assert.All(RagnarokTestSupport.EagerNodes(root).OfType<FieldNode>(), f =>
                 Assert.Equal(file.FileName == "userpreferences" || f.ValueId != "metadata/play-seconds", f.Spec.ReadOnly));
             if (file.FileName != "userpreferences")
             {
-                var stats = Assert.Single(RagnarokFormatTests.Flatten(root).OfType<StatsNode>());
+                var stats = Assert.Single(RagnarokTestSupport.EagerNodes(root).OfType<StatsNode>());
                 Assert.Contains(stats.Items, s => s.Label == "Indexed IDs" && s.Value == "798");
                 var secondary = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("secondary/0")));
                 Assert.Equal(10, secondary.Rows.Count);
@@ -58,7 +58,7 @@ public sealed class RagnarokSampleTests(ITestOutputHelper output)
         Assert.Equal(138_041, first.GetValue("metadata/play-seconds").AsInt32());
         Assert.Equal(1797, first.GetValue("raw/1BC/4/decimal").AsInt32());
         Assert.Equal("Svartalfheim - Sverd-Sande - Jenseits von Ragnarök", first.GetValue("metadata/location").AsString());
-        var place = Assert.Single(RagnarokFormatTests.Flatten(root).OfType<FieldNode>(), f => f.ValueId == "metadata/location");
+        var place = Assert.Single(RagnarokTestSupport.EagerNodes(root).OfType<FieldNode>(), f => f.ValueId == "metadata/location");
         Assert.Equal(Confidence.Verified, place.Confidence);
         var wallet = Assert.IsType<TableNode>(Assert.Single(first.ExpandNode("wallet/0")));
         Assert.Equal(211, wallet.Rows.Count);
@@ -82,14 +82,14 @@ public sealed class RagnarokSampleTests(ITestOutputHelper output)
     {
         var file = SampleSaves.Load("PPSA08330").AllDiskFiles.First(f => f.FileName == "GOWRSAVE0");
         using var document = _plugin.Open(file);
-        Assert.InRange(RagnarokFormatTests.Flatten(document.BuildView()).Count(), 1, 100);
+        Assert.InRange(RagnarokTestSupport.EagerNodes(document.BuildView()).Count(), 1, 100);
         foreach (var kind in new[] { "directory", "secondary", "wallet", "anchors" })
         {
             foreach (var section in document.ExpandNode(kind).Cast<SectionNode>())
             {
                 var table = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode(section.LazyId!)));
                 Assert.InRange(table.Rows.Count, 1, 256);
-                foreach (var field in RagnarokFormatTests.Flatten(table).OfType<FieldNode>())
+                foreach (var field in RagnarokTestSupport.EagerNodes(table).OfType<FieldNode>())
                 {
                     Assert.Equal(!field.ValueId.EndsWith("/quantity", StringComparison.Ordinal), field.Spec.ReadOnly);
                     Assert.Equal(field.Value, document.GetValue(field.ValueId));

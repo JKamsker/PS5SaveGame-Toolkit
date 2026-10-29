@@ -1,7 +1,5 @@
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 
@@ -11,7 +9,7 @@ public sealed class RagnarokAssetTests
     public void VisualCatalogueAssetsResolveAndRealmBackgroundIsAttributed()
     {
         var plugin = new GodOfWarRagnarokPlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330");
+        var context = RagnarokTestSupport.PinnedReferences(plugin);
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog(RagnarokReferences.AssetCatalogId));
 
         Assert.Equal(11, catalog.Count);
