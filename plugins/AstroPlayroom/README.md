@@ -35,6 +35,36 @@ tables (200 rows maximum per request); F9 maps page at 64 markers. Value IDs
 use tag names and sibling occurrence numbers, never byte offsets, so length-changing edits retain
 their IDs. Empty elements remain visible as tree sections without inventing a text value.
 
+Unexpected boolean scalars on the `Progress` or `World` group itself remain read-only with
+Unknown confidence. Only flags beneath those groups qualify for experimental flag editing;
+an unfamiliar group shape must remain inspectable and preserve its bytes.
+
+### Malformed-input review (#40)
+
+Malformed allocations and unsupported grammar are rejected with `SaveFormatException`;
+tokenizer failures include the byte offset. Encoding and allocation-envelope failures have
+separate diagnostics. The fixed 1 MiB allocation and parser limits bound processing; there
+is no file-controlled length/count field used to size an allocation.
+
+Regression coverage includes every incomplete byte prefix after the signature in an authored
+document containing attributes, comments, mixed content and numeric names; explicit grammar
+diagnostics; invalid UTF-8 in both values and opaque suffixes; physical file truncations,
+early/missing NULs; and accepted/rejected depth, element and attribute/text-value boundaries.
+Accepted limits retain every raw value and byte, and empty elements count toward the element
+limit. Raw traversal checks page bounds and rejects repeated lazy pages. Both sample generations
+also have in-memory grammar truncation, corrupt root-closing-tag and opaque-suffix controls.
+Samples are read from the external corpus and never modified on disk.
+
+The review fixed a view-construction exception for unexpected boolean group scalars: four
+regression cases failed with `ArgumentOutOfRangeException` before the fix; all six shape tests
+then passed, including normal nested-flag edit/reopen controls. Other corruption tests
+characterize existing rejection behavior; no additional parser defect is claimed.
+
+Validation: **141 passed / 0 failed / 0 skipped** with the external samples (baseline 91;
+50 added cases). Without private samples: **86 passed / 0 failed / 55 skipped**, as required
+for sample-dependent CI tests. API build with warnings as errors: **0 warnings / 0 errors**.
+The documented valid UTF-8 opaque suffix and final-byte NUL remain supported and byte-preserving.
+
 ## Editing and confidence
 
 - **Verified name matches:** `Common/NumCoin` (coins) and `Common/PlayCount` (play count).
