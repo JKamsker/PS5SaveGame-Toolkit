@@ -19,7 +19,7 @@ joins, plus selected CC0 schema names/ordinals for armour. Pinned wiki revisions
 [menu transcript 403465](https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465)
 and [armour 402364](https://ratchetandclank.fandom.com/wiki/Rift_Apart_armor?oldid=402364).
 Their individual record sources, dataset attribution and modification notices
-must remain with redistributed/adapted data. No game artwork is included.
+must remain with redistributed/adapted data. Artwork now has separate rights-reserved notices below.
 These data licenses do not relicense the plugin implementation.
 
 F9 graph descriptions are original presentations of the attributed CC0 schema and
@@ -32,6 +32,23 @@ The source footer says "All rights reserved." The owner decision is a reuse
 instruction, not a claim that Guides4Gamers granted a licence. Retain author,
 source links, retrieval/pin details and modification notices with these data.
 Only factual labels/categories/coordinates/IDs/dimensions are selected. Upstream
-HTML descriptions, source code, publisher map tiles, icons and screenshots are
-excluded. All guide pickup states are Unknown, without a save identity join.
+HTML descriptions and source code are excluded. Backgrounds are imported in the
+asset round with the separate notice below. All guide pickup states are Unknown, without a save identity join.
 See [SPATIAL-SOURCES.md](SPATIAL-SOURCES.md) for presentation and evidence limits.
+
+## Game assets — owner decision 2026-10-29
+
+Weapon icons, upgraded-form render thumbnails and armour-set previews:
+**Insomniac Games / Sony Interactive Entertainment**, via Ratchet & Clank Wiki
+contributors. **Rights reserved by SIE/Insomniac; used with attribution per owner
+decision 2026-10-29**. Sources, per-file pins and modifications:
+[images.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.en/images.source.md).
+
+Nine regional backgrounds: **Guides4Gamers; Insomniac Games / Sony Interactive
+Entertainment**. **Rights reserved by Guides4Gamers/SIE; used with attribution
+per owner decision 2026-10-29**. Sources, tile pins and alignment:
+[backgrounds.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/backgrounds.source.md).
+
+Retain these notices, manifest author/licence fields, sources, per-file provenance
+and modification descriptions when redistributing assets. The owner decision is
+not an upstream licence grant. Derived wiki text still retains CC BY-SA 3.0.

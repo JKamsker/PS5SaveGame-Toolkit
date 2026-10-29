@@ -1,4 +1,4 @@
-# Spatial presentation provenance (0.7.0)
+# Spatial presentation provenance (0.8.0)
 
 ## Community regional coordinates
 
@@ -20,15 +20,16 @@ Manifest attribution, Info.References, per-marker descriptions/links, region
 sections and F9 coordinate attribution retain the source. Sources resolves the pack.
 
 F9 maps expand lazily by region, use explicit identity transforms and source
-bounds, and contain no background. Native coordinates are guide-map pixels:
+bounds, and now resolve nine local F2 backgrounds with the same full native extent. Native coordinates are guide-map pixels:
 origin top-left, X rightwards, Y downwards. No PS5 fog/world transform is claimed.
 All marker states remain **Unknown**, with Inferred coordinate confidence.
 Guide marker IDs have no proven join to save masks/hashes. Source status flags
 are not collection progress. Repeated labels keep distinct upstream identities.
 Guide marker counts do not claim one marker per collectible or completeness.
 
-Publisher map tiles, icons, screenshots and extracted game prose remain excluded.
-No HTML descriptions, paths, quests, remote images or source implementation are
+Publisher map art is imported per owner decision 2026-10-29, with separate
+rights-reserved attribution and pins in [backgrounds.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/backgrounds.source.md).
+No HTML descriptions, paths, quests, remote image requests or source implementation are
 embedded. The source renderer was read to confirm coordinate conventions, not
 executed or copied. The plugin performs no network or filesystem I/O.
 

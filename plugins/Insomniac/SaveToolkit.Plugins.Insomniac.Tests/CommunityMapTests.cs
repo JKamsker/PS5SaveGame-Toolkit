@@ -17,7 +17,7 @@ public sealed class CommunityMapTests
     private const string License = "No licence published; reused with attribution per owner decision 2026-10-28";
 
     [Fact]
-    public void EmbeddedMarkersRetainSnapshotIdentityAttributionAndNoGameAssets()
+    public void EmbeddedMarkersRetainSnapshotIdentityAttribution()
     {
         var plugin = new InsomniacPlugin();
         var store = new ReferencePackStore([plugin]);
@@ -88,7 +88,10 @@ public sealed class CommunityMapTests
             {
                 var map = Assert.IsType<MapNode>(Assert.Single(session.Expand(region.LazyId!)));
                 SpatialViewValidation.Validate(map);
-                Assert.Null(map.Background);
+                Assert.NotNull(map.Background);
+                Assert.True(map.Background.EmbeddingPermitted);
+                Assert.Contains("2026-10-29", map.Background.Attribution.License);
+                Assert.NotNull(context.GetAsset(map.Background.AssetId));
                 Assert.True(map.CoordinateEmbeddingPermitted);
                 Assert.Equal(License, map.CoordinateAttribution!.License);
                 Assert.Equal(new MapTransform(), map.Transform);

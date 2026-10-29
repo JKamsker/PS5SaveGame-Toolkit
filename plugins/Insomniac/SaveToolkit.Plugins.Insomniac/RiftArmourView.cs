@@ -27,10 +27,11 @@ internal sealed class RiftArmourView
         var viewed = campaign?.GetValueOrDefault("NewItemsViewed")?.Values.Where(v => v.Kind == FieldValueKind.Text)
             .Select(v => v.AsString()).ToHashSet(StringComparer.Ordinal) ?? [];
         _collection = collections.Add("armour/collection", "Armour collection checklist",
-            [new("name", "Piece candidate"), new("set", "Set"), new("slot", "Slot"),
+            [new("icon", "Set preview"), new("name", "Piece candidate"), new("set", "Set"), new("slot", "Slot"),
              new("state", "Collection bit"), new("viewed", "Menu viewed flag"), new("perk", "Catalog bonus category")],
             mask is { } value ? Enumerable.Range(0, MaskBits).Select(bit => CollectionRow(bit, value, viewed)) : [],
-            "VanityPickupsCollected bits joined to CC0 VanityBundleSaveId ordinals (inferred). Clear bits do not establish availability. Catalog bonuses describe collecting pieces, not wearing them; no effective bonus percentage is calculated.");
+            "VanityPickupsCollected bits joined to CC0 VanityBundleSaveId ordinals (inferred). Clear bits do not establish availability. Catalog bonuses describe collecting pieces, not wearing them; no effective bonus percentage is calculated. " +
+                "Images show the full reference set, not the individual slot or your equipped appearance. " + RiftCatalogPresentation.ArtAttribution);
         _appearance = collections.Add("armour/appearance", "Vanity appearance records",
             [new("container", "Container"), new("config", "Config token"), new("id", "Item ID candidate", IntegerSpec.UInt16),
              new("color", "Color candidate", IntegerSpec.UInt8), new("preview", "BeenPreviewed candidate", IntegerSpec.UInt8)],
@@ -55,6 +56,7 @@ internal sealed class RiftArmourView
         var isSet = (mask & (1UL << bit)) != 0;
         return new(key, new Dictionary<string, RiftCell>
         {
+            ["icon"] = RiftCatalogPresentation.Image(reference, "Full armour set preview"),
             ["name"] = RiftCollections.Field(label, () => _bind($"armour/bit/{bit}/name", "Piece candidate",
                 new ReferenceSpec("rift-armor") { AllowCustom = true }, FieldValue.Of(key)) with
             {
