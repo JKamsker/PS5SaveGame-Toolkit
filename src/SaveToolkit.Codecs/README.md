@@ -128,6 +128,17 @@ for the remaining small stage tables, excluding caller-owned output and retained
 There are no wall-clock assertions. Tests also pin buffer extents after casts/cursor arithmetic,
 fresh zeroed buffers/budgets, destination guards/overlap, failure recovery and workspace lifecycle.
 
+The #40 performance review measured the 14 AtomicHeart streams on Windows/.NET 10.0.11,
+SDK 10.0.400, Release with tiered compilation disabled, five warmups and 21 synchronous samples.
+Median allocated bytes fell from **10,467,272** at baseline `6866a37` to **2,386,576** through the
+existing allocating API, or **632,416** with a reused workspace and caller-owned aggregate output
+(about 94% less than baseline). Input ZIP reads, frame parsing, aggregate output allocation and
+workspace setup/warmup are excluded; this is managed allocation, not retained heap or native memory.
+The workspace retains peak pool rental capacities until disposal, which can exceed logical padded
+lengths; small entropy-stage tables and the final output copy remain. Clearing reused/returned
+buffers also costs work. No latency or complete plugin Open speedup is claimed. The reproduction
+harness and before/after logs are retained at `D:/Temp/saveeditor/review-results/perf-codecs/`.
+
 Read-only ZIP tests use **only** `SAVETOOLKIT_ARTIFACTS` and skip if samples are absent:
 
 - AtomicHeart `PPSA10695`, `ue4savegame.dpx.sav`: framing begins at 2,302; 14 chunks decode to
