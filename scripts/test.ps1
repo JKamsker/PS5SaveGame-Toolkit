@@ -50,6 +50,7 @@ $runProject = {
     $ErrorActionPreference = 'Stop'
     $savedTemp, $savedTmp, $savedTmpDir = $env:TEMP, $env:TMP, $env:TMPDIR
     $savedScratch = $env:SAVETOOLKIT_TEST_TEMP
+    $savedEncoding = [Console]::OutputEncoding
     $projectName = [IO.Path]::GetFileNameWithoutExtension($ProjectPath)
     $watch = [Diagnostics.Stopwatch]::StartNew()
     $exitCode = -1
@@ -57,6 +58,9 @@ $runProject = {
         Set-Location -LiteralPath $Root
         $env:TEMP = $RunTemp; $env:TMP = $RunTemp; $env:TMPDIR = $RunTemp
         $env:SAVETOOLKIT_TEST_TEMP = $RunTemp
+        # Background PowerShell hosts can default to an OEM code page on Windows, while MTP
+        # emits UTF-8. Decode native output consistently before buffering/replaying the log.
+        [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
         $testArgs = @('test', '--project', $ProjectPath, '--configuration', $Configuration, '--no-build')
         if ($ResultsDirectory) {
             $testArgs += @('--results-directory', (Join-Path $ResultsDirectory $projectName),
@@ -73,6 +77,7 @@ $runProject = {
     finally {
         $env:TEMP, $env:TMP, $env:TMPDIR = $savedTemp, $savedTmp, $savedTmpDir
         $env:SAVETOOLKIT_TEST_TEMP = $savedScratch
+        [Console]::OutputEncoding = $savedEncoding
     }
     [pscustomobject]@{ Project = $projectName; ExitCode = $exitCode; Seconds = $watch.Elapsed.TotalSeconds }
 }

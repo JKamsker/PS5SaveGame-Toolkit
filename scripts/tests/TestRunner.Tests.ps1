@@ -13,6 +13,7 @@ foreach ($failure in @('none', 'build', 'test')) {
         $env:SAVETOOLKIT_TEST_TEMP = 'isolated scratch'
         $env:TMPDIR = 'original Unix temp'
         $savedTemp, $savedTmp = $env:TEMP, $env:TMP
+        $savedEncoding = [Console]::OutputEncoding.CodePage
         $calls = [Collections.Generic.List[object]]::new()
         function dotnet {
             $calls.Add(@{ Arguments = $args; Temp = $env:TEMP; Tmp = $env:TMP; TmpDir = $env:TMPDIR
@@ -42,6 +43,7 @@ foreach ($failure in @('none', 'build', 'test')) {
         Assert-True ($calls[0].Solution.Contains('SaveToolkit.Api.csproj') -and
             $calls[0].Solution.Contains('First.Tests.csproj') -and $calls[0].Solution.Contains('Second.Tests.csproj')) 'One build graph must contain the API and every selected project.'
         Assert-True ($env:TEMP -eq $savedTemp -and $env:TMP -eq $savedTmp -and $env:TMPDIR -eq 'original Unix temp') 'All temp variables must be restored.'
+        Assert-True ([Console]::OutputEncoding.CodePage -eq $savedEncoding) 'The caller console encoding must be restored.'
         Assert-True ((Get-Location).Path -eq $caller) 'Caller location must be restored.'
     }
 }
@@ -87,6 +89,8 @@ if ($args -contains '--coverage') {
     Set-Content -LiteralPath $args[[array]::IndexOf($args, '--coverage-output') + 1] -Value '<coverage />'
 }
 Write-Output "OUTPUT $project"
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
+Write-Output 'UNICODE ü_日本'
 if ($project -eq 'Second.Tests') { exit 17 }
 exit 0
 '@ | Set-Content -LiteralPath $fakeScript
@@ -131,6 +135,7 @@ exit 0
     }
     $lines = @($output | Where-Object { $_ -like 'OUTPUT *' })
     Assert-True (($lines -join ',') -eq 'OUTPUT First.Tests,OUTPUT Fourth.Tests,OUTPUT Second.Tests,OUTPUT Third.Tests') 'Logs must be replayed in deterministic path order.'
+    Assert-True (@($output | Where-Object { $_ -eq 'UNICODE ü_日本' }).Count -eq 4) 'Worker logs must preserve UTF-8 output.'
     $timings = Get-Content -LiteralPath (Join-Path $results 'project-timings.json') -Raw | ConvertFrom-Json
     Assert-True ($timings.Projects.Count -eq 4 -and $timings.MaxParallel -eq 2) 'Every worker needs a wall-time record.'
     Assert-True ($env:TEMP -eq $savedTemp -and $env:TMP -eq $savedTmp -and $env:TMPDIR -eq $savedTmpDir) 'Parallel runs must preserve parent temp settings.'
