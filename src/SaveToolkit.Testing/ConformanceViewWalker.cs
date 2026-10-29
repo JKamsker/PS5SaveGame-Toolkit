@@ -9,7 +9,8 @@ using Xunit;
 namespace SaveToolkit.Testing;
 
 /// <summary>Collects and checks fields from eager views, lazy sections and bounded F8 pages.</summary>
-internal sealed class ConformanceViewWalker(ISaveDocument document, string path, int lazyBudget, int queryBudget)
+internal sealed class ConformanceViewWalker(ISaveDocument document, string path, int lazyBudget, int queryBudget,
+    Action<ViewNode>? observe = null)
 {
     private readonly ViewIndex _index = new();
     private readonly Dictionary<string, FieldNode> _fields = new(StringComparer.Ordinal);
@@ -44,6 +45,7 @@ internal sealed class ConformanceViewWalker(ISaveDocument document, string path,
         _ = JsonSerializer.Serialize(node, ToolkitJson.Options);
         foreach (var child in Flatten(node))
         {
+            observe?.Invoke(child);
             switch (child)
             {
                 case FieldNode field:

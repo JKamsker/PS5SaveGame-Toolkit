@@ -38,6 +38,11 @@ baseline; review the explicit points field and do not treat this as a complete r
 BL3's level-one tree is enabled when raised above level one. Missing level statistics/ability messages are not fabricated. Warnings describe
 these limits in the UI.
 
+The #40 honest-label review adds the same console-rejection warning to every legacy scalar
+write, including level/XP, unspent points, tree grade and the recorded-level statistic. Their
+Verified badges describe cited schema meanings, now explained in field tooltips; maturity,
+ranges, read-only gates and enabled write operations are unchanged.
+
 ## Item browser and versioned data
 
 The inventory uses F8 queries over the complete container for search, exact category filters,

@@ -41,6 +41,12 @@ public abstract partial class PluginConformanceTests<TPlugin>
 
     protected virtual bool IsWritable => Plugin.Info.Maturity != PluginMaturity.ReadOnly;
 
+    /// <summary>Opt into failing mechanical label checks after reviewing document-level warnings and exceptions.</summary>
+    protected virtual bool EnforceHonestLabelAdvisories => false;
+
+    /// <summary>Return a nonempty, evidence-backed exception reason; null leaves the advisory unresolved.</summary>
+    protected virtual string? HonestLabelException(HonestLabelFinding finding) => null;
+
     /// <summary>Files the plugin should handle. Default: probed matches, primary copies first, distinct content.</summary>
     protected virtual IEnumerable<ISaveFile> SelectFiles(DiskSaveSet set) => set.AllDiskFiles
         .Where(f => !f.IsSystemFile && Plugin.Probe(f).Score > ProbeScore.Fallback)
@@ -107,6 +113,17 @@ public abstract partial class PluginConformanceTests<TPlugin>
         {
             var set = SampleSaves.Load(title);
             Assert.True(SelectFiles(set).Any(), $"{Plugin.Info.Id} claimed no file of sample {title}.");
+        }
+    }
+
+    [Fact]
+    public void Open_ReportsHonestLabelAdvisories()
+    {
+        foreach (var file in AllSelectedFiles())
+        {
+            using var document = Open(file);
+            HonestLabelConformance.Check(document, file.RelativePath, Plugin.Info.Maturity,
+                LazyExpansionBudget, QueryPageBudget, HonestLabelException, EnforceHonestLabelAdvisories);
         }
     }
 

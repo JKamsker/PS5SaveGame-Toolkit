@@ -27,7 +27,8 @@ internal sealed class PlayerViews(PlayerData? player, FieldBinding bind, Func<In
                 Warning = "Does not run the game's level-up logic. Keep XP consistent with the character level." },
             bind("player/abilityPoints", "Available ability points", new IntegerSpec(0, int.MaxValue - progress.UsedAbilityPoints),
                 () => FieldValue.Of(progress.AbilityPoints), v => progress.AbilityPoints = v.AsInt32(), v => IntegerError(v, 0, int.MaxValue - progress.UsedAbilityPoints)) with {
-                Confidence = Confidence.Inferred, Description = "levelManager.points[0].free; omitted defaults are decoded as zero. " + WriteFields.ConsoleWarning },
+                Confidence = Confidence.Inferred, Description = "levelManager.points[0].free; omitted defaults are decoded as zero. " + WriteFields.ConsoleWarning,
+                Warning = WriteFields.ConsoleWarning + " Costs, spent points, prerequisites and level rewards are not recalculated; changes affect the stored free points only." },
             bind("player/usedXp", "Used XP", IntegerSpec.Int32, () => FieldValue.Of(progress.UsedExperience)) with { Confidence = Confidence.Inferred },
             bind("player/usedAbilityPoints", "Spent ability points", IntegerSpec.Int32, () => FieldValue.Of(progress.UsedAbilityPoints)) with { Confidence = Confidence.Inferred },
             .. (crowns.Length == 1 ? new ViewNode[] { quantity(crowns[0]) } : [new TextNode("No unique Crowns stack was decoded.")]),

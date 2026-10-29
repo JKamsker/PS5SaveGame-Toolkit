@@ -114,6 +114,10 @@ public sealed class PlayerCorpusTests
         Assert.Equal(Confidence.Inferred, fields["player/CareerBolts"].Confidence);
         Assert.Equal(Confidence.Inferred, fields["player/AvailableBolts"].Confidence);
         Assert.Equal(Confidence.Inferred, fields["player/SpybotCount"].Confidence);
+        Assert.Contains("inferred ordinal candidates", fields["player/SpybotCount"].Description!, StringComparison.Ordinal);
+        Assert.Contains(player.Children.OfType<TextNode>(), text =>
+            text.Text.Contains("Weapon-name candidates are available", StringComparison.Ordinal)
+            && text.Text.Contains("ownership, health and level conversions remain unproven", StringComparison.Ordinal));
         Assert.NotNull(fields["player/CareerRaritanium"].Warning);
         Assert.All(fields.Values.Where(field => !field.Spec.ReadOnly), field =>
         {

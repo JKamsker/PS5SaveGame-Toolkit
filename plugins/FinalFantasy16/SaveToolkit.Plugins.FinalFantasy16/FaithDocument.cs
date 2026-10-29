@@ -189,7 +189,12 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
             new StatsNode(stats),
             new TextNode(FaithWriteMap.Warning) { Tone = Tone.Warning },
             Field(CrcId, "CRC32 (payload)", IntegerSpec.UInt32 with { Format = IntegerFormat.Hex },
-                () => FieldValue.Of((ulong)ReadCrc())) with { Confidence = Confidence.Verified },
+                () => FieldValue.Of((ulong)ReadCrc())) with
+            {
+                Confidence = Confidence.Verified,
+                Description = "CRC32/IEEE over bytes after the Faith header, independently reproduced on all 72 supplied records. " +
+                    "This verifies the stored checksum algorithm, not console acceptance or other unknown integrity rules.",
+            },
         };
         if (player is not null)
         {
@@ -224,8 +229,9 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
             "Secondary bank role is unconfirmed; this may be historical/stage state. ID zero has unknown meaning and its identity stays read-only. " + _catalog.Provenance(item.Id));
         return BindMainQuantity(item, $"{_catalog.Name(item.Id)} stack") with
         {
-            Confidence = Confidence.Verified,
-            Description = $"ItemData slot {item.Slot}, stack at file offset 0x{offset:X}. " +
+            Confidence = _catalog.Item(item.Id) is null ? Confidence.Unknown : Confidence.Inferred,
+            Description = $"Verified storage layout: ItemData slot {item.Slot}, stack at file offset 0x{offset:X}. " +
+                "The field badge describes item meaning: named ID joins are Inferred; unmapped IDs remain Unknown. " +
                 _catalog.Provenance(item.Id),
             Warning = FaithStackPolicy.Warning(item.Id, _catalog.Category(item.Id)),
         };

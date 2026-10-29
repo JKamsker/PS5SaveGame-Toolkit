@@ -11,6 +11,12 @@ retains an Inferred/Unknown label and a console-validation warning. System and
 unsupported schemas remain read-only; empty gameplay saves may expose independent
 supported context fields. No-op output preserves every byte.
 
+The #40 honest-label review separates the main stack's verified storage layout from the item
+meaning shown in its label: mapped item joins carry an Inferred badge and unmapped IDs carry
+Unknown. The description retains the storage evidence and catalog provenance. CRC32 remains
+Verified with an explicit algorithm/evidence tooltip. This changes presentation only; write
+ranges, read-only gates, integrity handling and imported-restore behavior are unchanged.
+
 ## Performance review (#40, 2026-10-29)
 
 Document construction registers unloaded main-bank storage bindings without
@@ -170,7 +176,7 @@ These are experimental bounds, **not legal gameplay caps**.
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
-| Manual existing main stack | Verified storage layout; gameplay caps Unknown | Supported dense main records with an initially nonnegative stack; editable range 0..int.MaxValue is a storage bound | CRC repaired; container/allocators reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small quantity change, use/spend/sell, save/reload/re-export |
+| Manual existing main stack | Verified storage layout; named item meaning Inferred / unmapped Unknown; gameplay caps Unknown | Supported dense main records with an initially nonnegative stack; editable range 0..int.MaxValue is a storage bound | CRC repaired; container/allocators reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small quantity change, use/spend/sell, save/reload/re-export |
 | Main existing item ID replacement | Inferred / Unknown original | Dense identity-key layout; named F2 IDs; complete candidate duplicate-ID check | CRC repaired; container/allocators reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): replace one unequipped item, inspect quantity/flags/dependencies, use/sell, save/reload |
 | Secondary existing stack | Unknown | Same fixed i32 record layout; observed 0..152; bank role unconfirmed | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): edit one stack, identify active adult/child/stage behavior |
 | Secondary existing item ID | Inferred / Unknown original | Dense records; ID-zero records excluded; duplicate-ID check | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): replace one nonzero ID; compare both banks after save/reload |

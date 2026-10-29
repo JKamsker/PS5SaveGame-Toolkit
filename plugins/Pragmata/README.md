@@ -68,10 +68,12 @@ DSSS header and never decrypts. Backup twins use the same normalized names.
 After opening, gameplay titles include the parsed slot and inferred playtime in
 hours, e.g. “Pragmata · Slot 0 · 25.7 h”.
 
-Each tab starts with one experimental notice. Field descriptions retain
-provenance (`path · u32 @0x50`, with plaintext offsets), source attribution,
-editor bounds and console/integrity warnings; confidence describes unverified
-gameplay meaning. Inventory-specific risks and clock guidance remain in
+Each tab starts with one experimental notice. Editable fields and the quantity
+action parameter also publish the same console/integrity warning beside the control
+and through table warning indicators. Field descriptions retain provenance
+(`path · u32 @0x50`, with plaintext offsets), source attribution and editor bounds;
+confidence describes unverified gameplay meaning, including Inferred quantity storage.
+Inventory-specific risks and clock guidance remain in
 their tabs. The overview integrity stat reads “Verified”, with hash block counts
 and embedded key/IV verification details in its hint.
 

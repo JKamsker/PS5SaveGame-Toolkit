@@ -18,7 +18,12 @@ internal sealed class InventoryView(PragmataDocument document)
         {
             SupportsPlanning = true,
             Tone = Tone.Warning,
-            Parameters = [new FieldNode("quantity", "Target quantity", IntegerSpec.Int32 with { Min = 0 }, FieldValue.Of(1L))],
+            Parameters = [new FieldNode("quantity", "Target quantity", IntegerSpec.Int32 with { Min = 0 }, FieldValue.Of(1L))
+            {
+                Confidence = Confidence.Inferred,
+                Description = "Stored int32 quantity; nonnegative storage range, not a proven legal stack limit. " + PragmataDocument.EditWarning,
+                Warning = PragmataDocument.EditWarning,
+            }],
             Description = PragmataDocument.EditWarning + " Preview selected rows from the table, or every existing row from document scope. Legal limits and game effects remain unverified. " +
                 "All matching, explicit and document selections include unloaded quantity pages. Applying is one undo step. Does not add items or set unlock flags.",
         };

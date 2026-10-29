@@ -21,7 +21,7 @@ internal sealed class AriseInventoryActions(AriseDocument document)
     {
         SupportsPlanning = true,
         Tone = Tone.Warning,
-        Description = "Expand the inventory table, then preview a selected set of existing recognised consumable rows, or all such rows in this save. Unknown/equipment rows, records above the observed bound and new records are skipped. The batch is one undo step.",
+        Description = "Expand the inventory table, then preview a selected set of existing recognised consumable rows, or all such rows in this save. Unknown/equipment rows, records above the observed bound and new records are skipped. The batch is one undo step. " + Warning,
         Parameters = [new FieldNode(QuantityParameter, "Quantity", new IntegerSpec(0, AriseDocument.ConsumableStackLimit), FieldValue.Of((long)AriseDocument.ConsumableStackLimit))],
     };
 
@@ -30,7 +30,7 @@ internal sealed class AriseInventoryActions(AriseDocument document)
         SupportsPlanning = true,
         Tone = Tone.Warning,
         Description = "Preview restoring selected existing recognised consumables to this workspace's opening quantities, only when lower. " +
-            "Imported and current quantities must both be within the inferred 0–15 bound. Equipment, unknown IDs and higher quantities are preserved. " + RestoreWarning,
+            "Imported and current quantities must both be within the inferred 0–15 bound. Equipment, unknown IDs and higher quantities are preserved. " + RestoreWarning + " " + Warning,
     };
 
     public ActionPlan Plan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)

@@ -99,6 +99,7 @@ internal sealed class ReferenceReadouts
             FieldValue.Of(raw.ToString(CultureInfo.InvariantCulture)))
         {
             Confidence = record is null || record.Attributes.GetValueOrDefault("confidence") == "Unknown" ? Confidence.Unknown : Confidence.Inferred,
+            Warning = PragmataDocument.EditWarning,
             Description = $"Raw ID 0x{raw:x8} / {raw}. {record?.Description ?? "No ID mapping available."} " +
                 $"{record?.AttributionText ?? "Observed save value; no external name source."} Gameplay effects and legal limits are unverified. " +
                 $"{EvidenceText(raw)} {_document.Bounds.Description(node)} Replacement changes only this stored ID; dependent references and unlock flags are not repaired. " +
@@ -119,6 +120,7 @@ internal sealed class ReferenceReadouts
             Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x}. Identifier: {IdentifierSource(node.Hash)} " +
                 $"{SchemaDescription(node)} " +
                 $"{_document.Bounds.Description(node)} Bounds use matching typed fields in this save, including 0 and 1; game limits and dependencies remain unknown. {PragmataDocument.EditWarning}",
+            Warning = PragmataDocument.EditWarning,
         };
     }
 

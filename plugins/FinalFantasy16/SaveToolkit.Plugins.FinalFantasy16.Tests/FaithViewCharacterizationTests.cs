@@ -7,12 +7,12 @@ namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
 
 public sealed class FaithViewCharacterizationTests
 {
-    // Golden protocol hashes captured from ddc304b before the maintainability refactors.
+    // Golden protocol hashes refreshed for the #40 item-meaning badges and CRC evidence tooltip.
     // Project out only the four additive coverage actions to keep pinning all inherited content.
     [Theory]
-    [InlineData("PPSA10665", false, "3a6a7dcb7f4700e27d6bf422d42f594eb65b2c149fb52fb71ff45cda931ea820")]
-    [InlineData("PPSA10665", true, "f7a447a39602f3be38dcfa6b43dd4d4ab13b4c5863ee70a6ee0a6cc74df58b01")]
-    [InlineData("PPSA13803", false, "e6e6b63ca387f4a0eb02e44a03d02744190a00d943c28fb3cc16298fee9846a9")]
+    [InlineData("PPSA10665", false, "8fd78aff59875c710cce6df1c84886a329378a897f1562727273df79f196d8a1")]
+    [InlineData("PPSA10665", true, "7e3ca31a09b611629995acfbd34c593ca558b44f7d9bdd09d2958eea32c265f0")]
+    [InlineData("PPSA13803", false, "233d12a60799cc75e6c4cbd08119d211beff3198ed9036114c25d324fc11b996")]
     public void CompleteViewPreservesPresentationAndWritableSpecs(string title, bool extended, string expected)
     {
         var culture = CultureInfo.CurrentCulture;

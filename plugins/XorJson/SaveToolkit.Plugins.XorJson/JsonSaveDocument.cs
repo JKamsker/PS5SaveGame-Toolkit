@@ -244,13 +244,14 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         if (node.IsContainer)
             yield return new ActionNode($"json/add/{node.Index}", "Add row/member")
             {
+                Description = WriteWarning,
                 Confirm = warning,
                 Parameters = node.Kind == System.Text.Json.JsonTokenType.StartObject
                     ? [new FieldNode("key", "New member name", new TextSpec(), FieldValue.Of("")), json] : [json],
             };
         if (node.Parent is null) yield break;
-        yield return new ActionNode($"json/remove/{node.Index}", "Remove row/member") { Confirm = warning };
-        yield return new ActionNode($"json/replace/{node.Index}", "Replace row/member") { Confirm = warning, Parameters = [json] };
+        yield return new ActionNode($"json/remove/{node.Index}", "Remove row/member") { Description = WriteWarning, Confirm = warning };
+        yield return new ActionNode($"json/replace/{node.Index}", "Replace row/member") { Description = WriteWarning, Confirm = warning, Parameters = [json] };
     }
 
     private SectionNode LazyRange(string label, JsonValueToken parent, int start, int count)

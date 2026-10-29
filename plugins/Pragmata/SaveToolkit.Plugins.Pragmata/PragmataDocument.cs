@@ -92,6 +92,7 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
         return new FieldNode(id, HashNames.Label(node.Hash), _bindings.Spec(node), Read(node))
         {
             Confidence = HashNames.All.ContainsKey(node.Hash) ? Confidence.Inferred : Confidence.Unknown,
+            Warning = EditWarning,
             Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x} · {References.IdentifierSource(node.Hash)} " +
                 $"{References.SchemaDescription(node)} " +
                 $"{Bounds.Description(node)} These are editor/storage bounds, not proven game limits. {EditWarning}",

@@ -1344,9 +1344,13 @@ above when standalone opens need embedded names or icons. In your concrete docum
 ```csharp
 var record = items?.Find(rawId.ToString(CultureInfo.InvariantCulture));
 var field = Field(id, record?.Name ?? $"Item {rawId}", IntegerSpec.UInt16 with { Max = record?.Limit ?? ushort.MaxValue }, get, set)
-    with { Description = record?.AttributionText, Confidence = record is null ? Confidence.Unknown : Confidence.Verified };
+    with { Description = record?.AttributionText, Confidence = record is null ? Confidence.Unknown : Confidence.Inferred };
 var icon = record?.AssetId is { } asset ? new ImageNode(asset, record.Name) : null;
 ```
+
+A catalog hit supplies a candidate name and provenance. Use `Verified` only when the
+ID/name join has independent evidence for the supported format/build; the pack's presence
+alone does not establish gameplay meaning or legal bounds.
 
 In that document's asset override:
 
@@ -1472,6 +1476,18 @@ probing robustness against garbage, then uses selected real samples for opening,
 JSON-serialisability (incl. lazy sections), `GetValue` consistency, value/spec consistency,
 byte-identical no-op serialisation and edit → serialise → re-open round trips.
 Override `ChooseEdits` to exercise a meaningful field (e.g. an item quantity).
+
+`Open_ReportsHonestLabelAdvisories` also reports mechanical presentation gaps: a `Verified`
+field needs a nonempty evidence `Description`; writable fields/actions should have `Experimental`
+plugin maturity, an editable document and local warning/confirmation text. Action parameters are
+inputs, not document setters. These checks use the same bounded lazy/F8 traversal and remain advisory
+by default. Override `EnforceHonestLabelAdvisories` to enforce them and `HonestLabelException` to
+record specific evidence-backed exceptions (for example, human-approved `Stable` maturity or an
+existing document-level warning). A nonempty description is not proof: separately reconcile names,
+catalog provenance, read-only gates and imported-restore semantics with the plugin README.
+For actions, the mechanical warning check recognizes nonempty confirmations or warning/danger-toned
+descriptions. Ordinary descriptions can already contain valid warnings; read-only documents can
+retain controls disabled by the host. Review these advisories before treating them as defects.
 
 Core's `DetectionMatrixTests` pins its cross-plugin detection matrix in
 [`DetectionMatrix.txt`](../tests/SaveToolkit.Core.Tests/Detection/DetectionMatrix.txt).
