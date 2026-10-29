@@ -156,6 +156,8 @@ internal static class MultiArrayDecoder
         int varbits_complen = Q & 0x3FFF;
         if (src_end - src < varbits_complen)
             return -1;
+        if (!HasIntervalBits(interval_lenlog2, num_lens, varbits_complen))
+            return -1;
 
         BufferView<byte> f = src;
         uint bits_f = 0;
@@ -245,5 +247,21 @@ internal static class MultiArrayDecoder
             if (entropy_array_size[i] != 0)
                 return -1;
         return (int)(src_end_actual - src_org);
+    }
+
+    private static bool HasIntervalBits(BufferView<byte> lengths, int count, int availableBytes)
+    {
+        const int BitsPerByte = 8;
+        int forwardBits = 0, backwardBits = 0;
+        for (int index = 0; index < count; index++)
+        {
+            if ((index & 1) == 0) forwardBits += lengths[index];
+            else backwardBits += lengths[index];
+        }
+        // Each direction starts at a byte boundary. Word lookahead may use owned padding,
+        // but bits actually consumed must fit in the declared, nonoverlapping streams.
+        int requiredBytes = (forwardBits + BitsPerByte - 1) / BitsPerByte +
+            (backwardBits + BitsPerByte - 1) / BitsPerByte;
+        return requiredBytes <= availableBytes;
     }
 }
