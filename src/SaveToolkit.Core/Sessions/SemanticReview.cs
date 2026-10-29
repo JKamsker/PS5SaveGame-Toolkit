@@ -337,7 +337,12 @@ internal sealed class SemanticReview
                     throw new InvalidOperationException("Invalid targeted field metadata.");
                 if (snapshot.Fields.TryGetValue(field.ValueId, out var existing))
                 {
-                    snapshot.Fields[field.ValueId] = existing with { ReadOnly = field.Spec.ReadOnly };
+                    snapshot.Fields[field.ValueId] = existing with
+                    {
+                        ReadOnly = field.Spec.ReadOnly,
+                        CanonicalValueId = string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId,
+                        BindingKind = field.BindingKind,
+                    };
                     continue;
                 }
 
