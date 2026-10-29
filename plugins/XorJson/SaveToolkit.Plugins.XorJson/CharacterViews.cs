@@ -19,8 +19,8 @@ internal static class CharacterViews
             hero.Children.Where(n => g.Members.Contains(n.Label, StringComparer.Ordinal)).Select(view).ToArray())).ToList();
         var metadata = hero.Member("MetaData");
         tabs[0] = tabs[0] with { Children = [new StatsNode([
-            new Stat("Stored Level", metadata?.Member("Level")?.Scalar.ToString() ?? "Unknown") { Hint = "CharacterSaveV1.MetaData.Level; gameplay limits unverified." },
-            new Stat("Stored PowerLevel", metadata?.Member("PowerLevel")?.Scalar.ToString() ?? "Unknown") { Hint = "CharacterSaveV1.MetaData.PowerLevel; dependencies unverified." },
+            new Stat("Stored level", metadata?.Member("Level")?.Scalar.ToString() ?? "Unknown") { Hint = "CharacterSaveV1.MetaData.Level; gameplay limits unverified." },
+            new Stat("Stored power level", metadata?.Member("PowerLevel")?.Scalar.ToString() ?? "Unknown") { Hint = "CharacterSaveV1.MetaData.PowerLevel; dependencies unverified." },
         ]), .. tabs[0].Children] };
         foreach (var collection in collections)
         {
