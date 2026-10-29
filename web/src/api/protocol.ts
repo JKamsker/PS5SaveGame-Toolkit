@@ -69,6 +69,13 @@ export interface FieldNode {
   confidence?: Confidence;
   warning?: string;
 }
+/** Unavailable canonical presentation. The server sends resolved targets as ordinary FieldNodes. */
+export interface FieldReferenceNode {
+  type: "fieldReference";
+  targetValueId: string;
+  label?: string;
+  description?: string;
+}
 export interface TableColumn { key: string; label: string; description?: string; width?: "Narrow" | "Normal" | "Wide" }
 export interface EmptyRowPresentation { labelColumnKey: string; pluralLabel?: string; hideByDefault?: boolean }
 export interface TableRow { key: string; cells: Record<string, ViewNode>; isEmpty?: boolean }
@@ -106,7 +113,7 @@ export interface QueryableTableNode {
   description?: string;
 }
 
-export type ViewNode = SectionNode | TabsNode | FieldNode | TableNode | TextNode | StatsNode | ImageNode | ActionNode | HexNode | QueryableTableNode | GraphNode | MapNode;
+export type ViewNode = SectionNode | TabsNode | FieldNode | FieldReferenceNode | TableNode | TextNode | StatsNode | ImageNode | ActionNode | HexNode | QueryableTableNode | GraphNode | MapNode;
 
 // ---- API contracts ----
 
