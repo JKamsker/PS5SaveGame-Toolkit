@@ -13,10 +13,10 @@ const pair = { fieldId: "item", recordKey: "1001" };
 const candidate = { rawId: "1001", label: "Potion", eligibility: { available: true, eligible: true, selectable: true, reasons: [] } };
 const found: ReferenceRecordsResponse = { revision: 0, results: [{ ...pair, status: 200, candidate }] };
 
-function setup(value = "1001") {
+function setup(value = "1001", compact = false) {
   const fixture = createDocumentFixture({ state: { canUndo: false, canRedo: false, isDirty: false, revision: 0 } });
   const field = (rawId: string) => <DocumentContext.Provider value={fixture.context}>
-    <ReferenceControl id="item-control" valueId="item" value={rawId} spec={{ kind: "reference", catalogId: "items" }} onCommit={value => fixture.context.commit("item", value)} />
+    <ReferenceControl id="item-control" valueId="item" value={rawId} compact={compact} spec={{ kind: "reference", catalogId: "items" }} onCommit={value => fixture.context.commit("item", value)} />
   </DocumentContext.Provider>;
   const view = render(field(value));
   return { ...view, ...fixture, rerenderValue: (rawId: string) => view.rerender(field(rawId)) };
@@ -56,6 +56,23 @@ it("reports a per-pair failure and retains the existing field descriptions", asy
   </DocumentContext.Provider>);
   expect((await screen.findByRole("alert")).textContent).toContain("Unknown reference field.");
   expect(screen.getByRole("button", { name: "1001" }).getAttribute("aria-describedby")).toBe("help item-control-lookup-error");
+});
+
+it("uses a short compact retry while preserving the full error announcement and description", async () => {
+  const message = "Reference service unavailable. Try again when the backend reconnects.";
+  vi.spyOn(api, "referenceRecords").mockRejectedValueOnce(new ApiError(message, 503)).mockResolvedValue(found);
+  setup("1001", true);
+  expect((await screen.findByRole("alert")).textContent).toContain(message);
+  const retry = screen.getByRole("button", { name: "Retry reference label" });
+  expect(retry.textContent).toBe("! Retry");
+  expect(retry.getAttribute("title")).toBe(message);
+  const trigger = screen.getByRole("button", { name: "1001" });
+  expect(trigger.getAttribute("aria-describedby")).toBe("item-control-lookup-error");
+  retry.focus();
+  fireEvent.click(retry);
+  expect(document.activeElement).toBe(trigger);
+  await screen.findByRole("button", { name: "Potion (1001)" });
+  expect(screen.queryByRole("alert")).toBeNull();
 });
 
 it("ignores obsolete failures after the saved ID changes", async () => {

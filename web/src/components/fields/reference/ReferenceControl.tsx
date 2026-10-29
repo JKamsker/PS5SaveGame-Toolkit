@@ -69,9 +69,17 @@ export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpe
       title={`${current?.label ?? "Unknown ID"} (${rawId})`}>
       <span id={`${id}-value`}>{current?.label ? `${current.label} (${rawId})` : rawId || "Choose an item…"}</span>
     </button>
-    {lookupError && <span id={errorId} className="field__error" role="alert">{lookupError}{" "}
-      <button type="button" className="btn btn--small" onClick={() => { trigger.current?.focus(); retry(); }}>Retry reference label</button>
-    </span>}
+    {lookupError && <ReferenceLabelError id={errorId} error={lookupError} compact={compact}
+      onRetry={() => { trigger.current?.focus(); retry(); }} />}
     {open && valueId && createPortal(<ReferencePicker {...props} valueId={valueId} browseOnly={Boolean(disabled || spec.readOnly)} current={current} onClose={close} />, document.body)}
   </>;
+}
+
+function ReferenceLabelError({ id, error, compact, onRetry }: { id: string; error: string; compact?: boolean; onRetry: () => void }) {
+  return <span id={id} className={compact ? "reference-label-error" : "field__error"} role="alert">
+    <span className={compact ? "visually-hidden" : undefined}>{error}{" "}</span>
+    <button type="button" className="btn btn--small" aria-label="Retry reference label" title={compact ? error : undefined} onClick={onRetry}>
+      {compact ? <><span aria-hidden="true">!</span> Retry</> : "Retry reference label"}
+    </button>
+  </span>;
 }
