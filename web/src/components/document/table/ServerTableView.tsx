@@ -1,8 +1,8 @@
-import { useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError, isStaleError } from "../../../api/client";
 import type { CollectionQuery, QueryableTableNode, TableColumn, TableRow } from "../../../api/protocol";
-import { useDocument, useDocumentState } from "../../../state/documentStore";
+import { useDocument } from "../../../state/documentStore";
 import { RowDetails, rowHasDetails } from "./RowDetails";
 import { rowLabel } from "./cellText";
 import { TableCell } from "./TableCell";
@@ -15,7 +15,9 @@ const PAGE_SIZE = 50;
 /** Paged table for an SDK IQueryableDocument. Eager TableNode rendering remains in TableView. */
 export function ServerTableView({ node }: { node: QueryableTableNode }) {
   const { workspaceId, documentId, structureVersion, refresh, store } = useDocument();
-  const { version } = useDocumentState(store);
+  const subscribe = useCallback((listener: () => void) => store.subscribe(null, listener), [store]);
+  const version = useSyncExternalStore(subscribe, () => store.valueVersion);
+  const revision = useSyncExternalStore(subscribe, () => store.state.revision ?? 0);
   const [text, setText] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [sort, setSort] = useState("");
@@ -36,7 +38,6 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
       includeEmpty: node.emptyRows ? includeEmpty : undefined }),
     [deferredText, filters, sort, descending, offset, includeEmpty, node.emptyRows],
   );
-  const revision = store.state.revision ?? 0;
   const result = useQuery({
     queryKey: ["collection", workspaceId, documentId, node.collectionId, query, revision, version, structureVersion],
     queryFn: () => api.queryCollection(workspaceId, documentId, node.collectionId, query, revision),
