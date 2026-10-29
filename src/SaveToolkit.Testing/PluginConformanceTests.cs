@@ -226,7 +226,7 @@ public abstract partial class PluginConformanceTests<TPlugin>
     {
         var index = new ViewIndex();
         var fields = new List<FieldNode>();
-        var seenSpecs = new Dictionary<string, FieldSpec>(StringComparer.Ordinal);
+        var seenFields = new Dictionary<string, FieldNode>(StringComparer.Ordinal);
         var lazy = new Queue<string>();
         var root = document.BuildView();
         Accept(root);
@@ -253,15 +253,17 @@ public abstract partial class PluginConformanceTests<TPlugin>
                     case FieldNode f:
                         // The same value may be shown in several places (e.g. a search table and a tree),
                         // but every occurrence must describe it identically.
-                        if (seenSpecs.TryGetValue(f.ValueId, out var earlier))
+                        if (seenFields.TryGetValue(f.ValueId, out var earlier))
                         {
                             Assert.True(
-                                JsonSerializer.Serialize(earlier, ToolkitJson.Options) == JsonSerializer.Serialize(f.Spec, ToolkitJson.Options),
+                                JsonSerializer.Serialize(earlier.Spec, ToolkitJson.Options) == JsonSerializer.Serialize(f.Spec, ToolkitJson.Options),
                                 $"{file.RelativePath}: value id '{f.ValueId}' appears with different specs.");
+                            Assert.True(earlier.Value == f.Value,
+                                $"{file.RelativePath}: value id '{f.ValueId}' appears with different values.");
                         }
                         else
                         {
-                            seenSpecs[f.ValueId] = f.Spec;
+                            seenFields[f.ValueId] = f;
                             fields.Add(f);
                         }
 
