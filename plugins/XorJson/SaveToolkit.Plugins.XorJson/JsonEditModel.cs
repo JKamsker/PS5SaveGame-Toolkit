@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Json;
 
 namespace SaveToolkit.Plugins.XorJson;
 
@@ -106,12 +107,15 @@ internal sealed class JsonEditModel
         var nodes = Walk(Root).ToArray();
         var sourceBytes = nodes.Select(n => n.Source).Distinct().Sum(b => b.LongLength);
         var textBytes = nodes.Where(n => !n.IsContainer).Sum(n => (long)n.Current.ToString().Length * sizeof(char));
-        return new(Clone(Root, null), _nextId, sourceBytes + nodes.Length * (long)EstimatedNodeBytes + textBytes);
+        var lossless = Root.SdkDocument?.CaptureSnapshot();
+        return new(Clone(Root, null), _nextId, sourceBytes + nodes.Length * (long)EstimatedNodeBytes + textBytes + (lossless?.SizeBytes ?? 0), lossless);
     }
 
     public void Restore(JsonModelSnapshot state)
     {
         Root = Clone(state.Root, null);
+        if (state.LosslessSnapshot is { } lossless && Root.SdkDocument is { } document)
+            _ = document.RestoreSnapshot(lossless);
         _index = null;
         _nodes = null;
         // Never reuse an id allocated by a later, now-undone operation.
@@ -132,6 +136,7 @@ internal sealed class JsonEditModel
             Source = node.Source, EntryOffset = node.EntryOffset, LeadingOffset = node.LeadingOffset,
             Parent = parent, Segment = node.Segment, Spec = node.Spec, Current = node.Current,
             Original = node.Original, Warning = node.Warning, OriginalChildren = node.OriginalChildren.ToArray(),
+            SdkNode = node.SdkNode, SdkDocument = node.SdkDocument,
         };
         foreach (var child in node.Children) copy.Children.Add(Clone(child, copy));
         return copy;
@@ -145,4 +150,4 @@ internal sealed class JsonEditModel
     }
 }
 
-internal sealed record JsonModelSnapshot(JsonValueToken Root, int NextId, long SizeBytes);
+internal sealed record JsonModelSnapshot(JsonValueToken Root, int NextId, long SizeBytes, LosslessJsonSnapshot? LosslessSnapshot);

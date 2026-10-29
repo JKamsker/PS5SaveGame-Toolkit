@@ -1,15 +1,14 @@
-using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Json;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.XorJson;
 
 internal sealed class JsonTokenTree
 {
-    internal const int MaxBytes = 16 * 1024 * 1024;
-    internal const int MaxNodes = 250_000;
-    private static readonly UTF8Encoding StrictUtf8 = new(false, true);
+    internal const int MaxBytes = LosslessJsonLimits.DefaultMaxBytes;
+    internal const int MaxNodes = LosslessJsonLimits.DefaultMaxTokens;
     internal static ExactNumberSpec NumberSpec { get; } = new()
     {
         MaxLength = ExactJsonNumber.HardMaxLength,
@@ -20,100 +19,88 @@ internal sealed class JsonTokenTree
     ]));
 
     public List<JsonValueToken> Nodes { get; } = [];
+    internal LosslessJsonDocument Lossless { get; private init; } = null!;
 
     public static JsonTokenTree Parse(byte[] bytes)
     {
-        if (bytes.Length is <= 0 or > MaxBytes) throw new SaveFormatException("JSON files must be between 1 byte and 16 MiB.");
+        LosslessJsonDocument document;
         try
         {
-            _ = StrictUtf8.GetCharCount(bytes);
-            var bom = bytes.AsSpan().StartsWith("\uFEFF"u8) ? 3 : 0;
-            var reader = new Utf8JsonReader(bytes.AsSpan(bom), new JsonReaderOptions { MaxDepth = 64 });
-            var tree = new JsonTokenTree();
-            tree.ReadNodes(bytes, bom, ref reader);
-            if (tree.Nodes.Count == 0) throw new SaveFormatException("JSON must contain one value.");
-            return tree;
+            document = LosslessJsonDocument.Parse(bytes, new LosslessJsonLimits
+            {
+                MaxBytes = MaxBytes, MaxDepth = 64, MaxTokens = MaxNodes,
+                MaxNumberLength = ExactJsonNumber.HardMaxLength,
+                MaxAbsoluteExponent = ExactJsonNumber.HardMaxAbsoluteExponent,
+            });
         }
-        catch (Exception ex) when (ex is JsonException or DecoderFallbackException or InvalidOperationException or FormatException)
+        catch (LosslessJsonException)
         {
-            // Never include source text or parser exceptions, which may quote private save data.
             throw new SaveFormatException("Invalid JSON or UTF-8 text (maximum depth: 64).");
         }
-    }
 
-    private void ReadNodes(byte[] bytes, int bom, ref Utf8JsonReader reader)
-    {
-        var parents = new Stack<JsonValueToken>();
-        var occurrences = new Dictionary<(int Parent, string Name), int>();
-        string? property = null;
-        var propertyOffset = 0;
-        while (reader.Read())
+        var tree = new JsonTokenTree { Lossless = document };
+        var mapped = new Dictionary<int, JsonValueToken>();
+        foreach (var sourceNode in document.Nodes)
         {
-            if (reader.TokenType == JsonTokenType.PropertyName)
+            var parent = sourceNode.Parent is { } sourceParent ? mapped[sourceParent.Id] : null;
+            var token = new JsonValueToken(sourceNode.Id, Label(sourceNode, parent), Kind(sourceNode),
+                sourceNode.OriginalSpan.Offset, sourceNode.OriginalSpan.Length)
             {
-                property = reader.GetString();
-                propertyOffset = checked((int)reader.TokenStartIndex + bom);
-                continue;
-            }
-            if (reader.TokenType is JsonTokenType.EndObject or JsonTokenType.EndArray)
-            {
-                var completed = parents.Pop();
-                completed.Length = checked((int)reader.BytesConsumed + bom - completed.Offset);
-                completed.OriginalChildren = completed.Children.Select(n => n.Index).ToArray();
-                continue;
-            }
-            if (Nodes.Count >= MaxNodes) throw new SaveFormatException("JSON exceeds the 250,000 value safety limit.");
-            var parent = parents.TryPeek(out var current) ? current : null;
-            var label = property ?? (parent is null ? "$" : $"[{parent.Children.Count}]");
-            var node = new JsonValueToken(Nodes.Count, label, reader.TokenType,
-                checked((int)reader.TokenStartIndex + bom), checked((int)(reader.BytesConsumed - reader.TokenStartIndex)))
-            {
-                Source = bytes, Parent = parent,
+                Source = bytes, Parent = parent, SdkNode = sourceNode,
             };
-            node.EntryOffset = property is null ? node.Offset : propertyOffset;
-            node.LeadingOffset = parent is null ? node.EntryOffset
-                : parent.Children.Count == 0 ? parent.Offset + 1 : parent.Children[^1].Offset + parent.Children[^1].Length;
-            AttachChild(node, property, occurrences);
-            property = null;
-            Nodes.Add(node);
-            if (node.IsContainer) parents.Push(node);
+            if (parent is null)
+            {
+                token.EntryOffset = token.Offset;
+                token.LeadingOffset = token.Offset;
+                token.SdkDocument = document;
+            }
             else
             {
-                ReadValue(node, ref reader);
-                node.Original = node.Current;
+                token.Segment = sourceNode.PropertyName is { } name
+                    ? new JsonMemberPath(name, sourceNode.PropertyOccurrence)
+                    : new JsonElementPath(parent.Children.Count);
+                token.LeadingOffset = parent.Children.Count == 0
+                    ? parent.Offset + 1 : parent.Children[^1].Offset + parent.Children[^1].Length;
+                token.EntryOffset = sourceNode.PropertyNameSpan is { } propertySpan
+                    ? propertySpan.Offset : token.Offset;
+                parent.Children.Add(token);
             }
+            if (!sourceNode.IsScalar) token.OriginalChildren = sourceNode.Children.Select(child => child.Id).ToArray();
+            else ReadScalar(token, sourceNode);
+            mapped.Add(token.Index, token);
+            tree.Nodes.Add(token);
         }
+        return tree;
     }
 
-    private static void AttachChild(JsonValueToken node, string? property, Dictionary<(int Parent, string Name), int> occurrences)
-    {
-        if (node.Parent is not { } parent) return;
-        if (property is null) node.Segment = new JsonElementPath(parent.Children.Count);
-        else
-        {
-            var key = (parent.Index, property);
-            var occurrence = occurrences.GetValueOrDefault(key);
-            occurrences[key] = occurrence + 1;
-            node.Segment = new JsonMemberPath(property, occurrence);
-        }
-        parent.Children.Add(node);
-    }
+    private static string Label(LosslessJsonNode node, JsonValueToken? parent) =>
+        node.PropertyName ?? (parent is null ? "$" : $"[{parent.Children.Count}]");
 
-    private static void ReadValue(JsonValueToken node, ref Utf8JsonReader reader)
+    private static JsonTokenType Kind(LosslessJsonNode node) => node.Kind switch
     {
-        switch (reader.TokenType)
+        LosslessJsonNodeKind.Object => JsonTokenType.StartObject,
+        LosslessJsonNodeKind.Array => JsonTokenType.StartArray,
+        LosslessJsonNodeKind.String => JsonTokenType.String,
+        LosslessJsonNodeKind.Number => JsonTokenType.Number,
+        LosslessJsonNodeKind.Boolean => node.BooleanValue == true ? JsonTokenType.True : JsonTokenType.False,
+        LosslessJsonNodeKind.Null => JsonTokenType.Null,
+        _ => throw new SaveFormatException("Unsupported JSON value kind."),
+    };
+
+    private static void ReadScalar(JsonValueToken node, LosslessJsonNode source)
+    {
+        switch (source.Kind)
         {
-            case JsonTokenType.String:
+            case LosslessJsonNodeKind.String:
                 node.Spec = new NullableSpec(new TextSpec { MaxLength = MaxBytes });
-                node.Current = FieldValue.Of(reader.GetString()!);
+                node.Current = FieldValue.Of(source.StringValue!);
                 break;
-            case JsonTokenType.True:
-            case JsonTokenType.False:
+            case LosslessJsonNodeKind.Boolean:
                 node.Spec = new NullableSpec(new BoolSpec());
-                node.Current = FieldValue.Of(reader.GetBoolean());
+                node.Current = FieldValue.Of(source.BooleanValue == true);
                 break;
-            case JsonTokenType.Number:
-                var raw = Encoding.UTF8.GetString(reader.ValueSpan);
+            case LosslessJsonNodeKind.Number:
+                var raw = source.OriginalLexeme!;
                 if (ExactJsonNumber.Validate(raw, NumberSpec) is null)
                 {
                     node.Spec = new NullableSpec(NumberSpec);
@@ -126,10 +113,13 @@ internal sealed class JsonTokenTree
                     node.Warning = "Number exceeds the exact-number safety limits; preserved verbatim and read-only.";
                 }
                 break;
-            case JsonTokenType.Null:
+            case LosslessJsonNodeKind.Null:
                 node.Spec = NullSpec;
                 node.Current = FieldValue.Null;
                 break;
+            default:
+                throw new SaveFormatException("Unsupported JSON scalar kind.");
         }
+        node.Original = node.Current;
     }
 }

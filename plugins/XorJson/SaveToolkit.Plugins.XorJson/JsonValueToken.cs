@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using SaveToolkit.Sdk.Json;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.XorJson;
@@ -22,6 +23,8 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     public FieldValue Original { get; set; }
     public FieldValue Current { get; set; }
     public string? Warning { get; set; }
+    internal LosslessJsonNode? SdkNode { get; init; }
+    internal LosslessJsonDocument? SdkDocument { get; set; }
     public bool IsContainer => Kind is JsonTokenType.StartObject or JsonTokenType.StartArray;
     public string ValueId => $"value/{Index}";
     public string TypedPath => (Parent?.TypedPath ?? "$") + (Segment?.Display ?? "");

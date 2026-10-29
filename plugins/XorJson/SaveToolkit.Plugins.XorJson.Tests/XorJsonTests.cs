@@ -36,6 +36,29 @@ public sealed class XorJsonTests
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void LosslessScalarHistoryIsDocumentOwnedAndKeepsOversizedAndDuplicateSourceBytes(bool xor)
+    {
+        const string original = "\uFEFF{\"escaped\":\"\\u0041\",\"huge\":1e9999,\"dup\":1,\"dup\":2}";
+        var bytes = Encode(original, xor);
+        using var first = Open(bytes);
+        using var second = Open(bytes);
+        var firstFields = Fields(first);
+        var secondFields = Fields(second);
+        var firstText = firstFields.Single(field => field.Label == "escaped");
+        var secondText = secondFields.Single(field => field.Label == "escaped");
+        Assert.Equal(2, firstFields.Count(field => field.Description!.Contains("member(\"dup\"", StringComparison.Ordinal)));
+        Assert.True(first.ApplyEdits([new(firstText.ValueId, FieldValue.Of("changed"))]).Succeeded);
+        Assert.Equal(Encode(original.Replace("\\u0041", "changed", StringComparison.Ordinal), xor),
+            first.Serialize().Single().Content.ToArray());
+        Assert.Equal(bytes, second.Serialize().Single().Content.ToArray());
+        Assert.True(first.ApplyEdits([new(firstText.ValueId, firstText.Value)]).Succeeded);
+        Assert.Equal(bytes, first.Serialize().Single().Content.ToArray());
+        Assert.Equal(secondText.Value, second.GetValue(secondText.ValueId));
+    }
+
+    [Theory]
     [InlineData("{\"x\":01}")]
     [InlineData("[1,")]
     [InlineData("{} {}")]

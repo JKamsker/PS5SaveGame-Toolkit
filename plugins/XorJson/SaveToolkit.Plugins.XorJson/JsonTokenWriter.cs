@@ -1,4 +1,6 @@
+using System.Text;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Json;
 
 namespace SaveToolkit.Plugins.XorJson;
 
@@ -6,6 +8,8 @@ internal static class JsonTokenWriter
 {
     public static byte[] Write(JsonValueToken root)
     {
+        if (root.SdkDocument is { } document && IsUnchangedTree(root))
+            return WriteScalars(document, root);
         using var output = new MemoryStream();
         Append(output, root.Source.AsSpan(0, root.Offset));
         WriteNode(output, root);
@@ -14,6 +18,32 @@ internal static class JsonTokenWriter
         _ = JsonTokenTree.Parse(result);
         return result;
     }
+
+    private static byte[] WriteScalars(LosslessJsonDocument document, JsonValueToken root)
+    {
+        try
+        {
+            foreach (var node in JsonEditModel.Walk(root).Where(node => !node.IsContainer))
+            {
+                if (node.SdkNode is null) throw new SaveFormatException("Edited JSON lost a scalar identity.");
+                var lexeme = node.Current == node.Original
+                    ? node.SdkNode.OriginalLexeme!
+                    : Encoding.UTF8.GetString(node.Encode());
+                _ = document.ReplaceScalar(node.SdkNode, lexeme);
+            }
+            var result = document.Serialize();
+            _ = JsonTokenTree.Parse(result);
+            return result;
+        }
+        catch (LosslessJsonException)
+        {
+            throw new SaveFormatException("Edited JSON exceeds the lossless scalar limits.");
+        }
+    }
+
+    private static bool IsUnchangedTree(JsonValueToken root) => JsonEditModel.Walk(root).All(node =>
+        node.SdkNode is not null && ReferenceEquals(node.Source, root.Source) &&
+        (!node.IsContainer || node.OriginalChildren.SequenceEqual(node.Children.Select(child => child.Index))));
 
     private static void WriteNode(MemoryStream output, JsonValueToken node)
     {
