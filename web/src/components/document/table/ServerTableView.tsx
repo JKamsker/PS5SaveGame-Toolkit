@@ -66,7 +66,6 @@ function useStalePageRecovery(stale: boolean, successful: boolean, refresh: () =
     // Keep the failure visible and allow manual retry if refreshing the document also fails.
     void refresh().catch(() => {});
   }, [stale, successful, refresh]);
-
 }
 
 function useExpandedRows() {

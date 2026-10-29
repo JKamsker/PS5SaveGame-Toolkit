@@ -34,17 +34,17 @@ export function TableCell({ node, columnConfidence, emptySlot, rowLabel, onOpenD
     case "text":
       return <TextCell node={node} />;
     case "image":
-  return (
-    <Cell>
-      <CellImage node={node} />
-    </Cell>
-  );
+      return (
+        <Cell>
+          <CellImage node={node} />
+        </Cell>
+      );
     case "action":
-  return (
-    <Cell>
-      <ActionButton node={node} compact ariaLabel={`${node.label}: ${rowLabel}`} />
-    </Cell>
-  );
+      return (
+        <Cell>
+          <ActionButton node={node} compact ariaLabel={`${node.label}: ${rowLabel}`} />
+        </Cell>
+      );
     case "stats":
       return <StatsCell node={node} />;
     case "section":
@@ -53,17 +53,17 @@ export function TableCell({ node, columnConfidence, emptySlot, rowLabel, onOpenD
     case "hex":
     case "graph":
     case "map":
-  return (
-    <Cell>
-      <DetailsChip label={nestedLabel(node)} rowLabel={rowLabel} onOpen={onOpenDetails} />
-    </Cell>
-  );
+      return (
+        <Cell>
+          <DetailsChip label={nestedLabel(node)} rowLabel={rowLabel} onOpen={onOpenDetails} />
+        </Cell>
+      );
     default:
-  return (
-    <Cell>
-      <span className="cell-placeholder">Unsupported: {(node as { type?: string }).type ?? "unknown"}</span>
-    </Cell>
-  );
+      return (
+        <Cell>
+          <span className="cell-placeholder">Unsupported: {(node as { type?: string }).type ?? "unknown"}</span>
+        </Cell>
+      );
   }
 }
 

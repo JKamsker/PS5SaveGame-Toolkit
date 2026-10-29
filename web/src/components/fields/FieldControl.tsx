@@ -86,4 +86,3 @@ function FlagsControl({ id, spec, value, onCommit, labelledBy, describedBy, inva
     </div>
   );
 }
-

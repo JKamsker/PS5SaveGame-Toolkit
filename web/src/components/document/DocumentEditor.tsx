@@ -47,22 +47,22 @@ function OpenDocument({ session, focusHeading, workspaceId, documentId, file, on
     <DocumentContext.Provider value={context}>
       <ReviewNavigationProvider>
         <article className="editor">
-        <DocumentHeader document={doc} file={file} focusHeading={focusHeading} onSwitchPlugin={onSwitchPlugin} />
-        {query.isError && <div className="read-error">
-          <p role="alert" className="notice notice--Danger">Could not refresh the document: {query.error.message}</p>
-          <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refresh()}>Refresh document</button>
-        </div>}
-        {(doc.plugin.supportsGroups || doc.groupMembers) && <DocumentGroupControls document={doc} />}
-        <SourcesPanel
-          workspaceId={workspaceId}
-          documentId={documentId}
-          pluginReferences={doc.plugin.references}
-          refreshKey={structureVersion}
-          onToast={onToast}
-        />
-        {!doc.canEdit && <p className="notice notice--Muted">This plugin shows the data but cannot write it.</p>}
-        <ChangesPanel />
-        <ViewRenderer node={doc.view} />
+          <DocumentHeader document={doc} file={file} focusHeading={focusHeading} onSwitchPlugin={onSwitchPlugin} />
+          {query.isError && <div className="read-error">
+            <p role="alert" className="notice notice--Danger">Could not refresh the document: {query.error.message}</p>
+            <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refresh()}>Refresh document</button>
+          </div>}
+          {(doc.plugin.supportsGroups || doc.groupMembers) && <DocumentGroupControls document={doc} />}
+          <SourcesPanel
+            workspaceId={workspaceId}
+            documentId={documentId}
+            pluginReferences={doc.plugin.references}
+            refreshKey={structureVersion}
+            onToast={onToast}
+          />
+          {!doc.canEdit && <p className="notice notice--Muted">This plugin shows the data but cannot write it.</p>}
+          <ChangesPanel />
+          <ViewRenderer node={doc.view} />
         </article>
       </ReviewNavigationProvider>
     </DocumentContext.Provider>

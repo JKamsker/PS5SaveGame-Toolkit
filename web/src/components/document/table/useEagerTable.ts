@@ -49,7 +49,6 @@ export function useEagerTable(node: TableNode) {
     });
   }, []);
 
-
   const next = useNextReviewPath();
   useEffect(() => {
     const row = node.rows.find(candidate => next === `row:${candidate.key}`);
@@ -90,7 +89,6 @@ export function useEagerTableLayout(node: TableNode, table: ReturnType<typeof us
   const padTop = items[0]?.start ?? 0;
   const padBottom = virtualizer.getTotalSize() - (items.at(-1)?.end ?? 0);
   const tableId = useId();
-
 
   return { scroller, virtualizer, template, numbers, confidence, items, padTop, padBottom, tableId };
 }
