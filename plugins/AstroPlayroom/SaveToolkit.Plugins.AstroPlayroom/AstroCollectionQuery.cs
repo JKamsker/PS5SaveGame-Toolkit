@@ -47,19 +47,23 @@ internal sealed class AstroCollectionQuery(AstroSchema schema, AstroLocations lo
             query.Filters.Any(filter => !keys.Contains(filter.Key) || filter.Value.Length > QueryableCollectionLimits.MaxFilterLength))
             throw new ArgumentException("Unknown ASTRO query column or oversized filter.");
 
-        // Build cheap searchable values for all records, but rich cells only for this page.
-        var source = schema.Records.Where(record => collectionId == CollectionId || collectionId == Id(record.Group)).ToArray();
-        var records = source.Select(record => (Record: record, Values: Values(record)))
-            .Where(item => string.IsNullOrWhiteSpace(query.Text) || item.Values.Values.Any(value =>
-                value.Contains(query.Text.Trim(), StringComparison.OrdinalIgnoreCase)))
-            .Where(item => query.Filters.All(filter => string.Equals(item.Values[filter.Key], filter.Value, StringComparison.OrdinalIgnoreCase)))
-            .ToArray();
-        var ordered = query.Descending
-            ? records.OrderByDescending(item => item.Values[query.SortColumn ?? "key"], StringComparer.OrdinalIgnoreCase)
-            : records.OrderBy(item => item.Values[query.SortColumn ?? "key"], StringComparer.OrdinalIgnoreCase);
-        var rows = ordered.ThenBy(item => item.Record.Element.Id, StringComparer.Ordinal)
-            .Skip(query.Offset).Take(query.Limit).Select(item => row(item.Record)).ToArray();
-        return new QueryableCollectionPage(collectionId, Columns, rows, source.Length, records.Length, query.Offset, query.Limit);
+        // Snapshot cheap projections once; rich cells are still rendered only for this page.
+        var source = schema.Records.Where(record => collectionId == CollectionId || collectionId == Id(record.Group))
+            .Select(record => new QueryRecord(record, Values(record))).ToArray();
+        var columns = Columns.Select(column => new InMemoryColumn<QueryRecord>(column.Key)
+        {
+            SearchText = item => item.Values[column.Key],
+            FilterText = item => item.Values[column.Key],
+            Comparer = Comparer<QueryRecord>.Create((left, right) =>
+                StringComparer.OrdinalIgnoreCase.Compare(left.Values[column.Key], right.Values[column.Key]))
+        }).ToArray();
+        return new InMemoryCollection<QueryRecord>(Metadata with { Id = collectionId, TotalCount = source.Length },
+            () => source, item => item.Record.Element.Id, columns, item => row(item.Record), new()
+            {
+                ClampPaging = false,
+                DefaultComparer = columns.Single(column => column.Key == "key").Comparer,
+                NormalizeSearchText = text => string.IsNullOrWhiteSpace(text) ? null : text.Trim()
+            }).Query(query);
     }
 
     private Dictionary<string, string> Values(AstroCollectionRecord record)
@@ -77,4 +81,6 @@ internal sealed class AstroCollectionQuery(AstroSchema schema, AstroLocations lo
                 : $"{reference.Description} {reference.AttributionText}"
         };
     }
+
+    private sealed record QueryRecord(AstroCollectionRecord Record, Dictionary<string, string> Values);
 }

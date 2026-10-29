@@ -58,17 +58,15 @@ internal static class AstroPlanning
         ActionScope scope, ActionPlan plan, AstroSchema schema, IReadOnlyList<AstroField> fields,
         Func<AstroField, FieldValue> current, AstroLocations locations, Func<IReadOnlyList<ValueEdit>, EditOutcome> applyEdits)
     {
-        var fresh = Plan(actionId, parameters, scope, schema, fields, current, locations);
-        if (fresh.Errors.Count > 0)
+        var validation = ActionPlans.Revalidate(plan,
+            () => Plan(actionId, parameters, scope, schema, fields, current, locations),
+            new FieldError(actionId, "The ASTRO preview is stale or no longer matches the document."));
+        if (!validation.Succeeded)
         {
-            return new EditOutcome { Errors = fresh.Errors };
+            return new EditOutcome { Errors = validation.Errors };
         }
 
-        if (!Equivalent(fresh, plan))
-        {
-            return EditOutcome.Rejected(actionId, "The ASTRO preview is stale or no longer matches the document.");
-        }
-
+        var fresh = validation.Plan;
         var edits = fresh.Changes.Where(c => !c.Derived)
             .Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray();
         return applyEdits(edits) with { Warnings = fresh.Warnings };
@@ -142,8 +140,4 @@ internal static class AstroPlanning
         return new ActionPlan { Changes = changes, SkippedRows = skipped,
             Warnings = [AstroWriteWarnings.Experimental, AstroWriteWarnings.Collection, AstroWriteWarnings.Integrity] };
     }
-
-    private static bool Equivalent(ActionPlan left, ActionPlan right) =>
-        left.Errors.SequenceEqual(right.Errors) && left.Warnings.SequenceEqual(right.Warnings) &&
-        left.SkippedRows.SequenceEqual(right.SkippedRows) && left.Changes.SequenceEqual(right.Changes);
 }
