@@ -40,9 +40,8 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   const selectedScopeUnavailable = scopeKind === "selected" && !selectedBindingAvailable;
   const reloadPresets = async () => {
     await api.reloadPresets();
-    // Reload invalidates staged imports; refetch the document's authoritative compatibility too.
-    const rows = await api.documentPresets(context.workspaceId, context.documentId);
-    client.setQueryData(["presets", context.workspaceId, context.documentId], rows);
+    const result = await presets.refetch();
+    if (result.error) throw result.error;
   };
   const loadPreview = async (presetId: string, choices?: Record<string, string>) => {
     try {
@@ -88,7 +87,8 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
     <summary className="section__summary"><span className="section__title">Toolkit presets</span></summary>
     <div className="section__body" aria-busy={presets.isFetching || create.isPending || apply.isPending}>
       <p>Presets are stored outside save bytes and apply through a revision-bound preview.</p>
-      {presets.isPending && <p aria-live="polite" aria-atomic="true">Loading presets…</p>}
+      {presets.isPending && actions.length > 0 && <p aria-live="polite" aria-atomic="true">Loading presets…</p>}
+      {actions.length === 0 && <p className="notice notice--Muted">This document has no planned preset actions. Import and export remain available from the document toolbar.</p>}
       <h3 ref={heading} tabIndex={-1}>Saved presets</h3>
       <PresetTransferToolbar />
       {presets.isError && <><p role="alert">Could not load presets: {presets.error.message}</p><button type="button" className="btn btn--small" onClick={() => void reloadPresets().catch(error => setMessage(error instanceof Error ? error.message : "Could not reload presets."))}>Retry loading presets</button></>}
@@ -118,7 +118,10 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
 function PresetRow({ row, busy, onPreview, onDelete, onRename }: { row: DocumentPreset; busy: boolean; onPreview: () => Promise<void>; onDelete: () => Promise<void>; onRename: (value: string) => Promise<void> }) {
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(row.preset.name);
-  const reason = row.compatibility.compatible ? undefined : row.compatibility.reason ?? "Compatibility is unknown.";
+  const reason = !row.compatibility.compatible ? row.compatibility.reason ?? "Compatibility is unknown."
+    : !row.compatibility.canPreview || row.compatibility.unsupportedActions.length > 0
+      ? row.compatibility.previewReason ?? "This preset is not supported by the current document."
+      : undefined;
   return <li className="presets-list__item"><div>{renaming ? <form onSubmit={event => { event.preventDefault(); void onRename(name).then(() => setRenaming(false)); }}><label>Preset name <input className="input" value={name} onChange={event => setName(event.target.value)} maxLength={100} /></label><button className="btn btn--small" type="submit">Save name</button><button className="btn btn--small" type="button" onClick={() => setRenaming(false)}>Cancel</button></form> : <><strong>{row.preset.name}</strong><span className="presets-meta">{row.preset.compatibility.titleIds.join(", ")} · {row.preset.compatibility.gameBuild ?? "build unknown"} · {row.preset.actions.length} action{row.preset.actions.length === 1 ? "" : "s"}</span>{reason && <span className="presets-meta notice--Warning" role="status">{reason}</span>}</>}</div>
     <div className="bar__actions"><button className="btn btn--small" type="button" disabled={busy || Boolean(reason)} onClick={() => void onPreview()}>{reason ?? "Preview"}</button><button className="btn btn--small" type="button" disabled={busy || row.compatibility.readOnly} onClick={() => setRenaming(true)}>Rename</button>
       <button className="btn btn--small btn--danger" type="button" onClick={() => void onDelete()}>Delete</button></div></li>;

@@ -1,6 +1,7 @@
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.Presets;
+using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 using static Microsoft.AspNetCore.Http.StatusCodes;
@@ -12,7 +13,7 @@ internal static class PresetEndpoints
     public static void MapPresetApi(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("/api").AddEndpointFilter<ApiContractFilter>()
-            .WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict, Status422UnprocessableEntity);
+            .WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict, Status422UnprocessableEntity, Status503ServiceUnavailable);
         api.MapGet("/presets", (PresetStore store) => store.List().Select(p => p.ToDto()));
         api.MapPost("/presets/reload", (PresetStore store) => store.Reload().Select(p => p.ToDto()));
         api.MapPost("/presets", (CreatePresetRequest request, PresetStore store) =>
@@ -38,6 +39,8 @@ internal static class PresetEndpoints
     private static IResult Capture(DocumentRef document, CapturePresetRequest request, PresetStore store)
     {
         var capability = document.Value.PresetCapability;
+        if (document.Value.PresetDocument is not null && capability is null)
+            return Results.UnprocessableEntity(new ErrorDto("The semantic preset capability is malformed.", "capabilityMalformed"));
         var captureRequest = new SaveToolkit.Sdk.PresetCaptureRequest(
             request.ActionId,
             request.Parameters ?? [],
@@ -46,10 +49,14 @@ internal static class PresetEndpoints
                 ? request.SelectedRowKeys ?? []
                 : null,
             request.AllMatches);
-        if (PresetContractValidation.ValidateCapture(capability, captureRequest) is { } captureError)
+        var references = document.Value.PinnedReferences as ReferenceContext;
+        var referenceFields = references is null ? null : new ReferenceFieldService(references);
+        if (PresetContractValidation.ValidateCapture(capability, captureRequest, referenceFields) is { } captureError)
             return Results.UnprocessableEntity(new ErrorDto(captureError, "presetContract"));
         var action = document.Value.CapturePreset(captureRequest);
-        if (PresetContractValidation.ValidateCapturedAction(capability, captureRequest, action) is { } actionError)
+        if (action is null)
+            return Results.UnprocessableEntity(new ErrorDto("The capture adapter returned no action.", "presetContract"));
+        if (PresetContractValidation.ValidateCapturedAction(capability, captureRequest, action, referenceFields) is { } actionError)
             return Results.UnprocessableEntity(new ErrorDto(actionError, "presetContract"));
         var compatibility = new PresetCompatibility(
             document.Value.Plugin.Info.Id,

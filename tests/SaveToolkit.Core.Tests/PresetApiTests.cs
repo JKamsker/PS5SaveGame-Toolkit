@@ -141,6 +141,25 @@ public sealed class PresetApiTests(IsolatedApiFactory factory) : IClassFixture<I
     }
 
     [Fact]
+    public async Task DocumentPresetRowsGateGenericShapeOnTheServer()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var document = await OpenAsync(ct);
+        var create = await _client.PostAsJsonAsync("/api/presets", new
+        {
+            name = "Selected generic",
+            compatibility = new { pluginId = "test.planning", pluginVersion = "1.0.0", titleIds = CounterTitle },
+            actions = new[] { new { actionId = "refill", scopeKind = "selected", parameters = new { value = 7 } } },
+        }, ct);
+        Assert.Equal(HttpStatusCode.OK, create.StatusCode);
+
+        var rows = await _client.GetFromJsonAsync<JsonElement[]>($"{document}/presets", ct);
+        var summary = Assert.Single(rows!).GetProperty("compatibility");
+        Assert.False(summary.GetProperty("canPreview").GetBoolean());
+        Assert.Equal("genericShapeUnsupported", summary.GetProperty("previewCode").GetString());
+    }
+
+    [Fact]
     public async Task GenericPreviewErrorsKeepThePresetPreviewEnvelope()
     {
         var ct = TestContext.Current.CancellationToken;

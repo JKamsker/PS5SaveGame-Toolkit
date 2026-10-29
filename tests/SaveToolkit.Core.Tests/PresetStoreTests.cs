@@ -112,4 +112,43 @@ public sealed class PresetStoreTests
         Assert.Throws<InvalidDataException>(() => store.Reload());
         Assert.Equal(created.Id, Assert.Single(store.List()).Id);
     }
+
+    [Fact]
+    public async Task ReloadSerializesWithMutationPublication()
+    {
+        var root = TestZips.TempDir();
+        var store = new PresetStore(new() { StorageRoot = root });
+        _ = store.Create("seed", new("p", "1", ["T"]),
+            [new PresetAction("set", new Dictionary<string, JsonElement>())]);
+        for (var iteration = 0; iteration < 20; iteration++)
+        {
+            var reload = Task.Run(store.Reload);
+            var created = Task.Run(() => store.Create($"race-{iteration}", new("p", "1", ["T"]),
+                [new PresetAction("set", new Dictionary<string, JsonElement>())]));
+            await Task.WhenAll(reload, created);
+            Assert.Contains(store.List(), item => item.Id == created.Result.Id);
+        }
+
+        var renameTarget = store.Create("rename-target", new("p", "1", ["T"]),
+            [new PresetAction("set", new Dictionary<string, JsonElement>())]);
+        await Task.WhenAll(Task.Run(store.Reload), Task.Run(() => store.Rename(renameTarget.Id, "renamed")));
+        Assert.Equal("renamed", store.Find(renameTarget.Id)!.Name);
+        await Task.WhenAll(Task.Run(store.Reload), Task.Run(() => store.Delete(renameTarget.Id)));
+        Assert.Null(store.Find(renameTarget.Id));
+    }
+
+    [Fact]
+    public void ReloadReadSharingFailureMapsToStorageException()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        var root = TestZips.TempDir();
+        var store = new PresetStore(new() { StorageRoot = root });
+        _ = store.Create("locked", new("p", "1", ["T"]),
+            [new PresetAction("set", new Dictionary<string, JsonElement>())]);
+        var path = Path.Combine(root, "presets.json");
+        using var handle = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+        handle.Lock(0, 1);
+
+        Assert.Throws<PresetStorageException>(() => store.Reload());
+    }
 }

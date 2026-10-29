@@ -52,3 +52,13 @@ it("reload recovery retains server-incompatible summaries instead of enabling a 
   expect(reload).toHaveBeenCalledOnce();
   expect(fetch).toHaveBeenNthCalledWith(2, "w1", "d1");
 });
+
+it("shows a truthful no-actions state without a never-ending loading message", async () => {
+  const noActions = { ...document, view: { type: "section" as const, title: "Root", children: [] } };
+  const presets = vi.spyOn(api, "presets");
+  renderSpatial(<PresetsPanel document={noActions} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  expect((await screen.findByText(/no planned preset actions/i)).textContent).toContain("no planned preset actions");
+  expect(screen.queryByText("Loading presets…")).toBeNull();
+  expect(presets).not.toHaveBeenCalled();
+});

@@ -41,6 +41,11 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
         catch (FileNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
         catch (DirectoryNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
         catch (JsonException ex) { throw new InvalidDataException("Preset storage is not valid JSON.", ex); }
+        catch (InvalidDataException) { throw; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            throw new PresetStorageException("Preset storage is temporarily unavailable. Retry the operation.", ex);
+        }
     }
 
     internal byte[] Serialize(IEnumerable<ToolkitPreset> records)

@@ -22,8 +22,15 @@ public sealed partial class DocumentSession
 
     /// <summary>Runs the optional pure plugin capture adapter while the document is locked.</summary>
     public PresetAction CapturePreset(PresetCaptureRequest request) => Locked(() =>
-        Document is IPresetDocument adapter ? adapter.CapturePreset(request) :
-        new PresetAction(request.ActionId, request.Parameters, [], request.ScopeKind));
+    {
+        if (Document is IPresetDocument semanticAdapter && semanticAdapter.PresetCapability is null)
+            throw new ArgumentException("The semantic preset capability is malformed.", nameof(request));
+        if (PresetContractValidation.ValidateCapture(PresetCapability, request, _referenceFields) is { } error)
+            throw new ArgumentException(error, nameof(request));
+        return Document is IPresetDocument adapter
+            ? adapter.CapturePreset(request)
+            : new PresetAction(request.ActionId, request.Parameters, [], request.ScopeKind);
+    });
 
     public PresetActionPreview PlanPreset(ToolkitPreset preset, long? expectedRevision = null,
         IReadOnlyDictionary<string, string>? choices = null, CancellationToken cancellationToken = default) => Locked(() => RunPreflight(_ => PlanPresetCore(preset, expectedRevision, choices, cancellationToken), cancellationToken), cancellationToken);
@@ -42,19 +49,21 @@ public sealed partial class DocumentSession
         var emptyResolution = new PresetResolution([]);
         if (StaleCheck(expectedRevision, [preset.Id]) is { } stale)
             return new(null, _revision, preset, emptyResolution, new ActionPlan { Errors = stale.Errors }) { Stale = true };
-        if (Document is not IPresetDocument planner)
+        if (Document is not IPresetDocument planner || planner.PresetCapability is not { } capability)
             return Error(preset, emptyResolution, "This plugin has no semantic preset adapter.");
         if (PresetContractValidation.ValidateChoices(choices) is { } choiceError)
             return Error(preset, emptyResolution, choiceError);
-        if (PresetContractValidation.ValidateActions(planner.PresetCapability, preset.Actions) is { } actionError)
+        if (PresetContractValidation.ValidateActions(planner.PresetCapability, preset.Actions, _referenceFields) is { } actionError)
             return Error(preset, emptyResolution, actionError);
-        if (preset.Actions.Count == 0 || preset.Actions.Count > planner.PresetCapability.MaxActions)
+        if (preset.Actions.Count == 0 || preset.Actions.Count > capability.MaxActions)
             return Error(preset, emptyResolution, "The preset contains an unsupported number of actions.");
         var instances = preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
         var selected = choices is null
             ? new Dictionary<string, string>(StringComparer.Ordinal)
             : new Dictionary<string, string>(choices, StringComparer.Ordinal);
         var resolution = planner.ResolvePresetInstances(instances, selected);
+        if (PresetContractValidation.ValidateResolution(resolution, out var resolutionBytes) is { } resolutionError)
+            return Error(preset, emptyResolution, resolutionError);
         if (!resolution.Succeeded)
             return new(null, _revision, preset, resolution, new ActionPlan { Errors = ResolutionErrors(resolution) });
         try
@@ -66,8 +75,7 @@ public sealed partial class DocumentSession
                 return Error(preset, resolution, "Preset preview is too large; narrow its scope.");
             if (plan.Errors.Count > 0) return new(null, _revision, preset, resolution, plan);
             var id = Guid.NewGuid().ToString("N");
-            var resolutionBytes = JsonSerializer.SerializeToUtf8Bytes(resolution);
-            _pendingPreset = new PendingPreset(id, _revision, preset, PresetStore.PayloadFingerprint(preset), resolution, bytes, resolutionBytes, selected);
+            _pendingPreset = new PendingPreset(id, _revision, preset, PresetStore.PayloadFingerprint(preset), resolution, bytes, resolutionBytes!, selected);
             return new(id, _revision, preset, resolution, plan);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
@@ -88,15 +96,20 @@ public sealed partial class DocumentSession
             || expectedPresetId is not null && (pending.Preset.Id != expectedPresetId || pending.PresetFingerprint != expectedPresetFingerprint))
             return Rejected(string.Empty, "The preset preview is stale. Preview it again.") with { Stale = true };
         if (!Document.CanEdit) return Rejected("preset", "This document is read-only.");
-        if (Document is not IPresetDocument planner) return Rejected("preset", "This plugin has no semantic preset adapter.");
+        if (Document is not IPresetDocument planner || planner.PresetCapability is not { } capability)
+            return Rejected("preset", "This plugin has no semantic preset adapter.");
         try
         {
+            if (PresetContractValidation.ValidateActions(capability, pending.Preset.Actions, _referenceFields) is { } actionError)
+                return Rejected("preset", actionError);
             cancellationToken.ThrowIfCancellationRequested();
             var resolution = planner.ResolvePresetInstances(pending.Preset.Actions.SelectMany(action => action.Instances ?? []).ToArray(), pending.Choices);
+            if (PresetContractValidation.ValidateResolution(resolution, out var freshResolutionBytes) is { } resolutionError)
+                return Rejected("preset", resolutionError) with { Stale = true };
             if (!resolution.Succeeded) return new SessionEditResult { Errors = ResolutionErrors(resolution), State = StateUnlocked() };
             var fresh = planner.PlanPreset(pending.Preset.Actions, resolution);
             if (fresh.Errors.Count > 0 || !pending.PlanBytes.AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(fresh))
-                || !pending.ResolutionBytes.AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(resolution)))
+                || !pending.ResolutionBytes.AsSpan().SequenceEqual(freshResolutionBytes!))
                 return Rejected("preset", "The preset effects changed. Preview it again.") with { Stale = true };
             cancellationToken.ThrowIfCancellationRequested();
             startApply();
