@@ -39,6 +39,33 @@ public sealed class RegulationTests
         Assert.Throws<SaveFormatException>(() => RegulationDecoder.Inflate(dcx));
     }
 
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    public void DcxRejectsMissingZlibTrailerEvenWhenAllOutputWasProduced(int missingBytes)
+    {
+        var dcx = Dcx("BND4 synthetic payload"u8.ToArray());
+        dcx = dcx[..^missingBytes];
+        // Repair the enclosing length: this exercises zlib completion, not DCX bounds.
+        BinaryPrimitives.WriteUInt32BigEndian(dcx.AsSpan(0x20), (uint)(dcx.Length - RegulationDecoder.DcxHeaderSize));
+        var error = Assert.Throws<SaveFormatException>(() => RegulationDecoder.Inflate(dcx));
+        Assert.Contains("zlib", error.Message);
+    }
+
+    [Fact]
+    public void DcxRejectsAnUnfinishedDeflateBlockAfterProducingTheDeclaredOutput()
+    {
+        var dcx = Dcx("x"u8.ToArray());
+        // Independent zlib stored-block vector for "x", with BFINAL deliberately cleared.
+        // Output and Adler-32 remain correct, but another DEFLATE block is required.
+        byte[] compressed = [0x78, 0x01, 0x00, 0x01, 0x00, 0xFE, 0xFF, 0x78, 0x00, 0x79, 0x00, 0x79];
+        dcx = [.. dcx.AsSpan(0, RegulationDecoder.DcxHeaderSize), .. compressed];
+        BinaryPrimitives.WriteUInt32BigEndian(dcx.AsSpan(0x20), (uint)compressed.Length);
+        Assert.Throws<SaveFormatException>(() => RegulationDecoder.Inflate(dcx));
+    }
+
     [Fact]
     public void BndAndParamDirectories_AcceptDuplicateNumericRowsAndIgnoreStaleLegacyStringWord()
     {
