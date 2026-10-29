@@ -74,7 +74,7 @@ public static class WorkspaceExporter
             foreach (var document in workspace.Documents)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                protectedPaths.Add(document.File.RelativePath);
+                protectedPaths.UnionWith(document.OwnedOutputPaths);
             }
             MirrorBackups(set, overrides, reasons, protectedPaths, groupPaths, cancellationToken);
         }
@@ -110,12 +110,13 @@ public static class WorkspaceExporter
             cancellationToken.ThrowIfCancellationRequested();
             // Group backups are explicit members. Independent open backup sessions also retain ownership.
             if (groupPaths.Contains(path)) continue;
-            if (((ISaveSet)set).FindFile(path) is not DiskSaveFile original || original.Directory.IsBackup)
+            if (((ISaveSet)set).FindAnyFile(path) is not DiskSaveFile original || original.Directory.IsBackup)
             {
                 continue;
             }
 
-            var twin = set.Twin(original.Directory, cancellationToken)?.Files
+            var twinDirectory = set.Twin(original.Directory, cancellationToken);
+            var twin = twinDirectory?.Files.Concat(twinDirectory.SystemFiles)
                 .OfType<DiskSaveFile>()
                 .FirstOrDefault(f =>
                 {

@@ -18,6 +18,7 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
     public bool RejectValidation { get; set; }
     public bool RejectApply { get; set; }
     public bool RejectRestore { get; set; }
+    public bool DeclareSystemOutput { get; set; }
     public FileOutput? AdditionalOutput { get; set; }
     public int? RequiredOutsideBalance { get; set; }
     public int RoleReopens { get; private set; }
@@ -60,7 +61,11 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
     public IGroupedSaveDocument OpenGroup(DocumentGroupInput input, IReferenceContext references)
     {
         LastReferences = references;
-        var document = new GroupDocument(input, () => RejectApply, () => RejectRestore);
+        var system = DeclareSystemOutput
+            ? input.Members[0].File.Directory.FindAnyFile("sce_sys/param.sfo")
+            : null;
+        var document = new GroupDocument(input, () => RejectApply, () => RejectRestore,
+            system?.RelativePath, system?.ReadAllBytes());
         Opened.Add(document);
         return document;
     }

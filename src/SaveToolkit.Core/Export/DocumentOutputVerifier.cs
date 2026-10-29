@@ -11,14 +11,23 @@ internal static class DocumentOutputVerifier
     public static void AddOutputs(Workspace workspace, DocumentSession session, IReadOnlyList<FileOutput> outputs,
         Dictionary<string, ReadOnlyMemory<byte>> overrides, CancellationToken cancellationToken)
     {
+        try { session.CheckOutputFingerprints(cancellationToken); }
+        catch (Exception ex) when (ex is InvalidOperationException or SaveFormatException)
+        {
+            throw new ExportException(ex.Message, ex);
+        }
         var groups = workspace.DocumentGroups;
         foreach (var output in outputs)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (groups.Any(g => g.Session.Id != session.Id && g.Owns(output.RelativePath)))
                 throw new ExportException($"'{output.RelativePath}' is owned by another document group.");
-            if (((ISaveSet)workspace.Set).FindFile(output.RelativePath) is null)
+            var file = ((ISaveSet)workspace.Set).FindAnyFile(output.RelativePath);
+            if (file is null)
                 throw new ExportException($"Plugin '{session.Plugin.Info.Id}' tried to write unknown file '{output.RelativePath}'.");
+            if (file.PathInDirectory.StartsWith("sce_sys/", StringComparison.OrdinalIgnoreCase)
+                && !session.OwnedOutputPaths.Contains(output.RelativePath, StringComparer.OrdinalIgnoreCase))
+                throw new ExportException($"Plugin '{session.Plugin.Info.Id}' tried to write undeclared system file '{output.RelativePath}'.");
             if (!overrides.TryAdd(output.RelativePath, output.Content))
                 throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
         }
@@ -30,7 +39,15 @@ internal static class DocumentOutputVerifier
         cancellationToken.ThrowIfCancellationRequested();
         if (overrides.Count == 0) return;
 
-        var overlay = new OverlaySaveSet(workspace.Set, overrides, cancellationToken);
+        OverlaySaveSet overlay;
+        try
+        {
+            overlay = new OverlaySaveSet(workspace.Set, overrides, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException or ExportException))
+        {
+            throw new ExportException($"Overlay verification failed: {ex.Message}", ex);
+        }
         foreach (var session in sessions)
         {
             cancellationToken.ThrowIfCancellationRequested();

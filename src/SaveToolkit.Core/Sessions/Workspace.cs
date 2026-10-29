@@ -121,10 +121,35 @@ public sealed class Workspace : IDisposable
             // Reference packs are pinned per document: packs imported later only affect documents opened later.
             var references = _packs?.Pin(plugin, file.Directory.TitleId) ?? ReferenceContext.None;
             var document = plugin.Open(file, references);
-            var session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document, references: references);
+            DocumentSession session;
+            try
+            {
+                session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document, references: references);
+                ThrowIfOutputPathOwned(session.OwnedOutputPaths);
+            }
+            catch
+            {
+                document.Dispose();
+                throw;
+            }
             _references[session.Id] = references;
             _documents[session.Id] = session;
             return session;
+        }
+    }
+
+    internal void ThrowIfOutputPathOwned(IReadOnlyList<string> paths, string? releasingDocumentId = null)
+    {
+        foreach (var path in paths)
+        {
+            if (_groups.All.FirstOrDefault(group => group.Owns(path)) is { } owner)
+                throw new InvalidOperationException($"'{path}' is owned by document group '{owner.Session.Id}'. Close that group first.");
+            foreach (var document in _documents.Values)
+            {
+                if (document.Id != releasingDocumentId && document.OwnedOutputPaths.Any(owned =>
+                    string.Equals(owned, path, StringComparison.OrdinalIgnoreCase)))
+                    throw new InvalidOperationException($"'{path}' is already owned by document '{document.Id}'. Close it first.");
+            }
         }
     }
 

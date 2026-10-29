@@ -9,7 +9,8 @@ namespace SaveToolkit.Core.Sessions.Groups;
 /// Runs mutations and restores on independent candidates. The owning DocumentSession serializes calls
 /// and supplies F5 history/F6 plans. A failed plugin call never reaches the published group model.
 /// </summary>
-internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocument, IQueryableDocument
+internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocument, IQueryableDocument,
+    IAdditionalOutputOwner
 {
     private const int MaxRememberedQueries = 256;
     private readonly Func<IGroupedSaveDocument> _open;
@@ -39,6 +40,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
 
     public string Title => _current.Title;
     public bool CanEdit => _current.CanEdit;
+    public IReadOnlyList<string> AdditionalOutputPaths =>
+        _current is IAdditionalOutputOwner owner ? owner.AdditionalOutputPaths : [];
     public ViewNode BuildView() => _current.BuildView();
     public FieldValue GetValue(string valueId) => _current.GetValue(valueId);
     public AssetContent? GetAsset(string assetId) => _current.GetAsset(assetId);

@@ -67,6 +67,7 @@ public sealed partial class DocumentSession : IDisposable
         _history = new EditHistory(limits);
         _referenceFields = new ReferenceFieldService(referenceContext);
         _semantic = new SemanticReview(limits);
+        OutputOwnership = new OutputOwnershipBinding(file, document);
         // The original is re-opened with the same pinned reference packs so its field identities match the live document.
         _openOriginal = openOriginal ?? (() => plugin.Open(file, referenceContext));
     }
@@ -78,6 +79,12 @@ public sealed partial class DocumentSession : IDisposable
     public bool CanEdit => Locked(() => Document.CanEdit);
 
     private ISaveDocument Document { get; }
+    private OutputOwnershipBinding OutputOwnership { get; }
+
+    /// <summary>Full save-set paths reserved by this document, including exact declared system files.</summary>
+    internal IReadOnlyList<string> OwnedOutputPaths => OutputOwnership.OwnedPaths;
+    internal IReadOnlyList<string> DeclaredOutputPaths => OutputOwnership.DeclaredPaths;
+    internal void CheckOutputFingerprints(CancellationToken cancellationToken) => OutputOwnership.Check(cancellationToken);
 
     public DocumentState State => Locked(StateUnlocked);
 

@@ -98,6 +98,7 @@ internal sealed class DocumentGroupRegistry(Workspace workspace, PluginCatalog c
             var group = new DocumentGroupSession(id, offer.Title, workspace.Set, plugin, offer.Members, Pin(plugin, first), options);
             try
             {
+                workspace.ThrowIfOutputPathOwned(group.OwnedOutputPaths, releaseCleanDocumentId);
                 if (releaseCleanDocumentId is not null && !workspace.ReleaseCleanDocument(releaseCleanDocumentId))
                     throw new InvalidOperationException("The member acquired unsaved edits while opening the group. No group was opened.");
                 _groups.Add(id, group);

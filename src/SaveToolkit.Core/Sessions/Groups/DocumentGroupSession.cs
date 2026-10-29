@@ -15,6 +15,8 @@ public sealed class DocumentGroupSession
     private readonly IGamePlugin _plugin;
     private readonly IDocumentGroupPlugin _groupPlugin;
     private readonly ReferenceContext _references;
+    private DocumentSession? _session;
+    private IReadOnlyList<string> _declaredOutputPaths = [];
 
     internal DocumentGroupSession(string id, string title, DiskSaveSet set, IGamePlugin plugin,
         IReadOnlyList<GroupMemberInfo> members, ReferenceContext references, DocumentSessionOptions? options = null)
@@ -38,17 +40,24 @@ public sealed class DocumentGroupSession
                 throw new InvalidOperationException("A group input changed while it was being captured. Reimport the dump.");
         var input = Input(new OverlaySaveSet(set, frozen));
         IGroupedSaveDocument Open() => _groupPlugin.OpenGroup(input, references);
+        using (var declarationProbe = Open())
+            _declaredOutputPaths = OutputOwnershipPolicy.Resolve(set.FindById(members[0].FileId)!, declarationProbe);
         var staged = new StagedGroupDocument(Open, Verify, token => CheckFingerprints(token), limits.MaxSnapshotBytes);
         Session = new DocumentSession(id, set.FindById(members[0].FileId)!, plugin, staged,
             options: limits, openOriginal: Open, references: references);
+        _session = Session;
+        CheckFingerprints();
     }
 
     public string Title { get; }
     public IReadOnlyList<GroupMemberInfo> Members { get; }
     public DocumentSession Session { get; }
     internal ReferenceContext References => _references;
+    internal IReadOnlyList<string> OwnedOutputPaths =>
+        [.. Members.Select(member => member.RelativePath), .. _declaredOutputPaths];
 
-    public bool Owns(string relativePath) => Members.Any(m => string.Equals(m.RelativePath, relativePath, StringComparison.OrdinalIgnoreCase));
+    public bool Owns(string relativePath) => OwnedOutputPaths.Any(path =>
+        string.Equals(path, relativePath, StringComparison.OrdinalIgnoreCase));
 
     public void CheckFingerprints() => CheckFingerprints(CancellationToken.None);
 
@@ -63,6 +72,7 @@ public sealed class DocumentGroupSession
             if (!string.Equals(actual, member.Sha256, StringComparison.Ordinal))
                 throw new InvalidOperationException($"Group input '{member.RelativePath}' changed since selection. Close and reimport the dump.");
         }
+        _session?.CheckOutputFingerprints(cancellationToken);
     }
 
     /// <summary>Validate all outputs together, then reopen each in its own file role.</summary>
@@ -80,8 +90,10 @@ public sealed class DocumentGroupSession
     internal void VerifyOutputs(IReadOnlyDictionary<string, ReadOnlyMemory<byte>> outputs, ISaveSet? finalSet, CancellationToken cancellationToken)
     {
         CheckFingerprints(cancellationToken);
-        if (outputs.Count != Members.Count || outputs.Keys.Any(path => !Owns(path)))
-            throw new SaveFormatException("A document group must serialize every owned member exactly once and cannot write unowned files.");
+        var expected = OwnedOutputPaths;
+        if (outputs.Count != expected.Count || outputs.Keys.Any(path => !Owns(path))
+            || expected.Any(path => !outputs.ContainsKey(path)))
+            throw new SaveFormatException("A document group must serialize every owned output exactly once and cannot write unowned files.");
         var overlay = new OverlaySaveSet(finalSet ?? _set, outputs, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
         var errors = _groupPlugin.ValidateGroup(Input(overlay), _references);
