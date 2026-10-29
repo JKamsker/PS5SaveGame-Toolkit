@@ -14,18 +14,20 @@ internal sealed record GvasPropertyEntry(string Id, string Path, GvasNode Node, 
     public string Evidence => EvidenceOverride ?? (Node.Type == "ObservedFString" ? "Unknown schema; observed string"
         : Node.Scalar is null && Node.Children.Count == 0 ? "Opaque / empty" : "Verified storage; game effects Unknown");
 
-    public static IReadOnlyList<GvasPropertyEntry> Create(IReadOnlyList<GvasNode> roots, string prefix)
+    public static IReadOnlyList<GvasPropertyEntry> Create(IReadOnlyList<GvasNode> roots, string prefix, int limit = int.MaxValue)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(limit);
         var result = new List<GvasPropertyEntry>();
         void Visit(IReadOnlyList<GvasNode> nodes, string parentId, string path, IReadOnlyList<string> ancestors)
         {
-            for (var i = 0; i < nodes.Count; i++)
+            for (var i = 0; i < nodes.Count && result.Count < limit; i++)
             {
                 var node = nodes[i];
                 var id = $"{parentId}/{i}";
                 var label = Clip(path + "/" + Clip(node.Name, 128), 2048);
                 result.Add(new(id, label, node, ancestors));
-                Visit(node.Children, id, label, [.. ancestors, node.Name]);
+                if (node.Children.Count > 0 && result.Count < limit)
+                    Visit(node.Children, id, label, [.. ancestors, node.Name]);
             }
         }
         Visit(roots, prefix, "", []);
