@@ -71,6 +71,11 @@ draft and show a disabled **Refreshing document…** control. A successful insta
 enables a fresh preview; failed or cancelled reads retain the reachable retry path.
 Read-only documents can preview but cannot apply.
 
+An unspecified or explicit-null capacity is omitted when writing SDK JSON, including
+with the default serializer outside the HTTP host. This preserves existing descriptor
+JSON and historical view fingerprints. Supplied capacities, including zero, are
+serialized; explicit-null input remains accepted as the legacy unconstrained state.
+
 The initial delivery changes no plugin. Consumer adoption must publish a proven
 UTF-8 capacity and retain format-specific checks. SDK-10's metadata ownership and
 caption writer remain separate work.
@@ -80,7 +85,8 @@ Implementation: [TextSpec](../src/SaveToolkit.Sdk/Values/FieldSpec.cs),
 [byte counting](../web/src/lib/textCapacity.ts), and
 [planned actions](../web/src/components/document/review/usePlannedAction.ts).
 
-Primary references: [.NET UTF8Encoding constructor and strict fallback](https://learn.microsoft.com/dotnet/api/system.text.utf8encoding.-ctor),
+Primary references: [.NET optional property omission](https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/ignore-properties#ignore-individual-properties),
+[.NET UTF8Encoding constructor and strict fallback](https://learn.microsoft.com/dotnet/api/system.text.utf8encoding.-ctor),
 [WHATWG TextEncoder algorithm](https://encoding.spec.whatwg.org/#interface-textencoder),
 and [Web IDL USVString conversion](https://webidl.spec.whatwg.org/#es-USVString).
 TextEncoder uses UTF-8 but converts lone surrogates to replacement characters;

@@ -124,6 +124,7 @@ public sealed record TextSpec : FieldSpec
     /// zero accepts only empty text. When present, edits must contain valid Unicode scalar sequences.
     /// No normalization, replacement, or truncation is performed. Independent of <see cref="MaxLength"/>.
     /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? MaxUtf8Bytes { get; init; }
 
     /// <summary>Allows carriage returns and line feeds; false requires a single line.</summary>
