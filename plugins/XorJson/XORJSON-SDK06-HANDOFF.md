@@ -67,7 +67,7 @@ so a fresh group candidate cannot alias the original document or node state.
 - Branch base before dependency merge: `e76e51035fec308a56e5c26b5d97a9c08089f881`
 - Consumer head before R1 fixes: `8d7c4c17691b1de27e37922bfda3d7cb67177645`
 - Consumer follow-up head: `ab568661cc1a2945ad209c1091e98aa5fcfb41e9` (`fix(xorjson): close SDK06 scalar and snapshot gaps`)
-- R2 implementation head: `3e6c25e718fc143bce2ee4bf71693eccf01465b4` (`fix(xorjson): preflight scalar budgets and share memento sources`)
+- R2 implementation heads: `3e6c25e718fc143bce2ee4bf71693eccf01465b4` (`fix(xorjson): preflight scalar budgets and share memento sources`) and `016fedaea5083aceabae8b967df49f72b4d79ace` (`refactor(xorjson): stream scalar lexeme materialization`).
 - Consumer PR base remains `t3/sdk06-lossless-json` / reviewed SDK head above;
   parent may retarget PR61 to `main` without rewriting this branch.
 
