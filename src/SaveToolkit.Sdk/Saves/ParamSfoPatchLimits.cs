@@ -15,7 +15,7 @@ public sealed record ParamSfoPatchLimits
     /// <summary>Maximum key bytes before the NUL terminator.</summary>
     public int MaxKeyBytes { get; }
 
-    /// <summary>Maximum encoded bytes accepted for a replacement value.</summary>
+    /// <summary>Maximum encoded replacement bytes including the required NUL terminator.</summary>
     public int MaxEncodedValueBytes { get; }
 
     /// <summary>Creates finite parser and writer limits.</summary>

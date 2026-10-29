@@ -43,6 +43,7 @@ public sealed class ParamSfoMalformedStressTests
     {
         Assert.Equal(2, ParamSfoDocument.Parse(BuildSlots([0, 4], 4)).Entries.Count);
         Assert.Equal(2, ParamSfoDocument.Parse(BuildSlots([0, 0], 0)).Entries.Count);
+        Assert.Equal(3, ParamSfoDocument.Parse(BuildSlots([0, 2, 4], [4, 0, 4])).Entries.Count);
 
         var error = Assert.Throws<ParamSfoPatchException>(() => ParamSfoDocument.Parse(BuildSlots([0, 1], 4)));
 
@@ -79,16 +80,21 @@ public sealed class ParamSfoMalformedStressTests
 
     private static byte[] BuildSlots(int[] offsets, int maximumLength)
     {
+        return BuildSlots(offsets, Enumerable.Repeat(maximumLength, offsets.Length).ToArray());
+    }
+
+    private static byte[] BuildSlots(int[] offsets, int[] maximumLengths)
+    {
         var keyTable = Align(HeaderSize + offsets.Length * IndexSize);
         var dataTable = Align(keyTable + offsets.Length * 2);
-        var dataLength = offsets.Length == 0 ? 0 : offsets.Max() + maximumLength;
+        var dataLength = offsets.Length == 0 ? 0 : offsets.Zip(maximumLengths).Max(pair => pair.First + pair.Second);
         var bytes = new byte[dataTable + dataLength];
         WriteHeader(bytes, keyTable, dataTable, offsets.Length);
         for (var index = 0; index < offsets.Length; index++)
         {
             var key = new[] { (byte)('A' + index), (byte)0 };
             key.CopyTo(bytes, keyTable + index * 2);
-            WriteEntry(bytes, index, index * 2, Opaque, 0, maximumLength, offsets[index]);
+            WriteEntry(bytes, index, index * 2, Opaque, 0, maximumLengths[index], offsets[index]);
         }
         return bytes;
     }

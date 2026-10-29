@@ -88,9 +88,19 @@ public sealed class ParamSfoPatchTests
         Assert.Throws<ParamSfoPatchException>(() => document.PlanExistingUtf8("TITLE", "abcd"));
         Assert.Throws<ParamSfoPatchException>(() => document.PlanExistingUtf8("TITLE", "\uD800"));
 
-        var boundary = ParamSfoDocument.Parse(Build(new Entry("TITLE", Utf8, "old", 5)),
-            new ParamSfoPatchLimits(4096, 128, 32, 4));
-        Assert.Equal("éé", boundary.PlanExistingUtf8("TITLE", "éé").NewText);
+        var empty = ParamSfoDocument.Parse(source, new ParamSfoPatchLimits(4096, 128, 32, 1));
+        Assert.Equal("", empty.PlanExistingUtf8("TITLE", "").NewText);
+        var below = ParamSfoDocument.Parse(source, new ParamSfoPatchLimits(4096, 128, 32, 1));
+        Assert.Throws<ParamSfoPatchException>(() => below.PlanExistingUtf8("TITLE", "a"));
+        var exact = ParamSfoDocument.Parse(source, new ParamSfoPatchLimits(4096, 128, 32, 2));
+        var exactPlan = exact.PlanExistingUtf8("TITLE", "a");
+        Assert.Equal("a", exactPlan.NewText);
+        Assert.Equal("a\0", Encoding.UTF8.GetString(exact.Apply(exactPlan).ToArray(), DataStart(source, exact.Entries[0]), 2));
+        var forgedAbove = exactPlan with { NewText = "ab" };
+        Assert.Throws<ParamSfoPatchException>(() => exact.Apply(forgedAbove));
+        var multibyteExact = ParamSfoDocument.Parse(source, new ParamSfoPatchLimits(4096, 128, 32, 3));
+        Assert.Equal("é", multibyteExact.PlanExistingUtf8("TITLE", "é").NewText);
+        Assert.Throws<ParamSfoPatchException>(() => exact.PlanExistingUtf8("TITLE", "é"));
     }
 
     [Fact]
@@ -159,6 +169,31 @@ public sealed class ParamSfoPatchTests
 
         Assert.Throws<ParamSfoPatchException>(() => staleDocument.Apply(plan));
         Assert.Throws<ParamSfoPatchException>(() => document.Apply(forged));
+        Assert.Equal(source, document.OriginalBytes.ToArray());
+    }
+
+    [Fact]
+    public void EntriesAreReadOnlyAndForeignOrWrongIndexPlansCannotCrossDocuments()
+    {
+        var source = Build(new Entry("TITLE", Utf8, "old", 8), new Entry("OTHER", Utf8Special, "keep", 8));
+        var foreignBytes = source.ToArray();
+        var dataTable = BinaryPrimitives.ReadInt32LittleEndian(foreignBytes.AsSpan(12));
+        foreignBytes[dataTable + 6] ^= 0x01;
+        var document = ParamSfoDocument.Parse(source, Limits);
+        var foreignDocument = ParamSfoDocument.Parse(foreignBytes, Limits);
+        var foreignEntry = foreignDocument.Entries[0];
+
+        Assert.False(document.Entries is ParamSfoEntry[]);
+        var mutableView = Assert.IsAssignableFrom<IList<ParamSfoEntry>>(document.Entries);
+        Assert.Throws<NotSupportedException>(() => mutableView[0] = foreignEntry);
+
+        var foreignPlan = foreignDocument.PlanExistingUtf8("TITLE", "new") with
+        {
+            OriginalFileSha256 = document.OriginalFileSha256
+        };
+        Assert.Throws<ParamSfoPatchException>(() => document.Apply(foreignPlan));
+        var wrongIndex = document.PlanExistingUtf8("TITLE", "new") with { EntryIndex = 1 };
+        Assert.Throws<ParamSfoPatchException>(() => document.Apply(wrongIndex));
         Assert.Equal(source, document.OriginalBytes.ToArray());
     }
 

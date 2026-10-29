@@ -25,7 +25,12 @@ ReadOnlyMemory<byte> patched = document.Apply(plan);
 
 `ParamSfoPatchLimits` requires finite positive limits for the complete file,
 reserved slot, key bytes, and replacement encoded bytes. The default is 1 MiB per
-file, 64 KiB per reserved slot, 1 KiB per key, and 4 KiB per replacement value.
+file, 64 KiB per reserved slot, 1 KiB per key, and 4 KiB per replacement value
+including its required NUL terminator. `MaxEncodedValueBytes` is therefore a
+terminator-inclusive helper limit. It is distinct from a generic
+`TextSpec.MaxUtf8Bytes` logical payload hint: when a consumer uses this helper,
+the logical hint must fit `min(entry capacity, MaxEncodedValueBytes) - 1` because
+one byte is reserved for the terminator.
 The replacement must be strict UTF-8, contain no embedded NUL, include its NUL
 terminator within the entry's reserved capacity, and remain within the configured
 encoded-byte limit. Empty text is represented by a one-byte terminator.

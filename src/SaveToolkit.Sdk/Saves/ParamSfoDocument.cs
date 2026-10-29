@@ -17,12 +17,14 @@ public sealed class ParamSfoDocument
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     private readonly byte[] _bytes;
     private readonly ParamSfoPatchLimits _limits;
+    private readonly ParamSfoEntry[] _entries;
 
     private ParamSfoDocument(byte[] bytes, ParamSfoPatchLimits limits, IReadOnlyList<ParamSfoEntry> entries)
     {
         _bytes = bytes;
         _limits = limits;
-        Entries = entries.ToArray();
+        _entries = entries.ToArray();
+        Entries = Array.AsReadOnly(_entries);
         OriginalFileSha256 = Convert.ToHexStringLower(SHA256.HashData(bytes));
     }
 
@@ -126,7 +128,7 @@ public sealed class ParamSfoDocument
         if (newText.Contains('\0', StringComparison.Ordinal))
             throw Error($"Replacement for '{key}' contains an embedded NUL.");
 
-        var entry = Entries.FirstOrDefault(candidate => string.Equals(candidate.Key, key, StringComparison.Ordinal));
+        var entry = _entries.FirstOrDefault(candidate => string.Equals(candidate.Key, key, StringComparison.Ordinal));
         if (entry is null) throw Error($"SFO key '{key}' does not exist.");
         if (entry.Format is not (FormatUtf8 or FormatUtf8Special))
             throw Error($"SFO key '{key}' has unsupported format 0x{entry.Format:X4}.");
@@ -141,10 +143,7 @@ public sealed class ParamSfoDocument
         {
             throw Error($"Replacement for '{key}' is not valid UTF-8: {exception.Message}");
         }
-        if (encoded.Length > _limits.MaxEncodedValueBytes)
-            throw Error($"Replacement for '{key}' exceeds MaxEncodedValueBytes {_limits.MaxEncodedValueBytes}.");
-        if (encoded.Length > entry.MaximumLength - 1)
-            throw Error($"Replacement for '{key}' needs {encoded.Length + 1} bytes including its terminator, but only {entry.MaximumLength} are reserved.");
+        ValidateReplacementLength(key, encoded.Length, entry.MaximumLength);
 
         return new ParamSfoPatchPlan(
             key, entry.Format, entry.Index, entry.DataOffset, entry.Length, entry.MaximumLength,
@@ -157,10 +156,11 @@ public sealed class ParamSfoDocument
         ArgumentNullException.ThrowIfNull(plan);
         if (!string.Equals(plan.OriginalFileSha256, OriginalFileSha256, StringComparison.OrdinalIgnoreCase))
             throw Error("The patch plan does not match this SFO source fingerprint.");
-        if (plan.EntryIndex < 0 || plan.EntryIndex >= Entries.Count)
+        if (plan.EntryIndex < 0 || plan.EntryIndex >= _entries.Length)
             throw Error("The patch plan entry index is outside this SFO document.");
-        var entry = Entries[plan.EntryIndex];
+        var entry = _entries[plan.EntryIndex];
         if (!string.Equals(plan.Key, entry.Key, StringComparison.Ordinal)
+            || plan.EntryIndex != entry.Index
             || plan.Format != entry.Format
             || plan.DataOffset != entry.DataOffset
             || plan.OriginalLength != entry.Length
@@ -179,8 +179,7 @@ public sealed class ParamSfoDocument
         byte[] encoded;
         try { encoded = StrictUtf8.GetBytes(plan.NewText); }
         catch (EncoderFallbackException exception) { throw Error($"Patch plan replacement is not valid UTF-8: {exception.Message}"); }
-        if (encoded.Length > _limits.MaxEncodedValueBytes || encoded.Length > entry.MaximumLength - 1)
-            throw Error("The patch plan replacement exceeds its finite SFO limits.");
+        ValidateReplacementLength(entry.Key, encoded.Length, entry.MaximumLength);
         if (plan.IsNoOp) return _bytes.ToArray();
 
         var output = _bytes.ToArray();
@@ -246,6 +245,7 @@ public sealed class ParamSfoDocument
         var maximumIndex = -1;
         foreach (var range in ranges)
         {
+            if (range.Start == range.End) continue;
             if (range.Start < maximumEnd)
                 throw Error($"SFO {rangeName} ranges for entries {maximumIndex} and {range.Index} overlap.");
             if (range.End > maximumEnd)
@@ -254,6 +254,14 @@ public sealed class ParamSfoDocument
                 maximumIndex = range.Index;
             }
         }
+    }
+
+    private void ValidateReplacementLength(string key, int payloadLength, int maximumLength)
+    {
+        if (payloadLength > _limits.MaxEncodedValueBytes - 1)
+            throw Error($"Replacement for '{key}' including its terminator exceeds MaxEncodedValueBytes {_limits.MaxEncodedValueBytes}.");
+        if (payloadLength > maximumLength - 1)
+            throw Error($"Replacement for '{key}' including its terminator exceeds the {maximumLength}-byte reserved slot.");
     }
 
     private static ParamSfoPatchException Error(string message) => new(message);
