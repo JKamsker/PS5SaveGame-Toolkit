@@ -349,3 +349,18 @@ gate the enabled bounded writes. Only the owner may approve Stable.
 
 None blocking. F1/F2/F8 support the model and evidence, and F6 supports planned restoration.
 F5/F7 are available but no safe structural or linked multi-file writer is established for this format.
+
+## SDK helper migration (#40)
+
+`RagnarokIntegrity` uses `SaveToolkit.Sdk.Binary.Crc32Ieee.Compute` for its read-only IEEE CRC probes.
+Coverage, folding policy, aligned little-endian comparisons and EOF-sentinel exclusion remain local.
+Characterization tests pin the previous vectors and probe ordering. CRC observations retain their
+existing evidence-only meaning, confidence labels and warnings. The separate CRC32C research stays local.
+The [zlib CRC-32 source](https://github.com/madler/zlib/blob/v1.3.1/crc32.c) was consulted for IEEE
+parameter context; this migration uses the existing SDK implementation and imports no external code.
+
+Binary readers remain local: `RagnarokFormat` performs absolute-offset reads after layout validation,
+and `RagnarokNestedRecords` uses unsigned bounded counts and format-specific enclosing-range checks.
+`BoundedBinaryCursor` would change their diagnostics or require retaining those same checks as adapters.
+Legacy wallet characterization tests assert the exact count/range exception messages and lossless
+serialization when auxiliary arrays end immediately before the sentinel.

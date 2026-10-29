@@ -20,7 +20,7 @@ public sealed class RagnarokLegacyCorruptionTests
     {
         var bytes = RagnarokFormatTests.SyntheticGameplay();
         Write(bytes, offset, count);
-        AssertRejected(bytes);
+        AssertRejected(bytes, "Nested Ragnarök count exceeds the supported bound.");
     }
 
     [Theory]
@@ -63,10 +63,11 @@ public sealed class RagnarokLegacyCorruptionTests
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
-    private static void AssertRejected(byte[] bytes)
+    private static void AssertRejected(byte[] bytes,
+        string message = "Nested Ragnarök record crosses its enclosing byte range.")
     {
         var error = Assert.Throws<SaveFormatException>(() => new GodOfWarRagnarokPlugin().Open(File(bytes)));
-        Assert.Contains("Nested Ragnarök", error.Message);
+        Assert.Equal(message, error.Message);
     }
 
     private static SaveToolkit.Sdk.Saves.ISaveFile File(byte[] bytes) =>
