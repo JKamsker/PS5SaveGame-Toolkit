@@ -107,7 +107,8 @@ are additional). All commands below run from the repository root in PowerShell 7
 
 ## Disk and scratch
 
-The backend runner builds a temporary solution containing the API and selected tests once, then
+The backend runner builds a temporary solution containing the API, every non-test project (so no
+project reference falls back to MSBuild's Debug default) and the selected tests once, then
 reuses the prebuilt outputs (`--no-build`). Test projects run in bounded batches of two by default; use
 `-MaxParallel 1` for serial execution or choose a value from 1 to 32 for the available CPU/RAM.
 Each worker is a separate process with its own sample/temp scratch folder. Parallel workers divide
