@@ -92,6 +92,7 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
                   <FieldControl
                     id={`${idPrefix}-${p.valueId}`}
                     labelledBy={`${idPrefix}-${p.valueId}-label`}
+                    describedBy={[errors[p.valueId] && `${idPrefix}-${p.valueId}-error`, p.description && `${idPrefix}-${p.valueId}-description`].filter(Boolean).join(" ") || undefined}
                     valueId={p.valueId}
                     actionId={node.actionId}
                     spec={p.spec}
@@ -103,8 +104,8 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
                       return true;
                     }}
                   />
-                  {errors[p.valueId] && <span className="field__error" role="alert">{errors[p.valueId]}</span>}
-                  {p.description && <span className="field__description">{p.description}</span>}
+                  {errors[p.valueId] && <span id={`${idPrefix}-${p.valueId}-error`} className="field__error" role="alert">{errors[p.valueId]}</span>}
+                  {p.description && <span id={`${idPrefix}-${p.valueId}-description`} className="field__description">{p.description}</span>}
                 </div>
               ))}
               {errors[node.actionId] && <p className="notice notice--Danger">{errors[node.actionId]}</p>}

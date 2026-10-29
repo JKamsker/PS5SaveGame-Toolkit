@@ -8,7 +8,7 @@ import { ReferencePicker } from "./ReferencePicker";
 import "../../../styles/reference-picker.css";
 
 export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpec }) {
-  const { id, valueId, actionId, value, spec, disabled, labelledBy, compact } = props;
+  const { id, valueId, actionId, value, spec, disabled, labelledBy, describedBy, compact } = props;
   const { workspaceId, documentId, store, structureVersion, refresh } = useDocument();
   const rawId = String(value ?? "");
   const [current, setCurrent] = useState<ReferenceCandidate>();
@@ -36,7 +36,7 @@ export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpe
   const close = () => setOpen(false);
   return <>
     <button ref={trigger} id={id} type="button" className={`input reference-trigger${compact ? " input--compact" : ""}`}
-      aria-labelledby={labelledBy} aria-haspopup="dialog" disabled={!valueId} onClick={() => setOpen(true)}
+      aria-labelledby={labelledBy} aria-describedby={describedBy} aria-haspopup="dialog" disabled={!valueId} onClick={() => setOpen(true)}
       title={`${current?.label ?? "Unknown ID"} (${rawId})`}>
       {current?.label ? `${current.label} (${rawId})` : rawId || "Choose an item…"}
     </button>

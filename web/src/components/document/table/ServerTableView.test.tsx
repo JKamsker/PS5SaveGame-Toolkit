@@ -33,7 +33,7 @@ describe("server table request lifecycle", () => {
     const { client } = setup();
     const toggle = await screen.findByRole("button", { name: "Details for 2" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.queryByText("Changing this count is unverified in-game.")).toBeNull();
+    expect(screen.queryByRole("textbox", { name: "Potion quantity" })).toBeNull();
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     const detailId = toggle.getAttribute("aria-controls")!;

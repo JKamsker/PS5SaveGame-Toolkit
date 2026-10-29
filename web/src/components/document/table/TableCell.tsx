@@ -131,13 +131,14 @@ function FieldCell({ node, rowLabel, onOpenDetails }: { node: FieldNode; rowLabe
   const labelId = useId();
   const shownError = localError ?? error;
   const name = rowLabel && rowLabel !== node.label ? `${node.label} (${rowLabel})` : node.label;
+  const description = [node.warning, node.description, shownError].filter(Boolean).join(". ");
   const editable = canEdit && !node.spec.readOnly;
   const classes = `${modified ? " table__cell--modified" : ""}${shownError ? " table__cell--error" : ""}`;
 
   let control: ReactNode;
   if (!needsDetailsEditor(node)) {
     control = (
-      <FieldControl id={`${labelId}-control`} valueId={node.valueId} labelledBy={labelId} spec={node.spec} value={value} disabled={!canEdit} compact onCommit={commit} onLocalError={setLocalError} />
+      <FieldControl id={`${labelId}-control`} valueId={node.valueId} labelledBy={labelId} describedBy={description ? `${labelId}-description` : undefined} spec={node.spec} value={value} disabled={!canEdit} compact onCommit={commit} onLocalError={setLocalError} />
     );
   } else {
     const summary = fieldSummary(node.spec, value);
@@ -158,6 +159,7 @@ function FieldCell({ node, rowLabel, onOpenDetails }: { node: FieldNode; rowLabe
         {name}
       </span>
       <span className="cell-value">{control}</span>
+      {description && <span id={`${labelId}-description`} className="visually-hidden">{description}</span>}
       <CellBadges confidence={node.confidence} description={node.description} warning={node.warning} error={shownError} />
     </Cell>
   );

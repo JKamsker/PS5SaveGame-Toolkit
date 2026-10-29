@@ -32,6 +32,7 @@ describe.each([false, true])("action parameter validation (planned: %s)", planne
     fireEvent.change(input, { target: { value: "99" } });
     fireEvent.blur(input);
     expect(screen.getByRole("alert").textContent).toBeTruthy();
+    expect(screen.getByRole("textbox", { description: new RegExp(screen.getByRole("alert").textContent!) })).toBe(input);
     expect(submit.disabled).toBe(true);
     // A form submission must also respect validation, independently of its disabled button.
     fireEvent.submit(submit.closest("form")!);

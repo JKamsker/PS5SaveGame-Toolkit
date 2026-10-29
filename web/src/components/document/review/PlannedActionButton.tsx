@@ -104,6 +104,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
                 <FieldControl
                   id={`${id}-${p.valueId}`}
                   labelledBy={`${id}-${p.valueId}-label`}
+                  describedBy={[parameterErrors[p.valueId] && `${id}-${p.valueId}-error`, p.description && `${id}-${p.valueId}-description`].filter(Boolean).join(" ") || undefined}
                   valueId={p.valueId}
                   actionId={node.actionId}
                   spec={p.spec}
@@ -115,8 +116,8 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
                     return true;
                   }}
                 />
-                {parameterErrors[p.valueId] && <span className="field__error" role="alert">{parameterErrors[p.valueId]}</span>}
-                {p.description && <span className="field__description">{p.description}</span>}
+                {parameterErrors[p.valueId] && <span id={`${id}-${p.valueId}-error`} className="field__error" role="alert">{parameterErrors[p.valueId]}</span>}
+                {p.description && <span id={`${id}-${p.valueId}-description`} className="field__description">{p.description}</span>}
               </div>
             );
           })}
