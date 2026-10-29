@@ -19,5 +19,7 @@ were cross-checks, not redistributed data. Retrieved response hashes are
 
 The crosswalks remain **Inferred** and do not establish PS5 identity or gameplay
 semantics. Aselia labels and descriptions retain their separate CC BY-SA 3.0
-attribution. GPL code, proprietary tools, patches, screenshots, icons and other
-game assets remain excluded.
+attribution. This crosswalk import does not copy converter or Cheat Engine implementations,
+proprietary tools or patch instructions. Publisher icons, descriptions and map artwork
+were subsequently imported under owner decision 2026-10-29; their separate terms and
+provenance are recorded in [the publisher-media sidecar](../ReferencePacks/talesofarise.catalog/assets.source.md).
