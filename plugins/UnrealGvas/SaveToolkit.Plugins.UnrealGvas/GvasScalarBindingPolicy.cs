@@ -1,5 +1,7 @@
 using SaveToolkit.Plugins.UnrealGvas.Gvas;
+using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.UnrealGvas;
 
@@ -24,5 +26,20 @@ internal static class GvasScalarBindingPolicy
             () => GvasScalarField.ToFieldValue(scalar),
             writable ? value => GvasScalarField.SetScalar(scalar, value) : null,
             value => GvasScalarField.Validate(scalar, value));
+    }
+
+    public static FieldPresentation Presentation(GvasNode node, UnrealGvasSchema schema,
+        string? integrityWarning, string? readOnlyReason, string editWarning)
+    {
+        var actorLength = schema.Kind == UnrealGvasSchemaKind.JediGameplay && node.Name == "UncompressedActorRecordsSize";
+        return new FieldPresentation
+        {
+            Confidence = integrityWarning is null ? Confidence.Verified : Confidence.Inferred,
+            Description = integrityWarning is null
+                ? "Raw serialized property; the name and storage type are confirmed by its tag."
+                : "Existing serialized field observed in supplied title captures; gameplay meaning and integrity coverage remain unproven.",
+            Warning = actorLength ? "Read-only length of the preserved compressed actor stream. " + integrityWarning
+                : readOnlyReason ?? integrityWarning ?? editWarning,
+        };
     }
 }

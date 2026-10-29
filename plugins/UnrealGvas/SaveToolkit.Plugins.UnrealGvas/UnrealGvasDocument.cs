@@ -63,7 +63,8 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument, IFieldMetadataDocu
         {
             if (!_nodes.TryGetValue(valueId, out var node) || node.Scalar is null) continue;
             var binding = ScalarBinding(node);
-            RegisterField(new FieldMetadata(valueId, FieldLabel(node), binding.Spec),
+            RegisterField(new FieldMetadata(valueId, FieldLabel(node), binding.Spec)
+                { Presentation = CanonicalPresentation(node) },
                 binding.Get, binding.Set, binding.Validate);
         }
 
@@ -170,7 +171,9 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument, IFieldMetadataDocu
     {
         var rows = nodes.Skip(start).Take(PageSize).Select(node => new TableRow(_ids[node], new Dictionary<string, ViewNode>
         {
-            ["name"] = new TextNode(node.Name), ["type"] = new TextNode(node.Type), ["value"] = Bind(node),
+            ["name"] = new TextNode(node.Name), ["type"] = new TextNode(node.Type),
+            ["value"] = _schema.Kind == UnrealGvasSchemaKind.Generic
+                ? Bind(node) : GvasFieldReferenceFactory.Value(_ids[node], node),
         })).ToArray();
         var result = new List<ViewNode> { new TableNode([new("name", "Property"), new("type", "Type"), new("value", "Value")], rows) };
         if (start + PageSize < nodes.Count)
@@ -181,17 +184,17 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument, IFieldMetadataDocu
     private FieldNode Bind(GvasNode node)
     {
         var binding = ScalarBinding(node);
-        var actorLength = IsActorLength(node);
+        var presentation = CanonicalPresentation(node);
         return Field(_ids[node], FieldLabel(node), binding.Spec, binding.Get, binding.Set, binding.Validate) with
         {
-            Confidence = _integrityWarning is null ? Confidence.Verified : Confidence.Inferred,
-            Description = _integrityWarning is null
-                ? "Raw serialized property; the name and storage type are confirmed by its tag."
-                : "Existing serialized field observed in supplied title captures; gameplay meaning and integrity coverage remain unproven.",
-            Warning = actorLength ? "Read-only length of the preserved compressed actor stream. " + _integrityWarning
-                : _readOnlyReason ?? _integrityWarning ?? EditWarning,
+            Confidence = presentation.Confidence,
+            Description = presentation.Description,
+            Warning = presentation.Warning,
         };
     }
+
+    private FieldPresentation CanonicalPresentation(GvasNode node) =>
+        GvasScalarBindingPolicy.Presentation(node, _schema, _integrityWarning, _readOnlyReason, EditWarning);
 
     private GvasScalarBinding ScalarBinding(GvasNode node) =>
         GvasScalarBindingPolicy.Create(node, CanEdit, IsIntegrityNode(node), IsActorLength(node));
