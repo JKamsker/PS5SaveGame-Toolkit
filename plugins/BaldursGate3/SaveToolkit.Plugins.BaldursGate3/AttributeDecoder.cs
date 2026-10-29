@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Globalization;
+using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.BaldursGate3;
@@ -20,7 +21,8 @@ internal static class AttributeDecoder
 
         var data = attribute.Data.Span;
         var size = FixedSize(attribute.Type);
-        BinaryData.Require(size < 0 || data.Length == size, $"Invalid size for LSOF {attribute.Type} attribute.");
+        if (size >= 0 && data.Length != size)
+            throw new SaveFormatException($"Invalid size for LSOF {attribute.Type} attribute.");
         if (IsString(attribute.Type))
         {
             ValidateString(data);
@@ -117,7 +119,8 @@ internal static class AttributeDecoder
 
     private static void ValidateTranslated(ReadOnlySpan<byte> bytes, ref int position, bool formatted, int depth)
     {
-        BinaryData.Require(depth < MaxTranslationDepth, $"LSOF translated string nesting exceeds {MaxTranslationDepth} levels.");
+        if (depth >= MaxTranslationDepth)
+            throw new SaveFormatException($"LSOF translated string nesting exceeds {MaxTranslationDepth} levels.");
         BinaryData.Slice(bytes, position, sizeof(ushort));
         position += sizeof(ushort); // BG3 translation version
         ReadSizedString(bytes, ref position);
