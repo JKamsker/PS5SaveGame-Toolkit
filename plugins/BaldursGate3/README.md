@@ -18,6 +18,13 @@ explicit LSF quantity candidates with warnings, following the owner's decision
 See [LSMF.md](LSMF.md) for the independent implementation record and
 [EVIDENCE.md](EVIDENCE.md) for phase status and the exact owner capture checklist.
 
+The [performance review](PERFORMANCE.md) records five fixes from #40, reproducible
+Release measurements on the largest sample, allocation/scaling regressions and
+validation (**247 passed, 0 failed, 0 skipped**; API build with zero warnings/errors).
+Warm first-view allocation fell from 233.6 MB to 138.2 MB; twenty ten-row live pages
+fell from 51.0 MB to 0.9 MB. Mandatory digest/resource validation and Experimental
+write warnings remain intact.
+
 Version 0.6.0 adds bounded live NewAge storage decoding and editing: explicit stack
 member quantities, current/temporary HP candidates and effective ability-cache
 candidates. F5/F6 plan a two-key container reorder and imported-quantity restoration;
