@@ -38,8 +38,8 @@ async function setup() {
   const capture = vi.fn<(context: DocumentContextValue) => void>();
   const toast = vi.fn();
   await act(async () => { render(<QueryClientProvider client={client}><Editors onContext={capture} toast={toast} /></QueryClientProvider>); });
-  const first = screen.getByRole<HTMLInputElement>("textbox", { name: "Quantity", exact: true });
-  const second = screen.getByRole<HTMLInputElement>("textbox", { name: "Quantity (Potion)", exact: true });
+  const first = screen.getByRole<HTMLInputElement>("textbox", { name: "Quantity" });
+  const second = screen.getByRole<HTMLInputElement>("textbox", { name: "Quantity (Potion)" });
   const context = capture.mock.lastCall![0];
   return { first, second, context, toast };
 }
@@ -73,7 +73,7 @@ it.each(queuedFailures.flatMap(failure => foreignErrors.map(foreign => ({ failur
     expect(first.value).toBe("9");
     expect(context.store.error("quantity")).toBe(message);
     expect(first.getAttribute("aria-invalid")).toBe("true");
-    expect(screen.getByRole("textbox", { name: "Quantity", exact: true, description: new RegExp(message) })).toBe(first);
+    expect(screen.getByRole("textbox", { name: "Quantity", description: new RegExp(message) })).toBe(first);
     if (failure === "http") expect(toast).toHaveBeenCalledWith("B unavailable", true);
     if (failure === "global") expect(context.store.error("")).toBe("B rejected elsewhere");
     if (failure === "other-field") expect(context.store.error("other")).toBe("B rejected elsewhere");
