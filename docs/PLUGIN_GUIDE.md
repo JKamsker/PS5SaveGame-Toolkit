@@ -149,7 +149,8 @@ view-learned metadata, and specs must agree in all properties, including nested 
 a conflict rejects indexing/preflight. Labels may differ across projections. Action parameter
 specs remain separate from document-field metadata. `FieldSpecMetadata.Snapshot` / `Agree` copy
 nested spec collections and compare their definitions while retaining executable `ReferenceSpec.Assess`
-policies; ordinary JSON round-tripping loses those callbacks.
+policies; ordinary JSON round-tripping loses those callbacks. Keep eligibility delegates stable for
+the same model revision: callback equality is part of agreement and preview revalidation.
 
 Core validates unloaded edits and all F6 planned consequences with these specs, rejects missing or
 duplicate planned IDs and inconsistent primary/derived classification, and checks the old values.
