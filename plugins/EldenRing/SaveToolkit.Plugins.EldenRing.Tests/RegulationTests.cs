@@ -116,7 +116,7 @@ public sealed class RegulationTests
         Assert.Throws<SaveFormatException>(() => RegulationDecoder.Decode(new byte[17]));
     }
 
-    private static byte[] Dcx(byte[] payload)
+    internal static byte[] Dcx(byte[] payload)
     {
         using var compressed = new MemoryStream();
         using (var zlib = new ZLibStream(compressed, CompressionLevel.SmallestSize, true)) zlib.Write(payload);
@@ -126,7 +126,7 @@ public sealed class RegulationTests
         return [.. header, .. compressed.ToArray()];
     }
 
-    private static byte[] Binder()
+    internal static byte[] Binder()
     {
         var bytes = new byte[320];
         "BND4"u8.CopyTo(bytes);
