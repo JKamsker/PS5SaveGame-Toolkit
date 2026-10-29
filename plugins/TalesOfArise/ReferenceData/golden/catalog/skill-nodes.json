@@ -1,0 +1,104 @@
+{
+  "records": [
+    {
+      "id": "title:alphen:example-panel:node:0",
+      "name": "Node 0",
+      "category": "Title skill",
+      "source": "https://example.invalid/wiki/ToA_-_Alphen:_Titles",
+      "description": "Title: Example Panel\nSP cost as published: 0\nRequirements: Story event\nPanel bonus: Attack +5\nTitle unlock, node purchase and panel completion are separate, unproven save states.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "114",
+        "section": "Examples",
+        "character": "Alphen",
+        "requirements": "Story event",
+        "completionBonus": "Attack +5",
+        "title": "Example Panel",
+        "titleKey": "title:alphen:example-panel",
+        "spCost": "0",
+        "position": "0",
+        "state": "Unknown"
+      }
+    },
+    {
+      "id": "title:alphen:example-panel:node:1",
+      "name": "Node 1",
+      "category": "Title skill",
+      "source": "https://example.invalid/wiki/ToA_-_Alphen:_Titles",
+      "description": "Title: Example Panel\nSP cost as published: 10\nRequirements: Story event\nPanel bonus: Attack +5\nTitle unlock, node purchase and panel completion are separate, unproven save states.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "114",
+        "section": "Examples",
+        "character": "Alphen",
+        "requirements": "Story event",
+        "completionBonus": "Attack +5",
+        "title": "Example Panel",
+        "titleKey": "title:alphen:example-panel",
+        "spCost": "10",
+        "position": "1",
+        "state": "Unknown"
+      }
+    },
+    {
+      "id": "title:alphen:example-panel:node:2",
+      "name": "Node 2",
+      "category": "Title skill",
+      "source": "https://example.invalid/wiki/ToA_-_Alphen:_Titles",
+      "description": "Title: Example Panel\nSP cost as published: 20\nRequirements: Story event\nPanel bonus: Attack +5\nTitle unlock, node purchase and panel completion are separate, unproven save states.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "114",
+        "section": "Examples",
+        "character": "Alphen",
+        "requirements": "Story event",
+        "completionBonus": "Attack +5",
+        "title": "Example Panel",
+        "titleKey": "title:alphen:example-panel",
+        "spCost": "20",
+        "position": "2",
+        "state": "Unknown"
+      }
+    },
+    {
+      "id": "title:alphen:example-panel:node:3",
+      "name": "Node 3",
+      "category": "Title skill",
+      "source": "https://example.invalid/wiki/ToA_-_Alphen:_Titles",
+      "description": "Title: Example Panel\nSP cost as published: 30\nRequirements: Story event\nPanel bonus: Attack +5\nTitle unlock, node purchase and panel completion are separate, unproven save states.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "114",
+        "section": "Examples",
+        "character": "Alphen",
+        "requirements": "Story event",
+        "completionBonus": "Attack +5",
+        "title": "Example Panel",
+        "titleKey": "title:alphen:example-panel",
+        "spCost": "30",
+        "position": "3",
+        "state": "Unknown"
+      }
+    },
+    {
+      "id": "title:alphen:example-panel:node:4",
+      "name": "Node 4",
+      "category": "Title skill",
+      "source": "https://example.invalid/wiki/ToA_-_Alphen:_Titles",
+      "description": "Title: Example Panel\nSP cost as published: 40\nRequirements: Story event\nPanel bonus: Attack +5\nTitle unlock, node purchase and panel completion are separate, unproven save states.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "114",
+        "section": "Examples",
+        "character": "Alphen",
+        "requirements": "Story event",
+        "completionBonus": "Attack +5",
+        "title": "Example Panel",
+        "titleKey": "title:alphen:example-panel",
+        "spCost": "40",
+        "position": "4",
+        "state": "Unknown"
+      }
+    }
+  ]
+}

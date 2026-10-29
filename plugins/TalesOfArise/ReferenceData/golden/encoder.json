@@ -1,0 +1,29 @@
+{
+  "lossless-icon": {
+    "sha256": "2e8d1f98a449c7a516d4bbca3011374c78607a6e741ce0253392491e4629bb37",
+    "extension": ".webp",
+    "dimensions": [
+      20,
+      12
+    ],
+    "bytes": 32
+  },
+  "palette-icon": {
+    "sha256": "ab06ffffdf9145f7b280bb86141165e889567c414f09c08f96698447fb84c688",
+    "extension": ".png",
+    "dimensions": [
+      64,
+      53
+    ],
+    "bytes": 4395
+  },
+  "downscaled-map": {
+    "sha256": "827c30247bb466ee36b0bde7b9d27449fcadc407d39fc4a6f1e920c77db347c7",
+    "extension": ".webp",
+    "dimensions": [
+      2048,
+      15
+    ],
+    "bytes": 21718
+  }
+}

@@ -47,6 +47,68 @@ Synthetic parser tests cover the important table shapes without embedding downlo
 HTML. The C# suite checks full catalog counts, valid packs, pinned share-alike sources,
 title-node joins/costs, unknown identities, paging and sample-byte preservation.
 
+## Offline regeneration checks
+
+Run all Python checks before and after importer changes, with the external scratch
+environment above (no network access or game samples are needed):
+
+```powershell
+python -I -X utf8 -B -m unittest discover -s plugins/TalesOfArise/ReferenceData -p 'test_*.py' -v
+```
+
+Dependencies are pinned in `requirements.txt`. Goldens were captured **before** the
+importer refactor for #40 on 2026-10-29, using Python 3.14.3, Beautiful Soup 4.15.0,
+Pillow 12.2.0, libwebp 1.6.0 and Pillow's zlib 1.3.1.zlib-ng. Encoder versions matter;
+see Pillow's [WebP/PNG encoder options](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html).
+Install dependencies separately; tests never install or fetch anything.
+
+- `importer_fixtures.py` constructs 20 small, authored API responses with source
+  title/revision/hash pins. `test_catalog_golden.py` runs the real hash validation,
+  parser, extraction, reconciliation and serialization twice, comparing all eight
+  data files, `pack.json` and `source-revisions.json` against `golden/catalog/` as
+  bytes. The fixtures cover every extraction category, duplicate variants, title
+  nodes, repeated character roles, inferred crosswalks, Unicode and attribution.
+  Rejection checks cover hashes, identity, omitted names, panel shape and collisions.
+- `test_assets_golden.py` uses the **committed v3 pack as its golden**, removes the
+  overlay from a scratch copy, and reapplies it twice. Only the download/encoder
+  boundary is replayed with reviewed encoded bytes/dimensions from the ledger.
+  The real pipeline validates encoded pins, budgets/copies assets, joins records
+  and descriptions, and refreshes hashes/attribution. All **124 files** must match:
+  eight data files, manifest, source-revision and asset ledgers, both Markdown
+  attribution sidecars and all 111 encoded images. Markdown sidecars are maintained
+  by hand; this checks preservation, not their generation. Budget/pin rejections
+  must leave the entire destination unchanged.
+- `test_image_encoder.py` independently runs the actual encoder on generated pixels,
+  pinning bytes via SHA-256, lengths, dimensions and selected format for lossless
+  WebP, PNG-8 and a resized lossy map. Unsupported/corrupt images are rejected.
+  These vectors characterize encoding; they do not reconstruct publisher originals.
+- Expected checked-out JSON is canonicalized to the LF bytes used by importer
+  hashes (Git `autocrlf` can expand it). Generated output is **never** normalized
+  before comparison. Fixture creation is not part of the test run; do not recapture
+  goldens merely to make a failing change pass.
+
+### Regeneration limits
+
+The 62 original rendered API responses and 111 original publisher-image downloads
+were **not available offline** in the available `D:/Temp` scratch during this review.
+They remain external inputs pinned by `source-revisions.json` (`cache`, `sha256`,
+revision and raw-wikitext hash) and `asset-sources.json` (`sourceUrl`,
+`originalSha256`, encoded `sha256`, dimensions). Original images and downloaded
+responses are deliberately not committed. The two crosswalk URLs/hashes in
+`build_catalog.py` are provenance for authored constants, not files read by the
+importer. Official description transcriptions and mappings are reviewed ledger
+inputs, not newly scraped by `build_assets.py`.
+
+Consequently these tests do **not** claim end-to-end regeneration of the shipped
+catalog from all original wiki responses, or re-encoding of its original artwork.
+They cover the deterministic stages available locally, without skipping tests or
+using the network. Full original-source regeneration still requires the external
+hash-matching caches and the pinned encoder stack, followed by the complete base
+then overlay commands above. Tests reject network attempts even on cache misses.
+The three previously deferred long importer functions can be split behind this
+coverage; this resolves their cleanup, while original-input recovery remains an
+explicit evidence gap. Runtime code and shipped reference-pack bytes are unchanged.
+
 All adapted source data stays [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/),
 credited to Aselia Wiki contributors. Every dataset, record, adjacent sidecar,
 plugin source list and rendered view must retain attribution. New source pages need

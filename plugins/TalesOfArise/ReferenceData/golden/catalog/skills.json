@@ -1,0 +1,19 @@
+{
+  "records": [
+    {
+      "id": "skill:example-skill",
+      "name": "Example Skill",
+      "category": "Support",
+      "source": "https://example.invalid/wiki/ToA_-_Skills",
+      "description": "Users: Alphen; Law\nBase stacks (same user order): 1; 2\nDLC stacks (same user order): 3; 4\nPublished effect",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "113",
+        "section": "Support",
+        "character": "Alphen; Law",
+        "baseStacks": "1; 2",
+        "dlcStacks": "3; 4"
+      }
+    }
+  ]
+}
