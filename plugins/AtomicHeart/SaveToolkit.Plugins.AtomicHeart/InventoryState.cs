@@ -20,6 +20,7 @@ internal sealed class InventoryState
     private readonly Dictionary<string, string> savedAssets = new(StringComparer.Ordinal);
     private readonly HashSet<string> ambiguousAssets = new(StringComparer.Ordinal);
     private readonly Dictionary<string, long> containerLimits = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> itemOrdinals = new(StringComparer.Ordinal);
     internal IReadOnlyList<InventoryItem> Items { get; }
     internal IReferenceCatalog? Catalog { get; }
 
@@ -27,7 +28,6 @@ internal sealed class InventoryState
     {
         Catalog = catalog;
         var items = new List<InventoryItem>();
-        var keys = new HashSet<string>(StringComparer.Ordinal);
         foreach (var record in index.Objects.Where(r => r.Kind == RecordKinds.Component &&
             (r.ClassPath.EndsWith(InventoryClasses.Player, StringComparison.Ordinal) ||
              r.ClassPath.EndsWith(InventoryClasses.Storage, StringComparison.Ordinal))))
@@ -53,10 +53,10 @@ internal sealed class InventoryState
                 var storedAmount = ReadInteger(amount, quantity.Name);
                 var storedInstanceId = ReadInteger(instanceId, instance.Name);
                 var key = $"{record.Id}/{property.Name}/item/{storedInstanceId}";
-                if (!keys.Add(key))
+                if (!itemOrdinals.TryAdd(key, items.Count))
                 {
                     key += $"/slot/{element.Name}";
-                    if (!keys.Add(key)) throw new SaveFormatException("Duplicate inventory slot identity.");
+                    if (!itemOrdinals.TryAdd(key, items.Count)) throw new SaveFormatException("Duplicate inventory slot identity.");
                 }
                 var item = new InventoryItem(key, record.Name + "/" + property.Name, element,
                     text.AsString(), storedInstanceId, storedAmount, asset, quantity, container);
@@ -74,6 +74,8 @@ internal sealed class InventoryState
         }
         Items = items;
     }
+
+    internal bool TryGetOrdinal(string key, out int ordinal) => itemOrdinals.TryGetValue(key, out ordinal);
 
     private static long ReadInteger(FieldValue value, string name)
     {

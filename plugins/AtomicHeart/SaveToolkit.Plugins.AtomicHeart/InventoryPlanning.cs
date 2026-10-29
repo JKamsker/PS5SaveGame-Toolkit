@@ -26,10 +26,15 @@ internal static class InventoryPlanning
         IEnumerable<InventoryItem> items = state.Items;
         if (scope.RowKeys is { } keys)
         {
-            var selected = keys.ToHashSet(StringComparer.Ordinal);
-            if (selected.Count != keys.Count || selected.Except(state.Items.Select(i => i.Key), StringComparer.Ordinal).Any())
-                return Error(actionId, "Selection must contain distinct existing inventory row keys.");
-            items = items.Where(item => selected.Contains(item.Key));
+            var ordinals = new int[keys.Count];
+            for (var i = 0; i < keys.Count; i++)
+                if (!state.TryGetOrdinal(keys[i], out ordinals[i])) return InvalidSelection(actionId);
+            // Retain native model order, independent of selection order, without visiting
+            // unselected slots. Sorting ordinals also makes duplicate identities adjacent.
+            Array.Sort(ordinals);
+            for (var i = 1; i < ordinals.Length; i++)
+                if (ordinals[i] == ordinals[i - 1]) return InvalidSelection(actionId);
+            items = ordinals.Select(ordinal => state.Items[ordinal]);
         }
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
@@ -49,4 +54,5 @@ internal static class InventoryPlanning
         left.SkippedRows.SequenceEqual(right.SkippedRows) && left.Warnings.SequenceEqual(right.Warnings) && left.Errors.SequenceEqual(right.Errors);
 
     private static ActionPlan Error(string id, string message) => new() { Errors = [new FieldError(id, message)] };
+    private static ActionPlan InvalidSelection(string id) => Error(id, "Selection must contain distinct existing inventory row keys.");
 }
