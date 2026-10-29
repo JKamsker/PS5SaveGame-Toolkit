@@ -30,7 +30,7 @@ public static partial class SaveSetImporter
     {
         limits ??= new ImportLimits();
         System.IO.Directory.CreateDirectory(storageRoot);
-        var builder = new Builder(storageRoot, limits);
+        using var builder = new Builder(storageRoot, limits);
         foreach (var source in sources)
         {
             if (source.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
@@ -44,7 +44,9 @@ public static partial class SaveSetImporter
             }
         }
 
-        return builder.Build();
+        var set = builder.Build();
+        builder.Commit();
+        return set;
     }
 
     private static void ImportArchive(ImportSource source, Builder builder)
@@ -116,12 +118,30 @@ public static partial class SaveSetImporter
     [GeneratedRegex("^[A-Z]{4}[0-9]{5}$", RegexOptions.IgnoreCase)]
     private static partial Regex TitleIdRegex();
 
-    private sealed class Builder(string storageRoot, ImportLimits limits)
+    private sealed class Builder(string storageRoot, ImportLimits limits) : IDisposable
     {
         private readonly Dictionary<string, int> _occurrences = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, string> _directoryNames = new(StringComparer.OrdinalIgnoreCase);
         private readonly List<PendingFile> _files = [];
+        private readonly List<string> _createdBlobs = [];
         private long _totalBytes;
+        private bool _committed;
+
+        public void Commit() => _committed = true;
+
+        public void Dispose()
+        {
+            if (_committed) return;
+            List<Exception> errors = [];
+            foreach (var path in _createdBlobs)
+            {
+                try { File.Delete(path); }
+                catch (IOException ex) { errors.Add(ex); }
+                catch (UnauthorizedAccessException ex) { errors.Add(ex); }
+            }
+            if (errors.Count > 0)
+                throw new IOException("Import failed and temporary blobs could not all be removed.", new AggregateException(errors));
+        }
 
         public void Add(string archivePath, Stream content, long? expectedLength = null, uint? expectedCrc32 = null)
         {
@@ -158,6 +178,8 @@ public static partial class SaveSetImporter
             using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             var checksum = expectedCrc32.HasValue ? new ZipEntryChecksum() : null;
             using var output = new FileStream(blobPath, FileMode.CreateNew, FileAccess.Write);
+            // Track only files we created: a name collision must never delete someone else's data.
+            _createdBlobs.Add(blobPath);
             var buffer = new byte[81920];
             long length = 0;
             int read;
