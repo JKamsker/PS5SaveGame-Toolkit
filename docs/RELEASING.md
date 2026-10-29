@@ -50,6 +50,67 @@ Keep the checkout outside a sample tree when reproducing CI: SampleSaves can als
 hide such a directory. Workflow syntax is checked with [actionlint](https://github.com/rhysd/actionlint)
 on Linux; run `actionlint` locally after workflow edits too.
 
+### Nightly mutation fuzz
+
+`.github/workflows/nightly-fuzz.yml` runs daily at **03:23 UTC**, or manually through
+`workflow_dispatch` with optional `seed` and `mutations` inputs. It runs only plugin test projects,
+using the MTP/xUnit `--filter-method '*MutationFuzz'` filter, on Ubuntu with coverage disabled.
+The default nightly seed is the UTC run date as a decimal `YYYYMMDD` integer. The summary records
+both its decimal and hexadecimal forms, mutation count, and actual per-plugin seed/case coverage.
+The nightly count is **5,000 mutations per seed**. A **60-second per-plugin wall-clock cap**
+(including worker startup/preparation) and a **30-minute job timeout** bound the run. Exceeding a
+cap fails the test and kills the isolated worker; it never silently passes an incomplete run.
+
+Nightly CI has **synthetic seeds only**, with no private sample download. The shared harness currently
+supplies one GenericJson fixture and two XorJson fixtures (XOR-1 and byte-minus-one JSON).
+The other 15 plugin conformance classes have no synthetic seeds and report explicit skips.
+This run therefore covers those two formats, not all game parsers. Plugins can extend coverage with
+`MutationFuzzSyntheticSeeds`; the summary exposes gaps instead of counting skips as fuzz coverage.
+Local runs also use the selected real samples when available, as described in the plugin guide.
+The 5,000 count was checked locally on Windows with coverage off: the sample-free plugin sweep
+ran 15,000 cases in about 82 seconds; a separate deep run across all 17 plugins, 26 private-sample
+seeds and three synthetic seeds ran 145,000 cases in 683 seconds with no failures. These are local
+wall-clock measurements including build/test startup, not a hosted Ubuntu performance guarantee.
+
+The harness accepts these optional environment overrides; **unset** variables retain existing
+plugin defaults (normally seed `0x40C0FFEE`, 200 mutations per selected file, no overall plugin cap):
+
+| Variable | Accepted value |
+| --- | --- |
+| `SAVETOOLKIT_FUZZ_SEED` | Unsigned 32-bit decimal or `0x`-prefixed hexadecimal integer, including zero |
+| `SAVETOOLKIT_FUZZ_MUTATIONS` | Positive 32-bit integer, per synthetic or selected real seed file |
+| `SAVETOOLKIT_FUZZ_TIME_BUDGET` | Optional positive 32-bit integer number of seconds per plugin |
+| `SAVETOOLKIT_FUZZ_REPORT_DIRECTORY` | Optional directory for metadata-only JSON results/reproducers |
+
+Empty, malformed, negative and out-of-range numeric values fail with a named configuration error.
+Ordinary CI sets none of these overrides and remains deterministic. On failure, the nightly workflow
+uploads only `*-failure.json` reports for 14 days: plugin, seed, mutation index/description,
+sample identity/hash when applicable, exception type and stack frames. Reports exclude sample bytes,
+exception messages and raw worker output. A process/build failure before a mutation starts has no
+mutation index; its fallback report identifies the project and seed. Nothing from scratch or private
+sample directories is uploaded. Known quarantined failures remain visible in result counts.
+
+Reproduce a failure locally with the exact plugin project and seed from the report (PowerShell 7):
+
+```powershell
+$scratch = 'D:/Temp/saveeditor/test-scratch/nightly-fuzz'
+New-Item -ItemType Directory -Force $scratch | Out-Null
+$env:TEMP = $env:TMP = $env:TMPDIR = $scratch
+$env:SAVETOOLKIT_TEST_TEMP = "$scratch/tests"
+$env:SAVETOOLKIT_FUZZ_REPORT_DIRECTORY = "$scratch/repro-reports"
+$env:SAVETOOLKIT_FUZZ_SEED = '0x013528A5' # replace with the reported seed (20261029 here)
+$env:SAVETOOLKIT_FUZZ_MUTATIONS = '5000' # at least the reported zero-based index + 1
+$env:SAVETOOLKIT_FUZZ_TIME_BUDGET = '300' # allow more time for local private-sample runs
+dotnet test --project plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests --configuration Release --filter-method '*MutationFuzz'
+```
+
+For nightly reproduction, leave private samples unavailable (including any ancestor `artifacts/`
+fallback). For a sample-backed reproducer, set `SAVETOOLKIT_ARTIFACTS` to external samples on D:
+and match the report's original SHA-256. Each mutation depends only on original bytes, seed and
+zero-based index, so changing the mutation count does not change earlier cases. Per-case timeout
+and allocation guards continue to apply independently of the optional overall cap. Remove the
+overrides before returning to normal CI-equivalent validation.
+
 ### Code coverage
 
 Windows validation collects .NET coverage through the Microsoft.Testing.Platform extension; Ubuntu

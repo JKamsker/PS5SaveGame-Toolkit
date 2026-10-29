@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SaveToolkit.Core.Tests.Fakes;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
@@ -182,6 +183,32 @@ public sealed class MutationFuzzHarnessTests
         });
         var selected = MutationFuzzRunner.SelectSamples(set.Directories[0].Files, 2).ToArray();
         Assert.Equal(["a.bin", "b.bin"], selected.Select(file => file.FileName));
+    }
+
+    [Fact]
+    public void PluginBudget_StopsFurtherMutationsAndReportsTheSeedAndNextIndex()
+    {
+        var result = new MutationFuzzRunner(new FuzzPlugin(), 42, 5000, [], [], TimeSpan.FromSeconds(30),
+            _ => 1024 * 1024, _ => IReferenceContext.Empty, _ => { }, TimeSpan.FromTicks(1))
+            .Run([MemorySaveSet.SingleFile("data.bin", new byte[64])]);
+        var failure = Assert.Single(result.Failures);
+        Assert.Equal("PluginTimeBudgetExceeded", failure.ExceptionType);
+        Assert.Contains("seed=0x0000002A index=0", failure.Reproducer);
+        Assert.Equal(0, result.Cases);
+        Assert.Equal(42u, result.Seed);
+        Assert.Equal(5000, result.MutationsPerSeed);
+    }
+
+    [Fact]
+    public void FailureMetadata_ExcludesExceptionMessagesAndSampleBytes()
+    {
+        const string privateValue = "synthetic-private-value-sentinel";
+        var result = Run(new FuzzPlugin { ThrowDuring = "open", Failure = () => new IndexOutOfRangeException(privateValue) },
+            files: [MemorySaveSet.SingleFile("data.bin", System.Text.Encoding.UTF8.GetBytes(privateValue))]);
+        var json = JsonSerializer.Serialize(result);
+        Assert.Single(result.Failures);
+        Assert.Contains("IndexOutOfRangeException", json);
+        Assert.DoesNotContain(privateValue, json);
     }
 
     private static MutationFuzzResult Run(FuzzPlugin plugin, long budget = 1024 * 1024,
