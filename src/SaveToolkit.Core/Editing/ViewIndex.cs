@@ -1,15 +1,19 @@
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Core.Editing;
 
 /// <summary>
-/// Remembers every field spec and action the plugin has shown, so the framework can validate edits
-/// and action calls without trusting the browser about types or ranges.
+/// Combines optional canonical registrations with view-learned fields and actions, so validation
+/// never trusts browser-supplied types, ranges or binding policy.
 /// </summary>
 public sealed class ViewIndex
 {
+    private readonly FieldMetadataIndex _metadata;
+    public ViewIndex() : this(null) { }
+    public ViewIndex(ISaveDocument? document) => _metadata = new FieldMetadataIndex(document);
     private readonly Dictionary<string, FieldSpec> _specs = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ActionNode> _actions = new(StringComparer.Ordinal);
     private readonly HashSet<string> _lazyIds = new(StringComparer.Ordinal);
@@ -18,7 +22,43 @@ public sealed class ViewIndex
 
     public IReadOnlyDictionary<string, FieldSpec> Specs => _specs;
 
-    public FieldSpec? Spec(string valueId) => _specs.GetValueOrDefault(valueId);
+    public FieldSpec? Spec(string valueId)
+    {
+        _ = Metadata(valueId);
+        return ResolvedSpec(valueId);
+    }
+
+    internal FieldSpec? ResolvedSpec(string valueId) => ResolvedMetadata(valueId)?.Spec ?? _specs.GetValueOrDefault(valueId);
+
+    public FieldMetadata? Metadata(string valueId)
+    {
+        if (!_metadata.Enabled) return null;
+        _ = _metadata.Resolve(valueId);
+        return ResolvedMetadata(valueId);
+    }
+
+    internal FieldMetadata? ResolvedMetadata(string valueId)
+    {
+        var field = _metadata.Cached(valueId);
+        if (field is not null) RequireAgreement(valueId, field.Spec);
+        return field;
+    }
+
+    public bool HasFieldMetadata => _metadata.Enabled;
+
+    public void ResolveMetadata(IEnumerable<string> valueIds)
+    {
+        if (!_metadata.Enabled) return;
+        var ids = valueIds.Distinct(StringComparer.Ordinal).ToArray();
+        _metadata.ResolveAll(ids);
+        foreach (var id in ids) _ = ResolvedMetadata(id);
+    }
+
+    private void RequireAgreement(string id, FieldSpec spec)
+    {
+        if (_specs.TryGetValue(id, out var shown) && !FieldSpecMetadata.Agree(shown, spec))
+            throw new InvalidOperationException($"Registered and rendered specs conflict for field '{id}'.");
+    }
 
     public ActionNode? Action(string actionId) => _actions.GetValueOrDefault(actionId);
 
@@ -29,13 +69,14 @@ public sealed class ViewIndex
     public bool KnowsAsset(string assetId) => _assetIds.Contains(assetId);
 
     /// <summary>Every value, action and lazy id currently indexed (the ids clients send back).</summary>
-    public IEnumerable<string> BindingIds => _specs.Keys.Concat(_actions.Keys).Concat(_lazyIds);
+    public IEnumerable<string> BindingIds => _specs.Keys.Concat(_metadata.Ids).Concat(_actions.Keys).Concat(_lazyIds);
 
-    public bool KnowsBinding(string id) => _specs.ContainsKey(id) || _actions.ContainsKey(id) || _lazyIds.Contains(id);
+    public bool KnowsBinding(string id) => _specs.ContainsKey(id) || _actions.ContainsKey(id) || _lazyIds.Contains(id) || Metadata(id) is not null;
 
     public void Clear()
     {
         _specs.Clear();
+        _metadata.Clear();
         _actions.Clear();
         _lazyIds.Clear();
         _blobIds.Clear();
@@ -71,7 +112,13 @@ public sealed class ViewIndex
                     throw new InvalidOperationException($"Field '{f.Label}' has no value id.");
                 }
 
-                _specs[f.ValueId] = f.Spec;
+                if (Metadata(f.ValueId) is { } registered)
+                {
+                    if (!FieldSpecMetadata.Agree(registered.Spec, f.Spec))
+                        throw new InvalidOperationException($"Registered and rendered specs conflict for field '{f.ValueId}'.");
+                    _specs[f.ValueId] = registered.Spec;
+                }
+                else _specs[f.ValueId] = f.Spec;
                 break;
             case TableNode table:
                 var keys = table.Columns.Select(c => c.Key).ToHashSet(StringComparer.Ordinal);

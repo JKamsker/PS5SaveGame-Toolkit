@@ -193,7 +193,7 @@ public sealed partial class DocumentSession
     /// </summary>
     private IReadOnlyList<string> RebuildIndex(bool forceNewRevision = true)
     {
-        var fresh = new ViewIndex();
+        var fresh = new ViewIndex(Document);
         HashSet<string> expanded;
         try
         {

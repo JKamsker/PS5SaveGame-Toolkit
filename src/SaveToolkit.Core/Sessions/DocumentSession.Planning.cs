@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Text.Json;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Core.Editing;
 
 namespace SaveToolkit.Core.Sessions;
 
@@ -83,8 +84,12 @@ public sealed partial class DocumentSession
                 return new ActionPreview(null, _revision, requested, plan);
             }
 
+            var metadata = FieldMetadataPlanning.Validate(_index, Document, plan, _referenceFields);
+            if (_index.HasFieldMetadata
+                && bytes.LongLength + requestBytes + JsonSerializer.SerializeToUtf8Bytes(metadata).LongLength > MaxPlanBytes)
+                return Reject([new FieldError(actionId, "Preview metadata is too large; narrow its scope.")]);
             var id = Guid.NewGuid().ToString("N");
-            _pendingAction = new PendingAction(id, _revision, actionId, readOnlyValues, requested, bytes);
+            _pendingAction = new PendingAction(id, _revision, actionId, readOnlyValues, requested, bytes, metadata);
             return new ActionPreview(id, _revision, requested, plan);
         }
         catch (StaleViewException ex)
@@ -131,7 +136,9 @@ public sealed partial class DocumentSession
                 return new SessionEditResult { Errors = fresh.Errors, Warnings = fresh.Warnings, State = StateUnlocked() };
             }
 
-            if (!pending.PlanBytes.AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(fresh)))
+            var metadata = FieldMetadataPlanning.Validate(_index, Document, fresh, _referenceFields);
+            if (!FieldMetadataPlanning.Agree(pending.Metadata, metadata)
+                || !pending.PlanBytes.AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(fresh)))
             {
                 return Rejected(pending.ActionId, "The action's effects changed. Preview it again.") with { Stale = true };
             }
@@ -157,7 +164,8 @@ public sealed partial class DocumentSession
     });
 
     private sealed record PendingAction(string Id, long Revision, string ActionId,
-        IReadOnlyDictionary<string, FieldValue> Parameters, ActionScope Scope, byte[] PlanBytes);
+        IReadOnlyDictionary<string, FieldValue> Parameters, ActionScope Scope, byte[] PlanBytes,
+        IReadOnlyList<FieldMetadata> Metadata);
 
     private ActionScope ResolveActionQuery(ActionQueryScope scope)
     {

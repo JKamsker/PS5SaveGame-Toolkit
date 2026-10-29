@@ -14,10 +14,10 @@ remain valid. In addition, inherited conformance `MutationFuzz` is shipped
 in `src/SaveToolkit.Testing/PluginConformanceTests.MutationFuzz.cs`; see its
 [bounded coverage contract](PLUGIN_GUIDE.md#deterministic-mutation-fuzzing-40).
 `AllocationProbe` is **not present** in that revision; do not document it as an available helper.
-Storage registration is delivered (SDK-32), while host metadata/alias discovery (SDK-02) remains pending and SDK-01's F8
+Storage registration is delivered (SDK-32), and host metadata/alias discovery (SDK-02) was subsequently resolved by `de78531`; SDK-01's F8
 semantic-review backend is delivered with its web UI still pending. This recheck does not claim a new complete issue-comment census.
 
-**40 deduplicated items: 6 open, 2 partially resolved, 29 resolved, 3 obsolete.**
+**40 deduplicated items: 6 open, 1 partially resolved, 30 resolved, 3 obsolete.**
 Counts describe capabilities, not individual comments or plugin migrations. Related
 requests are merged; delivered foundations and genuinely different remaining contracts
 have separate IDs. “Requested by” also names the plugin candidates explicitly identified
@@ -36,7 +36,7 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 | ID | Request | Requested by | Status | Evidence (file:line or commit) | Value | Effort | Risk | Recommendation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | SDK-01 | Bounded F8 traversal in original/current semantic review, with labels, navigation and individual revert | TalesOfArise | partially resolved | `src/SaveToolkit.Core/Sessions/SemanticQueryableTraversal.cs`; `SemanticReview.cs`; `SemanticChangeLog.cs`; `tests/SaveToolkit.Core.Tests/QueryableSemantic*Tests.cs`; [API contract](API.md#preview-and-semantic-review) | At least 3 F8 editors benefit: TalesOfArise, Pragmata and FinalFantasy16; users can review/revert quantities without opening every page | M | Additive Core behavior; original identity and budget correctness | Backend now scans separate original/current documents with global row/page/byte caps, includes empty slots, names changes, registers individual revert and returns optional `{collectionId,rowKey,query}` navigation targets. Cuts/invalid pages explicitly report truncated incomplete coverage. Web follow-up: display labels/old-new values and warnings even for zero results; load target pages at review revision, locate row/value ID, offer revision-checked Revert only when `canRevert`, and refresh after mutations/staleness. Preserve SDK-02 guards; no `web/` changes in SDK-01 backend delivery. |
-| SDK-02 | Publish field metadata and canonical primary/derived binding policy independently of rendered views | Pragmata | partially resolved | `plugins/Pragmata/README.md:478`; [design](plans/F13-FIELD-SPEC-PUBLISHING.md); `a1c08c0` adds storage registration; `src/SaveToolkit.Core/Editing/ViewIndex.cs:68` still learns specs from views | 1 explicit requester; at least 3 candidate editors with unloaded fields (Pragmata, FinalFantasy16, TalesOfArise); safer bulk preflight and complete named review | L | Additive optional capability; new alias, replay and invalidation contract | Implement optional `IFieldMetadataDocument` from the design, in bounded batches, with live setters, spec agreement, primary/derived classification and structural/group invalidation. `RegisterField` alone does not satisfy it. Keep Pragmata's unloaded-quantity guard and existing F8 query-resolution path. |
+| SDK-02 | Publish field metadata and canonical primary/derived binding policy independently of rendered views | Pragmata | resolved | `plugins/Pragmata/README.md:478`; [design](plans/F13-FIELD-SPEC-PUBLISHING.md); storage foundation `a1c08c0`; implementation `de78531`; `src/SaveToolkit.Sdk/FieldMetadata.cs`; `src/SaveToolkit.Core/Editing/FieldMetadataIndex.cs` | 1 explicit requester; at least 3 candidate editors with unloaded fields (Pragmata, FinalFantasy16, TalesOfArise) | — | Delivered additive opt-in capability | Implement `IFieldMetadataDocument`; resolve requested IDs in batches of at most 200 with live bindings, canonical specs and primary/read-only-derived policy. Core validates unloaded edits and F6 plans, compares metadata again at apply, and resolves primaries for undo/redo after structural rebuilds. Pragmata migration remains separate: retain its guard until its resolver registers selected primary setters without views. Targeted semantic-review coverage and automatic group forwarding are separate integrations. |
 | SDK-03 | Share pure embedded reference-pack decoding for direct `Open(file)` fallback | FinalFantasy7, FinalFantasy16, GodOfWarRagnarok | open | [duplication report, item 6](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `src/SaveToolkit.Core/References/ReferencePackStore.cs:36` loads embedded packs only in Core; `src/SaveToolkit.Sdk/References/IReferenceContext.cs:17` supplies an empty context, no loader | 3 plugins; direct and hosted opens retain the same names, icons and attribution with less duplicated parsing | M | Additive factory; moving shared decoding must preserve pack-selection contracts | Add SDK-facing `EmbeddedReferenceContext.Load` backed by a pure shared decoder. Keep ZIP persistence/cache ownership in Core and title/build/source precedence in explicit policy. Preserve enriched direct-open behavior; plugins must not reference Core. |
 | SDK-04 | Compose group member identity mapping and dispatch | Gearbox, XorJson | open | [duplication report, item 4](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `src/SaveToolkit.Sdk/DocumentGroups.cs:6` provides transactions, no member adapter; local `GearboxGroupMember` / `XorJsonGroupMember` still map views and identities | 2 plugins; fewer divergent field/action/collection/navigation mappings in grouped editing | M | Additive helper; identity-policy compatibility is sensitive | Add `DocumentMemberAdapter(role, document, identityPolicy)` using composition and policy callbacks. Characterize role-plus-collection versus role-plus-key identities, nested views, F6 scopes, targets and fresh mementos first. Keep transfer/dependency/snapshot policy local. |
 | SDK-05 | Preserve exact icon alt text and historical missing-byte/provenance behavior in shared icon helper | BaldursGate3, TalesOfArise | resolved | `0e31467`; `src/SaveToolkit.Sdk/References/ReferenceIconOptions.cs`; `tests/SaveToolkit.Core.Tests/SdkHelpers/ReferenceIconCompatibilityTests.cs`; original requests: `plugins/BaldursGate3/README.md:533`, `plugins/TalesOfArise/README.md:567` | 2 plugins; consistent migration without losing publisher notices or changing an image node to text | — | Delivered additive overload/options; original signature and output retained | Use the five-argument `ReferenceViews.Icon` overload with `ReferenceIconOptions`: BG3 selects `RequireProvenance`; TalesOfArise selects `AssetIdOnly`, exact role/publisher alt text and the em-dash fallback. Sources registration is retained. The 29 characterization cases match copied plugin adapters; plugins opt in separately. See the shared-helpers migration examples in `docs/PLUGIN_GUIDE.md`. |
@@ -96,9 +96,9 @@ is implemented. It is separate from the pending web navigation/coverage UI.
 
 ## Resolved appendix
 
-The 29 resolved rows identify both the introducing commit and the surviving API or
-implementation above. All 29 deliveries, including SDK-05 (`0e31467`, merged in
-`bfb666d`), were checked as ancestors of the reviewed local `main`. An issue comment saying “fixed” was not treated as sufficient evidence by itself.
+The 30 resolved rows identify both the introducing commit and the surviving API or
+implementation above. All 29 earlier deliveries, including SDK-05 (`0e31467`, merged in
+`bfb666d`), were checked as ancestors of the reviewed local `main`; SDK-02 names its implementation commit `de78531`. An issue comment saying “fixed” was not treated as sufficient evidence by itself.
 
 - **Icon compatibility (SDK-05):** `0e31467` preserves the original four-argument overload
   and adds a five-argument overload with `ReferenceIconOptions.ExactAltText` and
@@ -118,6 +118,13 @@ implementation above. All 29 deliveries, including SDK-05 (`0e31467`, merged in
   call `ReferenceViews`; fixing their performance tests is outside this SDK-only change.
   All test scratch/TEMP and reports use `D:/Temp/saveeditor/test-scratch/sdk05`.
 
+- **Canonical field publication (SDK-02):** `de78531` adds `IFieldMetadataDocument`,
+  `FieldMetadata`, `FieldBindingKind`, and metadata-aware `BoundSaveDocument.RegisterField`.
+  Core combines registrations with views, rejects conflicting specs, validates unloaded edits
+  and planned changes, snapshots reference policies, and re-resolves live primary bindings for
+  replay. Non-opt-in documents retain view-only behavior. Canonical labels/paths are published;
+  targeted original/current semantic review and group member identity forwarding are not
+  claimed by this delivery. No plugin is migrated in this commit.
 - **Evidence tooling (SDK-14/15/35/36/40):** F12 `8063471` supplies both bounded
   `PluginViewDecoder` traversal and the optional SDK decoder hooks. Cardinality was
   subsequently tightened by `d87349c`; `383a942` fixes the conflicting plugin hook.
@@ -148,7 +155,8 @@ implementation above. All 29 deliveries, including SDK-05 (`0e31467`, merged in
   `a1c08c0` adds storage registration; `ab99e28` caches pinned catalog selections;
   `286b064` had already removed per-pack-file scratch churn. `07417c0` adds import
   copy-buffer reuse and nonseekable pack-reader characterization. These deliveries
-  do not implement SDK-02's host metadata/alias lifecycle.
+  did not implement SDK-02's host metadata/alias lifecycle; `de78531` now supplies
+  the opt-in metadata, preflight and replay integration.
 - **Scratch ownership (SDK-37):** `6d5771c` redirects SampleSaves through the
   configured, process-cleaned `TestScratch`; `d63b930` extends that ownership to
   framework and SaveDiff test imports. Old SuckerPunch workaround text is historical.
