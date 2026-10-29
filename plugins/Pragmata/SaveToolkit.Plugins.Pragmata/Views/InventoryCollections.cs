@@ -11,6 +11,8 @@ namespace SaveToolkit.Plugins.Pragmata.Views;
 internal sealed class InventoryCollections(PragmataDocument document)
 {
     internal const string CollectionId = "inventory/items";
+    internal const string Title = "Stored inventory records";
+    internal const string NativeArrayDescription = "Stored records from the native _InventoryItems array.";
     internal static readonly QueryableColumn[] Columns =
     [
         new("name", "Item ID (experimental replacement)", new TextSpec()),
@@ -22,9 +24,9 @@ internal sealed class InventoryCollections(PragmataDocument document)
     ];
 
     public bool Enabled => document.Layout.Items.Count > LazyPages.PageSize;
-    public QueryableCollection Metadata => new(CollectionId, "_InventoryItems", Columns, document.Layout.Items.Count)
+    public QueryableCollection Metadata => new(CollectionId, Title, Columns, document.Layout.Items.Count)
     {
-        Description = "Search names, raw decimal/hex IDs, categories, quantities and equipped state. " +
+        Description = NativeArrayDescription + " Search names, raw decimal/hex IDs, categories, quantities and equipped state. " +
             "Quantity sorting is numeric; other columns use ordinal text and stable physical row keys. " +
             "Names/categories come from attributed item details; game meanings and legal limits remain unverified.",
     };

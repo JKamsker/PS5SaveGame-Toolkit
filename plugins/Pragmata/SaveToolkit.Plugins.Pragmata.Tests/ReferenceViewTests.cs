@@ -164,7 +164,7 @@ public sealed class ReferenceViewTests
                     Assert.False(field.Spec.ReadOnly);
                     Assert.Equal(Confidence.Unknown, field.Confidence);
                     Assert.True(document.ApplyEdits([new(field.ValueId, field.Value)]).Succeeded);
-                    Assert.Contains("not validated on console", field.Description!, StringComparison.Ordinal);
+                    Assert.Contains("Not validated on console. The game may reject or overwrite the edited save.", field.Description!, StringComparison.Ordinal);
                 });
             }
         }

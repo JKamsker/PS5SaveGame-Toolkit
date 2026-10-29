@@ -1,5 +1,6 @@
 using System.Globalization;
 using SaveToolkit.Plugins.Pragmata.Format;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -7,6 +8,52 @@ namespace SaveToolkit.Plugins.Pragmata.Tests;
 
 public sealed class PresentationTests
 {
+    [Theory]
+    [InlineData(200)]
+    [InlineData(201)]
+    public void InventoryLabelsDescribeStoredRecordsAndRetainNativeNamesAndWarnings(int itemCount)
+    {
+        using var document = new PragmataDocument("data000.bin", SyntheticInventory.Create(itemCount));
+        var inventory = ((TabsNode)document.BuildView()).Tabs.Single(tab => tab.Title == "Inventory");
+        IReadOnlyList<TableRow> rows;
+        if (itemCount == 200)
+        {
+            var table = Assert.Single(inventory.Children.OfType<TableNode>());
+            Assert.Equal("Stored inventory records", table.Title);
+            Assert.Contains("_InventoryItems", table.Description!, StringComparison.Ordinal);
+            rows = table.Rows;
+        }
+        else
+        {
+            var table = Assert.Single(inventory.Children.OfType<QueryableTableNode>());
+            Assert.Equal("Stored inventory records", table.Title);
+            Assert.Contains("_InventoryItems", table.Description!, StringComparison.Ordinal);
+            Assert.Equal("inventory/items", table.CollectionId);
+            var metadata = document.Collections.Single(collection => collection.Id == table.CollectionId);
+            Assert.Equal(table.Title, metadata.Title);
+            Assert.Equal(table.Description, metadata.Description);
+            Assert.Contains("game meanings and legal limits remain unverified", metadata.Description!, StringComparison.Ordinal);
+            rows = document.Query(table.CollectionId, new QueryableCollectionQuery { Limit = 1 }).Rows;
+        }
+
+        var notice = inventory.Children.OfType<TextNode>().First();
+        Assert.StartsWith("Not validated on console. The game may reject or overwrite the edited save.", notice.Text, StringComparison.Ordinal);
+        Assert.Contains("CityHash64 and Murmur3 are repaired; the RSA trailer is preserved but cannot be validated or regenerated.", notice.Text, StringComparison.Ordinal);
+        Assert.Contains(inventory.Children.OfType<TextNode>(), note => note.Tone == Tone.Warning &&
+            note.Text.Contains("Player-facing item mappings and legal stack limits are unverified.", StringComparison.Ordinal));
+        var action = Assert.Single(inventory.Children.OfType<ActionNode>());
+        foreach (var control in rows.Select(row => Assert.IsType<ActionNode>(row.Cells["action"])).Prepend(action))
+        {
+            Assert.Equal("inventory/set-quantities", control.ActionId);
+            Assert.Equal("Set stored quantities", control.Label);
+            var parameter = Assert.Single(control.Parameters!);
+            Assert.Equal("quantity", parameter.ValueId);
+            Assert.Equal("Target quantity", parameter.Label);
+            Assert.Contains("Legal limits and game effects remain unverified.", control.Description!, StringComparison.Ordinal);
+            Assert.Contains("Does not add items or set unlock flags.", control.Description!, StringComparison.Ordinal);
+        }
+    }
+
     [Theory]
     [InlineData("data000.bin", 9)]
     [InlineData("data00-1.bin", 2)]

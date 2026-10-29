@@ -180,7 +180,7 @@ public sealed class EnabledWriteTests
     {
         Assert.False(field.Spec.ReadOnly);
         Assert.NotEqual(Confidence.Verified, field.Confidence);
-        Assert.Contains("not validated on console", field.Description!, StringComparison.Ordinal);
+        Assert.Contains("Not validated on console. The game may reject or overwrite the edited save.", field.Description!, StringComparison.Ordinal);
         Assert.Contains("RSA", field.Description!, StringComparison.Ordinal);
         Assert.Contains("game may reject", field.Description!, StringComparison.Ordinal);
     }
