@@ -191,8 +191,17 @@ public sealed partial class DocumentSession : IDisposable
     /// </summary>
     public IReadOnlyList<FileOutput> Serialize() => Serialize(CancellationToken.None);
 
-    public IReadOnlyList<FileOutput> Serialize(CancellationToken cancellationToken) => Locked<IReadOnlyList<FileOutput>>(() =>
-        StateUnlocked().IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [], cancellationToken);
+    public IReadOnlyList<FileOutput> Serialize(CancellationToken cancellationToken) =>
+        CaptureOutputs(cancellationToken).Outputs;
+
+    /// <summary>Captures output bytes and the dirty/revision state that produced them atomically.</summary>
+    internal DocumentOutputCapture CaptureOutputs(CancellationToken cancellationToken) =>
+        Locked(() =>
+        {
+            var state = StateUnlocked();
+            var outputs = state.IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [];
+            return new DocumentOutputCapture(outputs, state.IsDirty, state.Revision);
+        }, cancellationToken);
 
     public AssetContent? GetAsset(string assetId) => Locked(() =>
         _index.KnowsAsset(assetId) && Document.GetAsset(assetId) is { } asset

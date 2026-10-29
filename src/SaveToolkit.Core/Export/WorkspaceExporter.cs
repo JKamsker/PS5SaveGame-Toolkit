@@ -50,7 +50,7 @@ public static class WorkspaceExporter
         var set = workspace.Set;
         var overrides = new Dictionary<string, ReadOnlyMemory<byte>>(StringComparer.OrdinalIgnoreCase);
         var reasons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var dirty = workspace.Documents.Where(d => d.GetState(cancellationToken).IsDirty).ToList();
+        var dirty = new List<DocumentSession>();
         var groups = workspace.DocumentGroups;
         foreach (var group in groups)
         {
@@ -61,11 +61,13 @@ public static class WorkspaceExporter
             }
         }
 
-        foreach (var session in dirty)
+        foreach (var session in workspace.Documents)
         {
-            var outputs = session.Serialize(cancellationToken);
-            DocumentOutputVerifier.AddOutputs(workspace, session, outputs, overrides, cancellationToken);
-            foreach (var output in outputs)
+            var capture = session.CaptureOutputs(cancellationToken);
+            if (!capture.IsDirty) continue;
+            dirty.Add(session);
+            DocumentOutputVerifier.AddOutputs(workspace, session, capture, overrides, cancellationToken);
+            foreach (var output in capture.Outputs)
                 reasons[output.RelativePath] = $"edited with {session.Plugin.Info.Name}";
         }
 

@@ -17,9 +17,10 @@ internal static class DocumentOutputVerifier
         }
     }
 
-    public static void AddOutputs(Workspace workspace, DocumentSession session, IReadOnlyList<FileOutput> outputs,
+    public static void AddOutputs(Workspace workspace, DocumentSession session, DocumentOutputCapture capture,
         Dictionary<string, ReadOnlyMemory<byte>> overrides, CancellationToken cancellationToken)
     {
+        var outputs = capture.Outputs;
         CheckFingerprints(session, cancellationToken);
         var pending = new Dictionary<string, ReadOnlyMemory<byte>>(StringComparer.OrdinalIgnoreCase);
         var groups = workspace.DocumentGroups;
@@ -39,7 +40,7 @@ internal static class DocumentOutputVerifier
                 throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
         }
 
-        if (session.RequiresCompleteOutputs && !grouped && session.GetState(cancellationToken).IsDirty)
+        if (session.RequiresCompleteOutputs && !grouped && capture.IsDirty)
         {
             foreach (var expected in session.OwnedOutputPaths)
             {
