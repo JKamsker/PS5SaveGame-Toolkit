@@ -105,6 +105,7 @@ The job IDs below are the workflow keys, rather than matrix-expanded display nam
 | --- | --- | --- |
 | [ci.yml](../.github/workflows/ci.yml) | `validate` | Ubuntu/Windows backend and web checks; .NET coverage on Windows, web coverage and documentation/actionlint checks on Linux. |
 | [ci.yml](../.github/workflows/ci.yml) | `script-tests` | PowerShell script/scaffold regressions on Ubuntu, Windows and macOS. |
+| [ci.yml](../.github/workflows/ci.yml) | `csharp-size` | Exact PR/base-range C# size gate plus a full report-only debt audit. |
 | [ci.yml](../.github/workflows/ci.yml) | `e2e` | Ubuntu Chromium tests against the built API/UI. |
 | [dependency-drift.yml](../.github/workflows/dependency-drift.yml) | `report` | Weekly/manual report-only NuGet/npm version drift; no secrets, updates or auto-merge. |
 | [nightly-fuzz.yml](../.github/workflows/nightly-fuzz.yml) | `fuzz` | Ubuntu scheduled/manual mutation sweep with synthetic seeds, reproducible seed/count overrides and metadata-only failure reports. |
@@ -141,12 +142,17 @@ are additional). All commands below run from the repository root in PowerShell 7
 | `test.ps1` | `-Filter`, `-Configuration`, `-ResultsDirectory`, `-Coverage`, `-MaxParallel` | Builds the API and selected tests together once; empty filter runs all backend test projects. Configuration defaults to Debug; only Debug/Release are accepted. MaxParallel defaults to 2 (1–32 accepted; use 1 for serial execution). Results are optional unless coverage is requested. |
 | `bench.ps1` | `-ScratchDirectory`, `-Job`, `-Filter` | Opt-in synthetic benchmarks, Release only. Job defaults to Quick (ShortRun); Full uses the default BenchmarkDotNet job. Filter defaults to `*`. Scratch defaults to `SAVETOOLKIT_TEST_TEMP`, then a system-temp subdirectory; retains a unique run directory with reports and `summary.md`. |
 | `self-test.ps1` | `-ScratchDirectory` | Defaults to system temp. Runs script and real scaffold build/test checks; requires the selected .NET SDK and restore access, no Pester or private saves. |
+| `install-hooks.ps1` | *(none)* | Opt-in repository-local C# size-hook installation. It supports PowerShell's common `-WhatIf`, preserves an existing hook chain, and never changes global Git configuration. |
 | `build-docs.ps1` | `-ScratchDirectory` | Required path outside the checkout. Builds and checks the public docs with generated SDK/OpenAPI references; restores pinned tools and renderer assets, retains each run under scratch. See [docs build and Pages setup](../docs-site/README.md). |
 | `package.ps1` | `-Runtime`, `-OutputDirectory`, `-SkipWebBuild` | Output directory is required. Runtime is an array defaulting to all four supported RIDs; web build is included by default. |
 | `smoke-package.ps1` | `-PackageDirectory`, `-Runtime`, `-ScratchDirectory`, `-ExpectedVersion` | First three are required; exactly one matching archive plus its `.sha256` must exist. Expected version is optional. |
 | `new-plugin.ps1` | `-Name`, `-Id`, `-TitleIds`, `-GameName` | Name/ID are required; title IDs default to empty, game name to Name. See the [scaffold walkthrough](PLUGIN_GUIDE.md#scaffold) for format and name restrictions. |
 | `release-notes.ps1` | `-Version`, `-PreviousTag`, `-Force` | Version is required (SemVer without `v` or build metadata). Previous tag defaults to the nearest reachable `v*` tag on the first-parent history. Writes a draft; existing notes require Force. No network. |
 | `release-check.ps1` | `-Version` | Version is required in the same format. Read-only pre-tag checks require committed notes and a clean main branch; queries exact-HEAD main push CI through gh, or warns when gh is unavailable. |
+
+The dependency-free [`check_csharp_size.py`](../scripts/check_csharp_size.py) uses `--staged`,
+`--changed --base`, `--all` and `--report-only`; its index/base-range behavior and policy are
+documented in the [C# source-size guard](CSHARP_SIZE_GUARD.md).
 
 ## Disk and scratch
 
