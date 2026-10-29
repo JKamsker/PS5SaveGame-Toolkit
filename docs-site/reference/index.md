@@ -26,7 +26,10 @@ Shipped preservation and projection contracts have focused tutorials tied to com
 [lossless JSON](../tutorials/lossless-json.md), [canonical field references](../tutorials/field-references.md),
 and the [ParamSfo substrate](../tutorials/sfo-substrate.md). The generated pages for
 `LosslessJsonDocument`, `FieldReferenceNode`, `FieldPresentation`, and `ParamSfoDocument` remain
-the exact member reference.
+the exact member reference. The UnrealGvas consumer for SDK-08 is now on `main`: eligible
+non-generic Jedi/Sackboy scalar projections use canonical references, while generic summaries,
+wide strings, actor observations and opaque values retain bounded/read-only fallbacks. SDK-06,
+SDK-07 and SDK-10 remain open under the central ledger.
 
 ## Local HTTP API · OpenAPI 3.1
 

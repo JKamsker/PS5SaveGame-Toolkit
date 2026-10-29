@@ -68,9 +68,9 @@ This API is a **pure patching substrate**, not the eventual exact-output owner f
   sibling relationships, and verify the complete candidate output after applying the plan.
 - `ParamSfoDocument` does not synchronize gameplay state into `SUBTITLE`, does not create or resize
   entries and does not prove that a save manager caption should change.
-- SDK-10 therefore remains open. It closes only after a reviewed ownership contract and controlled
-  evidence show that the full-byte caption output is required. The later SuckerPunch consumer is
-  still pending; do not publish an “owned system output” journey.
+- The separate system-output ownership foundation is now shipped, but SDK-10 remains open until
+  controlled evidence shows that a full-byte caption output is required and the later SuckerPunch
+  consumer lands. Do not publish an “owned system output” journey from this pure substrate.
 - Export and document history remain host responsibilities. A pure plan can be included in an
   undoable host operation, but the substrate itself has no I/O, session or export side effects.
 

@@ -28,9 +28,16 @@ spec, confidence label or write permission from its opaque ID. Canonical `FieldP
 preserve `null` (unspecified) versus an explicit empty presentation, and a read-only/derived
 projection cannot override the primary binding.
 
+The shipped UnrealGvas consumer uses this contract for eligible non-generic Jedi/Sackboy scalar
+projections and keeps generic summaries, wide strings, actor observations and opaque values on
+bounded/read-only fallbacks. See the [consumer characterization](../plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas.Tests/GvasFieldReferenceTests.cs)
+and the [canonical field-reference tutorial](../docs-site/tutorials/field-references.md). This
+adoption does not establish gameplay semantics for other titles.
+
 `ParamSfoDocument` only patches an existing UTF-8 entry in its reserved slot. It does not create or
-resize keys and does not establish ownership of `param.sfo` or a save-manager caption. SDK-10 stays
-evidence-blocked until an explicit ownership contract and whole-byte caption evidence are reviewed.
+resize keys and does not itself establish ownership of `param.sfo` or a save-manager caption. The
+separate system-output ownership foundation is now on `main`; SDK-10 remains evidence-blocked until
+controlled whole-byte caption evidence and a later SuckerPunch consumer justify synchronization.
 See [the SDK request ledger](SDK_REQUESTS.md#prioritized-inventory) for foundation versus native
 adoption gates.
 

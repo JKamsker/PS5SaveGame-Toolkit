@@ -11,12 +11,15 @@ creates another binding. The host resolves the target from a loaded field or fro
 unresolved target remains an unavailable reference. This keeps a summary, table cell and review
 row on one live value and one write policy.
 
-The contract is shipped in `SaveToolkit.Sdk`; the native UnrealGvas projection is still pending.
-The preparation in `plugins/UnrealGvas/UNREAL-SDK08-HANDOFF.md` is deliberately metadata-only and
-does not prove adoption. The framework tests are the runnable examples for this page:
+The contract is shipped in `SaveToolkit.Sdk`, and the production UnrealGvas consumer is now on
+`main`. Non-generic Jedi/Sackboy raw, named and eager-search scalar projections emit these
+references; generic raw summaries, wide strings, actor observations and opaque values retain their
+bounded/read-only fallbacks. The framework and consumer tests are the runnable examples for this
+page:
 
 - [`FieldReferenceContractTests.cs`](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/tests/SaveToolkit.Core.Tests/FieldReferenceContractTests.cs)
 - [`FieldReferencePresentationTests.cs`](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/tests/SaveToolkit.Core.Tests/FieldReferencePresentationTests.cs)
+- [`GvasFieldReferenceTests.cs`](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas.Tests/GvasFieldReferenceTests.cs)
 
 ## Emit a reference, never a second field
 
@@ -107,10 +110,10 @@ they do not create a second binding.
 
 ## Adoption status
 
-SDK-08 remains **open** in the central ledger until a real UnrealGvas consumer lands on `main` and
-its tests cover genuine projections, unavailable targets, canonical annotations and the bounded
-normalized output. This tutorial documents the shipped framework contract and test evidence; it
-does not claim that the pending native consumer exists.
+SDK-08 is **resolved** in the central ledger for the shipped UnrealGvas consumer. Its tests cover
+genuine projections, unavailable structural targets, canonical annotations, shared live edits and
+the bounded wide-string fallback. This does not establish gameplay semantics for other titles or
+close the separate SDK-06, SDK-07 or SDK-10 adoption/evidence gates.
 
 Continue with [working with saves](../guides/working-with-saves.md) to review and revert changes,
 or return to [the first-plugin walkthrough](first-plugin.md).
