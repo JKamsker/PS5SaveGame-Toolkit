@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SaveToolkit.Core.Presets;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Core.Tests;
 
@@ -16,6 +17,19 @@ public sealed class PresetContractValidationTests
         var applyOnly = Capability(new PresetActionCapability("set", "Set", [], true, false));
         var action = new PresetAction("set", new Dictionary<string, JsonElement>());
         Assert.Contains("apply", PresetContractValidation.ValidateActions(applyOnly, [action]), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void ParameterBearingCapabilitiesRequireMatchingTypedSpecs()
+    {
+        var missing = Capability(new PresetActionCapability("set", "Set", ["quantity"]));
+        Assert.Contains("metadata", PresetContractValidation.ValidateCapability(missing), StringComparison.OrdinalIgnoreCase);
+        var valid = Capability(new PresetActionCapability("set", "Set", ["quantity"], ParameterSpecs: [new IntegerSpec(1, 99)]));
+        var request = new PresetCaptureRequest("set", new Dictionary<string, JsonElement>
+        {
+            ["quantity"] = JsonDocument.Parse("0").RootElement.Clone(),
+        });
+        Assert.Contains("between", PresetContractValidation.ValidateCapture(valid, request), StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

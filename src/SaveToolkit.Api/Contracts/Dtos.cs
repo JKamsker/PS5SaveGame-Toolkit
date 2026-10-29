@@ -103,6 +103,8 @@ public sealed record PresetCompatibilitySummaryDto(
     string? PreviewCode,
     string? PreviewReason,
     string PresetKind,
+    string SavedPluginVersion,
+    string CurrentPluginVersion,
     string? SavedGameBuild,
     string? CurrentGameBuild,
     string? SavedFormatVariant,

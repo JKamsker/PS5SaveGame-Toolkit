@@ -79,6 +79,7 @@ public static class PresetContractValidation
         if (capability is null || actions is null) return "The preset contract is malformed.";
         if (ValidateCapability(capability) is { } capabilityError) return capabilityError;
         if (actions.Count is < 1 or > 32 || actions.Count > capability.MaxActions) return "The preset action count is unsupported.";
+        if (ValidateAggregateInstances(actions) is { } aggregateError) return aggregateError;
         foreach (var action in actions)
         {
             var contract = capability.Actions.FirstOrDefault(item => item.ActionId == action.ActionId);
@@ -99,7 +100,10 @@ public static class PresetContractValidation
             || action.ParameterIds is null || action.ParameterIds.Count > MaxMapEntries
             || action.ParameterIds.Distinct(StringComparer.Ordinal).Count() != action.ParameterIds.Count
             || action.SupportedScopes is null || action.SupportedScopes.Count == 0
-            || action.SupportedScopes.Any(scope => !IsScope(scope)))) return "The preset capability metadata is malformed.";
+            || action.SupportedScopes.Any(scope => !IsScope(scope))
+            || action.ParameterSpecs is not null && (action.ParameterSpecs.Count != action.ParameterIds.Count
+                || action.ParameterSpecs.Any(spec => spec is null))
+            || action.ParameterIds.Count > 0 && action.ParameterSpecs is null)) return "The preset capability metadata is malformed.";
         if (capability.Actions.Select(action => action.ActionId).Distinct(StringComparer.Ordinal).Count() != capability.Actions.Count)
             return "The preset capability contains duplicate action identifiers.";
         return null;
@@ -132,6 +136,19 @@ public static class PresetContractValidation
     }
 
     public static string? ValidateInstanceReferences(IReadOnlyList<PresetInstanceReference>? instances) => ValidateInstances(instances);
+
+    public static string? ValidateAggregateInstances(IReadOnlyList<PresetAction>? actions)
+    {
+        if (actions is null) return "Preset actions are missing.";
+        var total = 0;
+        foreach (var action in actions)
+        {
+            if (action is null) return "Preset actions contain a null action.";
+            total = checked(total + (action.Instances?.Count ?? 0));
+            if (total > MaxSemanticInstances) return "Preset instance targets exceed the aggregate bounded limit.";
+        }
+        return null;
+    }
 
     public static string? ValidateChoices(IReadOnlyDictionary<string, string>? choices)
     {

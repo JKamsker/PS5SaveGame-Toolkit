@@ -112,6 +112,8 @@ internal static class DtoMapper
             previewCode,
             previewReason,
             preset.Compatibility.PresetKind,
+            preset.Compatibility.PluginVersion,
+            document.Plugin.Info.Version,
             preset.Compatibility.GameBuild,
             capability?.GameBuild,
             preset.Compatibility.FormatVariant,

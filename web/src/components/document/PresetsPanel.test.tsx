@@ -45,3 +45,30 @@ it("shows a truthful no-actions state without a never-ending loading message", a
   expect(screen.queryByText("Loading presets…")).toBeNull();
   expect(presets).not.toHaveBeenCalled();
 });
+
+it("filters capture actions to published scopes and starts on the first scope", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([]);
+  const unpublished = { ...action, actionId: "unpublished", label: "Unpublished" };
+  const semanticDocument = { ...document, view: { ...view, children: [action, unpublished, view.children[1]!] },
+    presetCapability: { schemaVersion: "1", maxActions: 1, actions: [{ actionId: "capture", label: "Capture", parameterIds: [], scopeKinds: ["allEligible"] }] } };
+  renderSpatial(<PresetsPanel document={semanticDocument} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  await screen.findByRole("button", { name: "Save preset" });
+  expect((screen.getByLabelText("Action") as HTMLSelectElement).value).toBe("capture");
+  expect((screen.getByLabelText("Scope") as HTMLSelectElement).value).toBe("allEligible");
+  expect(screen.queryByRole("option", { name: "Unpublished" })).toBeNull();
+});
+
+it("shows server-owned saved and current compatibility boundaries", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([{
+    preset: { schemaVersion: "1", id: "p", name: "Boundaries", compatibility: { pluginId: "test", pluginVersion: "1.0", titleIds: ["PPSA00001"] },
+      actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" },
+    compatibility: { compatible: true, readOnly: false, canPreview: true, presetKind: "toolkit.action-parameters", savedPluginVersion: "1.0", currentPluginVersion: "1.1", savedFormatVariant: "remake", currentFormatVariant: "rebirth", savedReferencePackIdentity: "saved-pack", currentReferencePackIdentity: "current-pack", savedSchemaFingerprint: "saved-schema", currentSchemaFingerprint: "current-schema", savedFileRole: "save", currentFileRole: "save", savedCapabilitySchemaVersion: "1", currentCapabilitySchemaVersion: "2", unsupportedActions: [] },
+  }]);
+  renderSpatial(<PresetsPanel document={document} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  await screen.findByText("Compatibility boundaries");
+  expect(screen.getByText("1.0 → 1.1")).not.toBeNull();
+  expect(screen.getByText("saved-pack → current-pack")).not.toBeNull();
+  expect(screen.getByText("remake → rebirth")).not.toBeNull();
+});
