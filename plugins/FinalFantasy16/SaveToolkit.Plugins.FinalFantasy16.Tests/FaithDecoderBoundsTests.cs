@@ -8,17 +8,17 @@ public sealed class FaithDecoderBoundsTests
     private readonly FaithEvidenceDecoder _decoder = new();
 
     [Theory]
-    [InlineData(FaithContainer.MaximumFileSize + 1L, long.MaxValue)]
-    [InlineData(long.MaxValue, long.MaxValue)]
-    [InlineData(1024L, 1023L)]
-    public void OversizedFilesAreRejectedWithoutReadingTheirBody(long length, long hostLimit)
+    [InlineData(FaithContainer.MaximumFileSize + 1L, long.MaxValue, "Faith save exceeds the supported 64 MiB limit.")]
+    [InlineData(long.MaxValue, long.MaxValue, "Faith save exceeds the supported 64 MiB limit.")]
+    [InlineData(1024L, 1023L, "FFXVI save exceeds the evidence decoder input bound.")]
+    public void OversizedFilesAreRejectedWithoutReadingTheirBody(long length, long hostLimit, string expectedMessage)
     {
         var file = new UnreadableBodyFile(length);
         var error = Record.Exception(() => _decoder.Decode(file, new FaithDecodeTestSink { MaxFileBytes = hostLimit }));
         Assert.NotNull(error);
         Assert.True(error is SaveFormatException or InvalidDataException, $"Expected a format/limit rejection, got {error}");
         Assert.False(file.BodyRead);
-        Assert.False(string.IsNullOrWhiteSpace(error.Message));
+        Assert.Equal(expectedMessage, error.Message);
     }
 
     private sealed class UnreadableBodyFile(long length) : ISaveFile

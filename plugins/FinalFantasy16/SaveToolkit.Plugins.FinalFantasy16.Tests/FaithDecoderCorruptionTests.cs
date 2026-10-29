@@ -24,7 +24,8 @@ public sealed class FaithDecoderCorruptionTests
 
         var error = Assert.Throws<SaveFormatException>(() => _decoder.Decode(FaithTestData.File(bytes), sink));
 
-        Assert.Contains("allocator bounds", error.Message);
+        var itemBlock = Assert.Single(FaithContainer.Parse(bytes).Blocks, block => block.Type == FaithSchema.ItemType);
+        Assert.Equal($"Faith inventory allocator bounds are invalid at 0x{itemBlock.PayloadOffset:X}.", error.Message);
         Assert.Equal(0, sink.AddCalls);
         Assert.False(sink.Truncated);
     }
@@ -38,9 +39,9 @@ public sealed class FaithDecoderCorruptionTests
         var bytes = FaithTestData.Container((99, 1, new byte[8]));
         var expected = corruption switch
         {
-            "crc" => "CRC32 mismatch",
-            "block-size" => "block size",
-            "terminator" => "terminator is missing",
+            "crc" => "Faith CRC32 mismatch: the save is damaged or still wrapped/encrypted.",
+            "block-size" => "Invalid Faith block size at 0x10.",
+            "terminator" => "Faith block terminator is missing.",
             _ => throw new ArgumentException("Unknown corruption.", nameof(corruption)),
         };
         if (corruption == "crc") bytes[FaithContainer.CrcOffset] ^= 1;
@@ -55,7 +56,7 @@ public sealed class FaithDecoderCorruptionTests
 
         var error = Assert.Throws<SaveFormatException>(() => _decoder.Decode(FaithTestData.File(bytes), sink));
 
-        Assert.Contains(expected, error.Message);
+        Assert.Equal(expected, error.Message);
         Assert.Equal(0, sink.AddCalls);
         Assert.False(sink.Truncated);
     }
@@ -77,7 +78,7 @@ public sealed class FaithDecoderCorruptionTests
         Assert.Throws<SaveFormatException>(() => new FinalFantasy16Plugin().Open(file));
         var error = Assert.Throws<SaveFormatException>(() => new HookSaveDecoder(_decoder).Decode(file,
             new DecodeLimits { MaxValues = 0 }));
-        Assert.Contains("allocator bounds", error.Message);
+        Assert.Equal($"Faith inventory allocator bounds are invalid at 0x{block.PayloadOffset:X}.", error.Message);
         Assert.Equal(originalBytes, original.ReadAllBytes());
     }
 
