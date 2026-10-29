@@ -1,3 +1,5 @@
+using SaveToolkit.Testing;
+
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
 public sealed class SyntheticSaveWorkspaceTests
@@ -9,6 +11,7 @@ public sealed class SyntheticSaveWorkspaceTests
         using (var workspace = new SyntheticSaveWorkspace("Globals.lsf", ResourceFixture.Create()))
         {
             root = workspace.RootPath;
+            Assert.Equal(Path.GetFullPath(TestScratch.ProcessFolder), Path.GetDirectoryName(root));
             Assert.True(Directory.Exists(root));
             Assert.Equal("Globals.lsf", workspace.File.FileName);
             Assert.Equal("PPSA18463/sdimg_SAVE/Globals.lsf", workspace.File.RelativePath);

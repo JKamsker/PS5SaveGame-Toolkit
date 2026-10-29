@@ -2,6 +2,7 @@ using System.IO.Compression;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
@@ -12,7 +13,7 @@ internal sealed class SyntheticSaveWorkspace : IDisposable
 
     internal SyntheticSaveWorkspace(string fileName, byte[] content)
     {
-        RootPath = Path.Combine(Path.GetFullPath(Path.GetTempPath()), "SaveToolkit.Bg3.Tests", Guid.NewGuid().ToString("N"));
+        RootPath = Path.Combine(Path.GetFullPath(TestScratch.ProcessFolder), Guid.NewGuid().ToString("N"));
         Plugin = new BaldursGate3Plugin();
         try
         {

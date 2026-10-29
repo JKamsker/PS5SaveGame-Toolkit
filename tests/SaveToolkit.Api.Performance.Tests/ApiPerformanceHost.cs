@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
@@ -15,7 +16,7 @@ internal sealed class ApiPerformanceHost : IDisposable
 
     public ApiPerformanceHost(IGamePlugin? plugin = null)
     {
-        var root = Path.Combine(Path.GetTempPath(), "api-performance", Guid.NewGuid().ToString("N"));
+        var root = Path.Combine(TestScratch.ProcessFolder, "api-performance", Guid.NewGuid().ToString("N"));
         _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder
             .UseEnvironment("Production")
             .UseSetting("Toolkit:DataRoot", Path.Combine(root, "workspaces"))
@@ -30,6 +31,7 @@ internal sealed class ApiPerformanceHost : IDisposable
     }
 
     public HttpClient Client { get; }
+    internal string StorageRoot => _factory.Services.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>()["Toolkit:DataRoot"]!;
     public static CancellationToken Ct => TestContext.Current.CancellationToken;
 
     public async Task<JsonElement> ImportAsync(Stream source, string name)

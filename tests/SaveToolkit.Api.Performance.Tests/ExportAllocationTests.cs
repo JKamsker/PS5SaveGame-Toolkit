@@ -16,7 +16,7 @@ public sealed class ExportAllocationTests(ITestOutputHelper output)
     {
         var plugin = new LiveBufferPlugin(new byte[PayloadBytes]);
         using var store = new WorkspaceStore(new PluginCatalog([plugin]), new WorkspaceStoreOptions
-        { DataRoot = Path.Combine(Path.GetTempPath(), "export-allocation", Guid.NewGuid().ToString("N")) });
+        { DataRoot = Path.Combine(TestScratch.ProcessFolder, "export-allocation", Guid.NewGuid().ToString("N")) });
         var workspace = store.Create("large", [new ImportSource("large.bin", () => new MemoryStream(plugin.Bytes))]);
         var session = workspace.Open(workspace.Set.Directories.Single().Files.Single().Id, plugin.Info.Id);
         _ = session.BuildView();
