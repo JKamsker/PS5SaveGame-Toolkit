@@ -332,13 +332,16 @@ dependencies remain Unknown.
 - **F7 (#29) merged on main as `7ff21ad` and adopted here.** The plugin uses
   `IDocumentGroupPlugin.ProposeGroups` / `ValidateGroup` / `OpenGroup` and
   `IGroupedSaveDocument.CaptureMemento` to explicitly bind the
-  matching character and global files by title, slot and generation, establish
-  one owner per output, fingerprint immutable inputs, validate member schemas
-  and cross-file dependencies, stage every output before publishing anything,
-  and provide one revision/undo/redo unit and atomic verified export. Unrelated
-  settings stay independently editable. Group models must prefix all member
-  identities by role, capture complete immutable multi-member state restorable
-  into a fresh instance, and serialize every selected member exactly once.
+  selected character and global files. The plugin checks that both belong to
+  the same save set, title, imported generation and backup status, validates
+  their parsed character/global roles, and verifies byte-identical no-op outputs.
+  It does not establish slot-to-global matching or shared gameplay dependencies.
+  Core reserves one owner per output, fingerprints immutable inputs, stages
+  every output before publishing anything, and provides one revision/undo/redo
+  unit and atomic verified export. Unrelated settings stay independently editable.
+  The group prefixes member identities by role, captures complete immutable
+  multi-member state restorable into a fresh instance, and serializes every
+  selected member exactly once.
   Every proposal includes the selected file; the alternative limit counts only
   its eligible partners. Backups must be explicit members. Group integration tests
   cover mixed scalar/structural history, a rejected later member, stable duplicate

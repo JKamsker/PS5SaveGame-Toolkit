@@ -122,7 +122,7 @@ public sealed class CompletionTests
         var plugin = new XorJsonPlugin();
         var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA16064");
         using var document = plugin.Open(MemorySaveSet.SingleFile("hero.sav", Encoding.UTF8.GetBytes(CharacterJson())), references);
-        var nodes = Flatten(document.BuildView()).ToArray();
+        var nodes = ViewTraversal.Nodes(document.BuildView());
         var graph = Assert.Single(nodes.OfType<GraphNode>());
         Assert.NotEmpty(graph.TextAlternative);
         Assert.All(graph.Items, item => Assert.NotNull(item.Target));
@@ -130,20 +130,6 @@ public sealed class CompletionTests
         Assert.NotEmpty(map.TextAlternative);
         Assert.NotNull(map.ExternalSource);
         Assert.All(map.Markers, marker => Assert.Null(marker.X));
-    }
-
-    private static IEnumerable<ViewNode> Flatten(ViewNode node)
-    {
-        yield return node;
-        switch (node)
-        {
-            case TabsNode tabs:
-                foreach (var child in tabs.Tabs.SelectMany(tab => tab.Children).SelectMany(Flatten)) yield return child;
-                break;
-            case SectionNode section:
-                foreach (var child in section.Children.SelectMany(Flatten)) yield return child;
-                break;
-        }
     }
 
     private static string CharacterJson(int swordStack = 1) => JsonSerializer.Serialize(new

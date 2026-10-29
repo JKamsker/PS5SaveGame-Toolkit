@@ -94,17 +94,5 @@ public sealed class WriteEnableTests
         foreach (var output in group.Serialize()) Assert.Equal(changed[output.RelativePath], output.Content.ToArray());
     }
 
-    private static IReadOnlyList<FieldNode> Fields(ISaveDocument document)
-    {
-        var fields = new List<FieldNode>();
-        Visit(document.BuildView());
-        return fields;
-        void Visit(ViewNode node)
-        {
-            if (node is FieldNode field) fields.Add(field);
-            if (node is TabsNode tabs) foreach (var tab in tabs.Tabs) foreach (var child in tab.Children) Visit(child);
-            if (node is SectionNode section)
-                foreach (var child in section.LazyId is { } id ? document.ExpandNode(id) : section.Children) Visit(child);
-        }
-    }
+    private static IReadOnlyList<FieldNode> Fields(ISaveDocument document) => ViewTraversal.Fields(document);
 }

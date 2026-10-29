@@ -10,7 +10,7 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
 {
     private const string GroupWarning = "Experimental character/global transaction. No shared game dependency or console reload has been verified; every member is staged and exported together, but the game may reject or repair the result.";
     private readonly IReferenceContext _references;
-    private XorJsonGroupMember[] _members;
+    private readonly XorJsonGroupMember[] _members;
 
     public XorJsonGroupDocument(XorJsonPlugin plugin, DocumentGroupInput input, IReferenceContext references)
     {
@@ -102,23 +102,19 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
         var member = Member(actionId);
-        if (member.Document is not IActionPlanningDocument planner)
-            return new ActionPlan { Errors = [new FieldError(actionId, "The selected member has no F6 planner.")] };
         var local = LocalScope(member, scope);
-        var plan = planner.PlanAction(member.Local(actionId), parameters, local);
+        var plan = member.Document.PlanAction(member.Local(actionId), parameters, local);
         return PrefixPlan(member, plan);
     }
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
         var member = Member(actionId);
-        if (member.Document is not IActionPlanningDocument planner)
-            return EditOutcome.Rejected(actionId, "The selected member has no F6 planner.");
         var before = CaptureMemento();
         try
         {
             var localPlan = UnprefixPlan(member, plan);
-            var outcome = planner.ApplyActionPlan(member.Local(actionId), parameters, LocalScope(member, scope), localPlan);
+            var outcome = member.Document.ApplyActionPlan(member.Local(actionId), parameters, LocalScope(member, scope), localPlan);
             if (!outcome.Succeeded) return outcome;
             _ = Serialize();
             return outcome with

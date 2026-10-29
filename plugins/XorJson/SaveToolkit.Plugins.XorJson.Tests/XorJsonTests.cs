@@ -129,21 +129,5 @@ public sealed class XorJsonTests
 
     internal static ISaveDocument Open(byte[] bytes) => new XorJsonPlugin().Open(MemorySaveSet.SingleFile("save", bytes));
 
-    internal static IReadOnlyList<FieldNode> Fields(ISaveDocument document)
-    {
-        var fields = new List<FieldNode>();
-        Visit(document.BuildView());
-        return fields;
-        void Visit(ViewNode node)
-        {
-            if (node is FieldNode field) fields.Add(field);
-            if (node is TabsNode tabs) foreach (var child in tabs.Tabs.SelectMany(t => t.Children)) Visit(child);
-            if (node is SectionNode section)
-            {
-                var children = section.LazyId is { } id ? document.ExpandNode(id) : section.Children;
-                Assert.True(children.Count <= 128);
-                foreach (var child in children) Visit(child);
-            }
-        }
-    }
+    internal static IReadOnlyList<FieldNode> Fields(ISaveDocument document) => ViewTraversal.Fields(document, checkChildBound: true);
 }

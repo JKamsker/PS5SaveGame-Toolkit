@@ -36,24 +36,16 @@ public sealed class GroupHistoryTests
         {
             DataRoot = scratch.Root,
         });
-        using var archive = new MemoryStream();
-        using (var zip = new ZipArchive(archive, ZipArchiveMode.Create, leaveOpen: true))
-        {
-            using (var entry = zip.CreateEntry(CharacterPath).Open()) entry.Write(character);
-            using (var entry = zip.CreateEntry(GlobalPath).Open()) entry.Write(global);
-        }
-        var workspace = store.Create("group-history", [new ImportSource("group.zip", () => new MemoryStream(archive.ToArray()))]);
+        var workspace = ImportGroup(store, character, global);
         var anchor = workspace.Set.AllDiskFiles.Single(file => file.RelativePath == CharacterPath);
         var proposal = Assert.Single(workspace.ProposeGroups(anchor.Id, plugin.Info.Id));
         Assert.Empty(proposal.Errors);
         var session = workspace.OpenGroup(proposal.Token).Session;
-        var fields = Expand(session).OfType<FieldNode>().ToArray();
+        var fields = ViewTraversal.Nodes(session).OfType<FieldNode>().ToArray();
         var level = fields.Single(field => field.Label == "Level");
         var volume = fields.Single(field => field.Label == "volume");
         var online = fields.Single(field => field.Label == "IsOnline");
-        var rows = session.QueryCollection(InventoryCollection, new()).Rows;
-        Assert.Equal(2, rows.Count);
-        Assert.NotEqual(rows[0].Key, rows[1].Key);
+        var rows = AssertInitialInventoryRows(session);
         var survivor = Assert.IsType<FieldNode>(rows[1].Cells["stack"]);
         var original = Bytes(workspace);
         Assert.Equal(character, original[CharacterPath]);
@@ -77,6 +69,33 @@ public sealed class GroupHistoryTests
 
         Assert.True(session.ApplyEdits([Edit(survivor.ValueId, FieldValue.ExactNumber("3"))]).Ok);
         var afterScalar = Bytes(workspace);
+        AssertRejectedBatchPreservesState(session, workspace, level, volume, online, afterScalar);
+        AssertHistoryCycles(session, workspace, rows.Select(row => row.Key).ToArray(), new(original, afterBatch, afterRemove, afterScalar));
+    }
+
+    private static IReadOnlyList<TableRow> AssertInitialInventoryRows(DocumentSession session)
+    {
+        var rows = session.QueryCollection(InventoryCollection, new()).Rows;
+        Assert.Equal(2, rows.Count);
+        Assert.NotEqual(rows[0].Key, rows[1].Key);
+        return rows;
+    }
+
+    private static Workspace ImportGroup(WorkspaceStore store, byte[] character, byte[] global)
+    {
+        using var archive = new MemoryStream();
+        using (var zip = new ZipArchive(archive, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            using (var entry = zip.CreateEntry(CharacterPath).Open()) entry.Write(character);
+            using (var entry = zip.CreateEntry(GlobalPath).Open()) entry.Write(global);
+        }
+        var bytes = archive.ToArray();
+        return store.Create("group-history", [new ImportSource("group.zip", () => new MemoryStream(bytes))]);
+    }
+
+    private static void AssertRejectedBatchPreservesState(DocumentSession session, Workspace workspace,
+        FieldNode level, FieldNode volume, FieldNode online, IReadOnlyDictionary<string, byte[]> expected)
+    {
         var beforeFailure = session.State;
         // The global member can accept its edit, but the character's mode invariant rejects
         // the later member. Neither file nor the preceding undo history may be published.
@@ -87,24 +106,27 @@ public sealed class GroupHistoryTests
         ]);
         Assert.False(rejected.Ok);
         Assert.Equal(beforeFailure, session.State);
-        AssertBytes(afterScalar, workspace);
+        AssertBytes(expected, workspace);
+    }
 
+    private static void AssertHistoryCycles(DocumentSession session, Workspace workspace, string[] rowKeys, HistorySnapshots snapshots)
+    {
         for (var cycle = 0; cycle < 2; cycle++)
         {
             Assert.True(session.Undo().Ok);
-            AssertBytes(afterRemove, workspace);
+            AssertBytes(snapshots.AfterRemove, workspace);
             Assert.True(session.Undo().Ok);
-            AssertBytes(afterBatch, workspace);
-            Assert.Equal(rows.Select(row => row.Key), session.QueryCollection(InventoryCollection, new()).Rows.Select(row => row.Key));
+            AssertBytes(snapshots.AfterBatch, workspace);
+            Assert.Equal(rowKeys, session.QueryCollection(InventoryCollection, new()).Rows.Select(row => row.Key));
             Assert.True(session.Undo().Ok);
-            AssertBytes(original, workspace);
+            AssertBytes(snapshots.Original, workspace);
             Assert.False(session.State.IsDirty);
             Assert.False(session.State.CanUndo);
             Assert.True(session.Redo().Ok);
             Assert.True(session.Redo().Ok);
             Assert.True(session.Redo().Ok);
-            AssertBytes(afterScalar, workspace);
-            Assert.Equal(rows[1].Key, Assert.Single(session.QueryCollection(InventoryCollection, new()).Rows).Key);
+            AssertBytes(snapshots.AfterScalar, workspace);
+            Assert.Equal(rowKeys[1], Assert.Single(session.QueryCollection(InventoryCollection, new()).Rows).Key);
         }
     }
 
@@ -133,17 +155,9 @@ public sealed class GroupHistoryTests
         foreach (var (path, bytes) in expected) Assert.Equal(bytes, actual[path]);
     }
 
-    private static IReadOnlyList<ViewNode> Expand(DocumentSession session)
-    {
-        var nodes = new List<ViewNode>();
-        Visit(session.BuildView());
-        return nodes;
-        void Visit(ViewNode node)
-        {
-            nodes.Add(node);
-            if (node is TabsNode tabs) foreach (var child in tabs.Tabs.SelectMany(tab => tab.Children)) Visit(child);
-            if (node is SectionNode section)
-                foreach (var child in section.LazyId is { } id ? session.Expand(id) : section.Children) Visit(child);
-        }
-    }
+    private sealed record HistorySnapshots(
+        IReadOnlyDictionary<string, byte[]> Original,
+        IReadOnlyDictionary<string, byte[]> AfterBatch,
+        IReadOnlyDictionary<string, byte[]> AfterRemove,
+        IReadOnlyDictionary<string, byte[]> AfterScalar);
 }

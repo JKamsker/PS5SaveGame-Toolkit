@@ -28,7 +28,7 @@ public sealed class SessionHistoryTests
         var plugin = new XorJsonPlugin();
         using var document = plugin.Open(file);
         using var session = new DocumentSession("xorjson-history", file, plugin, document);
-        var nodes = Expand(session);
+        var nodes = ViewTraversal.Nodes(session);
         var first = nodes.OfType<FieldNode>().Single(f => f.Label == "text" && f.Value.AsString() == "A");
         var survivor = nodes.OfType<FieldNode>().Single(f => f.Label == "n" && f.Value.AsExactNumber() == "1.00E+02");
         Assert.True(session.ApplyEdits([Incoming(first.ValueId, FieldValue.Of("edited"))]).Ok);
@@ -56,17 +56,4 @@ public sealed class SessionHistoryTests
 
     private static IncomingEdit Incoming(string id, FieldValue value) => new(id, JsonSerializer.SerializeToElement(value));
 
-    private static IReadOnlyList<ViewNode> Expand(DocumentSession session)
-    {
-        var nodes = new List<ViewNode>();
-        Visit(session.BuildView());
-        return nodes;
-        void Visit(ViewNode node)
-        {
-            nodes.Add(node);
-            if (node is TabsNode tabs) foreach (var child in tabs.Tabs.SelectMany(t => t.Children)) Visit(child);
-            if (node is SectionNode section)
-                foreach (var child in section.LazyId is { } id ? session.Expand(id) : section.Children) Visit(child);
-        }
-    }
 }
