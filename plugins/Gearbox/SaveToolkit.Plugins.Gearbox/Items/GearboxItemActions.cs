@@ -24,52 +24,57 @@ internal sealed class GearboxItemActions(GearboxDocument document)
         {
             var changes = new List<PlannedChange>();
             var skipped = new List<SkippedActionRow>();
-            if (actionId == "items/import")
-            {
-                if (scope.RowKeys is not null || scope.QueryScope is not null) throw new SaveFormatException("Import uses document scope.");
-                var serial = Import(parameters);
-                var list = document.Profile ? GearboxInventory.Bank : GearboxInventory.Backpack;
-                document.Inventory.EnsureCapacity(list, 1);
-                var count = document.Root.All(list).Count();
-                changes.Add(new(list + "/count", "Import one validated-layout serial", FieldValue.Of(count), FieldValue.Of(count + 1)));
-                changes.Add(new("import/serial", "New serial (game legality unverified)", FieldValue.Null, FieldValue.Of(Convert.ToBase64String(serial))) { OldExists = false });
-            }
-            else
-            {
-                if (actionId is not ("items/level" or "items/duplicate" or "items/remove")) throw new SaveFormatException("Unknown planned Gearbox item action.");
-                var selected = Select(scope, actionId != "items/level");
-                var level = actionId == "items/level" ? TargetLevel(parameters) : 0;
-                foreach (var entry in selected)
-                {
-                    if (actionId == "items/level")
-                    {
-                        try
-                        {
-                            _ = SerialWrites.Set(entry.Serial, document.Root.Schema.Wonderlands, "level", level);
-                            var old = document.Inventory.Info(entry.Id).Level!.Value;
-                            if (old != level) changes.Add(new(entry.Id + "/level", entry.Id + " level", FieldValue.Of(old), FieldValue.Of(level)));
-                        }
-                        catch (SaveFormatException ex) { skipped.Add(new(entry.Id, ex.Message)); }
-                    }
-                    else
-                    {
-                        if (actionId == "items/duplicate" && !document.Inventory.Info(entry.Id).Complete)
-                        { skipped.Add(new(entry.Id, "Cannot create an item with an unknown or invalid layout.")); continue; }
-                        changes.Add(new(entry.Id + "/presence", entry.Id + (actionId == "items/remove" ? " removed" : " duplicated"),
-                            FieldValue.Of(1), FieldValue.Of(actionId == "items/remove" ? 0 : 2)));
-                    }
-                }
-                var skippedIds = skipped.Select(row => row.RowKey).ToHashSet(StringComparer.Ordinal);
-                if (actionId == "items/duplicate")
-                    foreach (var group in selected.Where(e => !skippedIds.Contains(e.Id)).GroupBy(e => e.List))
-                        document.Inventory.EnsureCapacity(group.Key, group.Count());
-                if (actionId == "items/remove") AddSlotChanges(changes, selected);
-            }
+            if (actionId == "items/import") PlanImport(parameters, scope, changes);
+            else PlanSelected(actionId, parameters, scope, changes, skipped);
             return new() { Changes = changes, SkippedRows = skipped, Warnings = [SerialWrites.Warning,
                 "Removal unequips matching slots and rebases surviving equipment indices. Import assigns seen/pickup metadata; duplicates clone all existing metadata. Account cloud mirrors are not reconciled."] };
         }
         catch (Exception ex) when (ex is SaveFormatException or FormatException or OverflowException)
         { return new() { Errors = [new("", ex.Message)], Warnings = [SerialWrites.Warning] }; }
+    }
+
+    private void PlanImport(IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, List<PlannedChange> changes)
+    {
+        if (scope.RowKeys is not null || scope.QueryScope is not null) throw new SaveFormatException("Import uses document scope.");
+        var serial = Import(parameters);
+        var list = document.Profile ? GearboxInventory.Bank : GearboxInventory.Backpack;
+        document.Inventory.EnsureCapacity(list, 1);
+        var count = document.Root.All(list).Count();
+        changes.Add(new(list + "/count", "Import one validated-layout serial", FieldValue.Of(count), FieldValue.Of(count + 1)));
+        changes.Add(new("import/serial", "New serial (game legality unverified)", FieldValue.Null, FieldValue.Of(Convert.ToBase64String(serial))) { OldExists = false });
+    }
+
+    private void PlanSelected(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope,
+        List<PlannedChange> changes, List<SkippedActionRow> skipped)
+    {
+        if (actionId is not ("items/level" or "items/duplicate" or "items/remove")) throw new SaveFormatException("Unknown planned Gearbox item action.");
+        var selected = Select(scope, actionId != "items/level");
+        var level = actionId == "items/level" ? TargetLevel(parameters) : 0;
+        foreach (var entry in selected)
+        {
+            if (actionId == "items/level")
+            {
+                try
+                {
+                    _ = SerialWrites.Set(entry.Serial, document.Root.Schema.Wonderlands, "level", level);
+                    var old = document.Inventory.Info(entry.Id).Level!.Value;
+                    if (old != level) changes.Add(new(entry.Id + "/level", entry.Id + " level", FieldValue.Of(old), FieldValue.Of(level)));
+                }
+                catch (SaveFormatException ex) { skipped.Add(new(entry.Id, ex.Message)); }
+            }
+            else
+            {
+                if (actionId == "items/duplicate" && !document.Inventory.Info(entry.Id).Complete)
+                { skipped.Add(new(entry.Id, "Cannot create an item with an unknown or invalid layout.")); continue; }
+                changes.Add(new(entry.Id + "/presence", entry.Id + (actionId == "items/remove" ? " removed" : " duplicated"),
+                    FieldValue.Of(1), FieldValue.Of(actionId == "items/remove" ? 0 : 2)));
+            }
+        }
+        var skippedIds = skipped.Select(row => row.RowKey).ToHashSet(StringComparer.Ordinal);
+        if (actionId == "items/duplicate")
+            foreach (var group in selected.Where(e => !skippedIds.Contains(e.Id)).GroupBy(e => e.List))
+                document.Inventory.EnsureCapacity(group.Key, group.Count());
+        if (actionId == "items/remove") AddSlotChanges(changes, selected);
     }
 
     public void Apply(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
