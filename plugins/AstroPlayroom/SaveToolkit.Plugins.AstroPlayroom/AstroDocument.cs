@@ -41,7 +41,7 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
         Register(allocation.Root);
         foreach (var field in _fields)
         {
-            _ = ValueNode(field);
+            _ = BindValue(field);
         }
     }
 
@@ -191,9 +191,14 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
         return [new FileOutput(_path, output)];
     }
 
-    private FieldNode ValueNode(AstroField field) => Field(field.Token.Id, field.Label, field.Spec,
-        () => Current(field), field.Editable ? value => Set(field, value) : null) with
+    // The SDK returns a node when registering a binding. Use only existing strings here;
+    // presentation metadata is needed only when the field is actually shown.
+    private FieldNode BindValue(AstroField field) => Field(field.Token.Id, field.Element.Name, field.Spec,
+        () => Current(field), field.Editable ? value => Set(field, value) : null);
+
+    private FieldNode ValueNode(AstroField field) => BindValue(field) with
     {
+        Label = field.Label,
         Confidence = field.Confidence,
         Description = field.Path + (field.Token.IsAttribute ? $"/@{field.Token.Name}" : ""),
         Warning = field.Editable ? EditWarning : null
