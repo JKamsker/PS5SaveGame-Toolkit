@@ -175,14 +175,9 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
     [Fact]
     public void LargeInventoryUsesQueryableShellAndConstructsOnlyRequestedRows()
     {
-        var container = CsavContainer.Parse(ProgressionSampleTests.Files()[0].ReadAllBytes());
         const int count = 1000;
-        var nodes = Enumerable.Range(0, count).Select(id => new CsavNode(id, "itemData", -1, -1, 0, 29)).ToArray();
-        var items = Enumerable.Range(0, count).Select(id => new InventoryItem(id, 1, InventoryReader.MoneyTweakId, null, 0)).ToArray();
         var bound = 0;
-        var inspection = new InventoryInspection(items, container, new CsavTree(nodes, []), new CyberpunkReferences(IReferenceContext.Empty, 2210),
-            new ItemNames(), container.Payload, _ => throw new InvalidOperationException("No quantity in synthetic rows"),
-            (id, label, spec, value) => { bound++; return new FieldNode(id, label, spec with { ReadOnly = true }, FieldValue.Of(value)); });
+        var inspection = InventoryInspectionFixture.Create(count, () => bound++);
         Assert.Single(inspection.Build().OfType<QueryableTableNode>());
         Assert.Equal(0, bound);
         var page = inspection.Query(new QueryableCollectionQuery { Offset = 700, Limit = 3 });
@@ -190,5 +185,8 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         Assert.Equal(6, bound); // One display-name and one reference field per returned row.
         Assert.Equal(1000, page.TotalCount);
         Assert.Equal(3, page.Rows.Select(row => row.Key).Distinct().Count());
+        var expected = Enumerable.Range(0, count).Select(id => id.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            .Order(StringComparer.Ordinal).Skip(700).Take(3);
+        Assert.Equal(expected, page.Rows.Select(row => row.Key));
     }
 }
