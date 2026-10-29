@@ -69,6 +69,21 @@ public sealed class CollectionQueryNormalizationApiTests(WebApplicationFactory<P
         Assert.Equal(diagnostic, problem.GetProperty("detail").GetString());
     }
 
+    [Theory]
+    [InlineData(128, 200)]
+    [InlineData(129, 400)]
+    public async Task ClearedFilterKeys_StillRespectTheDocumentedLengthBound(int length, int status)
+    {
+        string key = new('x', length);
+        using var response = await _client.GetAsync($"{await OpenAsync()}?filter.{key}=", TestContext.Current.CancellationToken);
+        Assert.Equal((HttpStatusCode)status, response.StatusCode);
+        if (status == 400)
+        {
+            var problem = await ApiProblemContractTests.AssertProblemAsync(response, HttpStatusCode.BadRequest);
+            Assert.Equal("Collection query exceeds the protocol limits.", problem.GetProperty("detail").GetString());
+        }
+    }
+
     private async Task<string> OpenAsync()
     {
         var ct = TestContext.Current.CancellationToken;

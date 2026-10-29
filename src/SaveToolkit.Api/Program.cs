@@ -6,15 +6,16 @@ using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 
-const long maxUpload = 8L * 1024 * 1024 * 1024;
+const long maxUploadBytes = 8L * 1024 * 1024 * 1024;
+const int maxFormValues = 100_000;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = maxUpload);
+builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = maxUploadBytes);
 builder.Services.Configure<FormOptions>(o =>
 {
-    o.MultipartBodyLengthLimit = maxUpload;
-    o.ValueCountLimit = 100_000;
+    o.MultipartBodyLengthLimit = maxUploadBytes;
+    o.ValueCountLimit = maxFormValues;
 });
 builder.Services.ConfigureHttpJsonOptions(o => ToolkitJson.Configure(o.SerializerOptions));
 // Route binding must reach our error handler in Production as well as Development.

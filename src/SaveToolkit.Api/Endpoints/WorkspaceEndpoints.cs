@@ -15,6 +15,7 @@ namespace SaveToolkit.Api.Endpoints;
 internal static class WorkspaceEndpoints
 {
     private const int MaxBlobPage = 64 * 1024;
+    private const int MaxFilterKeyLength = 128;
 
     public static void MapToolkitApi(this IEndpointRouteBuilder app)
     {
@@ -144,7 +145,7 @@ internal static class WorkspaceEndpoints
             || query.Cursor is { Length: 0 or > QueryableCollectionLimits.MaxCursorLength }
             || query.Cursor is not null && offset != 0
             || query.Filters.Count > QueryableCollectionLimits.MaxFilterCount
-            || query.Filters.Any(f => f.Key.Length == 0 || f.Key.Length > 128 || f.Value.Length > QueryableCollectionLimits.MaxFilterLength))
+            || query.Filters.Any(f => f.Key.Length == 0 || f.Key.Length > MaxFilterKeyLength || f.Value.Length > QueryableCollectionLimits.MaxFilterLength))
         {
             throw new BadHttpRequestException("Collection query exceeds the protocol limits.");
         }
