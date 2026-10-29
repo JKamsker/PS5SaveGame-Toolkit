@@ -34,6 +34,7 @@ public sealed class UnrealGvasPlugin : IGamePlugin, ISaveDecoderProvider
             "https://cdn.eip.gg/hogwarts-legacy/icons/gear/",
             "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Costume_Icons",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/tree/main/src/SaveToolkit.Codecs",
+            HogwartsInventorySlots.SourceUrl,
         ],
     };
 
