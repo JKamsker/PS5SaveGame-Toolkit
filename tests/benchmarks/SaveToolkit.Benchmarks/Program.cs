@@ -6,6 +6,13 @@ internal static class Program
 {
     public static int Main(string[] args)
     {
+        if (args is ["--startup-worker", var workerScratch])
+        {
+            StartupWorker.Run(workerScratch);
+            return 0;
+        }
+        if (args is ["--startup", var apiPath, var scratch])
+            return StartupReport.RunAsync(apiPath, scratch).GetAwaiter().GetResult();
         if (args is ["--verify"])
         {
             foreach (var size in Enum.GetValues<DataSize>())

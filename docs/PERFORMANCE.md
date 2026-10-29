@@ -1,11 +1,14 @@
 # Performance baselines
 
-The opt-in `tests/benchmarks/SaveToolkit.Benchmarks` executable measures the real Core and
-GenericJson/XorJson paths with [BenchmarkDotNet](https://benchmarkdotnet.org/).
+The opt-in `tests/benchmarks/SaveToolkit.Benchmarks` executable measures Core startup and
+GenericJson/XorJson workflows with [BenchmarkDotNet](https://benchmarkdotnet.org/), plus a
+separate fresh-process startup/idle observation mode.
 It has no test adapter, is explicitly not a test project, and is not discovered by
 `scripts/test.ps1` (which selects `*.Tests.csproj`), `dotnet test`, or CI Validate.
 The solution includes it for normal builds; benchmarking requires an explicit run.
-No private samples, sample loaders, network data, reference packs or user workspaces are read.
+The workflow cases read no private samples, sample loaders, network data, reference packs or user
+workspaces. Startup cases discover the shipped plugins and load their embedded reference packs;
+all imported saves are authored synthetic data. Startup uses fresh, empty storage roots.
 
 ## Run
 
@@ -27,8 +30,9 @@ It restores the caller's environment and location even on failure.
 
 `-Job Quick` (default) selects ShortRun: one launch, three warmups and three measured iterations.
 `-Job Full` selects BenchmarkDotNet's adaptive default job. `-Filter` is a BenchmarkDotNet wildcard
-over benchmark names. The quick suite covers all 36 combinations (six operations, three sizes,
-two formats); allow several minutes. Full is appropriate before drawing performance conclusions.
+over benchmark names. The suite covers 36 workflow combinations (six operations, three sizes,
+two formats) and two catalog/reference cases; allow several minutes. Full is appropriate before
+drawing performance conclusions.
 
 Reports, logs and `summary.md` remain under the unique run directory; invocation-owned synthetic
 blobs, file spools and redirected temp are removed. BenchmarkDotNet's generated build files use
@@ -146,3 +150,219 @@ uses about 70 MiB at that boundary. This is a measured hotspot, not evidence of 
 correctness defect; production profiling/changes are deferred to #40 outside this benchmark task.
 A separate targeted Quick rerun allocated 104.3 MiB for Large/XorJson ApplyUndo, confirming the
 allocation magnitude; its 313.5 ms mean still had a very wide 1,433.1 ms error interval.
+
+## Startup and idle cost (#40)
+
+Captured **2026-10-29** on `review/perf-startup`, baseline `2b15e8e8`, with the catalog change
+in `0dbd2269`. Same Windows/CPU/SDK/runtime/power plan as above. The API uses server GC;
+the console measurement worker uses workstation GC. There are **17 plugins plus `builtin.raw`**.
+All saves are synthetic. No private samples are loaded by these measurements.
+
+Run the separate observation mode after building Release (no BenchmarkDotNet warmup/calibration):
+
+```powershell
+$scratch = 'D:/Temp/saveeditor/test-scratch/startup-observation'
+New-Item -ItemType Directory -Force $scratch | Out-Null
+$env:TEMP = $env:TMP = $env:TMPDIR = $scratch
+dotnet build tests/benchmarks/SaveToolkit.Benchmarks -c Release --warnaserror
+dotnet tests/benchmarks/SaveToolkit.Benchmarks/bin/Release/net10.0/SaveToolkit.Benchmarks.dll `
+  --startup src/SaveToolkit.Api/bin/Release/net10.0/SaveToolkit.Api.dll $scratch
+```
+
+This starts five fresh worker/API pairs, with a new empty workspace/pack root per API. Use a new
+scratch directory each run. `startup.json` retains every observation and API logs remain beside it.
+It requires loopback HTTP, not Internet access. `--startup-worker <scratch>` is the internal child
+mode. Run serially with other tests/builds stopped. No production instrumentation/endpoints are added.
+
+The API stopwatch begins immediately before `Process.Start` and ends after the complete successful
+`GET /api/plugins` response, including JSON validation and all plugins. Polling adds up to a 10 ms
+delay plus connection overhead. These are fresh-process starts with an uncontrolled OS file cache,
+**not** a reboot/disk-cold guarantee. This measures the framework-dependent Release DLL, without
+`dotnet run`, compilation, UI loading, or browser startup. Before/after binaries were copied to
+separate sibling D: directories. The build-output API has no copied wwwroot and logs that warning
+in both phases; the packaged UI is validated separately by the bundle smoke.
+
+The worker separately times discovery/constructors, then each first probe of a disk-backed
+Small/GenericJson save, then construction of a new embedded `ReferencePackStore`. Synthetic input
+generation/import and full collections are outside those timing/allocation intervals. Retained pack
+heap is `GC.GetTotalMemory(true)` after minus before construction, with the store kept alive. It is
+an estimate of live managed objects, not working set. The second discovery is explicitly warm.
+
+Five observations per phase below: **median [minimum, maximum]**. Timings are milliseconds;
+allocations are managed bytes on the synchronous measuring thread. No test/build ran alongside
+these process observations; unrelated machine activity was uncontrolled.
+
+| Boundary | Before | After |
+| --- | ---: | ---: |
+| Process start → `/api/plugins`, ms | 1,934 [1,710, 2,409] | 1,746 [1,199, 3,345] |
+| First catalog discovery, ms | 66.64 [42.12, 2,981.10] | 58.42 [48.40, 2,090.82] |
+| First catalog discovery, B | 618,888 | 400,192 [394,000, 400,192] |
+| Warm discovery, ms | 4.36 [2.97, 11.87] | 2.99 [2.59, 3.17] |
+| Warm discovery, B | 399,872 [399,872, 400,024] | 175,832 |
+| All embedded packs, ms | 978.76 [771.51, 1,676.76] | 918.25 [732.96, 985.72] |
+| All embedded packs, allocated MiB | 388.70 [379.08, 389.02] | 388.67 [379.69, 388.69] |
+| All embedded packs, retained managed MiB | 152.13 [152.09, 152.13] | 152.13 [152.09, 152.13] |
+
+Caching `AssemblyName` only within discovery removes repeated `Assembly.GetName()` allocations
+while retaining live assembly enumeration, `ReferenceMatchesDefinition`, duplicate detection and
+fresh plugin instances. First discovery allocates about **35% less**, warm discovery **56% less**
+in the standalone worker. Startup latency is too noisy to attribute a speedup, and there is no
+demonstrated reduction in idle memory. The large first-discovery outliers are retained in the report.
+
+### Reference loading and deferred work
+
+`Program.cs` registers a singleton store; resolving the hosted workspace sweeper resolves its
+workspace/session dependencies, constructing the catalog and reference store before the server is
+ready. `ReferencePackStore.LoadEmbedded` loads **all 40 packs**, **175 datasets**, and **105,084 items**
+(records plus assets), including unused titles. Hash checking, record parsing, key/category indexes
+and asset bytes are eager. They remain reachable through the singleton for the process lifetime.
+Only sorted browse indexes in the SDK's decoded catalogs are lazy. Pinning a document shares packs;
+closing the document does not evict them. Measurements have no stored user packs.
+
+**Medium, deferred:** lazy records/assets could avoid much of the roughly 152 MiB retained heap
+and startup decode work. This needs an explicit design for eager rejection/load errors, exact
+listing counts, cross-dataset asset validation, custom limits, concurrent first use and immutable
+document snapshots. The decoder is shared with SDK direct-open contexts. Changing those contracts
+or moving errors to first access exceeds this task's behavior-preserving Core loading scope.
+No lazy-loading or global-cache change is made here.
+
+### First probes
+
+The shared JSON probe medians below come from the five **after** workers. Only GenericJson and raw
+match; all other entries measure first-use rejection of that same file, not their accepted formats.
+Accepted-probe medians come from five fresh, separately filtered Release test processes:
+
+```powershell
+# Set TEMP/TMP/TMPDIR and SAVETOOLKIT_TEST_TEMP to D: as above.
+$env:SAVETOOLKIT_STARTUP_PROBES = "$scratch/accepted-probes.csv"
+dotnet test --project tests/SaveToolkit.Core.Tests -c Release `
+  --filter-class '*StartupProbeMeasurements' --output Detailed
+```
+
+The test selects each plugin's first authored conformance mutation seed, imports it before timing,
+and asserts acceptance. Fixture generation may initialize shared format helpers; this is the first
+`Probe` invocation after fixture construction, not a wholly cold parser/JIT guarantee. It never
+calls the sample loaders. Times include disk stream creation/first read (usually OS-cached).
+There are no latency assertions. Values are **median ms / allocated B**; probe code is unchanged.
+
+| Plugin | Shared JSON | Accepted synthetic seed |
+| --- | ---: | ---: |
+| builtin.raw | 1.590 / 83,968 | Same shared JSON |
+| astro-playroom | 0.137 / 64 | 1.696 / 83,536 |
+| atomic-heart | 0.342 / 83,160 | 2.532 / 83,648 |
+| bg3 | 0.233 / 32 | 1.417 / 82,592 |
+| cyberpunk2077 | 0.240 / 82,272 | 1.097 / 82,528 |
+| eldenring | 0.231 / 56 | 7.457 / 82,728 |
+| ffxvi | 0.112 / 32 | 9.129 / 82,512 |
+| ff7r | 0.138 / 32 | 8.686 / 82,624 |
+| gearbox | 0.116 / 32 | 2.151 / 82,656 |
+| format.json | 2.911 / 83,448 | 10.974 / 83,080 |
+| gow-ragnarok | 0.352 / 160 | 1.609 / 82,880 |
+| insomniac | 0.425 / 82,256 | 1.431 / 82,512 |
+| pragmata | 0.108 / 32 | 15.076 / 82,512 |
+| suckerpunch | 0.128 / 32 | 7.079 / 82,560 |
+| tales-of-arise | 0.066 / 32 | 8.667 / 205,648 |
+| engine.unreal-gvas | 0.773 / 82,216 | 11.231 / 83,224 |
+| witcher3 | 0.120 / 32 | 1.900 / 82,504 |
+| format.json-xor | 0.620 / 82,352 | 61.380 / 437,800 |
+
+**Low, deferred profiling candidate:** XorJson's accepted first use allocates 428 KiB versus roughly
+81 KiB for most accepted probes. The cause is not established by allocation totals. It is outside
+Core catalog/reference loading; no plugin change is proposed from these coarse timings. JSON's
+rejection path does not reveal that cost.
+
+### Idle and repeated lifecycle
+
+Each API snapshot waits 500 ms without requests. No target GC or working-set trim is forced. Each
+cycle imports the Small ZIP (two saves, 256 scalars each), explicitly opens the first with GenericJson
+(including its first view/HTTP DTO), closes the document and deletes the workspace. After the first
+cycle, the harness repeats the same cycle **20 additional times**, snapshotting after each and
+requiring the final workspace list to be empty. Memory is **MiB**, median [min, max] across five APIs.
+
+| API idle point | Before working set | After working set | Before private bytes | After private bytes |
+| --- | ---: | ---: | ---: | ---: |
+| Startup | 350.4 [347.5, 361.1] | 358.4 [348.8, 366.6] | 266.7 [260.0, 317.3] | 274.4 [265.2, 295.9] |
+| One cycle | 360.5 [358.3, 373.0] | 367.4 [357.9, 376.7] | 280.8 [263.1, 323.0] | 289.6 [268.4, 300.4] |
+| Another 20 cycles | 384.6 [380.1, 404.6] | 389.9 [381.5, 406.0] | 302.8 [279.6, 349.3] | 310.0 [301.1, 325.3] |
+
+Working set grows after the warmup cycle by about 23–24 MiB at the median; these short observations
+do not distinguish runtime/JIT/buffer/GC high-water retention from a leak. There is no defensible
+working-set CI threshold. `StartupLifecycleAllocationTests` instead keeps the catalog/reference store
+alive and proves all 20 removed workspace/session pairs collectible after full GC, with no registered
+workspaces or remaining blob directories. Its smaller four-scalar fixture allocates **831,840 B per
+20 cycles**, below a **2 MiB** budget. `PluginDiscoveryAllocationTests` fell from **2,152,568 B** before
+the fix to about **356,552 B** in the richer test host, below **512 KiB**. Both use `AllocationProbe`:
+Release enforces bounds; Debug reports. Collectibility/behavior checks run in both configurations.
+This bounds the tested Core lifetime, not every plugin or all possible HTTP/native retention.
+
+### Warm BenchmarkDotNet cases
+
+`CatalogStartupBenchmarks.Discover` measures warmed discovery/constructors with all plugins.
+`LoadEmbeddedPacks` constructs a fresh store with all shipped packs; discovery is setup and there
+is one invocation per iteration to bound transient memory. These are warm-JIT/OS-cache operations,
+not substitutes for the fresh-process measurements. Run explicitly with:
+
+```powershell
+./scripts/bench.ps1 -ScratchDirectory $scratch -Filter '*CatalogStartupBenchmarks*'
+```
+
+The local Quick/ShortRun completed **2/2** cases in 55 seconds: discovery **2.920 ms / 170.1 KiB**,
+pack loading **842.822 ms / 379.0 MiB** allocated. The 99.9% error half-widths were respectively
+3.286 ms and 686.422 ms; these timings are coarse. Repeated pack-load allocation differs from
+first use; these totals do not identify the cause. Compare the same boundary.
+
+### Packaged win-x64 size and trimming candidates
+
+The official `scripts/package.ps1` produced `SaveToolkit-0.1.0-rc.2.42-win-x64.zip` at `ffebb3e5`:
+**69,474,718 bytes (66.26 MiB)** compressed; **185,340,676 bytes (176.75 MiB)** expanded,
+**432 files**. This is a descriptive after-change bundle measurement, not a before/after size claim.
+The unchanged web sources were built on D: and their generated wwwroot linked for packaging;
+`-SkipWebBuild` reused that build. Publish settings remain self-contained, untrimmed, multiple files.
+
+| Contents | Expanded MiB | ZIP payload MiB |
+| --- | ---: | ---: |
+| Runtime, third-party dependencies, licences and other files | 107.50 | 48.54 |
+| 17 plugin DLLs, including embedded reference packs | 64.41 | 15.06 |
+| Native SQLite | 1.89 | 1.05 |
+| Other toolkit DLLs | 0.96 | 0.35 |
+| PDB symbols | 0.96 | 0.53 |
+| Built UI | 1.04 | 0.65 |
+
+ZIP payload sums exclude archive headers. The largest plugin is Gearbox at 22.80 MiB expanded;
+its DLL compresses to 2.12 MiB. DLL size includes code and resources, not a measured asset-only total.
+
+**Documented only:**
+
+- Separating symbols could save about 0.53 MiB compressed; retain a separate symbol artifact for
+  diagnostics. No symbol/publish change is made for this small saving.
+- A separate framework-dependent distribution could omit the bundled runtime, but would require
+  users to install the matching ASP.NET runtime. The 107.50 MiB group includes other dependencies
+  and notices, so it is not an estimate of achievable runtime savings.
+- Optional reference-pack distributions/resource compaction merit separate investigation; removing
+  packs would change available names/icons/provenance. IL trimming alone does not make the eager
+  decoded objects lazy. Preserve manifests, hashes and attribution in any future format change.
+- General IL trimming needs explicit roots/contracts for reflection-based plugin discovery and
+  activation, JSON metadata and native codec/SQLite paths, plus all-plugin conformance and built-app
+  smoke coverage. File size does not prove an assembly unused. Do not remove runtime DLLs by hand.
+
+The official win-x64 checksum/UI/JavaScript smoke passes. All three optional native apphost
+configuration tests also pass (appsettings, environment, command-line overrides), including synthetic
+workspace and user-pack import. No publish settings were changed.
+The native API also reports **18 catalog entries, 40 packs and zero pack load errors**.
+
+### Validation and retained observations
+
+The API Release build has **0 warnings / 0 errors**. The full `scripts/test.ps1 -Configuration Release`
+run with external private samples passes **21 projects: 7,663 passed, 0 failed, 9 skipped**. These
+existing skips are four inherited synthetic-only conformance sample cases, the opt-in pack-hash
+printer, the known backup-twin storage bug, and three optional native bundle cases. The latter three
+were subsequently run against this package: **3 passed, 0 skipped**. No skip was introduced here;
+the generic zero-skip target cannot be met without changing those existing out-of-scope/opt-in tests.
+Both new allocation tests pass in Debug with report-only bounds. All six original benchmark fixture
+checks and both new BDN cases pass. Documentation checks against this branch's `HEAD`: **40 passed**.
+Against moving local `main`: **39 passed / 1 failed**, because its newer script declares
+`-MaxParallel` absent from this checkout's unchanged `docs/RELEASING.md` parameter inventory.
+
+Raw process observations, five accepted-probe CSVs, BDN reports, package inventory, smoke logs and
+TRX results remain under `D:/Temp/saveeditor/test-scratch/review-perf-startup`. Private samples were
+read in place only by the required test suite; none were used in the benchmarks or committed.

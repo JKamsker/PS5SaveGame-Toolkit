@@ -62,22 +62,35 @@ public sealed class PluginCatalog
     public static PluginCatalog Discover(string? baseDirectory = null)
     {
         baseDirectory ??= AppContext.BaseDirectory;
+        // GetName returns a new AssemblyName each time. Keep this cache local so later discovery
+        // still sees newly loaded assemblies and creates fresh plugin instances.
+        var names = new Dictionary<Assembly, AssemblyName>();
         foreach (var dll in Directory.EnumerateFiles(baseDirectory, "SaveToolkit.Plugins.*.dll"))
         {
             var name = AssemblyName.GetAssemblyName(dll);
-            if (!AppDomain.CurrentDomain.GetAssemblies().Any(a => AssemblyName.ReferenceMatchesDefinition(a.GetName(), name)))
+            if (!AppDomain.CurrentDomain.GetAssemblies().Any(a => AssemblyName.ReferenceMatchesDefinition(NameOf(a), name)))
             {
                 Assembly.Load(name);
             }
         }
 
         var plugins = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => a.GetName().Name is { } n && (n.StartsWith("SaveToolkit.Plugins.", StringComparison.Ordinal) || n == "SaveToolkit.Core"))
+            .Where(a => NameOf(a).Name is { } n && (n.StartsWith("SaveToolkit.Plugins.", StringComparison.Ordinal) || n == "SaveToolkit.Core"))
             .SelectMany(SafeTypes)
             .Where(t => t is { IsClass: true, IsAbstract: false } && typeof(IGamePlugin).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) is not null)
             .Select(t => (IGamePlugin)Activator.CreateInstance(t)!)
             .ToList();
         return new PluginCatalog(plugins);
+
+        AssemblyName NameOf(Assembly assembly)
+        {
+            if (!names.TryGetValue(assembly, out var name))
+            {
+                name = assembly.GetName();
+                names.Add(assembly, name);
+            }
+            return name;
+        }
     }
 
     private static IEnumerable<Type> SafeTypes(Assembly assembly)
