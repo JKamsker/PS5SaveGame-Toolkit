@@ -10,11 +10,17 @@ import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 type DocumentQuery = UseQueryResult<SaveDocument, Error>;
 type Notify = (message: string, isError?: boolean) => void;
 
+interface PendingFieldCommit {
+  value: FieldValue;
+  outcome: Promise<FieldCommitOutcome>;
+  accepted: Promise<boolean>;
+}
+
 function useDocumentLifetime(workspaceId: string, documentId: string, store: DocumentStore | null) {
   // Document identity deliberately starts a new request lifetime even when the initial values match.
   const lifetime = useMemo(() => ({ active: true, generation: 0, tail: Promise.resolve() }), [workspaceId, documentId]);
   const currentStore = useRef(store);
-  const pendingEdits = useRef(new Map<string, { value: FieldValue; promise: Promise<FieldCommitOutcome> }>());
+  const pendingEdits = useRef(new Map<string, PendingFieldCommit>());
   currentStore.current = store;
   useEffect(() => {
     lifetime.active = true;
@@ -120,17 +126,18 @@ function useDocumentContext(workspaceId: string, documentId: string, query: Docu
   const structureVersion = query.dataUpdatedAt;
   const context = useMemo<DocumentContextValue | null>(() => {
     if (!query.data || !store) return null;
-    const commitWithDiagnostics = (valueId: string, value: FieldValue): Promise<FieldCommitOutcome> => {
+    const pendingCommit = (valueId: string, value: FieldValue): PendingFieldCommit => {
       const pending = pendingEdits.current.get(valueId);
-      if (pending && sameValue(pending.value, value)) return pending.promise;
+      if (pending && sameValue(pending.value, value)) return pending;
       let rejection: FieldDiagnosticReceipt | undefined;
-      const promise = run(() => api.edit(workspaceId, documentId, [{ valueId, value }], store.state.revision),
+      const outcome = run(() => api.edit(workspaceId, documentId, [{ valueId, value }], store.state.revision),
         diagnostics => { rejection = diagnostics?.get(valueId); })
         .then(result => ({ accepted: result.ok, rejection: result.ok ? undefined : rejection }));
-      const entry = { value, promise };
+      // Cache both promises once: legacy callers also share their pending promise by reference.
+      const entry = { value, outcome, accepted: outcome.then(result => result.accepted) };
       pendingEdits.current.set(valueId, entry);
-      void promise.finally(() => { if (pendingEdits.current.get(valueId) === entry) pendingEdits.current.delete(valueId); });
-      return promise;
+      void outcome.finally(() => { if (pendingEdits.current.get(valueId) === entry) pendingEdits.current.delete(valueId); });
+      return entry;
     };
     return {
       workspaceId,
@@ -141,8 +148,8 @@ function useDocumentContext(workspaceId: string, documentId: string, query: Docu
       refresh,
       acceptResult: async result => { await handleResult(result); },
       mutate: run,
-      commitWithDiagnostics,
-      commit: async (valueId, value) => (await commitWithDiagnostics(valueId, value)).accepted,
+      commitWithDiagnostics: (valueId, value) => pendingCommit(valueId, value).outcome,
+      commit: (valueId, value) => pendingCommit(valueId, value).accepted,
       runAction: async (actionId: string, parameters: Record<string, FieldValue>) =>
         run(() => api.action(workspaceId, documentId, actionId, parameters, store.state.revision)),
     };

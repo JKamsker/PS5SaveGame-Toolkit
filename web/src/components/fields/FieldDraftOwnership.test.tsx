@@ -4,7 +4,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../api/client";
 import type { EditResult, FieldNode, SaveDocument } from "../../api/protocol";
-import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../state/documentStore";
+import { DocumentContext, DocumentStore, type DocumentContextValue, type FieldCommitOutcome } from "../../state/documentStore";
 import { deferred } from "../../test/deferred";
 import { TableCell } from "../document/table/TableCell";
 import { useDocumentSession } from "../document/useDocumentSession";
@@ -166,6 +166,49 @@ it("deduplicates boolean and detailed callers with both editors against the same
   expect(first.value).toBe("9");
   expect(second.value).toBe("9");
   expect(edit).toHaveBeenCalledTimes(1);
+});
+
+it.each(["boolean", "detailed"])("shares both pending promises and releases both after completion (%s first)", async firstCaller => {
+  const first = deferred<EditResult>(); const second = deferred<EditResult>();
+  const edit = vi.spyOn(api, "edit").mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+  const { context } = await setup();
+  const detailedCommit = context.commitWithDiagnostics!;
+  let legacy!: Promise<boolean>; let detailed!: Promise<FieldCommitOutcome>;
+  await act(async () => {
+    if (firstCaller === "boolean") {
+      legacy = context.commit("quantity", "9");
+      detailed = detailedCommit("quantity", "9");
+    } else {
+      detailed = detailedCommit("quantity", "9");
+      legacy = context.commit("quantity", "9");
+    }
+    expect(context.commit("quantity", "9")).toBe(legacy);
+    expect(detailedCommit("quantity", "9")).toBe(detailed);
+  });
+  expect(edit).toHaveBeenCalledTimes(1);
+  await act(async () => { first.resolve(quantityRejected()); await first.promise; });
+  expect(await legacy).toBe(false);
+  const initial = await detailed;
+  expect(initial.accepted).toBe(false);
+  expect(initial.rejection).toBeDefined();
+  expect(initial.rejection).toBe(context.store.diagnostic("quantity"));
+  let nextLegacy!: Promise<boolean>; let nextDetailed!: Promise<FieldCommitOutcome>;
+  await act(async () => {
+    nextLegacy = context.commit("quantity", "9");
+    nextDetailed = detailedCommit("quantity", "9");
+    expect(nextLegacy).not.toBe(legacy);
+    expect(nextDetailed).not.toBe(detailed);
+    expect(context.commit("quantity", "9")).toBe(nextLegacy);
+    expect(detailedCommit("quantity", "9")).toBe(nextDetailed);
+  });
+  expect(edit).toHaveBeenCalledTimes(2);
+  await act(async () => { second.resolve(quantityRejected()); await second.promise; });
+  expect(await nextLegacy).toBe(false);
+  const next = await nextDetailed;
+  expect(next.rejection).toBeDefined();
+  expect(next.rejection).not.toBe(initial.rejection);
+  expect(next.rejection).toBe(context.store.diagnostic("quantity"));
+  expect(edit).toHaveBeenCalledTimes(2);
 });
 
 it("does not cancel a queued edit when its editor restores the saved draft before the request starts", async () => {
