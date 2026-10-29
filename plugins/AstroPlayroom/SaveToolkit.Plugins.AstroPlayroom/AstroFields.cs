@@ -57,7 +57,8 @@ internal static class AstroFields
                     element.Values.Count(v => !v.IsAttribute) == 1;
                 var common = primitive && (path is "PreInstall/Common/NumCoin" or "PreInstall/Common/PlayCount") &&
                     spec is IntegerSpec && initial.AsInteger() >= 0 && initial.AsInteger() <= int.MaxValue;
-                var flag = primitive && spec is BoolSpec && (group is "Progress" or "World" ||
+                // A group-level scalar is unknown data, not a flag beneath that group.
+                var flag = primitive && spec is BoolSpec && (parent != "PreInstall" && group is ("Progress" or "World") ||
                     ((group is "Artifact" or "Puzzle" or "Prop") && (element.Name is "IsGot" or "IsCinematicsPlayed")));
                 if (common)
                 {

@@ -35,6 +35,10 @@ tables (200 rows maximum per request); F9 maps page at 64 markers. Value IDs
 use tag names and sibling occurrence numbers, never byte offsets, so length-changing edits retain
 their IDs. Empty elements remain visible as tree sections without inventing a text value.
 
+Unexpected boolean scalars on the `Progress` or `World` group itself remain read-only with
+Unknown confidence. Only flags beneath those groups qualify for experimental flag editing;
+an unfamiliar group shape must remain inspectable and preserve its bytes.
+
 ## Editing and confidence
 
 - **Verified name matches:** `Common/NumCoin` (coins) and `Common/PlayCount` (play count).
