@@ -118,6 +118,16 @@ retain their own file order. Full metadata text search, additional exact present
 and saved-state/description sorts read bounded catalog pages on demand without retaining a second
 metadata index. Text search still covers names, raw IDs, categories, descriptions, attributes and saved state.
 
+The Gwent catalog's saved-state column sorts recorded native integer copy counts numerically before
+paging (including zero and larger imported counts), with ascending ordinal native-key ties in both
+directions. Unrecorded references follow recorded counts ascending and precede them descending;
+they retain “Not recorded; availability unknown” rather than becoming zero. An unavailable collection
+still says “Collection unavailable”, and item/ability catalogs remain “Reference only”. Text search
+and exact state filters continue to use those displayed labels. Each query takes one fresh collection
+snapshot; canonical aliases keep independent native indices and counts. No catalog data or write
+semantics change. The focused synthetic sorting regressions are authored but **not yet executed**;
+integration validation is pending.
+
 The `63580dc` F6 reference-parameter fix is N/A here: repair/refill have no parameters, and no enum
 fallback exists. A float duration hint would invent units for currently opaque fact time/expiry bits,
 so those stay raw. No new format or gameplay claims are introduced; existing attributed format
