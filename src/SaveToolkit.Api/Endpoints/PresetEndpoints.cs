@@ -14,6 +14,7 @@ internal static class PresetEndpoints
         var api = app.MapGroup("/api").AddEndpointFilter<ApiContractFilter>()
             .WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict, Status422UnprocessableEntity);
         api.MapGet("/presets", (PresetStore store) => store.List().Select(p => p.ToDto()));
+        api.MapPost("/presets/reload", (PresetStore store) => store.Reload().Select(p => p.ToDto()));
         api.MapPost("/presets", (CreatePresetRequest request, PresetStore store) =>
             Results.Ok(store.Create(request.Name, request.Compatibility, request.Actions).ToDto()));
         api.MapPatch("/presets/{presetId}", (string presetId, RenamePresetRequest request, PresetStore store) =>
@@ -22,25 +23,34 @@ internal static class PresetEndpoints
             store.Delete(presetId) ? Results.NoContent() : Results.NotFound());
 
         var docs = api.MapGroup("/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}")
-            .AddEndpointFilter<DocumentRevisionFilter>();
+            .AddEndpointFilter<DocumentRevisionFilter>()
+            .WithApiErrors(Status412PreconditionFailed);
         docs.MapPost("/preview", Preview);
         docs.MapPost("/apply", Apply);
         var capture = api.MapGroup("/workspaces/{workspaceId}/documents/{documentId}/presets")
-            .AddEndpointFilter<DocumentRevisionFilter>();
+            .AddEndpointFilter<DocumentRevisionFilter>()
+            .WithApiErrors(Status412PreconditionFailed);
+        capture.MapGet("", (DocumentRef document, PresetStore store) =>
+            store.List().Select(p => p.ToDocumentDto(document.Value)));
         capture.MapPost("/capture", Capture);
     }
 
     private static IResult Capture(DocumentRef document, CapturePresetRequest request, PresetStore store)
     {
         var capability = document.Value.PresetCapability;
-        var action = document.Value.CapturePreset(new SaveToolkit.Sdk.PresetCaptureRequest(
+        var captureRequest = new SaveToolkit.Sdk.PresetCaptureRequest(
             request.ActionId,
             request.Parameters ?? [],
             request.ScopeKind,
             string.Equals(request.ScopeKind, PresetScopeKinds.Selected, StringComparison.Ordinal)
                 ? request.SelectedRowKeys ?? []
                 : null,
-            request.AllMatches));
+            request.AllMatches);
+        if (PresetContractValidation.ValidateCapture(capability, captureRequest) is { } captureError)
+            return Results.UnprocessableEntity(new ErrorDto(captureError, "presetContract"));
+        var action = document.Value.CapturePreset(captureRequest);
+        if (PresetContractValidation.ValidateCapturedAction(capability, captureRequest, action) is { } actionError)
+            return Results.UnprocessableEntity(new ErrorDto(actionError, "presetContract"));
         var compatibility = new PresetCompatibility(
             document.Value.Plugin.Info.Id,
             document.Value.Plugin.Info.Version,
@@ -64,8 +74,10 @@ internal static class PresetEndpoints
         if (!compatibility.Compatible) return Results.UnprocessableEntity(new ErrorDto(compatibility.Message!, compatibility.Code));
         if (document.Value.PresetDocument is not null)
         {
+            if (PresetContractValidation.ValidateChoices(request.Choices) is { } choiceError)
+                return Results.UnprocessableEntity(new ErrorDto(choiceError, "presetContract"));
             var semantic = document.Value.PlanPreset(preset, request.Revision, request.Choices, cancellationToken);
-            if (semantic.Stale) return Results.Conflict(semantic);
+            if (semantic.Stale) return Results.Conflict(new PresetSemanticPreviewDto(preset.ToDto(), semantic));
             if (semantic.Plan.Errors.Count > 0) return Results.UnprocessableEntity(new PresetSemanticPreviewDto(preset.ToDto(), semantic));
             return Results.Ok(new PresetSemanticPreviewDto(preset.ToDto(), semantic));
         }

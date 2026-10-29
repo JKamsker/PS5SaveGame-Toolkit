@@ -94,6 +94,28 @@ public sealed record PresetDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt);
 
+public sealed record PresetCompatibilitySummaryDto(
+    bool Compatible,
+    string? Code,
+    string? Reason,
+    bool ReadOnly,
+    string PresetKind,
+    string? SavedGameBuild,
+    string? CurrentGameBuild,
+    string? SavedFormatVariant,
+    string? CurrentFormatVariant,
+    string? SavedReferencePackIdentity,
+    string? CurrentReferencePackIdentity,
+    string? SavedSchemaFingerprint,
+    string? CurrentSchemaFingerprint,
+    string? SavedFileRole,
+    string? CurrentFileRole,
+    string? SavedCapabilitySchemaVersion,
+    string? CurrentCapabilitySchemaVersion,
+    IReadOnlyList<string> UnsupportedActions);
+
+public sealed record DocumentPresetDto(PresetDto Preset, PresetCompatibilitySummaryDto Compatibility);
+
 public sealed record CreatePresetRequest(
     string Name,
     PresetCompatibility Compatibility,

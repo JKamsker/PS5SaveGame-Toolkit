@@ -174,6 +174,12 @@ Returns the host-owned `ToolkitPreset[]` list. Presets contain schema version, n
 plugin/version/title/build/variant/reference-pack compatibility and semantic action parameters;
 they never contain save bytes or local paths.
 
+### `POST /api/presets/reload`
+
+Reloads the external preset file through a bounded single-handle read. A malformed,
+oversized, or duplicate-record replacement is rejected without replacing the last good
+in-memory library. Storage I/O failures return 503; invalid payloads return 422.
+
 ### `POST /api/presets`
 
 JSON body `{name,compatibility,actions}` creates one version-1 preset and returns it. The
@@ -196,6 +202,13 @@ pure plugin capture adapter. Selected row keys are ephemeral input only; the ret
 semantic targets and the host's actual title/plugin/variant/build/reference-pack boundary. Plugins do
 not perform storage or reference-pack I/O. The operation changes host preset storage only, never save
 bytes or document history.
+
+### `GET /api/workspaces/{workspaceId}/documents/{documentId}/presets`
+
+Returns document-scoped rows `{preset,compatibility}`. Compatibility is computed by the
+server against the opened document's exact title, plugin, build, variant, role, capability
+schema, reference-pack identity, action and scope support. Unknown or mismatched rows are
+reported with a stable code and are not advertised as previewable.
 
 ### `GET /api/workspaces`
 

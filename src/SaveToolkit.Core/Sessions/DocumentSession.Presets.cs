@@ -44,6 +44,10 @@ public sealed partial class DocumentSession
             return new(null, _revision, preset, emptyResolution, new ActionPlan { Errors = stale.Errors }) { Stale = true };
         if (Document is not IPresetDocument planner)
             return Error(preset, emptyResolution, "This plugin has no semantic preset adapter.");
+        if (PresetContractValidation.ValidateChoices(choices) is { } choiceError)
+            return Error(preset, emptyResolution, choiceError);
+        if (PresetContractValidation.ValidateActions(planner.PresetCapability, preset.Actions) is { } actionError)
+            return Error(preset, emptyResolution, actionError);
         if (preset.Actions.Count == 0 || preset.Actions.Count > planner.PresetCapability.MaxActions)
             return Error(preset, emptyResolution, "The preset contains an unsupported number of actions.");
         var instances = preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
