@@ -51,6 +51,47 @@ internal static class JsonScalar
         };
     }
 
+    /// <summary>Counts the exact UTF-8 bytes emitted by the default JSON scalar encoder.</summary>
+    public static int EncodedLength(FieldValue value)
+    {
+        if (value.IsNull) return 4;
+        var scalar = value.AsUnion().Value;
+        return scalar.Kind switch
+        {
+            FieldValueKind.Bool => scalar.AsBool() ? 4 : 5,
+            FieldValueKind.ExactNumber => checked(Encoding.UTF8.GetByteCount(scalar.AsExactNumber())),
+            FieldValueKind.Text => StringEncodedLength(scalar.AsString()),
+            _ => throw new InvalidOperationException("Unsupported JSON scalar type."),
+        };
+    }
+
+    private static int StringEncodedLength(string value)
+    {
+        var length = 2; // JSON quotes.
+        for (var i = 0; i < value.Length; i++)
+        {
+            var character = value[i];
+            if (character is >= '\uD800' and <= '\uDBFF')
+            {
+                if (++i >= value.Length || value[i] is < '\uDC00' or > '\uDFFF')
+                    throw new InvalidOperationException("Text contains an unpaired Unicode surrogate.");
+                length = checked(length + 12); // Default encoder emits two \uXXXX escapes.
+                continue;
+            }
+
+            if (character is >= '\uDC00' and <= '\uDFFF')
+                throw new InvalidOperationException("Text contains an unpaired Unicode surrogate.");
+            length = checked(length + character switch
+            {
+                '"' or '\\' => 2,
+                '\b' or '\f' or '\n' or '\r' or '\t' => 2,
+                < '\u0020' or '<' or '>' or '&' or '\'' or > '\u007E' => 6,
+                _ => 1,
+            });
+        }
+        return length;
+    }
+
     public static string TypeOf(FieldValue value) => value.IsNull ? "null" : value.AsUnion().Type;
 
     // Keep explicit JSON transitions alongside typed F6 values, including missing versus present null.

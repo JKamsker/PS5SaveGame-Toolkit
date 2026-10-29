@@ -20,17 +20,17 @@ internal static class JsonScalarPatches
                 return false;
         }
 
-        var replacements = new List<(int Id, byte[] Encoded)>();
+        var changedNodes = new List<JsonValueToken>();
         long outputLength = source.OriginalLength;
         foreach (var node in tree.Nodes)
         {
             if (node.IsContainer || !node.ValueChanged) continue;
             if (SameValue(node.Current, node.Original)) continue;
-            var encoded = node.Encode();
-            outputLength += encoded.Length - node.Length;
-            replacements.Add((node.Index, encoded));
+            var encodedLength = JsonScalar.EncodedLength(node.Current);
+            outputLength = checked(outputLength + encodedLength - node.Length);
+            changedNodes.Add(node);
         }
-        changed = replacements.Count != 0;
+        changed = changedNodes.Count != 0;
         if (outputLength > JsonTokenTree.MaxBytes)
             throw new SaveFormatException("Edited JSON exceeds the 16 MiB safety limit.");
 
@@ -42,10 +42,10 @@ internal static class JsonScalarPatches
             try
             {
                 // Shrink first so a valid atomic batch cannot exceed the byte limit midway.
-                foreach (var replacement in replacements.OrderBy(replacement =>
-                    replacement.Encoded.Length - source.Nodes[replacement.Id].OriginalSpan.Length))
+                foreach (var node in changedNodes.OrderBy(node =>
+                    JsonScalar.EncodedLength(node.Current) - source.Nodes[node.Index].OriginalSpan.Length))
                 {
-                    source.ReplaceScalar(replacement.Id, Encoding.UTF8.GetString(replacement.Encoded));
+                    source.ReplaceScalar(node.Index, Encoding.UTF8.GetString(node.Encode()));
                 }
                 bytes = source.Serialize();
                 return true;

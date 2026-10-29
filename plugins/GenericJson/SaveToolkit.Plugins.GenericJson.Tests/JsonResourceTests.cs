@@ -1,4 +1,5 @@
 using System.Text;
+using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Testing;
 
@@ -6,6 +7,43 @@ namespace SaveToolkit.Plugins.GenericJson.Tests;
 
 public sealed class JsonResourceTests
 {
+    [Fact]
+    public void ScalarLengthPreflightRejectsEscapedGrowthBeforeReplacementAllocation()
+    {
+        // This is valid under the 16 MiB character budget, but default JSON escaping would
+        // expand it to roughly 96 MiB before the final output-budget rejection.
+        var huge = JsonEditingTests.Text(new string('é', JsonTokenTree.MaxBytes - 1024));
+        var allocation = AllocationProbe.Measure(() =>
+        {
+            using var document = new GenericJsonPlugin().Open(MemorySaveSet.SingleFile("limit.json", "[0]"u8.ToArray()));
+            var outcome = document.ApplyEdits([new("value/1", huge)]);
+            Assert.False(outcome.Succeeded);
+            Assert.Equal("[0]", Encoding.UTF8.GetString(document.Serialize()[0].Content.Span));
+        });
+        allocation.AssertAtMost(10 * 1024 * 1024,
+            "A valid near-limit multibyte string must be rejected by scalar length preflight before JSON escaping.");
+
+        using var fixture = new JsonSessionFixture("[0]");
+        var field = fixture.Fields()[0];
+        var rejected = fixture.Edit(field.ValueId, huge);
+        Assert.False(rejected.Ok);
+        Assert.False(fixture.Session.State.CanUndo);
+        Assert.Equal(JsonEditingTests.Number("0"), fixture.Document.GetValue(field.ValueId));
+        Assert.Equal("[0]", Encoding.UTF8.GetString(fixture.Bytes));
+    }
+
+    [Theory]
+    [InlineData("é", "\"\\u00E9\"")]
+    [InlineData("😀", "\"\\uD83D\\uDE00\"")]
+    [InlineData("<>&'", "\"\\u003C\\u003E\\u0026\\u0027\"")]
+    [InlineData("\n\t", "\"\\n\\t\"")]
+    public void ScalarLengthPreflightMatchesDefaultJsonEscaping(string value, string expected)
+    {
+        var scalar = JsonEditingTests.Text(value);
+        Assert.Equal(Encoding.UTF8.GetByteCount(expected), JsonScalar.EncodedLength(scalar));
+        Assert.Equal(Encoding.UTF8.GetBytes(expected), JsonScalar.Encode(scalar));
+    }
+
     [Fact]
     public void AtomicScalarBatchMayGrowOneTokenAndShrinkAnotherAtTheExactByteLimit()
     {
