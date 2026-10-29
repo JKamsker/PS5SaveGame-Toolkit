@@ -22,17 +22,19 @@ function setup(planned: boolean) {
       spec: { kind: "integer", min: "0", max: "3" }, value: "0" }] }} /></DocumentContext.Provider>);
   fireEvent.click(screen.getByRole("button", { name: "Run" }));
   const dialog = screen.getByRole("dialog");
-  return { runAction, plan, input: within(dialog).getByRole("textbox", { name: "Entry index" }),
+  return { runAction, plan, dialog: within(dialog), input: within(dialog).getByRole("textbox", { name: "Entry index" }),
     submit: within(dialog).getByRole("button", { name: planned ? "Preview" : "Run" }) as HTMLButtonElement };
 }
 
 describe.each([false, true])("action parameter validation (planned: %s)", planned => {
   it("keeps an invalid draft visible and blocks submitting an older value", () => {
-    const { input, submit, runAction, plan } = setup(planned);
+    const { input, submit, runAction, plan, dialog } = setup(planned);
     fireEvent.change(input, { target: { value: "99" } });
     fireEvent.blur(input);
-    expect(screen.getByRole("alert").textContent).toBeTruthy();
-    expect(screen.getByRole("textbox", { description: new RegExp(screen.getByRole("alert").textContent!) })).toBe(input);
+    const error = dialog.getByRole("alert");
+    expect(error.textContent).toBe("Must be between 0 and 3.");
+    expect(input.getAttribute("aria-describedby")?.split(" ")).toContain(error.id);
+    expect(input.getAttribute("aria-invalid")).toBe("true");
     expect(submit.disabled).toBe(true);
     // A form submission must also respect validation, independently of its disabled button.
     fireEvent.submit(submit.closest("form")!);
@@ -67,13 +69,17 @@ describe.each([false, true])("action parameter validation (planned: %s)", planne
   });
 
   if (planned) it("clears local errors when reopening with fresh default parameters", () => {
-    const { input, submit } = setup(planned);
+    const { input, plan } = setup(planned);
     fireEvent.change(input, { target: { value: "99" } });
     fireEvent.blur(input);
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     fireEvent.click(screen.getByRole("button", { name: "Run" }));
     expect(screen.getByRole("textbox", { name: "Entry index" })).toHaveProperty("value", "0");
-    expect(submit.disabled).toBe(false);
+    const reopened = within(screen.getByRole("dialog"));
+    const submit = reopened.getByRole("button", { name: "Preview" });
+    expect(submit).toHaveProperty("disabled", false);
     expect(screen.queryByRole("alert")).toBeNull();
+    fireEvent.click(submit);
+    expect(plan).toHaveBeenCalledExactlyOnceWith("w", "d", "run", { index: "0" }, {}, 1);
   });
 });
