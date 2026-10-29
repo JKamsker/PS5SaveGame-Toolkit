@@ -627,15 +627,17 @@ the current helper. Full-model key validation, empty counts and ordinal tie brea
 no repeated catalogue traversal was found in paging/search/sort/planning. This documentation pass
 does not change SDK code or remeasure the historical performance table.
 
-R19 remains a framework-owned request: versioned toolkit preset storage outside save bytes with
-title/build compatibility and explicit missing/ambiguous owned-instance resolution. A later loadout
-writer must first have a complete socket/owner model; a plugin performing filesystem I/O to store
-profiles would violate the contract. F5/F7 exist already and need no replacement API.
+SDK-07 versioned preset storage and the pure `IPresetDocument` contract are now consumed by the
+FFVII adapter. The adapter publishes exact title/variant/schema/file-role boundaries, leaves the
+actual game build unknown, uses the host-pinned reference content identity, and persists only
+domain-qualified semantic targets. Host storage, revision tokens, compatibility gates and choice UI
+remain framework-owned; the plugin performs no I/O. Import/export and native loadout presets remain
+open follow-ups. F5/F7 exist already and need no replacement API.
 
-### Semantic preset preparation (SDK-07)
+### Semantic presets and SDK-07 adoption
 
-The plugin now has an **internal, pure consumer foundation**, without a public SDK-07 capability
-or preset storage/UI integration. `SemanticPresets` captures typed parameters for exactly the five
+The plugin now has an internal foundation plus a thin, pure SDK-07 `IPresetDocument` adapter.
+`SemanticPresets` captures typed parameters for exactly the five
 existing F6 actions: `inventory/restock-existing`, `materia/set-ap-within-tier`, `materia/set-stars`,
 `character/recover-current-vitals`, and `character/set-level`. It retains explicit document,
 all-eligible, all-copies and selected semantics. Only scopes supported by the operation are accepted;
@@ -653,26 +655,37 @@ joins the current owned inventory to the current AP-editable detail row; those p
 are different domains. Missing/duplicate details, duplicate inventory instances, mismatched detail
 types and owned counts other than one remain unresolved with stable reasons and all relevant
 candidate placements. Nothing repairs those relationships or silently selects a first match.
+The public SDK resolution keeps candidate lists for genuinely ambiguous targets and for a
+transiently chosen candidate only; Resolved targets without a choice carry no candidate list, and
+Missing/Unsupported targets carry stable reasons without candidates so the host can reject the
+whole preset deterministically. Internal F6 relation diagnostics retain the detailed join status.
 All-copies scope uses current owned joins; unowned detail records are not promoted to owned copies.
 Remake selected-materia capture rejects because its current model has no proven owned-instance
 identity; its existing type-wide all-copies planner remains available. Summon and incoherent
 AP/star eligibility remains the F6 planner's decision.
 
-`SemanticPresetTests`, `SemanticMateriaPresetTests`, `SemanticPresetCompatibilityTests`, and
+`SemanticPresetTests`, `SemanticMateriaPresetTests`, `SemanticPresetCompatibilityTests`,
 `SemanticPresetHistoryTests` exercise authored synthetic framing/rows, moved targets, zero/one/many
 matches, malformed duplicate joins, pure preview, retained skips, tampered/rescoped F6 plans and
 one-unit byte-exact apply/undo/redo across all three variants. These are consumer/helper tests,
 not UI, persistence, console-validation or native-loadout evidence. Existing framing, owned
 projection, research-quality and planning regressions remain unchanged.
 
-Remaining SDK-07 integration: consume the shared optional capture/resolution capability after it
-lands, round-trip its typed wire payload, and test the complete plugin/version/build/reference-pack
-compatibility matrix. Actual console patch/build remains **unknown**; a pack's display/build label
-cannot establish it. Compatibility needs the pinned pack ID/version/locale **and actual content
-fingerprint**, including imported overrides; current `ReferencePackInfo`/`ReferenceDatasetInfo`
-does not expose dataset file hashes. Storage, import/export, revision tokens, choice UI and host
-compatibility gates remain framework-owned. No direct weapon edit, socket/materia movement,
-allocation, owner/detail repair or complete native loadout is added.
+`Sdk07PresetAdapterTests` additionally exercise the public capture/resolution path, typed payloads,
+current-slot movement, explicit empty selection, duplicate/missing owned joins, exact retail/demo
+compatibility variants, host preview/apply, and one-unit undo/redo. Actual console patch/build
+remains **unknown**; a pack's display/build label cannot establish it. The host's pinned
+content identity (including locale/origin and validated content fingerprints) is authoritative.
+The published host contract now passes its document-pinned `ReferenceFieldService` and
+`ReferenceContext` through capture, plan coercion and summaries. The materia descriptors still
+set `ReferenceSpec.AllowCustom` for the two raw IDs, so the descriptor layer remains permissive;
+FF7 canonical invariant-decimal parsing, known-ID/current-eligibility checks and the existing F6
+planner reject unknown or ineligible IDs before planning, mutation or history. This is a
+host/adopter validation seam, not permission to acquire items or bypass the pinned picker/catalog
+when it is available. The earlier pre-R4 `ReferenceContext.None` behavior is historical only.
+Browser acceptance against a running host and private sample-backed validation are outside this
+plugin-only change and remain pending. No direct weapon edit, socket/materia movement, allocation,
+owner/detail repair or complete native loadout is added.
 
 This foundation reuses the existing source-qualified mappings and curves documented under
 [enabled writes](#enabled-writes-and-their-evidence), the pinned
