@@ -73,6 +73,14 @@ public sealed class GroupStructuralSelectionTests
         Assert.Throws<KeyNotFoundException>(() => group.PlanAction(id, Empty, new(["foreign/" + list + "/" + local])));
         Assert.Throws<SaveFormatException>(() => group.PlanAction(id, Empty, new([role + "/ammo/" + local])));
         Assert.Throws<SaveFormatException>(() => group.PlanAction(id, Empty, new([row]) { QueryScope = new(role + "/catalogue", new(), 0) }));
+        if (role == "profile")
+        {
+            var otherList = list == GearboxInventory.Bank ? GearboxInventory.LostLoot : GearboxInventory.Bank;
+            Assert.Throws<SaveFormatException>(() => group.PlanAction(id, Empty, new([role + "/" + otherList + "/" + local])));
+            Assert.Throws<SaveFormatException>(() => group.PlanAction(id, Empty,
+                new([row]) { QueryScope = new(role + "/" + otherList, new(), 0) }));
+            Assert.Throws<SaveFormatException>(() => group.PlanAction(id, Empty, new(["profile/ammo/0"])));
+        }
         foreach (var scope in new ActionScope[] { new([]), new([]) { QueryScope = new(collection, new(), 0) { ExcludedRowKeys = [row] } } })
         {
             var plan = group.PlanAction(id, Empty, scope);

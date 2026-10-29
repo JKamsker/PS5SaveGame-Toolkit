@@ -64,22 +64,37 @@ internal static class SelectionTestData
             new DocumentGroupFile(file.FileName == "profile" ? "profile" : "character", file)).ToArray()), IReferenceContext.Empty);
     }
 
-    internal static Workspace Workspace(bool wonderlands)
+    internal static Workspace Workspace(bool wonderlands, SelectionGroupObserver? observer = null)
     {
         var plugin = new GearboxPlugin();
         var sources = ((ISaveSet)Set(wonderlands)).AllFiles.Select(file => new ImportSource(file.RelativePath, file.OpenRead));
         var set = SaveSetImporter.Import(sources,
             Path.Combine(TestScratch.ProcessFolder, Guid.NewGuid().ToString("N")));
+        IGamePlugin selectedPlugin = observer is null ? plugin : observer;
         return new Workspace("gearbox-selection", "Selection", set,
-            new PluginCatalog([plugin]), new ReferencePackStore([plugin]));
+            new PluginCatalog([selectedPlugin]), new ReferencePackStore([plugin]));
     }
 
     internal static Dictionary<string, byte[]> Bytes(ISaveDocument document) =>
         document.Serialize().ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
 
     internal static void AssertBytes(ISaveDocument document, IReadOnlyDictionary<string, byte[]> expected) =>
-        Assert.All(document.Serialize(), output => Assert.Equal(expected[output.RelativePath], output.Content.ToArray()));
+        SelectionByteAssertions.Equal(document, expected);
 
     internal static IReadOnlyList<ViewNode> Details(ISaveDocument document, TableRow row) =>
         document.ExpandNode(Assert.IsType<SectionNode>(row.Cells["detail"]).LazyId!);
+
+    internal static ActionNode DiscoverItemAction(DocumentSession session, string collectionId, string rowKey, int rowIndex, string actionId)
+    {
+        _ = session.BuildView();
+        var page = session.QueryCollection(collectionId, new() { Offset = rowIndex, Limit = 1 },
+            expectedRevision: session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
+        var row = Assert.Single(page.Rows);
+        Assert.Equal(rowKey, row.Key);
+        var details = session.Expand(Assert.IsType<SectionNode>(row.Cells["detail"]).LazyId!);
+        var action = Assert.Single(details.OfType<ActionNode>(), node => node.ActionId == actionId);
+        Assert.True(action.SupportsPlanning);
+        Assert.Null(action.SelectionTableId); // Placement in the queried row supplies its table's scope.
+        return action;
+    }
 }

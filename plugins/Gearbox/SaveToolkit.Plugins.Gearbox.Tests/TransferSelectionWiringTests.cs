@@ -21,12 +21,16 @@ public sealed class TransferSelectionWiringTests
     [MemberData(nameof(Cases))]
     public void BoundTransfer_ExplicitAndExcludedQueriesMoveOnlySelectedRowsWithOneAtomicUndo(bool wonderlands, string actionId)
     {
-        using var workspace = SelectionTestData.Workspace(wonderlands);
+        var observer = new SelectionGroupObserver();
+        using var workspace = SelectionTestData.Workspace(wonderlands, observer);
         var session = Open(workspace);
         var action = Assert.Single(Assert.IsType<SectionNode>(session.BuildView()).Children.OfType<ActionNode>(), action => action.ActionId == actionId);
         var source = action.SelectionTableId!;
         var target = actionId == "transfer/deposit" ? "profile/bank_inventory_list" : "character/inventory_items";
-        var originals = session.Serialize(cancellationToken: Ct).ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
+        var originals = workspace.Set.AllDiskFiles.ToDictionary(file => file.RelativePath, file => file.ReadAllBytes());
+        Assert.Equal(2, originals.Count);
+        SelectionByteAssertions.Equal(observer.Current, originals);
+        Assert.Empty(session.Serialize(cancellationToken: Ct));
         var sourceRows = session.QueryCollection(source, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
         var targetRows = session.QueryCollection(target, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
 
@@ -46,11 +50,13 @@ public sealed class TransferSelectionWiringTests
                 .Select(change => change.ValueId).Order(StringComparer.Ordinal));
             Assert.DoesNotContain(preview.Plan.Changes, change => change.ValueId == sourceRows[1]);
             Assert.Equal(2, preview.Plan.Changes.Count(change => change.Derived && change.ValueId.EndsWith("/count", StringComparison.Ordinal)));
-            AssertBytes(session, originals);
+            SelectionByteAssertions.Equal(observer.Current, originals);
+            Assert.Empty(session.Serialize(cancellationToken: Ct));
             Assert.False(session.State.CanUndo);
             Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: Ct).Ok);
-            var changed = session.Serialize(cancellationToken: Ct).ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
+            var changed = SelectionByteAssertions.Capture(observer.Current, originals.Keys.ToArray());
             Assert.Equal(2, changed.Count);
+            AssertExportedBytes(session, changed);
             var remaining = session.QueryCollection(source, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
             Assert.Equal(sourceRows.Where(row => !selected.Contains(row)), remaining);
             var moved = session.QueryCollection(target, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
@@ -69,18 +75,24 @@ public sealed class TransferSelectionWiringTests
                         reopened.Root.Children("equipped_inventory_list").Select(slot => slot.Integer("inventory_list_index")));
             }
             Assert.True(session.Undo().Ok);
-            AssertBytes(session, originals);
+            SelectionByteAssertions.Equal(observer.Current, originals);
+            Assert.Empty(session.Serialize(cancellationToken: Ct));
             Assert.Equal(sourceRows, session.QueryCollection(source, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key));
             Assert.Equal(targetRows, session.QueryCollection(target, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key));
             Assert.False(session.State.CanUndo);
             Assert.False(session.State.IsDirty);
             Assert.True(session.Redo().Ok);
-            AssertBytes(session, changed);
+            SelectionByteAssertions.Equal(observer.Current, changed);
+            AssertExportedBytes(session, changed);
             Assert.Equal(moved, session.QueryCollection(target, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key));
             Assert.True(session.Undo().Ok);
+            SelectionByteAssertions.Equal(observer.Current, originals);
+            Assert.Empty(session.Serialize(cancellationToken: Ct));
             Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: Ct).Stale);
             if (querySelection)
                 Assert.True(session.PlanAction(action.ActionId, Empty, scope, session.State.Revision, cancellationToken: Ct).Stale);
+            SelectionByteAssertions.Equal(observer.Current, originals);
+            Assert.Empty(session.Serialize(cancellationToken: Ct));
         }
     }
 
@@ -88,13 +100,17 @@ public sealed class TransferSelectionWiringTests
     [MemberData(nameof(Cases))]
     public void BoundTransfer_RejectsWrongSourcesAndMissingSelectionWhileEmptyScopesPreserveHistory(bool wonderlands, string actionId)
     {
-        using var workspace = SelectionTestData.Workspace(wonderlands);
+        var observer = new SelectionGroupObserver();
+        using var workspace = SelectionTestData.Workspace(wonderlands, observer);
         var session = Open(workspace);
         var root = Assert.IsType<SectionNode>(session.BuildView());
         var action = Assert.Single(root.Children.OfType<ActionNode>(), action => action.ActionId == actionId);
         var source = action.SelectionTableId!;
         var rows = session.QueryCollection(source, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
-        var before = session.Serialize(cancellationToken: Ct).ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
+        var before = workspace.Set.AllDiskFiles.ToDictionary(file => file.RelativePath, file => file.ReadAllBytes());
+        Assert.Equal(2, before.Count);
+        SelectionByteAssertions.Equal(observer.Current, before);
+        Assert.Empty(session.Serialize(cancellationToken: Ct));
         var revision = session.State.Revision;
         Assert.NotEmpty(session.PlanAction(actionId, Empty, scope: null, expectedRevision: null, cancellationToken: Ct).Plan.Errors);
         Assert.False(session.InvokeAction(actionId, Empty, expectedRevision: null, cancellationToken: Ct).Ok);
@@ -105,6 +121,8 @@ public sealed class TransferSelectionWiringTests
             Assert.NotEmpty(session.PlanAction(actionId, Empty, new() { QueryScope = new(foreign.SelectionTableId!, new(), revision) }, expectedRevision: null, cancellationToken: Ct).Plan.Errors);
         }
         Assert.NotEmpty(session.PlanAction(actionId, Empty, new([rows[0], rows[0]]), expectedRevision: null, cancellationToken: Ct).Plan.Errors);
+        SelectionByteAssertions.Equal(observer.Current, before);
+        Assert.Empty(session.Serialize(cancellationToken: Ct));
         foreach (var scope in new ActionScope[]
         {
             new([]),
@@ -116,11 +134,14 @@ public sealed class TransferSelectionWiringTests
             Assert.Empty(preview.Plan.Errors);
             Assert.Empty(preview.Scope.RowKeys!);
             Assert.Empty(preview.Plan.Changes);
+            SelectionByteAssertions.Equal(observer.Current, before);
+            Assert.Empty(session.Serialize(cancellationToken: Ct));
             Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: Ct).Ok);
             Assert.Equal(revision, session.State.Revision);
             Assert.False(session.State.CanUndo);
             Assert.False(session.State.IsDirty);
-            AssertBytes(session, before);
+            SelectionByteAssertions.Equal(observer.Current, before);
+            Assert.Empty(session.Serialize(cancellationToken: Ct));
         }
     }
 
@@ -169,6 +190,9 @@ public sealed class TransferSelectionWiringTests
         return workspace.OpenGroup(Assert.Single(workspace.ProposeGroups(file.Id, "gearbox")).Token, options: options).Session;
     }
 
-    private static void AssertBytes(DocumentSession session, IReadOnlyDictionary<string, byte[]> expected) =>
-        Assert.All(session.Serialize(cancellationToken: Ct), output => Assert.Equal(expected[output.RelativePath], output.Content.ToArray()));
+    private static void AssertExportedBytes(DocumentSession session, IReadOnlyDictionary<string, byte[]> expected)
+    {
+        var delta = session.Serialize(cancellationToken: Ct).ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
+        SelectionByteAssertions.Equal(expected, delta);
+    }
 }
