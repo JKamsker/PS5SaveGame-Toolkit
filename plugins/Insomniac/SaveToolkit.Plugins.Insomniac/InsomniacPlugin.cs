@@ -98,6 +98,7 @@ public sealed class InsomniacPlugin : IGamePlugin, ISaveDecoderProvider
     {
         try
         {
+            Dat1Container.ValidateFileLength(file.Length);
             return new InsomniacDocument(file.RelativePath, Dat1Container.Parse(file.ReadAllBytes()), file.FileName, references,
                 string.Equals(file.Directory.TitleId, "PPSA01474", StringComparison.OrdinalIgnoreCase));
         }

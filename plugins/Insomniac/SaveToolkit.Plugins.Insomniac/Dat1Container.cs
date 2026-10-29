@@ -40,6 +40,12 @@ internal sealed class Dat1Container
     internal int DataStart { get; }
     internal int PrefixLength => DataStart - DescriptorEnd;
 
+    internal static void ValidateFileLength(long length)
+    {
+        if (length < HeaderSize || length > MaxFileSize)
+            throw new SaveFormatException("DAT1 file size is outside the supported range.");
+    }
+
     internal static bool LooksLike(ReadOnlySpan<byte> header, long fileLength)
     {
         if (header.Length < HeaderSize || fileLength < HeaderSize || fileLength > MaxFileSize)
@@ -57,10 +63,7 @@ internal sealed class Dat1Container
 
     internal static Dat1Container Parse(byte[] source)
     {
-        if (source.Length < HeaderSize || source.Length > MaxFileSize)
-        {
-            throw new SaveFormatException("DAT1 file size is outside the supported range.");
-        }
+        ValidateFileLength(source.Length);
 
         var bytes = source.ToArray();
         var span = bytes.AsSpan();

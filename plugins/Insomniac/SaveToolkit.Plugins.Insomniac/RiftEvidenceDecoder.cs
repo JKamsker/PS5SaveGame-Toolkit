@@ -18,6 +18,7 @@ internal sealed class RiftEvidenceDecoder : ISaveDecoderHook
     public void Decode(ISaveFile file, ISaveDecodeSink sink)
     {
         if (file.Length > sink.MaxFileBytes) throw new InvalidDataException("File exceeds decoder limit.");
+        Dat1Container.ValidateFileLength(file.Length);
         var container = Dat1Container.Parse(file.ReadAllBytes());
         DdlSections sections;
         try
