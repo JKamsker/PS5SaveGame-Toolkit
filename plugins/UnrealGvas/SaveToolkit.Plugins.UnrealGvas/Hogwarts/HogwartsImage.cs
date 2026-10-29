@@ -30,7 +30,34 @@ public static class HogwartsImage
     /// <summary>Decode all independent six-u64 frames, requiring exact consumption and both DB lengths.</summary>
     public static byte[] Decode(ReadOnlySpan<byte> frames)
     {
-        using var output = new MemoryStream();
+        // Validate every frame before allocating the result or invoking Kraken. Avoid a growing
+        // stream plus two full-image copies; the codec still owns bounded per-chunk buffers.
+        int decodedLength = DecodedLength(frames);
+        if (decodedLength < PrefixBytes + 100)
+            throw new SaveFormatException("Hogwarts database prefix, length or SQLite magic is invalid.");
+        byte[] image = new byte[decodedLength - PrefixBytes];
+        Span<byte> prefix = stackalloc byte[PrefixBytes];
+        int position = 0;
+        while (!frames.IsEmpty)
+        {
+            int compressed = (int)Read(frames, 16), plain = (int)Read(frames, 24);
+            var chunk = OodleCodec.Decompress(frames.Slice(FrameBytes, compressed), plain, MaxDecodedBytes).AsSpan();
+            int prefixCount = Math.Min(chunk.Length, Math.Max(0, PrefixBytes - position));
+            if (prefixCount > 0) chunk[..prefixCount].CopyTo(prefix[position..]);
+            chunk[prefixCount..].CopyTo(image.AsSpan(Math.Max(0, position - PrefixBytes)));
+            position += plain;
+            frames = frames[(FrameBytes + compressed)..];
+        }
+        if (BinaryPrimitives.ReadInt32LittleEndian(prefix) != decodedLength - sizeof(int) ||
+            BinaryPrimitives.ReadInt32LittleEndian(prefix[sizeof(int)..]) != image.Length ||
+            !image.AsSpan(0, 16).SequenceEqual("SQLite format 3\0"u8))
+            throw new SaveFormatException("Hogwarts database prefix, length or SQLite magic is invalid.");
+        return image;
+    }
+
+    private static int DecodedLength(ReadOnlySpan<byte> frames)
+    {
+        int length = 0;
         while (!frames.IsEmpty)
         {
             if (frames.Length < FrameBytes || Read(frames, 0) != Magic || Read(frames, 8) != ChunkBytes)
@@ -38,18 +65,12 @@ public static class HogwartsImage
             ulong compressed = Read(frames, 16), plain = Read(frames, 24);
             if (compressed == 0 || compressed > (ulong)(frames.Length - FrameBytes) ||
                 plain is 0 or > ChunkBytes || compressed != Read(frames, 32) || plain != Read(frames, 40) ||
-                output.Length + (long)plain > MaxDecodedBytes)
+                (ulong)length + plain > MaxDecodedBytes)
                 throw new SaveFormatException("Hogwarts UE chunk lengths exceed bounds or disagree.");
-            output.Write(OodleCodec.Decompress(frames.Slice(FrameBytes, (int)compressed), (int)plain, MaxDecodedBytes));
+            length += (int)plain;
             frames = frames[(FrameBytes + (int)compressed)..];
         }
-        byte[] decoded = output.ToArray();
-        if (decoded.Length < PrefixBytes + 100 ||
-            BinaryPrimitives.ReadInt32LittleEndian(decoded) != decoded.Length - sizeof(int) ||
-            BinaryPrimitives.ReadInt32LittleEndian(decoded.AsSpan(sizeof(int))) != decoded.Length - PrefixBytes ||
-            !decoded.AsSpan(PrefixBytes, 16).SequenceEqual("SQLite format 3\0"u8))
-            throw new SaveFormatException("Hogwarts database prefix, length or SQLite magic is invalid.");
-        return decoded[PrefixBytes..];
+        return length;
     }
 
     /// <summary>Emit bounded stored Kraken blocks for the validated Hogwarts write path.</summary>
