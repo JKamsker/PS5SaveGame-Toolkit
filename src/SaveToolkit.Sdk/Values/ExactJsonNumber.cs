@@ -9,15 +9,20 @@ namespace SaveToolkit.Sdk.Values;
 /// </summary>
 public static class ExactJsonNumber
 {
+    /// <summary>Default maximum numeric lexeme length.</summary>
     public const int DefaultMaxLength = 4096;
+    /// <summary>Largest supported lexeme-length budget.</summary>
     public const int HardMaxLength = 16384;
+    /// <summary>Default maximum absolute exponent written in a lexeme.</summary>
     public const int DefaultMaxAbsoluteExponent = 1_000_000;
+    /// <summary>Largest supported absolute-exponent budget.</summary>
     public const int HardMaxAbsoluteExponent = 1_000_000_000;
 
     private static readonly Regex Grammar = new(
         @"\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\z",
         RegexOptions.CultureInvariant | RegexOptions.NonBacktracking);
 
+    /// <summary>Returns null for a valid bounded lexeme, or a user-facing grammar, resource-limit or exact-range error.</summary>
     public static string? Validate(string text, ExactNumberSpec? spec = null)
     {
         spec ??= new ExactNumberSpec();

@@ -1,5 +1,6 @@
 namespace SaveToolkit.Sdk.References;
 
+/// <summary>Traverses all requested catalog matches within a record budget, rejecting incomplete or inconsistent paging.</summary>
 public static class ReferenceCatalogReader
 {
     /// <summary>

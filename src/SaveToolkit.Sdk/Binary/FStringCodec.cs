@@ -9,6 +9,7 @@ public static class FStringCodec
     private static readonly Encoding Utf8 = new UTF8Encoding(false, true);
     private static readonly Encoding Utf16 = new UnicodeEncoding(false, false, true);
 
+    /// <summary>Checks the signed prefix and returns body bytes including the terminator, excluding the four-byte prefix.</summary>
     public static int ByteLength(int signedLength, FStringLimits limits, string context)
     {
         ArgumentNullException.ThrowIfNull(limits);
@@ -21,6 +22,7 @@ public static class FStringCodec
         return (int)bytes;
     }
 
+    /// <summary>Consumes a signed length prefix and its bounded string body, rejecting malformed encoding or terminators.</summary>
     public static string Read(ref BoundedBinaryCursor cursor, FStringLimits limits)
     {
         var length = cursor.ReadInt32LE();

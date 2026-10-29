@@ -13,16 +13,24 @@ public sealed class ParamSfo
     private const int HeaderSize = 20;
     private const int EntrySize = 16;
 
+    /// <summary>Wraps parsed metadata entries; the supplied dictionary is retained without copying.</summary>
     public ParamSfo(IReadOnlyDictionary<string, object> entries) => Entries = entries;
 
+    /// <summary>Entries keyed by their original SFO names.</summary>
     public IReadOnlyDictionary<string, object> Entries { get; }
 
+    /// <summary>MAINTITLE text when present.</summary>
     public string? MainTitle => GetString("MAINTITLE");
+    /// <summary>SUBTITLE text when present.</summary>
     public string? SubTitle => GetString("SUBTITLE");
+    /// <summary>DETAIL text when present.</summary>
     public string? Detail => GetString("DETAIL");
+    /// <summary>TITLE_ID text when present.</summary>
     public string? TitleId => GetString("TITLE_ID");
+    /// <summary>SAVEDATA_DIRECTORY text when present.</summary>
     public string? SaveDataDirectory => GetString("SAVEDATA_DIRECTORY");
 
+    /// <summary>Returns a string entry or null when the key is absent or its value has a different representation.</summary>
     public string? GetString(string key) => Entries.TryGetValue(key, out var v) ? v as string : null;
 
     /// <summary>Parses param.sfo bytes. Returns null when the data is not a valid SFO.</summary>

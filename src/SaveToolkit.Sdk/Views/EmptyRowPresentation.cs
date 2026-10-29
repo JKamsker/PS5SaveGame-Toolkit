@@ -7,5 +7,6 @@ public sealed record EmptyRowPresentation(string LabelColumnKey)
     /// <summary>Human plural label used by the visibility toggle.</summary>
     public string PluralLabel { get; init; } = "empty slots";
 
+    /// <summary>Initially hides confirmed empty slots while retaining their data and stable identities.</summary>
     public bool HideByDefault { get; init; } = true;
 }

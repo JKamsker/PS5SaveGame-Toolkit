@@ -12,22 +12,30 @@ public abstract class BoundSaveDocument : ISaveDocument
 {
     private readonly Dictionary<string, Binding> _bindings = new(StringComparer.Ordinal);
 
+    /// <inheritdoc />
     public abstract string Title { get; }
 
+    /// <inheritdoc />
     public virtual bool CanEdit => true;
 
+    /// <inheritdoc />
     public abstract ViewNode BuildView();
 
+    /// <inheritdoc />
     public virtual IReadOnlyList<ViewNode> ExpandNode(string lazyId) =>
         throw new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
 
+    /// <inheritdoc />
     public abstract IReadOnlyList<FileOutput> Serialize();
 
+    /// <inheritdoc />
     public virtual ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
         throw new KeyNotFoundException($"Unknown action '{actionId}'.");
 
+    /// <inheritdoc />
     public virtual AssetContent? GetAsset(string assetId) => null;
 
+    /// <inheritdoc />
     public virtual ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) =>
         throw new KeyNotFoundException($"Unknown blob '{blobId}'.");
 
@@ -44,12 +52,14 @@ public abstract class BoundSaveDocument : ISaveDocument
         Func<FieldValue, string?>? validate = null)
     {
         var effectiveSpec = set is null ? spec with { ReadOnly = true } : spec;
-        _bindings[valueId] = new Binding(effectiveSpec, get, set, validate);
+        _bindings[valueId] = new Binding(get, set, validate);
         return new FieldNode(valueId, label, effectiveSpec, get());
     }
 
+    /// <inheritdoc />
     public FieldValue GetValue(string valueId) => Lookup(valueId).Get();
 
+    /// <inheritdoc />
     public virtual EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
         var errors = new List<FieldError>();
@@ -203,15 +213,17 @@ public abstract class BoundSaveDocument : ISaveDocument
     private Binding Lookup(string valueId) =>
         _bindings.TryGetValue(valueId, out var b) ? b : throw new KeyNotFoundException($"Unknown field '{valueId}'.");
 
+    /// <summary>Releases document-owned resources through the disposal hook.</summary>
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>Override to release document-owned resources; true permits disposing managed resources.</summary>
     protected virtual void Dispose(bool disposing)
     {
     }
 
-    private sealed record Binding(FieldSpec Spec, Func<FieldValue> Get, Action<FieldValue>? Set, Func<FieldValue, string?>? Validate);
+    private sealed record Binding(Func<FieldValue> Get, Action<FieldValue>? Set, Func<FieldValue, string?>? Validate);
 }

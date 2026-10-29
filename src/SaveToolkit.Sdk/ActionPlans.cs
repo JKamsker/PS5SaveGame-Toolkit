@@ -1,14 +1,20 @@
 namespace SaveToolkit.Sdk;
 
+/// <summary>How scalar application combines fresh preview warnings with application warnings, including rejections.</summary>
 public enum ActionPlanWarningPolicy
 {
+    /// <summary>Keep only warnings returned by the application; rejected revalidation supplies none.</summary>
     PreserveApplication,
+    /// <summary>Use only warnings from the fresh plan.</summary>
     UsePlan,
+    /// <summary>Append application warnings after fresh-plan warnings, preserving order and duplicates.</summary>
     Merge,
 }
 
+/// <summary>The freshly calculated plan and validation errors, which may instead describe a reviewed-plan mismatch.</summary>
 public sealed record ActionPlanValidation(ActionPlan Plan, IReadOnlyList<FieldError> Errors)
 {
+    /// <summary>True when the fresh plan has no errors and matches the reviewed content.</summary>
     public bool Succeeded => Errors.Count == 0;
 }
 

@@ -8,11 +8,14 @@ public sealed class Crc32Ieee
     private static readonly uint[] Table = BuildTable();
     private uint _state = uint.MaxValue;
 
+    /// <summary>Computes a finalized checksum over the complete supplied range without changing any instance.</summary>
     public static uint Compute(ReadOnlySpan<byte> bytes) => ~Update(uint.MaxValue, bytes);
+    /// <summary>Extends the instance checksum with the next range; empty ranges leave it unchanged.</summary>
     public void Append(ReadOnlySpan<byte> bytes) => _state = Update(_state, bytes);
 
     /// <summary>Finalized value without consuming/resetting state. Coverage, folding and byte order are caller-owned.</summary>
     public uint GetCurrentHash() => ~_state;
+    /// <summary>Restores the initial state so the instance can checksum a new sequence.</summary>
     public void Reset() => _state = uint.MaxValue;
 
     private static uint Update(uint state, ReadOnlySpan<byte> bytes)

@@ -31,6 +31,10 @@ public interface ISaveDocument : IDisposable
     /// </summary>
     EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits);
 
+    /// <summary>
+    /// Runs a published action with validated parameters. Mutations must be atomic and report changes
+    /// or a structural revert token. An inspection action must leave values, bytes and structure unchanged.
+    /// </summary>
     ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
         throw new KeyNotFoundException($"Unknown action '{actionId}'.");
 
@@ -40,6 +44,7 @@ public interface ISaveDocument : IDisposable
     /// </summary>
     IReadOnlyList<FileOutput> Serialize();
 
+    /// <summary>Local image bytes for a published <see cref="ImageNode"/>, or null when unavailable.</summary>
     AssetContent? GetAsset(string assetId) => null;
 
     /// <summary>Bytes for a <see cref="HexNode"/>.</summary>
@@ -58,13 +63,16 @@ public interface ISaveDocument : IDisposable
         throw new NotSupportedException("This document does not support structural undo.");
 }
 
+/// <summary>A requested assignment to a stable field ID; null is a value, never a request to remove a field.</summary>
 public sealed record ValueEdit(string ValueId, FieldValue Value);
 
 /// <summary>A value that changed; <see cref="OldValue"/> enables undo.</summary>
 public sealed record ValueChange(string ValueId, FieldValue OldValue, FieldValue NewValue);
 
+/// <summary>A user-facing rejection associated with a field or action ID; an empty ID denotes a general error.</summary>
 public sealed record FieldError(string ValueId, string Message);
 
+/// <summary>Atomic edit result. Errors reject the batch; successful results describe all changes and undo state.</summary>
 public sealed record EditOutcome
 {
     /// <summary>All values that changed, including derived ones (checksums, totals, ...).</summary>
@@ -73,6 +81,7 @@ public sealed record EditOutcome
     /// <summary>Non-empty means the batch was rejected and nothing changed.</summary>
     public IReadOnlyList<FieldError> Errors { get; init; } = [];
 
+    /// <summary>Notices shown to the user alongside the result, including limitations of successful writes.</summary>
     public IReadOnlyList<string> Warnings { get; init; } = [];
 
     /// <summary>Set when rows/sections appeared or vanished, so the view must be rebuilt.</summary>
@@ -85,14 +94,18 @@ public sealed record EditOutcome
     /// </summary>
     public DocumentMemento? Revert { get; init; }
 
+    /// <summary>True when no errors were returned, including a successful no-op batch.</summary>
     public bool Succeeded => Errors.Count == 0;
 
+    /// <summary>Creates a rejected batch with one field-associated diagnostic and no changes.</summary>
     public static EditOutcome Rejected(string valueId, string message) =>
         new() { Errors = [new FieldError(valueId, message)] };
 }
 
+/// <summary>A completed action's message, changes and undo policy. Throw on action failure without changing state.</summary>
 public sealed record ActionOutcome
 {
+    /// <summary>Optional human-readable result, also used by read-only inspection actions.</summary>
     public string? Message { get; init; }
 
     /// <summary>
@@ -101,8 +114,10 @@ public sealed record ActionOutcome
     /// </summary>
     public IReadOnlyList<ValueChange> Changes { get; init; } = [];
 
+    /// <summary>False clears earlier undo history; prefer complete changes or a structural revert token.</summary>
     public bool Undoable { get; init; } = true;
 
+    /// <summary>Requests a view rebuild when published nodes, bindings or other view metadata changed.</summary>
     public bool StructureChanged { get; init; }
 
     /// <summary>
@@ -113,9 +128,12 @@ public sealed record ActionOutcome
     /// </summary>
     public DocumentMemento? Revert { get; init; }
 
+    /// <summary>User-visible notices, including write limitations and unconfirmed effects.</summary>
     public IReadOnlyList<string> Warnings { get; init; } = [];
 }
 
+/// <summary>Complete replacement bytes for an existing save-set relative path. Unlisted files are preserved.</summary>
 public sealed record FileOutput(string RelativePath, ReadOnlyMemory<byte> Content);
 
+/// <summary>Local asset bytes and their MIME content type, supplied without file or network I/O by the plugin.</summary>
 public sealed record AssetContent(string ContentType, ReadOnlyMemory<byte> Content);

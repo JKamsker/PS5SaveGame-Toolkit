@@ -30,23 +30,30 @@ public abstract record ViewNode;
 /// </summary>
 public sealed record SectionNode(string Title, IReadOnlyList<ViewNode> Children) : ViewNode
 {
+    /// <summary>Optional section explanation or attribution.</summary>
     public string? Description { get; init; }
 
     /// <summary>Short secondary label, e.g. an item count.</summary>
     public string? Badge { get; init; }
 
+    /// <summary>Initial collapsed state; users can expand the section.</summary>
     public bool Collapsed { get; init; }
 
+    /// <summary>Stable expansion ID passed to the document instead of eagerly reading Children.</summary>
     public string? LazyId { get; init; }
 
+    /// <summary>Creates an initially collapsed lazy section with no eager children.</summary>
     public static SectionNode Lazy(string title, string lazyId, string? badge = null) =>
         new(title, []) { LazyId = lazyId, Collapsed = true, Badge = badge };
 }
 
+/// <summary>One named page of a tab group, containing ordinary view nodes.</summary>
 public sealed record Tab(string Title, IReadOnlyList<ViewNode> Children);
 
+/// <summary>A group of named pages; all child bindings remain part of the same document.</summary>
 public sealed record TabsNode(IReadOnlyList<Tab> Tabs) : ViewNode;
 
+/// <summary>Evidence supporting a field's interpreted meaning, independent of plugin write maturity.</summary>
 public enum Confidence
 {
     /// <summary>Meaning confirmed (e.g. name hash matched, in-game test done).</summary>
@@ -65,8 +72,10 @@ public enum Confidence
 /// </summary>
 public sealed record FieldNode(string ValueId, string Label, FieldSpec Spec, FieldValue Value) : ViewNode
 {
+    /// <summary>Optional field explanation or attribution.</summary>
     public string? Description { get; init; }
 
+    /// <summary>Evidence supporting this field's interpreted meaning, or null when no label is supplied.</summary>
     [JsonConverter(typeof(JsonStringEnumConverter<Confidence>))]
     public Confidence? Confidence { get; init; }
 
@@ -74,17 +83,24 @@ public sealed record FieldNode(string ValueId, string Label, FieldSpec Spec, Fie
     public string? Warning { get; init; }
 }
 
+/// <summary>Relative presentation hint for a table column; the host chooses concrete dimensions.</summary>
 public enum ColumnWidth
 {
+    /// <summary>Compact content such as counts or short identifiers.</summary>
     Narrow,
+    /// <summary>Default relative column width.</summary>
     Normal,
+    /// <summary>Additional room for names or explanatory content.</summary>
     Wide,
 }
 
+/// <summary>An eager table's stable column key and human label; row cells use the same key.</summary>
 public sealed record TableColumn(string Key, string Label)
 {
+    /// <summary>Optional column explanation.</summary>
     public string? Description { get; init; }
 
+    /// <summary>Relative width hint for the host renderer.</summary>
     [JsonConverter(typeof(JsonStringEnumConverter<ColumnWidth>))]
     public ColumnWidth Width { get; init; } = ColumnWidth.Normal;
 }
@@ -99,25 +115,37 @@ public sealed record TableRow(string Key, IReadOnlyDictionary<string, ViewNode> 
 /// <summary>Homogeneous records (inventory, party members, ...). The browser handles paging, search and virtualisation.</summary>
 public sealed record TableNode(IReadOnlyList<TableColumn> Columns, IReadOnlyList<TableRow> Rows) : ViewNode
 {
+    /// <summary>Optional display policy for confirmed empty slots; all saved rows and bindings remain intact.</summary>
     public EmptyRowPresentation? EmptyRows { get; init; }
 
+    /// <summary>Optional table heading.</summary>
     public string? Title { get; init; }
 
+    /// <summary>Optional table explanation or attribution.</summary>
     public string? Description { get; init; }
 }
 
+/// <summary>Semantic emphasis for text and actions; the host supplies the visual styling.</summary>
 public enum Tone
 {
+    /// <summary>Ordinary content without additional emphasis.</summary>
     Normal,
+    /// <summary>Secondary explanatory content.</summary>
     Muted,
+    /// <summary>Informational content.</summary>
     Info,
+    /// <summary>Successful or positive status.</summary>
     Success,
+    /// <summary>A caution or unconfirmed limitation.</summary>
     Warning,
+    /// <summary>A serious error or potentially destructive action.</summary>
     Danger,
 }
 
+/// <summary>Read-only text, optionally styled by semantic tone or rendered in a fixed-width font.</summary>
 public sealed record TextNode(string Text) : ViewNode
 {
+    /// <summary>Semantic emphasis chosen by the plugin; the host chooses its styling.</summary>
     [JsonConverter(typeof(JsonStringEnumConverter<Tone>))]
     public Tone Tone { get; init; } = Tone.Normal;
 
@@ -125,8 +153,10 @@ public sealed record TextNode(string Text) : ViewNode
     public bool Monospace { get; init; }
 }
 
+/// <summary>A formatted, read-only headline value and its label.</summary>
 public sealed record Stat(string Label, string Value)
 {
+    /// <summary>Optional explanation of the displayed statistic.</summary>
     public string? Hint { get; init; }
 }
 
@@ -148,19 +178,23 @@ public sealed record ActionNode(string ActionId, string Label) : ViewNode
     /// <summary>Requires IActionPlanningDocument; direct invocation is rejected. False preserves legacy behavior.</summary>
     public bool SupportsPlanning { get; init; }
 
+    /// <summary>Optional action explanation or attribution.</summary>
     public string? Description { get; init; }
 
+    /// <summary>Semantic emphasis for the action control.</summary>
     [JsonConverter(typeof(JsonStringEnumConverter<Tone>))]
     public Tone Tone { get; init; } = Tone.Normal;
 
     /// <summary>When set, the browser asks for confirmation with this text first.</summary>
     public string? Confirm { get; init; }
 
+    /// <summary>Typed input fields whose values supply defaults and whose IDs become parameter names.</summary>
     public IReadOnlyList<FieldNode> Parameters { get; init; } = [];
 }
 
 /// <summary>Read-only byte view served in pages by <see cref="ISaveDocument.ReadBlob"/>.</summary>
 public sealed record HexNode(string BlobId, long Length) : ViewNode
 {
+    /// <summary>Optional heading for the byte view.</summary>
     public string? Title { get; init; }
 }

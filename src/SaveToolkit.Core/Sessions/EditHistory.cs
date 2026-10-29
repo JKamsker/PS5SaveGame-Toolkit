@@ -70,8 +70,6 @@ internal sealed class EditHistory(DocumentSessionOptions options)
 
     public HistoryEntry? NextRedo => _redo.Last?.Value;
 
-    public long Bytes => _bytes;
-
     /// <summary>Records a new entry, clearing redo. Returns user-facing notices about evicted history.</summary>
     public IReadOnlyList<string> Record(HistoryEntry entry)
     {

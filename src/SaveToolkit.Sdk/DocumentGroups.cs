@@ -23,13 +23,17 @@ public interface IDocumentGroupPlugin
     IGroupedSaveDocument OpenGroup(DocumentGroupInput input, IReferenceContext references);
 }
 
+/// <summary>An explicitly selected game file identified by its stable role and save-set relative path.</summary>
 public sealed record DocumentGroupMember(string Role, string RelativePath);
 
+/// <summary>A non-owning group alternative containing the anchor and every required partner.</summary>
 public sealed record DocumentGroupProposal(string Id, string Title, IReadOnlyList<DocumentGroupMember> Members)
 {
+    /// <summary>Reasons this alternative cannot be opened, such as missing or ambiguous partners.</summary>
     public IReadOnlyList<FieldError> Errors { get; init; } = [];
 }
 
+/// <summary>A selected role and its immutable file, supplied to group validation and opening.</summary>
 public sealed record DocumentGroupFile(string Role, ISaveFile File);
 
 /// <summary>Host-owned read-only selection. All members share a title and imported generation.</summary>

@@ -1,5 +1,6 @@
 namespace SaveToolkit.Sdk.Binary;
 
+/// <summary>Overflow-safe bounds checks for slices of a caller-owned binary span.</summary>
 public static class BinaryRange
 {
     /// <summary>Checks bounds without adding untrusted lengths, including an empty range at the end.</summary>

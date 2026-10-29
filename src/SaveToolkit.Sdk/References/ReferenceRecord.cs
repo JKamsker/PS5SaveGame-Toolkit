@@ -8,11 +8,13 @@ namespace SaveToolkit.Sdk.References;
 /// <param name="Name">Display name.</param>
 public sealed record ReferenceRecord(string Key, string Name)
 {
+    /// <summary>Optional grouping label used by exact category filters.</summary>
     public string? Category { get; init; }
 
     /// <summary>Game limit for quantities (e.g. max stack size), when known.</summary>
     public long? Limit { get; init; }
 
+    /// <summary>Optional descriptive text from the attributed dataset.</summary>
     public string? Description { get; init; }
 
     /// <summary>Pack-qualified asset id (<c>packId:path</c>); pass it to <see cref="IReferenceContext.GetAsset"/>.</summary>
