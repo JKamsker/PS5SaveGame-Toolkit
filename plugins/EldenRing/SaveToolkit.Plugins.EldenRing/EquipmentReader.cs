@@ -7,21 +7,12 @@ internal sealed record EquipmentLink(string Key, string Label, uint Handle, uint
 // ClayAmore 014107f0: save/common/save_slot.rs and vm/equipment.rs (MIT).
 internal static class EquipmentReader
 {
-    private const int AssemblyPrefixWords = 7;
     private const int QuickSlotCount = 10;
     private const int PouchSlotCount = 6;
     private const int QuickActiveBytes = sizeof(uint);
     private const int EquippedQuickWord = 22;
     private const int EquippedPouchWord = 32;
     private const int ItemPairSize = 2 * sizeof(uint);
-    private const int HandSlotCount = 6;
-    private const int WeaponSlotCount = 10;
-    private const int HeadWord = 12;
-    private const int ChestWord = 13;
-    private const int ArmsWord = 14;
-    private const int LegsWord = 15;
-    private const int FirstTalismanWord = 17;
-    private const int LastTalismanWord = 20;
 
     public static IReadOnlyList<EquipmentLink> Read(byte[] bytes, SemanticCharacter character)
     {
@@ -31,13 +22,13 @@ internal static class EquipmentReader
         var rows = new List<EquipmentLink>();
         for (var word = 0; word < SemanticLayout.EquipmentSize / sizeof(uint); word++)
         {
-            var label = Label(word);
+            var label = EquipmentSlots.GearLabel(word);
             if (label is null) continue; // Unknown words are retained in the independent raw tables.
             rows.Add(Link($"gear/{word}", label,
                 ReadWord(bytes, ranges["ChrAsm2"], word), ReadWord(bytes, ranges["EquipData"], word),
-                ReadWord(bytes, ranges["ChrAsm"], word + AssemblyPrefixWords),
+                ReadWord(bytes, ranges["ChrAsm"], word + EquipmentSlots.AssemblyPrefixWords),
                 ReadWord(bytes, ranges["EquippedItems"], word), heldByHandle,
-                word < WeaponSlotCount ? "weapon" : word <= LegsWord ? "armor" : "talisman"));
+                word < EquipmentSlots.WeaponSlotCount ? "weapon" : word <= EquipmentSlots.LegsWord ? "armor" : "talisman"));
         }
         var quick = ranges["QuickItems"];
         for (var index = 0; index < QuickSlotCount + PouchSlotCount; index++)
@@ -76,13 +67,4 @@ internal static class EquipmentReader
 
     private static uint ReadWord(byte[] bytes, SaveRange range, int word) =>
         EldenRingParser.ReadUInt32(bytes, range.Offset + word * sizeof(uint));
-
-    private static string? Label(int word) => word switch
-    {
-        < HandSlotCount => $"{(word % 2 == 0 ? "Left" : "Right")} hand {word / 2 + 1}",
-        < WeaponSlotCount => $"{(word % 2 == 0 ? "Arrow" : "Bolt")} {(word - HandSlotCount) / 2 + 1}",
-        HeadWord => "Head", ChestWord => "Chest", ArmsWord => "Arms", LegsWord => "Legs",
-        >= FirstTalismanWord and <= LastTalismanWord => $"Talisman {word - FirstTalismanWord + 1}",
-        _ => null,
-    };
 }

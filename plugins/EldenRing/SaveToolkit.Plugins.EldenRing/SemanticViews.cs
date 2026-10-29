@@ -66,7 +66,7 @@ internal sealed class SemanticViews(byte[] bytes, IReadOnlyList<SemanticCharacte
         foreach (var range in character.Ranges.Where(range => range.Name is "EquipData" or "ChrAsm" or "ChrAsm2" or "EquippedItems"))
         {
             var rows = new List<TableRow>();
-            var prefix = range.Name == "ChrAsm" ? 7 : 0;
+            var prefix = range.Name == "ChrAsm" ? EquipmentSlots.AssemblyPrefixWords : 0;
             for (var word = 0; word < range.Length / sizeof(uint); word++)
             {
                 var offset = range.Offset + word * sizeof(uint);
@@ -89,14 +89,6 @@ internal sealed class SemanticViews(byte[] bytes, IReadOnlyList<SemanticCharacte
         {
             0 => "Arm style", 1 => "Active left hand", 2 => "Active right hand", _ => $"Active projectile selector {word - 2}",
         };
-        var index = word - prefix;
-        return index switch
-        {
-            < 6 => $"{(index % 2 == 0 ? "Left" : "Right")} hand {index / 2 + 1}",
-            < 10 => $"{(index % 2 == 0 ? "Arrow" : "Bolt")} {(index - 6) / 2 + 1}",
-            12 => "Head", 13 => "Chest", 14 => "Arms", 15 => "Legs",
-            >= 17 and <= 20 => $"Talisman {index - 16}",
-            _ => $"Unknown word +0x{word * sizeof(uint):X}",
-        };
+        return EquipmentSlots.GearLabel(word - prefix) ?? $"Unknown word +0x{word * sizeof(uint):X}";
     }
 }
