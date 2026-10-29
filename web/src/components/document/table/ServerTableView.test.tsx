@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../../api/client";
 import type { QueryablePage } from "../../../api/protocol";
@@ -25,6 +25,53 @@ function setup(refresh = vi.fn(async () => {})) {
 }
 
 describe("server table request lifecycle", () => {
+  it("exposes full field warnings through a labelled, collapsible details control", async () => {
+    vi.spyOn(api, "queryCollection").mockResolvedValue({ ...page, rows: [{ key: "slot with spaces", cells: {
+      name: { type: "field", valueId: "quantity", label: "Potion quantity", value: "2",
+        spec: { kind: "integer", min: "0", max: "99" }, warning: "Changing this count is unverified in-game." },
+    } }] });
+    const { client } = setup();
+    const toggle = await screen.findByRole("button", { name: "Details for 2" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText("Changing this count is unverified in-game.")).toBeNull();
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    const detailId = toggle.getAttribute("aria-controls")!;
+    expect(detailId).not.toMatch(/\s/);
+    const details = document.getElementById(detailId)!;
+    expect(details.getAttribute("role")).toBe("cell");
+    expect(details.textContent).toContain("Changing this count is unverified in-game.");
+    expect(details.closest('[role="row"]')?.getAttribute("aria-rowindex")).toBe("3");
+    expect(screen.getByRole("table").getAttribute("aria-rowcount")).toBe("102");
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(document.getElementById(detailId)).toBeNull();
+    expect(screen.getByRole("table").getAttribute("aria-rowcount")).toBe("101");
+    client.clear();
+  });
+
+  it("counts expanded detail rows when indexing subsequent data rows", async () => {
+    vi.spyOn(api, "queryCollection").mockResolvedValue({ ...page, rows: [
+      { key: "a", cells: { name: { type: "text", text: "Potion".repeat(20) } } },
+      { key: "b", cells: { name: { type: "text", text: "Ether" } } },
+    ] });
+    const { client } = setup();
+    fireEvent.click(await screen.findByRole("button", { name: `Details for ${"Potion".repeat(20)}` }));
+    const row = screen.getByRole("checkbox", { name: "Select Ether" }).closest('[role="row"]')!;
+    expect(row.getAttribute("aria-rowindex")).toBe("4");
+    expect(within(row as HTMLElement).getByText("Ether")).toBeTruthy();
+    client.clear();
+  });
+
+  it("makes truncated text available without relying on a hover tooltip", async () => {
+    const longText = "A long item description that exceeds the compact cell and must be readable in full without hovering.";
+    vi.spyOn(api, "queryCollection").mockResolvedValue({ ...page, rows: [{ key: "long", cells: { name: { type: "text", text: longText } } }] });
+    const { client } = setup();
+    fireEvent.click(await screen.findByRole("button", { name: `Details for ${longText}` }));
+    expect(screen.getAllByText(longText)).toHaveLength(2);
+    client.clear();
+  });
+
   it("hides old interactive rows during a new query and exposes failures", async () => {
     let reject!: (error: Error) => void;
     vi.spyOn(api, "queryCollection").mockResolvedValueOnce(page)
