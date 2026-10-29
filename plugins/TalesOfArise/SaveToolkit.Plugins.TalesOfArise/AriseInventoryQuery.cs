@@ -18,6 +18,7 @@ internal static class AriseInventoryQuery
         new("quantity", "Quantity", new IntegerSpec(0, AriseDocument.ConsumableStackLimit)),
         new("flags", "Raw flags", new TextSpec()),
         new("inspect", "Inspect"),
+        new("restore", "Restore imported"),
     ];
 
     public static QueryableCollection Metadata(int count) => new(CollectionId, "Inventory", Columns, count)
@@ -85,6 +86,7 @@ internal static class AriseInventoryQuery
         "quantity" => row.Quantity.ToString(System.Globalization.CultureInfo.InvariantCulture),
         "flags" => $"0x{row.Flags:X2}",
         "inspect" => row.Name is null ? "—" : "Inspect",
+        "restore" => "Restore imported consumable quantities",
         "icon" => row.Name ?? "No icon",
         _ => throw new ArgumentException($"Unknown inventory column '{column}'.", nameof(column)),
     };

@@ -261,6 +261,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             ["inspect"] = reference is null
                 ? new TextNode("—")
                 : AriseReferences.InspectionAction(_references.Items!, reference),
+            ["restore"] = AriseInventoryActions.RestoreImportedView(),
         };
         return new TableRow(valueId, cells) { IsEmpty = row.IsEmpty };
     }
