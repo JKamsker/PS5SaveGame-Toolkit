@@ -28,17 +28,22 @@ internal static class JsonSemanticTestHelper
         a.ActionId.StartsWith("semantic/", StringComparison.Ordinal) && a.ActionId.EndsWith("/set", StringComparison.Ordinal)
         && fixture.Fields().Single(f => f.ValueId == "value/" + a.ActionId.Split('/')[1]).Label == rawLabel);
 
-    public static void ApplyAndVerify(JsonSessionFixture fixture, string actionId, params (string Name, FieldValue Value)[] parameters)
+    public static ActionPlan ApplyAndVerify(JsonSessionFixture fixture, string actionId, params (string Name, FieldValue Value)[] parameters)
     {
+        Assert.Contains(Actions(fixture), action => action.ActionId == actionId && action.SupportsPlanning);
         var before = fixture.Bytes;
+        var state = fixture.Session.State;
         var preview = fixture.Session.PlanAction(actionId, JsonArrayEditingTests.Parameters(parameters), expectedRevision: fixture.Session.State.Revision);
         Assert.True(preview.Plan.Errors.Count == 0, string.Join("; ", preview.Plan.Errors.Select(e => e.Message)));
         Assert.NotNull(preview.PlanId);
         Assert.NotEmpty(preview.Plan.Changes);
         Assert.Contains(preview.Plan.Warnings, w => w.Contains("game may reject", StringComparison.Ordinal));
         Assert.True(before.AsSpan().SequenceEqual(fixture.Bytes));
+        Assert.Equal(state, fixture.Session.State);
         var applied = fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision);
         Assert.True(applied.Ok, string.Join("; ", applied.Errors.Select(e => e.Message)));
+        Assert.Equal(preview.Plan.Changes.Select(c => new ValueChange(c.ValueId, c.OldValue, c.NewValue)).OrderBy(c => c.ValueId, StringComparer.Ordinal),
+            applied.Changes.OrderBy(c => c.ValueId, StringComparer.Ordinal));
         Assert.Contains(applied.Warnings, w => w.Contains("game may reject", StringComparison.Ordinal));
         var after = fixture.Bytes;
         AssertOnlyPlannedTokensChanged(before, after, preview.Plan);
@@ -49,6 +54,7 @@ internal static class JsonSemanticTestHelper
         Assert.True(before.AsSpan().SequenceEqual(fixture.Bytes), "One undo must restore every changed token exactly.");
         Assert.True(fixture.Session.Redo().Ok);
         Assert.True(after.AsSpan().SequenceEqual(fixture.Bytes));
+        return preview.Plan;
     }
 
     private static void AssertOnlyPlannedTokensChanged(byte[] before, byte[] after, ActionPlan plan)
