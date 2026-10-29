@@ -5,6 +5,9 @@ Compared every requirement, acceptance criterion and #16 handoff against that ba
 The owner's write-enable directive overrides evidence-only write gates in the original plan;
 newly researched read-only candidates do not constitute complete purchase/reward writers.
 All enabled writes remain Experimental/Inferred with unknown-integrity and console warnings.
+The disposition and evidence tables below include the later asset and F12/F13 deliveries, checked
+against current code during the 2026-10-29 maintainability review. Original validation counts remain
+historical; current suite results are recorded in README.
 
 ## Requirement disposition
 
@@ -13,12 +16,12 @@ All enabled writes remain Experimental/Inferred with unknown-integrity and conso
 | R1 | Owner-blocked: controlled same-slot purchase/use, XP, AP and gear/materia captures for each variant, #31. |
 | R2 | Owner-blocked: console load/effect/battle/resave/reimport, separately by variant, #31. |
 | R3 | Done for known names/categories/AP/XP and conservative editor policies. Owner-blocked for verified stack caps, summon exceptions and complete gear capacity/eligibility. |
-| R4 | Existing ByteDiffer/relationship/write-scope tests plus added shared F1 manifest/verifier and decoder-hook tests. F12 complete F8 traversal is pending #32. Private capture fixtures cannot be fabricated. |
-| R5 | Used F2 context/packs/Sources and added document asset forwarding; test proves optional imported image route and provenance. |
+| R4 | ByteDiffer/relationship/write-scope tests, shared F1 manifest/verifier and SDK-only character evidence hook; F12 decoder and complete F8 traversal tests are implemented. Private capture fixtures cannot be fabricated. |
+| R5 | F2 context/packs/Sources and document asset forwarding; bundled attributed icons/maps and optional imported image routing/provenance are tested. |
 | R6 | Candidate character sheets shipped; owner-blocked for observed identity, guest/past/live classification and summon screenshots. |
 | R7 | F8 complete fixed-slot/catalog/owned/card/progress search/filter/sort/paging. Added 388-row research collection. |
 | R8 | F4 materia picker eligibility plus F2 imported names/assets. Weapon type catalog is not an instance-ID catalog; raw IDs retain their domains. |
-| R9 | F3 confidence/warnings and added row-detail sections/optional images with text fallback and asset-route test. Raw read-only browse picker awaits F13 #33. |
+| R9 | F3 confidence/warnings and row-detail sections/images with text fallback and asset-route tests. F13 browse-only reference fields expose item/materia/weapon type IDs; writable weapon instance IDs retain their separate domain. |
 | R10 | Added F9 Rebirth weapon/armor materia reference inspection with local field targets. Owner-blocked for usable capacities, links, complete moves/swaps and Remake upgrade-node topology. |
 | R11 | Existing final-state staging and exact original restoration; scalar/F6 undo/redo remains byte-exact. No safe structural writer exists. |
 | R12 | 145 card types / 16 separate packs and numbering anomaly warning shipped. Owner-blocked for verified 012/013 crosswalk, decks/rank and acquisition dependencies. |
@@ -29,11 +32,11 @@ All enabled writes remain Experimental/Inferred with unknown-integrity and conso
 | R17 | Existing corruption, AP/XP boundary, alias and ownership tests retained; added F9 validity/targets/state, F6 preset, duplicate detail and sample-backed research tests. |
 | R18 | F9 read-only reference layout added; no invented links/capacity. Actual upgrade graph remains owner-blocked because neither inspected MIT template nor KSE library supplies proven PS5 node identities/topology/SP effects. |
 | R19 | Won't do inside plugin: external toolkit-owned persistent preset storage is a framework responsibility. Conditional SDK request documented; useful loadout persistence also needs a complete compatible loadout writer. |
-| R20 | Resolved: owner permits attributed lawful data embedding; link-first policy applies to unclear art/coordinate rights. |
-| R21 | MIT metadata packs and imported image route implemented. Owner-blocked: lawful per-build/language asset export and save-ID/text-key bridge for complete effect text/art. No unlicensed/NC implementation bundled. |
+| R20 | Resolved: attributed publisher/community assets are permitted under owner decision 2026-10-29; selected icons and six regional backgrounds are bundled. Coordinates remain unverified. |
+| R21 | MIT metadata packs, attributed icons, selected official descriptions and imported image routing implemented. Complete per-build/language effect text/art and save-ID/text-key bridges remain incomplete. No NC implementation bundled. |
 | R22 | Added read-only folio/crafting/minigame candidates, named enemy records, five relationship raw words and one craftsmanship raw word (source level/XP share an ambiguous address). Owner-blocked for complete costs/prerequisites/reward/actor/counter relationships and verified effects; candidate reads do not prove those dependencies. |
 | R23 | Owner-blocked: acquisition/discard/full-capacity and new-patch/region fixtures; no unsafe allocation/removal/conversion. |
-| R24 | Added six bounded F9 maps, separate state-domain markers, text alternatives, local field navigation and attributed external geography link. No embedded art/coordinates. |
+| R24 | Six bounded F9 maps, separate state-domain markers, text alternatives, local field navigation and attributed external geography link. Six attributed PowerPyx regional backgrounds are bundled; candidate coordinates remain unavailable/list-only. |
 | R25 | Conditional N/A: no proven operation couples gameplay/common files. Owner captures must establish a specific coupling before F7 grouping is meaningful. |
 
 ## Acceptance criteria, in plan order
@@ -51,7 +54,7 @@ All enabled writes remain Experimental/Inferred with unknown-integrity and conso
 | 9 reviewed card crosswalk / separate domains | Source anomaly explicitly identified; types/packs/opponents separate. Corrected menu crosswalk/decks/rank remain #31. |
 | 10 bulk review/cancel/apply/undo | AP/stars/restock pure preview, scoped skipped rows/warnings, stale rejection and exact one-group history tested. |
 | 11 conformance / meaningful tests | Full sample-enabled plugin run and zero-warning API build; counts in README and #16 final handoff. |
-| 12 offline optional attribution | F2 packs, source sidecars, notices, UI provenance, optional imported images; external geography only. |
+| 12 offline optional attribution | F2 packs, source sidecars, notices, UI provenance, bundled icons/map backgrounds and optional imported images; external guide supplements list-only candidate positions. |
 | 13 progress gating | Original criterion superseded by owner write-enable directive. Existing candidate-bit writes warn about unchanged rewards/actors/counters and softlocks; new research modules have no complete writer. No placeholder aliases treated as separate verified objectives. |
 | 14 each PS5 gameplay validation / Stable | Owner-blocked #31. Experimental maturity unchanged. |
 | 15 documentation | README updated for actual writes/presets, F1–F13 adoption, research limits, sources and SDK requests. |
@@ -70,7 +73,7 @@ record-relative offsets coincide. They never modify previous-state copies, commo
 | Materia detail lookup | instance/type at `0xBFA68/+4`, stride `0x20`, 1,000 records | Duplicate instances are ambiguous, never silently overwritten. Read-only inspection; save bytes unchanged. |
 | Enemy intel | Source-indexed records: Remake `0x42FAC + index*8`, Rebirth/demo `0x450D0 + index*16`; defeated +4 is u32 / u16 respectively; entry/assessed/staggered bits 0/1/5 | 161 / 230 named rows; read-only/Inferred. Display numbers are never used as array indices. |
 | Relationship / craftsmanship | Rebirth relationships at `0xA8 + character*0x100`, source characters 1–5; craftsmanship raw u32 at `0x3DB8` | Read-only/Inferred. Source craftsmanship level and XP share the address; no false independent rank is shown. |
-| Regional markers | Existing `progress.source.md` bit IDs; no coordinate arrays or background | Source candidates/Inferred, Found/Missing is only bit 1/0. Separate local fields share the original write warning. |
+| Regional markers | Existing `progress.source.md` bit IDs; six bundled regional backgrounds, no candidate coordinate arrays | Source candidates/Inferred, Found/Missing is only bit 1/0. Separate local fields share the original write warning. |
 | Restock preset | Existing positive ordinary `Items` count words; target 1–99, never reduces | No zero/unknown/key/currency/gear/card allocation. 99 is editor policy. F6 preview/group undo. |
 | Star preset | Existing ordinary AP u32 / stored-star u8 pair | AP becomes the chosen strict-curve tier threshold. Summons/mismatches excluded. F6 distinguishes primary stars from dependent AP. |
 
@@ -94,7 +97,7 @@ title/patch/chapter/difficulty/slot/character/region recorded:
 ## Scope exclusions
 
 No runtime battle cheats, guessed 100%-all completion recipe, fabricated weapon-upgrade DAG,
-unlicensed artwork/coordinates, unsafe structural allocation, common-file synchronization or
+unverified candidate coordinates, unsafe structural allocation, common-file synchronization or
 unsupported-platform conversion. These would assert semantics the inspected sources/samples do not prove.
-No additional agents, pushes or merges were used. Framework F12/F13 remain pending #32/#33;
+No additional agents, pushes or merges were used. F12/F13 adoption is recorded in README;
 toolkit-owned persistent loadout storage remains a separately owned SDK request.

@@ -322,8 +322,9 @@ repair dependencies or grant rewards.
 
 The scoped catalog/F4/F8 delivery remains available; the enabled Phase 3 scalar/reference writes
 and Phase 5 individual bits are Experimental while owner validation continues in #31. Full Phase 4
-still needs effect descriptions/icons and persistent loadouts, and Phase 5 still needs separately
-researched folios, crafting, enemy intel, relationships and minigame modules. Fandom page/revision
+still needs complete per-build effect/save-ID crosswalks and persistent loadouts. The shipped folio,
+crafting, enemy-intel, relationship and minigame candidate readers still need verified gameplay
+dependencies and complete writers, as described above. Fandom page/revision
 retrieval returned HTTP 403/402 during the earlier metadata round; this asset round uses pinned
 Final Fantasy Wiki image URLs, official Square Enix / PlayStation descriptions and PowerPyx map
 captures under the owner decision dated 2026-10-29. Rights-reserved publisher assets are marked
@@ -498,6 +499,20 @@ new claims about gameplay validity or internal checksums.
 Completion local validation: **121/121 plugin tests, 0 failed, 0 skipped**, with the supplied archives and the API build passing with zero warnings/errors. Tests include Core F4/F6/F8/F9 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
 every measured sample Open call stayed below two seconds in that historical local run.
 
+Maintainability review (#40, 2026-10-29), after the robustness, SDK-helper and performance rounds:
+**401 passed, 0 failed, 0 skipped** in the complete sample-backed Release plugin suite; API Release
+build with `--warnaserror`: **0 warnings / 0 errors**. Fourteen added characterization cases cover
+exact multi-fault rejection precedence, synthetic protocol/plan fingerprints, fallback names and
+shared byte-scope assertions. These characterize existing behavior before cleanup; no functional
+regression is claimed. Existing no-op round trips, rejection-before-evidence checks and allocation
+bounds remain green. Every production method is at most 50 lines. No runtime strings, IDs,
+confidence labels, write warnings or edit policies changed. Earlier counts above describe their
+respective historical rounds.
+
+For the sample-backed run, set `SAVETOOLKIT_ARTIFACTS` to the external archive root,
+`SAVETOOLKIT_TEST_TEMP` to the D: test-scratch root and `TEMP`/`TMP` to a D: task folder in the same
+shell command, then run `dotnet test --project plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.Tests --configuration Release`.
+
 ## Open problems
 
 - Confirm that edited files load on a PS5 and establish real in-game value limits; no Stable claim.
@@ -575,9 +590,11 @@ extracts follow.
   [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt). All parser/view code here is independently written.
 - [game-tools-collection pinned resource revision](https://github.com/RyudoSynbios/game-tools-collection/tree/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/utils):
   character order and the Rebirth weapon list used by the read-only relationship view. The small
-  `Resources/equipment.json` extract is MIT-derived, retains the same copyright notice, and carries
-  no artwork, descriptions or game limits. The current plugin fallback catalog is text-only; an
-  imported `IReferenceContext` pack can replace names without plugin I/O.
+  `Resources/equipment.json` extract is retained as legacy source data with the same copyright
+  notice and contains no artwork, descriptions or game limits; the unused runtime lookup was removed.
+  Current weapon names use the F2 packs, which also ship attributed descriptions and icon links.
+  The host resolves bundled icons/maps through the pinned reference context; imported packs can
+  replace names/assets without plugin I/O.
 - [Public Remake editor](https://game-tools-collection.com/final-fantasy-vii-remake/save-editor) and
   [Rebirth editor](https://game-tools-collection.com/final-fantasy-vii-rebirth/save-editor): platform scope
   is PC/Steam, not evidence of PS5 console compatibility.
