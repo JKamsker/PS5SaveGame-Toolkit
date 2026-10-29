@@ -130,16 +130,31 @@ public sealed class AriseIconCharacterizationTests
                 and not FieldNode { ValueId: "party/current-cp" or "party/max-cp" }).ToArray(),
         }).ToArray() };
         hash.AppendData(JsonSerializer.SerializeToUtf8Bytes((ViewNode)view));
-        hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(document.LoadInventory()));
+        hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(WithoutRestoreControl(document.LoadInventory())));
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var count = queryable.Collections.Single(collection => collection.Id == "inventory").TotalCount;
         for (var offset = 0; offset < count; offset += ReferenceQuery.MaxLimit)
-            hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(queryable.Query("inventory", new()
+            hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(WithoutRestoreControl(queryable.Query("inventory", new()
             {
                 Offset = offset, Limit = ReferenceQuery.MaxLimit, IncludeEmpty = true,
-            })));
+            }))));
         var actual = Convert.ToHexStringLower(hash.GetHashAndReset());
         Assert.Equal(expected, actual);
+    }
+
+    // The new table-scoped control is asserted here; keep the original fingerprint for all other content.
+    private static QueryableCollectionPage WithoutRestoreControl(QueryableCollectionPage page)
+    {
+        Assert.Single(page.Columns, column => column.Key == "restore");
+        Assert.All(page.Rows, row => Assert.Equal(AriseInventoryActions.RestoreImportedView(), row.Cells["restore"]));
+        return page with
+        {
+            Columns = page.Columns.Where(column => column.Key != "restore").ToArray(),
+            Rows = page.Rows.Select(row => row with
+            {
+                Cells = row.Cells.Where(cell => cell.Key != "restore").ToDictionary(cell => cell.Key, cell => cell.Value, StringComparer.Ordinal),
+            }).ToArray(),
+        };
     }
 
     private static AriseDocument Open(IReferenceContext context) => Assert.IsType<AriseDocument>(new TalesOfArisePlugin().Open(

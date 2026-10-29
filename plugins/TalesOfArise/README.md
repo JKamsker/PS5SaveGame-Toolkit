@@ -161,6 +161,13 @@ same preview/revalidation, atomic scalar application and undo/redo path as setti
 quantities. Dismissing a preview makes no changes. It adds no item mappings or cap
 claims beyond the [legacy mapping evidence](SaveToolkit.Plugins.TalesOfArise/Resources/Consumables.source.md).
 
+Use the inventory table's **Restore imported** control for its current selection,
+including all matching query rows minus exclusions. An explicit empty selection
+changes nothing. The separate control below the table retains whole-document
+behaviour without a selection. Both controls use the same preview and one-step
+undo/redo path, following the [F6 scope contract](../../docs/PLUGIN_GUIDE.md#planned-actions-and-semantic-review).
+This fixes the [wave-1 coverage review finding](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489144967).
+
 Equipment replacement, item insertion/removal, structural changes, HP/CP restore,
 growth/XP edits, skill/title/arte writes and progression/completion mutations remain
 disabled because enabling them could corrupt unproven identity or dependency state even
