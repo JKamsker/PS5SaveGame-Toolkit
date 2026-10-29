@@ -24,16 +24,16 @@ public sealed class ReferenceCatalogTests
         Assert.Equal(30, references.Catalog("xorjson-enchantments")!.Count);
         var sword = catalog.Find("SW.Item.Sword")!;
         Assert.NotNull(sword);
-        Assert.Equal("MIT", sword.Dataset.Attribution.License);
-        Assert.Contains("84ffee67b73e49d5b888e31257ce9767aa8ab826", sword.Source!);
-        Assert.Null(sword.AssetId);
+        Assert.Equal(GameAssetTests.OwnerDecision, sword.Dataset.Attribution.License);
+        Assert.Contains("84ffee67b73e49d5b888e31257ce9767aa8ab826", sword.Attributes["identifierSource"]);
+        Assert.NotNull(sword.AssetId);
         Assert.Null(sword.Limit); // No unproven PC limits become PS5 validators.
         var service = new ReferenceFieldService(references);
         var spec = new ReferenceSpec("xorjson-items");
         var page = service.Search(spec, new ReferenceQuery { Text = "sword", Limit = 2 }, revision: 7);
         Assert.Equal(7, page.Revision);
         Assert.InRange(page.Items.Count, 1, 2);
-        Assert.All(page.Items, candidate => Assert.Equal("MIT", candidate.Dataset!.Attribution.License));
+        Assert.All(page.Items, candidate => Assert.Equal(GameAssetTests.OwnerDecision, candidate.Dataset!.Attribution.License));
         Assert.True(service.Validate(FieldValue.Of("SW.Item.Sword"), spec).Ok);
         Assert.False(service.Validate(FieldValue.Of("SW.Item.NotInCatalog"), spec).Ok);
         Assert.False(service.Find(spec, "SW.Item.NotInCatalog").Eligibility.Selectable);
@@ -58,11 +58,12 @@ public sealed class ReferenceCatalogTests
         Assert.Equal("Artifact Amplifier", enchantment.Name);
         foreach (var record in new[] { quest, task, enchantment })
         {
-            Assert.Equal("MIT", record.Dataset.Attribution.License);
-            Assert.Contains("84ffee67b73e49d5b888e31257ce9767aa8ab826", record.Source!);
+            Assert.Equal(record == enchantment ? GameAssetTests.OwnerDecision : "MIT", record.Dataset.Attribution.License);
+            Assert.Contains("84ffee67b73e49d5b888e31257ce9767aa8ab826",
+                record == enchantment ? record.Attributes["identifierSource"] : record.Source!);
             Assert.Contains("PS5 applicability unverified", record.Attributes["confidence"]);
             Assert.Null(record.Limit);
-            Assert.Null(record.AssetId);
+            Assert.Equal(record == enchantment, record.AssetId is not null);
             Assert.DoesNotContain("strength", record.Attributes.Keys);
         }
     }

@@ -9,6 +9,9 @@ internal static class CharacterMapView
     private const string Title = "Stored locations (unpositioned)";
     private const string Controls = "Location controls";
     private const int LabelLimit = 512;
+    private const string BackgroundAsset = "xorjson.community.en:maps/overworld.webp";
+    private const int BackgroundWidth = 2022;
+    private const int BackgroundHeight = 1340;
     private const string Source = "https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/world.json";
 
     public static ViewNode Build(JsonValueToken root, IReferenceContext references, Func<JsonValueToken, ViewNode> view)
@@ -22,6 +25,10 @@ internal static class CharacterMapView
             .Take(SpatialViewLimits.MaxItems + 1).ToArray();
         var shown = tokens.Take(SpatialViewLimits.MaxItems).ToArray();
         var catalog = references.Catalog("xorjson-world");
+        var background = references.GetAsset(BackgroundAsset) is not null && references.AssetProvenance(BackgroundAsset) is { } provenance
+            ? new MapBackground(BackgroundAsset, "Dungeons II Overworld reference art; saved identifiers remain unpositioned",
+                provenance.Attribution, EmbeddingPermitted: true)
+            : null;
         var markers = shown.Select(node =>
         {
             var id = node.Scalar.AsString();
@@ -32,14 +39,16 @@ internal static class CharacterMapView
                 Description = $"{Clip(id)}. Stored in this save; discovery and map position are unverified. " +
                     (record is null ? "No matching PC catalog record." : record.AttributionText),
                 Target = new(ViewTargetKind.Field, node.ValueId) { Path = ["tab:World", "section:" + Title, "section:" + Controls] },
-                ExternalLink = new(Source, "Community world identifiers", "Ishiaki and contributors; MIT; pinned 84ffee67. Link only, no coordinates/art imported."),
+                ExternalLink = new(Source, "Community world identifiers", "Ishiaki and contributors; MIT; pinned 84ffee67. Identifiers only; no coordinates from this source."),
             };
         }).ToArray();
-        return new SectionNode(Title, [new MapNode("Stored location identifiers", new(0, 0, 1, 1), markers,
-            "This list has no embedded coordinates or map art. Presence in the save does not prove discovery. " +
+        return new SectionNode(Title, [new MapNode("Stored location identifiers", new(0, 0, BackgroundWidth, BackgroundHeight), markers,
+            (background is null ? "No local map art is available. " : "Overworld reference art only; some saved locations may belong to other regions. ") +
+            "Saved identifiers have no verified pixel positions and remain in the text list. Presence in the save does not prove discovery. " +
             (tokens.Length > shown.Length ? "Only the first 512 identifiers are shown; all others remain in the queryable/raw views." : "Every listed identifier links to its stored field."))
         {
             CoordinateSpace = "Unknown; no positions imported",
+            Background = background,
             ExternalSource = new(Source, "Community world reference", "Ishiaki and contributors; MIT; PC relationships and PS5 applicability unverified."),
         }, new SectionNode(Controls, shown.Select(view).ToArray()) { Collapsed = true }]);
     }

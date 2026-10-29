@@ -18,7 +18,7 @@ internal static class CharacterCollections
         return [
             Collection("attributes", "Stored attributes", "Hero", ["id", "value"], Array(hero.Member("Ability")?.Member("Attributes"))
                 .Select(row => Row(row, ("id", Value(row.Member("AttributeName"))), ("value", Value(row.Member("CurrentValue")))))),
-            Collection("inventory", "Inventory entries", "Inventory", ["name", "id", "category", "rarity", "slot", "target", "stack", "power", "effects"],
+            Collection("inventory", "Inventory entries", "Inventory", ["icon", "name", "id", "category", "rarity", "slot", "target", "stack", "power", "effects"],
                 Array(hero.Member("Inventory")?.Member("Entries")).Select(row => Inventory(row, items))),
             Collection("quests", "Stored quests", "Quests", ["name", "id", "state", "tasks", "focused"],
                 Quests(quests, hero.Member("quest")?.Member("FocusedQuestId"), world)),
@@ -26,7 +26,7 @@ internal static class CharacterCollections
             Collection("world", "World records", "World", ["group", "name", "id", "state", "count"], World(hero.Member("WorldExploration"), world)),
             Collection("achievements", "Stored achievements", "Collections", ["group", "name", "id", "state", "count"],
                 Achievements(hero.Member("Achievements"), world)),
-            Collection("collections", "Collected records", "Collections", ["group", "name", "id", "count"],
+            Collection("collections", "Collected records", "Collections", ["group", "icon", "name", "id", "count"],
                 Collected(hero.Member("CollectionsStats"), items)),
         ];
     }
@@ -60,7 +60,7 @@ internal static class CharacterCollections
         foreach (var row in Array(group))
         {
             var tag = row.IsContainer ? row.Member("Tag") : row;
-            yield return Row(row, ("group", Text(group.Label)), ("name", Label(tag, catalog)), ("id", Value(tag)),
+            yield return Row(row, ("group", Text(group.Label)), ("icon", Icon(catalog?.Find(Scalar(tag)))), ("name", Label(tag, catalog)), ("id", Value(tag)),
                 ("count", Value(row.Member("Count"))));
         }
     }
@@ -70,7 +70,7 @@ internal static class CharacterCollections
         var item = row.Member("ItemData");
         var tag = item?.Member("TypeTag");
         var record = items?.Find(Scalar(tag));
-        return Row(row, ("name", Label(tag, items)), ("id", Value(tag)),
+        return Row(row, ("icon", Icon(record)), ("name", Label(tag, items)), ("id", Value(tag)),
             ("category", new(record?.Category ?? "Unknown", Reference: record)),
             ("rarity", Value(item?.Member("RarityTag"))), ("slot", Value(row.Member("EquippedSlot"))),
             ("target", Value(item?.Member("TargetSlotOverride"))),
@@ -117,6 +117,7 @@ internal static class CharacterCollections
 
     private static CharacterCell Value(JsonValueToken? token) => new(Scalar(token), token is { IsContainer: false } ? token : null);
     private static CharacterCell Text(string text) => new(text);
+    private static CharacterCell Icon(ReferenceRecord? record) => new("", Reference: record);
     private static CharacterCell Count(JsonValueToken? token) => new(token?.Kind == JsonTokenType.StartArray
         ? token.Children.Count.ToString(CultureInfo.InvariantCulture) : "Unknown");
     private static CharacterCell Label(JsonValueToken? token, IReferenceCatalog? catalog)

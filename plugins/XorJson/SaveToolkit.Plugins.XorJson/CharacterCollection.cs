@@ -45,11 +45,16 @@ internal sealed class CharacterCollection(
     {
         if (key == "details") return view(row.Source);
         if (!row.Cells.TryGetValue(key, out var cell)) return new TextNode("—");
+        if (key == "icon") return cell.Reference?.AssetId is { } asset
+            ? new ImageNode(asset, cell.Reference.Name) : new TextNode("—");
         if (cell.Token is { } token) return view(token);
-        return cell.Reference is { } record
-            ? new SectionNode(cell.Text, [new TextNode($"Inferred PC label; PS5 applicability unverified. {record.AttributionText}")])
-                { Description = record.AttributionText, Collapsed = true }
-            : new TextNode(cell.Text);
+        if (cell.Reference is not { } record) return new TextNode(cell.Text);
+        var details = new List<ViewNode>
+        {
+            new TextNode($"Inferred PC label; PS5 applicability unverified. {record.AttributionText}"),
+        };
+        if (!string.IsNullOrWhiteSpace(record.Description)) details.Add(new TextNode(record.Description));
+        return new SectionNode(cell.Text, details) { Description = record.AttributionText, Collapsed = true };
     }
 
     private void Validate(QueryableCollectionQuery query)
