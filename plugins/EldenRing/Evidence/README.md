@@ -94,8 +94,11 @@ from explicit `event_flags.rs` joins; no flat `eventId/8` assumption. Source has
 all modifications and coverage limits accompany the resources. Independent name/event digests
 retain exact upstream whitespace in metadata where F2 trims display labels.
 
-F9 regional maps leave all statuses Unknown and omit coordinates/backgrounds, with attributed
-external map links and raw-field navigation through real Core expansion paths. The F9 graph
+The original completion round left all F9 statuses Unknown and used unpositioned regional maps.
+The asset round now adds optional local backgrounds and inferred event-ID placements from the
+separate names pack; Map Genie links, accessible lists and raw-field navigation remain available.
+Missing coordinates/art retain the original fallback. See [ASSET_ROUND.md](ASSET_ROUND.md).
+The F9 graph
 shows eight attributes feeding level, without fabricated quest/unlock/upgrade dependencies.
 F8 covers the complete progress list and the formerly eager 186-table regulation directory;
 regional text/graphic alternatives are bounded to 100 entries. Read-only versions and missing packs
@@ -167,13 +170,16 @@ budget, zlib corruption, directory counts/offsets/names and PARAM schema/body/na
 - Phase 1 infrastructure: implemented. Temporal/console proof remains owner-dependent.
 - Phase 2: complete pinned MIT item/weapon/armor/talisman/AoW names, ten class references,
   packs, F4 identities/inspection, F8 browsing and directory-only regulation decode implemented.
-  Community row names/technical layout references now supplement this (below). Validated field decoding,
+  Community item/flag identities and technical layout references supplement this (below); the unused
+  standalone PARAM row-name dump was removed in v1.1.0. Validated field decoding,
   legal item caps, upgrade compatibility and verified DLC/build coverage remain evidence dependent.
-  Game-extracted descriptions/icons are excluded.
+  Selected publisher descriptions/icons and local map art/placements now ship under the separate
+  2026-10-29 owner policy, with attribution in [visuals.source.md](../SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/visuals.source.md).
 - Phase 3: fixed-size names, positive ordinary quantities, manual history mirrors, F6 held-only/linked
   runes and refill are enabled with warnings. Modifier-aware attribute/respec writers remain unimplemented.
 - Phase 4: read-only equipment joins; complete profile/equipment/upgrade/history transactions remain unimplemented.
-- Phase 5: 499 attributed source candidates, F9 link-only regional maps, F8 browsing and character
+- Phase 5: 499 original and 1,748 community source candidates, F9 regional maps with optional local
+  art/inferred placements, F8 browsing and character
   dependency graph. Statuses remain Unknown; verified progress/quest/world semantics require controlled captures.
 - Phase 6: no allocation/cleanup writer. No prepared F5/F7 write exists.
   See [OWNER_CAPTURES.md](OWNER_CAPTURES.md); evidence no longer gates the enabled Experimental operations.
@@ -185,7 +191,8 @@ separate `eldenring.community.en` pack contains 3,221 TGA item identities/groups
 candidates and 1,072 technical layout records. The unused 8,651-row PARAM dump was removed in the
 v1.1.0 compaction follow-up; no native save-data view/decoder used it. The compact pack retains revisions,
 source-byte hashes, per-dataset attribution and source sidecars; the text-only reproducible importer
-never executes upstream code. Descriptions/artwork, editor bounds and spawning recipes are excluded.
+never executes upstream code. This community pack excludes descriptions/artwork, editor bounds
+and spawning recipes; the names pack's separately attributed publisher assets remain available.
 
 - ER-Save-Lib's sparse block map agrees with all **499** existing grace/boss/map-control mappings.
   The new flag catalog overlaps **488 unique event IDs** from the old catalog (the old list repeats
@@ -193,8 +200,9 @@ never executes upstream code. Descriptions/artwork, editor bounds and spawning r
 - The sample independently reproduces source events **76100/76101 set, 76102 unset**. Synthetic
   address vectors cover DLC source event **76800 → 0xD16, LSB bit 7** and NG+ persistence event
   **60730 → 0x53D, LSB bit 5**. These vectors are addressing tests, not console semantics.
-- All 1,748 F9 markers publish through Core with bounded regions, Unknown status, source attribution,
-  no coordinates/art and full navigation paths. Candidate/reference fields reject writes. No-op,
+- All 1,748 community F9 markers publish through Core with bounded regions, Unknown status, source
+  attribution and full navigation paths. Optional coordinates/art come from the separate names pack,
+  where an exact event-ID join exists. Candidate/reference fields reject writes. No-op,
   inspection, rejected edits and rune undo retain exact complete save bytes.
 - DLC Scadutree Fragment has an attributed fallback name and read-only F4 catalog on synthetic
   inventory rows, including unsupported profile-91 write mode. No DLC save sample or ownership

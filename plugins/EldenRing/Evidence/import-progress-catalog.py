@@ -150,8 +150,10 @@ def main():
               "Offsets/bits are the source's bounded sparse lookup, not eventId/8 or a universal block formula.",
               "These are Inferred read-only candidates on v150; no progress is certified from a set/unset bit.",
               "No art/coordinates, summoning pools, quest edges, DLC coverage or legal class minima are asserted.",
-              "External maps are links only. Class starting values are reference facts, never a respec writer.",
-              "Regenerate with the adjacent Evidence/import-progress-catalog.py using python -I and reviewed scratch inputs."]
+              "This pack contains no art/coordinates. The separate names pack supplies optional local map art and",
+              "inferred placements; Map Genie remains an external link. Class starting values are reference facts,",
+              "never a respec writer.",
+              "Regenerate from the repository root with `python -I plugins/EldenRing/Evidence/import-progress-catalog.py <scratch>`."]
     (OUTPUT / "progress.source.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 

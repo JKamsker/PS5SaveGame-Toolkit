@@ -5,6 +5,10 @@ Measured 2026-10-29 on `review/perf-eldenring`, against baseline
 `86e85cf` (regulation diagnostics) and `2a6f0aa` (reference searches).
 All authored changes stay inside `plugins/EldenRing`; no samples or benchmark projects are committed.
 
+This report retains that round's measurements and test counts. The later #40 test-quality review
+removed the two-second startup guard mentioned below; it is no longer a current acceptance gate.
+Current accuracy-pass validation is recorded in the plugin README.
+
 ## Findings and disposition
 
 | Severity | Finding | Disposition |
