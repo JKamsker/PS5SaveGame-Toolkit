@@ -13,7 +13,7 @@ Additional attribution required by upstream GPLv3 section 7 terms:
 - MinHook by Tsuda Kageyu;
 - Dear ImGui by Omar Cornut (ocornut).
 
-Changes: selected all 37 weapon and 8 ammunition label/object-name pairs. Removed duplicate object-name suffixes to make exact short asset keys. Added broad categories and original caution descriptions. No trainer code, offsets, executable or statistical limits are included in the original GPL subset. Some entries may be unused or DLC-dependent; they do not establish PS5 compatibility. Unmapped resource and consumable IDs stay raw; toolkit-authored identifier formatting in detail cells is explicitly not localized game text. This derived dataset remains GPL-3.0-or-later; it is not presented as original game terminology authored by this toolkit.
+Changes: selected all 37 weapon and 8 ammunition label/object-name pairs. Removed duplicate object-name suffixes to make exact short asset keys. Added broad categories and original caution descriptions. No trainer code, offsets, executable or statistical limits are included in the original GPL subset. Some entries may be unused or DLC-dependent; they do not establish PS5 compatibility. Resource and consumable IDs without a current catalogue join stay raw; toolkit-authored identifier formatting in detail cells is explicitly not localized game text. The three later screenshot-based joins are described below. This derived dataset remains GPL-3.0-or-later; it is not presented as original game terminology authored by this toolkit.
 
 The repository is GPL-3.0-or-later. These notices accompany the data, appear in the plugin README, PluginInfo references, and F2 per-field attribution. No content from Atomic Heart Fandom (CC BY-NC-SA) is embedded.
 
