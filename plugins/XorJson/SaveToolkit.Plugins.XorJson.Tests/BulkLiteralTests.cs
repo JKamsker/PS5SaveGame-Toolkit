@@ -5,18 +5,25 @@ namespace SaveToolkit.Plugins.XorJson.Tests;
 
 public sealed class BulkLiteralTests
 {
+    public static TheoryData<string> OversizedNumericLiterals => new()
+    {
+        "1" + new string('0', ExactJsonNumber.HardMaxLength), "1e1000000001", "1e-1000000001",
+        "1E+2147483648", "1e-2147483649", "1e" + new string('9', 1024),
+    };
+
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public void OversizedNumericLiteralCannotBecomeAStringWrite(bool xor, bool longMantissa)
+    [MemberData(nameof(OversizedNumericLiterals))]
+    public void OversizedNumericLiteralCannotBecomeAStringWrite(string literal)
+    {
+        foreach (var xor in new[] { false, true }) AssertRejectedLiteral(literal, xor);
+    }
+
+    private static void AssertRejectedLiteral(string literal, bool xor)
     {
         var bytes = XorJsonTests.Encode("{\"text\":\"keep\",\"number\":0}", xor);
         using var document = XorJsonTests.Open(bytes);
         var text = XorJsonTests.Fields(document).Single(field => field.Label == "text");
         var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);
-        var literal = longMantissa ? "1" + new string('0', ExactJsonNumber.HardMaxLength) : "1e1000000001";
         var parameters = new Dictionary<string, FieldValue> { ["value"] = FieldValue.Of(literal) };
         var scope = new ActionScope([text.ValueId]);
 

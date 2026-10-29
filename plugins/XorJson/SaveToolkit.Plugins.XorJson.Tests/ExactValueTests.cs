@@ -1,5 +1,7 @@
-using System.Text;
+using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Testing;
+using SaveToolkit.Testing.Diff;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
@@ -45,19 +47,65 @@ public sealed class ExactValueTests
         Assert.Equal(XorJsonTests.Encode(original), document.Serialize()[0].Content.ToArray());
     }
 
-    [Fact]
-    public void BeyondHardLimitsIsPreservedReadOnlyWithoutBlockingOtherFields()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void BeyondHardLimitsIsPreservedReadOnlyWithoutBlockingOtherFields(bool xor)
     {
         var number = "1" + new string('0', 16_384);
-        var bytes = XorJsonTests.Encode("[" + number + ",1e1000000001,0]");
+        var numbers = new[] { number, "1e1000000001", "-1e-1000000001", "1E+2147483648", "1e-2147483649", "1e" + new string('9', 1024) };
+        var original = "{\"numbers\":[" + string.Join(',', numbers) + "],\"editable\":0}";
+        var bytes = XorJsonTests.Encode(original, xor);
         using var document = XorJsonTests.Open(bytes);
         var fields = XorJsonTests.Fields(document);
-        Assert.True(fields[0].Spec.ReadOnly);
-        Assert.True(fields[1].Spec.ReadOnly);
+        Assert.All(fields.Take(numbers.Length), field =>
+        {
+            Assert.True(field.Spec.ReadOnly);
+            Assert.Contains("preserved verbatim", field.Warning!);
+        });
+        Assert.Equal(numbers, fields.Take(numbers.Length).Select(field => field.Value.AsString()));
         Assert.False(document.ApplyEdits([new(fields[0].ValueId, FieldValue.Of("1"))]).Succeeded);
         Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());
-        Assert.True(document.ApplyEdits([new(fields[2].ValueId, FieldValue.ExactNumber("-0.000E+00"))]).Succeeded);
-        Assert.EndsWith(",-0.000E+00]", Encoding.UTF8.GetString(document.Serialize()[0].Content.ToArray().Select(b => unchecked((byte)(b + 1))).ToArray()));
+        var editable = fields[^1];
+        Assert.True(document.ApplyEdits([new(editable.ValueId, FieldValue.ExactNumber("-0.000E+00"))]).Succeeded);
+        var changed = document.Serialize()[0].Content.ToArray();
+        Assert.Equal(XorJsonTests.Encode(original.Replace("\"editable\":0", "\"editable\":-0.000E+00", StringComparison.Ordinal), xor), changed);
+        using var reopened = XorJsonTests.Open(changed);
+        Assert.Equal(fields.Take(numbers.Length).Select(field => field.Value), XorJsonTests.Fields(reopened).Take(numbers.Length).Select(field => field.Value));
+
+        var decoded = new HookSaveDecoder(new XorJsonPlugin().Decoders.Single()).Decode(
+            MemorySaveSet.SingleFile("numbers.sav", changed), new DecodeLimits { MaxValueLength = number.Length });
+        Assert.False(decoded.Truncated);
+        Assert.Equal(numbers, decoded.Values.Where(value => value.Path.StartsWith("numbers[", StringComparison.Ordinal) && value.Kind == "number").Select(value => value.Value));
+        Assert.True(document.ApplyEdits([new(editable.ValueId, editable.Value)]).Succeeded);
+        Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ExactNumberHardBoundariesRemainEditableAndRoundTripWithoutRounding(bool xor)
+    {
+        var longest = "1" + new string('0', 16_383);
+        var original = "{\"longest\":" + longest + ",\"positive\":1e1000000000,\"negative\":-1e-1000000000,\"other\":0}";
+        var bytes = XorJsonTests.Encode(original, xor);
+        using var document = XorJsonTests.Open(bytes);
+        var fields = XorJsonTests.Fields(document);
+        Assert.All(fields, field => Assert.False(field.Spec.ReadOnly));
+        Assert.Equal(new[] { longest, "1e1000000000", "-1e-1000000000", "0" }, fields.Select(field => field.Value.AsExactNumber()));
+        var replacement = new string('9', longest.Length);
+        Assert.True(document.ApplyEdits([
+            new(fields[0].ValueId, FieldValue.ExactNumber(replacement)),
+            new(fields[1].ValueId, FieldValue.ExactNumber("9.0E+1000000000")),
+            new(fields[2].ValueId, FieldValue.ExactNumber("-0.0e-1000000000")),
+        ]).Succeeded);
+        var expected = "{\"longest\":" + replacement + ",\"positive\":9.0E+1000000000,\"negative\":-0.0e-1000000000,\"other\":0}";
+        var changed = document.Serialize()[0].Content.ToArray();
+        Assert.Equal(XorJsonTests.Encode(expected, xor), changed);
+        using var reopened = XorJsonTests.Open(changed);
+        Assert.Equal(new[] { replacement, "9.0E+1000000000", "-0.0e-1000000000", "0" }, XorJsonTests.Fields(reopened).Select(field => field.Value.AsExactNumber()));
+        Assert.True(document.ApplyEdits(fields.Take(3).Select(field => new ValueEdit(field.ValueId, field.Value)).ToArray()).Succeeded);
+        Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());
     }
 
     [Fact]
