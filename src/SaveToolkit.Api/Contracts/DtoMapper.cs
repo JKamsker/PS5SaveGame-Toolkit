@@ -44,9 +44,9 @@ internal static class DtoMapper
     public static DocumentSummaryDto ToSummary(this DocumentSession d) =>
         new(d.Id, d.File.Id, d.File.RelativePath, d.Title, d.Plugin.Info.Id, d.State.IsDirty);
 
-    public static DocumentDto ToDto(this DocumentSession d, Workspace? workspace = null)
+    public static DocumentDto ToDto(this DocumentSession d, Workspace? workspace = null, DocumentViewSnapshot? initialView = null)
     {
-        var snapshot = d.CaptureView();
+        var snapshot = initialView ?? d.CaptureView();
         return new(d.Id, d.File.Id, d.File.RelativePath, snapshot.Title, d.Plugin.ToDto(), snapshot.CanEdit, snapshot.State, snapshot.View)
         { GroupMembers = workspace?.DocumentGroups.FirstOrDefault(g => g.Session.Id == d.Id)?.Members };
     }
