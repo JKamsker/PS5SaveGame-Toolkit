@@ -22,6 +22,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     private readonly JsonActionPlanner _planner;
     private IReadOnlyList<CharacterCollection> Projections => _collections ??= JsonCollections.Build(_model.Nodes, _references, _character is not null);
     private readonly Dictionary<string, ChildRange> _ranges = new(StringComparer.Ordinal);
+    private readonly Dictionary<JsonValueToken, InventoryIdentity> _inventoryIdentities = [];
 
     public JsonSaveDocument(string name, string path, JsonTokenTree tree, JsonEncoding encoding, IReferenceContext references)
     {
@@ -134,7 +135,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         try
         {
             _ = Serialize();
-            _collections = null;
+            InvalidateProjections();
             return outcome with { Warnings = [WriteWarning], StructureChanged = outcome.Changes.Any(c => c.OldValue != c.NewValue) };
         }
         catch (Exception ex) when (ex is SaveFormatException or ArgumentException)
@@ -162,7 +163,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         {
             _model.Change(parts[1], id, Parameter("json"), Parameter("key"));
             _ = Serialize(); // A transaction must also retain an unambiguous encoding and round-trip values.
-            _collections = null;
+            InvalidateProjections();
         }, "JSON structure changed. Review the export before use.") with { Warnings = [WriteWarning] };
     }
 
@@ -189,7 +190,21 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     {
         _model.Restore(((SnapshotMemento<JsonModelSnapshot>)snapshot).State);
         _ranges.Clear();
+        InvalidateProjections();
+    }
+
+    private void InvalidateProjections()
+    {
         _collections = null;
+        _inventoryIdentities.Clear();
+    }
+
+    private string InventoryDescription(JsonValueToken node)
+    {
+        var parent = node.Parent!;
+        if (!_inventoryIdentities.TryGetValue(parent, out var identities))
+            _inventoryIdentities.Add(parent, identities = new InventoryIdentity(parent.Children));
+        return identities.Describe(node);
     }
 
     private ViewNode NodeView(JsonValueToken node)
@@ -199,7 +214,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
             var label = node.Member("name")?.Scalar is { Kind: FieldValueKind.Text } blobName ? blobName.AsString() : node.Label;
             var section = LazyRange(label, node, 0, node.Children.Count);
             return _character is not null && node.Parent?.Label == "Entries" && node.Parent.Parent?.Label == "Inventory"
-                ? section with { Description = InventoryIdentity.Describe(node) } : section;
+                ? section with { Description = InventoryDescription(node) } : section;
         }
         var spec = node.Spec!;
         ReferenceRecord? record = null;
