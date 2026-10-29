@@ -10,8 +10,8 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
 {
     private const int WeaponInventoryOffset = 0x5FA6C;
     private const int WeaponDetailOffset = 0xB3A68;
-    private const int MateriaInventoryOffset = 0x60A6C;
-    private const int MateriaDetailOffset = 0xBFA68;
+    private const int MateriaInventoryOffset = OwnedMateriaTargets.InventoryOffset;
+    private const int MateriaDetailOffset = OwnedMateriaTargets.DetailOffset;
     private const int PageSize = 64;
     private const int WeaponCount = 128;
     private const int MateriaCount = 1000;

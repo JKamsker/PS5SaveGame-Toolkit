@@ -58,11 +58,16 @@ public sealed class Workspace : IDisposable
         WithOwnershipLock(() => _groups.Propose(fileId, pluginId));
 
     public DocumentGroupSession OpenGroup(string proposalToken, string? releaseCleanDocumentId = null, DocumentSessionOptions? options = null)
+        => OpenGroup(proposalToken, out _, releaseCleanDocumentId, options);
+
+    /// <summary>Prepares the initial response before publishing group ownership or releasing a clean member.</summary>
+    public DocumentGroupSession OpenGroup(string proposalToken, out DocumentViewSnapshot view,
+        string? releaseCleanDocumentId = null, DocumentSessionOptions? options = null)
     {
         lock (_openGate)
         {
             ObjectDisposedException.ThrowIf(_disposed || _idleRetired, this);
-            var group = _groups.Open(proposalToken, $"doc{Interlocked.Increment(ref _documentCounter)}", releaseCleanDocumentId, options);
+            var group = _groups.Open(proposalToken, $"doc{Interlocked.Increment(ref _documentCounter)}", releaseCleanDocumentId, options, out view);
             _documents[group.Session.Id] = group.Session;
             _references[group.Session.Id] = group.References;
             return group;
@@ -94,6 +99,10 @@ public sealed class Workspace : IDisposable
     /// file with the same plugin returns the existing session; switching plugins requires the old one to be clean.
     /// </summary>
     public DocumentSession Open(string fileId, string? pluginId)
+        => Open(fileId, pluginId, out _);
+
+    /// <summary>Captures the initial response before publishing a candidate or replacing its clean predecessor.</summary>
+    public DocumentSession Open(string fileId, string? pluginId, out DocumentViewSnapshot view)
     {
         var file = Set.FindById(fileId) ?? throw new KeyNotFoundException($"Unknown file '{fileId}'.");
         var plugin = pluginId is null
@@ -109,10 +118,11 @@ public sealed class Workspace : IDisposable
             {
                 if (existing.Plugin == plugin)
                 {
+                    view = existing.CaptureView();
                     return existing;
                 }
 
-                if (!ReleaseCleanDocument(existing.Id))
+                if (existing.State.IsDirty)
                 {
                     throw new InvalidOperationException("This file has unsaved edits in another plugin. Close that document first.");
                 }
@@ -121,19 +131,18 @@ public sealed class Workspace : IDisposable
             // Reference packs are pinned per document: packs imported later only affect documents opened later.
             var references = _packs?.Pin(plugin, file.Directory.TitleId) ?? ReferenceContext.None;
             var document = plugin.Open(file, references);
-            DocumentSession session;
+            DocumentSession? session = null;
             try
             {
                 session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document, references: references);
-                ThrowIfOutputPathOwned(session.OwnedOutputPaths);
+                ThrowIfOutputPathOwned(session.OwnedOutputPaths, existing?.Id);
+                view = session.CaptureView();
+                if (existing is not null && !ReleaseCleanDocument(existing.Id))
+                    throw new InvalidOperationException("This file acquired unsaved edits while opening another plugin. No replacement was opened.");
             }
             catch (Exception failure) when (failure is not OutOfMemoryException)
             {
-                try { document.Dispose(); }
-                catch (Exception cleanup) when (cleanup is not OutOfMemoryException)
-                {
-                    throw new AggregateException("Document open and cleanup failed.", failure, cleanup);
-                }
+                SessionOpening.DisposeFailed(session is null ? document : session, failure);
                 throw;
             }
             _references[session.Id] = references;

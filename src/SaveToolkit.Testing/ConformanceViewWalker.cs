@@ -12,7 +12,7 @@ namespace SaveToolkit.Testing;
 internal sealed class ConformanceViewWalker(ISaveDocument document, string path, int lazyBudget, int queryBudget,
     Action<ViewNode>? observe = null)
 {
-    private readonly ViewIndex _index = new();
+    private readonly ViewIndex _index = new(document);
     private readonly Dictionary<string, FieldNode> _fields = new(StringComparer.Ordinal);
     private readonly Queue<ViewNode> _pending = new();
     private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
@@ -65,6 +65,14 @@ internal sealed class ConformanceViewWalker(ISaveDocument document, string path,
                     _pending.Enqueue(child);
                     break;
             }
+        }
+        // Check raw canonical publications above before normalizing presentations, so a reference
+        // cannot conceal conflicting plugin snapshots. Resolve each canonical target only once.
+        foreach (var reference in Flatten(node).OfType<FieldReferenceNode>().DistinctBy(reference => reference.TargetValueId))
+        {
+            if (_index.ResolveFieldReferences(document, reference) is not FieldNode field) continue;
+            if (_fields.TryGetValue(field.ValueId, out var canonical)) Assert.Equal(canonical.Value, field.Value);
+            else _fields.Add(field.ValueId, field);
         }
     }
 
