@@ -328,6 +328,28 @@ class DocumentationTests(unittest.TestCase):
                 if titles:  # Generic format overlays intentionally are not registered titles.
                     self.assertEqual(titles, set(re.findall(r"PPSA\d{5}", "\n".join(rows))))
 
+    def test_edit_coverage_status_ids_exist_in_plugin_source(self):
+        section = markdown_section(document("docs/EDIT_COVERAGE.md"), "## Implementation status")
+        header, rows = markdown_table(section)
+        self.assertEqual(["Rank", "Plugin", "Action/field ID", "Merge commit", "Tests",
+                          "Known issues", "Remaining #31 owner validation"], header)
+        self.assertEqual(list(range(1, 16)), [int(row[0]) for row in rows])
+        literals = {}
+        for path in sorted(source_paths()):
+            match = re.fullmatch(r"plugins/([^/]+)/SaveToolkit\.Plugins\.\1/.+\.cs", path)
+            if match:
+                # Production C# only: a README or test expectation cannot establish an ID.
+                literals.setdefault(match[1], set()).update(re.findall(r'"([^"\r\n]*)"', source(path)))
+        for rank, plugin, ids_cell, *_ in rows:
+            ids = re.findall(r"`([^`\n]+)`", ids_cell)
+            with self.subTest(rank=rank, plugin=plugin):
+                self.assertIn(plugin, literals)
+                self.assertTrue(ids, "Each rank must document at least one action/field ID")
+            for identifier in ids:
+                with self.subTest(rank=rank, plugin=plugin, identifier=identifier):
+                    self.assertIn(identifier, literals.get(plugin, set()),
+                                  f"Documented ID missing from {CODE_REF} plugin source")
+
     def test_documented_sdk_helpers_and_storage_signatures_exist(self):
         guide = document("docs/PLUGIN_GUIDE.md")
         helpers = {
