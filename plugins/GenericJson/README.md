@@ -11,7 +11,9 @@ An exact UTF-8 JSON workbench with sample-backed title views and previewed exist
 | PPSA02343 / It Takes Two (EU) | Three primary `ue4savegame.dpx.sav` generations, 3,993 / 3,522 / 1,312 bytes, plus byte-identical backup twins | String-preserving adapters for present `Minigame.*`, `MinigameFlag.*`, `MinigameCounter.*` and chapter/checkpoint keys, including present-key presets. Absent keys stay absent. |
 | Other titles / filenames | Complete valid UTF-8 JSON, including root scalars/null | Generic workbench only. A title ID or `.sav` extension does not establish JSON or Unreal GVAS. |
 
-Byte-level shapes, lengths and no-op preservation are tested observations. Gameplay meanings and write dependencies remain **Inferred/Unknown**. Matchers require the title, file role and expected shape; Cyberpunk also requires numeric version 136. Ambiguous required keys, incompatible scalar types and unsupported versions fall back to generic JSON. Overlays are rematched after edits and undo.
+Byte-level shapes, lengths and no-op preservation were recorded on 2026-10-28 and rechecked on 2026-10-29, with round-trip coverage in the current tests. Gameplay meanings and write dependencies remain **Inferred/Unknown**. Matchers require the title, file role and expected shape; Cyberpunk also requires the exact numeric lexeme `136`. Invalid or ambiguous required root/group keys disable the title overlay. Unsupported individual option metadata or wrapper child types can instead leave the overlay visible while declining that field's write adapter. Overlays are rematched after edits and undo.
+
+Cyberpunk overlays allow at most 128 groups with string `group_name` and array `options` members. It Takes Two requires a unique object `Profile` containing only strings, at most 128 matching gameplay fields, and unique present `CloudSettings` / `LocalSettings` members; their value types are unconstrained. Ridge Racer requires unique object `options` / `settings` members, with arbitrary child JSON retained. These are matching rules, not complete game schemas.
 
 F1/F12 `genericjson.title-values-v1` / `SemanticDiffer` tests compare the three It Takes Two primary generations, restricting output to aggregate changes in minigame/chapter/checkpoint path families. The production SDK hook replaces the test-only decoder workaround and excludes unrelated/private profile families. All six primary/backup occurrences round-trip identically. Archive order is not chronology: these snapshots do not prove a transition, counter unit, flag meaning or dependency. No identity values or private save payloads are committed/logged.
 
@@ -37,13 +39,22 @@ The It Takes Two F9 location list shows only minigames with present profile reco
 | F12 bounded decoder hook | Used | SDK-only `genericjson.title-values-v1`, explicit CLI selection, sink depth/value/byte limits; test evidence uses this production hook, integrated in `01657c2` (2026-10-28). |
 | F13 inspection/browsing/sort/duration | Used | Nonmutating aggregate syntax inspection; browse-only F4 and catalogue filters/sorting, integrated in `01657c2` (2026-10-28). Float duration: N/A — no field has proven time units, so formatting would fabricate semantics. |
 
+Shared helper adoption: `BoundSaveDocument` supplies bindings, atomic scalar edits and F5 snapshots;
+`ExactJsonNumber` supplies F10 validation. The newer `ActionPlans` helpers are not consumed:
+`ApplyActionPlan` replans locally and compares ordered changes before applying them. `InMemoryCollection<T>`
+is not consumed either: the JSON query engine retains its complete-tree/direct-child traversal,
+allocation-bounded page rendering and 10,000-match sort limit. Catalogue annotations use cached direct
+`Catalog` / `Find` calls, rather than `ReferenceCatalogReader`. Binary cursor/range/FString/CRC helpers
+are inapplicable to these JSON files; `ReferenceViews.Icon` has no embedded images to resolve, and the
+local aggregate inspection action does not inspect a reference record through `ReferenceInspection`.
+
 ### Native evidence decoder
 
 `savediff compare before.zip after.zip --decoder genericjson.title-values-v1` selects the explicit SDK hook (listed by `savediff list-decoders`). It matches the same three title/role/schema profiles, preserves JSON scalar types/exact lexemes and emits no action parameters or UI display cells. Cyberpunk paths use escaped group + option name + occurrence, independent of option array order. Profile keys retain duplicate occurrence suffixes; wrapper arrays use positional fallback because no native record identity is established. Such fallback is explicitly warned. Sink exhaustion stops traversal; file and depth caps mark incomplete output. Missing paths in truncated evidence do not prove removal. The hook is read-only, stateless and performs no I/O.
 
 ## Enabled writes and their evidence
 
-All **11 write families** below use F6 preview/apply, including the single-field adapters. Every preview and successful outcome carries: **“Not validated on console. The game may reject or overwrite the edited save. External integrity and game dependencies are unknown.”** Parameter controls retain Inferred/Unknown confidence and file-derived provenance. A preview is pure; apply revalidates it, patches existing raw value IDs and creates one undo group. No alias bindings, replacement history or local transaction protocol were added. Owner validation is tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+All title write families below use F6 preview/apply, including the single-field adapters. Every successful title preview and apply outcome carries: **“Not validated on console. The game may reject or overwrite the edited save. External integrity and game dependencies are unknown.”** Parameter controls retain Inferred/Unknown confidence and file-derived provenance. A preview is pure; apply revalidates it, patches existing raw value IDs and creates one undo group. No alias bindings, replacement history or local transaction protocol were added. Owner validation is tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
@@ -59,11 +70,20 @@ All **11 write families** below use F6 preview/apply, including the single-field
 | Ridge Racer wrapper primitive edits | Unknown | Imported types/values only; no PS1 enum meanings transferred | JSON reparsed; no DATA.BIN changes; external integrity unknown | Filter/upscale/AA/controller/rewind effects on exact PSP wrapper build |
 | Ridge Racer restore-imported preset | Unknown | Exact imported scalar values; this is not a game-default/visual preset | One F6 undo group; original spellings restored; external integrity unknown | Native wrapper restart/resave and compare all companions |
 
-Cyberpunk integer settings enforce integral values, min/max and recorded steps relative to minimum, allowing recorded endpoints. Float min/max remain exact; float steps are advisory because PS5 metadata such as `0.0099999997` does not divide its own defaults/endpoints exactly. Decimal arithmetic is used only after an exact equality check prevents rounding; JSON number lexemes are never converted through binary floating point. Edited metadata is not silently accepted as a new schema: changed option membership/names/order or metadata container membership/order disables that adapter and makes presets skip it. This includes removed steps and reordered/removed choices; structural undo restores eligibility and exact imported bytes. Generic syntax editing remains available. Dynamic text uses at most the imported length (hard ceiling 4,096); explicit indices use `0..imported index` and carry an Unknown warning.
+Generic writes are also enabled for every accepted JSON document, including unrecognized titles:
+direct raw scalar edits/type changes (`Unknown`), previewed array insert/remove/move/duplicate and
+object insert/remove/rename, and previewed restoration of existing imported scalars. The structural
+controls use explicitly supplied indices/names/templates, without title semantics or a game schema.
+Their syntax/preservation evidence comes from synthetic, conformance and sample round-trip tests;
+outputs are reparsed against the live token model, with external integrity unknown. Direct scalar
+edits use normal field editing; F6 preview/apply is required for structure and reset actions. The
+`Verified` child-sequence fields are read-only structure evidence, not a game-write confidence claim.
+
+Cyberpunk integer settings enforce integral values, min/max and recorded steps relative to minimum, allowing recorded endpoints. Float min/max remain exact; float steps are advisory because PS5 metadata such as `0.0099999997` does not divide its own defaults/endpoints exactly. Decimal arithmetic is used only after an exact equality check prevents rounding; JSON number lexemes are never converted through binary floating point. Edited metadata is not silently accepted as a new schema: changed membership/order/names of an option object's members, or changes within its metadata subtrees, disable that adapter and make presets skip it. This includes removed steps and reordered/removed choices; structural undo restores eligibility and exact imported bytes. This does not prohibit reordering whole option records. Generic syntax editing remains available. Dynamic text uses at most the imported length (hard ceiling 4,096); explicit indices use `0..imported index` and carry an Unknown warning.
 
 Profile counters use `0..max(imported count, 67)` within Int32, a conservative observed family range, **not a proven score/win cap**. Other text adapters use at most the imported length (hard ceiling 4,096). Wrapper numbers range between zero and the imported number; an imported integer remains integral. Zero-valued unknown enums therefore have a single-value semantic range. Numeric-looking wrapper strings use `0..imported count`, independently of the profile counter range. Raw workbench controls retain their existing broader syntax-only behavior.
 
-Defaults/flag/counter/imported-wrapper presets support document scope, selected F8 raw value rows and resolved “all matching” queries. Empty selection means no edits; noneligible rows are listed as skipped. A selected Cyberpunk value also changes its paired index as a derived effect. The chapter tuple requires all three existing, unique fields and document scope. It does not validate a story graph or invent companion state. Single-field/default actions also require document scope. Title previews are limited to 5,000 changed/skipped fields; larger coverage requires a bounded selection.
+Defaults/flag/counter/imported-wrapper presets support document scope, selected F8 raw value rows and resolved “all matching” queries. Empty selection means no edits; noneligible rows are listed as skipped. A selected Cyberpunk value also changes its paired index as a derived effect. The chapter tuple requires all three existing, unique fields and document scope. It does not validate a story graph or invent companion state. Single-field/default actions also require document scope. Title previews are limited to 5,000 changed/skipped fields. Adapter discovery examines only the first 5,000 candidate options/leaves; when that prefix is truncated, document-scope actions reject and bounded selections can use eligible adapters within the prefix. Later fields retain raw JSON access.
 
 ## Exact values and preservation
 
@@ -115,7 +135,7 @@ The write-enable round reviewed these roles again: none of its enabled writes ne
 | Array/object insert | At most 1 MiB of template characters, plus normal parse/export bounds. New object names: at most 16,384 UTF-16 characters. |
 | Explicit template schema | 64 Ki UTF-16 characters, JSON depth 16; generation at most 4,096 nodes and 128 generated entries per array (larger explicit defaults still obey total bounds). No network/reference resolution. |
 | Action review / reset | At most 5,000 affected review fields; host plan-size and query-selection bounds also apply. |
-| Structural source retention | At most 32 MiB of distinct source buffers in the live document; export/reopen can release retained source history. Core separately bounds undo snapshots. |
+| Structural source retention | Serialization rejects more than 32 MiB of distinct source buffers referenced by live nodes. Exporting and opening a new document consolidates those buffers; closing the old session releases its history. Core separately bounds undo snapshots. |
 | Changes panel | Core traversal/resource limits apply (currently 100,000 visited view nodes and depth 128, plus its configured baseline byte budget). Large/deep review may be incomplete even though full-tree search still works. |
 
 Malformed input is rejected by `Open` with the documented SDK `SaveFormatException`; `Probe` returns no match. UTF-8 failures report an absolute zero-based byte offset. Syntax/depth failures report a one-based line and zero-based byte position within that line (after removing a leading UTF-8 BOM). Invalid escaped surrogate pairs report the containing token's absolute byte offset. Messages contain no input excerpts. Only one UTF-8 BOM at the start is accepted; repeated, misplaced, truncated, UTF-16 and UTF-32 BOM variants reject.
@@ -123,6 +143,15 @@ Malformed input is rejected by `Open` with the documented SDK `SaveFormatExcepti
 Duplicate object names, including equivalent escaped names, are intentionally accepted and preserved as distinct occurrences with distinct value IDs. Valid numbers beyond SDK lexeme/exponent budgets remain verbatim and read-only; they are never converted to floating point or expanded by exponent. These are lossless workbench policies, not title-schema validation. Unicode-string rejection follows the [.NET `Utf8JsonReader.GetString` contract](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.utf8jsonreader.getstring?view=net-10.0), alongside the existing [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) syntax reference; no upstream code was copied.
 
 ## Validation
+
+Docs accuracy and allocation-test stabilization, 2026-10-29 (#40): ten consecutive sample-backed
+Release suites each passed **433 tests, 0 failed, 0 skipped**. Documentation checks passed all
+14 cases; API Release build had **0 warnings, 0 errors**. Aggregate sample sizes/counts and pack
+size were rechecked without logging private values. Production code, IDs and confidence labels
+are unchanged. The 50,000-element opening test keeps its **44,000,000-byte** bound, using one
+warm-up and the minimum of three measured opens/first views in an isolated test collection.
+The ten asserted minima ranged from **35,465,232 to 35,465,440 bytes**; see
+[measurement details and reproduction](PERFORMANCE.md#allocation-test-stabilization--2026-10-29).
 
 Maintainability review, 2026-10-29 (#40): **433 passed, 0 failed, 0 skipped** (402 existing cases retained,
 31 added characterizations); API Release build **0 warnings, 0 errors**. Named parsing, planning,
@@ -145,16 +174,17 @@ Malformed-input review, 2026-10-29 (#40): **267 passed, 0 failed, 0 skipped** wi
 
 Completion validation, 2026-10-28: **198 passed, 0 failed, 0 skipped** with private artifacts configured; API build **0 warnings, 0 errors**. New tests cover the 250,000-node bound with a large exact-number array, depth 63/64/65 and truncation, direct array paging/live selection/exclusions/reset/undo, retired collections, native decoder limits and deterministic real samples, pinned pack attribution/version/fallback, atomic picker-choice/index edits, nonmutating inspection/history, stable native map identities and every real profile map target. No timing assertions are used. Structural hashing streams its input, occurrence dictionaries are allocated only for objects, and valid numeric lexemes are decoded once. Private samples are not copied into the repository.
 
-The unchanged frontend production build and **164 tests across 29 files** passed in an isolated TEMP copy. Synthetic browser validation confirmed browse-only catalogue details/attribution without commit controls, the F6 enum fallback previewing both raw value and derived index, apply/export, and one undo returning byte-identical original input. F9 Jump opened/focused the raw field with zero external guide requests; direct F8 array pages loaded and advanced to page 2. It reproduced the shared defects documented below. No console acceptance is claimed.
+The completion round's unchanged frontend production build and **164 tests across 29 files** passed in an isolated TEMP copy. Synthetic browser validation confirmed browse-only catalogue details/attribution without commit controls, the F6 enum fallback previewing both raw value and derived index, apply/export, and one undo returning byte-identical original input. F9 Jump opened/focused the raw field with zero external guide requests; direct F8 array pages loaded and advanced to page 2. The then-observed shared limitations are now resolved as recorded under SDK requests; the plugin's enum fallback remains. No console acceptance is claimed.
 
 Write-enable validation, 2026-10-28: **180 passed, 0 failed, 0 skipped** with private artifacts configured; API build **0 warnings, 0 errors**. Every supplied primary/backup generation exercises editable semantic adapters through the host's F6 plan/apply, serialize/reopen and undo/redo. Tests independently patch only planned source tokens, then use F1 `ByteDiffer` to require identical output, proving unrelated bytes remain intact. Presets include real sample defaults, present flags, counter zero, explicit progress tuples and imported-wrapper restoration. Single-value conservative ranges remain unchanged rather than inventing alternatives. Synthetic regressions cover invalid bounds/steps, exact decimal arithmetic, approximate float defaults, malformed metadata/overflow, duplicate keys, dynamic pairs, stale previews, wrong scopes/types, selected/all-matching/empty selections and bounded coverage. Existing generic F5/F10 conformance remains green. No new browser or PS5 console validation is claimed for this write-enable round.
 
-Run sample-backed tests with these environment variables in the **same shell command**:
+The dated runs above record their respective revisions, rather than the current test count. Run
+sample-backed tests with these environment variables in the **same shell command**:
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
-$env:SAVETOOLKIT_TEST_TEMP='D:/Temp/saveeditor/test-scratch'
-$env:TEMP='D:/Temp/saveeditor/test-scratch/review-maint-genericjson'; $env:TMP=$env:TEMP
+$env:SAVETOOLKIT_TEST_TEMP='D:/Temp/saveeditor/test-scratch/docs-accuracy-genericjson'
+$env:TEMP=$env:SAVETOOLKIT_TEST_TEMP; $env:TMP=$env:TEMP
 New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
 dotnet test --project plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests -c Release
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release --warnaserror
@@ -186,7 +216,7 @@ Owner capture checklist for validating enabled writes and future compatibility c
 6. For any candidate companion dependency, retain all files from the same imported generation and backup set. Record the minimal cross-file invariant, run F1 with unchanged controls, and test whether a single-member edit is rejected/overwritten while the coordinated edit survives restart/resave. Co-location alone does not authorize F7 grouping.
 7. Supply owner-verified menu labels/localization, complete chapter/checkpoint paths and minigame aliases with exact raw-key mappings. For a built-in title template, identify each required/optional member, legal default, array limit and dependency using controlled pairs; test creation on a fresh/incomplete spare profile. Do not include account IDs, credentials or private payloads in public notes.
 
-The detailed capture checklist and current write gates are maintained in [OWNER_CHECKLIST.md](OWNER_CHECKLIST.md).
+The detailed capture checklist and remaining validation needs are maintained in [OWNER_CHECKLIST.md](OWNER_CHECKLIST.md).
 
 ## Sources and attribution
 
@@ -244,5 +274,10 @@ licence incompatibility. The central historical register is outside this plugin'
 F10, F5, F8 and F6 are consumed directly; no plugin-local substitute history, query or diff protocol was added. F7 is available but no clearly coupled companion write is identified, as documented above.
 
 - **Resolved:** tagged ExactNumber/Union review rendering, reported in [issue #18](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/18#issuecomment-6479348148), was fixed by `03b66b7` with shared tests. Exact preview rendering works in the browser; no obsolete warning remains.
-- Resolved in 63580dc; shared planned-action reference parameters are supported. GenericJson's enum fallback remains a plugin migration task. Verified against the current `PlannedActionButton.tsx`, which passes both `valueId={p.valueId}` and `actionId={node.actionId}` to `FieldControl`; that commit also adds a shared regression test. GenericJson's `JsonSemanticTarget.ViewParameter` still publishes the attributed raw-ID enum; its separate F4 field remains browse-only.
+- **Resolved in `63580dc`:** shared planned-action reference parameters are supported. GenericJson's enum fallback remains a plugin migration task. Verified against the current `PlannedActionButton.tsx`, which passes both `valueId={p.valueId}` and `actionId={node.actionId}` to `FieldControl`; that commit also adds a shared regression test. GenericJson's `JsonSemanticTarget.ViewParameter` still publishes the attributed raw-ID enum; its separate F4 field remains browse-only.
 - **Resolved by a query-string route:** the API now supports `GET .../collections?collectionId=...` for IDs containing `/`; see [API routing guidance](../../docs/API.md). The earlier encoded path-segment failure does not require changing this plugin: GenericJson continues to ship `json-array-<immutable-id>`, with its existing stable identities and working F8 features.
+
+The [central SDK request triage](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SDK_REQUESTS.md)
+records those fixes as SDK-19/20/21. Its separate **open SDK-06** proposes a shared lossless JSON lexical
+tree/scalar-patching substrate for GenericJson and XorJson; `ExactJsonNumber` supplies numeric validation,
+not that tree/writer. The plugin retains its original token model, writer and structural identities.

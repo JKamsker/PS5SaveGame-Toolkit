@@ -16,10 +16,10 @@ solely waiting for a capture. No new write family is added this round.
 | JSON-R9, R10 | Done within plugin | Whole-tree F8 query/search/live filters and navigable details; direct array pages for >100 entries. Rich keyboard/focus UI remains framework-owned. |
 | JSON-R11, R12 | Done | Core original-baseline F6 review/revert, imported comparison and structure fingerprints; no local diff/history protocol. |
 | JSON-R13 | Done | File-recorded min/max/default/step descriptions, exact adapter validation and previewed reset; approximate float steps remain advisory. |
-| JSON-R14 | Done with documented shared limitation | File-recorded enums and dynamic bounded text; F4 browse-only catalogues. F6 reference controls lack valueId/actionId, so a functioning attributed raw-ID enum is published for planned edits. Central request in README/#18. |
+| JSON-R14 | Done with plugin migration remaining | File-recorded enums and dynamic bounded text; F4 browse-only catalogues. Shared F6 reference-parameter support shipped in `63580dc`; `JsonSemanticTarget.ViewParameter` still publishes the functioning attributed raw-ID enum. Migrating that parameter to the supported picker remains plugin work, not a missing SDK/UI capability. |
 | JSON-R16, R17 | Owner-blocked (#31) | Complete verified 25-minigame aliases, checkpoint corpus/prerequisites/dependencies, sparse-key behavior and score units. F9 present-record external-only locations ship without invented states/edges. |
 | JSON-R18, R19, R20 | Owner-blocked (#31) | Cyberpunk value/index/default/dynamic domains and second version; PSP enums/build; spare-console effect/restart/resave/re-export. Only owner promotes Stable. |
-| JSON-R21 | Done | Composed plugin-local matchers retained, no dedicated-plugin ownership expansion. Owner distribution policy honored; no ambiguous-licence data embedded. |
+| JSON-R21 | Done | Composed plugin-local matchers retained, no dedicated-plugin ownership expansion. Original annotations and one attributed publisher sentence follow the 2026-10-28/29 owner source decisions; no save payload is embedded. |
 | JSON-R22 | Done where applicable | Consume pinned IReferenceContext/F2 pack and fallback. Optional general pack import belongs to Core; no plugin I/O or remote fetching. |
 | JSON-R23 | Done for applicable text; optional images omitted | Original categories/uncertainty notes plus one attributed official Performance Mode description. The only catalogues are settings choices, with no verified icon joins; no aligned minigame overview map was established. See ASSET_ROUND.md. Rights-only exclusions resolved by owner decision 2026-10-29. |
 | JSON-R24 | Done | SDK-only explicit F12 title hook; semantic paths preserve duplicate occurrences and group+option identity. Evidence tests use the production hook, aggregate logs only. Positional wrapper-array fallback marks evidence incomplete. |
@@ -38,6 +38,6 @@ unsupported asset-to-save joins, or shared Core/API/web edits. Plugin-local hook
 from the original baseline were removed to comply with the current plugin-folder tooling rule.
 
 All F1–F13 applicability decisions are recorded in README's Framework feature adoption table.
-The F6/F4 UI defect has a working plugin fallback; its central fix is optional follow-up, not an
-unfinished plugin edit. Agent work complete; remaining implementation definitions/compatibility
-checks require owner evidence (#31).
+The F6 reference-parameter limitation was resolved in `63580dc`. The working enum fallback remains
+until this plugin adopts that support; the README's SDK requests section records the distinction.
+Remaining title schema/semantic definitions and console compatibility checks require owner evidence (#31).

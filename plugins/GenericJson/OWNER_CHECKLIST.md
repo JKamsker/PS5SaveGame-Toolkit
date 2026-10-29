@@ -94,5 +94,7 @@ and in-game effects in the same existing choice/index checks above. These add no
 Current framework status: F1/F2/F3/F4/F5/F6/F8/F9/F10/F12/F13 are used; tagged review formatting is fixed in `03b66b7`.
 F7 is available (`7ff21ad`), but no clearly coupled companion invariant is identified for the enabled
 GenericJson writes. Co-location and identical backup twins do not create such an invariant.
-F6 parameter reference triggers currently lack valueId/actionId; README contains the central SDK/UI
-request. The plugin ships a working attributed enum fallback and a separate browse-only F4 picker.
+Shared F6 reference parameters have been supported since `63580dc`; the earlier valueId/actionId
+limitation is resolved. `JsonSemanticTarget.ViewParameter` still uses the working attributed enum
+fallback, with a separate browse-only F4 picker. Adopting the shared parameter picker is a plugin
+migration task, not an owner capture or missing SDK/UI requirement; see README's SDK requests.
