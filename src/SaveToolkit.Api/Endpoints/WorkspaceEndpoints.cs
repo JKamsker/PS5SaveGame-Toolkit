@@ -75,7 +75,7 @@ internal static class WorkspaceEndpoints
             Status412PreconditionFailed, Status422UnprocessableEntity);
         doc.MapActionReview();
         doc.MapGet("", (DocumentRef d) => d.Value.ToDto(d.Workspace));
-        doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound())
+        doc.MapDelete("", (DocumentRef d) => d.Workspace.CloseClean(d.Value.Id) ? Results.NoContent() : Results.NotFound())
             .Produces(StatusCodes.Status204NoContent);
         doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id));
         // Opaque IDs may contain slashes, which Kestrel preserves as %2F in route parameters.

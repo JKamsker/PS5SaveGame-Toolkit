@@ -15,13 +15,18 @@ internal sealed class DocumentRevisionFilter : IEndpointFilter
 
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        var document = context.Arguments.OfType<DocumentRef>().SingleOrDefault()?.Value;
-        if (document is null) return await next(context);
+        var reference = context.Arguments.OfType<DocumentRef>().SingleOrDefault();
+        if (reference is null) return await next(context);
+        var document = reference.Value;
         var gate = Gates.GetValue(document, _ => new SemaphoreSlim(1));
         await gate.WaitAsync(context.HttpContext.RequestAborted);
         try
         {
             var http = context.HttpContext;
+            // Binding happens before this gate. A preceding close/replacement may have
+            // disposed that exact session while this request was queued.
+            if (!ReferenceEquals(reference.Workspace.FindDocument(document.Id), document))
+                return ApiProblem.Create(StatusCodes.Status404NotFound, new ErrorDto("Document not found. Open the file again."));
             if (http.Request.Headers.TryGetValue("If-Match", out var raw))
             {
                 if (!EntityTagHeaderValue.TryParseStrictList(raw.Select(value => value ?? string.Empty).ToArray(), out var tags) || tags.Count == 0

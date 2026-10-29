@@ -71,10 +71,12 @@ public sealed class Workspace : IDisposable
 
     internal bool ReleaseCleanDocument(string documentId)
     {
+        // Open, group replacement and CloseClean already hold the ownership gate.
         return _documents.TryGetValue(documentId, out var document) && document.TryCloseClean(() =>
         {
             _documents.TryRemove(documentId, out _);
             _references.TryRemove(documentId, out _);
+            _groups.Remove(documentId);
         });
     }
 
@@ -126,6 +128,28 @@ public sealed class Workspace : IDisposable
         }
     }
 
+    /// <summary>Closes only a clean document; concurrent committed edits retain all ownership and references.</summary>
+    public bool CloseClean(string documentId)
+    {
+        // Match open/group replacement and idle retirement: ownership before session state.
+        lock (_openGate)
+        {
+            if (!_documents.ContainsKey(documentId)) return false;
+            try
+            {
+                if (ReleaseCleanDocument(documentId)) return true;
+            }
+            catch (Exception cleanup) when (cleanup is not (OutOfMemoryException or OperationCanceledException))
+            {
+                // TryCloseClean releases an already-disposed owner even if plugin disposal
+                // fails. Do not report that committed close as a retained-state 409 conflict.
+                throw new AggregateException("The clean document was closed, but cleanup failed.", cleanup);
+            }
+            throw new InvalidOperationException("This document has unsaved edits. Undo them before closing the document, or export your work and close the dump to discard them.");
+        }
+    }
+
+    /// <summary>Explicitly discards a document, including dirty work. Used for workspace disposal, not HTTP clean close.</summary>
     public bool Close(string documentId)
     {
         lock (_openGate)

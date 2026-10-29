@@ -57,8 +57,9 @@ including irreversible edits with no remaining undo. Undoing all reversible edit
 workspace eligible for expiry again. The decision reads host history only, without
 serializing documents; busy operations are skipped and lease/access state is rechecked.
 Export and direct download leave documents dirty. Explicitly close finished documents or
-DELETE the workspace to release retained resources. Explicit close/delete, disposal and
-server shutdown still discard edits; this retention provides no restart persistence.
+DELETE the workspace to release retained resources. Document close requires clean state;
+workspace DELETE, disposal and server shutdown still discard edits. This retention provides
+no restart persistence.
 
 All API error responses include these ProblemDetails fields and legacy extensions:
 
@@ -240,8 +241,15 @@ state are captured together. Root views may contain lazy sections and collection
 
 ### `DELETE /api/workspaces/{workspaceId}/documents/{documentId}`
 
-No body. 204 closes the document (and all group-member ownership), discarding its
-in-memory edits. This does not modify imported files. Optional `If-Match` applies.
+No body. 204 atomically closes a clean document and releases its pinned references and
+all group-member ownership. Dirty documents return 409 ProblemDetails and retain their
+live data, history, references and ownership. An edit or redo committed before close
+executes prevents closure; a close that wins prevents queued mutations from succeeding.
+Missing documents return 404, including requests bound before close that were waiting
+on the document operation gate. Imported files are unchanged. Optional `If-Match`
+applies in addition to the clean-state requirement. Export/download leave edits dirty;
+undo to clean before closing the document, or DELETE the workspace to explicitly discard
+its edits.
 
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}/nodes`
 
