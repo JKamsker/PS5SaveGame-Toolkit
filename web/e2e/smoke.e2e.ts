@@ -1,75 +1,17 @@
-import { test, expect, type Page, type TestInfo } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { readFile } from "node:fs/promises";
-import { zipSync, unzipSync } from "fflate";
+import { test, expect } from "@playwright/test";
+import {
+  coinsField, editCoins, editedCoins, expectArchiveBytes, exportFiles,
+  importSave, loadJson, openJson, originalCoins, originalSave, savePath,
+} from "./helpers";
 
-const savePath = "PPSA00000/sdimg_E2E/save.json";
-const originalSave = readFileSync(new URL("./fixtures/save.json", import.meta.url));
-const originalCoins = "12345";
-const editedCoins = "54321";
-const originalFiles = {
-  [savePath]: originalSave,
-  "PPSA00000/sdimg_E2E/nested/companion.txt": readFileSync(new URL("./fixtures/companion.txt", import.meta.url)),
-  "PPSA00000/sdimg_E2E/empty.dat": new Uint8Array(),
-};
 const consoleWarning = "Not validated on console. The game may reject or overwrite the edited save.";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Open a PS5 save dump" })).toBeVisible();
-  const fileChooser = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Open zip", exact: true }).click();
-  await (await fileChooser).setFiles({
-    name: "synthetic-save.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from(zipSync(originalFiles)),
-  });
-  await expect(page.getByRole("heading", { name: "Pick a save file" })).toBeVisible();
-  const directories = page.getByRole("navigation", { name: "Save directories" });
-  await directories.getByRole("button", { name: / E2E / }).click();
-  await directories.getByRole("button", { name: /^save\.json / }).click();
-  await page.getByRole("combobox", { name: "Open with" }).selectOption({ label: "Open with Generic JSON" });
-  await expect(page.getByRole("heading", { name: "save.json", exact: true })).toBeVisible();
-  await page.getByRole("tab", { name: "JSON", exact: true }).click();
-  await page.getByRole("button", { name: "Load Entries", exact: true }).click();
+  await importSave(page);
+  await openJson(page);
+  await loadJson(page);
   await expect(coinsField(page)).toHaveValue(originalCoins);
 });
-
-function coinsField(page: Page) {
-  return page.getByRole("textbox", { name: /^coins\s*meaning unknown/ });
-}
-
-async function editCoins(page: Page) {
-  await coinsField(page).fill(editedCoins);
-  await coinsField(page).press("Enter");
-  // Wait for the real server mutation, rather than only the input's local draft.
-  await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
-  await expect(coinsField(page)).toHaveAccessibleName(/modified/);
-}
-
-async function exportFiles(page: Page, testInfo: TestInfo) {
-  await page.getByRole("button", { name: /^Export/ }).click();
-  const dialog = page.getByRole("dialog", { name: "Export edited saves" });
-  await dialog.getByRole("radio", { name: /Whole dump/ }).check();
-  await expect(dialog.getByRole("button", { name: "Download zip", exact: true })).toBeEnabled();
-  const downloading = page.waitForEvent("download");
-  await dialog.getByRole("button", { name: "Download zip", exact: true }).click();
-  const download = await downloading;
-  expect(download.suggestedFilename()).toMatch(/\.zip$/i);
-  const archive = testInfo.outputPath("export.zip");
-  await download.saveAs(archive);
-  expect(await download.failure()).toBeNull();
-  return unzipSync(await readFile(archive));
-}
-
-function expectArchiveBytes(files: Record<string, Uint8Array>, expectedSave: Uint8Array) {
-  // ZIP metadata/compression can change; every uncompressed payload byte must match.
-  expect(Object.keys(files).sort()).toEqual(Object.keys(originalFiles).sort());
-  for (const [name, original] of Object.entries(originalFiles)) {
-    expect(Buffer.from(files[name]!), name).toEqual(Buffer.from(name === savePath ? expectedSave : original));
-  }
-}
-
 test("imports, edits, reviews and exports without changing any other bytes", async ({ page }, testInfo) => {
   await editCoins(page);
   await page.getByText("Changes against original", { exact: true }).click();
