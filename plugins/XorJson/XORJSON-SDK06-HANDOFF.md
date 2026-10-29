@@ -56,6 +56,32 @@ so a fresh group candidate cannot alias the original document or node state.
   replacement strings. Repeated 20,000-node capture/restore tests verify the
   bounded allocation, source sharing and restored SDK scalar path.
 
+## Release allocation evidence
+
+The original Release allocation guard was reproduced under the same Windows
+`win-x64` / .NET SDK `10.0.400` (`10.0.11` runtime), MTP options and synthetic
+`EncodingPerformanceTests` input (`payloadLength = 1,048,576`, encoded input
+length `1,048,611` bytes, both XOR-1 and byte-minus-one modes). The exact
+minimum samples from `AllocationProbe.MeasureOpen` were:
+
+| Consumer | Minimum / samples | Guard |
+| --- | --- | --- |
+| e76e5103 baseline | 4,197,080 B / 4,197,080, 4,197,080, 4,205,192 | 4,325,516 B |
+| 54869f0c before R2 allocation correction | 7,344,536 B / 7,344,536, 7,352,648, 7,344,536 | 4,325,516 B (failed) |
+| Final R2 correction | 6,295,896 B / 6,295,896, 6,301,280, 6,295,896 | 6,422,668 B (passes) |
+
+The delta is attributable to the SDK's required exact UTF-16 scalar lexeme
+retained alongside the typed string: it scales at approximately two bytes per
+payload character, with the measured one-megabyte delta from the baseline
+matching `2 * payloadLength` plus 1,664 bytes of fixed metadata. The avoidable
+one-megabyte transformed decode buffer was removed by decoding the plugin-owned
+`ReadAllBytes` array in place, restoring it after the SDK copies its source;
+`JsonTokenTree` then reuses the SDK-owned immutable source array. The calibrated
+guard adds exactly that measured dual-model lexeme cost (`2 * payloadLength`)
+and the existing 128 KiB parser margin, leaving 126,772 B of observed headroom.
+This is a bounded intentional SDK lexical-retention cost, rather than a broad
+disabled or Debug-only assertion.
+
 ## Dependency and branch
 
 - SDK dependency PR: [#51](https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/51)
@@ -67,9 +93,9 @@ so a fresh group candidate cannot alias the original document or node state.
 - Branch base before dependency merge: `e76e51035fec308a56e5c26b5d97a9c08089f881`
 - Consumer head before R1 fixes: `8d7c4c17691b1de27e37922bfda3d7cb67177645`
 - Consumer follow-up head: `ab568661cc1a2945ad209c1091e98aa5fcfb41e9` (`fix(xorjson): close SDK06 scalar and snapshot gaps`)
-- R2 implementation heads: `3e6c25e718fc143bce2ee4bf71693eccf01465b4` (`fix(xorjson): preflight scalar budgets and share memento sources`) and `016fedaea5083aceabae8b967df49f72b4d79ace` (`refactor(xorjson): stream scalar lexeme materialization`).
-- Consumer PR base remains `t3/sdk06-lossless-json` / reviewed SDK head above;
-  parent may retarget PR61 to `main` without rewriting this branch.
+- R2 implementation heads: `3e6c25e718fc143bce2ee4bf71693eccf01465b4` (`fix(xorjson): preflight scalar budgets and share memento sources`), `016fedaea5083aceabae8b967df49f72b4d79ace` (`refactor(xorjson): stream scalar lexeme materialization`), and `63cc3fa423f27a72955503eef3e78636e311f813` (`fix(xorjson): close Release opening allocation gate`).
+- Consumer PR base is now `main`; the reviewed SDK head above is merged there,
+  and this branch retains the ordinary dependency merge without rewriting.
 
 The consumer diff authored by this branch is confined to `plugins/XorJson/`.
 The framework files visible in the checkout come only from the explicit ordinary
@@ -98,10 +124,8 @@ Validation from the sample-free run:
 `dotnet run --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests/SaveToolkit.Plugins.XorJson.Tests.csproj --no-build -- -noLogo -noColor`
 
 passed **304 tests**, with **19 sample-dependent skips** and **0 failures** in
-the sample-free Debug run. The Release build is warning-free; its focused R2
-resource tests pass. The existing Release `EncodingPerformanceTests` baseline
-currently reports 7.34 MiB opening allocation against its 4.32 MiB bound and
-is unchanged by this adapter follow-up.
+both sample-free Debug and Release runs. Both configurations build with zero
+warnings, including the calibrated Release opening-allocation guard.
 The plugin project also builds with zero warnings. Missing `PPSA16064` samples
 were skipped by the existing test harness; no private sample bytes were copied.
 PR CI metadata: SDK PR #51 is merged into `main` at `1322ddfa8ca5c46af15d14fd4ad0c5c1b16adaac`;
