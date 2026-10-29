@@ -393,6 +393,71 @@ member back to the coordinated editor. Use normal F6 planned actions for transfe
 there is no second output or transaction API to bypass review. Console/game validation is still the
 plugin author's responsibility.
 
+### Compose member identities and dispatch (SDK-04)
+
+`DocumentMemberAdapter(role, document, identityPolicy)` is a non-owning SDK helper for groups
+that compose existing member documents. `Prefix` / `Local` map opaque identities; the default is
+ordinal `role + "/" + id`, with no escaping, decoding or normalization. For a different encoding,
+provide paired `ToGroupId` / `TryToLocalId` callbacks (the latter returns null for another member).
+Keep roles and callbacks stable across fresh opens and restores.
+
+`Node`, `Collection` and `Page` recursively map fields, lazy sections, eager/queryable rows,
+actions, blobs and map/graph targets. Action parameter names, column/filter keys, image assets,
+reference catalog IDs, cursors, counts and other presentation metadata retain their meanings.
+`GetValue`, `ExpandNode`, `ReadBlob`, `Query`, `ApplyEdits`, `InvokeAction`, `PlanAction` and
+`ApplyActionPlan` dispatch member-local requests and return group identities. Plans round-trip
+ordered changes, skipped rows and nonempty error IDs; empty general-error IDs stay empty.
+Parameter dictionaries are passed through unchanged. No view/query result is cached.
+
+`DocumentMemberIdentityPolicy` makes compatibility choices explicit:
+
+- `QueryRowIdentity(collectionId, key)` defaults to the local key; `TableRowIdentity(scope, key)`
+  defaults to scope plus key. Both return local identities, which the adapter then prefixes.
+- `TableCellScope` and `ExpansionScope` preserve traversal-dependent eager-row identities.
+- `NavigationPath` supplies group ancestors and any section/row path rewriting. Graph item IDs
+  and edge endpoints are prefixed together by default; marker IDs have a separate opt-out.
+- `CollectionTitle` / `CollectionColumn` control metadata titles and read-only policy. They do
+  not rewrite page columns or queryable view titles.
+- `LocalScope` can validate collection-qualified selections against the **current** member model.
+  Its default localizes selected keys, query collection IDs and excluded keys, preserving null
+  versus empty selection, query contents and revision. It does not resolve a whole-query selection;
+  Core still owns that bounded resolution. Skipped plan keys use the ordinary ID codec, matching
+  the existing plugins; an alternative row contract must convert those keys explicitly.
+
+`DocumentMemberRouter.Resolve(id)` rejects unknown or ambiguous ownership, including overlapping
+custom policies. `PartitionEdits(edits)` resolves the complete batch before returning ordered
+`DocumentMemberEdits` batches. Those edits still have group IDs:
+
+```csharp
+var router = new DocumentMemberRouter(members);
+var member = router.Resolve(valueId);
+var value = member.GetValue(valueId);
+// Inside the group's existing whole-group transaction:
+foreach (var batch in router.PartitionEdits(edits))
+{
+    var outcome = batch.Member.ApplyEdits(batch.Edits);
+    // On failure restore the entire group; on success accumulate qualified changes.
+}
+```
+
+The helper does not own transactions or lifetime. Keep transfer/dependency checks, whole-group
+snapshot capture/restore, warning policy, combined serialization validation and disposal local.
+Outcome mapping preserves member-local `Revert` tokens: replace them with a whole-group token
+before returning from the group. `ToGroupOutcome`, `ToGroupPlan`, `ToLocalPlan` and `ToLocalScope`
+are available when specialized group orchestration needs the mapping separately. Rebuild adapters
+and the router whenever a restore replaces member models; callbacks must not capture old models.
+
+For the existing Gearbox namespace, set `QueryRowIdentity = (collection, key) => collection + "/" + key`,
+retain the default eager-cell/expansion scopes and graph/marker prefixing, and retain Gearbox's
+inventory-aware `LocalScope` validator. Its navigation policy prepends the group and character/profile
+section, then prefixes `section:` identities in the member path. Keep transfers and snapshots local.
+For XorJson, retain default query-row identities, set `TableCellScope = (scope, row, _) => scope + "/" + row`
+and `ExpansionScope = (_, _) => "view"`, disable graph/marker ID prefixing, prepend group and role
+navigation sections without rewriting the original path, and preserve its collection metadata
+`ReadOnly = !document.CanEdit` override. Default scope localization replaces its local scope visitor.
+Both plugins remain unchanged until an explicit migration; see the plugin compatibility fixtures
+and composition/history tests under `tests/SaveToolkit.Core.Tests/SdkHelpers/DocumentMember*`.
+
 ## Structural edits (add / remove / reorder)
 
 Actions that add, remove, reorder or replace records can't be undone by replaying `ValueChange`s.
