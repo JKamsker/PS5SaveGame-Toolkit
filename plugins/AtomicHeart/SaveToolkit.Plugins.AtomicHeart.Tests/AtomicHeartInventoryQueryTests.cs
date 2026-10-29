@@ -99,7 +99,28 @@ public sealed class AtomicHeartInventoryQueryTests
         Assert.Equal(1, tail.FilteredCount);
         Assert.Equal("449", Assert.IsType<TextNode>(Assert.Single(tail.Rows).Cells["instance"]).Text);
         var next = collection.Query(new() { Offset = 200, Limit = 200, SortColumn = "instance" });
-        Assert.Empty(page.Rows.Select(r => r.Key).Intersect(next.Rows.Select(r => r.Key), StringComparer.Ordinal));
+        var last = collection.Query(new() { Offset = 400, Limit = 200, SortColumn = "instance" });
+        var pages = new[] { page, next, last };
+        Assert.Equal(200, next.Rows.Count);
+        Assert.Equal(50, last.Rows.Count);
+        Assert.Equal(0, page.Offset);
+        Assert.Equal(200, next.Offset);
+        Assert.Equal(400, last.Offset);
+        Assert.All(pages, result =>
+        {
+            Assert.Equal(450, result.TotalCount);
+            Assert.Equal(450, result.FilteredCount);
+            Assert.Equal(200, result.Limit);
+            Assert.Equal(0, result.HiddenEmptyCount);
+        });
+        var rows = pages.SelectMany(result => result.Rows).ToArray();
+        Assert.Equal(450, rows.Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(Enumerable.Range(0, 450).Select(id => id.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+            rows.Select(row => Assert.IsType<TextNode>(row.Cells["instance"]).Text));
+        var beyond = collection.Query(new() { Offset = 450, Limit = 200, SortColumn = "instance" });
+        Assert.Empty(beyond.Rows);
+        Assert.Equal(450, beyond.FilteredCount);
+        Assert.Equal(450, beyond.Offset);
     }
 
     private static TaggedProperty Element(int id)
