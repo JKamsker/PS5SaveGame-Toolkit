@@ -44,20 +44,7 @@ internal sealed class JsonEditModel
         if (operation == "remove") parent.Children.RemoveAt(position);
         else
         {
-            if (json is null) throw new SaveFormatException("A complete JSON value is required.");
-            var prefix = parent.Kind == JsonTokenType.StartObject ? JsonSerializer.Serialize(key) + ":" : "";
-            if (operation == "replace")
-            {
-                var trivia = target.Source.AsSpan(target.LeadingOffset, target.EntryOffset - target.LeadingOffset);
-                var comma = trivia.IndexOf((byte)',');
-                if (comma >= 0) trivia = trivia[(comma + 1)..];
-                prefix = Encoding.UTF8.GetString(trivia) + Encoding.UTF8.GetString(target.Source.AsSpan(target.EntryOffset, target.Offset - target.EntryOffset));
-            }
-            var wrapper = parent.Kind == JsonTokenType.StartObject ? "{" + prefix + json + "}" : "[" + prefix + json + "]";
-            var fragment = JsonTokenTree.Parse(Encoding.UTF8.GetBytes(wrapper)).Nodes[0];
-            if (fragment.Children.Count != 1) throw new SaveFormatException("Supply exactly one JSON value.");
-            var inserted = fragment.Children[0];
-            AssignIds(inserted);
+            var inserted = CreateFragment(parent, target, operation, json, key);
             inserted.Parent = parent;
             if (operation == "replace")
             {
@@ -68,6 +55,34 @@ internal sealed class JsonEditModel
             }
             else parent.Children.Add(inserted);
         }
+        UpdateChildPaths(parent);
+        _index = null;
+        _nodes = null;
+        // Validate the full depth, node count, size and grammar before the transaction can succeed.
+        _ = JsonTokenWriter.Write(Root);
+    }
+
+    private JsonValueToken CreateFragment(JsonValueToken parent, JsonValueToken target, string operation, string? json, string? key)
+    {
+        if (json is null) throw new SaveFormatException("A complete JSON value is required.");
+        var prefix = parent.Kind == JsonTokenType.StartObject ? JsonSerializer.Serialize(key) + ":" : "";
+        if (operation == "replace")
+        {
+            var trivia = target.Source.AsSpan(target.LeadingOffset, target.EntryOffset - target.LeadingOffset);
+            var comma = trivia.IndexOf((byte)',');
+            if (comma >= 0) trivia = trivia[(comma + 1)..];
+            prefix = Encoding.UTF8.GetString(trivia) + Encoding.UTF8.GetString(target.Source.AsSpan(target.EntryOffset, target.Offset - target.EntryOffset));
+        }
+        var wrapper = parent.Kind == JsonTokenType.StartObject ? "{" + prefix + json + "}" : "[" + prefix + json + "]";
+        var fragment = JsonTokenTree.Parse(Encoding.UTF8.GetBytes(wrapper)).Nodes[0];
+        if (fragment.Children.Count != 1) throw new SaveFormatException("Supply exactly one JSON value.");
+        var inserted = fragment.Children[0];
+        AssignIds(inserted);
+        return inserted;
+    }
+
+    private static void UpdateChildPaths(JsonValueToken parent)
+    {
         var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
         for (var i = 0; i < parent.Children.Count; i++)
         {
@@ -84,10 +99,6 @@ internal sealed class JsonEditModel
                 occurrences[child.Label] = occurrence + 1;
             }
         }
-        _index = null;
-        _nodes = null;
-        // Validate the full depth, node count, size and grammar before the transaction can succeed.
-        _ = JsonTokenWriter.Write(Root);
     }
 
     public JsonModelSnapshot Snapshot()

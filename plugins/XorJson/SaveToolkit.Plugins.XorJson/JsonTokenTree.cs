@@ -30,57 +30,7 @@ internal sealed class JsonTokenTree
             var bom = bytes.AsSpan().StartsWith("\uFEFF"u8) ? 3 : 0;
             var reader = new Utf8JsonReader(bytes.AsSpan(bom), new JsonReaderOptions { MaxDepth = 64 });
             var tree = new JsonTokenTree();
-            var parents = new Stack<JsonValueToken>();
-            var occurrences = new Dictionary<(int Parent, string Name), int>();
-            string? property = null;
-            var propertyOffset = 0;
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.PropertyName)
-                {
-                    property = reader.GetString();
-                    propertyOffset = checked((int)reader.TokenStartIndex + bom);
-                    continue;
-                }
-                if (reader.TokenType is JsonTokenType.EndObject or JsonTokenType.EndArray)
-                {
-                    var completed = parents.Pop();
-                    completed.Length = checked((int)reader.BytesConsumed + bom - completed.Offset);
-                    completed.OriginalChildren = completed.Children.Select(n => n.Index).ToArray();
-                    continue;
-                }
-                if (tree.Nodes.Count >= MaxNodes) throw new SaveFormatException("JSON exceeds the 250,000 value safety limit.");
-                var parent = parents.TryPeek(out var current) ? current : null;
-                var label = property ?? (parent is null ? "$" : $"[{parent.Children.Count}]");
-                var node = new JsonValueToken(tree.Nodes.Count, label, reader.TokenType,
-                    checked((int)reader.TokenStartIndex + bom), checked((int)(reader.BytesConsumed - reader.TokenStartIndex)))
-                {
-                    Source = bytes, Parent = parent,
-                };
-                node.EntryOffset = property is null ? node.Offset : propertyOffset;
-                node.LeadingOffset = parent is null ? node.EntryOffset
-                    : parent.Children.Count == 0 ? parent.Offset + 1 : parent.Children[^1].Offset + parent.Children[^1].Length;
-                if (parent is not null)
-                {
-                    if (property is null) node.Segment = new JsonElementPath(parent.Children.Count);
-                    else
-                    {
-                        var key = (parent.Index, property);
-                        var occurrence = occurrences.GetValueOrDefault(key);
-                        occurrences[key] = occurrence + 1;
-                        node.Segment = new JsonMemberPath(property, occurrence);
-                    }
-                    parent.Children.Add(node);
-                }
-                property = null;
-                tree.Nodes.Add(node);
-                if (node.IsContainer) parents.Push(node);
-                else
-                {
-                    ReadValue(node, ref reader);
-                    node.Original = node.Current;
-                }
-            }
+            tree.ReadNodes(bytes, bom, ref reader);
             if (tree.Nodes.Count == 0) throw new SaveFormatException("JSON must contain one value.");
             return tree;
         }
@@ -89,6 +39,64 @@ internal sealed class JsonTokenTree
             // Never include source text or parser exceptions, which may quote private save data.
             throw new SaveFormatException("Invalid JSON or UTF-8 text (maximum depth: 64).");
         }
+    }
+
+    private void ReadNodes(byte[] bytes, int bom, ref Utf8JsonReader reader)
+    {
+        var parents = new Stack<JsonValueToken>();
+        var occurrences = new Dictionary<(int Parent, string Name), int>();
+        string? property = null;
+        var propertyOffset = 0;
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.PropertyName)
+            {
+                property = reader.GetString();
+                propertyOffset = checked((int)reader.TokenStartIndex + bom);
+                continue;
+            }
+            if (reader.TokenType is JsonTokenType.EndObject or JsonTokenType.EndArray)
+            {
+                var completed = parents.Pop();
+                completed.Length = checked((int)reader.BytesConsumed + bom - completed.Offset);
+                completed.OriginalChildren = completed.Children.Select(n => n.Index).ToArray();
+                continue;
+            }
+            if (Nodes.Count >= MaxNodes) throw new SaveFormatException("JSON exceeds the 250,000 value safety limit.");
+            var parent = parents.TryPeek(out var current) ? current : null;
+            var label = property ?? (parent is null ? "$" : $"[{parent.Children.Count}]");
+            var node = new JsonValueToken(Nodes.Count, label, reader.TokenType,
+                checked((int)reader.TokenStartIndex + bom), checked((int)(reader.BytesConsumed - reader.TokenStartIndex)))
+            {
+                Source = bytes, Parent = parent,
+            };
+            node.EntryOffset = property is null ? node.Offset : propertyOffset;
+            node.LeadingOffset = parent is null ? node.EntryOffset
+                : parent.Children.Count == 0 ? parent.Offset + 1 : parent.Children[^1].Offset + parent.Children[^1].Length;
+            AttachChild(node, property, occurrences);
+            property = null;
+            Nodes.Add(node);
+            if (node.IsContainer) parents.Push(node);
+            else
+            {
+                ReadValue(node, ref reader);
+                node.Original = node.Current;
+            }
+        }
+    }
+
+    private static void AttachChild(JsonValueToken node, string? property, Dictionary<(int Parent, string Name), int> occurrences)
+    {
+        if (node.Parent is not { } parent) return;
+        if (property is null) node.Segment = new JsonElementPath(parent.Children.Count);
+        else
+        {
+            var key = (parent.Index, property);
+            var occurrence = occurrences.GetValueOrDefault(key);
+            occurrences[key] = occurrence + 1;
+            node.Segment = new JsonMemberPath(property, occurrence);
+        }
+        parent.Children.Add(node);
     }
 
     private static void ReadValue(JsonValueToken node, ref Utf8JsonReader reader)
