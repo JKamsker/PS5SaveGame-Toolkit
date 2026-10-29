@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -133,17 +134,25 @@ public static partial class SaveSetImporter
 
     private sealed class Builder(string storageRoot, ImportLimits limits) : IDisposable
     {
+        private const int CopyBufferSize = 81920;
         private readonly Dictionary<string, int> _occurrences = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, string> _directoryNames = new(StringComparer.OrdinalIgnoreCase);
         private readonly List<PendingFile> _files = [];
         private readonly List<string> _createdBlobs = [];
         private long _totalBytes;
         private bool _committed;
+        private byte[]? _copyBuffer;
 
         public void Commit() => _committed = true;
 
         public void Dispose()
         {
+            if (_copyBuffer is not null)
+            {
+                ArrayPool<byte>.Shared.Return(_copyBuffer);
+                _copyBuffer = null;
+            }
+
             if (_committed) return;
             List<Exception> errors = [];
             foreach (var path in _createdBlobs)
@@ -196,10 +205,10 @@ public static partial class SaveSetImporter
             using var output = new FileStream(blobPath, FileMode.CreateNew, FileAccess.Write);
             // Track only files we created: a name collision must never delete someone else's data.
             _createdBlobs.Add(blobPath);
-            var buffer = new byte[81920];
+            var buffer = _copyBuffer ??= ArrayPool<byte>.Shared.Rent(CopyBufferSize);
             long length = 0;
             int read;
-            while ((read = content.Read(buffer)) > 0)
+            while ((read = content.Read(buffer.AsSpan(0, CopyBufferSize))) > 0)
             {
                 length += read;
                 _totalBytes += read;
