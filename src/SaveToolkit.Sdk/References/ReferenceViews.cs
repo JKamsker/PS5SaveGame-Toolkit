@@ -2,6 +2,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Sdk.References;
 
+/// <summary>Local reference-backed view helpers that retain record and asset attribution.</summary>
 public static class ReferenceViews
 {
     /// <summary>

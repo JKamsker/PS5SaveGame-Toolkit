@@ -6,6 +6,7 @@ namespace SaveToolkit.Sdk.Views;
 public static class SpatialViewValidation
 {
     private static readonly string[] PathPrefixes = ["section:", "tab:", "row:"];
+    /// <summary>Rejects unbounded or malformed graph metadata, duplicate identities, missing endpoints and cycles.</summary>
     public static void Validate(GraphNode graph)
     {
         Text(graph.Title);
@@ -51,6 +52,7 @@ public static class SpatialViewValidation
         Require(visited == ids.Count, "Graph prerequisites must be acyclic.");
     }
 
+    /// <summary>Rejects unbounded or malformed map metadata, coordinates, provenance assertions and source links.</summary>
     public static void Validate(MapNode map)
     {
         Text(map.Title);

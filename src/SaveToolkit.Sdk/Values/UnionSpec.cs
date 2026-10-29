@@ -13,4 +13,5 @@ public sealed record UnionOption(string Id, string Label, FieldSpec Spec);
 /// </summary>
 public sealed record UnionSpec(IReadOnlyList<UnionOption> Options) : FieldSpec;
 
+/// <summary>An explicit union option ID and its typed inner value, retained even when options share the same wire shape.</summary>
 public sealed record UnionFieldValue(string Type, FieldValue Value);

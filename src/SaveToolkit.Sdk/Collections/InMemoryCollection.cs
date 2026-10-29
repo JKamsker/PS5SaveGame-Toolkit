@@ -11,6 +11,7 @@ public sealed class InMemoryCollection<T>
     private readonly Func<T, TableRow> _renderRow;
     private readonly InMemoryCollectionOptions<T> _options;
 
+    /// <summary>Connects complete-model projections and stable native keys to a renderer invoked only for selected rows.</summary>
     public InMemoryCollection(QueryableCollection metadata, Func<IEnumerable<T>> source,
         Func<T, string> key, IReadOnlyList<InMemoryColumn<T>> columns, Func<T, TableRow> renderRow,
         InMemoryCollectionOptions<T>? options = null)
@@ -33,8 +34,10 @@ public sealed class InMemoryCollection<T>
             throw new ArgumentException("Empty-row metadata requires a label column and a model predicate.", nameof(options));
     }
 
+    /// <summary>Collection metadata with a copied column list, used by every returned page.</summary>
     public QueryableCollection Metadata { get; }
 
+    /// <summary>Filters, counts and sorts the complete source before rendering one bounded offset page; cursors are unsupported.</summary>
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
     {
         ArgumentNullException.ThrowIfNull(query);

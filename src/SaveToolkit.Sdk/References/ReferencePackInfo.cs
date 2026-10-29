@@ -13,6 +13,7 @@ public enum ReferencePackOrigin
     User,
 }
 
+/// <summary>The content category of an attributed reference-pack dataset.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<ReferenceDatasetKind>))]
 public enum ReferenceDatasetKind
 {
@@ -48,6 +49,7 @@ public sealed record ReferenceAttribution(
 /// <summary>One attributed dataset of a pack: a records catalog or a set of assets.</summary>
 public sealed record ReferenceDatasetInfo(string PackId, string Id, ReferenceDatasetKind Kind, ReferenceAttribution Attribution)
 {
+    /// <summary>Optional human-readable dataset title.</summary>
     public string? Title { get; init; }
 
     /// <summary>Records or assets in the dataset.</summary>
@@ -57,6 +59,7 @@ public sealed record ReferenceDatasetInfo(string PackId, string Id, ReferenceDat
 /// <summary>Identity of a loaded reference pack.</summary>
 public sealed record ReferencePackInfo(string Id, string Version, string Title, ReferencePackOrigin Origin)
 {
+    /// <summary>Optional explanation of the pack's contents and limitations.</summary>
     public string? Description { get; init; }
 
     /// <summary>Plugins that may use the pack.</summary>
@@ -71,5 +74,6 @@ public sealed record ReferencePackInfo(string Id, string Version, string Title, 
     /// <summary>BCP-47 tag such as "en" or "de-DE"; null for language-neutral data.</summary>
     public string? Locale { get; init; }
 
+    /// <summary>Attributed record and asset datasets supplied by this pack.</summary>
     public IReadOnlyList<ReferenceDatasetInfo> Datasets { get; init; } = [];
 }

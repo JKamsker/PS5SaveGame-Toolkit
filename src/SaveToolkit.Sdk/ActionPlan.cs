@@ -37,23 +37,33 @@ public sealed record ActionScope(IReadOnlyList<string>? RowKeys = null)
 /// <summary>A revision-bound selection of every matching row, including pages never loaded by the client.</summary>
 public sealed record ActionQueryScope(string CollectionId, QueryableCollectionQuery Query, long Revision)
 {
+    /// <summary>Stable row keys to omit from the complete matching result, including unloaded pages.</summary>
     public IReadOnlyList<string> ExcludedRowKeys { get; init; } = [];
 }
 
 /// <summary>Named, game-level consequences. Null before/after means absence only when the corresponding Exists flag is false.</summary>
 public sealed record PlannedChange(string ValueId, string Label, FieldValue OldValue, FieldValue NewValue)
 {
+    /// <summary>True for a consequence of another edit; the plugin decides which consequences require actual assignments.</summary>
     public bool Derived { get; init; }
+    /// <summary>False when the field did not exist before the action, distinct from an existing null value.</summary>
     public bool OldExists { get; init; } = true;
+    /// <summary>False when the action removes the field, distinct from assigning null.</summary>
     public bool NewExists { get; init; } = true;
 }
 
+/// <summary>A selected row left unchanged, with a user-facing explanation.</summary>
 public sealed record SkippedActionRow(string RowKey, string Reason);
 
+/// <summary>Deterministic preview of ordered consequences and diagnostics, calculated without mutating the document.</summary>
 public sealed record ActionPlan
 {
+    /// <summary>Every proposed direct and derived consequence in deterministic order.</summary>
     public IReadOnlyList<PlannedChange> Changes { get; init; } = [];
+    /// <summary>Selected rows that cannot or need not change, with their reasons.</summary>
     public IReadOnlyList<SkippedActionRow> SkippedRows { get; init; } = [];
+    /// <summary>Limitations and notices to review before applying.</summary>
     public IReadOnlyList<string> Warnings { get; init; } = [];
+    /// <summary>Validation failures that prevent the plan from being applied.</summary>
     public IReadOnlyList<FieldError> Errors { get; init; } = [];
 }

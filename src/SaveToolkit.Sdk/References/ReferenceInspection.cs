@@ -3,6 +3,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Sdk.References;
 
+/// <summary>Construction and exact-selection validation for attributed, non-mutating reference inspection actions.</summary>
 public static class ReferenceInspection
 {
     /// <summary>

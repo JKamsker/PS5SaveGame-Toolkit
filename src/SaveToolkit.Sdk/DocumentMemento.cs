@@ -32,7 +32,9 @@ public sealed class SnapshotMemento<T> : DocumentMemento where T : notnull
         SizeBytes = sizeBytes;
     }
 
+    /// <summary>Plugin-owned immutable state; copy it when restoring into a mutable document.</summary>
     public T State { get; }
 
+    /// <inheritdoc />
     public override long SizeBytes { get; }
 }
