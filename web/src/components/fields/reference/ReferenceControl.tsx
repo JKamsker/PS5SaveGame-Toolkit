@@ -17,16 +17,11 @@ function refreshLabels(refresh: () => Promise<void>) {
   recoveries.set(refresh, recovery);
 }
 
-export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpec }) {
-  const { id, valueId, actionId, value, spec, disabled, labelledBy, describedBy, compact } = props;
+function useReferenceLabel(valueId: string | undefined, actionId: string | undefined, rawId: string) {
   const { workspaceId, documentId, store, structureVersion, refresh } = useDocument();
-  const rawId = String(value ?? "");
   const [current, setCurrent] = useState<ReferenceCandidate>();
   const [lookupError, setLookupError] = useState("");
   const [reload, setReload] = useState(0);
-  const [open, setOpen] = useState(false);
-  const trigger = useRef<HTMLButtonElement>(null);
-  const wasOpen = useRef(false);
   const recoveryAttempted = useRef(false);
   const revision = store.state.revision ?? 0;
 
@@ -48,7 +43,16 @@ export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpe
       });
     return () => { active = false; lookup?.cancel(); };
   }, [workspaceId, documentId, valueId, actionId, rawId, revision, structureVersion, refresh, reload]);
+  return { current, lookupError, retry: () => setReload(previous => previous + 1) };
+}
 
+export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpec }) {
+  const { id, valueId, actionId, value, spec, disabled, labelledBy, describedBy, compact } = props;
+  const rawId = String(value ?? "");
+  const { current, lookupError, retry } = useReferenceLabel(valueId, actionId, rawId);
+  const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const wasOpen = useRef(false);
   useEffect(() => {
     // Restore focus after the modal has unmounted and the rest of the page is no longer inert.
     if (wasOpen.current && !open) trigger.current?.focus();
@@ -66,7 +70,7 @@ export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpe
       <span id={`${id}-value`}>{current?.label ? `${current.label} (${rawId})` : rawId || "Choose an item…"}</span>
     </button>
     {lookupError && <span id={errorId} className="field__error" role="alert">{lookupError}{" "}
-      <button type="button" className="btn btn--small" onClick={() => { trigger.current?.focus(); setReload(previous => previous + 1); }}>Retry reference label</button>
+      <button type="button" className="btn btn--small" onClick={() => { trigger.current?.focus(); retry(); }}>Retry reference label</button>
     </span>}
     {open && valueId && createPortal(<ReferencePicker {...props} valueId={valueId} browseOnly={Boolean(disabled || spec.readOnly)} current={current} onClose={close} />, document.body)}
   </>;
