@@ -1,9 +1,10 @@
-import { useId, useMemo, useRef, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import type { ActionNode, FieldValue } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { PlannedActionButton } from "./review/PlannedActionButton";
 import { FieldControl } from "../fields/FieldControl";
 import { useViewJump } from "./review/navigation";
+import { useActionDialog } from "../ui/useActionDialog";
 
 interface ActionButtonProps {
   node: ActionNode;
@@ -22,7 +23,6 @@ export function ActionButton(props: ActionButtonProps) {
 
 function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
   const { canEdit, runAction } = useDocument();
-  const dialog = useRef<HTMLDialogElement>(null);
   // Unique per instance: the same action may be rendered in several table rows and the detail row.
   const idPrefix = useId();
   const parameters = useMemo(() => (node.parameters ?? []).map(parameter => ({
@@ -38,19 +38,22 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
     setErrors({});
   }
   const [busy, setBusy] = useState(false);
+  const { dialog, heading, trigger, openDialog, closeDialog, onClose, focusHeading, requestFocus } = useActionDialog(busy);
   const invalid = parameters.some(parameter => Boolean(errors[parameter.valueId]));
   const needsDialog = parameters.length > 0 || Boolean(node.confirm);
 
   const run = async () => {
     if (busy || invalid) return;
+    focusHeading();
     setBusy(true);
     try {
       const result = await runAction(node.actionId, values);
       if (result.ok) {
-        dialog.current?.close();
+        closeDialog();
         setErrors({});
       } else {
         setErrors(Object.fromEntries(result.errors.map((e) => [e.valueId, e.message])));
+        requestFocus("error");
       }
     } finally {
       setBusy(false);
@@ -60,18 +63,19 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
   return (
     <div className={compact ? "action action--compact" : "action"}>
       <button
+        ref={trigger}
         type="button"
         className={`btn${node.tone === "Danger" ? " btn--danger" : ""}${compact ? " btn--small" : ""}`}
         aria-label={ariaLabel}
         title={compact ? node.description : undefined}
         disabled={(!canEdit && node.mutates !== false) || busy}
-        onClick={() => (needsDialog ? dialog.current?.showModal() : void run())}
+        onClick={() => (needsDialog ? openDialog() : void run())}
       >
         {node.label}
       </button>
       {node.description && !compact && <span className="action__description">{node.description}</span>}
       {needsDialog && (
-        <dialog ref={dialog} className="dialog" aria-labelledby={`${idPrefix}-title`}>
+        <dialog ref={dialog} className="dialog" aria-labelledby={`${idPrefix}-title`} onClose={onClose}>
           <form
             method="dialog"
             onSubmit={(e) => {
@@ -80,12 +84,12 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
             }}
           >
             <div className="dialog__body">
-              <h2 className="dialog__title" id={`${idPrefix}-title`}>
+              <h2 ref={heading} tabIndex={-1} className="dialog__title" id={`${idPrefix}-title`}>
                 {node.label}
               </h2>
               {node.confirm && <p className="notice notice--Warning">{node.confirm}</p>}
               {parameters.map((p) => (
-                <div className="field" key={p.valueId}>
+                <div className="field" key={p.valueId} data-field-error={Boolean(errors[p.valueId])}>
                   <label className="field__label" id={`${idPrefix}-${p.valueId}-label`} htmlFor={`${idPrefix}-${p.valueId}`}>
                     {p.label}
                   </label>
@@ -108,10 +112,11 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
                   {p.description && <span id={`${idPrefix}-${p.valueId}-description`} className="field__description">{p.description}</span>}
                 </div>
               ))}
-              {errors[node.actionId] && <p className="notice notice--Danger">{errors[node.actionId]}</p>}
+              <p role="status">{busy ? "Working…" : ""}</p>
+              {errors[node.actionId] && <p role="alert" tabIndex={-1} className="notice notice--Danger">{errors[node.actionId]}</p>}
             </div>
             <div className="dialog__footer">
-              <button type="button" className="btn btn--quiet" onClick={() => dialog.current?.close()}>
+              <button type="button" className="btn btn--quiet" onClick={closeDialog}>
                 Cancel
               </button>
               <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || invalid}>
