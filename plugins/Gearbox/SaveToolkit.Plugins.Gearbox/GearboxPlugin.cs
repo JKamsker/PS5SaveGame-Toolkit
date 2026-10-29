@@ -9,7 +9,7 @@ public sealed class GearboxPlugin : IGamePlugin, IDocumentGroupPlugin, ISaveDeco
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new GearboxGameplayDecoder()];
 
-    public PluginInfo Info { get; } = new("gearbox", "Borderlands 3 / Tiny Tina's Wonderlands", "0.5.0")
+    public PluginInfo Info { get; } = new("gearbox", "Borderlands 3 / Tiny Tina's Wonderlands", "0.6.0")
     {
         Description = "Experimental PS5 serial/progression editing, planned inventory actions and coordinated character/profile transactions. Console validation pending.",
         Games = [new GameTitle("PPSA01463", "Borderlands 3"), new GameTitle("PPSA01493", "Tiny Tina's Wonderlands")],
@@ -17,6 +17,7 @@ public sealed class GearboxPlugin : IGamePlugin, IDocumentGroupPlugin, ISaveDeco
         References = ["https://github.com/apocalyptech/bl3-cli-saveedit", "https://github.com/apocalyptech/ttwl-cli-saveedit",
             "https://github.com/seigler/bl3skills.com/tree/66b0bd08777452abd05e5d9246c27f2a8096ca13",
             "https://github.com/Lothrik/wonderlands-skill-calc/tree/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8",
+            "https://www.lootlemon.com", "https://www.lootlemon.com/terms",
             "https://mapgenie.io/borderlands-3", "https://mapgenie.io/tiny-tinas-wonderlands",
             "https://github.com/FromDarkHell/BL3SaveEditor", "https://github.com/xcier/TTWLSaveEditor",
             "https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/__init__.py",

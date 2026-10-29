@@ -45,7 +45,8 @@ numeric level/index sorting and paging (at most 200 rows). F3 rows show a confid
 name, raw part-family key and lazy details. Details include original `BL3(...)` codes (both games use
 this wrapper), balance/inventory/manufacturer paths, raw parts, flags, pickup order, reroll count and
 Wonderlands' raw Chaos tier when the entire known layout parses. No exact rarity, combat statistics,
-localized full names or legal part combinations are inferred. No game artwork is bundled.
+localized full names or legal part combinations are inferred. Optional local skill icons and curated
+whole-item reference thumbnails are bundled; these never render the saved part configuration.
 
 F4's **Inspect catalogue entry** and **Inspect serial index / part** actions browse F2 catalogues with
 provenance. They are inspection actions with no changes, undo steps or dirty state. Unknown candidate
@@ -60,8 +61,8 @@ renumbered. Versions and counts:
 
 | Pack | Internal database | Index categories / records | Distinct balances | Source name mappings | Balance→part-family mappings | Slot/SDU/ammo labels |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `gearbox.bl3` 1.2.0 | 62 | 48 / 11,453 | 2,803 (2,848 index slots) | 774 | 1,435 | 25 |
-| `gearbox.ttwl` 1.2.0 | 59 | 56 / 13,674 | 2,030 (2,037 index slots) | 375 | 659 | 29 |
+| `gearbox.bl3` 1.3.0 | 62 | 48 / 11,453 | 2,803 (2,848 index slots) | 774 | 1,435 | 25 |
+| `gearbox.ttwl` 1.3.0 | 59 | 56 / 13,674 | 2,030 (2,037 index slots) | 375 | 659 | 29 |
 
 The added `world-labels` datasets contain **1,387 BL3** records (208 missions, 74 maps, 864 travel-to-map
 joins, four classes, 100 room decorations, 37 weapon skins, 100 trinkets) and **459 TTWL** records
@@ -81,8 +82,52 @@ Game patch, DLC/hotfix state and completeness are **unknown**; internal serial d
 not PS5 build numbers. Every dataset has attribution and a hash in `pack.json`, plus a source sidecar
 with pinned source revision, original compressed-file SHA-256 and conversion notes. NC bl3data/wldata
 exports are used only for factual/text display records under the owner decision dated 2026-10-28:
-**No licence published; reused with attribution per owner decision 2026-10-28**. Artwork, icons,
-screenshots, proprietary game assets and extracted game text remain excluded.
+**No licence published; reused with attribution per owner decision 2026-10-28**. Publisher icons and
+transcribed card text are now imported separately under the owner decision dated 2026-10-29, with
+the exact notice **Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29**.
+This does not relicense publisher material as MIT/zlib/GPL; community notices remain retained.
+
+### Game artwork and card text (asset round)
+
+The packs attach **425 skill-icon assignments** to named calculator records and **23 item thumbnails**
+to curated balances (12 BL3 / 11 TTWL). F2 pickers and F3/F8 item/skill tables show local images with
+adjacent provenance; skill graph detail controls also show their icons. The same item thumbnails
+appear on **87 matching serial indices** (42 BL3 / 45 TTWL, including 61 actual part records), explicitly labelled **whole-item reference**,
+never an individual part image or a rendering of saved stats/appearance. Other parts/items retain
+text/raw fallbacks. Joins require an exact existing balance name and exact unique-item path prefix;
+no generic family inherits a named legendary image. No artwork is assigned to opaque saved skills.
+
+New descriptions contain **23 official item-card flavor lines** and **134 literal BL3 skill-card
+effect descriptions**, read from the pinned calculator without executing interpolation/formulas.
+All 425 existing skill descriptions remain, with publisher provenance distinguished from the MIT
+community adaptation. Card text is reference material with unknown patch/hotfix coverage, not a
+combat simulator or proof of saved item stats. Item flavor lines have their own `item-cards` dataset.
+
+Images were header-validated and processed outside the repo using Python `-I`. Each is at most
+64×64, WebP or smaller PNG-8. SHA-derived filenames deduplicate one identical BL3 skill image:
+**447 image files, exactly 871,603 new image-asset bytes** (BL3 723,237; TTWL 148,366), below 4 MB.
+All newly added embedded files, including record JSON and provenance sidecars, total **1,073,187 bytes**.
+Original/processed hashes and every exact upstream image/page URL are in each pack's
+`assets.source.json`; `assets.source.md` records processing and mapping details. Separate
+`skill-icons` and `item-icons` datasets keep image-source provenance accurate. F2 validates/caches
+packs once per store; the plugin's existing static lazy record fallback skips asset datasets and
+never decodes/loads image files. Images enter views only on requested rows or lazy detail expansion.
+An empty reference context still displays names/card text and explicit image-unavailable cells.
+
+No map backgrounds were added. Stored mission states have no verified positions or background
+transform; the existing bounded checklist/text alternative and external guide remain usable.
+This is missing coordinate evidence, not a remaining publisher-art refusal.
+
+Quick first-load measurement (`AssetLoadMeasurements`, Debug/.NET 10, fresh process; largest sample,
+store creation + pin + open + root view + first 20 rows of every collection, archive import excluded):
+
+| Title / largest sample bytes | Before ms / allocated bytes | After ms / allocated bytes | Warm reopen before → after |
+| --- | --- | --- | --- |
+| BL3 / 1,567,384 | 560.034 / 314,788,192 | 461.654 / 324,371,664 | 36.800 → 34.293 ms; 24,491,360 → 25,345,656 bytes |
+| TTWL / 538,381 | 425.275 / 276,077,264 | 386.406 / 284,866,688 | 23.315 → 65.356 ms; 9,848,472 → 10,415,880 bytes |
+
+These single stopwatch observations include JIT/GC and are not timing assertions. The warm measurement
+reuses the same pack store; tests also prove repeated pins serve the same cached image buffers.
 
 The serial envelope is capped at 4,096 bytes; bit reads and part/additional counts are bounded. It
 retains the signed seed, checksum, all trailing bits and original serial bytes. Unsupported versions,
@@ -100,10 +145,11 @@ or locked. These graphs have no invented prerequisite edges. Stored rank/asset e
 respec remain unavailable: a reliable subobject→skill crosswalk and dependent class/budget model
 have not been established. Existing unspent-points/tree-grade edits remain enabled.
 
-The new MIT `skills` datasets contain **315 BL3** and **110 Wonderlands** skills from pinned
+The `skills` datasets contain **315 BL3** and **110 Wonderlands** skills from pinned MIT community
 community calculators: names, plain-text descriptions, calculator tiers and rank caps. BL3 covers
 the trees actually present upstream, including its partial DLC coverage; missing fourth trees
-stay unknown. Class feats, images and executable combat-effect formulas were not imported.
+stay unknown. Class feats and executable combat-effect formulas were not imported. Skill icons and
+literal card-effect lines were added in the asset round with separate publisher-rights attribution.
 Reference IDs are calculator slugs, never save IDs. The additional crosswalk records map known tree
 prefixes to class/tree and mark the join `Inferred`; unresolved paths remain raw and every reference
 graph state is Unknown.
@@ -145,8 +191,8 @@ counts against the intended model; transfer/import regressions assert persisted 
 | Feature | Status | Where / reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Gameplay-only production hook, independent test oracle, pinned fixture manifest and actual CLI verification; no identities/sample bytes committed |
-| F2 reference packs | Used; expanded this round | Title-scoped 1.2.0 packs, part token details and 425 MIT skill references; sidecars/notices/README/UI/Sources attribution |
-| F3 rich cells | Used | Confidence-labelled fields and lazy serial/part detail cells; no licensed artwork available, so text/raw fallbacks remain |
+| F2 reference packs | Used; expanded this round | Title-scoped 1.3.0 packs, 425 skill icons, 23 item images/card texts, 134 literal skill effect descriptions; separate publisher attribution and retained community notices |
+| F3 rich cells | Used; expanded this round | Attributed local skill/item images, explicitly whole-item part reference thumbnails, confidence-labelled fields and lazy details; raw/text fallback when unavailable |
 | F4 reference pickers | Added this round | Existing serial-part replacement with category/width eligibility and independent writer checks; browse-only asset/class/mission/skill references and attributed inspection actions |
 | F5 structural history | Used | Import/duplicate/remove and bank moves retain full wire bytes, duplicate identities and counters in snapshots |
 | F6 planning / #27 | Used | Selected/full-filter item levels, import/duplicate/remove and F7 transfers preview changes/skips/warnings; host resolves query scopes |
@@ -166,7 +212,7 @@ counts against the intended model; transfer/import regressions assert persisted 
 | R3–R7, R9–R12 framework/evidence/editor | Supported implementations retained and verified; constrained existing-part picker, F8/F9 and performance/bookkeeping fixes completed |
 | R13 legal pools/dependent builds | Existing-slot binary edits enabled with warnings; unrestricted construction, class replacement and respec require a reliable compatibility/dependency model and controlled captures (#31) |
 | R2, R15–R17 captures/console/account precedence | Owner-blocked (#31); writes already enabled where a bounded writer exists, with Experimental warnings |
-| R14 redistribution | Applied owner policy; MIT/zlib datasets and attributed factual/text-only unlicensed exports are embedded. Artwork, icons, screenshots and proprietary extracted game assets remain excluded; map sources stay link-only |
+| R14 redistribution | Applied owner policies dated 2026-10-28/29; attributed MIT/zlib/community facts plus publisher icons and card text embedded. Map backgrounds still need coordinate evidence; no remaining licence refusal for this imported material |
 | R18–R19, R22 BL4 | Owner-blocked (#31): unknown PS5 codec and file role; research-only feasibility evidence retained, no writes |
 | R20 mission/collectible repair | Owner-blocked (#31): named observation/checklist shipped; safe reward/branch recipes require isolated game captures |
 | R21 world maps + requested skill trees | F9 delivered without unlicensed art/coordinates or invented prerequisites; actual location transforms remain unknown |
@@ -336,8 +382,12 @@ dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/Gearbox/fixtur
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Validated 2026-10-28: **148 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
-0 failed, 0 skipped**; API build **0 warnings, 0 errors**. The environment variable was exported in the
+Validated 2026-10-29: **156 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
+0 failed, 0 skipped** with Gearbox-only plugin discovery; API build **0 warnings, 0 errors**. The full
+multi-plugin SaveDiff command currently fails before decoding because another plugin registers the
+duplicate hook ID `ffxvi`. For the Gearbox check, the built CLI/dependencies and Gearbox assembly
+were copied to an external temporary folder with other plugin assemblies omitted; no repository
+files were changed for this isolation. The environment variable was exported in the
 same shell command as each sample-backed test run. Sample-dependent tests still skip when absent.
 
 Tests include conformance with meaningful currency/key edits, valid F2 packs and fixture archive hashes,
@@ -400,6 +450,19 @@ the CLI's `PluginViewDecoder`. No sample bytes, decoded payloads or account iden
   full gameplay dependency/budget models and console validation remain open.
 - BL4 codec/file-role research and the exact owner checklist are in [BL4 feasibility](BL4-feasibility.md).
 
+## Licence exclusions
+
+| Source / material | Status | Current approach / remaining limitation |
+| --- | --- | --- |
+| BL3Skills / Wonderlands calculator publisher skill icons and transcribed skill text | Resolved: imported (owner decision 2026-10-29) | 425 skill-icon assignments, all existing skill descriptions and 134 additional literal effect descriptions; publisher-rights notice separate from retained MIT community notices |
+| Lootlemon publisher item imagery and official item-card text | Resolved: imported (owner decision 2026-10-29) | 23 curated thumbnails/flavor lines; local attributed asset datasets, no community guide prose copied |
+| Map Genie BL3 / Wonderlands | No current licence refusal; matching coordinate evidence missing | External guide/checklist retained. No verified mission coordinates or transform for a useful background; no artwork copied or invented alignment |
+| Individual part artwork | Matching data not found in searched sources | Calculator repositories contain skill icons; inspected editor repositories contain UI glyphs, not exact individual-part images. Only matching unique-item serial records reuse clearly labelled whole-item reference thumbnails |
+
+The central `docs/LICENCE_EXCLUSIONS.md` Gearbox publisher-art rows describe the pre-round state;
+their resolved status is reported on #17 for the coordinating agent. This worker edits only this
+plugin folder, so it does not change the shared register.
+
 ## Sources and attribution
 
 Research date: 2026-10-29. Downloaded source was read as untrusted text, never executed. Implementation
@@ -421,8 +484,9 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 | TTWL `labels` | [Constants][ttwl-constants] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | Explicit slot/SDU/ammo labels; no capacity policy |
 | BL3 `world-labels` | [Constants][bl3-constants] | CJ Kucera / apocalyptech | [Zlib][bl3-license] | 2026-10-28 | 1,387 explicit mission/map/travel/class/named-cosmetic records; normalized IDs and original IDs retained |
 | TTWL `world-labels` | [Constants][ttwl-constants] | CJ Kucera / Abram Hindle | [Zlib][ttwl-license] | 2026-10-28 | 459 mission/map/travel/class/Myth/Hero/backstory records; embedded caps used as Inferred editor policies |
-| BL3 `skills` | [BL3Skills 66b0bd0](https://github.com/seigler/bl3skills.com/tree/66b0bd08777452abd05e5d9246c27f2a8096ca13) | Joshua Seigler and contributors | [MIT](https://github.com/seigler/bl3skills.com/blob/66b0bd08777452abd05e5d9246c27f2a8096ca13/LICENSE), retained notice | 2026-10-28 | 315 names/descriptions, calculator tiers/rank caps; no effect code/art or save-ID joins |
-| TTWL `skills` | [Wonderlands calculator d57e7aa](https://github.com/Lothrik/wonderlands-skill-calc/tree/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8) | Joshua Seigler / Lothrik and contributors | [MIT](https://github.com/Lothrik/wonderlands-skill-calc/blob/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8/LICENSE), retained notice | 2026-10-28 | 110 skills, plain-text descriptions, calculator tiers/rank caps; no artwork or save-ID joins |
+| BL3 `skills` / `skill-icons` | [BL3Skills 66b0bd0](https://github.com/seigler/bl3skills.com/tree/66b0bd08777452abd05e5d9246c27f2a8096ca13) | Gearbox Software / 2K; Joshua Seigler and contributors | Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29; community [MIT notice](Notices/Bl3Skills-MIT.txt) retained | 2026-10-29 | 315 icon assignments; 134 static effect lines added to descriptions; no formulas or saved-subobject joins |
+| TTWL `skills` / `skill-icons` | [Wonderlands calculator d57e7aa](https://github.com/Lothrik/wonderlands-skill-calc/tree/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8) | Gearbox Software / 2K; Joshua Seigler / Lothrik and contributors | Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29; community [MIT notice](Notices/WonderlandsSkills-MIT.txt) retained | 2026-10-29 | 110 named skill icons with existing plain-text descriptions and calculator facts; no saved-subobject joins |
+| BL3/TTWL `item-icons` / `item-cards` | [Lootlemon](https://www.lootlemon.com), [terms](https://www.lootlemon.com/terms); exact image/page URLs and hashes in each `assets.source.json` | Gearbox Software / 2K; Levin / Lootlemon contributors | Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29 | 2026-10-29 | 12 BL3 + 11 TTWL thumbnails and official flavor lines; 87 exact unique-directory serial-index thumbnail joins; no community guide prose or generated stats copied |
 | BL3 `localized-cards` | [Sandsmark editor labels](https://github.com/sandsmark/borderlands3-save-editor/tree/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data) | Sandsmark / community contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | 499 human labels joined to pinned balance object tokens; no artwork or extracted game text |
 | BL3 `part-labels` | [Sandsmark description tables](https://github.com/sandsmark/borderlands3-save-editor/tree/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data/descriptions) | Sandsmark / community contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | 2,100 factual part labels/effect notes; raw fallback retained |
 | BL3 `skill-crosswalk` | [Sandsmark editor data](https://github.com/sandsmark/borderlands3-save-editor/tree/a1c54a2fd6c190029e3e724ac0a0a5c65d3b4fc2/data) | Sandsmark / community contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | Three Beastmaster tree-prefix joins; exact skill names are never inferred by order |

@@ -17,3 +17,5 @@ Original compressed-file SHA-256:
 Balance catalogue keys are lower-case object paths; duplicate object paths are collapsed for keyed lookup (BL3 2,848 slots → 2,803 distinct paths; TTWL 2,037 → 2,030). Every original serial index, including repeated assets, is retained separately in `serial-indices.json`. This normalization changes neither serial numbers nor their indices.
 
 Completion 1.2.0: serial index display names use the original asset object token; full raw paths remain in `attributes.asset` and descriptions. Labels are not localized names or combat-stat claims. No indices renumbered.
+
+Asset round 1.3.0: curated balances and exact unique-directory serial records now carry optional assetId references. Publisher image provenance and mapping limits are separate in assets.source.md; binary layout indices/widths remain unchanged.

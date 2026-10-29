@@ -27,6 +27,8 @@ internal sealed class SerialDatabase
             model.GetProperty("title").GetString()!, ReferencePackOrigin.Embedded);
         foreach (var dataset in model.GetProperty("datasets").EnumerateArray())
         {
+            // F2 owns image validation/storage; the binary-layout fallback needs only records.
+            if (dataset.GetProperty("kind").GetString() != "records") continue;
             var id = dataset.GetProperty("id").GetString()!;
             var a = dataset.GetProperty("attribution");
             var attribution = new ReferenceAttribution(a.GetProperty("sourceUrl").GetString()!, a.GetProperty("author").GetString()!,
@@ -41,6 +43,7 @@ internal sealed class SerialDatabase
                     Category = r.TryGetProperty("category", out var category) ? category.GetString() : null,
                     Description = r.TryGetProperty("description", out var description) ? description.GetString() : null,
                     Source = r.TryGetProperty("source", out var source) ? source.GetString() : null,
+                    AssetId = r.TryGetProperty("assetId", out var asset) ? Pack.Id + ":" + asset.GetString() : null,
                     Attributes = r.GetProperty("attributes").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()!, StringComparer.Ordinal),
                     Dataset = info,
                 }).ToDictionary(r => r.Key, StringComparer.Ordinal);
