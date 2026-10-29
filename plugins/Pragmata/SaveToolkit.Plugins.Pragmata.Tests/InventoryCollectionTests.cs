@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Plugins.Pragmata.Crypto;
 using SaveToolkit.Plugins.Pragmata.Format;
 using SaveToolkit.Plugins.Pragmata.Views;
@@ -46,11 +45,11 @@ public sealed class InventoryCollectionTests
     public void WholeQueryPublishesUnloadedBindingsAndAppliesUndoesAndRedoesAsOneStep()
     {
         var original = SyntheticInventory.Create(251);
-        var file = (DiskSaveFile)SampleEvidenceTests.Files().Single(file => file.FileName == "data000.bin");
+        using var fixture = new SyntheticSessionFile(original);
+        var file = fixture.File;
         using var document = new PragmataDocument(file.RelativePath, original);
         var plugin = new PragmataPlugin();
-        using var session = new DocumentSession("large-inventory", file, plugin, document,
-            openOriginal: () => new PragmataDocument(file.RelativePath, original));
+        using var session = new DocumentSession("large-inventory", file, plugin, document);
         _ = session.BuildView();
         var parameters = new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") };
         Assert.Null(session.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope()).PlanId);
