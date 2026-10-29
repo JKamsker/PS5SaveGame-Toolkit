@@ -69,6 +69,81 @@ class SizeGuardTests(unittest.TestCase):
             self.assertEqual(2, changed.returncode)
             self.assertEqual(2, audited.returncode)
 
+    def test_legacy_exemption_must_exceed_baseline_and_selected_error_limits(self):
+        for max_lines in (450, 500):
+            with self.subTest(max_lines=max_lines):
+                with self.assertRaises(self.guard.GuardError):
+                    self.guard.load_policy_bytes(json.dumps({
+                        "warningLines": 300, "errorLines": 400, "generatedGlobs": [],
+                        "legacyExemptions": [{"path": "legacy.cs", "maxLines": max_lines,
+                                              "reason": "reviewed"}]
+                    }).encode(), "test policy")
+        policy = self.guard.load_policy_bytes(json.dumps({
+            "warningLines": 300, "errorLines": 400, "generatedGlobs": [],
+            "legacyExemptions": [{"path": "legacy.cs", "maxLines": 501,
+                                  "reason": "reviewed"}]
+        }).encode(), "test policy")
+        self.assertIn("legacy.cs", policy.legacy_exemptions)
+
+    def test_type_change_from_symlink_to_regular_file_is_checked(self):
+        if os.name == "nt":
+            self.skipTest("POSIX symlink type changes are required for this regression")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._git(root, "init")
+            self._git(root, "config", "user.email", "guard@example.invalid")
+            self._git(root, "config", "user.name", "Guard Test")
+            (root / ".csharp-size-policy.json").write_text(json.dumps({
+                "warningLines": 300, "errorLines": 500,
+                "generatedGlobs": [], "legacyExemptions": []
+            }), encoding="utf-8")
+            (root / "small.cs").write_text("line\n" * 2, encoding="utf-8")
+            (root / "Foo.cs").symlink_to("small.cs")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "symlink baseline")
+            base = self._git(root, "rev-parse", "HEAD").stdout.strip()
+            (root / "Foo.cs").unlink()
+            (root / "Foo.cs").write_text("line\n" * 501, encoding="utf-8")
+            self._git(root, "add", "-A")
+            status = self._git(root, "diff", "--cached", "--name-status").stdout
+            self.assertIn("\tFoo.cs", status)
+            staged = self._run(root, "--staged")
+            self.assertEqual(1, staged.returncode, staged.stdout + staged.stderr)
+            self._git(root, "commit", "-m", "regular type change")
+            changed = self._run(root, "--changed", "--base", base)
+            self.assertEqual(1, changed.returncode, changed.stdout + changed.stderr)
+
+    def test_literal_backslash_legacy_exemption_matches_all_modes(self):
+        if os.name == "nt":
+            self.skipTest("POSIX permits literal backslash filenames used by this policy regression")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._git(root, "init")
+            self._git(root, "config", "user.email", "guard@example.invalid")
+            self._git(root, "config", "user.name", "Guard Test")
+            policy = {
+                "warningLines": 300, "errorLines": 500, "generatedGlobs": [],
+                "legacyExemptions": [{"path": "a\\b.cs", "maxLines": 600,
+                                      "reason": "literal POSIX path fixture"}]
+            }
+            (root / ".csharp-size-policy.json").write_text(json.dumps(policy), encoding="utf-8")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "policy baseline")
+            base = self._git(root, "rev-parse", "HEAD").stdout.strip()
+            source = root / "a\\b.cs"
+            source.write_text("line\n" * 501, encoding="utf-8")
+            self._git(root, "add", ".")
+            staged = self._run(root, "--staged")
+            self.assertEqual(0, staged.returncode, staged.stdout + staged.stderr)
+            self.assertIn("literal POSIX path fixture", staged.stdout)
+            self._git(root, "commit", "-m", "literal path")
+            changed = self._run(root, "--changed", "--base", base)
+            audited = self._run(root, "--all")
+            self.assertEqual(0, changed.returncode, changed.stdout + changed.stderr)
+            self.assertEqual(0, audited.returncode, audited.stdout + audited.stderr)
+            self.assertIn("a\\b.cs", changed.stdout)
+            self.assertIn("a\\b.cs", audited.stdout)
+
     def test_strict_policy_keeps_301_line_warning(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -316,6 +391,49 @@ class SizeGuardTests(unittest.TestCase):
             self.assertEqual(original_bytes, target.read_bytes())
             self.assertFalse((hooks / "pre-commit.savetoolkit-original").exists())
             self.assertEqual([], list(hooks.glob(".pre-commit.savetoolkit-*.tmp")))
+
+    def test_installer_preserves_unrelated_marker_hook_and_rejects_entry_collisions(self):
+        pwsh = shutil.which("pwsh")
+        if not pwsh:
+            self.skipTest("PowerShell 7 is required to exercise the installer")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".githooks").mkdir()
+            (root / "scripts").mkdir()
+            source = root / ".githooks/pre-commit"
+            shutil.copy(ROOT / ".githooks/pre-commit", source)
+            shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
+            self._git(root, "init")
+            hooks = root / ".git/hooks"
+            target = hooks / "pre-commit"
+            unrelated = (b"#!/bin/sh\n# Optional repository hook installed by scripts/install-hooks.ps1.\n"
+                         b"# check_csharp_size.py is mentioned here, but this is unrelated.\nexit 19\n")
+            target.write_bytes(unrelated)
+            installed = self._run_installer(pwsh, root)
+            self.assertEqual(0, installed.returncode, installed.stdout + installed.stderr)
+            self.assertEqual(unrelated, (hooks / "pre-commit.savetoolkit-original").read_bytes())
+            self.assertEqual(source.read_bytes(), target.read_bytes())
+
+            target.unlink()
+            target.mkdir()
+            (target / "sentinel").write_text("target", encoding="utf-8")
+            collision = self._run_installer(pwsh, root)
+            self.assertNotEqual(0, collision.returncode)
+            self.assertTrue(target.is_dir())
+            self.assertEqual("target", (target / "sentinel").read_text(encoding="utf-8"))
+
+            (target / "sentinel").unlink()
+            target.rmdir()
+            target.write_bytes(unrelated)
+            backup = hooks / "pre-commit.savetoolkit-original"
+            backup.unlink()
+            backup.mkdir()
+            (backup / "sentinel").write_text("backup", encoding="utf-8")
+            collision = self._run_installer(pwsh, root)
+            self.assertNotEqual(0, collision.returncode)
+            self.assertEqual(unrelated, target.read_bytes())
+            self.assertTrue(backup.is_dir())
+            self.assertEqual("backup", (backup / "sentinel").read_text(encoding="utf-8"))
 
     def test_hook_forwards_arguments_and_original_exit_code(self):
         shell = shutil.which("sh")

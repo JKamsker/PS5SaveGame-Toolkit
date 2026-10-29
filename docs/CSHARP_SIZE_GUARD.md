@@ -20,11 +20,14 @@ The opt-in hook checks the Git index, so it examines exactly what will be commit
 ./scripts/install-hooks.ps1
 ```
 
-The installer writes only to the repository's active hook directory. If an unknown pre-commit hook already exists, it prepares and validates a temporary wrapper before moving that hook to a sibling `pre-commit.savetoolkit-original` file, then atomically replaces the active path. Copy or replacement failures attempt to restore the original active hook. Re-running the installer recognizes its own wrapper, refreshes it and leaves the reviewed backup untouched. An unknown target plus an existing backup is refused. Review that local backup before removing it. The wrapper chains a preserved original only when it remains executable, so a previously disabled hook stays disabled. The hook requires Python 3; CI remains the authoritative check.
+The installer writes only to the repository's active hook directory. It recognizes its own wrapper by an exact SHA-256 match with the checked-in bytes; a content mismatch is treated as an unknown hook even if comments contain familiar text. If an unknown pre-commit hook already exists, it prepares and validates a temporary wrapper before moving that hook to a sibling `pre-commit.savetoolkit-original` file, then atomically replaces the active path. Copy or replacement failures attempt to restore the original active hook. Re-running the installer recognizes its own wrapper, refreshes it and leaves the reviewed backup untouched. Any existing directory, symlink or other unsupported entry at the target or backup path is refused before mutation, as is an unknown target plus an existing backup. Review that local backup before removing it. The wrapper chains a preserved original only when it remains executable, so a previously disabled hook stays disabled. The hook requires Python 3; CI remains the authoritative check.
 
 When no `--policy` override is supplied, staged mode reads `.csharp-size-policy.json` from the
 index and changed/full modes read it from `HEAD`, matching the source object used for C# content.
 An explicit `--policy` path intentionally opts into a filesystem policy override.
+
+Legacy exemption keys retain their exact Git spelling, including a literal backslash in a POSIX
+filename; slash and backslash spellings are distinct keys.
 
 ## Legacy files
 

@@ -21,19 +21,37 @@ New-Item -ItemType Directory -Path $hookDirectory -Force | Out-Null
 $source = Join-Path $repoRoot '.githooks/pre-commit'
 $target = Join-Path $hookDirectory 'pre-commit'
 $original = Join-Path $hookDirectory 'pre-commit.savetoolkit-original'
-if (!(Test-Path -LiteralPath $source -PathType Leaf)) { throw "Missing checked-in hook: $source" }
-
-function Test-ToolkitWrapper([string]$path) {
-    if (!(Test-Path -LiteralPath $path -PathType Leaf)) { return $false }
-    $content = Get-Content -LiteralPath $path -Raw
-    return $content.Contains('Optional repository hook installed by scripts/install-hooks.ps1.') -and
-        $content.Contains('check_csharp_size.py')
+function Get-ExistingEntry([string]$path) {
+    return Get-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
 }
 
-$targetExists = Test-Path -LiteralPath $target -PathType Leaf
-$targetIsWrapper = Test-ToolkitWrapper $target
+function Test-RegularFile([object]$entry) {
+    return $null -ne $entry -and !$entry.PSIsContainer -and
+        (($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) -eq 0)
+}
+
+function Test-ToolkitWrapper([string]$path, [string]$expectedHash) {
+    $entry = Get-ExistingEntry $path
+    if (!(Test-RegularFile $entry)) { return $false }
+    return (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ceq $expectedHash
+}
+
+$sourceEntry = Get-ExistingEntry $source
+if (!(Test-RegularFile $sourceEntry)) { throw "Missing or unsupported checked-in hook: $source" }
+$sourceHash = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash
+
+$targetEntry = Get-ExistingEntry $target
+$backupEntry = Get-ExistingEntry $original
+$targetExists = $null -ne $targetEntry
+$backupExists = $null -ne $backupEntry
+$targetRegular = Test-RegularFile $targetEntry
+$backupRegular = Test-RegularFile $backupEntry
+if (($targetExists -and !$targetRegular) -or ($backupExists -and !$backupRegular)) {
+    throw "Unsupported filesystem entry at '$target' or '$original'; inspect it before installing."
+}
+$targetIsWrapper = Test-ToolkitWrapper $target $sourceHash
 if ($targetExists -and !$targetIsWrapper) {
-    if (Test-Path -LiteralPath $original -PathType Leaf) {
+    if ($backupExists) {
         throw "An existing chained hook is already present at '$original'; remove it only after reviewing it."
     }
 }
@@ -51,7 +69,7 @@ try {
         $mode = [IO.File]::GetUnixFileMode($source)
         [IO.File]::SetUnixFileMode($temporary, $mode)
     }
-    if (!(Test-ToolkitWrapper $temporary)) { throw 'The prepared hook does not match the checked-in wrapper.' }
+    if (!(Test-ToolkitWrapper $temporary $sourceHash)) { throw 'The prepared hook does not match the checked-in wrapper.' }
 
     if ($targetExists -and !$targetIsWrapper) {
         Move-Item -LiteralPath $target -Destination $original
@@ -61,8 +79,8 @@ try {
     Write-Host "Installed staged C# size guard in $target"
 }
 catch {
-    if ($movedOriginal -and !(Test-Path -LiteralPath $target -PathType Leaf) -and
-        (Test-Path -LiteralPath $original -PathType Leaf)) {
+    if ($movedOriginal -and $null -eq (Get-ExistingEntry $target) -and
+        $null -ne (Get-ExistingEntry $original)) {
         Move-Item -LiteralPath $original -Destination $target -Force -ErrorAction SilentlyContinue
     }
     throw

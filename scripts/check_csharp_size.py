@@ -97,16 +97,18 @@ def load_policy_bytes(content: bytes, source: str) -> Policy:
             raise GuardError("Each legacy exemption needs a non-empty path")
         if not isinstance(reason, str) or not reason.strip():
             raise GuardError(f"Legacy exemption {_normalise_path(path_value)} needs a reason")
-        normalised = _normalise_path(path_value)
-        if normalised in exemptions:
-            raise GuardError(f"Duplicate legacy exemption for {normalised}")
-        max_lines = _positive_int(item.get("maxLines"), f"maxLines for {normalised}")
-        if max_lines <= error:
+        policy_segments = path_value.replace("\\", "/").split("/")
+        if path_value.startswith("/") or any(segment in ("", ".", "..") for segment in policy_segments):
+            raise GuardError(f"Legacy exemption {path_value} must be a repository-relative path")
+        if path_value in exemptions:
+            raise GuardError(f"Duplicate legacy exemption for {path_value}")
+        max_lines = _positive_int(item.get("maxLines"), f"maxLines for {path_value}")
+        if max_lines <= DEFAULT_ERROR_LINES or max_lines <= error:
             raise GuardError(
-                f"Legacy exemption {normalised} must allow more than errorLines; "
-                "otherwise it is not an explicit >500-line exception"
+                f"Legacy exemption {path_value} must allow more than {DEFAULT_ERROR_LINES} "
+                "and the selected errorLines; otherwise it is not an explicit >500-line exception"
             )
-        exemptions[normalised] = LegacyExemption(normalised, max_lines, reason.strip())
+        exemptions[path_value] = LegacyExemption(path_value, max_lines, reason.strip())
     return Policy(warning, error, tuple(generated), exemptions)
 
 
@@ -174,7 +176,7 @@ def parse_name_status(data: bytes) -> list[str]:
 
 def staged_paths(root: Path) -> list[str]:
     data = run_git(root, ["diff", "--cached", "--name-status", "--find-renames", "-z",
-                          "--diff-filter=ACMR"])
+                          "--diff-filter=ACMRT"])
     return parse_name_status(data)
 
 
@@ -189,7 +191,7 @@ def changed_paths(root: Path, base: str) -> list[str]:
             "or pass a complete commit ID; shallow/detached checkouts cannot infer it."
         ) from error
     data = run_git(root, ["diff", "--name-status", "--find-renames", "-z",
-                          "--diff-filter=ACMR", f"{base}...HEAD"])
+                          "--diff-filter=ACMRT", f"{base}...HEAD"])
     return parse_name_status(data)
 
 
