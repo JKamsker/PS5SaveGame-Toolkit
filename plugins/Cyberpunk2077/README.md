@@ -108,6 +108,29 @@ as errors: **0 warnings / 0 errors**. Stopwatches only report measurements; ther
 deadlines. Plugin fixtures use memory streams and byte arrays; shared `SampleSaves` owns extraction
 and process-exit cleanup on the configured D: scratch root.
 
+## Maintainability review (#40)
+
+CSAV parsing now separates chunk validation from decompression, and directory parsing from tree
+assembly. Export separates leaf replacement, chunk output and final verification. Progression has
+named readers for player handles, ownership, balances, mirrors, attributes and proficiencies, separate
+array encoders, and separate binding builders. Inventory, RED pools, forced modifiers, evidence and
+inspection rows likewise use small named phases. Production methods and constructors are at most
+50 lines; all handwritten C# files remain below 300 lines. Validation order and catches are retained.
+
+The sibling-range tests now reuse the independent shared CSAV encoder. Four byte fingerprints
+confirm that both valid and overlapping fixtures remain identical. Seven writer characterizations
+cover nested-leaf growth/shrinkage across compressed and raw chunks, unchanged-chunk reuse and
+exact replacement errors. Two progression cases cover repeated view builds, mixed edits/reopen,
+invalid-mirror warnings and exact restoration. A complete root/collection-page/evidence fingerprint
+also passes against the original pre-review production sources, not only the refactored sources.
+
+Release validation: **300 passed / 0 failed / 0 skipped**, including all 85 robustness cases, exact
+diagnostic transcript fingerprints and byte-identical sample no-op round trips. With samples unset:
+**192 passed / 0 failed / 108 expected missing-sample skips**. API Release build with warnings as
+errors: **0 warnings / 0 errors**. All production quoted strings are retained unchanged; public
+behaviour, IDs, confidence labels, warnings and Experimental maturity remain unchanged. No findings
+deferred. Evidence: `D:/Temp/saveeditor/reviews/review-maint-cyberpunk2077/`.
+
 ## SDK helper migration (#40)
 
 `InspectionCollection` now adapts the shared `InMemoryCollection` engine. Cheap live text
