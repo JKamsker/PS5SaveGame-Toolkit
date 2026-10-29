@@ -24,6 +24,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     internal const int ConsumableStackLimit = 15;
     internal const string ExperimentalWarning = "Experimental: PS5 field mapping is inferred from PS4 research and sample bytes; edits have not been tested in-game. The game may reject an edited save even though ciphertext SHA1 and encryption self-check succeed.";
     private readonly AriseReferences _references = new(references);
+    private readonly AriseReadOnlyAliases _readOnlyAliases = new(save.Payload);
     private AriseInventoryActions? _inventoryActions;
     private AriseReadOnlyViews? _readOnlyViews;
     private AriseSpatialViews? _spatialViews;
@@ -122,11 +123,14 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
+        var before = _readOnlyAliases.Capture();
         var result = base.ApplyEdits(edits);
         return result.Succeeded && result.Changes.Count > 0
-            ? result with { Warnings = [ExperimentalWarning] }
+            ? result with { Changes = [.. result.Changes, .. _readOnlyAliases.Changes(before)], Warnings = [ExperimentalWarning] }
             : result;
     }
+
+    internal IReadOnlyList<PlannedChange> PlanReadOnlyAliases(IReadOnlyDictionary<int, byte> byteWrites) => _readOnlyAliases.Plan(byteWrites);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
@@ -261,6 +265,11 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     {
         var current = Read(offset);
         writable = writable && current >= minimum && current <= maximum;
+        if (!writable)
+        {
+            _readOnlyAliases.Register(id, label, offset);
+        }
+
         var spec = new IntegerSpec(Math.Min(minimum, current), Math.Max(maximum, current));
         return Field(id, label, spec, () => FieldValue.Of((long)Read(offset)),
             writable ? v => BinaryPrimitives.WriteUInt32LittleEndian(save.Payload.AsSpan(offset), v.AsUInt32()) : null,

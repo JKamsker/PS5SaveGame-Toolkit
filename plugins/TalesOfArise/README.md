@@ -247,6 +247,14 @@ involved. Play time is read-only because it has duplicate counters and an outer
 copy which this plugin deliberately preserves. Bulk inventory codes in the source
 have reports of broken accessory/key-item acquisition; this plugin does not implement them.
 
+Scalar edits report the old and new values of all published read-only numeric views
+over the same bytes, including character sheets, Explorer words and queried F8
+evidence. Undo/redo refresh those values while writing only the editable fields.
+F6 quantity previews include exposed packed-word effects as derived changes; they
+preserve the adjacent ID/flag bytes and never make those words writable. Preview
+calculation leaves the save unchanged, and changed effects, warnings or parameters
+require a fresh preview.
+
 ### Measured samples
 
 Primary and backup are identical for each slot; these are three different saves,
