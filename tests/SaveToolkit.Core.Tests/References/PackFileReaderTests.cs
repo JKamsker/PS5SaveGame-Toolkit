@@ -41,21 +41,25 @@ public sealed class PackFileReaderTests
         Assert.Throws<ReferencePackException>(() => PackFileReader.ReadBounded(new ForwardOnlyStream(data), 1_000, "'x'"));
     }
 
-    [Fact]
-    public void SeekableReadsDoNotAllocateScratchBuffersPerFile()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ReadsDoNotAllocateScratchBuffersPerFile(bool seekable)
     {
-        // Embedded resources are seekable: many small files must not each pay for an 80 KB scratch chunk.
+        // Neither embedded resources nor ZIP entry streams should pay for an 80 KB scratch chunk per file.
         var small = new byte[512];
-        PackFileReader.ReadBounded(new MemoryStream(small), small.Length, "'warm-up'");
+        PackFileReader.ReadBounded(Open(), small.Length, "'warm-up'");
 
         var before = GC.GetAllocatedBytesForCurrentThread();
         for (var i = 0; i < 100; i++)
         {
-            PackFileReader.ReadBounded(new MemoryStream(small, writable: false), small.Length, "'x'");
+            PackFileReader.ReadBounded(Open(), small.Length, "'x'");
         }
 
         var perFile = (GC.GetAllocatedBytesForCurrentThread() - before) / 100;
         Assert.True(perFile < 4_096, $"Allocated {perFile:N0} bytes per 512-byte file.");
+
+        Stream Open() => seekable ? new MemoryStream(small, writable: false) : new ForwardOnlyStream(small);
     }
 
     private sealed class ForwardOnlyStream(byte[] data) : Stream
