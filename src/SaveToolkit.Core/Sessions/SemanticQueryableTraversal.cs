@@ -17,7 +17,7 @@ internal sealed class SemanticQueryableTraversal(ISaveDocument document, Documen
 
     public void MarkTruncated(QueryableTableNode table, string reason) => Cut(table, reason);
 
-    public void Visit(QueryableTableNode table, Func<ViewNode, SemanticCollectionTarget, string, bool> visit)
+    public void Visit(QueryableTableNode table, Func<TableRow, SemanticCollectionTarget, string, bool> visit)
     {
         if (!_visited.Add(table.CollectionId)) return;
         if (table.TotalCount == 0) return;
@@ -35,7 +35,7 @@ internal sealed class SemanticQueryableTraversal(ISaveDocument document, Documen
     }
 
     private void Read(QueryableTableNode table, IQueryableDocument queryable,
-        Func<ViewNode, SemanticCollectionTarget, string, bool> visit)
+        Func<TableRow, SemanticCollectionTarget, string, bool> visit)
     {
         var keys = new HashSet<string>(StringComparer.Ordinal);
         var cursors = new HashSet<string>(StringComparer.Ordinal);
@@ -78,9 +78,8 @@ internal sealed class SemanticQueryableTraversal(ISaveDocument document, Documen
 
                 _rows++;
                 var target = new SemanticCollectionTarget(table.CollectionId, row.Key, query);
-                foreach (var cell in row.Cells.Values)
+                if (!visit(row, target, $"{table.Title} / {row.Key}"))
                 {
-                    if (visit(cell, target, $"{table.Title} / {row.Key}")) continue;
                     Cut(table, "view memory or traversal cap");
                     return;
                 }

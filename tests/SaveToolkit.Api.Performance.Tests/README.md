@@ -15,8 +15,8 @@ New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
 dotnet test --project tests/SaveToolkit.Api.Performance.Tests -c Release
 ```
 
-Regression gates use generated inputs, allocation ceilings or traversal counts, never elapsed
-time. Synchronous normalization/planning uses current-thread allocation counters after warmup;
+Most regression gates use generated inputs, allocation ceilings or traversal counts; semantic
+review also has generous time bounds described below. Synchronous normalization/planning uses current-thread allocation counters after warmup;
 awaited HTTP export uses process-wide managed allocation counters in a nonparallel collection.
 The ceilings detect complete scratch/archive/body copies, with headroom for framework overhead.
 Other cases preserve sorting/ties, concurrent reads, mixed Kraken quanta, exact JSON byte limits,
@@ -58,6 +58,23 @@ serialized once inside their operation to enforce the existing byte cap before s
 No cross-request view cache is added. The temporary-file choice is covered by asynchronous-only
 response tests; the [.NET 10 ZIP entry wrapper](https://github.com/dotnet/runtime/blob/v10.0.11/src/libraries/System.IO.Compression/src/System/IO/Compression/ZipCustomStreams.cs)
 does not override DisposeAsync, so disposing an entry can still synchronously write output.
+
+`SemanticReviewMeasurements` measures synchronous `DocumentSession.GetChanges` requests on real
+Pragmata, Tales of Arise, Final Fantasy XVI and Baldur's Gate 3 saves. Its separate first-request
+row includes opening/capturing the original. Warm requests use five warmups and independent
+minima of seven measurements for elapsed time and current-thread managed allocations, using
+`AllocationProbe` in `AllocationTestCollection`. Budget assertions are Release-calibrated;
+Debug runs report allocation samples without enforcing the allocation/time bounds. Import,
+current-document opening, edit setup and HTTP/JSON plumbing are excluded. The first-request
+figure is a single diagnostic observation, not a regression gate. Actual provider page counts
+are recorded separately. `Category=SamplePerformance` cases skip when samples are unavailable.
+
+These cases have generous per-operation allocation/time ceilings. The generated 10,000-row
+`SemanticReviewPerformanceTests` additionally gates reviews at 20 MB and two seconds, with
+exactly 50 queries even when the view repeats a collection. The time ceilings target severe
+regressions and tolerate tiered JIT/CI scheduling; diagnostic timing differences are not speed
+guarantees. See [the semantic review report](SEMANTIC_REVIEW.md) for before/after measurements,
+the explicit F8-only diagnostic projection and the full-view coverage limitations.
 
 The first review's Release microbenchmark source and before/after logs are in
 `D:/Temp/saveeditor/scratch/perf-backend`. Local measurements are not throughput guarantees.
