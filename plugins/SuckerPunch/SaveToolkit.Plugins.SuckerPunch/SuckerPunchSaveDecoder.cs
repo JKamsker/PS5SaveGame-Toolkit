@@ -48,6 +48,11 @@ internal sealed class SuckerPunchSaveDecoder : ISaveDecoderHook
             return;
         }
 
+        DecodeTsushima(bytes, container, sink);
+    }
+
+    private static void DecodeTsushima(byte[] bytes, SaveContainer container, ISaveDecodeSink sink)
+    {
         var content = bytes.AsSpan(0, (int)container.Word1);
         var progress = TsushimaProgress.Parse(content, container.Word3);
         if (progress is not null)

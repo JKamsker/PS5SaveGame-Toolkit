@@ -18,20 +18,7 @@ internal sealed record TsushimaProgress(string Difficulty, float? PlaySeconds, i
         while (searchStart < content.Length && content[searchStart..].IndexOf(first) is var relative && relative >= 0)
         {
             var start = searchStart + relative;
-            var position = start;
-            var valid = true;
-            foreach (var name in new[] { "Easy", "Medium", "Hard", "Nightmare" })
-            {
-                if (position > content.Length - sizeof(uint) - name.Length - sizeof(float) ||
-                    BinaryPrimitives.ReadUInt32LittleEndian(content[position..]) != name.Length ||
-                    !content.Slice(position + sizeof(uint), name.Length).SequenceEqual(Encoding.ASCII.GetBytes(name)))
-                {
-                    valid = false;
-                    break;
-                }
-
-                position += sizeof(uint) + name.Length + sizeof(float);
-            }
+            var valid = TryReadCounterTable(content, start, out var position);
 
             searchStart = start + first.Length;
             if (!valid || start < DifficultyLookBehind)
@@ -45,23 +32,44 @@ internal sealed record TsushimaProgress(string Difficulty, float? PlaySeconds, i
                 return null;
             }
 
-            float? seconds = null;
             var timerOffset = start + PlayTimeRelativeOffset;
-            // v47 has a different tail layout: the same relative offset is NOT a play timer.
-            if (version is 48 or 49 && timerOffset <= content.Length - sizeof(float))
-            {
-                var candidate = BinaryPrimitives.ReadSingleLittleEndian(content[timerOffset..]);
-                if (float.IsFinite(candidate) && candidate >= 0)
-                {
-                    seconds = candidate;
-                }
-            }
+            var seconds = ReadPlaySeconds(content, version, timerOffset);
 
             result = new TsushimaProgress(difficulty, seconds, start - DifficultyLookBehind,
                 seconds.HasValue ? timerOffset + sizeof(float) : position);
         }
 
         return result;
+    }
+
+    private static bool TryReadCounterTable(ReadOnlySpan<byte> content, int start, out int position)
+    {
+        position = start;
+        foreach (var name in new[] { "Easy", "Medium", "Hard", "Nightmare" })
+        {
+            if (position > content.Length - sizeof(uint) - name.Length - sizeof(float) ||
+                BinaryPrimitives.ReadUInt32LittleEndian(content[position..]) != name.Length ||
+                !content.Slice(position + sizeof(uint), name.Length).SequenceEqual(Encoding.ASCII.GetBytes(name)))
+            {
+                return false;
+            }
+            position += sizeof(uint) + name.Length + sizeof(float);
+        }
+        return true;
+    }
+
+    private static float? ReadPlaySeconds(ReadOnlySpan<byte> content, uint version, int timerOffset)
+    {
+        // v47 has a different tail layout: the same relative offset is NOT a play timer.
+        if (version is 48 or 49 && timerOffset <= content.Length - sizeof(float))
+        {
+            var candidate = BinaryPrimitives.ReadSingleLittleEndian(content[timerOffset..]);
+            if (float.IsFinite(candidate) && candidate >= 0)
+            {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     private static string? FindDifficulty(ReadOnlySpan<byte> prefix)
