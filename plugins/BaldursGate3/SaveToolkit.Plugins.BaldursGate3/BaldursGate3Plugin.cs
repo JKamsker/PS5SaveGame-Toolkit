@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 
 public sealed class BaldursGate3Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.6.0")
+    public PluginInfo Info { get; } = new("bg3", "Baldur's Gate 3", "0.7.0")
     {
         Description = "Experimental NewAge HP/ability/stack storage and metadata editing, planned inventory reorder/quantity restoration, spell graphs, attributed catalogs and verified v18 checksums. Console validation pending.",
         Games = [new GameTitle("PPSA18463", "Baldur's Gate 3")],
@@ -34,6 +34,9 @@ public sealed class BaldursGate3Plugin : IGamePlugin
             "https://bg3.wiki/w/index.php?title=Guidance&oldid=413520",
             "https://bg3.wiki/w/index.php?title=Fire_Bolt&oldid=373237",
             "https://bg3.wiki/wiki/bg3wiki:Copyrights",
+            "https://bg3.wiki/wiki/Help:Licenses",
+            "https://larian.com/fan-content-policy",
+            "https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/data/gamedata.json",
             "https://github.com/Hawk-on/bg3-save-editor/blob/master/FIELD_MAPPING.md",
             "https://bg3.wiki/wiki/Experience",
             "https://github.com/Wahkah/BG3SE",

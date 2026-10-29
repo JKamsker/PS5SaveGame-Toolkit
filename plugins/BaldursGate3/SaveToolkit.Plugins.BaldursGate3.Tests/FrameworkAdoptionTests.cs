@@ -66,9 +66,11 @@ public sealed class FrameworkAdoptionTests
     [Theory]
     [InlineData("id", ReferenceSortKey.Key, false)]
     [InlineData("name", ReferenceSortKey.Name, false)]
+    [InlineData("icon", ReferenceSortKey.Name, false)]
     [InlineData("category", ReferenceSortKey.Category, false)]
     [InlineData("id", ReferenceSortKey.Key, true)]
     [InlineData("name", ReferenceSortKey.Name, true)]
+    [InlineData("icon", ReferenceSortKey.Name, true)]
     [InlineData("category", ReferenceSortKey.Category, true)]
     public void F13CatalogUsesHostFilteringSortingAndBrowseOnlyIds(string column, ReferenceSortKey sort, bool descending)
     {

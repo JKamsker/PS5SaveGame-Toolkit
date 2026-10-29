@@ -43,7 +43,7 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
         _items = new SavedItemInspection(entries, _references, BindInspection, BindQuantity, ReadQuantity);
         _catalogs = new ReferenceCatalogView(_references);
         _story = new StoryInspection(entries);
-        _live = new LsmfLiveWorkspace(entries, BindLive, BindInspection, BindSlot);
+        _live = new LsmfLiveWorkspace(entries, BindLive, BindInspection, BindSlot, _references);
         _actions = new LsmfLiveActions(_live, BindLive, ApplyEdits);
         _summary = PartySummaryEdits.Create(entries);
         CanEdit = (package is null || package.Version == 18) &&

@@ -55,10 +55,10 @@ attribution, linked sources, modification notice and share-alike terms.
 The complete dataset/source/modification record, including every pinned `oldid`, is
 beside the embedded data in `data.source.md` and `pack.json`, and in the README's
 Sources and attribution table.
-No wiki descriptive prose, biographies, artwork or icons are included. The wiki's
+No wiki editorial prose or biographies are included. The wiki's
 [copyright policy](https://bg3.wiki/wiki/bg3wiki:Copyrights) distinguishes legacy
 CC BY-NC-SA expressive content; no blanket redistribution right to that content
-or to game assets is claimed.
+is claimed. Game assets have the separate attribution below.
 
 LSMF research consulted DanFinchUK/bg3-savefile-parser's pinned format document
 (`9578ff7c46a1aa40c805f6b7beecf907f10fb3b8`). No licence published; reused with
@@ -66,6 +66,23 @@ attribution per owner decision 2026-10-28. The reader reimplements documented an
 independently measured format facts; no repository code was copied or executed.
 See `LSMF.md` and `NEWAGE.md` for scope, joins and validation.
 
-No proprietary Larian art, icons or extracted game text is distributed. Legacy
-CC BY-NC-SA expressive wiki contributions are also excluded; see the README's
-Licence exclusions table.
+## Larian game icons and text excerpts (asset round 2026-10-29)
+
+Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29.
+Retrieved from bg3.wiki on 2026-10-29: 51 compact game icons and 39 distinct short
+in-game tooltip/flavour-text excerpts. These assets retain their rights-holder notice;
+they are separate from GPL code and the CC BY-SA factual-label adaptation.
+See [asset licensing](https://bg3.wiki/wiki/Help:Licenses),
+[wiki copyright policy](https://bg3.wiki/wiki/bg3wiki:Copyrights), and
+[Larian fan-content policy](https://larian.com/fan-content-policy).
+Exact page/file revisions, original image hashes, processing and per-file byte counts
+are in `ReferencePacks/bg3.starter.en/assets.source.md`; manifest hashes cover the
+processed embedded files. Header verification, 64px resizing, WebP/PNG-8 conversion,
+image deduplication and tooltip markup/spacing normalisation were performed offline.
+Long descriptions are marked excerpts. No legacy CC BY-NC-SA wiki editorial prose
+was imported; that exclusion remains in the README.
+
+The `bg3_classes` dataset selects 12 UUID/name facts from DanFinchUK's
+[gamedata.json at 9578ff7c46a1aa40c805f6b7beecf907f10fb3b8](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/data/gamedata.json).
+No licence published; reused with attribution per owner decision 2026-10-28.
+No upstream implementation was copied or run; badges use the Larian notice above.

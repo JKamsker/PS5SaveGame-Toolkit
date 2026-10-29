@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "id": "bg3.starter.en",
-  "version": "1.1.0",
-  "title": "BG3 attributed labels and candidate catalogs (English, CC BY-SA 4.0)",
+  "version": "1.2.0",
+  "title": "BG3 attributed candidate catalogs, game icons and tooltip excerpts (English)",
   "plugins": [
     "bg3"
   ],
@@ -18,17 +18,17 @@
       "title": "BG3 template labels (four candidates)",
       "files": [
         {
-          "sha256": "de512fe33b78c3c7ff42e76ab687b62a2c35248d69e8d0b74c78226aacf255df",
+          "sha256": "fe4bdd7d1897185082e4168b3f0ac087f43afe5743aed980f74c4233cdbc5302",
           "path": "templates.json"
         }
       ],
       "attribution": {
         "sourceUrl": "https://bg3.wiki/",
-        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
-        "license": "CC-BY-SA-4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Extracted factual names and technical identifiers only; mapped SaveInfo origin keys; wrote original uncertainty annotations. No wiki prose or images copied. Adapted pack remains CC BY-SA 4.0."
+        "author": "Larian Studios (game art/text); bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://bg3.wiki/wiki/Help:Licenses",
+        "retrieved": "2026-10-29",
+        "modifications": "Retained factual-label adaptation under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Added attributed game tooltip/flavour-text excerpts (at most 25 words per source page), normalised spacing, local 64px icons and original uncertainty notes. Exact page/file revisions in assets.source.md. No legacy wiki editorial prose imported."
       }
     },
     {
@@ -37,7 +37,7 @@
       "title": "BG3 origin labels (three candidates)",
       "files": [
         {
-          "sha256": "8f2d1d05465b6d8af6c4c6311a68520a5bc34ffb3ead0623cc6955aae94d8853",
+          "sha256": "e976add163b02f2f1c931878ffffea62361db197d268ff7457a2c3775053a560",
           "path": "origins.json"
         }
       ],
@@ -56,17 +56,17 @@
       "title": "BG3 item labels and technical candidates",
       "files": [
         {
-          "sha256": "f016935a4fec732836b26bc81532126d0e64a8f416456cf846e34d45057ffa27",
+          "sha256": "837e4059726cc7149f544bd30758686359b987d65b8a0e73e799709a08963b59",
           "path": "items.json"
         }
       ],
       "attribution": {
         "sourceUrl": "https://bg3.wiki/w/index.php?title=Supply_Pack&oldid=423731",
-        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
-        "license": "CC-BY-SA-4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+        "author": "Larian Studios (game art/text); bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://bg3.wiki/wiki/Help:Licenses",
+        "retrieved": "2026-10-29",
+        "modifications": "Retained factual-label adaptation under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Added attributed game tooltip/flavour-text excerpts (at most 25 words per source page), normalised spacing, local 64px icons and original uncertainty notes. Exact page/file revisions in assets.source.md. No legacy wiki editorial prose imported."
       }
     },
     {
@@ -75,17 +75,17 @@
       "title": "BG3 equipment candidates",
       "files": [
         {
-          "sha256": "5ee438c99d68450335df7df11842a475b502a684544143b6c88d4f9717592593",
+          "sha256": "9ac6f5e3b6ac9e5b7dfef94723f52d2f0b8b847c06ff5b6c0715453ac1cc33b7",
           "path": "equipment.json"
         }
       ],
       "attribution": {
         "sourceUrl": "https://bg3.wiki/w/index.php?title=Equipment&oldid=405329",
-        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
-        "license": "CC-BY-SA-4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+        "author": "Larian Studios (game art/text); bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://bg3.wiki/wiki/Help:Licenses",
+        "retrieved": "2026-10-29",
+        "modifications": "Retained factual-label adaptation under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Added attributed game tooltip/flavour-text excerpts (at most 25 words per source page), normalised spacing, local 64px icons and original uncertainty notes. Exact page/file revisions in assets.source.md. No legacy wiki editorial prose imported."
       }
     },
     {
@@ -94,17 +94,17 @@
       "title": "BG3 spell candidates",
       "files": [
         {
-          "sha256": "af9ebcdfd054083000d9574d0a667ab6836f9f03926c790b99dbfe103e2d1dd8",
+          "sha256": "8c1661fd09b6d4cd0a9ab8a40c269a29d4109e46cc4b379d7d0d6c390ece5a2c",
           "path": "spells.json"
         }
       ],
       "attribution": {
         "sourceUrl": "https://bg3.wiki/w/index.php?title=Spells&oldid=433193",
-        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
-        "license": "CC-BY-SA-4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+        "author": "Larian Studios (game art/text); bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://bg3.wiki/wiki/Help:Licenses",
+        "retrieved": "2026-10-29",
+        "modifications": "Retained factual-label adaptation under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Added attributed game tooltip/flavour-text excerpts (at most 25 words per source page), normalised spacing, local 64px icons and original uncertainty notes. Exact page/file revisions in assets.source.md. No legacy wiki editorial prose imported."
       }
     },
     {
@@ -113,17 +113,17 @@
       "title": "BG3 passive candidates",
       "files": [
         {
-          "sha256": "5e338b4cd62daa51c969b653023da88b07a043c78a5286f6d18825cef8b2265c",
+          "sha256": "c8444fe8435dba5937a6c5b5bc36603026b7d63429aa3f8023569559b20609b2",
           "path": "passives.json"
         }
       ],
       "attribution": {
         "sourceUrl": "https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706",
-        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
-        "license": "CC-BY-SA-4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+        "author": "Larian Studios (game art/text); bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://bg3.wiki/wiki/Help:Licenses",
+        "retrieved": "2026-10-29",
+        "modifications": "Retained factual-label adaptation under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Added attributed game tooltip/flavour-text excerpts (at most 25 words per source page), normalised spacing, local 64px icons and original uncertainty notes. Exact page/file revisions in assets.source.md. No legacy wiki editorial prose imported."
       }
     },
     {
@@ -132,7 +132,7 @@
       "title": "BG3 origin and companion candidates",
       "files": [
         {
-          "sha256": "f9d17110f9dd44a7efd7c6a3b5341f48bdef4671f873cfc9cdbdaaf39d3cfb20",
+          "sha256": "a1446516db5ca60f2c451ac1b6869d1ad759017c96dd6d10afe153af387f661f",
           "path": "companions.json"
         }
       ],
@@ -151,19 +151,257 @@
       "title": "BG3 camp-supply candidates",
       "files": [
         {
-          "sha256": "67b6a0c0823fbfc58afddd58172d87b7446df8532689e054c015ca13c21bb8a8",
+          "sha256": "07f5c0c2f24596313017c70e656491c83d934009b7f57991df07481a20d3f217",
           "path": "camp-supplies.json"
         }
       ],
       "attribution": {
         "sourceUrl": "https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610",
-        "author": "bg3.wiki contributors; PS5 Save Game Toolkit contributors",
-        "license": "CC-BY-SA-4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Selected factual labels and technical identifiers; original uncertainty annotations; no wiki prose, icons or game assets. Adapted data remains CC BY-SA 4.0."
+        "author": "Larian Studios (game art/text); bg3.wiki contributors; PS5 Save Game Toolkit contributors",
+        "license": "Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://bg3.wiki/wiki/Help:Licenses",
+        "retrieved": "2026-10-29",
+        "modifications": "Retained factual-label adaptation under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Added attributed game tooltip/flavour-text excerpts (at most 25 words per source page), normalised spacing, local 64px icons and original uncertainty notes. Exact page/file revisions in assets.source.md. No legacy wiki editorial prose imported."
+      }
+    },
+    {
+      "id": "bg3_classes",
+      "kind": "records",
+      "title": "BG3 class UUID candidates",
+      "files": [
+        {
+          "path": "classes.json",
+          "sha256": "d26f4e7317d3d93e997ab8d76a21a99cb682ac119e22c00733925dfd46bdb5b7"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/data/gamedata.json",
+        "author": "DanFinchUK and contributors; Larian Studios (class icon assets)",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://bg3.wiki/wiki/Help:Licenses",
+        "retrieved": "2026-10-29",
+        "modifications": "Selected 12 base-class UUID/name facts only; no code copied or run. Linked separately attributed Larian icon dataset; original uncertainty notes. Wiki class-page/file revisions in assets.source.md."
+      }
+    },
+    {
+      "id": "bg3_game_icons",
+      "kind": "assets",
+      "title": "BG3 compact game icons (Larian Studios; via bg3.wiki)",
+      "files": [
+        {
+          "path": "icons/banana.webp",
+          "sha256": "962a1d7f5a4ad0f22f0793a02c9032bf95cb2a915732a3cb54b4f4ab8bb02aa5"
+        },
+        {
+          "path": "icons/barbarian.webp",
+          "sha256": "d7f48435b58c699d336529e752c6174cfbea7ee5ccad33bea8d3cbfc2ed4d12e"
+        },
+        {
+          "path": "icons/bard.webp",
+          "sha256": "d086592c0a66616aeaf9049787a89cc04171e3b3b0646d8a35281a210d882e3b"
+        },
+        {
+          "path": "icons/bless.png",
+          "sha256": "21fe06699d59a68a5482f95b62da210d1beb4e43f0c7a865618fcc478cd79c94"
+        },
+        {
+          "path": "icons/burning-hands.png",
+          "sha256": "1e006a636dff3ea7f60a7a814f405b8159530a158a5a744b55656e444b78fad0"
+        },
+        {
+          "path": "icons/camp-supply-sack.webp",
+          "sha256": "4250b896b324468c592c979990676d0c6733e673c7068d9711e8fe0f43b002ad"
+        },
+        {
+          "path": "icons/chromatic-orb.png",
+          "sha256": "7b57a0dbba1dac333d0280b5c898ee9961577f72f3cb96a502da007be9830637"
+        },
+        {
+          "path": "icons/civil-militia.png",
+          "sha256": "f54d89ca6cad8c4c6e0157dd03bc50d18fd8d79abdd3afec12578867d90f7330"
+        },
+        {
+          "path": "icons/cleric.webp",
+          "sha256": "ef48a10743d54a36bc51a667c6cd3809f59c5042c08495c81d917dc5ba980b17"
+        },
+        {
+          "path": "icons/cure-wounds.png",
+          "sha256": "d79898ec204317f76f7a006087b2b4da62af74857035fa62f2fb3abfe2768b7d"
+        },
+        {
+          "path": "icons/dagger.webp",
+          "sha256": "8d559658f46973dfe6fcc3250e9b6afe155ef193dc202184db2ccce9eec48ac5"
+        },
+        {
+          "path": "icons/darkvision.png",
+          "sha256": "2edafeba03579043fb75334f58f5407bf3a846c021b6ae94889590dde7457e90"
+        },
+        {
+          "path": "icons/druid.webp",
+          "sha256": "9a54f9c453688cf36268b1e32807cb61b79950d1af0efe903d03868c760f6c78"
+        },
+        {
+          "path": "icons/eldritch-blast.png",
+          "sha256": "ff98814cdb5bdcbdbf165794010853ce702306212752f24257be281942333a2b"
+        },
+        {
+          "path": "icons/fey-ancestry.png",
+          "sha256": "66f7928c26425e01c64fdee6d479bf6a1f79b1fe8a23541cc416ae7f192b7cf9"
+        },
+        {
+          "path": "icons/fighter.webp",
+          "sha256": "80e1a4244d07e8a969061eaa9a48a80920baee7534812eb0588a079856044f07"
+        },
+        {
+          "path": "icons/fire-bolt.png",
+          "sha256": "86f80a69928cb244028b89a2bb28df7ea25109bea0c51ed294a6cbd51ad1cd92"
+        },
+        {
+          "path": "icons/friends.png",
+          "sha256": "04ca190b1d977ec676b8a5d4425fa654a57aeb294832f463c9d5564cc94908d8"
+        },
+        {
+          "path": "icons/gold.webp",
+          "sha256": "d980c1478da4587fbf01643063e74daa8914a3e0f265b2e326c17c96e88bdb78"
+        },
+        {
+          "path": "icons/grease.png",
+          "sha256": "64d40b42a3d0d5faf95683a7328daf5f7d7da89c9d43008dec5f86752b3a3a8e"
+        },
+        {
+          "path": "icons/guidance.png",
+          "sha256": "76b49f25e38f1a250249b47129277cb14d46d0da42a2ec6fe15ffa4cfc102372"
+        },
+        {
+          "path": "icons/haggis.webp",
+          "sha256": "1b6ef11612a0664b4f2d9714684dfea77f3d64b16f536205ecb150a1c1a4891d"
+        },
+        {
+          "path": "icons/healing-word.png",
+          "sha256": "195e060916165755cf89f7a625dd605a713bb19a86dee16ce07e428bd706cafc"
+        },
+        {
+          "path": "icons/heavy-supply-pack.webp",
+          "sha256": "b1f9f078d5d6fe125212af89a8b06b08d7b4b058fe4f1b7a85e971a860437bfa"
+        },
+        {
+          "path": "icons/hellish-resistance.png",
+          "sha256": "ad060434ed62578864e065ce2bdbe12cfbdaeead434c064a92387efe6bbf6919"
+        },
+        {
+          "path": "icons/light.png",
+          "sha256": "b35cbee048e2beee9e386d77e05fb04d3bb225a4689b3cb2874fdde851372af0"
+        },
+        {
+          "path": "icons/longstrider.png",
+          "sha256": "40cbc5d9923167293bdb0fbe536f7874a14c157240e54bb7a236136f21e18786"
+        },
+        {
+          "path": "icons/longsword.webp",
+          "sha256": "bf49a70dfd9c310ac510bfcfcf86677c00cf61d16dc5c8e3a099bbf1343f90b7"
+        },
+        {
+          "path": "icons/mage-hand.png",
+          "sha256": "bffc4caf276ece805f14c630c6aa40c754bf67676e0489e08ca993f5bacfcbaf"
+        },
+        {
+          "path": "icons/magic-missile.png",
+          "sha256": "5f1187758fd13eaceebe6e1af80658a79fc5756de84b7e17bdc6b7ec4d4f9f6c"
+        },
+        {
+          "path": "icons/monk.webp",
+          "sha256": "410e251bcaa79d6f3d79fc569b18925f903b7956685afb1c216506e1ffe5dd2d"
+        },
+        {
+          "path": "icons/opportunity-attack.png",
+          "sha256": "0ae786cd49020f02c2679cd0cd18688fe0dc3307838ed6f7a6413a5f9c29fcdf"
+        },
+        {
+          "path": "icons/owlbear-egg.webp",
+          "sha256": "e033dd13fa61e8d33c1c3551ac8b82d5e571111c6bf50e5ca7c82e7f2d735ce3"
+        },
+        {
+          "path": "icons/paladin.webp",
+          "sha256": "bd06e0fc7cbef44078fa793664c7dc205ffa13c17ce9a6190ea50b5e3a4cc06d"
+        },
+        {
+          "path": "icons/pizza.webp",
+          "sha256": "65ee052a2252990d66edb5d11ca677f9c8e46621b72b5562b8bc21631f217230"
+        },
+        {
+          "path": "icons/potion-of-healing.webp",
+          "sha256": "980ae5fb414ec1a3f1e548c799a0486b5c24c34f57e8057c96b76ce53474028f"
+        },
+        {
+          "path": "icons/ranger.webp",
+          "sha256": "ee219de0e702d76758e10faf51763f0d787444d21fe0d8ca37fff7a03ae1ec7a"
+        },
+        {
+          "path": "icons/raw-steak.webp",
+          "sha256": "5e74be47c0ff24fe2f7ab8b3dda63a14674c8baee2eec825955c650e1c2c7dae"
+        },
+        {
+          "path": "icons/ray-of-frost.png",
+          "sha256": "39fd64f980a753e51f252af2ebd85be4acf6e16ddd5a9db26bc46dc58da144fb"
+        },
+        {
+          "path": "icons/rogue.webp",
+          "sha256": "bedf012b4e7bd9fa0e86acd79aaeaae73ab87ed7be84abdc2aa8a291e1ff8625"
+        },
+        {
+          "path": "icons/sacred-flame.png",
+          "sha256": "bc93bff53a34b9ce3aa3866e6e897797389cfd6b30cf71e326fdc32f0b24d71c"
+        },
+        {
+          "path": "icons/shield-spell.png",
+          "sha256": "a557dc222a3298c412ea314ffadfbc7b3b18fe6dffd9f5eae91b179a8fda2e25"
+        },
+        {
+          "path": "icons/shocking-grasp.png",
+          "sha256": "e7b03a7e93b3393f02d6e3196fae5af24fc5e81831ed8e85335d1160ce8d1560"
+        },
+        {
+          "path": "icons/shortbow.png",
+          "sha256": "f7cabbd639f21a895511d36a828b81852479a49bdf3c8bb000d1e6d3b0a6a684"
+        },
+        {
+          "path": "icons/sleep.png",
+          "sha256": "164a97c601d613b50ed1a04986cbafd03ac3b793fb8b7865d42c5dd5f8edb2e5"
+        },
+        {
+          "path": "icons/sorcerer.webp",
+          "sha256": "41707e369f4a959b07919ffa30961dcedae4eabc6bbe3fb821ad4ee71f827d4e"
+        },
+        {
+          "path": "icons/speak-with-animals.png",
+          "sha256": "f41bb69c5bd6aa09b2eec508c3c1bf141b766c2ab51ba31f5655aa19c220b4b3"
+        },
+        {
+          "path": "icons/supply-pack.webp",
+          "sha256": "2f3ca8cad909ba632a6e12f299ee2dd23c0f5d9427470b0e71c6278315473144"
+        },
+        {
+          "path": "icons/thunderwave.png",
+          "sha256": "f0c11267a0f6cbdf1221532476af5430d9abc873213e828b8776186803b3728e"
+        },
+        {
+          "path": "icons/warlock.webp",
+          "sha256": "0e5dd38a809240e860e0d6f59df25007eb40bd6266210eac1a6aa21ec2e32253"
+        },
+        {
+          "path": "icons/wizard.webp",
+          "sha256": "11cf06d583d4d7a7cf30dc65184f141f643cb06ea10dd5054dea965cada19bee"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://bg3.wiki/wiki/Help:Licenses",
+        "author": "Larian Studios; sourced via bg3.wiki contributors",
+        "license": "Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://bg3.wiki/wiki/Help:Licenses",
+        "retrieved": "2026-10-29",
+        "modifications": "Validated PNG/WebP/JPEG headers, resized to at most 64x64, converted to WebP quality 82 or PNG-8 when smaller; identical image bytes deduplicated. Per-file revisions and original SHA-256 in assets.source.md."
       }
     }
   ],
-  "description": "Pinned factual labels and technical identifiers from post-2024-compatible or explicitly pinned bg3.wiki revisions. Legacy expressive prose, icons and game assets are excluded."
+  "description": "Build-agnostic candidate labels (CC BY-SA 4.0), attributed Larian game icons and short in-game descriptions. No authoritative gameplay defaults or map coordinates."
 }

@@ -42,6 +42,7 @@ internal sealed class SavedItemInspection
     internal QueryableCollection Collection => new(
         "bg3.saved-items", "Saved item occurrences",
         [
+            new QueryableColumn("icon", "Icon"),
             new QueryableColumn("name", "Candidate name") { Width = ColumnWidth.Wide },
             new QueryableColumn("template", "CurrentTemplate") { Width = ColumnWidth.Wide },
             new QueryableColumn("stats", "Stats ID"),
@@ -63,7 +64,7 @@ internal sealed class SavedItemInspection
         var ordered = query.SortColumn switch
         {
             null => filtered.OrderBy(item => item.Key, StringComparer.Ordinal),
-            "name" => query.Descending ? filtered.OrderByDescending(item => _references.Template(item.Template)?.Name ?? item.Template, StringComparer.OrdinalIgnoreCase) : filtered.OrderBy(item => _references.Template(item.Template)?.Name ?? item.Template, StringComparer.OrdinalIgnoreCase),
+            "name" or "icon" => query.Descending ? filtered.OrderByDescending(item => _references.Template(item.Template)?.Name ?? item.Template, StringComparer.OrdinalIgnoreCase) : filtered.OrderBy(item => _references.Template(item.Template)?.Name ?? item.Template, StringComparer.OrdinalIgnoreCase),
             "template" => query.Descending ? filtered.OrderByDescending(item => item.Template, StringComparer.Ordinal) : filtered.OrderBy(item => item.Template, StringComparer.Ordinal),
             "stats" => query.Descending ? filtered.OrderByDescending(item => item.Stats, StringComparer.Ordinal) : filtered.OrderBy(item => item.Stats, StringComparer.Ordinal),
             "ownership" => query.Descending ? filtered.OrderByDescending(item => Ownership(item), StringComparer.Ordinal) : filtered.OrderBy(item => Ownership(item), StringComparer.Ordinal),
@@ -99,7 +100,7 @@ internal sealed class SavedItemInspection
             throw new KeyNotFoundException("Invalid BG3 saved-item page.");
         if (count > ResourceExplorer.PageSize)
             return ResourceExplorer.Pages("Saved items", Prefix.TrimEnd('/'), count, start);
-        return [new TableNode([new("name", "Candidate name"), new("template", "CurrentTemplate"), new("stats", "Stats ID"),
+        return [new TableNode([new("icon", "Icon"), new("name", "Candidate name"), new("template", "CurrentTemplate"), new("stats", "Stats ID"),
             new("provenance", "Occurrence provenance"), new("ownership", "Original owner / quantity"), new("quantity", "Explicit quantity candidate")],
             ResourceExplorer.Range(start, count, items.Count).Select(index => Row(items[index])).ToArray())
         {
@@ -114,6 +115,7 @@ internal sealed class SavedItemInspection
         var name = _bind($"{item.Key}/name", "Candidate item name", FieldValue.Of(record?.Name ?? item.Template));
         return new TableRow(item.Key, new Dictionary<string, ViewNode>
         {
+            ["icon"] = _references.Icon(record),
             ["name"] = Bg3References.Describe(name, record, item.Template),
             ["template"] = Bg3References.Describe(_bind($"{item.Key}/template", "CurrentTemplate", FieldValue.Of(item.Template)), record, item.Template)
                 with { Spec = new ReferenceSpec(Bg3References.Templates) { ReadOnly = true, AllowCustom = true } },

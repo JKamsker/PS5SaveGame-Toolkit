@@ -7,7 +7,8 @@ namespace SaveToolkit.Plugins.BaldursGate3;
 
 /// <summary>Queryable live storage with explicit row provenance, never an invented party join.</summary>
 internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, LsmfNumber, FieldNode> bind,
-    Func<string, string, FieldValue, FieldNode> inspect, Func<LsmfLiveSource, LsmfSlot, FieldNode> bindSlot)
+    Func<string, string, FieldValue, FieldNode> inspect, Func<LsmfLiveSource, LsmfSlot, FieldNode> bindSlot,
+    Bg3References references)
 {
     internal string NumbersId => source.Prefix + "/values";
     internal string SlotsId => source.Prefix + "/slots";
@@ -29,7 +30,7 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
             new("slot", "Map key candidate"), new("action", "Reorder")], source.Slots.Count),
         new(BooksId, "Saved spell books (unjoined)", [new("row", "Book row"), new("count", "Spells"),
             new("details", "Spell graph and text list")], source.Books.Count),
-        new(ClassesId, "Class selections (unjoined)", [new("row", "Source row"), new("class", "Class GUID"),
+        new(ClassesId, "Class selections (unjoined)", [new("icon", "Icon"), new("row", "Source row"), new("class", "Class GUID"),
             new("subclass", "Subclass GUID"), new("level", "Stored class level")], source.Classes.Count),
             };
             if (source.Identity is { } identity)
@@ -74,8 +75,9 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
                     column => column switch { "container" => Number(s.ContainerRow), "entity" => Number(s.EntityRow), "slot" => Number(source.Slot(s)), _ => "" }, () => SlotRow(s)))
                 : id == BooksId ? source.Books.Select(b => new QueryRow(source.Prefix + $"/book/{b.Row}", $"{b.Row} {string.Join(' ', b.Spells)}",
                     column => column switch { "row" => Number(b.Row), "count" => Number(b.Spells.Count), _ => "" }, () => BookRow(b)))
-                : id == ClassesId ? source.Classes.Select(c => new QueryRow(source.Prefix + $"/class/{c.Row}/{c.Index}", $"{c.Row} {c.Class} {c.Subclass}",
-                    column => column switch { "row" => Number(c.Row), "class" => c.Class, "subclass" => c.Subclass,
+                : id == ClassesId ? source.Classes.Select(c => new QueryRow(source.Prefix + $"/class/{c.Row}/{c.Index}", $"{c.Row} {c.Class} {c.Subclass} {references.Catalog(Bg3References.Classes)?.Find(c.Class)?.Name}",
+                    column => column switch { "icon" => references.Catalog(Bg3References.Classes)?.Find(c.Class)?.Name ?? c.Class,
+                        "row" => Number(c.Row), "class" => c.Class, "subclass" => c.Subclass,
                         "level" => c.Level.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => "" }, () => ClassRow(c)))
                 : id == PartyId && source.Identity is { } identity ? identity.Party.Select(PartyRow)
                 : id == InventoryId && source.Inventory is { } inventory ? inventory.Entries.Select(InventoryRow)
@@ -117,13 +119,22 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
         [
             new GraphNode($"Saved spell book {book.Row}", nodes, [],
                 "Saved spell occurrences without prerequisite edges. All states are unknown: presence does not prove learned, prepared or usable."),
-            .. book.Spells.Select((spell, occurrence) => (ViewNode)(inspect(source.Prefix + $"/book/{book.Row}/spell/{occurrence}", "Stored spell ID", FieldValue.Of(spell))
-                with
-                {
-                    Spec = new ReferenceSpec(Bg3References.Spells) { ReadOnly = true, AllowCustom = true },
-                    Confidence = Confidence.Unknown,
-                    Description = "Save-derived identifier; the attributed spell catalog supplies candidates only. No source/preparation/prerequisite join is inferred.",
-                })),
+            .. book.Spells.SelectMany((spell, occurrence) => SpellDetails(book.Row, occurrence, spell)),
+        ];
+    }
+
+    private IReadOnlyList<ViewNode> SpellDetails(int row, int occurrence, string spell)
+    {
+        var record = references.Catalog(Bg3References.Spells)?.Find(spell);
+        return
+        [
+            references.Icon(record),
+            Bg3References.Describe(inspect(source.Prefix + $"/book/{row}/spell/{occurrence}", "Stored spell ID", FieldValue.Of(spell)), record, spell) with
+            {
+                Spec = new ReferenceSpec(Bg3References.Spells) { ReadOnly = true, AllowCustom = true },
+                Confidence = Confidence.Unknown,
+                Warning = "No source/preparation/prerequisite join is inferred.",
+            },
         ];
     }
 
@@ -155,10 +166,16 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
     private TableRow ClassRow(LsmfClass item)
     {
         var key = source.Prefix + $"/class/{item.Row}/{item.Index}";
+        var record = references.Catalog(Bg3References.Classes)?.Find(item.Class);
         return new TableRow(key, new Dictionary<string, ViewNode>
         {
+            ["icon"] = references.Icon(record),
             ["row"] = new TextNode(Number(item.Row)),
-            ["class"] = inspect(key + "/class", "Class GUID", FieldValue.Of(item.Class)),
+            ["class"] = Bg3References.Describe(inspect(key + "/class", "Class GUID", FieldValue.Of(item.Class)), record, item.Class) with
+            {
+                Spec = new ReferenceSpec(Bg3References.Classes) { ReadOnly = true, AllowCustom = true },
+                Confidence = Confidence.Unknown,
+            },
             ["subclass"] = inspect(key + "/subclass", "Subclass GUID", FieldValue.Of(item.Subclass)),
             ["level"] = inspect(key + "/level", "Stored class level (unjoined)", FieldValue.Of(item.Level)),
         });
