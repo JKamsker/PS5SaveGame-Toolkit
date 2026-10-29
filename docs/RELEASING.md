@@ -127,6 +127,19 @@ cleanup covers invocation-owned test/staging/extraction directories, not retaine
 package archives or smoke logs. Inspect warnings and clean up known task-owned leftovers after
 review. Never recursively delete a sample directory or another task's scratch.
 
+For determinism checks, repeat Release runs with both `-MaxParallel 1` and the default worker bound.
+Direct project reruns support xUnit's `--seed <integer>` and `--culture <name>` (for example,
+`dotnet test --project tests/SaveToolkit.Core.Tests --configuration Release --no-build --seed 4001 --culture sv-SE`).
+Inspect options with `dotnet test --project <path> --help`; SDK 10.0.400 can fail its help handshake
+when `--help` is placed after `--`. Record seeds and keep the scratch environment configured for
+direct runs too. To guarantee a sample-free run despite ancestor `artifacts/` folders, point
+`SAVETOOLKIT_ARTIFACTS` at an existing empty directory. Sample-dependent skips remain explicit.
+
+Semantic-review tests gate results, page visits and managed allocations; elapsed times remain
+diagnostics because unrelated host load and scheduling are outside the test's control. Use the
+opt-in [benchmark suite](PERFORMANCE.md) for timing comparisons. API fixtures configure both workspace
+and reference-pack roots under process-owned scratch, independent of the user's stored packs.
+
 Local equivalent (PowerShell 7, .NET SDK from global.json, Node.js 24):
 
 ```powershell
