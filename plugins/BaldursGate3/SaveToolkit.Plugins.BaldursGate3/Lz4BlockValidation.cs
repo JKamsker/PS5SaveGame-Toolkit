@@ -6,12 +6,15 @@ internal static class Lz4BlockValidation
     private const int LengthMask = 15;
     private const int LiteralShift = 4;
     private const int MinimumMatch = 4;
+    private const int MinimumFinalLiterals = 5;
+    private const int MinimumLastMatchDistance = 12;
     private const byte LengthContinuation = byte.MaxValue;
 
     internal static void Validate(ReadOnlySpan<byte> source, int expectedSize)
     {
         var position = 0;
         var expanded = 0;
+        var lastMatchStart = -1;
         while (position < source.Length)
         {
             var token = source[position++];
@@ -22,6 +25,8 @@ internal static class Lz4BlockValidation
             if (position == source.Length)
             {
                 BinaryData.Require(expanded == expectedSize, "LZ4 decompressed size mismatch.");
+                BinaryData.Require(lastMatchStart < 0 || (literals >= MinimumFinalLiterals &&
+                    expanded - lastMatchStart >= MinimumLastMatchDistance), "Invalid LZ4 block ending.");
                 return;
             }
 
@@ -29,6 +34,7 @@ internal static class Lz4BlockValidation
             position += sizeof(ushort);
             BinaryData.Require(offset > 0 && offset <= expanded, "Invalid LZ4 match offset.");
             var match = Length(source, ref position, token & LengthMask, expectedSize - expanded - MinimumMatch);
+            lastMatchStart = expanded;
             expanded += match + MinimumMatch;
         }
 

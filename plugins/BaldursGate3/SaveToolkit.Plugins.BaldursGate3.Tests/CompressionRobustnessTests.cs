@@ -97,4 +97,35 @@ public sealed class CompressionRobustnessTests
     [InlineData((byte)3, false, "28B52FFD2000010000")]
     public void ProperlyEncodedEmptyMembersRemainSupported(byte codec, bool framed, string hex) =>
         Assert.Empty(LarianCompression.Decode(Convert.FromHexString(hex), 0, codec, framed));
+
+    [Fact]
+    public void Lz4EndRestrictionsAreCheckedBeforeAllocatingOutput()
+    {
+        // One literal followed by a large offset-one match and a final zero-literal token.
+        // The lengths and offset are consistent, but LZ4 requires five terminal literals.
+        using var encoded = new MemoryStream();
+        encoded.Write([0x1f, 0x41, 1, 0]);
+        var extension = InflatedSize - 1 - 19;
+        while (extension >= byte.MaxValue)
+        {
+            encoded.WriteByte(byte.MaxValue);
+            extension -= byte.MaxValue;
+        }
+        encoded.WriteByte((byte)extension);
+        encoded.WriteByte(0);
+        var bytes = encoded.ToArray();
+        var allocated = GC.GetAllocatedBytesForCurrentThread();
+        var error = Record.Exception(() => LarianCompression.Decode(bytes, InflatedSize, 2));
+        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        Assert.IsType<SaveFormatException>(error);
+        Assert.True(allocated < MaximumRejectionAllocation, $"Invalid LZ4 ending allocated {allocated:N0} bytes.");
+    }
+
+    [Fact]
+    public void Lz4FinalMatchMustStartAtLeastTwelveBytesBeforeTheEnd()
+    {
+        var bytes = Convert.FromHexString("10410100504141414141");
+        var error = Assert.Throws<SaveFormatException>(() => LarianCompression.Decode(bytes, 10, 2));
+        Assert.Contains("ending", error.Message, StringComparison.Ordinal);
+    }
 }
