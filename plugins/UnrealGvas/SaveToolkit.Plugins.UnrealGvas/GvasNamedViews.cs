@@ -15,14 +15,9 @@ internal sealed class GvasNamedViews
     public GvasNamedViews(GvasFile file, UnrealGvasSchema schema, JediActorStream? actors, IReferenceContext references)
     {
         var entries = GvasPropertyEntry.Create(file.Properties, "property");
-        var catalogIds = new List<string> { UnrealGvasReferences.PropertyTypes };
-        if (schema.Kind == UnrealGvasSchemaKind.SackboyGeneral)
-        {
-            catalogIds.Add(UnrealGvasReferences.SackboyFields);
-            catalogIds.Add(UnrealGvasReferences.SackboyCostumes);
-        }
-        if (schema.Kind == UnrealGvasSchemaKind.JediGameplay) catalogIds.Add(UnrealGvasReferences.JediFields);
-        if (schema.Kind == UnrealGvasSchemaKind.JediSettings) catalogIds.Add(UnrealGvasReferences.JediSettings);
+        // Image metadata captions belong to the schema overlay; its named projection keeps raw names.
+        var catalogIds = UnrealGvasReferences.PropertyCatalogues(schema.Kind)
+            .Where(id => id != UnrealGvasReferences.SackboyImageFields);
         var catalogs = catalogIds.Select(id => references.Catalog(id)).OfType<IReferenceCatalog>().ToArray();
         Add("gvas/properties", "All nested properties", entries, catalogs);
         if (schema.Kind == UnrealGvasSchemaKind.SackboyGeneral)

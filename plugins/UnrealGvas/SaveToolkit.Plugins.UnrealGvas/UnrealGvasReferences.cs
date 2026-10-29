@@ -9,4 +9,13 @@ internal static class UnrealGvasReferences
     public const string JediSettings = "unrealgvas_jedi_settings";
     public const string PropertyTypes = "unrealgvas_property_types";
     public const string HogwartsGear = "unrealgvas_hogwarts_gear";
+
+    public static IReadOnlyList<string> PropertyCatalogues(UnrealGvasSchemaKind kind) => kind switch
+    {
+        UnrealGvasSchemaKind.SackboyGeneral => [PropertyTypes, SackboyFields, SackboyCostumes],
+        UnrealGvasSchemaKind.SackboyImageSet => [PropertyTypes, SackboyImageFields],
+        UnrealGvasSchemaKind.JediGameplay => [PropertyTypes, JediFields],
+        UnrealGvasSchemaKind.JediSettings => [PropertyTypes, JediSettings],
+        _ => [PropertyTypes],
+    };
 }

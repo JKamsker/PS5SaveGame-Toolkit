@@ -32,16 +32,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
         _envelope = envelope;
         _references = references;
         _schema = UnrealGvasSchema.Detect(envelope.File);
-        var catalogueIds = new List<string> { UnrealGvasReferences.PropertyTypes };
-        if (_schema.Kind == UnrealGvasSchemaKind.SackboyGeneral)
-            catalogueIds.AddRange([UnrealGvasReferences.SackboyFields, UnrealGvasReferences.SackboyCostumes]);
-        else if (_schema.Kind == UnrealGvasSchemaKind.SackboyImageSet)
-            catalogueIds.Add(UnrealGvasReferences.SackboyImageFields);
-        else if (_schema.Kind == UnrealGvasSchemaKind.JediGameplay)
-            catalogueIds.Add(UnrealGvasReferences.JediFields);
-        else if (_schema.Kind == UnrealGvasSchemaKind.JediSettings)
-            catalogueIds.Add(UnrealGvasReferences.JediSettings);
-        _catalogues = new(references, [.. catalogueIds]);
+        _catalogues = new(references, [.. UnrealGvasReferences.PropertyCatalogues(_schema.Kind)]);
         Index(envelope.File.Properties, "property");
         _actorStream = ReadActorStream();
         if (readOnlyReason is not null) _readOnlyReason = readOnlyReason;
@@ -50,8 +41,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
             _readOnlyReason = "The actor payload failed bounded validation; the gameplay document remains read-only.";
         else if (_schema.Kind is UnrealGvasSchemaKind.SackboyGeneral or UnrealGvasSchemaKind.JediGameplay)
             _integrityWarning = UnknownIntegrityWarning;
-        else if (_nodes.Values.Any(n => n.Name.Contains("crc", StringComparison.OrdinalIgnoreCase) ||
-                 n.Name.Contains("checksum", StringComparison.OrdinalIgnoreCase) || n.Name.Contains("signature", StringComparison.OrdinalIgnoreCase)))
+        else if (_nodes.Values.Any(IsIntegrityNode))
             _readOnlyReason = "This save contains a game-specific integrity field. Its coverage is unknown, so the entire document is read-only.";
     }
 
