@@ -137,7 +137,7 @@ The nightly count is **5,000 mutations per seed**. A **60-second per-plugin wall
 cap fails the test and kills the isolated worker; it never silently passes an incomplete run.
 
 Nightly CI has **synthetic seeds only**, with no private sample download. All **17 plugin conformance
-classes** now supply **27 synthetic seeds**: shared defaults provide GenericJson (one) and XorJson
+classes** now supply **28 synthetic seeds**: shared defaults provide GenericJson (one) and XorJson
 (two), and the other **15 plugins** reuse authored test-fixture builders through
 `MutationFuzzSyntheticSeeds`. Every baseline must probe, open and build its initial view; validity
 facts also query collections. No private bytes or extracted save data are embedded.
@@ -153,7 +153,7 @@ facts also query collections. No private bytes or extracted save data are embedd
 | FinalFantasy7 | 3 | Remake, Rebirth and demo common containers; no gameplay-body coverage. |
 | Gearbox | 4 | BL3 and Wonderlands character/profile envelopes and protobufs. |
 | GenericJson | 1 | UTF-8 JSON scalars and containers. |
-| GodOfWarRagnarok | 1 | Nested wallets/resources, links, flags and ID/index words. |
+| GodOfWarRagnarok | 2 | Nested wallets/resources, links, flags and ID/index words; variable gear framing. |
 | Insomniac | 1 | Rift Apart currency binary fixture. |
 | Pragmata | 1 | DSSS inventory; parser-valid integrity metadata, no authentic RSA signature. |
 | SuckerPunch | 2 | Tsushima and Yotei inventory layouts and integrity. |
@@ -176,7 +176,7 @@ The workflow's introductory summary still mentions its original two built-in for
 per-plugin result table is authoritative. Updating workflow text is outside this test-only scope.
 
 The sample-free Windows verification at seed `20261029` completed **135,000 mutations** across
-all 27 seeds: **21,527 opens**, **113,473 rejections**, zero unexpected or quarantined failures.
+the 27 seeds then authored (the second Ragnarök seed came later): **21,527 opens**, **113,473 rejections**, zero unexpected or quarantined failures.
 An open means the complete probe/open/view/first-collection-pages/dispose lifecycle succeeded;
 rejections include nonmatching probes and documented format exceptions. The two cap failures
 were rerun with a 300-second local budget: Cyberpunk completed in 48.7 seconds and Elden Ring

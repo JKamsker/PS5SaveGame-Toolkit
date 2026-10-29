@@ -1507,7 +1507,7 @@ relative path, and takes up to `MaxMutationFuzzFilesPerTitle` (**1**) distinct f
 the default run fast while exercising real format bytes. This independent cap keeps existing exhaustive
 `MaxFilesPerTitle` overrides from expanding the fuzz run without limit. Missing titles are ignored
 without hiding available titles. Every selected file gets the full mutation count; increase the
-file cap for a broader local corpus run. All **17 plugin conformance classes** supply **27 synthetic
+file cap for a broader local corpus run. All **17 plugin conformance classes** supply **28 synthetic
 seeds** without private samples. Shared defaults cover GenericJson (one) and XorJson (two); the other
 15 plugins reuse authored builders in their test projects. See the [per-plugin coverage table and
 limits](RELEASING.md#nightly-mutation-fuzz): FF7 covers common containers, Pragmata has parser-valid

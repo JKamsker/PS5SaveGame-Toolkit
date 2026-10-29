@@ -291,7 +291,7 @@ class DocumentationTests(unittest.TestCase):
         expected = {
             "AstroPlayroom": 1, "AtomicHeart": 1, "BaldursGate3": 2, "Cyberpunk2077": 2,
             "EldenRing": 1, "FinalFantasy16": 1, "FinalFantasy7": 3, "Gearbox": 4,
-            "GenericJson": 1, "GodOfWarRagnarok": 1, "Insomniac": 1, "Pragmata": 1,
+            "GenericJson": 1, "GodOfWarRagnarok": 2, "Insomniac": 1, "Pragmata": 1,
             "SuckerPunch": 2, "TalesOfArise": 1, "UnrealGvas": 1, "Witcher3": 2, "XorJson": 2,
         }
         self.assertEqual({name for name, _, _ in plugins()}, set(expected))
@@ -299,11 +299,11 @@ class DocumentationTests(unittest.TestCase):
         header, rows = markdown_table(releasing.split("The harness accepts", 1)[0])
         self.assertEqual(["Plugin", "Synthetic seeds", "Parser paths / limits"], header)
         self.assertEqual(expected, {row[0]: int(row[1]) for row in rows})
-        self.assertEqual(27, sum(expected.values()))
+        self.assertEqual(28, sum(expected.values()))
         guide = markdown_section(document("docs/PLUGIN_GUIDE.md"), "### Deterministic mutation fuzzing (#40)")
         for text in (releasing, guide):
             self.assertIn("**17 plugin conformance", text)
-            self.assertIn("**27 synthetic", text)
+            self.assertIn("**28 synthetic", text)
             self.assertIn("rejection-only", text)
         for name in expected.keys() - {"GenericJson", "XorJson"}:
             with self.subTest(plugin=name):
