@@ -27,7 +27,7 @@ public sealed class DecoderRobustnessTests
         var sink = new RobustnessTestSink { MaxDepth = depth, AcceptsValues = acceptsValues };
         var bytes = WithInventory();
         var error = Assert.Throws<SaveFormatException>(() => new Insomniac.RiftEvidenceDecoder().Decode(File(bytes), sink));
-        Assert.Contains("Inventory section", error.Message);
+        Assert.Equal("Inventory section: Expected bounded TVNI block.", error.Message);
         Assert.Equal(0, sink.AddCalls);
     }
 
@@ -36,7 +36,7 @@ public sealed class DecoderRobustnessTests
     {
         var fixture = new DdlTestFixture(new DdlTestFixture.Field("Child", DdlValueKind.Object, new byte[16]));
         var sink = new RobustnessTestSink { MaxDepth = 0 };
-        Assert.Contains("Invalid object header", Assert.Throws<SaveFormatException>(() =>
+        Assert.Equal("DDL section 0x2EE91673: Invalid object header or bounds.", Assert.Throws<SaveFormatException>(() =>
             new Insomniac.RiftEvidenceDecoder().Decode(File(fixture.Bytes), sink)).Message);
         Assert.Equal(0, sink.AddCalls);
         Assert.Equal(0, sink.Truncations);

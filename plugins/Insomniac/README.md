@@ -13,6 +13,9 @@ See [COMPLETION-AUDIT.md](COMPLETION-AUDIT.md) for every requirement and accepta
 
 ## Views
 
+Measured opening/query allocation bounds and the cold-sort tradeoff are documented
+in [Performance review](PERFORMANCE.md).
+
 - **Player:** career/spent counters, inferred available bolts, play time, challenge
   flags, gold-bolt options and per-location counters. Career/spent bolts and seven
   existing gold-bolt switches are editable. Career weapon XP is aggregate and read-only.

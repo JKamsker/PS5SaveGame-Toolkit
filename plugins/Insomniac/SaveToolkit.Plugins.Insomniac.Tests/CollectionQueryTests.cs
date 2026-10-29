@@ -127,8 +127,8 @@ public sealed class CollectionQueryTests
         var registry = Fixture();
         _ = registry.Query("test", new() { SortColumn = "value" });
         registry.Add("test", "Replacement", [new("new", "New")],
-            [new("z", new() { ["new"] = RiftCell.TextOnly("first") }),
-             new("a", new() { ["new"] = RiftCell.TextOnly("last") })], "Replacement fixture");
+            [new("z", new Dictionary<string, RiftCell> { ["new"] = RiftCell.TextOnly("first") }),
+             new("a", new Dictionary<string, RiftCell> { ["new"] = RiftCell.TextOnly("last") })], "Replacement fixture");
         Assert.Equal(["a", "z"], registry.Query("test", new()).Rows.Select(row => row.Key));
         Assert.Equal(["z", "a"], registry.Query("test", new() { SortColumn = "new" }).Rows.Select(row => row.Key));
         Assert.Equal(2, Assert.Single(registry.Metadata).TotalCount);

@@ -10,6 +10,24 @@ public sealed class CollectionAllocationTests
     private const int PageSize = 10;
     private const long PageAllocationBudget = 32_768;
 
+    [Fact]
+    public void FirstColumnSortHasBoundedWorkingStorageAndBuildsOnlyThePage()
+    {
+        const long sortAllocationBudget = 1_000_000;
+        var builds = 0;
+        var registry = Fixture(() => builds++);
+        var query = new QueryableCollectionQuery { SortColumn = "value", Descending = true, Offset = 500, Limit = PageSize };
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var page = registry.Query("large", query);
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+        Assert.True(allocated <= sortAllocationBudget, $"First sort allocated {allocated:N0} bytes.");
+        Assert.Equal(PageSize, builds);
+        Assert.Equal(RowCount, page.FilteredCount);
+        Assert.Equal(Enumerable.Range(0, RowCount).OrderByDescending(index => index % 101).ThenBy(index => index)
+            .Skip(query.Offset).Take(PageSize).Select(Key), page.Rows.Select(row => row.Key));
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData(" eVeN ")]

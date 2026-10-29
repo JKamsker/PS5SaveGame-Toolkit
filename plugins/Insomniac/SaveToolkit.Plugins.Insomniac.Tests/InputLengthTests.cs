@@ -16,9 +16,10 @@ public sealed class InputLengthTests
     public void InvalidLengthsRejectBeforeReadingTheBodyAtBothEntryPoints(long length)
     {
         var file = new UnreadableBodyFile(length);
-        Assert.Contains("DAT1 file size", Assert.Throws<SaveFormatException>(() => new InsomniacPlugin().Open(file)).Message);
+        Assert.Equal("DAT1 file size is outside the supported range.",
+            Assert.Throws<SaveFormatException>(() => new InsomniacPlugin().Open(file)).Message);
         Assert.False(file.BodyRead);
-        Assert.Contains("DAT1 file size", Assert.Throws<SaveFormatException>(() =>
+        Assert.Equal("DAT1 file size is outside the supported range.", Assert.Throws<SaveFormatException>(() =>
             new Insomniac.RiftEvidenceDecoder().Decode(file, new RobustnessTestSink())).Message);
         Assert.False(file.BodyRead);
     }
@@ -27,7 +28,8 @@ public sealed class InputLengthTests
     public void HostFileLimitStillRejectsBeforeReading()
     {
         var file = new UnreadableBodyFile(1024);
-        Assert.Throws<InvalidDataException>(() => new Insomniac.RiftEvidenceDecoder().Decode(file, new RobustnessTestSink { MaxFileBytes = 1023 }));
+        Assert.Equal("File exceeds decoder limit.", Assert.Throws<InvalidDataException>(() =>
+            new Insomniac.RiftEvidenceDecoder().Decode(file, new RobustnessTestSink { MaxFileBytes = 1023 })).Message);
         Assert.False(file.BodyRead);
     }
 
