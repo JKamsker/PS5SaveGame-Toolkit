@@ -41,6 +41,12 @@ internal sealed class DsssContainer
         random.Add(~Ps5Key);
 
         Plaintext = new byte[(int)length];
+        DecodeBlocks(data, capacities, random);
+        _original = data.ToArray();
+    }
+
+    private void DecodeBlocks(ReadOnlySpan<byte> data, int[] capacities, MandarinPrng random)
+    {
         var fileOffset = HeaderSize;
         var plainOffset = 0;
         foreach (var capacity in capacities)
@@ -73,7 +79,6 @@ internal sealed class DsssContainer
         }
         if (plainOffset != Plaintext.Length || fileOffset != data.Length - TrailerSize)
             throw new SaveFormatException("Mandarin block layout does not match the declared payload length.");
-        _original = data.ToArray();
     }
 
     private static void ValidateBlockLayout(int[] capacities, int plaintextLength, int fileLength)
