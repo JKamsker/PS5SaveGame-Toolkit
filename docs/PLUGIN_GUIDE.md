@@ -1344,9 +1344,13 @@ above when standalone opens need embedded names or icons. In your concrete docum
 ```csharp
 var record = items?.Find(rawId.ToString(CultureInfo.InvariantCulture));
 var field = Field(id, record?.Name ?? $"Item {rawId}", IntegerSpec.UInt16 with { Max = record?.Limit ?? ushort.MaxValue }, get, set)
-    with { Description = record?.AttributionText, Confidence = record is null ? Confidence.Unknown : Confidence.Verified };
+    with { Description = record?.AttributionText, Confidence = record is null ? Confidence.Unknown : Confidence.Inferred };
 var icon = record?.AssetId is { } asset ? new ImageNode(asset, record.Name) : null;
 ```
+
+A catalog hit supplies a candidate name and provenance. Use `Verified` only when the
+ID/name join has independent evidence for the supported format/build; the pack's presence
+alone does not establish gameplay meaning or legal bounds.
 
 In that document's asset override:
 
