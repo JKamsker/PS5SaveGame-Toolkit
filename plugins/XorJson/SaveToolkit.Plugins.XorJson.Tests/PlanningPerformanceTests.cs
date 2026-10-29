@@ -38,18 +38,26 @@ public sealed class PlanningPerformanceTests
         var bytes = XorJsonTests.Encode("{\"rows\":[0,1,2]}");
         using var document = XorJsonTests.Open(bytes);
         var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);
-        var scope = new ActionScope(["value/4", "value/2", "value/4", "value/1", "value/0002", "missing", "value/99"]);
+        var scope = new ActionScope(["value/4", "value/2", "value/4", "value/1"]);
         var plan = planner.PlanAction("json/bulk-set", Parameters, scope);
         Assert.Empty(plan.Errors);
         Assert.Equal(["value/4", "value/2"], plan.Changes.Select(change => change.ValueId));
-        Assert.Equal(["value/1", "value/0002", "missing", "value/99"], plan.SkippedRows.Select(row => row.RowKey));
+        Assert.Equal("value/1", Assert.Single(plan.SkippedRows).RowKey);
+        foreach (var key in new[] { "value/0002", "missing", "value/99" })
+        {
+            var invalid = planner.PlanAction("json/bulk-set", Parameters, new(["value/2", key]));
+            Assert.Contains(invalid.Errors, error => error.Message.Contains(key, StringComparison.Ordinal));
+            Assert.Empty(invalid.Changes);
+            Assert.Empty(invalid.SkippedRows);
+        }
         Assert.Empty(planner.PlanAction("json/bulk-set", Parameters, new ActionScope([])).Changes);
         Assert.Equal(3, planner.PlanAction("json/bulk-set", Parameters, new ActionScope()).Changes.Count);
 
         var removal = document.InvokeAction("json/remove/4", new Dictionary<string, FieldValue>());
         var stale = planner.PlanAction("json/bulk-set", Parameters, scope);
-        Assert.Equal("value/2", Assert.Single(stale.Changes).ValueId);
-        Assert.Contains(stale.SkippedRows, row => row.RowKey == "value/4");
+        Assert.Contains(stale.Errors, error => error.Message.Contains("value/4", StringComparison.Ordinal));
+        Assert.Empty(stale.Changes);
+        Assert.Empty(stale.SkippedRows);
         Assert.False(planner.ApplyActionPlan("json/bulk-set", Parameters, scope, plan).Succeeded);
         _ = document.RestoreMemento(removal.Revert!);
         Assert.Equal(plan.Changes, planner.PlanAction("json/bulk-set", Parameters, scope).Changes);
