@@ -189,9 +189,10 @@ public sealed class PresetStore
             File.WriteAllBytes(temp, bytes);
             File.Move(temp, path, overwrite: true);
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            try { if (File.Exists(temp)) File.Delete(temp); } catch (IOException) { }
+            try { if (File.Exists(temp)) File.Delete(temp); }
+            catch (Exception cleanup) when (cleanup is IOException or UnauthorizedAccessException) { }
             throw new PresetStorageException("Preset storage is temporarily unavailable. Retry the operation.", ex);
         }
     }
