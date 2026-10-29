@@ -13,15 +13,19 @@ public sealed record PinnedDataset(ReferencePackInfo Pack, ReferenceDatasetInfo 
 /// </summary>
 public sealed class ReferenceContext : IReferenceContext
 {
+    // Host lookups can name arbitrary missing catalogs; keep per-document retained state bounded.
+    private const int MaxCachedSelections = 256;
     private readonly IReadOnlyList<LoadedReferencePack> _packs;
     private readonly IReadOnlyList<string> _preferredLocales;
     private readonly ConcurrentDictionary<(string Pack, string Dataset), byte> _used = new();
-    private readonly ConcurrentDictionary<string, string?> _catalogBuilds = new(StringComparer.Ordinal);
+    private readonly Lock _catalogGate = new();
+    private readonly Dictionary<(string Id, string? Build), CatalogResolution> _catalogs = [];
+    private readonly Dictionary<string, string?> _catalogBuilds = new(StringComparer.Ordinal);
 
     public ReferenceContext(IReadOnlyList<LoadedReferencePack> packs, IReadOnlyList<string> preferredLocales)
     {
-        _packs = packs;
-        _preferredLocales = preferredLocales;
+        _packs = packs.ToArray();
+        _preferredLocales = preferredLocales.ToArray();
         Packs = [.. packs.Select(p => p.Info)];
     }
 
@@ -31,22 +35,27 @@ public sealed class ReferenceContext : IReferenceContext
 
     public IReferenceCatalog? Catalog(string catalogId, string? gameBuild = null)
     {
-        var catalog = Select(catalogId, gameBuild);
-        if (catalog is not null)
+        lock (_catalogGate)
         {
-            MarkUsed(catalog.Pack.Id, catalog.Id);
-
-            // Records point at icons of their pack; the browser may show them, so attribute them too.
-            foreach (var assets in catalog.Pack.Datasets.Where(d => d.Kind == ReferenceDatasetKind.Assets))
+            var resolution = Resolve(catalogId, gameBuild);
+            var catalog = resolution.Catalog;
+            if (catalog is not null && !resolution.Used)
             {
-                MarkUsed(assets.PackId, assets.Id);
+                MarkUsed(catalog.Pack.Id, catalog.Id);
+
+                // Records point at icons of their pack; attribute them on the first plugin lookup.
+                foreach (var assets in catalog.Pack.Datasets)
+                {
+                    if (assets.Kind == ReferenceDatasetKind.Assets) MarkUsed(assets.PackId, assets.Id);
+                }
+
+                // A host lookup may have cached selection, but must not pin the plugin's build.
+                if (_catalogBuilds.GetValueOrDefault(catalogId) is null) _catalogBuilds[catalogId] = gameBuild;
+                resolution.Used = true;
             }
 
-            // Keep the first build the plugin named so host lookups stay on the plugin's pack.
-            _catalogBuilds.AddOrUpdate(catalogId, gameBuild, (_, existing) => existing ?? gameBuild);
+            return catalog;
         }
-
-        return catalog;
     }
 
     public AssetContent? GetAsset(string assetId)
@@ -66,8 +75,13 @@ public sealed class ReferenceContext : IReferenceContext
     /// Catalog lookup on behalf of the host (API search, F4 picker). Uses the build the plugin asked for,
     /// so the browser sees the same catalog as the plugin. Does not count as plugin usage.
     /// </summary>
-    public IReferenceCatalog? CatalogForHost(string catalogId) =>
-        Select(catalogId, _catalogBuilds.GetValueOrDefault(catalogId));
+    public IReferenceCatalog? CatalogForHost(string catalogId)
+    {
+        lock (_catalogGate)
+        {
+            return Resolve(catalogId, _catalogBuilds.GetValueOrDefault(catalogId)).Catalog;
+        }
+    }
 
     /// <summary>Asset lookup on behalf of the host; restricted to the pinned packs. Shown icons count as used.</summary>
     public AssetContent? AssetForHost(string assetId) => GetAsset(assetId);
@@ -84,11 +98,28 @@ public sealed class ReferenceContext : IReferenceContext
 
     private void MarkUsed(string packId, string datasetId) => _used.TryAdd((packId, datasetId), 0);
 
-    private IReferenceCatalog? Select(string catalogId, string? gameBuild) =>
-        ReferenceSelector.Select(_packs, catalogId, gameBuild, _preferredLocales)?.Catalog(catalogId);
+    // Called under _catalogGate to serialize cached selection and its first-use bookkeeping.
+    private CatalogResolution Resolve(string catalogId, string? gameBuild)
+    {
+        var key = (catalogId, gameBuild);
+        if (!_catalogs.TryGetValue(key, out var resolution))
+        {
+            var catalog = ReferenceSelector.Select(_packs, catalogId, gameBuild, _preferredLocales)?.Catalog(catalogId);
+            resolution = new CatalogResolution(catalog);
+            if (_catalogs.Count < MaxCachedSelections) _catalogs.Add(key, resolution);
+        }
+
+        return resolution;
+    }
 
     private LoadedAsset? FindAsset(string assetId) =>
         PackPaths.TrySplitAsset(assetId, out var packId, out var path)
             ? _packs.FirstOrDefault(p => p.Id == packId)?.Asset(path)
             : null;
+
+    private sealed class CatalogResolution(IReferenceCatalog? catalog)
+    {
+        public IReferenceCatalog? Catalog { get; } = catalog;
+        public bool Used { get; set; }
+    }
 }
