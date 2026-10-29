@@ -33,7 +33,8 @@ public sealed class PlanningBudgetMutationEffectivenessTests
         var planBytes = JsonSerializer.SerializeToUtf8Bytes(document.Plan).Length;
         var requestBytes = JsonSerializer.SerializeToUtf8Bytes(new ActionScope()).Length
             + JsonSerializer.SerializeToUtf8Bytes(new Dictionary<string, FieldValue> { ["payload"] = FieldValue.Of("padding") }).Length;
-        var metadataBytes = JsonSerializer.SerializeToUtf8Bytes(new[] { document.Metadata }).Length;
+        var normalizedMetadata = document.Metadata with { CanonicalValueId = document.Metadata.ValueId };
+        var metadataBytes = JsonSerializer.SerializeToUtf8Bytes(new[] { normalizedMetadata }).Length;
         document.Metadata = document.Metadata with { Label = new string('x', maximum - planBytes - requestBytes - metadataBytes + excess) };
         using var fixture = new MutationSessionFixture(document);
         fixture.Session.BuildView();

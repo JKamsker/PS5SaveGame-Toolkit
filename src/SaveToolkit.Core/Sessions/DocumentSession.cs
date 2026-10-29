@@ -152,7 +152,7 @@ public sealed partial class DocumentSession : IDisposable
             return new SessionEditResult { Errors = errors, State = StateUnlocked() };
         }
 
-        EnsureOriginal(cancellationToken);
+        _semantic.CaptureTargetedOriginals(_openOriginal, edits.Select(edit => edit.ValueId), cancellationToken);
         // Point of no return: mutation and history/revision publication must finish together.
         startApply();
         var outcome = CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);

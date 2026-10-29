@@ -49,6 +49,38 @@ public sealed class DocumentMemberRouter
     public IReadOnlyList<DocumentMemberEdits> PartitionEdits(IReadOnlyList<ValueEdit> edits) => edits
         .GroupBy(edit => Resolve(edit.ValueId))
         .Select(group => new DocumentMemberEdits(group.Key, group.ToArray())).ToArray();
+
+    /// <summary>
+    /// Resolves metadata for a mixed group request after validating every owner. Member calls use
+    /// the current adapters, so a restored candidate never retains setters or labels from a prior
+    /// publication. Results are returned in request order and remain limited to requested IDs.
+    /// </summary>
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        ArgumentNullException.ThrowIfNull(valueIds);
+        var groups = valueIds.Select((id, index) => (id, index, member: Resolve(id)))
+            .GroupBy(item => item.member);
+        var resolved = new Dictionary<string, FieldMetadata>(StringComparer.Ordinal);
+        foreach (var group in groups)
+        {
+            var requested = group.Select(item => item.id).ToHashSet(StringComparer.Ordinal);
+            var fields = group.Key.ResolveFieldMetadata(group.Select(item => item.id).ToArray());
+            if (fields.Count > requested.Count)
+                throw new InvalidOperationException("A group member returned too many metadata descriptors.");
+            var memberIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var field in fields)
+            {
+                if (!requested.Contains(field.ValueId) || !memberIds.Add(field.ValueId))
+                    throw new InvalidOperationException("A group member returned foreign or duplicate metadata.");
+                if (!resolved.TryAdd(field.ValueId, field))
+                    throw new InvalidOperationException("Group members returned duplicate metadata.");
+            }
+        }
+        return valueIds.Distinct(StringComparer.Ordinal)
+            .Where(resolved.ContainsKey)
+            .Select(id => resolved[id])
+            .ToArray();
+    }
 }
 
 /// <summary>One member's ordered edits, still expressed in the group namespace.</summary>
