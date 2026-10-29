@@ -5,9 +5,12 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
-/// <summary>Synthetic containers and in-memory save wrappers shared by the plugin tests.</summary>
+/// <summary>Sample selection, synthetic containers and save wrappers shared by the plugin tests.</summary>
 internal static class GearboxTestData
 {
+    public static DiskSaveFile PrimaryCharacter(string title) => SampleSaves.Load(title).AllDiskFiles
+        .First(f => f.FileName == "1" && !f.Directory.IsBackup);
+
     public static ISaveFile File(string title, byte[] bytes, string name = "1") =>
         new MemorySaveSet().With(title, "TEST", new Dictionary<string, byte[]> { [name] = bytes }).Directories[0].Files[0];
 

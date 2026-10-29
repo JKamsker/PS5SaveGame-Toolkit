@@ -73,7 +73,7 @@ public sealed class SerialWriteTests
     public void ItemFlagsAndSerialFields_HostUndoRedoRestoresExactBytes(string title)
     {
         var plugin = new GearboxPlugin();
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var document = (GearboxDocument)plugin.Open(file);
         using var session = new DocumentSession("serial-write", file, plugin, document);
         _ = session.BuildView();
@@ -131,7 +131,7 @@ public sealed class SerialWriteTests
     public void Serialize_RejectsNewCorruptSerialWhilePreservingOpaqueOriginals(string title)
     {
         var plugin = new GearboxPlugin();
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var document = (GearboxDocument)plugin.Open(file);
         var entry = document.Inventory.Entries.First();
         var corrupt = entry.Serial.ToArray();

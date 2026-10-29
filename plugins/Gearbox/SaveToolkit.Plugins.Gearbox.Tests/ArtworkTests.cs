@@ -5,7 +5,6 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
@@ -67,7 +66,7 @@ public sealed class ArtworkTests
     {
         var plugin = new GearboxPlugin();
         var references = new ReferencePackStore([plugin]).Pin(plugin, title);
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("artwork", file, plugin, document, references: references);
         _ = session.BuildView();

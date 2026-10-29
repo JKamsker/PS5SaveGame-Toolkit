@@ -189,7 +189,7 @@ public sealed class GearboxGroupTests
     [InlineData("PPSA01493")]
     public void DuplicateSerialRows_RetainDistinctIdsAcrossFreshGroupSnapshots(string title)
     {
-        var source = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var source = GearboxTestData.PrimaryCharacter(title);
         var container = GearboxContainer.Parse(source.ReadAllBytes(), title, false);
         var root = container.Decode();
         var items = root.Children("inventory_items").Take(2).ToArray();

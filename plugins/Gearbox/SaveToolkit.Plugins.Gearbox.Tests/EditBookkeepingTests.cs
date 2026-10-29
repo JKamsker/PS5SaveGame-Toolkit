@@ -1,6 +1,5 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
@@ -11,7 +10,7 @@ public sealed class EditBookkeepingTests
     [InlineData("PPSA01493")]
     public void ConsecutiveDirectEdits_RetainChangesAndRollbackWithoutRebuilding(string title)
     {
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var document = (GearboxDocument)new GearboxPlugin().Open(file);
         _ = document.BuildView();
         var first = document.ApplyEdits([new("currency/618814354", FieldValue.Of(10))]);
