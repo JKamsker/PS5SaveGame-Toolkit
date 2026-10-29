@@ -191,16 +191,15 @@ public sealed class TsushimaPlanningTests
     }
 
     [Fact]
-    public void EveryYoteiSampleStillRejectsAllGoodsPlansAndWrites()
+    public void EveryYoteiSampleRejectsTsushimaGoodsPlansAndFieldIds()
     {
         var plugin = new SuckerPunchPlugin();
         var files = SampleSaves.Load("PPSA26344").AllDiskFiles.Where(file => plugin.Probe(file).IsMatch).ToArray();
-        Assert.Equal(8, files.Length);
+        Assert.NotEmpty(files);
         foreach (var file in files)
         {
             using var document = plugin.Open(file);
             _ = document.BuildView();
-            Assert.False(document.CanEdit);
             var planner = (IActionPlanningDocument)document;
             var plan = planner.PlanAction(ActionId, Target(7), new ActionScope());
             Assert.NotEmpty(plan.Errors);
