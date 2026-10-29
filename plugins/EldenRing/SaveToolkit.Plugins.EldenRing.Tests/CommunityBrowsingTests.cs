@@ -18,12 +18,13 @@ public sealed class CommunityBrowsingTests
         var fixture = new SemanticFixture();
         fixture.Row("held", "common", 0, 0xB01EAB90, 3, 1); // Scadutree Fragment, absent from old name pack.
         if (readOnly) fixture.Save.Write32(SyntheticSave.UserData, 91);
-        var file = fixture.Save.File();
+        using var disk = new SyntheticDiskSave(fixture.Save.Bytes);
+        var file = disk.File;
         var plugin = new EldenRingPlugin();
         var context = CommunityReferenceTests.Context();
         Assert.Null(context.Catalog(ReferenceBrowser.CatalogId)!.Find("0x401EAB90"));
         using var document = plugin.Open(file, context);
-        using var session = new DocumentSession("eldenring-community-items", WriteTestSupport.Sample(), plugin, document, references: context);
+        using var session = new DocumentSession("eldenring-community-items", file, plugin, document, references: context);
         _ = session.BuildView();
         var row = Assert.Single(session.QueryCollection("slots/0/inventory/held", new() { Text = "Scadutree Fragment" }).Rows);
         var field = Assert.IsType<FieldNode>(row.Cells["item"]);

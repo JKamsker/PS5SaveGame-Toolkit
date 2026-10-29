@@ -1,10 +1,8 @@
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using System.Text.Json;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.EldenRing.Tests;
 
@@ -13,7 +11,7 @@ public sealed class SemanticSampleTests
     [Fact]
     public void Session_PagesRegisterReferencesAndPickerInspectionPreservesRuneUndo()
     {
-        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup);
+        var file = WriteTestSupport.Sample();
         var plugin = new EldenRingPlugin();
         var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA03169");
         using var session = new DocumentSession("eldenring-semantic", file, plugin, plugin.Open(file, references), references: references);
@@ -37,7 +35,7 @@ public sealed class SemanticSampleTests
     [Fact]
     public void JapaneseSnapshot_ReproducesRangesCountsAndRepresentativeIdentities()
     {
-        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup);
+        var file = WriteTestSupport.Sample();
         var bytes = file.ReadAllBytes();
         var slot = EldenRingParser.Parse(bytes).Slots[0];
         var semantic = SemanticReader.Read(bytes, slot);
@@ -115,7 +113,7 @@ public sealed class SemanticSampleTests
     [Fact]
     public void SampleRegulation_DecodesAndValidatesEveryParamDirectoryWithoutChangingAllocation()
     {
-        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat");
+        var file = WriteTestSupport.Sample();
         var bytes = file.ReadAllBytes();
         var decoded = RegulationDecoder.Decode(bytes.AsSpan(0x1960070, 0x240010));
         var archive = RegulationArchiveReader.Read(decoded);

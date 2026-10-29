@@ -79,13 +79,18 @@ public sealed class QuantityWriteTests
         if (reason == "count-mismatch") fixture.Save.Write32(fixture.Held, 2);
         using var document = fixture.Save.Open();
         var rows = ((IQueryableDocument)document).Query("slots/0/inventory/held", new()).Rows;
+        Assert.Equal(reason == "duplicate" ? 2 : 1, rows.Count);
+        Assert.Equal(rows.Count, rows.Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());
         foreach (var row in rows)
         {
             var field = Assert.IsType<FieldNode>(row.Cells["quantity"]);
             Assert.True(field.Spec.ReadOnly);
-            Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(2L))]).Succeeded);
+            var outcome = document.ApplyEdits([new(field.ValueId, FieldValue.Of(2L))]);
+            Assert.False(outcome.Succeeded);
+            Assert.NotEmpty(outcome.Errors);
+            Assert.Empty(outcome.Changes);
+            WriteTestSupport.EqualBytes(fixture.Save.Bytes, document);
         }
-        WriteTestSupport.EqualBytes(fixture.Save.Bytes, document);
     }
 
     [Fact]

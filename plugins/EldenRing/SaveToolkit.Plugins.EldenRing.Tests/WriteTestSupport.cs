@@ -12,7 +12,7 @@ namespace SaveToolkit.Plugins.EldenRing.Tests;
 internal static class WriteTestSupport
 {
     public static DiskSaveFile Sample() => SampleSaves.Load("PPSA03169").AllDiskFiles
-        .First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup);
+        .First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup && file.Directory.Generation == 0);
 
     public static DocumentSession Session(DiskSaveFile file, out ISaveDocument document, byte[]? initialBytes = null)
     {

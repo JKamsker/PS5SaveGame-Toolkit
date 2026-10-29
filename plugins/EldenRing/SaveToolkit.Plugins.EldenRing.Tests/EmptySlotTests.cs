@@ -118,7 +118,8 @@ public sealed class EmptySlotTests
         const int record = 1800;
         var fixture = new SemanticFixture();
         fixture.Row(container, "common", record, 0xB00050F0, 1, 77);
-        using var session = WriteTestSupport.Session(WriteTestSupport.Sample(), out var document, fixture.Save.Bytes);
+        using var disk = new SyntheticDiskSave(fixture.Save.Bytes);
+        using var session = WriteTestSupport.Session(disk.File, out var document);
         var queryable = (IQueryableDocument)document;
         var visible = Assert.Single(session.QueryCollection(id, new()).Rows);
         Assert.False(visible.IsEmpty);
@@ -154,7 +155,8 @@ public sealed class EmptySlotTests
         fixture.Row("held", "common", 7, 0xB00050F0, 1, 1);
         fixture.Row("held", "common", 1800, 0xB0002774, 1, 2);
         fixture.Row("held", "key", 3, 0xB0002198, 1, 3);
-        using var session = WriteTestSupport.Session(WriteTestSupport.Sample(), out var document, fixture.Save.Bytes);
+        using var disk = new SyntheticDiskSave(fixture.Save.Bytes);
+        using var session = WriteTestSupport.Session(disk.File, out var document);
         _ = session.QueryCollection(HeldId, new() { Limit = 1 }); // Publish the table-cell F6 action.
         ActionScope Scope(QueryableCollectionQuery query, params string[] exclusions) => new()
         {

@@ -1,6 +1,5 @@
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.EldenRing.Tests;
@@ -10,7 +9,7 @@ public sealed class EquipmentTests
     [Fact]
     public void SampleGearQuickAndPouchReferencesAgreeWithoutConflatingAcquisitionIndex()
     {
-        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup);
+        var file = WriteTestSupport.Sample();
         var bytes = file.ReadAllBytes();
         var slot = EldenRingParser.Parse(bytes).Slots[0];
         var character = SemanticReader.Read(bytes, slot);

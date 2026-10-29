@@ -85,7 +85,8 @@ public sealed class NameWriteTests
         var paddingStart = (importedName.Length + 1) * sizeof(ushort);
         fixture.Bytes.AsSpan(offsets[0] + paddingStart, SyntheticSave.NameBytes - paddingStart).Fill(0x35);
         fixture.Bytes.AsSpan(offsets[1] + paddingStart, SyntheticSave.NameBytes - paddingStart).Fill(0x72);
-        using var session = WriteTestSupport.Session(WriteTestSupport.Sample(), out var document, fixture.Bytes);
+        using var disk = new SyntheticDiskSave(fixture.Bytes);
+        using var session = WriteTestSupport.Session(disk.File, out var document);
         const string nameId = "slots/0/name";
         WriteTestSupport.EqualBytes(fixture.Bytes, document);
         Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(nameId, "Renamed")]).Ok);

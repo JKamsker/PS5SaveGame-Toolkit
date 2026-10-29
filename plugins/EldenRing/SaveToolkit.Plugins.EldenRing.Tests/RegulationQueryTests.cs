@@ -16,18 +16,32 @@ public sealed class RegulationQueryTests
         var view = Assert.Single(browser.BuildView().OfType<QueryableTableNode>());
         Assert.Equal(186, view.TotalCount);
         Assert.Equal(186, Assert.Single(browser.Collections).TotalCount);
-        var keys = new HashSet<string>();
-        for (var offset = 0; offset < 186; offset += 50)
+        var tables = RegulationArchiveReader.Read(RegulationDecoder.Decode(
+            original.AsSpan(EldenRingLayout.RegulationOffset, EldenRingLayout.RegulationSize))).Tables;
+        Assert.Contains(tables.GroupBy(table => table.Rows), group => group.Count() > 1); // Exercise stable ties too.
+        foreach (var column in new[] { "rows", "size" })
+        foreach (var descending in new[] { false, true })
         {
-            var page = browser.Query(new() { Offset = offset, Limit = 50, SortColumn = "rows", Descending = true });
-            Assert.Equal(186, page.TotalCount);
-            Assert.InRange(page.Rows.Count, 1, 50);
-            Assert.All(page.Rows, row => Assert.True(keys.Add(row.Key)));
-            var counts = page.Rows.Select(row => int.Parse(Assert.IsType<TextNode>(row.Cells["rows"]).Text,
-                System.Globalization.CultureInfo.InvariantCulture)).ToArray();
-            Assert.Equal(counts.OrderDescending(), counts);
+            int Number(RegulationTable table) => column == "rows" ? table.Rows : table.Size;
+            var ordered = descending ? tables.OrderByDescending(Number) : tables.OrderBy(Number);
+            var expected = ordered.ThenBy(table => table.Name, StringComparer.Ordinal).ToArray();
+            var keys = new List<string>();
+            for (var offset = 0; offset < tables.Count; offset += 50)
+            {
+                var page = browser.Query(new() { Offset = offset, Limit = 50, SortColumn = column, Descending = descending });
+                Assert.Equal(tables.Count, page.TotalCount);
+                Assert.Equal(tables.Count, page.FilteredCount);
+                Assert.Equal(offset, page.Offset);
+                Assert.Equal(50, page.Limit);
+                var expectedPage = expected.Skip(offset).Take(50).ToArray();
+                Assert.Equal(expectedPage.Select(table => table.Name), page.Rows.Select(row => row.Key));
+                Assert.Equal(expectedPage.Select(Number), page.Rows.Select(row => int.Parse(
+                    Assert.IsType<TextNode>(row.Cells[column]).Text, System.Globalization.CultureInfo.InvariantCulture)));
+                keys.AddRange(page.Rows.Select(row => row.Key));
+            }
+            Assert.Equal(expected.Select(table => table.Name), keys);
+            Assert.Equal(tables.Count, keys.Distinct(StringComparer.Ordinal).Count());
         }
-        Assert.Equal(186, keys.Count);
         Assert.Single(browser.Query(new() { Text = "EquipParamGoods.param" }).Rows);
         Assert.Empty(browser.Query(new() { Offset = int.MaxValue }).Rows);
         Assert.Throws<ArgumentException>(() => browser.Query(new() { SortColumn = "unknown" }));
