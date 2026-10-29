@@ -40,8 +40,11 @@ public sealed class AtomicHeartRobustnessTests
             BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(SizeOffset(plain, container.Tag.Offset)), end - container.Payload.Offset);
             BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(SizeOffset(plain, slots.Tag.Offset)), end - slots.Payload.Offset);
             BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(descriptorSizeOffset), end - descriptorPayload);
-            var cursor = new SaveCursor(plain, container.Tag.Offset, end);
-            var error = Assert.Throws<SaveFormatException>(() => new PropertyReader(plain).ReadSequence(cursor));
+            var error = Assert.Throws<SaveFormatException>(() =>
+            {
+                var cursor = SaveExtensionBinary.Cursor(plain, container.Tag.Offset, end);
+                return new PropertyReader(plain).ReadSequence(ref cursor);
+            });
             Assert.True(error.Message.StartsWith("Truncated SaveExtension data at", StringComparison.Ordinal) ||
                 error.Message == "Invalid SaveExtension count or length.", $"Cut at 0x{end:X}: {error.Message}");
         }
@@ -99,15 +102,19 @@ public sealed class AtomicHeartRobustnessTests
     public void InspectedStructDepthHasAnExplicitBoundary(int depth, bool accepted)
     {
         var bytes = NestedStructs(depth);
-        var cursor = new SaveCursor(bytes);
+        var cursor = SaveExtensionBinary.Cursor(bytes);
         var parser = new PropertyReader(bytes);
         if (!accepted)
         {
-            var error = Assert.Throws<SaveFormatException>(() => parser.ReadSequence(cursor));
+            var error = Assert.Throws<SaveFormatException>(() =>
+            {
+                var invalid = SaveExtensionBinary.Cursor(bytes);
+                return parser.ReadSequence(ref invalid);
+            });
             Assert.Equal("Tagged properties exceed the depth limit.", error.Message);
             return;
         }
-        var members = parser.ReadSequence(cursor);
+        var members = parser.ReadSequence(ref cursor);
         Assert.Equal(0, cursor.Remaining);
         for (var index = 0; index < depth; index++) members = Assert.Single(members).Children;
         Assert.Empty(members);
@@ -125,7 +132,7 @@ public sealed class AtomicHeartRobustnessTests
         foreach (var item in items)
         {
             var plain = index.Plain.ToArray();
-            var tag = new SaveCursor(plain, item.Quantity.Tag.Offset, item.Quantity.Tag.End);
+            var tag = SaveExtensionBinary.Cursor(plain, item.Quantity.Tag.Offset, item.Quantity.Tag.End);
             _ = tag.String(); _ = tag.String();
             BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(tag.Position), sizeof(int) - 1);
             var corrupt = SlotDataWriter.Write(bytes, outer, index.Plain, plain);
@@ -139,7 +146,7 @@ public sealed class AtomicHeartRobustnessTests
 
     private static int SizeOffset(byte[] plain, int tagStart)
     {
-        var cursor = new SaveCursor(plain, tagStart);
+        var cursor = SaveExtensionBinary.Cursor(plain, tagStart);
         _ = cursor.String(); _ = cursor.String();
         return cursor.Position;
     }

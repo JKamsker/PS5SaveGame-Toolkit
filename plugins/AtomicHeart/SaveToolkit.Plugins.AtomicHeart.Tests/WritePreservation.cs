@@ -35,7 +35,7 @@ internal static class WritePreservation
         properties.SelectMany(p => new[] { p }.Concat(All(p.Children)));
     private static int SizePosition(byte[] plain, int position)
     {
-        var reader = new SaveCursor(plain, position);
+        var reader = SaveExtensionBinary.Cursor(plain, position);
         _ = reader.String();
         _ = reader.String();
         return reader.Position;
