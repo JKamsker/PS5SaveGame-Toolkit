@@ -118,6 +118,43 @@ def licence_rows(heading):
 
 
 class DocumentationTests(unittest.TestCase):
+    def test_api_headings_match_openapi_contract_in_both_directions(self):
+        contract = json.loads(document("tests/SaveToolkit.Api.Performance.Tests/OpenApi.v1.json"))
+        self.assertTrue(contract["openapi"].startswith("3."))
+        documented = re.findall(r"(?m)^### `(GET|POST|DELETE|PUT|PATCH|HEAD|OPTIONS) (/api(?:/[^`]+)?)`\s*$",
+                                document("docs/API.md"))
+        self.assertEqual(len(documented), len(set(documented)), "Duplicate API endpoint headings")
+        actual = {(method.upper(), path.rstrip("/")) for path, operations in contract["paths"].items()
+                  for method in operations if method in {"get", "post", "delete", "put", "patch", "head", "options"}}
+        self.assertGreaterEqual(len(actual), 39)
+        self.assertEqual(set(documented), actual,
+                         "API.md headings and OpenAPI operations must match in both directions")
+
+    def test_openapi_snapshot_is_canonical_and_local_references_resolve(self):
+        path = ROOT / "tests/SaveToolkit.Api.Performance.Tests/OpenApi.v1.json"
+        raw = path.read_bytes()
+        self.assertNotIn(b"\r", raw)
+        self.assertTrue(raw.endswith(b"\n"))
+        contract = json.loads(raw)
+        self.assertNotIn("servers", contract)
+        schemas = contract["components"]["schemas"]
+        self.assertIn("DocumentDto", schemas)
+        self.assertIn("SessionEditResult", schemas)
+
+        def check(value):
+            if isinstance(value, dict):
+                self.assertEqual(list(value), sorted(value), "Snapshot object keys must be sorted")
+                for name, item in value.items():
+                    if name == "$ref" or isinstance(item, str) and item.startswith("#/components/schemas/"):
+                        self.assertTrue(item.removeprefix("#/components/schemas/") in schemas,
+                                        f"Unresolved schema reference: {item}")
+                    check(item)
+            elif isinstance(value, list):
+                for item in value:
+                    check(item)
+
+        check(contract)
+
     def test_readme_licence_exclusions_match_register_in_both_directions(self):
         register = licence_rows("## README exclusion decisions")
         names = {name for name, _, _ in plugins()}

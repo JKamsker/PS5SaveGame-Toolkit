@@ -13,6 +13,39 @@ The endpoint headings below are an executable inventory:
 `ApiDocumentationTests` compares them in both directions with ASP.NET Core's real
 `EndpointDataSource`, including aliases. SPA/static-file routes are outside this API.
 
+## OpenAPI contract and regression guard
+
+`GET /openapi/v1.json` publishes the machine-readable **OpenAPI 3.1** contract using
+the first-party `Microsoft.AspNetCore.OpenApi` package. It is available in Development,
+Staging, Production and other hosting environments. It describes the `/api` endpoints,
+including route aliases, request bodies, parameters, response statuses/media types,
+and named schemas. Static files, SPA navigation and the document-serving endpoint are
+outside that inventory. Unknown `/api/*` paths retain JSON 404 responses.
+
+`OpenApiContractTests` generates the actual HTTP document in three environments and
+compares it with [OpenApi.v1.json](../tests/SaveToolkit.Api.Performance.Tests/OpenApi.v1.json).
+The snapshot keeps the entire contract, including every method, route, status and
+schema name. Object keys are sorted ordinally; line endings (including descriptions)
+are normalized to `\n`. Only host-dependent `servers` are excluded; arrays retain their
+order. Schema tests also check references/discriminators, custom binders, converted
+values, binary/multipart media and structured error envelopes. The Python documentation
+suite compares endpoint headings and snapshot operations in both directions, while the
+HTTP test independently checks the runtime endpoint inventory.
+
+With the [scratch environment configured](RELEASING.md#disk-and-scratch), review an
+intentional contract change, then re-pin from the repository root in one PowerShell line:
+
+```powershell
+$env:SAVETOOLKIT_REPIN_OPENAPI = '1'; try { dotnet test --project tests/SaveToolkit.Api.Performance.Tests -c Release --filter-method '*Document_is_available_and_matches_the_contract' } finally { Remove-Item Env:SAVETOOLKIT_REPIN_OPENAPI }
+```
+
+Review the resulting JSON diff, update the endpoint documentation, then run the same
+test without the variable and `python -B docs/tests/test_documentation.py --code-ref main`.
+Ordinary tests never rewrite the baseline and require no samples for these checks.
+The explicit re-pin switch adds no skipped test to ordinary runs. Shared middleware
+errors such as unknown-path 404 and unsupported-method 405 remain described below;
+host/proxy failures before application execution are outside generated operations.
+
 ## Shared responses and errors
 
 Unless an endpoint states otherwise, success is **200**, resource removal is

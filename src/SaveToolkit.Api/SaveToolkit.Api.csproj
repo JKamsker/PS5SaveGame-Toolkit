@@ -8,6 +8,7 @@
     <InternalsVisibleTo Include="SaveToolkit.Core.Tests" />
     <InternalsVisibleTo Include="SaveToolkit.Api.Performance.Tests" />
     <PackageReference Include="MinVer" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />
     <ProjectReference Include="..\SaveToolkit.Codecs\SaveToolkit.Codecs.csproj" />
     <!-- Every plugin under plugins/<Name>/SaveToolkit.Plugins.<Name>/ is picked up automatically; no edits needed when adding one. -->

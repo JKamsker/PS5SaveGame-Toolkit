@@ -1,4 +1,6 @@
 using System.Reflection;
+using SaveToolkit.Api.Infrastructure;
+using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace SaveToolkit.Api.Endpoints;
 
@@ -8,6 +10,6 @@ internal static class VersionEndpoints
     {
         var version = typeof(Program).Assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
-        app.MapGet("/api/version", () => new { version }).AddEndpointFilter<Infrastructure.ApiContractFilter>();
+        app.MapGet("/api/version", () => new { version }).AddEndpointFilter<ApiContractFilter>().WithApiErrors(Status500InternalServerError);
     }
 }
