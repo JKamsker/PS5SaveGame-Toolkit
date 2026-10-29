@@ -62,7 +62,14 @@ public sealed class SqliteImage : IDisposable
     public static SqliteImage Open(ReadOnlySpan<byte> image, SqliteLimits? limits = null)
     {
         if (image.IsEmpty) throw new InvalidDataException("SQLite image is empty.");
-        return new(image, limits ?? new());
+        try
+        {
+            return new(image, limits ?? new());
+        }
+        catch (SqliteException ex)
+        {
+            throw new InvalidDataException($"Could not open SQLite database image: {ex.Message}", ex);
+        }
     }
 
     public static SqliteImage Create(SqliteLimits? limits = null) => new([], limits ?? new());

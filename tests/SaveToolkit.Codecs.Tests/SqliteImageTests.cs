@@ -81,8 +81,7 @@ public sealed class SqliteImageTests
         Assert.Throws<InvalidDataException>(() => SqliteImage.Open(good, new SqliteLimits { MaxDatabaseBytes = 4096 }));
         byte[] corrupt = good.ToArray();
         corrupt[100] = 0xFF; // Invalid root B-tree page kind.
-        Exception error = Assert.ThrowsAny<Exception>(() => SqliteImage.Open(corrupt));
-        Assert.True(error is InvalidDataException or SqliteException);
+        Assert.Throws<InvalidDataException>(() => SqliteImage.Open(corrupt));
     }
 
     [Fact]

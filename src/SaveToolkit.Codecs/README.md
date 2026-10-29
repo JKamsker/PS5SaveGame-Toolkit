@@ -74,7 +74,8 @@ per SQLite value/row or parameter, SQL 64 KiB, 10 million VM steps (progress che
 256 columns/parameters, expression depth 64, compound selects 32, trigger depth 16. Limits are
 per instance/operation, not a process-wide memory quota; SQLite also allocates bounded-value
 intermediates and its own page cache. Callers should page results and limit concurrent documents.
-SQL errors/interruption use `SqliteException`; wrapper bounds/integrity errors use
+Image-opening failures use `InvalidDataException`, retaining native SQLite failures as inner exceptions.
+SQL errors/interruption during operations use `SqliteException`; wrapper bounds/integrity errors use
 `InvalidDataException`. This helper does not infer how two game database images relate or mirror them.
 
 ## Evidence and tests
