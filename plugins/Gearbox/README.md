@@ -129,6 +129,13 @@ store creation + pin + open + root view + first 20 rows of every collection, arc
 These single stopwatch observations include JIT/GC and are not timing assertions. The warm measurement
 reuses the same pack store; tests also prove repeated pins serve the same cached image buffers.
 
+The later [performance review (#40)](PERFORMANCE.md) measures separate pack, fallback, open/view,
+lazy-detail, serial codec and F7 phases on the largest samples in Release. Per-catalog lazy fallback
+loading reduces allocation through the first root view by about 78% (BL3) / 85% (Wonderlands).
+Retaining validated F7 members reduces group open/root allocation by about 19% for both titles;
+the same round-trip validation remains required. Full measurements, limitations and reproduction
+commands are recorded there; elapsed times are observations, not assertions.
+
 The serial envelope is capped at 4,096 bytes; bit reads and part/additional counts are bounded. It
 retains the signed seed, checksum, all trailing bits and original serial bytes. Unsupported versions,
 bad CRCs, unmapped indices/families, nonzero customizations and unknown tails produce item-local

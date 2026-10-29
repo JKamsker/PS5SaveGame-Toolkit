@@ -44,6 +44,29 @@ internal static class GearboxGroups
 
     public static IReadOnlyList<FieldError> Validate(GearboxPlugin plugin, DocumentGroupInput input, IReferenceContext references)
     {
+        var errors = ValidateInput(plugin, input);
+        if (errors.Count > 0) return errors;
+        foreach (var member in input.Members)
+        {
+            try
+            {
+                using var document = plugin.Open(member.File, references);
+                ValidateRoundTrip(document, member.File.ReadAllBytes());
+            }
+            catch (SaveFormatException ex) { return [new(member.Role, ex.Message)]; }
+        }
+        // Opening preserves existing states. Each planned transfer checks its destination capacity and metadata.
+        return [];
+    }
+
+    internal static void ValidateRoundTrip(ISaveDocument document, ReadOnlySpan<byte> original)
+    {
+        if (!document.Serialize().Single().Content.Span.SequenceEqual(original))
+            throw new SaveFormatException("The member failed byte-identical round-trip validation.");
+    }
+
+    internal static IReadOnlyList<FieldError> ValidateInput(GearboxPlugin plugin, DocumentGroupInput input)
+    {
         if (input.Members.Count != 2 || input.Members.Count(m => m.Role == CharacterRole) != 1 ||
             input.Members.Count(m => m.Role == ProfileRole) != 1)
             return [new("", "Select exactly one character and one profile. Backups are separate explicit pairs.")];
@@ -58,15 +81,7 @@ internal static class GearboxGroups
         {
             if (plugin.Probe(member.File).Score == ProbeScore.None)
                 return [new(member.Role, "Unsupported Gearbox title, file role or container.")];
-            try
-            {
-                using var document = plugin.Open(member.File, references);
-                if (!document.Serialize().Single().Content.Span.SequenceEqual(member.File.ReadAllBytes()))
-                    return [new(member.Role, "The member failed byte-identical round-trip validation.")];
-            }
-            catch (SaveFormatException ex) { return [new(member.Role, ex.Message)]; }
         }
-        // Opening preserves existing states. Each planned transfer checks its destination capacity and metadata.
         return [];
     }
 

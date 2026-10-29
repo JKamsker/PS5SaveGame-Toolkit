@@ -53,7 +53,7 @@ public sealed class GearboxPlugin : IGamePlugin, IDocumentGroupPlugin, ISaveDeco
 
     public IGroupedSaveDocument OpenGroup(DocumentGroupInput input, IReferenceContext references)
     {
-        var errors = ValidateGroup(input, references);
+        var errors = GearboxGroups.ValidateInput(this, input);
         if (errors.Count > 0) throw new SaveFormatException(string.Join(" ", errors.Select(e => e.Message)));
         return new GearboxGroupDocument(input, references);
     }

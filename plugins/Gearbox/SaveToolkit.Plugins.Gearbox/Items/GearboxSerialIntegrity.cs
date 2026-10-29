@@ -8,15 +8,19 @@ internal sealed class GearboxSerialIntegrity
     private readonly HashSet<string> _original;
     public GearboxSerialIntegrity(ProtoMessage root, bool profile)
     {
-        var fields = profile ? root.All(GearboxInventory.Bank).Concat(root.All(GearboxInventory.LostLoot)) : root.All(GearboxInventory.Backpack);
-        _original = fields.Select(f => Digest(InventoryEntry.SerialOf(f))).ToHashSet(StringComparer.Ordinal);
+        _original = Serials(root, profile).Select(Digest).ToHashSet(StringComparer.Ordinal);
     }
 
-    public void Validate(GearboxInventory inventory, bool wonderlands)
+    public void Validate(ProtoMessage root, bool profile)
     {
-        foreach (var entry in inventory.Entries)
-            if (!_original.Contains(Digest(entry.Serial))) _ = SerialEnvelope.Decode(entry.Serial, wonderlands);
+        // Validation needs bytes, not session identities. Keep inventory indexing lazy on F7 open.
+        foreach (var serial in Serials(root, profile))
+            if (!_original.Contains(Digest(serial))) _ = SerialEnvelope.Decode(serial, root.Schema.Wonderlands);
     }
+
+    private static IEnumerable<byte[]> Serials(ProtoMessage root, bool profile) =>
+        (profile ? root.All(GearboxInventory.Bank).Concat(root.All(GearboxInventory.LostLoot)) : root.All(GearboxInventory.Backpack))
+        .Select(InventoryEntry.SerialOf);
 
     private static string Digest(byte[] serial) => Convert.ToHexString(SHA256.HashData(serial));
 }

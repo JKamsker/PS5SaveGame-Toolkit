@@ -236,7 +236,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
-        _serialIntegrity.Validate(Inventory, Root.Schema.Wonderlands);
+        _serialIntegrity.Validate(Root, Profile);
         var output = container.Encode(Root);
         var check = GearboxContainer.Parse(output, titleId, Profile).Decode();
         foreach (var list in Profile ? new[] { GearboxInventory.Bank, GearboxInventory.LostLoot } : [GearboxInventory.Backpack])
