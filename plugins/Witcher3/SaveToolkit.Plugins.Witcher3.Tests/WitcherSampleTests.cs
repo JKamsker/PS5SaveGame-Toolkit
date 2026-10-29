@@ -128,6 +128,5 @@ public sealed class WitcherSampleTests(ITestOutputHelper output)
         return (fields, expanded.Count);
     }
 
-    private static ISaveFile[] SampleFiles() => SampleSaves.Load("PPSA04018").AllDiskFiles
-        .Where(file => file.FileName.EndsWith(".sav", StringComparison.Ordinal)).Cast<ISaveFile>().ToArray();
+    private static ISaveFile[] SampleFiles() => EnabledWriteFixture.Files().ToArray();
 }

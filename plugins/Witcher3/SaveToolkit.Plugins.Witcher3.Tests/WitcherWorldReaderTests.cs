@@ -72,7 +72,7 @@ public sealed class WitcherWorldReaderTests
     [Fact]
     public void EverySampleMatchesIndependentRecipeJournalAndFactsCountsWithBoundedViews()
     {
-        foreach (var file in SampleSaves.Load("PPSA04018").AllDiskFiles.Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)))
+        foreach (var file in EnabledWriteFixture.Files())
         {
             var (container, directory, tree, player) = Parse(file.ReadAllBytes());
             var data = new SavedWorldData(player, tree, container.Payload, directory.Names);

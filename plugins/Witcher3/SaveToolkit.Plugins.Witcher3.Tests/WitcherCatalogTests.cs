@@ -97,7 +97,7 @@ public sealed class WitcherCatalogTests
     public void EverySampleJoinsNamedAbilitiesAndAllGwentIndicesWithoutChangingBytes()
     {
         var context = Context();
-        foreach (var file in SampleSaves.Load("PPSA04018").AllDiskFiles.Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)))
+        foreach (var file in EnabledWriteFixture.Files())
         {
             var container = WitcherContainer.Parse(file.ReadAllBytes());
             var directory = Sav3Directory.Parse(container);
