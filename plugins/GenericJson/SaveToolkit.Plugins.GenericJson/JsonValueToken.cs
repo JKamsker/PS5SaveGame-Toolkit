@@ -5,7 +5,14 @@ namespace SaveToolkit.Plugins.GenericJson;
 
 internal sealed class JsonValueToken(int index, string label, JsonTokenType kind, int offset, int length)
 {
-    public int Index { get; set; } = index;
+    private int _index = index;
+    private string? _valueId;
+    public int Index
+    {
+        get => _index;
+        set { _index = value; _valueId = null; }
+    }
+    public string? StructureReview { get; set; }
     public string Label { get; set; } = label;
     public string OriginalLabel { get; set; } = label;
     public int MemberNameLength { get; set; }
@@ -31,7 +38,7 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     public FieldValue Current { get; set; }
     public string? Warning { get; set; }
     public bool IsContainer => Kind is JsonTokenType.StartObject or JsonTokenType.StartArray;
-    public string ValueId => $"value/{Index}";
+    public string ValueId => _valueId ??= $"value/{Index}";
 
     public string? Validate(FieldValue value) => Spec?.ReadOnly == true ? "Field is read-only." : JsonScalar.Validate(value);
 

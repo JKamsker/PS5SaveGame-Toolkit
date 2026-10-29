@@ -18,6 +18,7 @@ internal static class JsonStructureActions
 
     public static FieldValue StructureValue(JsonValueToken node)
     {
+        if (node.StructureReview is { } cached) return FieldValue.Of(cached);
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var displayed = new List<string>();
         for (var i = 0; i < node.Children.Count; i++)
@@ -31,8 +32,9 @@ internal static class JsonStructureActions
         var digest = Convert.ToHexStringLower(hash.GetHashAndReset());
         // Bound the displayed names as well as their count. The digest covers every complete name.
         var prefix = string.Join(", ", displayed);
-        return FieldValue.Of($"{(node.Kind == JsonTokenType.StartArray ? "array" : "object")} ({node.Children.Count} entries): "
-            + prefix + (node.Children.Count > DisplayedIds ? ", …" : "") + $"; order/name SHA-256 {digest}");
+        node.StructureReview = $"{(node.Kind == JsonTokenType.StartArray ? "array" : "object")} ({node.Children.Count} entries): "
+            + prefix + (node.Children.Count > DisplayedIds ? ", …" : "") + $"; order/name SHA-256 {digest}";
+        return FieldValue.Of(node.StructureReview);
     }
 
     public static ActionPlan Plan(JsonTokenTree tree, string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
