@@ -1,8 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <RootNamespace>SaveToolkit.Api</RootNamespace>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MinVer" PrivateAssets="all" />
     <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />
     <ProjectReference Include="..\SaveToolkit.Codecs\SaveToolkit.Codecs.csproj" />
     <!-- Every plugin under plugins/<Name>/SaveToolkit.Plugins.<Name>/ is picked up automatically; no edits needed when adding one. -->

@@ -25,12 +25,20 @@ dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj           # builds Core,
 dotnet test --project tests/SaveToolkit.Core.Tests                 # framework tests
 dotnet test --project plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests
 ./scripts/test.ps1 [-Filter <Name>]                                # everything
+./scripts/test.ps1 -Configuration Release -ResultsDirectory <path>  # CI-equivalent backend + TRX
+./scripts/package.ps1 -Runtime win-x64 -OutputDirectory <path>      # self-contained UI/API bundle + SHA-256
+./scripts/smoke-package.ps1 -Runtime win-x64 -PackageDirectory <path> -ScratchDirectory <path>
 ./scripts/new-plugin.ps1 -Name <Name> -Id <id> -TitleIds PPSA..... -GameName "<Game>"
 cd web; npm install; npm run dev                                   # UI on :5173, proxies /api to :5180
 dotnet run --project src/SaveToolkit.Api                           # API on http://127.0.0.1:5180
 ```
 
 Tests use the MTP runner (`global.json`), so pass `--project`. Warnings are errors.
+CI runs without private samples on Ubuntu and Windows; missing samples must skip cleanly.
+Use Node.js 24, `npm ci`, `npm run typecheck`, `npm test` and `npm run build` for web validation
+(run `npm run lint --if-present` when lint is configured). Validate workflow edits with `actionlint`.
+Application versions come from `v`-prefixed SemVer tags through API-only MinVer; plugin versions
+stay independent. See `docs/RELEASING.md` before creating release tags or running the Release workflow.
 
 ## Rules for plugin work
 

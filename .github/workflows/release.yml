@@ -1,0 +1,171 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'SemVer without v (for example 1.2.3 or 1.2.3-rc.1)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      sha: ${{ steps.version.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Validate release version
+        id: version
+        shell: pwsh
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          $version = if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') { $env:REQUESTED_VERSION } else { $env:GITHUB_REF_NAME.Substring(1) }
+          $number = '(0|[1-9][0-9]*)'
+          $identifier = '(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)'
+          if ($version -cnotmatch "^$number\.$number\.$number(?:-$identifier(?:\.$identifier)*)?$") { throw 'Expected SemVer without v or build metadata.' }
+          $tag = "v$version"
+          if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+            git show-ref --verify --quiet "refs/tags/$tag"
+            if ($LASTEXITCODE -eq 0) { throw "Tag $tag already exists. Re-run its original release workflow instead." }
+          }
+          $sha = git rev-parse HEAD
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "sha=$sha" >> $env:GITHUB_OUTPUT
+          exit 0
+
+  validate:
+    needs: resolve
+    uses: ./.github/workflows/ci.yml
+
+  package:
+    needs: [resolve, validate]
+    name: Package (${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {rid: win-x64, os: windows-latest}
+          - {rid: linux-x64, os: ubuntu-latest}
+          - {rid: osx-arm64, os: macos-latest}
+          - {rid: osx-x64, os: macos-15-intel}
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          fetch-depth: 0
+      - name: Apply local release tag for manual builds
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
+        run: git tag -- $env:RELEASE_TAG
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: nuget-package-${{ matrix.rid }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: nuget-package-${{ matrix.rid }}-
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Build bundle and checksum
+        run: ./scripts/package.ps1 -Runtime '${{ matrix.rid }}' -OutputDirectory "${{ runner.temp }}/packages"
+      - name: Launch extracted bundle and verify version and UI
+        env:
+          RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
+        run: ./scripts/smoke-package.ps1 -PackageDirectory "${{ runner.temp }}/packages" -Runtime '${{ matrix.rid }}' -ExpectedVersion $env:RELEASE_TAG.Substring(1) -ScratchDirectory "${{ runner.temp }}/package-smoke"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.rid }}
+          path: ${{ runner.temp }}/packages/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [resolve, package]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
+      RELEASE_SHA: ${{ needs.resolve.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          fetch-depth: 0
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: package-*
+          path: ${{ runner.temp }}/release-assets
+          merge-multiple: true
+      - name: Prepare local release tag
+        if: github.event_name == 'workflow_dispatch'
+        run: git tag -- "$RELEASE_TAG"
+      - name: Generate conventional commit changelog
+        uses: orhun/git-cliff-action@v4
+        with:
+          version: v2.14.2
+          args: --latest --strip header --output ${{ runner.temp }}/release-notes.md
+      - name: Verify assets and publish release
+        shell: pwsh
+        run: |
+          $assets = '${{ runner.temp }}/release-assets'
+          $checksums = @(Get-ChildItem -LiteralPath $assets -Filter '*.sha256')
+          if ($checksums.Count -ne 4) { throw 'Expected four per-RID checksums.' }
+          foreach ($file in $checksums) {
+            $line = (Get-Content -LiteralPath $file.FullName -Raw).Trim()
+            $hash, $name = $line -split '  ', 2
+            if ((Get-FileHash -LiteralPath (Join-Path $assets $name) -Algorithm SHA256).Hash -ine $hash) { throw "Checksum mismatch: $name" }
+          }
+          Get-Content -LiteralPath $checksums.FullName | Set-Content -LiteralPath (Join-Path $assets 'SHA256SUMS') -Encoding ascii
+          if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+            $tagSha = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/$env:RELEASE_TAG" --jq '.object.sha' 2> '${{ runner.temp }}/tag-lookup.log'
+            if ($LASTEXITCODE -eq 0) {
+              if ($tagSha -cne $env:RELEASE_SHA) { throw 'Existing tag points to a different commit.' }
+            } else {
+              gh api --method POST "repos/$env:GITHUB_REPOSITORY/git/refs" -f "ref=refs/tags/$env:RELEASE_TAG" -f "sha=$env:RELEASE_SHA"
+              if ($LASTEXITCODE -ne 0) { throw 'Tag creation failed.' }
+            }
+          }
+          # Publish a draft only after all assets are uploaded. Failed uploads leave a recoverable draft.
+          gh release view $env:RELEASE_TAG --json isDraft --jq '.isDraft' > '${{ runner.temp }}/release-state'
+          if ($LASTEXITCODE -eq 0) {
+            if ((Get-Content '${{ runner.temp }}/release-state' -Raw).Trim() -ne 'true') { throw 'This release is already published; do not replace its assets.' }
+          } else {
+            gh release create $env:RELEASE_TAG --verify-tag --draft --title $env:RELEASE_TAG --notes-file '${{ runner.temp }}/release-notes.md'
+            if ($LASTEXITCODE -ne 0) { throw 'Draft release creation failed.' }
+          }
+          $files = @(Get-ChildItem -LiteralPath $assets -File | ForEach-Object FullName)
+          gh release upload $env:RELEASE_TAG @files --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Release upload failed; draft retained.' }
+          $prerelease = if ($env:RELEASE_TAG.Contains('-')) { 'true' } else { 'false' }
+          gh release edit $env:RELEASE_TAG --draft=false "--prerelease=$prerelease" --notes-file '${{ runner.temp }}/release-notes.md'
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }
+          "### Released $env:RELEASE_TAG`nFour platform bundles, SHA-256 checksums and conventional-commit notes." >> $env:GITHUB_STEP_SUMMARY
