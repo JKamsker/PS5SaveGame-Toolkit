@@ -56,24 +56,10 @@ public static class WorkspaceExporter
 
         foreach (var session in dirty)
         {
-            foreach (var output in session.Serialize(cancellationToken))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (groups.Any(g => g.Session.Id != session.Id && g.Owns(output.RelativePath)))
-                    throw new ExportException($"'{output.RelativePath}' is owned by another document group.");
-                if (((ISaveSet)set).FindFile(output.RelativePath) is null)
-                {
-                    throw new ExportException($"Plugin '{session.Plugin.Info.Id}' tried to write unknown file '{output.RelativePath}'.");
-                }
-
-                // Serialize already snapshots plugin-owned buffers under the session lock.
-                if (!overrides.TryAdd(output.RelativePath, output.Content))
-                {
-                    throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
-                }
-
+            var outputs = session.Serialize(cancellationToken);
+            DocumentOutputVerifier.AddOutputs(workspace, session, outputs, overrides, cancellationToken);
+            foreach (var output in outputs)
                 reasons[output.RelativePath] = $"edited with {session.Plugin.Info.Name}";
-            }
         }
 
         if (options.MirrorBackups)
@@ -95,7 +81,7 @@ public static class WorkspaceExporter
 
         // Mirrored siblings can participate in plugin/group invariants too. Validate the
         // complete overlay that will be exported, after every automatic override is added.
-        Verify(workspace, dirty, overrides, cancellationToken);
+        DocumentOutputVerifier.Verify(workspace, dirty, overrides, cancellationToken);
 
         var included = Select(set, overrides, options.Scope, cancellationToken);
         var files = new List<ExportedFile>(included.Count);
@@ -115,46 +101,6 @@ public static class WorkspaceExporter
         => ExportZipWriter.Write(plan, output, cancellationToken);
 
     internal static string ExportPath(ISaveFile file) => file is DiskSaveFile disk ? disk.ExportRelativePath : file.RelativePath;
-
-    private static void Verify(Workspace workspace, IReadOnlyList<DocumentSession> dirty, Dictionary<string, ReadOnlyMemory<byte>> overrides, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        if (overrides.Count == 0)
-        {
-            return;
-        }
-
-        var overlay = new OverlaySaveSet(workspace.Set, overrides, cancellationToken);
-        foreach (var session in dirty)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (workspace.DocumentGroups.FirstOrDefault(g => g.Session.Id == session.Id) is { } group)
-            {
-                try
-                {
-                    group.VerifyOutputs(overrides.Where(o => group.Owns(o.Key))
-                        .ToDictionary(o => o.Key, o => o.Value, StringComparer.OrdinalIgnoreCase), overlay, cancellationToken);
-                }
-                catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
-                {
-                    throw new ExportException($"Group verification failed: {ex.Message}", ex);
-                }
-                continue;
-            }
-            var reopened = ((ISaveSet)overlay).FindFile(session.File.RelativePath)!;
-            try
-            {
-                using var doc = session.Plugin.Open(reopened, workspace.References(session.Id));
-                cancellationToken.ThrowIfCancellationRequested();
-                _ = doc.BuildView();
-                cancellationToken.ThrowIfCancellationRequested();
-            }
-            catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
-            {
-                throw new ExportException($"Verification failed: {session.Plugin.Info.Name} could not re-open its own output for '{session.File.RelativePath}': {ex.Message}", ex);
-            }
-        }
-    }
 
     private static void MirrorBackups(DiskSaveSet set, Dictionary<string, ReadOnlyMemory<byte>> overrides,
         Dictionary<string, string> reasons, HashSet<string> protectedPaths, HashSet<string> groupPaths, CancellationToken cancellationToken)

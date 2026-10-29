@@ -271,8 +271,10 @@ manage their own selected backups.
 The toolkit reopens edited output with its plugin before packing it. If verification
 fails, read the error and undo or correct the edit; passing these checks still does not
 prove console acceptance. Save the downloaded zip separately from the original. A
-document's **Download file** downloads just that file; use workspace Export for complete
-save folders and for related-file groups. Inspect the plan paths: additional generations use `genN/`,
+document's **Download file** verifies edited output with the same plugin before downloading
+just that file. A verification failure returns an error without an attachment and keeps your
+edits available to correct or undo. Use workspace Export for complete save folders,
+independent documents that rewrite sibling files, and related-file groups. Inspect the plan paths: additional generations use `genN/`,
 wrapper folders above a recognized title are dropped, and an unrecognized title/layout keeps its
 imported path.
 

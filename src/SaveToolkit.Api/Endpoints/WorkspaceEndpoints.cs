@@ -103,9 +103,7 @@ internal static class WorkspaceEndpoints
         doc.MapGet("/download", (DocumentRef d, CancellationToken ct) =>
         {
             var session = d.Value;
-            if (d.Workspace.DocumentGroups.Any(g => g.Session.Id == session.Id))
-                return Results.Conflict(new ErrorDto("Use workspace export to download all group members atomically."));
-            var own = session.Serialize(ct).FirstOrDefault(o => o.RelativePath == session.File.RelativePath);
+            var own = DocumentDownloader.Capture(d.Workspace, session, ct);
             return own is null
                 ? Results.Stream(session.File.OpenRead(), "application/octet-stream", session.File.FileName)
                 : Results.Bytes(own.Content, "application/octet-stream", session.File.FileName);

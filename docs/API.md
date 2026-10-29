@@ -314,9 +314,14 @@ filename or HTTP range protocol. Unknown blob: 404.
 No parameters. Returns current independent document bytes as
 `application/octet-stream` with `Content-Disposition: attachment`; filename is
 the original file basename (`filename*` carries Unicode). Clean documents stream
-the imported bytes; dirty ones download their serialized primary output. Group
-documents return 409: use workspace export for atomic multi-file output. Does
-not clear dirty state/history.
+the imported bytes (including read-only documents). Dirty documents serialize once;
+all captured outputs are checked for valid imported paths and group ownership, then
+reopened as a staged overlay using the document's pinned reference packs. The primary
+bytes returned are the same snapshot that passed verification. Failed verification
+returns 422 ProblemDetails with plugin/file diagnostics and no attachment. Group
+documents return 409: use workspace export for atomic multi-file output. For independent
+documents that rewrite siblings, use workspace export to download all outputs together.
+Download does not clear dirty state/history or change the revision.
 
 ## Preview and semantic review
 
