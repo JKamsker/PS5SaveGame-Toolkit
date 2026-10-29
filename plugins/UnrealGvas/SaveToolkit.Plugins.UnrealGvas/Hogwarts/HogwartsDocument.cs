@@ -63,7 +63,9 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
     }
 
     public override string Title => "Hogwarts Legacy · database inspector";
-    public override bool CanEdit => _databases.Count == 2 && _warnings.Count == 0;
+    public override bool CanEdit => !_envelope.IsWrapped && _databases.Count == 2 && _warnings.Count == 0;
+    private string ReadOnlyMessage => _envelope.IsWrapped
+        ? "This compressed envelope is read-only; recompression has not been verified." : ReadOnlyReason;
     public IReadOnlyList<QueryableCollection> Collections { get; }
 
     public override AssetContent? GetAsset(string assetId) => _raw.GetAsset(assetId);
@@ -78,7 +80,7 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
         var tabs = new List<Tab>
         {
             new("Hogwarts", [
-                new TextNode(CanEdit ? WriteWarning : ReadOnlyReason) { Tone = Tone.Warning },
+                new TextNode(CanEdit ? WriteWarning : ReadOnlyMessage) { Tone = Tone.Warning },
                 new TextNode("RawDatabaseImage and RawExclusiveImage are inspected independently. No merge, authoritative-image or synchronization rule is assumed.") { Tone = Tone.Info },
                 .. _databases.Select(database => (ViewNode)new StatsNode([
                     new Stat("Image", database.Name), new Stat("SQLite bytes", database.ImageBytes.ToString()),
@@ -207,7 +209,7 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
-        if (!CanEdit) return EditOutcome.Rejected("document", ReadOnlyReason);
+        if (!CanEdit) return EditOutcome.Rejected("document", ReadOnlyMessage);
         bool wasDirty = _dirty;
         var outcome = base.ApplyEdits(edits);
         if (!outcome.Succeeded || edits.Count == 0) return outcome;

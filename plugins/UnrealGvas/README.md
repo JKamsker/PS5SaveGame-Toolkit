@@ -111,6 +111,10 @@ All enabled writes are Experimental. Warnings are shown beside each field and re
 in the edit outcome. Hogwarts does not edit identity columns, blobs, catalog reference
 cells, metadata-only files or malformed/partial database pairs.
 
+Compressed outer envelopes, including Hogwarts zlib and Astroneer wrappers, remain
+read-only until envelope recompression is verified. Database inspection is still
+available and serialization preserves the exact imported wrapper.
+
 ## Sample coverage and file roles
 
 Observations apply to the supplied archives, not every release of each title.
