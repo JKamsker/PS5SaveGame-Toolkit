@@ -12,6 +12,7 @@ internal sealed class TsushimaReferenceViews(
     Func<FieldNode, FieldNode> bind)
 {
     private readonly TsushimaGuideViews _guides = new(references, bind);
+    private readonly TsushimaEquipmentQuery _equipment = new(references, identifiers);
     public const string EquipmentCollectionId = "equipment/identifiers";
 
     public static IReadOnlyList<ViewNode> EquipmentGuides =>
@@ -55,7 +56,7 @@ internal sealed class TsushimaReferenceViews(
                 EquipmentCollectionId,
                 "Observed equipment identifiers",
                 IdentifierColumns(),
-                identifiers.Count(identifier => identifier.Group == group))
+                _equipment.TotalCount)
             {
                 Description = "Large identifier list is server-filtered and paged. Presence does not prove ownership, equipped state or write safety.",
             };
@@ -86,41 +87,13 @@ internal sealed class TsushimaReferenceViews(
         EquipmentCollectionId,
         "Observed equipment identifiers",
         IdentifierColumns(),
-        identifiers.Count(identifier => identifier.Group == IdentifierGroup.Equipment))
+        _equipment.TotalCount)
     {
         Description = "Observed identifiers are paged and searchable. Ownership, equipped state and write safety remain Unknown.",
     };
 
-    public QueryableCollectionPage QueryEquipment(QueryableCollectionQuery query)
-    {
-        var catalog = references.Catalog(TsushimaIds.Equipment);
-        IEnumerable<(TsushimaIdentifier Identifier, ReferenceRecord? Record)> filtered = identifiers
-            .Where(identifier => identifier.Group == IdentifierGroup.Equipment)
-            .Select(identifier => (Identifier: identifier, Record: catalog?.Find(identifier.Name)))
-            .Where(item => Matches(item.Identifier, item.Record, query))
-            .OrderBy(item => SortValue(item.Identifier, item.Record, query.SortColumn), StringComparer.Ordinal)
-            .ThenBy(item => item.Identifier.Offset);
-        if (query.Descending)
-        {
-            filtered = filtered.Reverse();
-        }
-
-        var total = identifiers.Count(identifier => identifier.Group == IdentifierGroup.Equipment);
-        var matches = filtered.ToArray();
-        var rows = matches
-            .Skip(query.Offset)
-            .Take(query.Limit)
-            .Select(item => IdentifierRow(item.Identifier, item.Record, catalog))
-            .ToArray();
-        return new QueryableCollectionPage(
-            EquipmentCollectionId,
-            IdentifierColumns(),
-            rows,
-            total,
-            matches.Length,
-            query.Offset,
-            query.Limit);
-    }
+    public QueryableCollectionPage QueryEquipment(QueryableCollectionQuery query) =>
+        _equipment.Query(query, IdentifierColumns(), IdentifierRow);
 
     public TableNode Character()
     {
@@ -200,46 +173,4 @@ internal sealed class TsushimaReferenceViews(
             ["state"] = new TextNode("Unknown") { Tone = Tone.Warning },
         });
     }
-
-    private static bool Matches(TsushimaIdentifier identifier, ReferenceRecord? record, QueryableCollectionQuery query)
-    {
-        if (query.Text is { Length: > 0 } text &&
-            !identifier.Name.Contains(text, StringComparison.OrdinalIgnoreCase) &&
-            !(record?.Name.Contains(text, StringComparison.OrdinalIgnoreCase) ?? false))
-        {
-            return false;
-        }
-
-        foreach (var (key, value) in query.Filters)
-        {
-            var actual = key switch
-            {
-                "raw" => identifier.Name,
-                "reference" => record?.Name ?? identifier.Name,
-                "category" => record?.Category ?? "Unknown",
-                "mapping" => MappingConfidence(record).ToString(),
-                "state" => "Unknown",
-                TsushimaAssets.IconColumn => record?.Name ?? identifier.Name,
-                _ => throw new ArgumentException($"Unknown equipment filter '{key}'.", nameof(query)),
-            };
-            if (!actual.Contains(value, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static string SortValue(TsushimaIdentifier identifier, ReferenceRecord? record, string? column) => column switch
-    {
-        null or "raw" => identifier.Name,
-        "reference" => record?.Name ?? identifier.Name,
-        "category" => record?.Category ?? "Unknown",
-        "location" => identifier.Offset.ToString("D10"),
-        "mapping" => MappingConfidence(record).ToString(),
-        "state" => "Unknown",
-        TsushimaAssets.IconColumn => record?.Name ?? identifier.Name,
-        _ => throw new ArgumentException($"Unknown equipment sort column '{column}'.", nameof(column)),
-    };
 }

@@ -7,6 +7,7 @@ namespace SaveToolkit.Plugins.SuckerPunch;
 
 internal sealed class YoteiViews(byte[] bytes, YoteiState state, IReferenceContext references, Func<FieldNode, FieldNode> bind)
 {
+    private readonly CollectionQueryCache<YoteiRecord> _queries = new();
     public const string ItemsCatalog = "suckerpunch_yotei_items";
     public const string GearCollectionId = "yotei/gear-registry";
     public const string TechniquesCatalog = "suckerpunch_yotei_techniques";
@@ -64,27 +65,31 @@ internal sealed class YoteiViews(byte[] bytes, YoteiState state, IReferenceConte
         if (query.SortColumn is not (null or "id" or "category" or "a" or "b" or "state") ||
             query.Filters.Keys.Any(key => key is not ("category" or "state" or "id")))
             throw new ArgumentException("Unsupported gear filter or sort column.", nameof(query));
+        var matches = _queries.Get(query, () => SelectGear(query));
+        return new(collectionId, GearColumns, matches.Skip(query.Offset).Take(query.Limit).Select(row => new TableRow(row.Name,
+            new Dictionary<string, ViewNode>
+            {
+                ["id"] = new TextNode(row.Name), ["category"] = new TextNode(Family(row.Name)),
+                ["a"] = RawByte(row, 0), ["b"] = RawByte(row, 1), ["state"] = new TextNode("Unknown") { Tone = Tone.Warning },
+            })).ToArray(), state.Gear.Count, matches.Length, query.Offset, query.Limit);
+    }
+
+    private YoteiRecord[] SelectGear(QueryableCollectionQuery query)
+    {
         IEnumerable<YoteiRecord> rows = state.Gear;
         if (!string.IsNullOrWhiteSpace(query.Text)) rows = rows.Where(row => row.Name.Contains(query.Text, StringComparison.OrdinalIgnoreCase));
         foreach (var filter in query.Filters)
             rows = rows.Where(row => (filter.Key switch { "category" => Family(row.Name), "state" => "Unknown", _ => row.Name })
                 .Equals(filter.Value, StringComparison.OrdinalIgnoreCase));
-        var filtered = rows.ToArray();
-        rows = query.SortColumn switch
+        var ordered = query.SortColumn switch
         {
-            "a" => Sort(filtered, row => bytes[row.DataOffset], query.Descending),
-            "b" => Sort(filtered, row => bytes[row.DataOffset + 1], query.Descending),
-            "category" => Sort(filtered, row => Family(row.Name), query.Descending, StringComparer.OrdinalIgnoreCase),
-            _ => Sort(filtered, row => row.Name, query.Descending, StringComparer.OrdinalIgnoreCase),
+            "a" => Sort(rows, row => bytes[row.DataOffset], query.Descending),
+            "b" => Sort(rows, row => bytes[row.DataOffset + 1], query.Descending),
+            "category" => Sort(rows, row => Family(row.Name), query.Descending, StringComparer.OrdinalIgnoreCase),
+            "state" => rows.OrderBy(row => row.Name, StringComparer.Ordinal),
+            _ => Sort(rows, row => row.Name, query.Descending, StringComparer.OrdinalIgnoreCase),
         };
-        // Every row has Unknown state; sorting it retains the ascending stable raw-ID tie breaker.
-        if (query.SortColumn == "state") rows = filtered.OrderBy(row => row.Name, StringComparer.Ordinal);
-        return new(collectionId, GearColumns, rows.Skip(query.Offset).Take(query.Limit).Select(row => new TableRow(row.Name,
-            new Dictionary<string, ViewNode>
-            {
-                ["id"] = new TextNode(row.Name), ["category"] = new TextNode(Family(row.Name)),
-                ["a"] = RawByte(row, 0), ["b"] = RawByte(row, 1), ["state"] = new TextNode("Unknown") { Tone = Tone.Warning },
-            })).ToArray(), state.Gear.Count, filtered.Length, query.Offset, query.Limit);
+        return ordered.ToArray();
     }
 
     private FieldNode RawByte(YoteiRecord row, int index) => bind(new FieldNode($"yotei/gear/{row.Name}/byte{index}",
