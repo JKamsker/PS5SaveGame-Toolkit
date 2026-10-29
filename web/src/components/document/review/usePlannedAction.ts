@@ -29,6 +29,7 @@ function usePlannedActionState(node: ActionNode, claimSnapshotErrors?: () => () 
     // Native Escape can close a busy dialog. Retire its UI observer without cancelling
     // a mutation: DocumentSession still accepts any server result for the document.
     setDialogVersion(previous => previous + 1);
+    setPreview(null);
     setRefreshError("");
     releaseSnapshotErrors();
     modal.onClose();
@@ -75,7 +76,7 @@ type PlannedScope = ReturnType<typeof useActionScope> & { stale: boolean; refres
 function createActionPlan(node: ActionNode, state: PlannedState, selection: PlannedScope) {
   const { doc, binding, scope, scopeKey } = selection;
   return (params = state.form.values) => state.submit(async isCurrent => {
-    if (state.invalid || binding.unavailable || state.refreshError || doc.snapshotError) return;
+    if (state.invalid || binding.unavailable || state.refreshError || doc.snapshotError || doc.snapshotRefresh) return;
     state.focusHeading();
     state.setError("");
     state.setRejectedStale(false);
@@ -111,7 +112,7 @@ function createActionApply(state: PlannedState, selection: PlannedScope) {
   const { doc, stale, binding, refreshError } = selection;
   const { preview } = state;
   return () => state.submit(async isCurrent => {
-    if (!preview?.planId || !preview.plan.changes.length || stale || refreshError || binding.unavailable || !doc.canEdit) return;
+    if (!preview?.planId || !preview.plan.changes.length || stale || refreshError || doc.snapshotRefresh || binding.unavailable || !doc.canEdit) return;
     state.focusHeading();
     state.setError("");
     try {
@@ -137,6 +138,7 @@ function createActionApply(state: PlannedState, selection: PlannedScope) {
 
 function createSnapshotRetry(state: PlannedState, { doc }: PlannedScope) {
   return () => state.submit(async isCurrent => {
+    if (doc.snapshotRefresh === "pending") return;
     state.focusHeading();
     state.setPreview(null);
     state.setError("");
@@ -157,6 +159,12 @@ function createSnapshotRetry(state: PlannedState, { doc }: PlannedScope) {
 export function usePlannedAction(node: ActionNode) {
   const scope = useActionScope(node);
   const state = usePlannedActionState(node, scope.doc.claimSnapshotErrors);
+  const { snapshotRefresh, snapshotError } = scope.doc;
+  const { dialog, requestFocus } = state;
+  useEffect(() => {
+    // A read may finish after Escape/reopen retired the mutation's original UI observer.
+    if (snapshotRefresh === "required" && dialog.current?.open) requestFocus("error");
+  }, [snapshotRefresh, snapshotError, dialog, requestFocus]);
   const selectedCount = state.preview?.scope.rowKeys?.length ?? scope.selectedCount;
   const scopeLabel = selectedCount === undefined ? "Whole document" : `${selectedCount} selected ${selectedCount === 1 ? "row" : "rows"}`;
   const stale = state.rejectedStale || Boolean(state.preview && (state.preview.stale || state.preview.revision !== scope.revision || state.previewScope !== scope.scopeKey));
@@ -166,15 +174,16 @@ export function usePlannedAction(node: ActionNode) {
   const retrySnapshot = createSnapshotRetry(state, selection);
   const open = () => {
     const defaults = actionParameterDefaults(state.form.parameters);
-    state.form.setValues(defaults);
+    if (!snapshotRefresh && !snapshotError) state.form.setValues(defaults);
     state.form.setErrors({});
     state.setFormVersion(previous => previous + 1);
     state.setError("");
-    state.setRejectedStale(false);
-    state.setRefreshError(scope.doc.snapshotError ?? "");
+    state.setRejectedStale(Boolean(snapshotRefresh));
+    state.setRefreshError("");
     state.setPreview(null);
     state.openDialog();
-    if (!state.form.parameters.length) void plan(defaults);
+    if (snapshotRefresh === "required") state.requestFocus("error");
+    if (!state.form.parameters.length && !snapshotRefresh && !snapshotError) void plan(defaults);
   };
   const changeParameters = () => {
     state.setPreview(null);

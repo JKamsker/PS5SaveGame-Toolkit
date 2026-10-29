@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/refs, react-hooks/immutability -- Preserve the identity-scoped request controller and render-time store snapshot used by the editor. */
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { api, ApiError, isStaleError } from "../../api/client";
 import type { EditResult, FieldValue, SaveDocument, Workspace } from "../../api/protocol";
 import { DocumentStore, type DocumentContextValue, type DocumentMutationOptions, type DocumentMutationResult, type FieldCommitOutcome, type FieldDiagnosticReceipt } from "../../state/documentStore";
 import { sameValue } from "../../lib/values";
 import { WorkspaceActivityContext } from "../../state/workspaceActivity";
-import { readDocumentSnapshot, useSnapshotErrorOwner } from "./documentSnapshot";
+import { useDocumentSnapshot, useSnapshotErrorOwner } from "./documentSnapshot";
 
 type DocumentQuery = UseQueryResult<SaveDocument, Error>;
 type Notify = (message: string, isError?: boolean) => void;
@@ -40,19 +40,12 @@ type SessionLifetime = ReturnType<typeof useDocumentLifetime>;
 function useDocumentResult(workspaceId: string, documentId: string, query: DocumentQuery, session: SessionLifetime, onToast: Notify) {
   const queryClient = useQueryClient();
   const { lifetime, currentStore, enqueue } = session;
-  const [readFailure, setReadFailure] = useState<{ owner: typeof lifetime; message: string } | null>(null);
-  /** Refetches the view after a structural change; the new view data creates a fresh value cache. */
-  const { refetch } = query;
-  const readSnapshot = useCallback(async () => {
-    const error = await readDocumentSnapshot(queryClient, refetch, workspaceId, documentId);
-    if (lifetime.active) setReadFailure(error ? { owner: lifetime, message: error } : null);
-    return error;
-  }, [queryClient, refetch, workspaceId, documentId, lifetime]);
+  const { readSnapshot, snapshotError, snapshotRefresh } = useDocumentSnapshot(workspaceId, documentId, lifetime, query.refetch);
   const refresh = useCallback(async (options?: { throwOnError?: boolean }) => {
     await enqueue(async () => {
       if (!lifetime.active) return;
       const error = await readSnapshot();
-      if (error && options?.throwOnError) throw new Error(error);
+      if (error !== undefined && options?.throwOnError) throw new Error(error);
     });
   }, [readSnapshot, enqueue, lifetime]);
 
@@ -82,7 +75,7 @@ function useDocumentResult(workspaceId: string, documentId: string, query: Docum
     [lifetime, currentStore, readSnapshot, queryClient, workspaceId, documentId, onToast],
   );
 
-  return { refresh, handleResult, readSnapshot, snapshotError: readFailure?.owner === lifetime ? readFailure.message : undefined };
+  return { refresh, handleResult, readSnapshot, snapshotError, snapshotRefresh };
 }
 
 function useDocumentMutation(workspaceId: string, documentId: string, query: DocumentQuery, store: DocumentStore | null,
@@ -139,7 +132,7 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
 function useDocumentContext(workspaceId: string, documentId: string, query: DocumentQuery, store: DocumentStore | null,
   pendingEdits: SessionLifetime["pendingEdits"], refresh: DocumentContextValue["refresh"],
   handleResult: ReturnType<typeof useDocumentResult>["handleResult"], run: ReturnType<typeof useDocumentMutation>, readError: string | undefined,
-  snapshotOwner: ReturnType<typeof useSnapshotErrorOwner>) {
+  snapshotOwner: ReturnType<typeof useSnapshotErrorOwner>, snapshotRefresh: DocumentContextValue["snapshotRefresh"]) {
   const structureVersion = query.dataUpdatedAt;
   const snapshotError = readError ?? (query.isError ? query.error.message : undefined);
   const { claim, inDialog } = snapshotOwner;
@@ -165,6 +158,7 @@ function useDocumentContext(workspaceId: string, documentId: string, query: Docu
       store,
       structureVersion,
       snapshotError,
+      snapshotRefresh,
       claimSnapshotErrors: claim,
       snapshotErrorInDialog: inDialog,
       refresh,
@@ -175,7 +169,7 @@ function useDocumentContext(workspaceId: string, documentId: string, query: Docu
       runAction: async (actionId: string, parameters: Record<string, FieldValue>) =>
         run(() => api.action(workspaceId, documentId, actionId, parameters, store.state.revision)),
     };
-  }, [query.data, store, workspaceId, documentId, structureVersion, snapshotError, claim, inDialog, refresh, run, handleResult, pendingEdits]);
+  }, [query.data, store, workspaceId, documentId, structureVersion, snapshotError, snapshotRefresh, claim, inDialog, refresh, run, handleResult, pendingEdits]);
 
   return context;
 }
@@ -186,9 +180,9 @@ export function useDocumentSession(workspaceId: string, documentId: string, onTo
   const store = useMemo(() => (query.data ? new DocumentStore(query.data.state) : null), [query.data]);
   const session = useDocumentLifetime(workspaceId, documentId, store);
   const snapshotOwner = useSnapshotErrorOwner(session.lifetime);
-  const { refresh, handleResult, readSnapshot, snapshotError } = useDocumentResult(workspaceId, documentId, query, session, onToast);
+  const { refresh, handleResult, readSnapshot, snapshotError, snapshotRefresh } = useDocumentResult(workspaceId, documentId, query, session, onToast);
   const run = useDocumentMutation(workspaceId, documentId, query, store, session, handleResult, readSnapshot, onToast);
-  const context = useDocumentContext(workspaceId, documentId, query, store, session.pendingEdits, refresh, handleResult, run, snapshotError, snapshotOwner);
+  const context = useDocumentContext(workspaceId, documentId, query, store, session.pendingEdits, refresh, handleResult, run, snapshotError, snapshotOwner, snapshotRefresh);
   // Each successful snapshot replaces the value cache; lazy children share that generation.
   return { query, context, refresh, structureVersion: query.dataUpdatedAt };
 }

@@ -65,6 +65,10 @@ cached data does not count as a fresh snapshot. Closing the dialog keeps the exi
 background document refresh control available. Retrying a read never applies an action
 or creates history. The dialog owns read-error announcements while open; closing it
 returns that responsibility to the background document error.
+Refresh-required status starts before awaiting the stale snapshot read and belongs to
+the document lifetime. Escape and reopening while that read is pending retain the
+draft and show a disabled **Refreshing document…** control. A successful installation
+enables a fresh preview; failed or cancelled reads retain the reachable retry path.
 Read-only documents can preview but cannot apply.
 
 The initial delivery changes no plugin. Consumer adoption must publish a proven

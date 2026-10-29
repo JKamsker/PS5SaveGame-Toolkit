@@ -13,7 +13,14 @@ async function captionFixture(page: Page, maxUtf8Bytes: number | null = 4, canEd
   let serverRevision: number | undefined;
   let serverCaption = "🎮";
   let snapshotUnavailable = false;
+  let snapshotGate: { started: () => void; wait: Promise<void> } | undefined;
   await page.route(/\/api\/workspaces\/[^/]+\/documents\/[^/?]+$/, async route => {
+    if (snapshotGate) {
+      const gate = snapshotGate;
+      snapshotGate = undefined;
+      gate.started();
+      await gate.wait;
+    }
     if (snapshotUnavailable) return route.fulfill({ status: 503, json: { error: "Snapshot service unavailable" } });
     const response = await route.fetch();
     const document = await response.json() as SaveDocument;
@@ -38,7 +45,67 @@ async function captionFixture(page: Page, maxUtf8Bytes: number | null = 4, canEd
     get revision() { return serverRevision!; },
     advanceRevision() { serverRevision!++; serverCaption = "new"; },
     setSnapshotUnavailable(value: boolean) { snapshotUnavailable = value; },
+    holdNextSnapshot() {
+      let release!: () => void;
+      let started!: () => void;
+      const pending = new Promise<void>(resolve => { started = resolve; });
+      snapshotGate = { started, wait: new Promise<void>(resolve => { release = resolve; }) };
+      return { started: pending, release };
+    },
   };
+}
+
+for (const failure of ["envelope", "exception"]) {
+  for (const readFails of [false, true]) {
+    test(`pending stale ${failure} survives Escape and reopen (readFails=${readFails})`, async ({ page }, testInfo) => {
+      await page.setViewportSize({ width: 375, height: 900 });
+      const fixture = await captionFixture(page);
+      const initialRevision = fixture.revision;
+      const flow = await installStaleFlow(page, failure, fixture);
+      const trigger = page.getByRole("button", { name: "Preview caption", exact: true });
+      await trigger.click();
+      const dialog = page.getByRole("dialog");
+      await dialog.getByRole("textbox", { name: "Caption" }).fill("🎮");
+      await dialog.getByRole("button", { name: "Preview", exact: true }).click();
+      const read = fixture.holdNextSnapshot();
+      await dialog.getByRole("button", { name: "Apply", exact: true }).click();
+      await read.started;
+      await page.keyboard.press("Escape");
+      await expect(trigger).toBeFocused();
+      await trigger.click();
+      await expect(dialog.getByRole("button", { name: "Refreshing document…" })).toBeDisabled();
+      await expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveValue("🎮");
+      await expect(dialog.getByRole("heading")).toBeFocused();
+      await expect(dialog.getByRole("status")).toContainText("Refreshing the document");
+      await dialog.locator("form").evaluate(form => { if (form instanceof HTMLFormElement) form.requestSubmit(); });
+      expect(flow.revisions).toEqual([initialRevision]);
+      await expect(dialog.getByRole("button", { name: "Apply", exact: true })).toHaveCount(0);
+      await expectNoPageOverflow(page);
+      await page.screenshot({ path: testInfo.outputPath("pending-reopened-375.png"), fullPage: true });
+      fixture.setSnapshotUnavailable(readFails);
+      read.release();
+      if (readFails) {
+        await expect(dialog.getByRole("alert")).toContainText("Snapshot service unavailable");
+        await expect(dialog.getByRole("alert")).toBeFocused();
+        await expect(page.getByRole("alert")).toHaveCount(1);
+        expect(flow.revisions).toEqual([initialRevision]);
+        fixture.setSnapshotUnavailable(false);
+        await dialog.getByRole("button", { name: "Retry document refresh" }).click();
+      }
+      await expect(dialog.getByRole("button", { name: "Preview again" })).toBeEnabled();
+      expect(flow.revisions).toEqual([initialRevision]);
+      await expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveValue("🎮");
+      await expect(page.getByRole("alert")).toHaveCount(1);
+      await expect(page.locator(".toast")).toHaveCount(0);
+      await dialog.getByRole("button", { name: "Preview again" }).click();
+      await expect(dialog.getByRole("button", { name: "Apply", exact: true })).toBeEnabled();
+      expect(flow.revisions).toEqual([initialRevision, initialRevision + 1]);
+      expect(flow.applies).toBe(1);
+      await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
+      await page.keyboard.press("Escape");
+      await expect(trigger).toBeFocused();
+    });
+  }
 }
 
 for (const failure of ["envelope", "exception"]) {

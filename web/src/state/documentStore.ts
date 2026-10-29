@@ -169,6 +169,8 @@ export interface DocumentContextValue {
   structureVersion: number;
   /** A failed snapshot read may leave the previous document cached for inspection. */
   snapshotError?: string;
+  /** Cached values cannot be used for a new plan until this explicit read installs a snapshot. */
+  snapshotRefresh?: "pending" | "required";
   /** Scoped modal ownership affects announcements only; closing returns feedback to the document. */
   claimSnapshotErrors?: () => () => void;
   snapshotErrorInDialog?: boolean;
