@@ -58,7 +58,12 @@ internal sealed class RiftScalarWrites
             if (edit.ValueId == CareerId) career = edit.Value.AsInteger();
             if (edit.ValueId == SpentId) spent = edit.Value.AsInteger();
         }
-        return career >= spent ? null : new FieldError(CareerId, "Career bolts must be at least spent bolts; the calculated balance cannot be negative.");
+        // Undo must be able to restore an accepted import, even when its balance was negative.
+        // This exception is for the exact original pair, never another negative allocation.
+        var restoresOriginal = career == _writes[CareerId].OriginalValue.AsInteger() &&
+            spent == _writes[SpentId].OriginalValue.AsInteger();
+        return career >= spent || restoresOriginal ? null : new FieldError(CareerId,
+            "Career bolts must be at least spent bolts, except when restoring the original imported pair.");
     }
 
     internal void Set(ScalarWrite write, FieldValue value)
@@ -102,6 +107,7 @@ internal sealed class RiftScalarWrites
 
 internal sealed record ScalarWrite(DdlField Field, FieldSpec Spec)
 {
+    internal FieldValue OriginalValue { get; } = Field.Values[0];
     internal FieldValue Value => Field.Values[0];
     internal string? Validate(FieldValue value) => Spec switch
     {
