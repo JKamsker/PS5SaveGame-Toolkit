@@ -235,6 +235,12 @@ class DocumentationTests(unittest.TestCase):
             path = scripts[name.strip("`")]
             with self.subTest(script=path):
                 self.assertEqual(script_parameters(path), set(re.findall(r"`-(\w+)`", parameters)))
+        parallelism = re.search(
+            r"\[ValidateRange\((\d+), (\d+)\)\]\[int\]\$MaxParallel = (\d+)",
+            source("scripts/test.ps1"))
+        self.assertIsNotNone(parallelism, "Backend worker bound/default declaration is missing")
+        minimum, maximum, default = parallelism.groups()
+        self.assertIn(f"MaxParallel defaults to {default} ({minimum}–{maximum} accepted", section)
 
     def test_documented_script_invocations_use_real_parameters(self):
         invocations = 0
