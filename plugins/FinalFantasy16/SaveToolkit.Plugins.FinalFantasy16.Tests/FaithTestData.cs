@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SaveToolkit.Sdk.Binary;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Testing;
 
@@ -45,5 +46,5 @@ internal static class FaithTestData
         MemorySaveSet.SingleFile(name, bytes, title, "FAITHDATA0001");
 
     public static void FixCrc(byte[] bytes) => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4),
-        FaithCrc32.Compute(bytes.AsSpan(FaithContainer.HeaderSize)));
+        Crc32Ieee.Compute(bytes.AsSpan(FaithContainer.HeaderSize)));
 }

@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
@@ -18,7 +19,7 @@ public sealed class FaithSampleTests
         {
             var original = file.ReadAllBytes();
             Assert.Equal(BinaryPrimitives.ReadUInt32LittleEndian(original.AsSpan(4)),
-                FaithCrc32.Compute(original.AsSpan(FaithContainer.HeaderSize)));
+                Crc32Ieee.Compute(original.AsSpan(FaithContainer.HeaderSize)));
             var parsed = FaithContainer.Parse(original);
             Assert.Equal(original.Length - sizeof(uint), parsed.TrailerOffset);
             Assert.True(_plugin.Probe(file).IsMatch);
