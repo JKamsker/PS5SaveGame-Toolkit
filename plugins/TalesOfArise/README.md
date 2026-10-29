@@ -402,6 +402,23 @@ largest input from six equal-size samples and measures first views, search/sort
 and actions; timings remain diagnostics. All 147 generated corruption cases and
 existing sample digests, exact no-op/write/reopen/undo checks remain green.
 
+Maintainability review (#40): **347 passed, 0 failed, 0 skipped** in Release;
+API build **0 warnings/errors** and Python parser **3 passed**. Quantity request
+validation, selection planning and skip policy are separate methods; section-header
+validation and evidence matching are extracted without changing traversal or paging
+algorithms. All C# production methods are at most 50 lines. Test reference-context
+creation and catalog enumeration share helpers while retaining independent usage
+tracking. Fifteen added characterizations pass against the original behavior and
+after refactoring, covering diagnostic/skip precedence, page-only field callbacks,
+metadata, context isolation and catalog boundaries. All original 332 cases remain,
+including the 147 generated corruption cases and unchanged allocation bounds.
+
+Deferred maintainability work: `ReferenceData/build_catalog.py` (`extract_table`
+and `build`) and `ReferenceData/build_assets.py` (`build`) exceed 50 lines. These
+offline utilities retain their existing output policy until complete pinned-source
+catalog/asset regeneration has golden coverage; the three Python tests currently
+cover HTML table parsing. They are never invoked by the runtime plugin.
+
 ### Native SaveDiff evidence
 
 ```powershell
