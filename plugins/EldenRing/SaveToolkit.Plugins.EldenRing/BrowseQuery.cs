@@ -4,9 +4,10 @@ namespace SaveToolkit.Plugins.EldenRing;
 
 internal static class BrowseQuery
 {
-    public static (IReadOnlyList<T> Page, int Filtered, int Offset, int Limit) Apply<T>(
+    public static (IReadOnlyList<T> Page, int Filtered, int Offset, int Limit, int HiddenEmpty) Apply<T>(
         IEnumerable<T> source, QueryableCollectionQuery query, IReadOnlyList<QueryableColumn> columns,
-        Func<T, string> key, Func<T, string, string> text, Func<T, string, long?> number)
+        Func<T, string> key, Func<T, string, string> text, Func<T, string, long?> number,
+        Func<T, bool>? isEmpty = null)
     {
         if (query.Cursor is not null)
             throw new ArgumentException("This collection uses offset paging, not cursors.", nameof(query));
@@ -19,9 +20,13 @@ internal static class BrowseQuery
             || query.Filters.Values.Any(value => value.Length > QueryableCollectionLimits.MaxFilterLength))
             throw new ArgumentException("Collection query exceeds protocol limits.", nameof(query));
 
-        var filtered = source.Where(row => (string.IsNullOrWhiteSpace(query.Text)
+        var matching = source.Where(row => (string.IsNullOrWhiteSpace(query.Text)
                 || columns.Any(column => text(row, column.Key).Contains(query.Text.Trim(), StringComparison.OrdinalIgnoreCase)))
             && query.Filters.All(filter => string.Equals(text(row, filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase))).ToArray();
+        var filtered = matching;
+        if (query.IncludeEmpty == false && isEmpty is not null)
+            filtered = matching.Where(row => !isEmpty(row)).ToArray();
+        var hiddenEmpty = matching.Length - filtered.Length;
         var columnKey = query.SortColumn ?? columns[0].Key;
         IOrderedEnumerable<T> ordered;
         if (filtered.Any(row => number(row, columnKey).HasValue))
@@ -32,6 +37,6 @@ internal static class BrowseQuery
                 : filtered.OrderBy(row => text(row, columnKey), StringComparer.OrdinalIgnoreCase);
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
-        return (ordered.ThenBy(key, StringComparer.Ordinal).Skip(offset).Take(limit).ToArray(), filtered.Length, offset, limit);
+        return (ordered.ThenBy(key, StringComparer.Ordinal).Skip(offset).Take(limit).ToArray(), filtered.Length, offset, limit, hiddenEmpty);
     }
 }

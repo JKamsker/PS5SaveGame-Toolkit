@@ -46,10 +46,14 @@ public sealed class SemanticSampleTests
         Assert.Equal(0xA6A3, held.Range.Offset);
         Assert.Equal(63U, held.CommonCount);
         Assert.Equal(2U, held.KeyCount);
-        Assert.Equal(65, held.Entries.Count);
+        Assert.Equal(held.Capacity, held.Entries.Count);
+        Assert.Equal(65, held.Entries.Count(entry => !entry.IsEmpty));
+        Assert.Equal(3007, held.Entries.Count(entry => entry.IsEmpty));
         Assert.Empty(held.Warnings);
         Assert.Equal(0x13A5E, storage.Range.Offset);
-        Assert.Empty(storage.Entries);
+        Assert.Equal(storage.Capacity, storage.Entries.Count);
+        Assert.Equal(2048, storage.Entries.Count);
+        Assert.All(storage.Entries, entry => Assert.True(entry.IsEmpty));
         Assert.Empty(storage.Warnings);
         Assert.Equal(2, held.Entries.Count(entry => entry.ItemId == 0x006CF2A0));
         Assert.Contains(held.Entries, entry => entry.ItemId == 0x01CB2310);
@@ -72,6 +76,21 @@ public sealed class SemanticSampleTests
         Assert.Equal("Rowa Fruit", named.Label);
         Assert.Contains("Source:", named.Description);
         Assert.Equal(Confidence.Inferred, named.Confidence);
+        var queryable = (IQueryableDocument)document;
+        var inventory = queryable.Query("slots/0/inventory/held", new());
+        Assert.Equal(3072, inventory.TotalCount);
+        Assert.Equal(65, inventory.FilteredCount);
+        Assert.Equal(3007, inventory.HiddenEmptyCount);
+        Assert.All(inventory.Rows, row => Assert.False(row.IsEmpty));
+        var emptyStorage = queryable.Query("slots/0/inventory/storage", new());
+        Assert.Equal(2048, emptyStorage.TotalCount);
+        Assert.Equal(0, emptyStorage.FilteredCount);
+        Assert.Equal(2048, emptyStorage.HiddenEmptyCount);
+        Assert.Empty(emptyStorage.Rows);
+        var vacant = queryable.Query("slots/0/inventory/held", new() { IncludeEmpty = true, Text = "Empty slot", Limit = 1 });
+        Assert.Equal(3007, vacant.FilteredCount);
+        Assert.Equal(0, vacant.HiddenEmptyCount);
+        Assert.True(Assert.Single(vacant.Rows).IsEmpty);
         Assert.True(bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
     }
 

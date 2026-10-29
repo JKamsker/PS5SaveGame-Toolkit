@@ -7,6 +7,9 @@ internal sealed record InventoryEntry(string Container, string Group, int Record
 {
     public string Key(int slot) => $"slots/{slot}/{Container}/{Group}/{Record}/{Handle:X8}/{InventoryIndex}";
     public string RawId => ItemId is { } id ? $"0x{id:X8}" : $"handle:0x{Handle:X8}";
+    // The sampled vacant records and the upstream default are twelve zero bytes.
+    // Unknown handles and zero-quantity residue alone do not establish vacancy.
+    public bool IsEmpty => Handle == 0 && Quantity == 0 && InventoryIndex == 0;
 }
 
 internal sealed record InventoryContainer(string Id, SaveRange Range, uint CommonCount, uint KeyCount,
@@ -40,10 +43,10 @@ internal static class InventoryReader
             var handle = cursor.UInt32();
             var quantity = cursor.UInt32();
             var index = cursor.UInt32();
-            if (handle == 0 && quantity == 0 && index == 0)
-                continue;
-            occupied++;
-            var (id, category, resolution) = Resolve(handle, instances);
+            var empty = handle == 0 && quantity == 0 && index == 0;
+            if (!empty) occupied++;
+            var (id, category, resolution) = empty
+                ? (null, "empty", "all-zero vacant slot") : Resolve(handle, instances);
             entries.Add(new InventoryEntry(container, group, record, offset, handle, quantity, index, id, category, resolution));
         }
         if (declared != occupied)

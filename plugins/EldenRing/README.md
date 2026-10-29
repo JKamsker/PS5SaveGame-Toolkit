@@ -63,8 +63,10 @@ Deeper reads are gated to character format **150**. `ItemMapReader`, `SlotCursor
 - Held inventory has fixed common/key capacities 2,688/384; storage has 1,920/128. A row is
   `(u32 handle, u32 quantity, u32 inventoryIndex)`. These are technical array capacities, **not legal
   item quantity caps**. Counts larger than capacity and variable counts extending beyond the slot fail.
-- Only all-zero rows are omitted from browsing. Every nonzero row, including zero quantities,
-  sentinel/unknown handles and count mismatches, remains represented. Count mismatches warn without repair.
+- Every physical row is retained. Confirmed all-zero vacancies are hidden by default through F14,
+  with the hidden count and a Show toggle; shown vacancies read "Empty slot" and keep their raw cells.
+  Every nonzero row, including zero quantities, sentinel/unknown handles and count mismatches, remains
+  visible. Count mismatches warn without repair.
 - Goods `0xB…` and talismans `0xA…` normalize to category-qualified IDs `0x4…` and `0x2…`.
   Weapon/armour/AoW handles resolve through a unique GaItem entry; missing, duplicated or
   category-inconsistent map references stay raw. Upgrade/affinity IDs are never silently rounded down.
@@ -224,6 +226,33 @@ references, never asserted legal respec minima or used to enable a stat writer.
 | F11 shared codecs | N/A | This format uses public AES/DCX/DFLT plus BND/PARAM directories; it has neither Kraken nor SQLite. BCL AES/ZLib remain bounded and preserve original encrypted bytes; no redundant shared-codec route or dependency added. |
 | F12 decoder hooks / F8 traversal | Added this round | Adopted merged #32: `EldenRingPlugin` publishes `eldenring-evidence` through `ISaveDecoderProvider`; shared `HookSaveDecoder` replaces the test-only decoder. Shared view traversal is tested across 203 inventory rows with 17-row pages and explicit truncation. CLI discovery and fixture selection verified. |
 | F13 read-only inspection / browsing | Added this round | Adopted merged #33: `references/inspect` has `Mutates=false` and is published on read-only saves. Shared F4 category filtering/Key–Name–Category sorting and immutable browse-only fields are tested through Core; inspection preserves bytes, revision and undo/redo. Float duration is N/A because saved play time is exact UInt64 milliseconds with existing integer duration formatting. |
+| F14 empty slots | Used | Held/storage retain every physical slot in their existing single F8 tables; all-zero vacancies are flagged and hidden by default, with matching hidden counts and raw details. Inactive profiles are flagged in their eager table. F6 query scopes exclude hidden vacancies; SaveDiff view traversal explicitly includes them. |
+
+## F14 inventory and table audit
+
+Held and storage already used one searchable/sortable F8 table per character/container, without
+"Slots N–M" sections. Previously the reader omitted twelve-byte all-zero records; it now retains
+all **3,072 held** and **2,048 storage** slots with unchanged physical record identities and offsets.
+Both collection and view metadata publish `EmptyRows`; direct and Core queries default to hiding
+vacancies, filter the complete model before paging, and return matching `HiddenEmptyCount` values.
+Shown vacancies read "Empty slot" while preserving raw handle, quantity, index and bindings.
+The supplied PS5 snapshot has **65 visible / 3,007 hidden held** rows and **0 visible / 2,048 hidden
+storage** rows. Positive quantity edits cannot create or fill a vacancy, so visibility stays stable.
+
+The rule is deliberately limited to `(handle, quantity, inventoryIndex) == (0, 0, 0)`, matching
+the pinned [ClayAmore serialized defaults](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs)
+and actual sample bytes. Rechecked 2026-10-29 against the same revision's
+[inventory reader](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/inventory/mod.rs)
+(MIT); no new upstream implementation was copied. Its broader unknown-category fallback is not
+proof of vacancy: nonzero unknown handles, `0xFFFFFFFF`, zero quantities and residue remain visible.
+
+The eager profile summary also flags inactive character slots, retaining all ten keys. Equipment
+relationships and raw representation tables remain visible because empty/unarmed encodings are
+explicitly unverified. Catalogues, regulation directory, semantic ranges and progress/reference
+lists contain no fixed inventory vacancies; regional progress tables also serve F9 map targets.
+No slot-range inventory groups were present or introduced. Document-scope refill skips vacant
+slots; explicit shown-slot selections can still report them as protected. The F1 evidence hook
+keeps its occupied-identity alignment, while general SaveDiff view traversal includes every slot.
 
 ## Writes and integrity
 
@@ -326,6 +355,10 @@ Run with `SAVETOOLKIT_ARTIFACTS` pointing to the private artifacts folder:
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch'
+$env:TEMP = 'D:/Temp/saveeditor/test-scratch/EldenRing'
+$env:TMP = $env:TEMP
+New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
 dotnet test --project plugins/EldenRing/SaveToolkit.Plugins.EldenRing.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
@@ -344,6 +377,11 @@ round trips, exact sparse-bit/stride vectors, bounded malformed pack/range rejec
 F4 equipment identity protection, optional F2 image attribution and lazy F8 regulation paging/undo.
 F12/F13 tests cover production decoder registration/budgets/privacy, multi-page shared view traversal,
 read-only inspection and native picker filtering/sorting without changes to bytes, revisions or history.
+F14 adds seven cases covering collection/view metadata, inactive profiles, matching hidden counts,
+raw empty cells, unknown/zero-quantity residue, every slot across pages, sparse visible edits and exact
+undo, and F6 select-all-matching visibility/exclusions. The sample asserts all 5,120 physical inventory
+records and its 3,007/2,048 vacant counts. Validation on 2026-10-29: **254 passed, 0 failed, 0 skipped**;
+API build: **0 warnings, 0 errors**.
 Repeated handle/selection scans now use lookups/sets; empty edit batches avoid a full-save copy/reparse.
 Sample-dependent cases skip when samples are absent. Current results are recorded in the issue #14
 final implementation comment; no binary sample or extracted regulation is included.
@@ -356,6 +394,7 @@ Downloaded code was read as untrusted text, never executed.
 | Dataset / code port | Author / source | Licence / modifications / coverage |
 | --- | --- | --- |
 | PS prefix/profile, bounded GaItem/inventory/equipment reader | [ClayAmore/ER-Save-Editor, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save) | Dual MIT/Apache-2.0; MIT option retained in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Adapted only read algorithms, bounded ranges and ID-space facts; sample v150 only for deeper reads. |
+| F14 vacancy/default research | [ClayAmore serialized inventory/defaults, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs), [inventory reader, same revision](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/inventory/mod.rs) | MIT, rechecked 2026-10-29. Existing twelve-zero-byte vacancy rule checked against sample bytes; original F14 presentation/query integration, no new code port. Unknown-category fallback is not used as proof of vacancy. |
 | AES/DCX/BND/PARAM directory format | [ClayAmore util, same revision](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/util) | MIT option, same notice. Narrow managed read-only port, sample-verified flag corrections, bounded decompression, no unsafe field/schema port. Public format key is not a user credential. |
 | Weapon names/IDs: 2,974 rows | [ClayAmore / ER-Save-Editor, weapon_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/weapon_name.rs) | MIT; all literal pairs, category-qualified IDs, names verbatim, raw labels for empty names; no upgrade legality inferred. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/weapon-names.source.md). |
 | Goods names/IDs: 1,808 rows | [ClayAmore / ER-Save-Editor, item_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/item_name.rs) | MIT; all literal pairs, goods prefix, names verbatim, out-of-category sentinel retained separately; no caps/descriptions. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/item-names.source.md). |

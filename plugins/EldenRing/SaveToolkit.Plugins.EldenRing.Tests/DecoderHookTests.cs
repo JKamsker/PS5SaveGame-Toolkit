@@ -49,7 +49,10 @@ public sealed class DecoderHookTests
         var tree = decoder.Decode(fixture.Save.File(), new() { QueryPageSize = 17 });
         Assert.False(tree.Truncated, string.Join("; ", tree.Warnings));
         var quantities = tree.Values.Where(value => value.Path.EndsWith("/quantity", StringComparison.Ordinal)).ToArray();
-        Assert.Equal(rows, quantities.Length);
+        const int physicalSlots = SemanticLayout.HeldCommonCapacity + SemanticLayout.HeldKeyCapacity
+            + SemanticLayout.StorageCommonCapacity + SemanticLayout.StorageKeyCapacity;
+        Assert.Equal(physicalSlots, quantities.Length); // SaveDiff explicitly includes hidden slots.
+        Assert.Equal(physicalSlots - rows, quantities.Count(value => value.Value == "0"));
         Assert.Contains(quantities, value => value.Value == "203");
         Assert.Equal(tree.Values, decoder.Decode(fixture.Save.File(), new() { QueryPageSize = 17 }).Values);
         var bounded = decoder.Decode(fixture.Save.File(), new() { MaxQueryRows = 1, QueryPageSize = 17 });

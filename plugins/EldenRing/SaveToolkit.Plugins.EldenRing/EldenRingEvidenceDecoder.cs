@@ -30,7 +30,9 @@ internal sealed class EldenRingEvidenceDecoder : ISaveDecoderHook
                 if (!sink.Add(prefix + "/key-count", "integer", Number(container.KeyCount))) return;
                 // Inventory index and handle, plus occurrence for genuine duplicates, align relocated rows.
                 var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
-                foreach (var entry in container.Entries)
+                // This hook aligns occupied identities across relocation, rather than physical vacancies.
+                // The general view decoder includes every slot through F8 IncludeEmpty=true.
+                foreach (var entry in container.Entries.Where(entry => !entry.IsEmpty))
                 {
                     var identity = $"{prefix}/{entry.Group}[handle={entry.Handle:X8},index={entry.InventoryIndex}]";
                     var occurrence = occurrences.GetValueOrDefault(identity);

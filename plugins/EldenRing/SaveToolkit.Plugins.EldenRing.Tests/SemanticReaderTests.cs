@@ -37,7 +37,9 @@ public sealed class SemanticReaderTests
         using var document = fixture.Save.Open();
         var collections = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var held = collections.Query("slots/0/inventory/held", new());
-        Assert.Equal(8, held.TotalCount);
+        Assert.Equal(SemanticLayout.HeldCommonCapacity + SemanticLayout.HeldKeyCapacity, held.TotalCount);
+        Assert.Equal(8, held.FilteredCount);
+        Assert.Equal(held.TotalCount - held.FilteredCount, held.HiddenEmptyCount);
         Assert.Equal(8, held.Rows.Select(row => row.Key).Distinct().Count());
         var ids = held.Rows.Select(row => Assert.IsType<FieldNode>(row.Cells["item"]).Value.AsString()).ToArray();
         Assert.Equal(2, ids.Count(id => id == "0x006CF2A0"));
@@ -99,7 +101,8 @@ public sealed class SemanticReaderTests
         fixture.Save.Write32(fixture.Held, 0);
         using var document = fixture.Save.Open();
         var collection = ((IQueryableDocument)document).Collections.Single(collection => collection.Id == "slots/0/inventory/held");
-        Assert.Equal(1, collection.TotalCount);
+        Assert.Equal(SemanticLayout.HeldCommonCapacity + SemanticLayout.HeldKeyCapacity, collection.TotalCount);
+        Assert.Equal(1, ((IQueryableDocument)document).Query(collection.Id, new()).FilteredCount);
         Assert.Contains("residue", collection.Description);
         Assert.True(fixture.Save.Bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
     }
