@@ -7,7 +7,7 @@ import type { GraphNode, MapNode } from "../../../api/spatial";
 import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../../state/documentStore";
 import { ReviewNavigationProvider } from "../review/navigation";
 
-export const attribution: ReferenceAttribution = {
+const attribution: ReferenceAttribution = {
   sourceUrl: "https://example.org/original", author: "Original schematic authors", license: "CC0-1.0",
   licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/", retrieved: "2026-10-28", modifications: "Original test data.",
 };

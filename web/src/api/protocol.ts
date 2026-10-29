@@ -1,11 +1,10 @@
 // Mirror of src/SaveToolkit.Sdk (views/values) and src/SaveToolkit.Api/Contracts.
 // Keep in sync with the C# records; JSON is camelCase, enums are strings, nulls are omitted.
 import type { GraphNode, MapNode } from "./spatial";
-export type { GraphNode, MapNode } from "./spatial";
 
 /** Exact lexemes and union choices are tagged; existing scalar wire representations are unchanged. */
-export interface ExactNumberValue { kind: "exactNumber"; text: string }
-export interface UnionValue { kind: "union"; type: string; value: FieldValue }
+interface ExactNumberValue { kind: "exactNumber"; text: string }
+interface UnionValue { kind: "union"; type: string; value: FieldValue }
 export type FieldValue = null | boolean | number | string | ExactNumberValue | UnionValue;
 
 interface SpecBase {
@@ -13,7 +12,7 @@ interface SpecBase {
   unit?: string;
 }
 
-export interface BoolSpec extends SpecBase { kind: "bool" }
+interface BoolSpec extends SpecBase { kind: "bool" }
 export interface IntegerSpec extends SpecBase {
   kind: "integer";
   min: string;
@@ -25,12 +24,12 @@ export interface FloatSpec extends SpecBase {
   kind: "float"; min?: number; max?: number; singlePrecision?: boolean;
   format?: "Decimal" | "Duration"; unitsPerSecond?: number;
 }
-export interface TextSpec extends SpecBase { kind: "text"; maxLength?: number; multiline?: boolean }
-export interface EnumOption { value: string; label: string; description?: string }
+interface TextSpec extends SpecBase { kind: "text"; maxLength?: number; multiline?: boolean }
+interface EnumOption { value: string; label: string; description?: string }
 export interface EnumSpec extends SpecBase { kind: "enum"; options: EnumOption[]; allowCustom?: boolean }
-export interface FlagBit { bit: number; label: string; description?: string }
+interface FlagBit { bit: number; label: string; description?: string }
 export interface FlagsSpec extends SpecBase { kind: "flags"; bits: FlagBit[]; bitWidth: number }
-export interface DateTimeSpec extends SpecBase { kind: "datetime"; hasTimeZone?: boolean }
+interface DateTimeSpec extends SpecBase { kind: "datetime"; hasTimeZone?: boolean }
 export interface ExactNumberSpec extends SpecBase {
   kind: "exactNumber";
   maxLength?: number;
@@ -38,16 +37,16 @@ export interface ExactNumberSpec extends SpecBase {
   min?: string;
   max?: string;
 }
-export interface NullableSpec extends SpecBase { kind: "nullable"; inner: FieldSpec }
-export interface UnionOption { id: string; label: string; spec: FieldSpec }
-export interface UnionSpec extends SpecBase { kind: "union"; options: UnionOption[] }
+interface NullableSpec extends SpecBase { kind: "nullable"; inner: FieldSpec }
+interface UnionOption { id: string; label: string; spec: FieldSpec }
+interface UnionSpec extends SpecBase { kind: "union"; options: UnionOption[] }
 
 export interface ReferenceSpec extends SpecBase { kind: "reference"; catalogId: string; allowCustom?: boolean }
 
 export type FieldSpec = BoolSpec | IntegerSpec | FloatSpec | TextSpec | EnumSpec | FlagsSpec | DateTimeSpec | ExactNumberSpec | NullableSpec | UnionSpec | ReferenceSpec;
 
 export type Confidence = "Verified" | "Inferred" | "Unknown";
-export type Tone = "Normal" | "Muted" | "Info" | "Success" | "Warning" | "Danger";
+type Tone = "Normal" | "Muted" | "Info" | "Success" | "Warning" | "Danger";
 
 export interface SectionNode {
   type: "section";
@@ -109,9 +108,9 @@ export type ViewNode = SectionNode | TabsNode | FieldNode | TableNode | TextNode
 
 // ---- API contracts ----
 
-export type Maturity = "ReadOnly" | "Experimental" | "Stable";
+type Maturity = "ReadOnly" | "Experimental" | "Stable";
 
-export interface GameTitle { titleId: string; name: string; region?: string }
+interface GameTitle { titleId: string; name: string; region?: string }
 
 export interface Plugin {
   supportsGroups?: boolean;
@@ -124,7 +123,7 @@ export interface Plugin {
   references: string[];
 }
 
-export interface PluginMatch { pluginId: string; pluginName: string; score: number; label?: string; maturity: Maturity }
+interface PluginMatch { pluginId: string; pluginName: string; score: number; label?: string; maturity: Maturity }
 
 export interface SaveFileInfo { id: string; path: string; length: number; matches: PluginMatch[]; openDocumentId?: string }
 
@@ -141,7 +140,7 @@ export interface SaveDirectory {
   files: SaveFileInfo[];
 }
 
-export interface TitleGroup { titleId: string; gameName?: string; directories: SaveDirectory[] }
+interface TitleGroup { titleId: string; gameName?: string; directories: SaveDirectory[] }
 
 export interface DocumentSummary { id: string; fileId: string; filePath: string; title: string; pluginId: string; isDirty: boolean; groupMembers?: import("./groups").GroupMember[] }
 
@@ -211,8 +210,8 @@ export interface ExportPlan { files: { relativePath: string; length: number; rea
 
 // ---- Reference packs (src/SaveToolkit.Sdk/References, src/SaveToolkit.Api/Contracts/ReferenceDtos.cs) ----
 
-export type ReferencePackOrigin = "Embedded" | "User";
-export type ReferenceDatasetKind = "Records" | "Assets";
+type ReferencePackOrigin = "Embedded" | "User";
+type ReferenceDatasetKind = "Records" | "Assets";
 
 /** Who made a dataset and under which terms; shown wherever its data appears. */
 export interface ReferenceAttribution {
@@ -266,7 +265,7 @@ export interface DocumentSource {
 
 export interface DocumentSources { datasets: DocumentSource[] }
 
-export interface ReferenceRecord {
+interface ReferenceRecord {
   key: string;
   name: string;
   category?: string;
@@ -299,9 +298,9 @@ export interface ReferenceRecordDetail {
   dataset: ReferenceDatasetInfo;
 }
 
-export interface ReferenceEligibility { available: boolean; eligible: boolean; reasons: string[]; selectable: boolean }
+interface ReferenceEligibility { available: boolean; eligible: boolean; reasons: string[]; selectable: boolean }
 export interface ReferenceRecordPair { fieldId: string; recordKey: string; actionId?: string }
-export type ReferenceRecordResult = ReferenceRecordPair & (
+type ReferenceRecordResult = ReferenceRecordPair & (
   { status: 200; candidate: ReferenceCandidate } | { status: 404; error: string }
 );
 export interface ReferenceRecordsResponse { revision: number; results: ReferenceRecordResult[] }

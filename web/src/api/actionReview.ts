@@ -6,7 +6,7 @@ export interface QueryableCollectionQuery extends Omit<CollectionQuery, "q" | "s
   text?: string;
   sortColumn?: string;
 }
-export interface SemanticCollectionTarget {
+interface SemanticCollectionTarget {
   collectionId: string;
   rowKey: string;
   query: QueryableCollectionQuery;
@@ -15,14 +15,14 @@ export function collectionReviewQuery({ text, sortColumn, ...query }: QueryableC
   return { ...query, q: text, sort: sortColumn };
 }
 
-export interface ActionQueryScope {
+interface ActionQueryScope {
   collectionId: string;
   query: { text?: string; filters?: Record<string, string>; sortColumn?: string; descending?: boolean; includeEmpty?: boolean };
   revision: number;
   excludedRowKeys: readonly string[];
 }
 export interface ActionScope { rowKeys?: readonly string[] | null; queryScope?: ActionQueryScope }
-export interface PlannedChange {
+interface PlannedChange {
   valueId: string; label: string; oldValue: FieldValue; newValue: FieldValue;
   derived: boolean; oldExists: boolean; newExists: boolean;
 }

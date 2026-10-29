@@ -24,7 +24,7 @@ export interface TableSelection {
 }
 
 /** Explicit, serialisable selection scope for F6 bulk planning. */
-export interface QuerySelectionScope {
+interface QuerySelectionScope {
   collectionId: string;
   query: CollectionQuery;
   revision: number;

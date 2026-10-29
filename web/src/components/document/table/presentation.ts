@@ -1,7 +1,7 @@
 import type { FieldSpec, QueryableColumn, TableRow, ViewNode } from "../../../api/protocol";
 
 /** Use published types where available. Raw text counts are numeric only when unambiguous. */
-export function isNumericSpec(spec: FieldSpec | undefined): boolean {
+function isNumericSpec(spec: FieldSpec | undefined): boolean {
   if (spec?.kind === "nullable") return isNumericSpec(spec.inner);
   return spec?.kind === "integer" || spec?.kind === "float" || spec?.kind === "exactNumber";
 }

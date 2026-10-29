@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { DocumentContext } from "../../state/documentStore";
 
-export const MAX_AUTOMATIC_LAZY_LOADS = 8;
-export const MAX_AUTOMATIC_LAZY_DEPTH = 1;
+const MAX_AUTOMATIC_LAZY_LOADS = 8;
+const MAX_AUTOMATIC_LAZY_DEPTH = 1;
 export const MAX_CONCURRENT_LAZY_REQUESTS = 4;
 
 const AutomaticLoads = createContext<Set<string> | null>(null);
